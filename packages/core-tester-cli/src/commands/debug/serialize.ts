@@ -23,7 +23,7 @@ export class SerializeCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.make(SerializeCommand);
+        const { flags } = this.parse(SerializeCommand);
 
         const serialized: any =
             flags.type === "transaction"

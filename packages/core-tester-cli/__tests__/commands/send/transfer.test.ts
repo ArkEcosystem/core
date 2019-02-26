@@ -2,8 +2,8 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { TransferCommand } from "../../src/commands/send/transfer";
-import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../shared";
+import { TransferCommand } from "../../../src/commands/send/transfer";
+import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
 const mockAxios = new MockAdapter(axios);
 

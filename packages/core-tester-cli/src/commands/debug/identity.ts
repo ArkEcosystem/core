@@ -24,7 +24,7 @@ export class IdentityCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.make(IdentityCommand);
+        const { flags } = this.parse(IdentityCommand);
 
         let output;
 

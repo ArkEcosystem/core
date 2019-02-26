@@ -19,7 +19,6 @@ export class VerifyCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        // tslint:disable-next-line:no-shadowed-variable
         const { flags } = this.parse(VerifyCommand);
 
         const deserialized =

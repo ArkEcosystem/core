@@ -2,8 +2,9 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { SecondSignatureRegistrationCommand } from "../../src/commands/send/second-signature-registration";
-import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../shared";
+import pokemon from "pokemon";
+import { DelegateRegistrationCommand } from "../../../src/commands/send/delegate-registration";
+import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
 const mockAxios = new MockAdapter(axios);
 
@@ -19,25 +20,33 @@ afterEach(() => {
     mockAxios.reset();
 });
 
-describe("Commands - Second signature", () => {
-    it("should apply second signature", async () => {
+describe("Commands - Delegate Registration", () => {
+    it("should register as delegate", async () => {
         const opts = {
-            signatureFee: 1,
+            delegateFee: 1,
             number: 1,
         };
+
+        const expectedDelegateName = "mr_bojangles";
+        // call to delegates/{publicKey}/voters returns zero delegates
+        mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
+            meta: { pageCount: 1 },
+            data: [],
+        });
+        jest.spyOn(pokemon, "random").mockImplementation(() => expectedDelegateName);
 
         const expectedTransactions = [];
         captureTransactions(mockAxios, expectedTransactions);
 
-        await SecondSignatureRegistrationCommand.run(toFlags(opts));
+        await DelegateRegistrationCommand.run(toFlags(opts));
 
         expect(axios.post).toHaveBeenCalledTimes(2);
 
         expectTransactions(expectedTransactions, {
-            fee: arkToSatoshi(opts.signatureFee),
+            fee: arkToSatoshi(opts.delegateFee),
             asset: {
-                signature: {
-                    publicKey: expect.any(String),
+                delegate: {
+                    username: expectedDelegateName,
                 },
             },
         });

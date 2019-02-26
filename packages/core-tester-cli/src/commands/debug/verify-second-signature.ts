@@ -19,7 +19,7 @@ export class VerifySecondSignatureCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.make(VerifySecondSignatureCommand);
+        const { flags } = this.parse(VerifySecondSignatureCommand);
 
         const transaction = new models.Transaction(flags.data);
 

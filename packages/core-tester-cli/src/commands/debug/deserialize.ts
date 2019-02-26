@@ -20,7 +20,7 @@ export class DeserializeCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.make(DeserializeCommand);
+        const { flags } = this.parse(DeserializeCommand);
 
         const deserialized =
             flags.type === "transaction" ? new models.Transaction(flags.data) : new models.Block(flags.data);
