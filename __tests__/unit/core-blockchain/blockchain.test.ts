@@ -100,22 +100,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("postTransactions", () => {
-        it("should be ok", async () => {
-            const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
-
-            blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2);
-            const transactions = blockchain.transactionPool.getTransactions(0, 200);
-
-            expect(transactions.length).toBe(transactionsWithoutType2.length);
-
-            expect(transactions).toEqual(transactionsWithoutType2.map(transaction => transaction.serialized));
-
-            blockchain.transactionPool.flush();
-        });
-    });
-
     describe("enQueueBlocks", () => {
         it("should just return if blocks provided are an empty array", async () => {
             const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
@@ -130,51 +114,6 @@ describe("Blockchain", () => {
             const blocksToEnqueue = [blocks101to155[54]];
             blockchain.enqueueBlocks(blocksToEnqueue);
             expect(processQueuePush).toHaveBeenCalledWith(blocksToEnqueue);
-        });
-    });
-
-    describe("rollbackCurrentRound", () => {
-        it("should rollback", async () => {
-            await __addBlocks(155);
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(153);
-        });
-
-        it("shouldnt rollback more if previous round is round 2", async () => {
-            await __addBlocks(140);
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(102);
-
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(102);
-        });
-    });
-
-    describe("removeBlocks", () => {
-        it("should remove blocks", async () => {
-            const lastBlockHeight = blockchain.getLastBlock().data.height;
-
-            await blockchain.removeBlocks(2);
-            expect(blockchain.getLastBlock().data.height).toBe(lastBlockHeight - 2);
-        });
-
-        it("should remove (current height - 1) blocks if we provide a greater value", async () => {
-            await __resetToHeight1();
-
-            await blockchain.removeBlocks(9999);
-            expect(blockchain.getLastBlock().data.height).toBe(1);
-        });
-    });
-
-    describe("removeTopBlocks", () => {
-        it("should remove top blocks", async () => {
-            const dbLastBlockBefore = await blockchain.database.getLastBlock();
-            const lastBlockHeight = dbLastBlockBefore.data.height;
-
-            await blockchain.removeTopBlocks(2);
-            const dbLastBlockAfter = await blockchain.database.getLastBlock();
-
-            expect(dbLastBlockAfter.data.height).toBe(lastBlockHeight - 2);
         });
     });
 
@@ -322,68 +261,6 @@ describe("Blockchain", () => {
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(broadcastBlock).toHaveBeenCalled();
-        });
-    });
-
-    describe("acceptChainedBlock", () => {
-        it.skip("should process a new chained block", async () => {
-            const lastBlock = blockchain.getLastBlock();
-
-            await blockchain.removeBlocks(1); // remove 1 block so that we can add it then as a chained block
-
-            expect(await blockchain.database.getLastBlock()).not.toEqual(lastBlock);
-
-            // await blockchain.acceptChainedBlock(lastBlock);
-
-            expect(await blockchain.database.getLastBlock()).toEqual(lastBlock);
-
-            // manually set lastBlock because acceptChainedBlock doesn't do it
-            blockchain.state.setLastBlock(lastBlock);
-        });
-    });
-
-    describe("manageUnchainedBlock", () => {
-        it.skip("should process a new unchained block", async () => {
-            const mockLoggerDebug = jest.fn(message => true);
-            logger.debug = mockLoggerDebug;
-
-            const lastBlock = blockchain.getLastBlock();
-            await blockchain.removeBlocks(2); // remove 2 blocks so that we can have _lastBlock_ as an unchained block
-            // await blockchain.manageUnchainedBlock(lastBlock);
-
-            expect(mockLoggerDebug).toHaveBeenCalled();
-
-            const debugMessage = `Blockchain not ready to accept new block at height ${lastBlock.data.height.toLocaleString()}. Last block: ${(
-                lastBlock.data.height - 2
-            ).toLocaleString()} :warning:`;
-            expect(mockLoggerDebug).toHaveBeenCalledWith(debugMessage);
-
-            expect(blockchain.getLastBlock().data.height).toBe(lastBlock.data.height - 2);
-        });
-    });
-
-    describe("getUnconfirmedTransactions", () => {
-        it("should get unconfirmed transactions", async () => {
-            const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
-
-            blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2);
-            const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
-
-            expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
-
-            expect(unconfirmedTransactions.transactions).toEqual(
-                transactionsWithoutType2.map(transaction => transaction.serialized),
-            );
-
-            blockchain.transactionPool.flush();
-        });
-
-        it("should return object with count == -1 if getTransactionsForForging returned a falsy value", async () => {
-            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(null);
-
-            const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
-            expect(unconfirmedTransactions.count).toBe(-1);
         });
     });
 
@@ -602,21 +479,6 @@ describe("Blockchain", () => {
             expect(blockchain).toHaveProperty("queue");
             expect(blockchain).toHaveProperty("processQueue");
             expect(blockchain).toHaveProperty("rebuildQueue");
-        });
-    });
-
-    describe("stop on emit shutdown", () => {
-        it("should trigger the stop method when receiving 'shutdown' event", async () => {
-            const emitter = container.resolvePlugin("event-emitter");
-
-            // @ts-ignore
-            const stop = jest.spyOn(blockchain, "stop").mockReturnValue(true);
-
-            emitter.emit("shutdown");
-
-            await delay(200);
-
-            expect(stop).toHaveBeenCalled();
         });
     });
 });
