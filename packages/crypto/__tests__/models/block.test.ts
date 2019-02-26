@@ -155,7 +155,7 @@ describe("Models - Block", () => {
 
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
-            jest.spyOn(configManager, "getMilestone").mockImplementation(height => {
+            jest.spyOn(slots, "getSlotNumber").mockImplementation(height => {
                 throw errorMessage;
             });
             const block = new Block(dummyBlock);
