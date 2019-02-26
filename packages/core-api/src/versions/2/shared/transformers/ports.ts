@@ -3,7 +3,6 @@ export function transformPorts(config: any) {
     const keys = [
         "@arkecosystem/core-p2p",
         "@arkecosystem/core-api",
-        "@arkecosystem/core-graphql",
         "@arkecosystem/core-json-rpc",
         "@arkecosystem/core-webhooks",
     ];

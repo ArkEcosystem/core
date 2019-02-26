@@ -15,7 +15,7 @@ export const plugin: Container.PluginDescriptor = {
         const manager = new SnapshotManager(options);
 
         const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
-        if(!!databaseService) {
+        if (!!databaseService) {
             const connection = databaseService.connection as any;
             return await manager.make(connection as PostgresConnection);
         }

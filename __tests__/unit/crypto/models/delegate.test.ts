@@ -3,11 +3,8 @@ import "jest-extended";
 import { generators } from "../../../utils";
 const { generateSecondSignature } = generators;
 
-import { SATOSHI } from "../../../../packages/crypto/src/constants";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
 import { ITransactionData } from "../../../../packages/crypto/src/models";
 import { Delegate } from "../../../../packages/crypto/src/models/delegate";
-import { Wallet } from "../../../../packages/crypto/src/models/wallet";
 import { INetwork, testnet } from "../../../../packages/crypto/src/networks";
 import { Bignum } from "../../../../packages/crypto/src/utils";
 import { sortTransactions } from "../../../../packages/crypto/src/utils";
@@ -161,7 +158,7 @@ describe("Models - Delegate", () => {
             },
             reward: new Bignum(0),
         };
-        const transactions = generateSecondSignature("testnet", dummy.plainPassphrase, 1, true);
+        const transactions = generateSecondSignature("devnet", dummy.plainPassphrase, 1, true);
         const expectedBlockData = {
             generatorPublicKey: dummy.publicKey,
             timestamp: optionsDefault.timestamp,

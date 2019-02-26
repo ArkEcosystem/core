@@ -28,9 +28,9 @@ describe("constructor - networkStart", () => {
         await __start(true);
 
         expect(loggerWarn).toHaveBeenCalledWith(
-            "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:",
+            "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
         );
-        expect(loggerInfo).toHaveBeenCalledWith("Starting Ark Core for a new world, welcome aboard :rocket:");
+        expect(loggerInfo).toHaveBeenCalledWith("Starting Ark Core for a new world, welcome aboard");
     });
 
     describe("dispatch", () => {
@@ -50,7 +50,7 @@ describe("constructor - networkStart", () => {
             });
 
             blockchain.dispatch("STOP");
-            expect(loggerError).toHaveBeenCalledWith("No action 'yooo' found :interrobang:");
+            expect(loggerError).toHaveBeenCalledWith("No action 'yooo' found");
         });
     });
 });

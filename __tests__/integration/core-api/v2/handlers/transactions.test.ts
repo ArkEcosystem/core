@@ -527,10 +527,8 @@ describe("API 2.0 - Transactions", () => {
                         transactions: transactions.concat(transactions),
                     });
 
-                    expect(response.data.statusCode).toBe(400);
-                    expect(response.data.message).toBe(
-                        'child "transactions" fails because ["transactions" must contain less than or equal to 40 items]',
-                    );
+                    expect(response.data.statusCode).toBe(422);
+                    expect(response.data.message).toBe("should NOT have more than 40 items");
                 });
             },
         );
@@ -549,7 +547,6 @@ describe("API 2.0 - Transactions", () => {
             });
 
             expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
 
             expect(response.data.data.accept).toHaveLength(1);
             expect(response.data.data.accept[0]).toBe(transactions[0].id);

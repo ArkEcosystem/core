@@ -123,11 +123,11 @@ describe("applyPoolTransactionToSender", () => {
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
                 container
                     .resolvePlugin<Database.IDatabaseService>("database")
-                    .walletManager.findByPublicKey(transfer.senderPublicKey);
+                    .walletManager.findByPublicKey(transfer.data.senderPublicKey);
 
                 const errors = [];
                 if (poolWalletManager.canApply(transfer, errors)) {
-                    poolWalletManager.findByPublicKey(transfer.senderPublicKey).applyTransactionToSender(transfer);
+                    poolWalletManager.findByPublicKey(transfer.data.senderPublicKey).applyTransactionToSender(transfer);
 
                     expect(t.from).toBe(delegate);
                 } else {
@@ -135,12 +135,12 @@ describe("applyPoolTransactionToSender", () => {
                     expect(JSON.stringify(errors)).toEqual(
                         `["[PoolWalletManager] Can't apply transaction id:${transfer.id} from sender:${
                             t.from.address
-                        }","Insufficient balance in the wallet"]`,
+                        }","Insufficient balance in the wallet."]`,
                     );
                 }
 
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(
-                    transfer.publicKey,
+                    transfer.data.senderPublicKey,
                 );
             });
 

@@ -53,7 +53,7 @@ jobs:
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -159,7 +159,7 @@ jobs:
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -265,7 +265,7 @@ jobs:
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -314,10 +314,10 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-logger/
       - run:
-          name: core-logger-winston
+          name: core-logger-pino
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-logger-winston/
+            test:coverage /core-logger-pino/
       - run:
           name: core-p2p
           command: >-
@@ -386,7 +386,7 @@ jobs:
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -497,7 +497,7 @@ jobs:
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -546,10 +546,10 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-logger/
       - run:
-          name: core-logger-winston
+          name: core-logger-pino
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-logger-winston/
+            test:coverage /core-logger-pino/
       - run:
           name: core-p2p
           command: >-
@@ -618,7 +618,7 @@ jobs:
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
-            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules

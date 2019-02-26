@@ -16,6 +16,12 @@ const delegate = {
     publicKey: "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647",
 };
 
+const delegate2 = {
+    username: "genesis_10",
+    address: "AFyf2qVpX2JbpKcy29XbusedCpFDeYFX8Q",
+    publicKey: "02f7acb179ddfddb2e220aa600921574646ac59fd3f1ae6255ada40b9a7fab75fd",
+};
+
 beforeAll(async () => {
     await setUp();
     await calculateRanks();
@@ -171,6 +177,20 @@ describe("API 2.0 - Delegates", () => {
                     expect(response.data.data).toHaveLength(1);
 
                     utils.expectDelegate(response.data.data[0], delegate);
+                });
+
+                it("should POST a search for delegates with any of the specified usernames", async () => {
+                    const response = await utils[request]("POST", "delegates/search", {
+                        usernames: [delegate.username, delegate2.username],
+                    });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data).toHaveLength(2);
+
+                    for (const delegate of response.data.data) {
+                        utils.expectDelegate(delegate);
+                    }
                 });
             },
         );

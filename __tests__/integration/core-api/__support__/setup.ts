@@ -24,7 +24,6 @@ async function setUp() {
     await setUpContainer({
         exclude: [
             "@arkecosystem/core-webhooks",
-            "@arkecosystem/core-graphql",
             "@arkecosystem/core-forger",
             "@arkecosystem/core-json-rpc",
             "@arkecosystem/core-api",

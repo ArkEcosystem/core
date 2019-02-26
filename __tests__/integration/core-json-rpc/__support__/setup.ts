@@ -16,12 +16,7 @@ export async function setUp() {
     process.env.CORE_JSON_RPC_ENABLED = true;
 
     await setUpContainer({
-        exclude: [
-            "@arkecosystem/core-webhooks",
-            "@arkecosystem/core-graphql",
-            "@arkecosystem/core-forger",
-            "@arkecosystem/core-json-rpc",
-        ],
+        exclude: ["@arkecosystem/core-webhooks", "@arkecosystem/core-forger", "@arkecosystem/core-json-rpc"],
     });
 
     const { plugin } = require("../../../../packages/core-json-rpc/src");

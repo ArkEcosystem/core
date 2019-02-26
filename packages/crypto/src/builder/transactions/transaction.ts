@@ -1,8 +1,8 @@
 import { crypto, slots } from "../../crypto";
 import { MissingTransactionSignatureError } from "../../errors";
 import { configManager } from "../../managers";
-import { ITransactionData, Transaction } from "../../models";
 import { INetwork } from "../../networks";
+import { ITransactionData, Transaction } from "../../transactions";
 import { Bignum } from "../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
@@ -22,7 +22,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
      * Build a new Transaction instance.
      */
     public build(data: Partial<ITransactionData> = {}): Transaction {
-        return new Transaction({ ...this.data, ...data });
+        return Transaction.fromData({ ...this.data, ...data }, false);
     }
 
     /**
@@ -130,8 +130,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     public secondSign(secondPassphrase: string): TBuilder {
         if (secondPassphrase) {
             const keys = crypto.getKeys(secondPassphrase);
-            // TODO sign or second?
-            this.data.signSignature = crypto.secondSign(this.getSigningObject(), keys);
+            this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
         }
 
         return this.instance();
@@ -145,8 +144,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             const keys = crypto.getKeysFromWIF(wif, {
                 wif: networkWif || configManager.get("wif"),
             } as INetwork);
-            // TODO sign or second?
-            this.data.signSignature = crypto.secondSign(this.getSigningObject(), keys);
+            this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
         }
 
         return this.instance();
@@ -181,10 +179,9 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         }
 
         const struct = {
-            // hex: crypto.getBytes(this).toString('hex'), // v2
             id: crypto.getId(this.data).toString(),
             signature: this.data.signature,
-            signSignature: this.data.signSignature,
+            secondSignature: this.data.secondSignature,
             timestamp: this.data.timestamp,
             version: this.data.version,
             type: this.data.type,

@@ -4,7 +4,6 @@ import { client } from "../../../../../packages/crypto/src/client";
 import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
 import { crypto } from "../../../../../packages/crypto/src/crypto/crypto";
 import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
-import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: DelegateRegistrationBuilder;
 
@@ -17,7 +16,7 @@ describe("Delegate Registration Transaction", () => {
         it("should be valid with a signature", () => {
             const actual = builder.usernameAsset("homer").sign("dummy passphrase");
 
-            expect(actual.build().verify()).toBeTrue();
+            expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });
 
@@ -27,7 +26,7 @@ describe("Delegate Registration Transaction", () => {
                 .sign("dummy passphrase")
                 .secondSign("dummy passphrase");
 
-            expect(actual.build().verify()).toBeTrue();
+            expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });
     });

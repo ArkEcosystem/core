@@ -247,7 +247,7 @@ export class Container implements container.IContainer {
             const logger = this.resolvePlugin<Logger.ILogger>("logger");
             if (logger) {
                 logger.suppressConsoleOutput(this.silentShutdown);
-                logger.info("Core is trying to gracefully shut down to avoid data corruption :pizza:");
+                logger.info("Core is trying to gracefully shut down to avoid data corruption");
             }
 
             try {

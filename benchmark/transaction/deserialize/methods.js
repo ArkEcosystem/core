@@ -1,7 +1,7 @@
 const {
-    models
+    Transaction
 } = require('@arkecosystem/crypto')
 
 exports.deserialize = data => {
-    return models.Transaction.deserialize(data)
+    return Transaction.fromHex(data)
 }

@@ -5,6 +5,7 @@ import bip39 from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
 import wif from "wif";
+import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 
 export class BIP38Command extends BaseCommand {
@@ -16,7 +17,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         bip39: flags.string({
             description: "the plain text bip39 passphrase",

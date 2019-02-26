@@ -13,7 +13,7 @@ export const setUp = async () => {
     process.env.CORE_GRAPHQL_ENABLED = "true";
 
     await setUpContainer({
-        exclude: ["@arkecosystem/core-api", "@arkecosystem/core-forger", "@arkecosystem/core-graphql"],
+        exclude: ["@arkecosystem/core-api", "@arkecosystem/core-forger"],
     });
 
     const { plugin } = require("../../../../packages/core-graphql/src");

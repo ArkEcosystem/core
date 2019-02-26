@@ -19,12 +19,14 @@ export const Transaction = {
      * @param {Transaction} transaction
      * @return {Wallet}
      */
-    recipient: transaction => (transaction.recipientId ? databaseService.wallets.findById(transaction.recipientId) : []),
+    recipient: transaction =>
+        transaction.recipientId ? databaseService.wallets.findById(transaction.recipientId) : [],
 
     /**
      * Get the sender of a transaction
      * @param {Transaction} transaction
      * @return {Wallet}
      */
-    sender: transaction => (transaction.senderPublicKey ? databaseService.wallets.findById(transaction.senderPublicKey) : []),
+    sender: transaction =>
+        transaction.senderPublicKey ? databaseService.wallets.findById(transaction.senderPublicKey) : [],
 };

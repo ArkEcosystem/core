@@ -1,8 +1,8 @@
 import { flags } from "@oclif/command";
 import cli from "cli-ux";
-import { removeSync } from "fs-extra";
 import { configManager } from "../../helpers/config";
 import { installFromChannel } from "../../helpers/update";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class CommandLineInterfaceCommand extends BaseCommand {
@@ -17,7 +17,7 @@ $ ark config:cli --channel=mine
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         token: flags.string({
             description: "the name of the token that should be used",
         }),
@@ -56,11 +56,19 @@ $ ark config:cli --channel=mine
 
             await installFromChannel(this.config.name, newChannel);
 
+            this.warn(`${pkg} has been installed.`);
+
             cli.action.stop();
 
-            this.warn(`${pkg} has been installed. Please restart your relay and forger.`);
+            const { flags } = await this.parseWithNetwork(CommandLineInterfaceCommand);
+
+            await this.restartProcess(`${flags.token}-core`);
+            await this.restartProcess(`${flags.token}-relay`);
+            await this.restartProcess(`${flags.token}-forger`);
         } catch (err) {
             this.error(err.message);
+        } finally {
+            cli.action.stop();
         }
     }
 }

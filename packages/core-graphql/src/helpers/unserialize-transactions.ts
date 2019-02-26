@@ -1,13 +1,11 @@
-import { models } from "@arkecosystem/crypto";
-const { Transaction } = models;
+import { Transaction } from "@arkecosystem/crypto";
 
 /**
  * Deserialize multiple transactions
  */
 export async function unserializeTransactions(data) {
     const deserialize = buffer => {
-        const serialized = Buffer.from(buffer).toString("hex");
-        return Transaction.deserialize(serialized);
+        return Transaction.fromBytes(buffer);
     };
 
     if (Array.isArray(data)) {

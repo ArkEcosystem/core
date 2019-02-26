@@ -156,7 +156,7 @@ describe("Blockchain", () => {
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(loggerInfo).toHaveBeenCalledWith(
-                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`,
+                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because on a fork`,
             );
             expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
         });
@@ -188,7 +188,7 @@ describe("Blockchain", () => {
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(loggerWarn).toHaveBeenCalledWith(
-                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because verification failed :scroll:`,
+                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because verification failed`,
             );
             expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
         });
@@ -324,7 +324,7 @@ describe("Blockchain", () => {
 
             await blockchain.handleIncomingBlock(blocks101to155[54]);
 
-            expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready :exclamation:");
+            expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready");
             blockchain.state.started = true;
 
             mockGetSlotNumber.mockRestore();

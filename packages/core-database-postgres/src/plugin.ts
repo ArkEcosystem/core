@@ -1,5 +1,4 @@
-import {
-    DatabaseManager, databaseServiceFactory, WalletManager} from "@arkecosystem/core-database";
+import { DatabaseManager, databaseServiceFactory, WalletManager } from "@arkecosystem/core-database";
 import { Container, Database, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { PostgresConnection } from "./postgres-connection";

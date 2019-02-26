@@ -2,12 +2,13 @@ import { app } from "@arkecosystem/core-container";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { setUpLite } from "../../helpers/snapshot";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class VerifyCommand extends BaseCommand {
     public static description: string = "check validity of specified snapshot";
 
-    public static flags = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,
         blocks: flags.string({
             description: "blocks to verify, corelates to folder name",

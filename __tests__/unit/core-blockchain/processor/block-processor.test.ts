@@ -132,7 +132,7 @@ describe("Block processor", () => {
                 block.previousBlock = block.id;
                 block.id = "17882607875259085967";
                 block.timestamp += 1000;
-                block.transactions[0].id = "123456"; // change the tx id to try to make it accept as a new transaction
+                block.transactions[0].id = "5".repeat(64); // change the tx id to try to make it accept as a new transaction
 
                 const blockVerified = new Block(block);
                 blockVerified.verification.verified = true;
