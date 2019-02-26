@@ -1,5 +1,6 @@
 import { flags } from "@oclif/command";
 import { AbstractStartCommand } from "../../shared/start";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
@@ -29,7 +30,7 @@ $ ark relay:start --no-daemon
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
         daemon: flags.boolean({
@@ -43,21 +44,17 @@ $ ark relay:start --no-daemon
         return StartCommand;
     }
 
-    protected async runProcess(flags: Record<string, any>): Promise<void> {
-        this.createPm2Connection(() => {
-            this.describePm2Process(`${flags.token}-core`, core => {
-                this.abortWhenRunning(`${flags.token}-core`, core);
+    protected async runProcess(flags: CommandFlags): Promise<void> {
+        this.abortWhenRunning(`${flags.token}-core`);
 
-                this.runWithPm2(
-                    {
-                        name: `${flags.token}-relay`,
-                        // @ts-ignore
-                        script: this.config.options.root,
-                        args: `relay:run ${this.flagsToStrings(flags, ["daemon"])}`,
-                    },
-                    flags,
-                );
-            });
-        });
+        await this.runWithPm2(
+            {
+                name: `${flags.token}-relay`,
+                // @ts-ignore
+                script: this.config.options.root,
+                args: `relay:run ${this.flagsToStrings(flags, ["daemon"])}`,
+            },
+            flags,
+        );
     }
 }

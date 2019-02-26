@@ -141,6 +141,8 @@ describe("Wallet Repository", () => {
                 if (i < 17) {
                     wallet.vote = vote;
                 }
+
+                wallet.balance = new Bignum(0);
             });
             walletManager.index(wallets);
         });
