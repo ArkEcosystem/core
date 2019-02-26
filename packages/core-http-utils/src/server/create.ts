@@ -4,8 +4,6 @@ import { monitorServer } from "./monitor";
 export async function createServer(options, callback: any = null) {
     const server = new Hapi.Server(options);
 
-    await server.register([require("vision"), require("inert"), require("lout")]);
-
     await server.register({
         plugin: require("hapi-trailing-slash"),
         options: { method: "remove" },
