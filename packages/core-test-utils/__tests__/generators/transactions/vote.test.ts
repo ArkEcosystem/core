@@ -13,7 +13,7 @@ describe("Vote transaction", () => {
 
     it("should return an array of 4 vote objects", () => {
         for (const transaction of transactions) {
-            expect(transaction).toMatchObject({ type: TransactionTypes.Vote });
+            expect(transaction.data).toMatchObject({ type: TransactionTypes.Vote });
         }
     });
 });

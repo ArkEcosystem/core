@@ -1,6 +1,10 @@
 const { benchmarker } = require('@faustbrian/benchmarker');
+const { configManager } = require("@arkecosystem/crypto");
+
+configManager.setFromPreset("mainnet");
 
 benchmarker('core', [
+    { name: 'HashAlgorithms', scenarios: require('./crypto/hash-algorithms') },
     { name: 'Block.serialize (0 transactions)', scenarios: require('./block/serialize') },
     { name: 'Block.serialize (150 transactions)', scenarios: require('./block/serializeFull') },
 

@@ -132,7 +132,7 @@ export const verifyTable = async (table, options) => {
     });
 
     readStream.on("finish", () => {
-        logger.info(`Snapshot file ${sourceFile} succesfully verified  :+1:`);
+        logger.info(`Snapshot file ${sourceFile} succesfully verified`);
     });
 };
 

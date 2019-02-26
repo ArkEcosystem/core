@@ -20,7 +20,7 @@ let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet()
 
 // Map Block instances to block data.
 const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> =>
-    blocks.map(block => ({ ...block.data, transactions: block.transactions }));
+    blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
 
 /**
  * Represents an in-memory storage for state machine data.

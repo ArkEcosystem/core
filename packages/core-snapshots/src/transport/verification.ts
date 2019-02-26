@@ -1,10 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { crypto, models } from "@arkecosystem/crypto";
-import createHash from "create-hash";
+import { crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
-const { Block, Transaction } = models;
+const { Block } = models;
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const verifyData = (context, data, prevData, signatureVerification) => {
@@ -13,7 +12,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
             return true;
         }
 
-        const transaction = new Transaction(Buffer.from(data.serialized).toString("hex"));
+        const transaction = Transaction.fromBytes(data.serialized);
         return transaction.verified;
     };
 
@@ -49,9 +48,7 @@ export const verifyData = (context, data, prevData, signatureVerification) => {
         // TODO: manually calculate block ID and compare to existing
         if (signatureVerification) {
             const bytes: any = Block.serialize(camelizeKeys(data), false);
-            const hash = createHash("sha256")
-                .update(bytes)
-                .digest();
+            const hash = HashAlgorithms.sha256(bytes);
 
             const signatureVerify = crypto.verifyHash(hash, data.block_signature, data.generator_public_key);
             if (!signatureVerify) {

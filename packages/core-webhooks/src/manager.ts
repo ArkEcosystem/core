@@ -5,19 +5,13 @@ import * as conditions from "./conditions";
 import { database } from "./database";
 
 class WebhookManager {
-    public config: any;
-    public logger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    /**
-     * Set up the webhook app.
-     * @return {void}
-     */
     public async setUp() {
-        const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-
-        for (const event of blockchain.getEvents()) {
-            emitter.on(event, async payload => {
+        for (const event of this.blockchain.getEvents()) {
+            this.emitter.on(event, async payload => {
                 const webhooks = await database.findByEvent(event);
 
                 for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
@@ -49,12 +43,6 @@ class WebhookManager {
         }
     }
 
-    /**
-     * Get all webhooks.
-     * @param  {Array} webhooks
-     * @param  {Object} payload
-     * @return {Array}
-     */
     private getMatchingWebhooks(webhooks, payload) {
         const matches = [];
 

@@ -25,7 +25,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "304402204f12469157b19edd06ba25fcad3d4a5ef5b057c23f9e02de4641e6f8eef0553e022010121ab282f83efe1043de9c16bbf2c6845a03684229a0d7c965ffb9abdfb978",
-            signSignature:
+            secondSignature:
                 "30450221008327862f0b9178d6665f7d6674978c5caf749649558d814244b1c66cdf945c40022015918134ef01fed3fe2a2efde3327917731344332724522c75c2799a14f78717",
             id: "170543154a3b79459cbaa529f9f62b6f1342682799eb549dbf09fcca2d1f9c11",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -44,7 +44,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "304402205f82feb8c5d1d79c565c2ff7badb93e4c9827b132d135dda11cb25427d4ef8ac02205ff136f970533c4ec4c7d0cd1ea7e02d7b62629b66c6c93265f608d7f2389727",
-            signSignature:
+            secondSignature:
                 "304402207e912031fcc700d8a55fbc415993302a0d8e6aea128397141b640b6dba52331702201fd1ad3984e42af44f548907add6cb7ad72ca0070c8cc1d8dc9bbda208c56bd9",
             id: "1da153f37eceda233ff1b407ac18e47b3cae47c14cdcd5297d929618a916c4a7",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -63,7 +63,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "304502210083216e6969e068770e6d2fe5c244881002309df84d20290ddf3f858967ed010202202a479b3da5080ea475d310ff13494654b42db75886a8808bd211b4bdb9146a7a",
-            signSignature:
+            secondSignature:
                 "3045022100e1dcab3406bbeb968146a4a391909ce41df9b71592a753b001e7c2ee1d382c5102202a74aeafd4a152ec61854636fbae829c41f1416c1e0637a0809408394973099f",
             id: "1e255f07dc25ce22d900ea81663c8f00d05a7b7c061e6fc3c731b05d642fa0b9",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -82,7 +82,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "3045022100cd4fa9855227be11e17201419dacfbbd5d9946df8d6792a9488160025693821402207fb83969bad6a26959f437b5bb88e255b0a48eb04964d0c0d29f7ee94bd15e11",
-            signSignature:
+            secondSignature:
                 "304402205f50c2991a17743d17ffbb09159cadc35a3f848044261842879ccf5be9d81c5e022023bf21c32fb6e94494104f15f8d3a942ab120d0abd6fb4c93790b68e1b307a79",
             id: "66336c61d6ec623f8a1d2fd156a0fac16a4fe93bb3fba337859355c2119923a8",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -101,7 +101,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "30450221009c792062e13399ac6756b2e9f137194d06e106360ac0f3e24e55c7249cee0b3602205dc1d9c76d0451d1cb5a2396783a13e6d2d790ccfd49291e3d0a78349f7ea0e8",
-            signSignature:
+            secondSignature:
                 "30440220083ba8a9af49b8be6e93794d71ec43ffc96a158375810e5d9f2478e71655315b0220278402ecaa1d224dab9f0f3b28295bbaea339c85c7400edafdc49df87439fc64",
             id: "78db36f7d79f51c67d7210ee3819dfb8d0d47b16a7484ebf55c5a055b17209a3",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -120,7 +120,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "3044022063c65263e42be02bd9831b375c1d76a88332f00ed0557ecc1e7d2375ca40070902206797b5932c0bad68444beb5a38daa7cadf536ee2144e0d9777b812284d14374e",
-            signSignature:
+            secondSignature:
                 "3045022100b04da6692f75d43229ffd8486c1517e8952d38b4c03dfac38b6b360190a5c33e0220776622e5f09f92a1258b4a011f22181c977b622b8d1bbb2f83b42f4126d00739",
             id: "83c80bb58777bb43f5037544b44ef69f191d3548fd1b2a00bed368f9f0d694c5",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -139,7 +139,7 @@ export const dummyBlock = {
             senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
             signature:
                 "3045022100d4513c3608c2072e38e7a0e3bb8daf2cd5f7cc6fec9a5570dccd1eda696c591902202ecbbf3c9d0757be7b23c8b1cc6481c51600d158756c47fcb6f4a7f4893e31c4",
-            signSignature:
+            secondSignature:
                 "304402201fed4858d0806dd32220960900a871dd2f60e1f623af75feef9b1034a9a0a46402205a29b27c63fcc3e1ee1e77ecbbf4dd6e7db09901e7a09b9fd490cd68d62392cb",
             id: "d2faf992fdd5da96d6d15038b6ddb65230338fa2096e45e44da51daad5e2f3ca",
             senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -178,7 +178,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "304402204f12469157b19edd06ba25fcad3d4a5ef5b057c23f9e02de4641e6f8eef0553e022010121ab282f83efe1043de9c16bbf2c6845a03684229a0d7c965ffb9abdfb978",
-                signSignature:
+                secondSignature:
                     "30450221008327862f0b9178d6665f7d6674978c5caf749649558d814244b1c66cdf945c40022015918134ef01fed3fe2a2efde3327917731344332724522c75c2799a14f78717",
                 id: "170543154a3b79459cbaa529f9f62b6f1342682799eb549dbf09fcca2d1f9c11",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -197,7 +197,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "304402205f82feb8c5d1d79c565c2ff7badb93e4c9827b132d135dda11cb25427d4ef8ac02205ff136f970533c4ec4c7d0cd1ea7e02d7b62629b66c6c93265f608d7f2389727",
-                signSignature:
+                secondSignature:
                     "304402207e912031fcc700d8a55fbc415993302a0d8e6aea128397141b640b6dba52331702201fd1ad3984e42af44f548907add6cb7ad72ca0070c8cc1d8dc9bbda208c56bd9",
                 id: "1da153f37eceda233ff1b407ac18e47b3cae47c14cdcd5297d929618a916c4a7",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -216,7 +216,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "304502210083216e6969e068770e6d2fe5c244881002309df84d20290ddf3f858967ed010202202a479b3da5080ea475d310ff13494654b42db75886a8808bd211b4bdb9146a7a",
-                signSignature:
+                secondSignature:
                     "3045022100e1dcab3406bbeb968146a4a391909ce41df9b71592a753b001e7c2ee1d382c5102202a74aeafd4a152ec61854636fbae829c41f1416c1e0637a0809408394973099f",
                 id: "1e255f07dc25ce22d900ea81663c8f00d05a7b7c061e6fc3c731b05d642fa0b9",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -235,7 +235,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "3045022100cd4fa9855227be11e17201419dacfbbd5d9946df8d6792a9488160025693821402207fb83969bad6a26959f437b5bb88e255b0a48eb04964d0c0d29f7ee94bd15e11",
-                signSignature:
+                secondSignature:
                     "304402205f50c2991a17743d17ffbb09159cadc35a3f848044261842879ccf5be9d81c5e022023bf21c32fb6e94494104f15f8d3a942ab120d0abd6fb4c93790b68e1b307a79",
                 id: "66336c61d6ec623f8a1d2fd156a0fac16a4fe93bb3fba337859355c2119923a8",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -254,7 +254,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "30450221009c792062e13399ac6756b2e9f137194d06e106360ac0f3e24e55c7249cee0b3602205dc1d9c76d0451d1cb5a2396783a13e6d2d790ccfd49291e3d0a78349f7ea0e8",
-                signSignature:
+                secondSignature:
                     "30440220083ba8a9af49b8be6e93794d71ec43ffc96a158375810e5d9f2478e71655315b0220278402ecaa1d224dab9f0f3b28295bbaea339c85c7400edafdc49df87439fc64",
                 id: "78db36f7d79f51c67d7210ee3819dfb8d0d47b16a7484ebf55c5a055b17209a3",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -273,7 +273,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "3044022063c65263e42be02bd9831b375c1d76a88332f00ed0557ecc1e7d2375ca40070902206797b5932c0bad68444beb5a38daa7cadf536ee2144e0d9777b812284d14374e",
-                signSignature:
+                secondSignature:
                     "3045022100b04da6692f75d43229ffd8486c1517e8952d38b4c03dfac38b6b360190a5c33e0220776622e5f09f92a1258b4a011f22181c977b622b8d1bbb2f83b42f4126d00739",
                 id: "83c80bb58777bb43f5037544b44ef69f191d3548fd1b2a00bed368f9f0d694c5",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",
@@ -292,7 +292,7 @@ export const dummyBlock2 = {
                 senderPublicKey: "0265c1f6b8c1966a90f3fed7bc32fd4f42238ab4938fdb2a4e7ddd01ae8b58b4c0",
                 signature:
                     "3045022100d4513c3608c2072e38e7a0e3bb8daf2cd5f7cc6fec9a5570dccd1eda696c591902202ecbbf3c9d0757be7b23c8b1cc6481c51600d158756c47fcb6f4a7f4893e31c4",
-                signSignature:
+                secondSignature:
                     "304402201fed4858d0806dd32220960900a871dd2f60e1f623af75feef9b1034a9a0a46402205a29b27c63fcc3e1ee1e77ecbbf4dd6e7db09901e7a09b9fd490cd68d62392cb",
                 id: "d2faf992fdd5da96d6d15038b6ddb65230338fa2096e45e44da51daad5e2f3ca",
                 senderId: "DB8LnnQqYvHpG4WkGJ9AJWBYEct7G3yRZg",

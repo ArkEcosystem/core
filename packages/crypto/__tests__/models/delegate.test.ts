@@ -3,11 +3,8 @@ import "jest-extended";
 import { generators } from "@arkecosystem/core-test-utils";
 const { generateSecondSignature } = generators;
 
-import { SATOSHI } from "../../src/constants";
-import { configManager } from "../../src/managers/config";
 import { ITransactionData } from "../../src/models";
 import { Delegate } from "../../src/models/delegate";
-import { Wallet } from "../../src/models/wallet";
 import { INetwork, testnet } from "../../src/networks";
 import { Bignum } from "../../src/utils";
 import { sortTransactions } from "../../src/utils";
@@ -161,7 +158,7 @@ describe("Models - Delegate", () => {
             },
             reward: new Bignum(0),
         };
-        const transactions = generateSecondSignature("testnet", dummy.plainPassphrase, 1, true);
+        const transactions = generateSecondSignature("devnet", dummy.plainPassphrase, 1, true);
         const expectedBlockData = {
             generatorPublicKey: dummy.publicKey,
             timestamp: optionsDefault.timestamp,

@@ -226,7 +226,7 @@ export class Monitor implements P2P.IMonitor {
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
 
-        logger.info(`Checking ${max} peers :telescope:`);
+        logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
@@ -317,17 +317,21 @@ export class Monitor implements P2P.IMonitor {
      * Populate list of available peers from random peers.
      */
     public async discoverPeers() {
+        const queryAtLeastNPeers = 4;
+        let queriedPeers = 0;
+
         const shuffledPeers = shuffle(this.getPeers());
 
         for (const peer of shuffledPeers) {
             try {
                 const hisPeers = await peer.getPeers();
+                queriedPeers++;
                 await Promise.all(hisPeers.map(p => this.acceptNewPeer(p, { lessVerbose: true })));
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
             }
 
-            if (this.hasMinimumPeers()) {
+            if (this.hasMinimumPeers() && queriedPeers >= queryAtLeastNPeers) {
                 return;
             }
         }
@@ -611,9 +615,7 @@ export class Monitor implements P2P.IMonitor {
 
             logger.info(`Your NTP connectivity has been verified by ${host}`);
 
-            logger.info(
-                `Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`,
-            );
+            logger.info(`Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP`);
         } catch (error) {
             logger.error(error.message);
         }
@@ -681,7 +683,7 @@ export class Monitor implements P2P.IMonitor {
         const peerList = config.get("peers.list");
 
         if (!peerList) {
-            app.forceExit("No seed peers defined in peers.json :interrobang:");
+            app.forceExit("No seed peers defined in peers.json");
         }
 
         let peers = peerList.map(peer => {

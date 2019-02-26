@@ -6,7 +6,7 @@ export const setUpLite = async options => {
     await app.setUp("2.0.0", options, {
         include: [
             "@arkecosystem/core-logger",
-            "@arkecosystem/core-logger-winston",
+            "@arkecosystem/core-logger-pino",
             "@arkecosystem/core-event-emitter",
             "@arkecosystem/core-snapshots",
         ],

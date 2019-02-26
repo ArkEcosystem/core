@@ -4,7 +4,7 @@ import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 import fullBlock from "../fixtures/block-with-transactions.json";
 
-const { Block, Transaction } = models;
+const { Block } = models;
 
 let genesisBlock;
 
@@ -157,7 +157,7 @@ describe("API - Version 1", () => {
                 block: genesisBlock.toJson(),
             });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(422);
         });
     });
 
@@ -169,7 +169,9 @@ describe("API - Version 1", () => {
                 null,
                 40,
             );
-            const response = await utils.POST("peer/transactions", { transactions });
+            const response = await utils.POST("peer/transactions", {
+                transactions: transactions.map(tx => tx.toJson()),
+            });
 
             expect(response.data).toBeObject();
             expect(response.data.success).toBeTrue();
@@ -177,7 +179,9 @@ describe("API - Version 1", () => {
 
         it("should fail with a cold wallet", async () => {
             const transactions = generateTransfers("testnet", "wallet does not exist");
-            const response = await utils.POST("peer/transactions", { transactions });
+            const response = await utils.POST("peer/transactions", {
+                transactions: transactions.map(tx => tx.toJson()),
+            });
 
             expect(response.data).toBeObject();
             expect(response.data.success).toBeFalse();

@@ -1,12 +1,12 @@
 import { generateTransfers } from "@arkecosystem/core-test-utils/src/generators/transactions/transfer";
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import blockFixture from "../../../core-debugger-cli/__tests__/__fixtures__/block.json";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 
-const { Block, Transaction } = models;
+const { Block } = models;
 
-let genesisBlock;
+let genesisBlock: models.Block;
 let genesisTransaction;
 
 beforeAll(async () => {
@@ -15,7 +15,7 @@ beforeAll(async () => {
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
-    genesisTransaction = new Transaction(genesisBlock.transactions[0]);
+    genesisTransaction = Transaction.fromData(genesisBlock.transactions[0].data);
 });
 
 beforeEach(() => {
@@ -70,7 +70,7 @@ describe("API - Internal", () => {
         it("should be ok", async () => {
             const transaction = generateTransfers("testnet")[0];
             const response = await utils.POST("internal/transactions/verify", {
-                transaction: Transaction.serialize(transaction).toString("hex"),
+                transaction: Transaction.toBytes(transaction.data).toString("hex"),
             });
 
             expect(response.status).toBe(200);

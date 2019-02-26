@@ -1,5 +1,6 @@
 import { flags } from "@oclif/command";
 import { AbstractLogCommand } from "../../shared/log";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class LogCommand extends AbstractLogCommand {
@@ -7,7 +8,7 @@ export class LogCommand extends AbstractLogCommand {
 
     public static examples: string[] = [`$ ark core:log`];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         error: flags.boolean({
             description: "only show error output",

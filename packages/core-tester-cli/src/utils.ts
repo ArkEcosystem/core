@@ -92,7 +92,9 @@ export function generateTransactions(
 
         if (options.log) {
             logger.info(
-                `${i} ==> ${transaction.id}, ${transaction.recipientId} (fee: ${this.satoshiToArk(transaction.fee)})`,
+                `${i} ==> ${transaction.id}, ${transaction.data.recipientId} (fee: ${satoshiToArk(
+                    transaction.data.fee,
+                )})`,
             );
         }
     });

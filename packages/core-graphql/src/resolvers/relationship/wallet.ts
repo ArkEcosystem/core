@@ -53,7 +53,6 @@ export const Wallet = {
 
         params.generatorPublickKey = wallet.publicKey;
 
-
         /* TODO: .findAll() method never existed on the TransactionRepository in core-database-postgres. This code would've blown chunks
         const result = databaseService.connection.blocksRepository.findAll(
             {
