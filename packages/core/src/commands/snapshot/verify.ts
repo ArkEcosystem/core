@@ -22,13 +22,13 @@ export class VerifyCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        if (!app.has("snapshots")) {
-            this.error("The @arkecosystem/core-snapshots plugin is not installed.");
-        }
-
         const { flags } = await this.parseWithNetwork(VerifyCommand);
 
         await setUpLite(flags);
+
+        if (!app.has("snapshots")) {
+            this.error("The @arkecosystem/core-snapshots plugin is not installed.");
+        }
 
         await app.resolvePlugin<SnapshotManager>("snapshots").verifyData(flags);
     }

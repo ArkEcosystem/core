@@ -27,13 +27,13 @@ export class DumpCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        if (!app.has("snapshots")) {
-            this.error("The @arkecosystem/core-snapshots plugin is not installed.");
-        }
-
         const { flags } = await this.parseWithNetwork(DumpCommand);
 
         await setUpLite(flags);
+
+        if (!app.has("snapshots")) {
+            this.error("The @arkecosystem/core-snapshots plugin is not installed.");
+        }
 
         await app.resolvePlugin<SnapshotManager>("snapshots").exportData(flags);
     }
