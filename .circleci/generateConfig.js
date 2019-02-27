@@ -25,7 +25,7 @@ fs.readdir("./packages", (_, packages) => {
         const jobs = [
             config.jobs[name],
             jason(config.jobs[name]),
-            jason(config.jobs[name]),
+            jason(config.jobs[name]), 
         ];
 
         jobs.forEach((job, index) => {
@@ -33,26 +33,21 @@ fs.readdir("./packages", (_, packages) => {
                 step => typeof step === "object" && step.run && step.run.name === "Test",
             );
 
-            const pkgs = packagesSplit[index].map(package => `./packages/${package}/`);
+            const pkgs = packagesSplit[index].map(pkg => path.basename(pkg));
 
-            const steps = pkgs
-                .map(pkg => {
-                    const name = path.basename(pkg);
-
-                    return {
-                        run: {
-                            name,
-                            command: `${resetSqlCommand} && cd ~/core/packages/${name} && yarn test:coverage`,
-                        },
-                    };
-                })
-                .filter(pkg => {
-                    const {
-                        scripts
-                    } = require(path.resolve(__dirname, `../packages/${pkg.run.name}/package.json`));
-
-                    return Object.keys(scripts).includes("test:coverage");
-                });
+            const steps = []
+            for (const testType of ["unit", "integration"]) {
+                steps.push(...pkgs
+                    .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/${testType}/${pkg}`)))
+                    .map(pkg => ({
+                            run: {
+                                name: `${pkg} - ${testType}`,
+                                command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /${testType}/${pkg}/`,
+                            },
+                        })
+                    )
+                );
+            }
 
             const stepLog = job.steps[9];
             const stepLint = job.steps[10];
