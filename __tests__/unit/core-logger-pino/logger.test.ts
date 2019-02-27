@@ -2,7 +2,7 @@ import { AbstractLogger } from "@arkecosystem/core-logger";
 import * as capcon from "capture-console";
 import "jest-extended";
 import { tmpdir } from "os";
-import { PinoLogger } from "../src";
+import { PinoLogger } from "../../../packages/core-logger-pino/src";
 
 let logger: AbstractLogger;
 let message;

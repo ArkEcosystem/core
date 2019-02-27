@@ -68,7 +68,7 @@ describe("Transaction Guard", () => {
         it("should return broadcast transaction", async () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
 
-            await guard.validate(transactions);
+            await guard.validate(transactions.map(tx => tx.data));
             expect(guard.getBroadcastTransactions()).toEqual(transactions);
         });
     });
@@ -244,7 +244,7 @@ describe("Transaction Guard", () => {
                 throw new Error("hey");
             });
 
-            guard.__filterAndTransformTransactions(transactions);
+            guard.__filterAndTransformTransactions(transactions.map(tx => tx.data));
 
             expect(guard.accept).toEqual(new Map());
             expect(guard.broadcast).toEqual(new Map());
@@ -267,13 +267,13 @@ describe("Transaction Guard", () => {
                 1,
             );
 
-            expect(guard.__validateTransaction(transactions[0])).toBeFalse();
+            expect(guard.__validateTransaction(transactions[0].data)).toBeFalse();
             expect(guard.errors).toEqual({
                 [transactions[0].id]: [
                     {
                         type: "ERR_INVALID_RECIPIENT",
                         message: `Recipient ${
-                            transactions[0].recipientId
+                            transactions[0].data.recipientId
                         } is not on the same network: ${configManager.get("pubKeyHash")}`,
                     },
                 ],
@@ -286,16 +286,16 @@ describe("Transaction Guard", () => {
                 generateDelegateRegistration("unitnet", wallets[17].passphrase, 1, false, "test_delegate")[0],
             ];
 
-            expect(guard.__validateTransaction(delegateRegistrations[0])).toBeTrue();
+            expect(guard.__validateTransaction(delegateRegistrations[0].data)).toBeTrue();
             guard.accept.set(delegateRegistrations[0].id, delegateRegistrations[0]);
             guard.__addTransactionsToPool();
             expect(guard.errors).toEqual({});
-            expect(guard.__validateTransaction(delegateRegistrations[1])).toBeFalse();
+            expect(guard.__validateTransaction(delegateRegistrations[1].data)).toBeFalse();
             expect(guard.errors[delegateRegistrations[1].id]).toEqual([
                 {
                     type: "ERR_PENDING",
                     message: `Delegate registration for "${
-                        delegateRegistrations[1].asset.delegate.username
+                        delegateRegistrations[1].data.asset.delegate.username
                     }" already in the pool`,
                 },
             ]);
@@ -317,13 +317,13 @@ describe("Transaction Guard", () => {
             const signatures = generateSecondSignature("unitnet", wallets[12].passphrase, 2);
 
             for (const transactions of [votes, delegateRegs, signatures]) {
-                await guard.validate([transactions[0]]);
-                expect(guard.__validateTransaction(transactions[1])).toBeFalse();
+                await guard.validate([transactions[0].data]);
+                expect(guard.__validateTransaction(transactions[1].data)).toBeFalse();
                 expect(guard.errors[transactions[1].id]).toEqual([
                     {
                         type: "ERR_PENDING",
                         message:
-                            `Sender ${transactions[1].senderPublicKey} already has a transaction of type ` +
+                            `Sender ${transactions[1].data.senderPublicKey} already has a transaction of type ` +
                             `'${constants.TransactionTypes[transactions[1].type]}' in the pool`,
                     },
                 ]);
@@ -346,8 +346,8 @@ describe("Transaction Guard", () => {
                 constants.TransactionTypes.DelegateResignation,
                 99,
             ]) {
-                baseTransaction.type = transactionType;
-                baseTransaction.id = transactionType;
+                baseTransaction.data.type = transactionType;
+                baseTransaction.data.id = transactionType;
 
                 expect(guard.__validateTransaction(baseTransaction)).toBeFalse();
                 expect(guard.errors[baseTransaction.id]).toEqual([

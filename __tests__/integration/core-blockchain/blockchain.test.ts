@@ -132,7 +132,7 @@ describe("Blockchain", () => {
             expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
 
             expect(unconfirmedTransactions.transactions).toEqual(
-                transactionsWithoutType2.map(transaction => transaction.serialized),
+                transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex")),
             );
 
             blockchain.transactionPool.flush();
