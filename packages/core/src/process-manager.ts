@@ -34,6 +34,14 @@ class ProcessManager {
         }
     }
 
+    public online(name: string): any {
+        try {
+            return processManager.describe(name).pm2_env.status === "online";
+        } catch (error) {
+            return false;
+        }
+    }
+
     public exists(name: string): boolean {
         try {
             const { stdout } = this.exec(`pm2 id ${name} | awk '{ print $2 }'`);
