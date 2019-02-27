@@ -12,21 +12,17 @@ class Helpers {
             "Content-Type": "application/json",
         };
 
-        const server = app.resolvePlugin("api");
-
-        return ApiHelpers.request(server.http, method, url, headers, params);
+        return ApiHelpers.request(app.resolvePlugin("api").http, method, url, headers, params);
     }
 
     public async requestWithAcceptHeader(method, path, params = {}) {
         const url = `http://localhost:4003/api/${path}`;
         const headers = {
-            Accept: "application/vnd.core-api.v2+json",
+            "API-Version": 2,
             "Content-Type": "application/json",
         };
 
-        const server = app.resolvePlugin("api");
-
-        return ApiHelpers.request(server.http, method, url, headers, params);
+        return ApiHelpers.request(app.resolvePlugin("api").http, method, url, headers, params);
     }
 
     public expectJson(response) {

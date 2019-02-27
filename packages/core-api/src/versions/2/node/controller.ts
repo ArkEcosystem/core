@@ -42,7 +42,8 @@ export class NodeController extends Controller {
 
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const transactionsBusinessRepository = app.resolvePlugin<Database.IDatabaseService>("database").transactionsBusinessRepository;
+            const transactionsBusinessRepository = app.resolvePlugin<Database.IDatabaseService>("database")
+                .transactionsBusinessRepository;
             const feeStatisticsData = await transactionsBusinessRepository.getFeeStatistics();
 
             const network = this.config.get("network");

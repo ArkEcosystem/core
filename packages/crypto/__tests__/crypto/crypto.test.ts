@@ -166,9 +166,7 @@ describe("crypto.ts", () => {
         it("should fail this.getHash for transaction version > 1", () => {
             const transactionV2 = Object.assign({}, transaction, { version: 2 });
 
-            expect(() => crypto.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(
-                TransactionVersionError
-            );
+            expect(() => crypto.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(TransactionVersionError);
         });
     });
 

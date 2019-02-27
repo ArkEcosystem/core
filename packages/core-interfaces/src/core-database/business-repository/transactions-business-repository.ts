@@ -1,7 +1,6 @@
 import { IParameters } from "./parameters";
 
 export interface ITransactionsBusinessRepository {
-
     findAll(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<any>;
 
     findAllLegacy(parameters: IParameters): Promise<any>;

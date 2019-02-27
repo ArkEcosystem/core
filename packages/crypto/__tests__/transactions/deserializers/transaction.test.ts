@@ -2,7 +2,8 @@ import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
 import { client } from "../../../src/client";
-import { TransactionVersionError, UnkownTransactionError } from "../../../src/errors";
+import { TransactionSchemaError, TransactionVersionError, UnkownTransactionError } from "../../../src/errors";
+import { configManager } from "../../../src/managers";
 import { Transaction } from "../../../src/models";
 import { TransactionDeserializer } from "../../../src/transactions/deserializers";
 import { TransactionSerializer } from "../../../src/transactions/serializers";
@@ -51,6 +52,51 @@ describe("Transaction serializer / deserializer", () => {
 
             expect(deserialized.data.vendorField).toBe(vendorField);
             expect(deserialized.data.recipientId).toBe(transfer.recipientId);
+        });
+
+        it("should ser/deserialize with long vendorfield when vendorFieldLength=255 milestone is active", () => {
+            configManager.getMilestone().vendorFieldLength = 255;
+
+            const transferWithLongVendorfield = client
+                .getBuilder()
+                .transfer()
+                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .amount(10000)
+                .fee(50000000)
+                .vendorField("y".repeat(255))
+                .version(1)
+                .network(30)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = Transaction.toBytes(transferWithLongVendorfield);
+            const deserialized = Transaction.fromBytes(serialized);
+
+            expect(deserialized.verified).toBeTrue();
+            expect(deserialized.data.vendorField).toHaveLength(255);
+            expect(deserialized.data.vendorFieldHex).toHaveLength(510);
+            expect(deserialized.data.vendorField).toEqual("y".repeat(255));
+
+            configManager.getMilestone().vendorFieldLength = 64;
+        });
+
+        it("should not ser/deserialize long vendorfield when vendorFieldLength=255 milestone is not active", () => {
+            const transferWithLongVendorfield = client
+                .getBuilder()
+                .transfer()
+                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .amount(10000)
+                .fee(50000000)
+                .version(1)
+                .network(30)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            transferWithLongVendorfield.vendorField = "y".repeat(255);
+            expect(() => {
+                const serialized = Transaction.toBytes(transferWithLongVendorfield);
+                Transaction.fromBytes(serialized);
+            }).toThrow(TransactionSchemaError);
         });
     });
 

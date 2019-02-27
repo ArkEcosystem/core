@@ -1,14 +1,13 @@
 import { Model } from "./model";
 
 export class Migration extends Model {
-
     constructor(pgp) {
         super(pgp);
 
         this.columnsDescriptor = [
             {
-                name: "name"
-            }
+                name: "name",
+            },
         ];
     }
 

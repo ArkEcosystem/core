@@ -1,5 +1,6 @@
 import { flags } from "@oclif/command";
 import prompts from "prompts";
+import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 import { BIP38Command } from "./bip38";
 import { BIP39Command } from "./bip39";
@@ -16,7 +17,7 @@ $ ark config:forger --method=bip39
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
         method: flags.string({

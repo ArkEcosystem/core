@@ -2,29 +2,24 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { SearchParameterConverter } from "../../../src/repositories/utils/search-parameter-converter";
 import { MockDatabaseModel } from "../../__fixtures__/mock-database-model";
 
-
-describe('SearchParameterConverter', () => {
-
+describe("SearchParameterConverter", () => {
     let searchParameterConverter: SearchParameterConverter;
     beforeEach(() => {
         searchParameterConverter = new SearchParameterConverter(new MockDatabaseModel());
     });
 
-    it('should parse all supported operators', () => {
-
+    it("should parse all supported operators", () => {
         const params = {
             id: "343-guilty-spark",
             timestamp: { from: "100", to: "1000" },
             sentence: "a partial",
-            basket: ["apples", "pears", "bananas"]
+            basket: ["apples", "pears", "bananas"],
         };
-
 
         const searchParameters = searchParameterConverter.convert(params);
 
-
         expect(searchParameters.orderBy).toHaveLength(0);
-        expect(searchParameters.paginate).toBeNull()
+        expect(searchParameters.paginate).toBeNull();
         expect(searchParameters.parameters).toHaveLength(5);
         expect(searchParameters.parameters[0].field).toEqual("id");
         expect(searchParameters.parameters[0].value).toEqual("343-guilty-spark");
@@ -49,12 +44,10 @@ describe('SearchParameterConverter', () => {
 
     it('should default to "equals" when from,to fields not set', () => {
         const params = {
-            range: "10"
+            range: "10",
         };
 
-
         const searchParameters = searchParameterConverter.convert(params);
-
 
         expect(searchParameters.parameters).toHaveLength(1);
         expect(searchParameters.parameters[0].field).toEqual("range");
@@ -62,15 +55,12 @@ describe('SearchParameterConverter', () => {
         expect(searchParameters.parameters[0].operator).toEqual(Database.SearchOperator.OP_EQ);
     });
 
-    it('should parse from,to fields when present', () => {
-
+    it("should parse from,to fields when present", () => {
         const params = {
-            range: { from: 10, to: 20 }
+            range: { from: 10, to: 20 },
         };
 
-
         const searchParameters = searchParameterConverter.convert(params);
-
 
         expect(searchParameters.parameters).toHaveLength(2);
         expect(searchParameters.parameters[0].field).toEqual("range");
@@ -82,15 +72,12 @@ describe('SearchParameterConverter', () => {
         expect(searchParameters.parameters[1].operator).toEqual(Database.SearchOperator.OP_LTE);
     });
 
-    it('should parse unknown fields as custom', () => {
-
+    it("should parse unknown fields as custom", () => {
         const params = {
-            "john": "doe"
+            john: "doe",
         };
 
-
         const searchParameters = searchParameterConverter.convert(params);
-
 
         expect(searchParameters.parameters).toHaveLength(1);
         expect(searchParameters.parameters[0].field).toEqual("john");
@@ -98,17 +85,14 @@ describe('SearchParameterConverter', () => {
         expect(searchParameters.parameters[0].operator).toEqual(Database.SearchOperator.OP_CUSTOM);
     });
 
-    it('should parse orderBy & paginate from params', () => {
-
+    it("should parse orderBy & paginate from params", () => {
         const params = {
             orderBy: "field:asc",
             offset: 20,
-            limit: 50
+            limit: 50,
         };
 
-
         const searchParameters = searchParameterConverter.convert(params);
-
 
         expect(searchParameters.orderBy).toHaveLength(1);
         expect(searchParameters.orderBy[0].field).toEqual("field");
@@ -118,30 +102,24 @@ describe('SearchParameterConverter', () => {
         expect(searchParameters.paginate.limit).toEqual(50);
     });
 
-    it('should should apply default paginate values', () => {
-
+    it("should should apply default paginate values", () => {
         const params = {
-            offset: 1
+            offset: 1,
         };
 
-
         const searchParameters = searchParameterConverter.convert(params);
-
 
         expect(searchParameters.paginate.limit).toEqual(100);
         expect(searchParameters.paginate.offset).toEqual(1);
     });
 
-    it('should apply default paginate values if nonsensical data provided', () => {
-
+    it("should apply default paginate values if nonsensical data provided", () => {
         const params = {
             offset: NaN,
-            limit: NaN
+            limit: NaN,
         };
 
-
         const searchParameters = searchParameterConverter.convert(params);
-
 
         expect(searchParameters.paginate.offset).toEqual(0);
         expect(searchParameters.paginate.limit).toEqual(100);

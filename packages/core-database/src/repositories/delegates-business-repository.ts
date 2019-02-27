@@ -1,7 +1,9 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { orderBy } from "@arkecosystem/utils";
+import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
+import { sortEntries } from "./utils/sort-entries";
 
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
     /**
@@ -26,12 +28,12 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * @return {Object}
      */
     public findAll(params: Database.IParameters = {}) {
-        const delegates = this.getLocalDelegates();
+        this.applyOrder(params);
 
-        const [iteratee, order] = this.orderBy(params);
+        const delegates = sortEntries(params, this.getLocalDelegates(), ["rate", "asc"]);
 
         return {
-            rows: limitRows(orderBy(delegates, [iteratee], [order as "desc" | "asc"]), params),
+            rows: limitRows(delegates, params),
             count: delegates.length,
         };
     }
@@ -41,29 +43,26 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * TODO Currently it searches by username only
      * @param  {Object} [params]
      * @param  {String} [params.username] - Search by username
+     * @param  {Array}  [params.usernames] - Search by usernames
      */
     public search(params: Database.IParameters) {
-        let delegates = this.getLocalDelegates();
-        if (params.hasOwnProperty("username")) {
-            delegates = delegates.filter(delegate => delegate.username.indexOf(params.username as string) > -1);
+        const query: any = {
+            like: ["username"],
+        };
+
+        if (params.usernames) {
+            if (!params.username) {
+                params.username = params.usernames;
+                query.like.shift();
+                query.in = ["username"];
+            }
+            delete params.usernames;
         }
 
-        if (params.orderBy) {
-            const orderByField = params.orderBy.split(":")[0];
-            const orderByDirection = params.orderBy.split(":")[1] || "desc";
+        this.applyOrder(params);
 
-            delegates = delegates.sort((a, b) => {
-                if (orderByDirection === "desc" && a[orderByField] < b[orderByField]) {
-                    return -1;
-                }
-
-                if (orderByDirection === "asc" && a[orderByField] > b[orderByField]) {
-                    return 1;
-                }
-
-                return 0;
-            });
-        }
+        let delegates = filterRows(this.getLocalDelegates(), params, query);
+        delegates = sortEntries(params, delegates, ["rate", "asc"]);
 
         return {
             rows: limitRows(delegates, params),
@@ -99,25 +98,32 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         });
     }
 
-    private orderBy(params): string[] {
+    private applyOrder(params): string {
+        const assignOrder = (params, value) => (params.orderBy = value.join(":"));
+
         if (!params.orderBy) {
-            return ["rate", "asc"];
+            return assignOrder(params, ["rate", "asc"]);
         }
 
         const orderByMapped = params.orderBy.split(":").map(p => p.toLowerCase());
+
         if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-            return ["rate", "asc"];
+            return assignOrder(params, ["rate", "asc"]);
         }
 
-        return [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
+        return assignOrder(params, [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]]);
     }
 
     private manipulateIteratee(iteratee): any {
         switch (iteratee) {
+            case "votes":
+                return "voteBalance";
             case "rank":
                 return "rate";
             case "productivity":
                 return delegateCalculator.calculateProductivity;
+            case "votes":
+                return "voteBalance";
             case "approval":
                 return delegateCalculator.calculateApproval;
             default:

@@ -2,7 +2,7 @@ import expandHomeDir from "expand-home-dir";
 import { readFileSync } from "fs";
 import { createServer } from "./create";
 
-async function createSecureServer(options, callback, secure) {
+export async function createSecureServer(options, callback, secure, plugins?: any[]) {
     options.host = secure.host;
     options.port = secure.port;
     options.tls = {
@@ -10,7 +10,5 @@ async function createSecureServer(options, callback, secure) {
         cert: readFileSync(expandHomeDir(secure.cert)),
     };
 
-    return createServer(options, callback);
+    return createServer(options, callback, plugins);
 }
-
-export { createSecureServer };

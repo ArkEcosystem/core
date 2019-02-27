@@ -23,7 +23,8 @@
                 "delegateResignation": 0
             }
         },
-        "ignoreInvalidSecondSignatureField": true
+        "ignoreInvalidSecondSignatureField": true,
+        "vendorFieldLength": 64
     },
     {
         "height": 10800,
@@ -48,7 +49,11 @@
         "ignoreInvalidSecondSignatureField": false
     },
     {
-        "height": 1610000,
+        "height": 1750000,
+        "vendorFieldLength": 255
+    },
+    {
+        "height": 1750001,
         "block": {
             "idFullSha256": true
         }

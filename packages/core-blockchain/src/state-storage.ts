@@ -36,6 +36,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
+    public numberOfBlocksToRollback: number | null;
     public networkStart: boolean;
 
     constructor() {
@@ -57,6 +58,7 @@ export class StateStorage implements Blockchain.IStateStorage {
         this.noBlockCounter = 0;
         this.p2pUpdateCounter = 0;
         this.networkStart = false;
+        this.numberOfBlocksToRollback = null;
 
         this.clear();
     }

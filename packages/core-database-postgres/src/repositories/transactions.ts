@@ -1,6 +1,6 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
-import { models } from "@arkecosystem/crypto"
+import { models } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import partition from "lodash/partition";
 import { Transaction } from "../models";
@@ -92,8 +92,13 @@ export class TransactionsRepository extends Repository implements Database.ITran
             .from(this.query)
             // Should make this '30' figure configurable
             .where(
-                this.query.timestamp.gte(slots.getTime(dayjs().subtract(30, "day").valueOf())
-                )
+                this.query.timestamp.gte(
+                    slots.getTime(
+                        dayjs()
+                            .subtract(30, "day")
+                            .valueOf(),
+                    ),
+                ),
             )
             .and(this.query.fee.gte(minFeeBroadcast))
             .group(this.query.type)
@@ -103,7 +108,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findAllByWallet(wallet: any, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]) {
-        const selectQuery = this.query.select().from(this.query)
+        const selectQuery = this.query
+            .select()
+            .from(this.query)
             .where(this.query.sender_public_key.equals(wallet.publicKey))
             .or(this.query.recipient_id.equals(wallet.address));
 
@@ -111,7 +118,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findWithVendorField() {
-        const selectQuery = this.query.select().from(this.query)
+        const selectQuery = this.query
+            .select()
+            .from(this.query)
             .where(this.query.vendor_field_hex.isNotNull());
 
         return this.findMany(selectQuery);
@@ -122,13 +131,16 @@ export class TransactionsRepository extends Repository implements Database.ITran
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
-                offset: 0
-            }
+                offset: 0,
+            };
         }
         const selectQuery = this.query.select().from(this.query);
         const params = parameters.parameters;
         if (params.length) {
-            const [customOps, otherOps] = partition(params, param => param.operator === Database.SearchOperator.OP_CUSTOM);
+            const [customOps, otherOps] = partition(
+                params,
+                param => param.operator === Database.SearchOperator.OP_CUSTOM,
+            );
 
             const hasNonCustomOps = otherOps.length > 0;
 
@@ -144,14 +156,16 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 if (o.field === "ownerWallet") {
                     const wallet = o.value as models.Wallet;
                     if (hasNonCustomOps) {
-                        selectQuery
-                            .and(this.query.sender_public_key.equals(wallet.publicKey).or(this.query.recipient_id.equals(wallet.address)));
+                        selectQuery.and(
+                            this.query.sender_public_key
+                                .equals(wallet.publicKey)
+                                .or(this.query.recipient_id.equals(wallet.address)),
+                        );
                     } else {
                         selectQuery
                             .where(this.query.sender_public_key.equals(wallet.publicKey))
                             .or(this.query.recipient_id.equals(wallet.address));
                     }
-
                 }
             });
         }
@@ -162,8 +176,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
-                offset: 0
-            }
+                offset: 0,
+            };
         }
         const selectQuery = this.query.select().from(this.query);
         const params = parameters.parameters;
@@ -171,14 +185,18 @@ export class TransactionsRepository extends Repository implements Database.ITran
             // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
             const ops = params.filter(value => value.operator !== Database.SearchOperator.OP_CUSTOM);
 
-            const [participants, rest] = partition(ops, op => ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)));
+            const [participants, rest] = partition(ops, op =>
+                ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)),
+            );
 
             if (participants.length > 0) {
                 const [first, last] = participants;
                 selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
 
                 if (last) {
-                    const usesInOperator = participants.every(condition => condition.operator === Database.SearchOperator.OP_IN);
+                    const usesInOperator = participants.every(
+                        condition => condition.operator === Database.SearchOperator.OP_IN,
+                    );
                     if (usesInOperator) {
                         selectQuery.or(this.query[this.propToColumnName(last.field)][last.operator](last.value));
                     } else {
@@ -192,7 +210,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
             }
 
             for (const condition of rest) {
-                selectQuery.and(this.query[this.propToColumnName(condition.field)][condition.operator](condition.value));
+                selectQuery.and(
+                    this.query[this.propToColumnName(condition.field)][condition.operator](condition.value),
+                );
             }
         }
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);

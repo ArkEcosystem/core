@@ -9,25 +9,28 @@ export class MockDatabaseModel implements Database.IDatabaseModel {
         return [
             {
                 fieldName: "id",
-                supportedOperators: [Database.SearchOperator.OP_EQ]
+                supportedOperators: [Database.SearchOperator.OP_EQ],
             },
             {
                 fieldName: "timestamp",
-                supportedOperators: [Database.SearchOperator.OP_GTE, Database.SearchOperator.OP_LTE]
+                supportedOperators: [Database.SearchOperator.OP_GTE, Database.SearchOperator.OP_LTE],
             },
             {
                 fieldName: "sentence",
-                supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_LIKE]
+                supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_LIKE],
             },
             {
                 fieldName: "basket",
-                supportedOperators: [Database.SearchOperator.OP_IN]
+                supportedOperators: [Database.SearchOperator.OP_IN],
             },
             {
                 fieldName: "range",
-                supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_GTE, Database.SearchOperator.OP_LTE]
-            }
-        ]
+                supportedOperators: [
+                    Database.SearchOperator.OP_EQ,
+                    Database.SearchOperator.OP_GTE,
+                    Database.SearchOperator.OP_LTE,
+                ],
+            },
+        ];
     }
-
 }

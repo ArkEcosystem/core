@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -55,6 +55,7 @@
         "@types/wif": "^2.0.1",
         "ajv": "^6.9.1",
         "ajv-keywords": "^3.4.0",
+        "bcrypto": "^3.0.2",
         "bignumber.js": "^8.0.2",
         "bip32": "^1.0.2",
         "bip39": "^2.5.0",

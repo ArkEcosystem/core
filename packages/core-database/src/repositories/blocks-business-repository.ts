@@ -2,9 +2,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
-
-    constructor(private databaseServiceProvider: () => Database.IDatabaseService) {
-    }
+    constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
     /* TODO: Remove with v1 */
     public async findAll(params: Database.IParameters) {
@@ -39,10 +37,9 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
             // default order-by
             searchParameters.orderBy.push({
                 field: "height",
-                direction: "desc"
+                direction: "desc",
             });
         }
         return searchParameters;
     }
-
 }

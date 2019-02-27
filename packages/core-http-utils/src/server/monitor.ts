@@ -1,4 +1,4 @@
-async function monitorServer(server) {
+export async function monitorServer(server) {
     return server.register({
         plugin: require("good"),
         options: {
@@ -18,5 +18,3 @@ async function monitorServer(server) {
         },
     });
 }
-
-export { monitorServer };
