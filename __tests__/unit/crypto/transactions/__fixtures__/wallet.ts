@@ -1,4 +1,4 @@
-import { Bignum } from "../../../src/utils";
+import { Bignum } from "../../../../../packages/crypto/src/utils";
 
 export const wallet = {
     address: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",

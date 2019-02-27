@@ -2,8 +2,8 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
 import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
-import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../src";
-import { DatabaseService } from "../../src/database-service";
+import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { setUp, tearDown } from "../__support__/setup";
 
 const { SATOSHI } = constants;

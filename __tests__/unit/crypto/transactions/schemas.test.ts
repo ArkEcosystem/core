@@ -1,8 +1,8 @@
-import { configManager, constants, crypto } from "../../src";
-import { transactionBuilder } from "../../src/builder";
-import { TransactionRegistry } from "../../src/transactions";
-import { TransactionSchema } from "../../src/transactions/types/schemas";
-import { AjvWrapper as Ajv } from "../../src/validation";
+import { configManager, constants, crypto } from "../../../../packages/crypto/src";
+import { transactionBuilder } from "../../../../packages/crypto/src/builder";
+import { TransactionRegistry } from "../../../../packages/crypto/src/transactions";
+import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
+import { AjvWrapper as Ajv } from "../../../../packages/crypto/src/validation";
 
 const { TransactionTypes } = constants;
 

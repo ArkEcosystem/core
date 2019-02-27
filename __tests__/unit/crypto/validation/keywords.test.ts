@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { configManager } from "../../src";
-import { TransactionTypes } from "../../src/constants";
-import { Bignum } from "../../src/utils";
-import { AjvWrapper } from "../../src/validation";
+import { configManager } from "../../../../packages/crypto/src";
+import { TransactionTypes } from "../../../../packages/crypto/src/constants";
+import { Bignum } from "../../../../packages/crypto/src/utils";
+import { AjvWrapper } from "../../../../packages/crypto/src/validation";
 
 const ajv = AjvWrapper.instance();
 

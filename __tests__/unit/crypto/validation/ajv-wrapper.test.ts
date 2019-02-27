@@ -1,7 +1,7 @@
 import ajv = require("ajv");
 import "jest-extended";
-import { TransactionSchema } from "../../src/transactions/types/schemas";
-import { AjvWrapper } from "../../src/validation";
+import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
+import { AjvWrapper } from "../../../../packages/crypto/src/validation";
 
 describe("AjvWrapper", () => {
     describe("validate", () => {

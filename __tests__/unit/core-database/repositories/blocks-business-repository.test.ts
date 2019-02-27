@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { BlocksBusinessRepository } from "../../src/repositories/blocks-business-repository";
+import { BlocksBusinessRepository } from "../../../../packages/core-database/src/repositories/blocks-business-repository";
 import { DatabaseConnectionStub } from "../__fixtures__/database-connection-stub";
 import { MockDatabaseModel } from "../__fixtures__/mock-database-model";
 

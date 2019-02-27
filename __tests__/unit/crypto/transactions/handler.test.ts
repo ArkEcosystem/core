@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { crypto, Transaction } from "../../src";
-import { ARKTOSHI } from "../../src/constants";
+import { crypto, Transaction } from "../../../../packages/crypto/src";
+import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -18,10 +18,10 @@ import {
     UnvoteMismatchError,
     WalletNoUsernameError,
     WalletUsernameNotEmptyError,
-} from "../../src/errors";
-import { configManager } from "../../src/managers";
-import { Wallet } from "../../src/models";
-import { Bignum } from "../../src/utils";
+} from "../../../../packages/crypto/src/errors";
+import { configManager } from "../../../../packages/crypto/src/managers";
+import { Wallet } from "../../../../packages/crypto/src/models";
+import { Bignum } from "../../../../packages/crypto/src/utils";
 import { transaction as transactionFixture } from "./__fixtures__/transaction";
 import { wallet as walletFixture } from "./__fixtures__/wallet";
 
