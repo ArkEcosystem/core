@@ -104,7 +104,7 @@ export class Block implements IBlock {
     }
 
     public static getIdHex(data): string {
-        const constants = configManager.getMilestone(data.id);
+        const constants = configManager.getMilestone(data.height);
         const payloadHash: any = Block.serialize(data);
 
         const hash = HashAlgorithms.sha256(payloadHash);
@@ -127,7 +127,7 @@ export class Block implements IBlock {
     }
 
     public static getId(data): string {
-        const constants = configManager.getMilestone(data.id);
+        const constants = configManager.getMilestone(data.height);
         const idHex = Block.getIdHex(data);
 
         if (constants.block.idFullSha256) {
