@@ -107,6 +107,29 @@ describe("keyword blockId", () => {
         expect(validate(1243)).toBeFalse();
         expect(validate(new Bignum(0))).toBeFalse();
     });
+
+    it("should be ok (genesis)", () => {
+        const schema = {
+            properties: {
+                height: { type: "number" },
+                previousBlock: { blockId: { hex: true, allowNullWhenGenesis: true } },
+            },
+        };
+
+        const validate = ajv.compile(schema);
+
+        expect(validate({ height: 1, previousBlock: "" })).toBeTrue();
+        expect(validate({ height: 1, previousBlock: null })).toBeTrue();
+        expect(validate({ height: 1, previousBlock: 0 })).toBeTrue();
+
+        expect(validate({ height: 1, previousBlock: "abc" })).toBeFalse();
+        expect(validate({ height: 1, previousBlock: {} })).toBeFalse();
+        expect(validate({ height: 1, previousBlock: "1234" })).toBeFalse();
+
+        expect(validate({ height: 2, previousBlock: "" })).toBeFalse();
+        expect(validate({ height: 2, previousBlock: null })).toBeFalse();
+        expect(validate({ height: 2, previousBlock: 0 })).toBeFalse();
+    });
 });
 
 describe("keyword bignumber", () => {

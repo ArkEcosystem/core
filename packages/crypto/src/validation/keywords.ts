@@ -108,7 +108,7 @@ const blockId = (ajv: Ajv) => {
     ajv.addKeyword("blockId", {
         compile(schema) {
             return (data, dataPath, parentObject: any) => {
-                if (parentObject && parentObject.height === 1) {
+                if (parentObject && parentObject.height === 1 && schema.allowNullWhenGenesis) {
                     return !data || Number(data) === 0;
                 }
 
@@ -128,6 +128,7 @@ const blockId = (ajv: Ajv) => {
             type: "object",
             properties: {
                 hex: { type: "boolean" },
+                allowNullWhenGenesis: { type: "boolean" },
             },
             additionalItems: false,
         },
