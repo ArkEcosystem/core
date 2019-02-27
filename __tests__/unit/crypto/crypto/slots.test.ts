@@ -41,11 +41,11 @@ describe("Slots", () => {
 
     describe("beginEpochTime", () => {
         it("return epoch datetime", () => {
-            expect(slots.beginEpochTime().toISOString()).toBe("2017-03-21T13:00:00.000Z");
+            expect(slots.beginEpochTime().toISO()).toBe("2017-03-21T13:00:00.000Z");
         });
 
         it("return epoch unix", () => {
-            expect(slots.beginEpochTime().unix()).toBe(1490101200);
+            expect(slots.beginEpochTime().toUnix()).toBe(1490101200);
         });
     });
 

@@ -82,10 +82,10 @@
     webpack-node-externals "^1.7.2"
     wif "^2.0.6"
 
-"@arkecosystem/utils@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.4.tgz#1458a1046141adb55e9b8af0a355b00920d35332"
-  integrity sha512-24+DQLJ42KOJywFiq6oWd7oUJwbUZMRrVUkec8HprwXXza5MjmcIYf62cHqSfikTCxWJdXXKujUaKNd9ZJpPoA==
+"@arkecosystem/utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.3.0.tgz#f0d6040ab0134ee7db046ab8246cb17b2c5b9867"
+  integrity sha512-FNHihowzUItP8qQC8m8I2/XFogffjynbhIlQaAAvAQHep3QDfPL4Rr92iGdCDzpPpP166GlorkHD7344PfgxzA==
   dependencies:
     "@flatten/array" "^1.1.7"
     dottie "^2.0.1"
@@ -722,6 +722,11 @@
   integrity sha512-JQWNeYUJR0Nh9LwpvcOkQOzmSJTjr2IkL3NN33zEaw7ZEBH9nEBVdQ0q70NpVmWGYe75N9NIaLl3glIXroxE5w==
   dependencies:
     benchmark "^2.1.4"
+
+"@faustbrian/dato@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@faustbrian/dato/-/dato-0.1.0.tgz#956bc69e1e3bcc7c5bd4e1f3b283348b146cd71e"
+  integrity sha512-/yU/vsVywYCcQWdkjV10W3jCnsdVStdXz2YIQLdCSuuD9FNillhd1zYQJi9rJ2hbfJjncWluSqWz5BqRVEIrOw==
 
 "@faustbrian/hapi-version@^0.2.11":
   version "0.2.11"

@@ -3,7 +3,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
-import dayjs from "dayjs-ext";
+import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import fs from "fs";
 import groupBy from "lodash/groupBy";
@@ -37,7 +37,7 @@ export class Monitor implements P2P.IMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean;
     private pendingPeers: { [ip: string]: any };
-    private coldStartPeriod: dayjs.Dayjs;
+    private coldStartPeriod: Dato;
 
     /**
      * @constructor
@@ -45,7 +45,7 @@ export class Monitor implements P2P.IMonitor {
      */
     constructor() {
         this.peers = {};
-        this.coldStartPeriod = dayjs().add(localConfig.get("coldStart"), "second");
+        this.coldStartPeriod = dato().addSeconds(localConfig.get("coldStart"));
         this.initializing = true;
 
         // Holds temporary peers which are in the process of being accepted. Prevents that
@@ -588,7 +588,7 @@ export class Monitor implements P2P.IMonitor {
      * not all peers are up, or the network is not active
      */
     public __isColdStartActive() {
-        return this.coldStartPeriod.isAfter(dayjs());
+        return this.coldStartPeriod.isAfter(dato());
     }
 
     /**

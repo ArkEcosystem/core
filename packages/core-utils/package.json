@@ -28,7 +28,11 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
-        "cli-table3": "^0.5.1",
+        "@arkecosystem/utils": "^0.3.0",
+        "@faustbrian/dato": "^0.1.0",
+        "cli-table3": "^0.5.1"
+    },
+    "devDependencies": {
         "dayjs-ext": "^2.2.0"
     },
     "publishConfig": {

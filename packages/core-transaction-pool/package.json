@@ -35,12 +35,12 @@
         "@arkecosystem/core-database": "^2.2.0-beta.7",
         "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@faustbrian/dato": "^0.1.0",
         "@types/better-sqlite3": "^5.2.2",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
         "bs58check": "^2.1.2",
-        "dayjs-ext": "^2.2.0",
         "delay": "^4.1.0",
         "fs-extra": "^7.0.1",
         "pluralize": "^7.0.0"
@@ -48,8 +48,8 @@
     "devDependencies": {
         "@arkecosystem/core-utils": "^2.2.0-beta.7",
         "@types/bip39": "^2.4.1",
-        "@types/random-seed": "^0.3.3",
         "@types/lodash.clonedeep": "^4.5.3",
+        "@types/random-seed": "^0.3.3",
         "bip39": "^2.5.0",
         "lodash.clonedeep": "^4.5.0",
         "random-seed": "^0.3.0"
