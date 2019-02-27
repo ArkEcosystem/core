@@ -1,12 +1,12 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { client } from "../../../src/client";
-import { TransactionVersionError, UnkownTransactionError } from "../../../src/errors";
-import { Transaction } from "../../../src/models";
-import { TransactionDeserializer } from "../../../src/transactions/deserializers";
-import { TransactionSerializer } from "../../../src/transactions/serializers";
-import { Bignum } from "../../../src/utils";
+import { client } from "../../../../../packages/crypto/src/client";
+import { TransactionVersionError, UnkownTransactionError } from "../../../../../packages/crypto/src/errors";
+import { Transaction } from "../../../../../packages/crypto/src/models";
+import { TransactionDeserializer } from "../../../../../packages/crypto/src/transactions/deserializers";
+import { TransactionSerializer } from "../../../../../packages/crypto/src/transactions/serializers";
+import { Bignum } from "../../../../../packages/crypto/src/utils";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: Transaction, expected) => {
