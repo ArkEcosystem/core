@@ -42,12 +42,54 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * Search all delegates.
      * TODO Currently it searches by username only
      * @param  {Object} [params]
+     * @param  {Number} [params.limit] - Limit the number of results
+     * @param  {Number} [params.offset] - Skip some results
+     * @param  {Array}  [params.orderBy] - Order of the results
+     * @param  {String} [params.address] - Search by address
+     * @param  {String} [params.publicKey] - Search by publicKey
      * @param  {String} [params.username] - Search by username
      * @param  {Array}  [params.usernames] - Search by usernames
+     * @param  {Object} [params.approval] - Search by approval
+     * @param  {Number} [params.approval.from] - Search by approval (minimum)
+     * @param  {Number} [params.approval.to] - Search by approval (maximum)
+     * @param  {Object} [params.forgedFees] - Search by forgedFees
+     * @param  {Number} [params.forgedFees.from] - Search by forgedFees (minimum)
+     * @param  {Number} [params.forgedFees.to] - Search by forgedFees (maximum)
+     * @param  {Object} [params.forgedRewards] - Search by forgedRewards
+     * @param  {Number} [params.forgedRewards.from] - Search by forgedRewards (minimum)
+     * @param  {Number} [params.forgedRewards.to] - Search by forgedRewards (maximum)
+     * @param  {Object} [params.forgedTotal] - Search by forgedTotal
+     * @param  {Number} [params.forgedTotal.from] - Search by forgedTotal (minimum)
+     * @param  {Number} [params.forgedTotal.to] - Search by forgedTotal (maximum)
+     * @param  {Object} [params.missedBlocks] - Search by missedBlocks
+     * @param  {Number} [params.missedBlocks.from] - Search by missedBlocks (minimum)
+     * @param  {Number} [params.missedBlocks.to] - Search by missedBlocks (maximum)
+     * @param  {Object} [params.producedBlocks] - Search by producedBlocks
+     * @param  {Number} [params.producedBlocks.from] - Search by producedBlocks (minimum)
+     * @param  {Number} [params.producedBlocks.to] - Search by producedBlocks (maximum)
+     * @param  {Object} [params.productivity] - Search by productivity
+     * @param  {Number} [params.productivity.from] - Search by productivity (minimum)
+     * @param  {Number} [params.productivity.to] - Search by productivity (maximum)
+     * @param  {Object} [params.voteBalance] - Search by voteBalance
+     * @param  {Number} [params.voteBalance.from] - Search by voteBalance (minimum)
+     * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
+     * @param  {Object} [params.productivity] - Search by productivity
+     * @param  {Number} [params.productivity.from] - Search by productivity (minimum)
+     * @param  {Number} [params.productivity.to] - Search by productivity (maximum)
      */
     public search(params: Database.IParameters) {
         const query: any = {
+            exact: ["address", "publicKey"],
             like: ["username"],
+            between: [
+                "approval",
+                "forgedFees",
+                "forgedRewards",
+                "forgedTotal",
+                "missedBlocks",
+                "producedBlocks",
+                "voteBalance",
+            ],
         };
 
         if (params.usernames) {
@@ -116,16 +158,16 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
 
     private manipulateIteratee(iteratee): any {
         switch (iteratee) {
-            case "votes":
-                return "voteBalance";
-            case "rank":
-                return "rate";
-            case "productivity":
-                return delegateCalculator.calculateProductivity;
-            case "votes":
-                return "voteBalance";
             case "approval":
                 return delegateCalculator.calculateApproval;
+            case "productivity":
+                return delegateCalculator.calculateProductivity;
+            case "forgedTotal":
+                return delegateCalculator.calculateForgedTotal;
+            case "rank":
+                return "rate";
+            case "votes":
+                return "voteBalance";
             default:
                 return iteratee;
         }
