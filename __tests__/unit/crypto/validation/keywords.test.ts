@@ -62,6 +62,53 @@ describe("keyword transactionType", () => {
     });
 });
 
+describe("keyword blockId", () => {
+    it("should be ok", () => {
+        const schema = { blockId: {} };
+        const validate = ajv.compile(schema);
+
+        expect(validate("15654541800058894516")).toBeTrue();
+        expect(validate("1234")).toBeTrue();
+    });
+
+    it("should be ok (hex)", () => {
+        const schema = { blockId: { hex: true } };
+        const validate = ajv.compile(schema);
+
+        expect(validate("15654541800058894516")).toBeTrue();
+        expect(validate("AFFE")).toBeTrue();
+        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4")).toBeTrue();
+    });
+
+    it("should not be ok", () => {
+        const schema = { blockId: {} };
+        const validate = ajv.compile(schema);
+
+        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4")).toBeFalse();
+        expect(validate("nein")).toBeFalse();
+        expect(validate({})).toBeFalse();
+        expect(validate("")).toBeFalse();
+        expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
+        expect(validate(1243)).toBeFalse();
+        expect(validate("affe")).toBeFalse();
+        expect(validate(new Bignum(0))).toBeFalse();
+    });
+
+    it("should not be ok (hex)", () => {
+        const schema = { blockId: { hex: true } };
+        const validate = ajv.compile(schema);
+
+        expect(validate("nein")).toBeFalse();
+        expect(validate({})).toBeFalse();
+        expect(validate("")).toBeFalse();
+        expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
+        expect(validate(1243)).toBeFalse();
+        expect(validate(new Bignum(0))).toBeFalse();
+    });
+});
+
 describe("keyword bignumber", () => {
     it("should be ok if only one possible value is allowed", () => {
         const schema = { bignumber: { minimum: 100, maximum: 100 } };

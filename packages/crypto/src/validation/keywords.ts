@@ -104,4 +104,34 @@ const bignumber = (ajv: Ajv) => {
     });
 };
 
-export const keywords = [bignumber, maxBytes, network, transactionType];
+const blockId = (ajv: Ajv) => {
+    ajv.addKeyword("blockId", {
+        compile(schema) {
+            return (data, dataPath, parentObject: any) => {
+                if (parentObject && parentObject.height === 1) {
+                    return !data || Number(data) === 0;
+                }
+
+                if (typeof data !== "string") {
+                    return false;
+                }
+
+                if (schema.hex) {
+                    return /^[0123456789A-Fa-f]+$/.test(data);
+                }
+
+                return /^[0-9]+$/.test(data);
+            };
+        },
+        errors: false,
+        metaSchema: {
+            type: "object",
+            properties: {
+                hex: { type: "boolean" },
+            },
+            additionalItems: false,
+        },
+    });
+};
+
+export const keywords = [bignumber, blockId, maxBytes, network, transactionType];

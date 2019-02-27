@@ -38,11 +38,6 @@ export const schemas = {
         allOf: [{ minLength: 34, maxLength: 34 }, { $ref: "base58" }],
     },
 
-    blockId: {
-        $id: "blockId",
-        $ref: "numericString",
-    },
-
     publicKey: {
         $id: "publicKey",
         allOf: [{ minLength: 66, maxLength: 66 }, { $ref: "hex" }, { transform: ["toLowerCase"] }],
@@ -79,12 +74,12 @@ export const schemas = {
         ],
         additionalProperties: false,
         properties: {
-            id: { $ref: "blockId" },
-            idHex: { $ref: "hex" },
+            id: { blockId: {} },
+            idHex: { blockId: { hex: true } },
             version: { type: "integer", minimum: 0 },
             timestamp: { type: "integer", minimum: 0 },
-            previousBlock: { $ref: "blockId" },
-            previousBlockHex: { $ref: "hex" },
+            previousBlock: { blockId: {} },
+            previousBlockHex: { blockId: { hex: true } },
             height: { type: "integer", minimum: 1 },
             numberOfTransactions: { type: "integer" },
             totalAmount: { bignumber: { minimum: 0, bypassGenesis: true } },
@@ -94,7 +89,11 @@ export const schemas = {
             payloadHash: { $ref: "hex" },
             generatorPublicKey: { $ref: "publicKey" },
             blockSignature: { $ref: "hex" },
-            transactions: { $ref: "transactions" },
+            transactions: {
+                $ref: "transactions",
+                minItems: { $data: "1/numberOfTransactions" },
+                maxItems: { $data: "1/numberOfTransactions" },
+            },
         },
     },
 };
