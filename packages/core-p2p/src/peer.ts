@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { dato, Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@faustbrian/dato";
 import axios from "axios";
 import Joi from "joi";
 import util from "util";

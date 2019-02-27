@@ -1,4 +1,4 @@
-import { dato } from "@arkecosystem/utils";
+import { dato } from "@faustbrian/dato";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
 import { Peer } from "../../src/peer";

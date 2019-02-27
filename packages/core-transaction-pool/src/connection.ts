@@ -7,7 +7,7 @@ import {
     TransactionPool as transactionPool,
 } from "@arkecosystem/core-interfaces";
 
-import { dato, Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
 import { PoolWalletManager } from "./pool-wallet-manager";
 

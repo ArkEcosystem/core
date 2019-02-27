@@ -1,4 +1,4 @@
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@faustbrian/dato";
 
 import { constants, models } from "@arkecosystem/crypto";
 

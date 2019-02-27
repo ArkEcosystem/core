@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { dato } from "@arkecosystem/utils";
+import { dato } from "@faustbrian/dato";
 
 /**
  * Format the given epoch based timestamp into human and unix.

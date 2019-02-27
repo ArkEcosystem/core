@@ -3,7 +3,7 @@ import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
-import { dato } from "@arkecosystem/utils";
+import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";

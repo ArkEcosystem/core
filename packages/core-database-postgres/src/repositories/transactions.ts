@@ -1,7 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import { models } from "@arkecosystem/crypto";
-import { dato } from "@arkecosystem/utils";
+import { dato } from "@faustbrian/dato";
 import partition from "lodash/partition";
 import { Transaction } from "../models";
 import { queries } from "../queries";

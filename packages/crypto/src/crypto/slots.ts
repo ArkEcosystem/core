@@ -1,4 +1,4 @@
-import { dato, Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@faustbrian/dato";
 import { configManager } from "../managers";
 
 class Slots {

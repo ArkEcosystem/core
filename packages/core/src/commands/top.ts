@@ -1,4 +1,4 @@
-import { dato } from "@arkecosystem/utils";
+import { dato } from "@faustbrian/dato";
 import Table from "cli-table3";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";

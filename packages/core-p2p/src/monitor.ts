@@ -3,7 +3,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
-import { dato, Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import fs from "fs";
 import groupBy from "lodash/groupBy";
