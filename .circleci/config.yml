@@ -66,45 +66,24 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-api/
-      - run:
-          name: core-blockchain
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-blockchain/
-      - run:
-          name: core-container
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-container/
-      - run:
-          name: core-database
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-database/
-      - run:
-          name: core-database-postgres
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-database-postgres/
-      - run:
-          name: core-debugger-cli
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-debugger-cli/
-      - run:
+          name: Test
+          command: ''
+      - &ref_0
+        run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
+      - &ref_1
+        run:
           name: Lint
           command: yarn lint
-      - run:
+      - &ref_2
+        run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+      - *ref_0
+      - *ref_1
+      - *ref_2
   test-node11-0:
     working_directory: ~/core
     environment:
@@ -171,45 +150,24 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-api/
-      - run:
-          name: core-blockchain
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-blockchain/
-      - run:
-          name: core-container
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-container/
-      - run:
-          name: core-database
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-database/
-      - run:
-          name: core-database-postgres
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-database-postgres/
-      - run:
-          name: core-debugger-cli
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-debugger-cli/
-      - run:
+          name: Test
+          command: ''
+      - &ref_3
+        run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
+      - &ref_4
+        run:
           name: Lint
           command: yarn lint
-      - run:
+      - &ref_5
+        run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+      - *ref_3
+      - *ref_4
+      - *ref_5
   test-node10-1:
     working_directory: ~/core
     environment:
@@ -276,60 +234,24 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-event-emitter
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-event-emitter/
-      - run:
-          name: core-forger
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-forger/
-      - run:
-          name: core-http-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-http-utils/
-      - run:
-          name: core-jest-matchers
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-jest-matchers/
-      - run:
-          name: core-json-rpc
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-json-rpc/
-      - run:
-          name: core-logger
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-logger/
-      - run:
-          name: core-logger-pino
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-logger-pino/
-      - run:
-          name: core-p2p
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-p2p/
-      - run:
-          name: core-snapshots
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-snapshots/
-      - run:
+          name: Test
+          command: ''
+      - &ref_6
+        run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
+      - &ref_7
+        run:
           name: Lint
           command: yarn lint
-      - run:
+      - &ref_8
+        run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+      - *ref_6
+      - *ref_7
+      - *ref_8
   test-node10-2:
     working_directory: ~/core
     environment:
@@ -396,45 +318,24 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-tester-cli
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-tester-cli/
-      - run:
-          name: core-transaction-pool
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-transaction-pool/
-      - run:
-          name: core-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-utils/
-      - run:
-          name: core-vote-report
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-vote-report/
-      - run:
-          name: core-webhooks
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-webhooks/
-      - run:
-          name: crypto
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /crypto/
-      - run:
+          name: Test
+          command: ''
+      - &ref_9
+        run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
+      - &ref_10
+        run:
           name: Lint
           command: yarn lint
-      - run:
+      - &ref_11
+        run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+      - *ref_9
+      - *ref_10
+      - *ref_11
   test-node11-1:
     working_directory: ~/core
     environment:
@@ -501,60 +402,24 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-event-emitter
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-event-emitter/
-      - run:
-          name: core-forger
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-forger/
-      - run:
-          name: core-http-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-http-utils/
-      - run:
-          name: core-jest-matchers
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-jest-matchers/
-      - run:
-          name: core-json-rpc
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-json-rpc/
-      - run:
-          name: core-logger
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-logger/
-      - run:
-          name: core-logger-pino
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-logger-pino/
-      - run:
-          name: core-p2p
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-p2p/
-      - run:
-          name: core-snapshots
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-snapshots/
-      - run:
+          name: Test
+          command: ''
+      - &ref_12
+        run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
+      - &ref_13
+        run:
           name: Lint
           command: yarn lint
-      - run:
+      - &ref_14
+        run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+      - *ref_12
+      - *ref_13
+      - *ref_14
   test-node11-2:
     working_directory: ~/core
     environment:
@@ -621,45 +486,24 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-tester-cli
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-tester-cli/
-      - run:
-          name: core-transaction-pool
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-transaction-pool/
-      - run:
-          name: core-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-utils/
-      - run:
-          name: core-vote-report
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-vote-report/
-      - run:
-          name: core-webhooks
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-webhooks/
-      - run:
-          name: crypto
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /crypto/
-      - run:
+          name: Test
+          command: ''
+      - &ref_15
+        run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
-      - run:
+      - &ref_16
+        run:
           name: Lint
           command: yarn lint
-      - run:
+      - &ref_17
+        run:
           name: Codecov
           command: ./node_modules/.bin/codecov
+      - *ref_15
+      - *ref_16
+      - *ref_17
 workflows:
   version: 2
   build_and_test:
