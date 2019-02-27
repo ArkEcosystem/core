@@ -1,4 +1,4 @@
-import { dato } from "@faustbrian/dato";
+import { Dato } from "@faustbrian/dato";
 
 import { constants, models } from "@arkecosystem/crypto";
 
