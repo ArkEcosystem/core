@@ -1,7 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import { models } from "@arkecosystem/crypto";
-import dayjs from "dayjs-ext";
+import { dato } from "@faustbrian/dato";
 import partition from "lodash/partition";
 import { Transaction } from "../models";
 import { queries } from "../queries";
@@ -94,9 +94,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
             .where(
                 this.query.timestamp.gte(
                     slots.getTime(
-                        dayjs()
-                            .subtract(30, "day")
-                            .valueOf(),
+                        dato()
+                            .subtractDays(30)
+                            .toMilliseconds(),
                     ),
                 ),
             )

@@ -8,8 +8,6 @@ ignore:
   - "packages/core-http-utils/**/*"
   - "packages/core-logger-winston/src/formatter.ts"
   - "packages/core-snapshots-cli/**/*"
-  - "packages/core-test-utils/**/*"
-  - "packages/core-test-utils/src/fixtures/**/*"
   - "packages/core-tester-cli/**/*"
   - "packages/core-webhooks/src/database/migrations/**/*"
   - "packages/core/**/*"
