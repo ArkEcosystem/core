@@ -352,7 +352,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             return false;
         }
 
-        if (this.blockedByPublicKey[senderPublicKey].isBefore(dato())) {
+        if (this.blockedByPublicKey[senderPublicKey].isAfter(dato())) {
             delete this.blockedByPublicKey[senderPublicKey];
             return false;
         }
