@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "2.2.0-beta.8",
+    "version": "2.2.0-beta.10",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -22,7 +22,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",

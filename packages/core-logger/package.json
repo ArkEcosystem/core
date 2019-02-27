@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-logger",
     "description": "Logger Manager for Ark Core",
-    "version": "2.2.0-beta.8",
+    "version": "2.2.0-beta.10",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -15,7 +15,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",

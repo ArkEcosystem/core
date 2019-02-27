@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-jest-matchers",
     "description": "Jest matchers for Ark Core",
-    "version": "2.2.0-beta.8",
+    "version": "2.2.0-beta.10",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
@@ -16,7 +16,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -33,8 +33,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.8",
-        "@arkecosystem/crypto": "^2.2.0-beta.8",
+        "@arkecosystem/core-container": "^2.2.0-beta.10",
+        "@arkecosystem/crypto": "^2.2.0-beta.10",
         "@arkecosystem/utils": "^0.2.4",
         "@types/bip39": "^2.4.1",
         "@types/lodash.get": "^4.4.4",
