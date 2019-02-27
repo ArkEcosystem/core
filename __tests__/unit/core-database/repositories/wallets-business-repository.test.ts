@@ -2,7 +2,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { Bignum, crypto, models } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
-import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../__support__/setup";
 
 import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
@@ -34,7 +34,7 @@ afterAll(async done => {
 });
 
 beforeEach(async done => {
-    const { WalletManager } = require("../../src/wallet-manager");
+    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new WalletsBusinessRepository(() => databaseService);

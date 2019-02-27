@@ -1,7 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
-import genesisBlockTestnet from "../../../core-test-utils/src/config/testnet/genesisBlock.json";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { setUp, tearDown } from "../__support__/setup";
@@ -33,7 +33,7 @@ afterAll(async done => {
 });
 
 beforeEach(async done => {
-    const { WalletManager } = require("../../src/wallet-manager");
+    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new DelegatesBusinessRepository(() => databaseService);
