@@ -3,7 +3,7 @@ import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@arkecosystem/utils";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
@@ -510,13 +510,13 @@ describe("Connection", () => {
 
         it("should return true if sender is blocked", () => {
             const publicKey = "thisPublicKeyIsBlocked";
-            (connection as any).blockedByPublicKey[publicKey] = Dato.now().addHours(1);
+            (connection as any).blockedByPublicKey[publicKey] = dato().addHours(1);
             expect(connection.isSenderBlocked(publicKey)).toBeTrue();
         });
 
         it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
             const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            (connection as any).blockedByPublicKey[publicKey] = Dato.now().addSeconds(1);
+            (connection as any).blockedByPublicKey[publicKey] = dato().addSeconds(1);
             await delay(1100);
             expect(connection.isSenderBlocked(publicKey)).toBeFalse();
             expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
@@ -526,11 +526,11 @@ describe("Connection", () => {
     describe("blockSender", () => {
         it("should block sender for 1 hour", () => {
             const publicKey = "publicKeyToBlock";
-            const plus1HourBefore = Dato.now().addHours(1);
+            const plus1HourBefore = dato().addHours(1);
 
             const blockReleaseTime = connection.blockSender(publicKey);
 
-            const plus1HourAfter = Dato.now().addHours(1);
+            const plus1HourAfter = dato().addHours(1);
             expect((connection as any).blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
             expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
             expect(blockReleaseTime <= plus1HourAfter).toBeTrue();

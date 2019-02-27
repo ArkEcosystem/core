@@ -1,5 +1,5 @@
 import { constants, slots } from "@arkecosystem/crypto";
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@arkecosystem/utils";
 import partition from "lodash/partition";
 import snakeCase from "lodash/snakeCase";
 import { IRepository } from "../interfaces";
@@ -274,7 +274,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             .where(
                 this.query.timestamp.gte(
                     slots.getTime(
-                        Dato.now()
+                        dato()
                             .addDays(30)
                             .toMilliseconds(),
                     ),

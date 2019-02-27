@@ -1,4 +1,4 @@
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@arkecosystem/utils";
 import Table from "cli-table3";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
@@ -40,7 +40,7 @@ $ ark top
                     process.pm2_env.version,
                     process.pm2_env.status,
                     // @ts-ignore
-                    prettyMs(Dato.now().diff(process.pm2_env.pm_uptime)),
+                    prettyMs(dato().diff(process.pm2_env.pm_uptime)),
                     `${process.monit.cpu}%`,
                     prettyBytes(process.monit.memory),
                 ]);

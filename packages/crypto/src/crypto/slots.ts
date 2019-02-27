@@ -1,4 +1,4 @@
-import { Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@arkecosystem/utils";
 import { configManager } from "../managers";
 
 class Slots {
@@ -36,7 +36,7 @@ class Slots {
      */
     public getEpochTime(time?: number): number {
         if (time === undefined) {
-            time = Dato.now().toMilliseconds();
+            time = dato().toMilliseconds();
         }
 
         const start = this.beginEpochTime().toMilliseconds();
@@ -48,7 +48,7 @@ class Slots {
      * Get beginning epoch time.
      */
     public beginEpochTime(): Dato {
-        return Dato.fromString(this.getMilestone("epoch"));
+        return dato(this.getMilestone("epoch"));
     }
 
     /**

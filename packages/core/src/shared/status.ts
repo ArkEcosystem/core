@@ -1,4 +1,4 @@
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@arkecosystem/utils";
 import Table from "cli-table3";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
@@ -29,7 +29,7 @@ export abstract class AbstractStatusCommand extends BaseCommand {
                 app.pm2_env.version,
                 app.pm2_env.status,
                 // @ts-ignore
-                prettyMs(Dato.now().diff(app.pm2_env.pm_uptime)),
+                prettyMs(dato().diff(app.pm2_env.pm_uptime)),
                 `${app.monit.cpu}%`,
                 prettyBytes(app.monit.memory),
             ]);

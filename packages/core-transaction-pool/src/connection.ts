@@ -7,7 +7,7 @@ import {
     TransactionPool as transactionPool,
 } from "@arkecosystem/core-interfaces";
 
-import { Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@arkecosystem/utils";
 import assert from "assert";
 import { PoolWalletManager } from "./pool-wallet-manager";
 
@@ -352,7 +352,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             return false;
         }
 
-        if (this.blockedByPublicKey[senderPublicKey].isAfter(Dato.now())) {
+        if (this.blockedByPublicKey[senderPublicKey].isBefore(dato())) {
             delete this.blockedByPublicKey[senderPublicKey];
             return false;
         }
@@ -364,7 +364,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * Blocks sender for a specified time
      */
     public blockSender(senderPublicKey: string): Dato {
-        const blockReleaseTime = Dato.now().addHours(1);
+        const blockReleaseTime = dato().addHours(1);
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 

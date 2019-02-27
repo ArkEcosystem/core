@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@arkecosystem/utils";
 
 /**
  * Format the given epoch based timestamp into human and unix.
@@ -9,7 +9,7 @@ import { Dato } from "@arkecosystem/utils";
 export function formatTimestamp(epochStamp) {
     const constants = app.getConfig().getMilestone(1);
     // @ts-ignore
-    const timestamp = Dato.fromString(constants.epoch).addSeconds(epochStamp);
+    const timestamp = dato(constants.epoch).addSeconds(epochStamp);
 
     return {
         epoch: epochStamp,

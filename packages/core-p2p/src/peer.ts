@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { Dato } from "@arkecosystem/utils";
+import { dato, Dato } from "@arkecosystem/utils";
 import axios from "axios";
 import Joi from "joi";
 import util from "util";
@@ -216,7 +216,7 @@ export class Peer implements P2P.IPeer {
             }
         }
 
-        this.lastPinged = Dato.now();
+        this.lastPinged = dato();
         this.state = body;
         return body;
     }
@@ -226,7 +226,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && Dato.now().diffMinutes(this.lastPinged) < 2;
+        return !!this.lastPinged && dato().diffMinutes(this.lastPinged) < 2;
     }
 
     /**

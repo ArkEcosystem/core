@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Dato } from "@arkecosystem/utils";
+import { dato } from "@arkecosystem/utils";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
 import { Peer } from "../../src/peer";
@@ -38,7 +37,7 @@ describe("Guard", () => {
 
         it("should return false because passed", async () => {
             await guard.monitor.acceptNewPeer(peerMock);
-            guard.suspensions[peerMock.ip].until = Dato.now().subtractMinutes(1);
+            guard.suspensions[peerMock.ip].until = dato().subtractMinutes(1);
 
             expect(guard.isSuspended(peerMock)).toBe(false);
         });
@@ -92,7 +91,7 @@ describe("Guard", () => {
     });
 
     describe("__determineOffence", () => {
-        const convertToMinutes = actual => Math.ceil(actual.diff(Dato.now()) / 1000) / 60;
+        const convertToMinutes = actual => Math.ceil(actual.diff(dato()) / 1000) / 60;
 
         const dummy = {
             nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",

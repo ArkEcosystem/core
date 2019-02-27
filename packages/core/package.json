@@ -65,7 +65,7 @@
         "@arkecosystem/core-transaction-pool": "^2.2.0-beta.7",
         "@arkecosystem/core-webhooks": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
-        "@arkecosystem/utils": "^0.2.51",
+        "@arkecosystem/utils": "^0.2.7",
         "@oclif/command": "^1.5.8",
         "@oclif/config": "^1.10.3",
         "@oclif/plugin-autocomplete": "^0.1.0",

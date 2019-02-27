@@ -33,7 +33,7 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
-        "@arkecosystem/utils": "^0.2.51",
+        "@arkecosystem/utils": "^0.2.7",
         "cli-table3": "^0.5.1"
     },
     "devDependencies": {
