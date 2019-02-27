@@ -38,8 +38,17 @@ class BlockDeserializer {
         block.version = buf.readUint32();
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
-        block.previousBlockHex = buf.readBytes(8).toString("hex");
-        block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
+
+        const constants = configManager.getMilestone(block.height - 1);
+
+        if (constants.block.idFullSha256) {
+            block.previousBlockHex = buf.readBytes(32).toString("hex");
+            block.previousBlock = block.previousBlockHex;
+        } else {
+            block.previousBlockHex = buf.readBytes(8).toString("hex");
+            block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
+        }
+
         block.numberOfTransactions = buf.readUint32();
         block.totalAmount = new Bignum(buf.readUint64().toString());
         block.totalFee = new Bignum(buf.readUint64().toString());

@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import { configManager } from "../../managers/config";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils";
 import { Transaction } from "../types";
@@ -36,7 +37,20 @@ class BlockSerializer {
     }
 
     private serializeHeader(block: IBlockData, buffer: ByteBuffer): any {
-        block.previousBlockHex = Block.toBytesHex(block.previousBlock);
+        const constants = configManager.getMilestone(block.height - 1);
+
+        if (constants.block.idFullSha256) {
+            if (block.previousBlock.length !== 64) {
+                throw new Error(
+                    `The config denotes that the block at height ${block.height - 1} ` +
+                        `must use full SHA256 block id, however the next block (at ${block.height}) ` +
+                        `contains previousBlock="${block.previousBlock}"`,
+                );
+            }
+            block.previousBlockHex = block.previousBlock;
+        } else {
+            block.previousBlockHex = Block.toBytesHex(block.previousBlock);
+        }
 
         buffer.writeUint32(block.version);
         buffer.writeUint32(block.timestamp);
