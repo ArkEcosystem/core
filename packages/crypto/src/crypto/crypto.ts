@@ -2,7 +2,7 @@ import secp256k1 from "secp256k1";
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
 import { configManager, feeManager } from "../managers";
 import { ITransactionData } from "../transactions";
-import { ISerializeOptions } from "../transactions/serializers/transaction";
+import { ISerializeOptions, TransactionSerializer } from "../transactions/serializers/transaction";
 import { HashAlgorithms } from "./hash-algorithms";
 
 const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
@@ -34,7 +34,7 @@ class Crypto {
      * Get transaction hash.
      */
     public getHash(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
-        const bytes = this.getTransactionBytes(transaction, options);
+        const bytes = TransactionSerializer.getBytes(transaction, options);
         return HashAlgorithms.sha256(bytes);
     }
 
@@ -163,13 +163,6 @@ class Crypto {
      */
     public validatePublicKey(address: string, networkVersion?: number): boolean {
         return PublicKey.validate(address, networkVersion);
-    }
-
-    /**
-     * Dynamically loads the transaction serializer and calls getBytes to prevent a circular reference.
-     */
-    private getTransactionBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
-        return require("../transactions/serializers").TransactionSerializer.getBytes(transaction, options);
     }
 }
 

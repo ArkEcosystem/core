@@ -47,7 +47,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -153,7 +152,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -259,7 +257,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -288,11 +285,6 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-forger/
-      - run:
-          name: core-graphql
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-graphql/
       - run:
           name: core-http-utils
           command: >-
@@ -323,6 +315,11 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-p2p/
+      - run:
+          name: core-snapshots
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
+            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -380,7 +377,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -491,7 +487,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -520,11 +515,6 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-forger/
-      - run:
-          name: core-graphql
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /core-graphql/
       - run:
           name: core-http-utils
           command: >-
@@ -555,6 +545,11 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /core-p2p/
+      - run:
+          name: core-snapshots
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd
+            ~/core/packages/core-snapshots && yarn test:coverage
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -612,7 +607,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules

@@ -144,6 +144,7 @@ describe("Models - Block", () => {
                     maxPayload: 0,
                 },
                 reward: 200000000,
+                vendorFieldLength: 64,
             }));
             const block = new Block(dummyBlock);
 
@@ -155,7 +156,7 @@ describe("Models - Block", () => {
 
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
-            jest.spyOn(configManager, "getMilestone").mockImplementation(height => {
+            jest.spyOn(slots, "getSlotNumber").mockImplementation(height => {
                 throw errorMessage;
             });
             const block = new Block(dummyBlock);

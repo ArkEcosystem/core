@@ -22,10 +22,15 @@
                 "multiPayment": 0,
                 "delegateResignation": 0
             }
-        }
+        },
+        "vendorFieldLength": 64
     },
     {
         "height": 75600,
         "reward": 200000000
+    },
+    {
+        "height": 100000,
+        "vendorFieldLength": 255
     }
 ]

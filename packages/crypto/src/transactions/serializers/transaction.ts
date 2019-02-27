@@ -5,7 +5,7 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { TransactionVersionError } from "../../errors";
 import { configManager } from "../../managers";
-import { Bignum } from "../../utils";
+import { Bignum, maxVendorFieldLength } from "../../utils";
 import { ITransactionData } from "../interfaces";
 import { Transaction } from "../types";
 
@@ -146,11 +146,11 @@ export class TransactionSerializer {
             for (let i = 0; i < fillstart; i++) {
                 bb.writeByte(vf[i]);
             }
-            for (let i = fillstart; i < 64; i++) {
+            for (let i = fillstart; i < maxVendorFieldLength(); i++) {
                 bb.writeByte(0);
             }
         } else {
-            for (let i = 0; i < 64; i++) {
+            for (let i = 0; i < maxVendorFieldLength(); i++) {
                 bb.writeByte(0);
             }
         }

@@ -72,4 +72,6 @@ export const isGenesisTransaction = (id: string): boolean => {
     return genesisTransactions[id];
 };
 
+export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
+
 export { Bignum };
