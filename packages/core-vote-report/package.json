@@ -38,7 +38,11 @@
         "@types/handlebars": "^4.0.40",
         "@types/lodash.sumby": "^4.6.4",
         "handlebars": "^4.1.0",
-        "lodash.sumby": "^4.6.0"
+        "lodash.sumby": "^4.6.0",
+        "vision": "^5.4.4"
+    },
+    "devDependencies": {
+        "@types/vision": "^5.3.5"
     },
     "publishConfig": {
         "access": "public"
