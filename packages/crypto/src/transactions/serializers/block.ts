@@ -15,7 +15,7 @@ class BlockSerializer {
             .skip(transactions.length * 4);
 
         for (let i = 0; i < transactions.length; i++) {
-            const { serialized } = Transaction.fromData(transactions[i]);
+            const serialized = Transaction.toBytes(transactions[i]);
             buffer.writeUint32(serialized.length, serializedHeader.length + i * 4);
             buffer.append(serialized);
         }
