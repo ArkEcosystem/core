@@ -352,7 +352,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             return false;
         }
 
-        if (this.blockedByPublicKey[senderPublicKey].isAfter(dato())) {
+        if (dato().isAfter(this.blockedByPublicKey[senderPublicKey])) {
             delete this.blockedByPublicKey[senderPublicKey];
             return false;
         }
@@ -368,7 +368,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-        logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]}`);
+        logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toUTC()}`);
 
         return blockReleaseTime;
     }
