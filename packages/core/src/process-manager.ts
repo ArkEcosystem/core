@@ -17,7 +17,7 @@ class ProcessManager {
     }
 
     public restart(name: string): boolean {
-        return this.execWithHandler(`pm2 restart ${name}`);
+        return this.execWithHandler(`pm2 reload ${name} --update-env`);
     }
 
     public delete(name: string): boolean {
