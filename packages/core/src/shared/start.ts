@@ -35,6 +35,10 @@ export abstract class AbstractStartCommand extends BaseCommand {
                         this.warn(`The "${processName}" process has not been restarted.`);
                         return;
                     }
+                } else if (app.pm2_env.status === "stopped") {
+                    cli.action.start(`Starting ${processName}`);
+
+                    processManager.start(options, flags.daemon === false);
                 }
             } else {
                 cli.action.start(`Starting ${processName}`);
