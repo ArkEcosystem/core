@@ -82,10 +82,10 @@
     webpack-node-externals "^1.7.2"
     wif "^2.0.6"
 
-"@arkecosystem/utils@^0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.7.tgz#6fb480f6e9f9a41e2154cf014d3163e3dff98c7e"
-  integrity sha512-UtCrQQCClvDd8ylJclADUEMLkety3uLvVT43XUIqOmRDshE0tJMBho1XSUvsnQAmc6Nk0jHLaL7yGoFN/P8Q6w==
+"@arkecosystem/utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.3.0.tgz#f0d6040ab0134ee7db046ab8246cb17b2c5b9867"
+  integrity sha512-FNHihowzUItP8qQC8m8I2/XFogffjynbhIlQaAAvAQHep3QDfPL4Rr92iGdCDzpPpP166GlorkHD7344PfgxzA==
   dependencies:
     "@flatten/array" "^1.1.7"
     dottie "^2.0.1"
