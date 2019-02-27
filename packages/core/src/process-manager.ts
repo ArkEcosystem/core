@@ -17,7 +17,7 @@ class ProcessManager {
     }
 
     public restart(name: string): boolean {
-        return this.execWithHandler(`pm2 restart ${name}`);
+        return this.execWithHandler(`pm2 reload ${name} --update-env`);
     }
 
     public delete(name: string): boolean {
@@ -29,6 +29,14 @@ class ProcessManager {
             const { stdout } = this.exec("pm2 jlist");
 
             return JSON.parse(stdout).find(p => p.name === name);
+        } catch (error) {
+            return false;
+        }
+    }
+
+    public online(name: string): any {
+        try {
+            return processManager.describe(name).pm2_env.status === "online";
         } catch (error) {
             return false;
         }
