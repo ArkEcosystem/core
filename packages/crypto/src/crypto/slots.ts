@@ -1,4 +1,4 @@
-import dayjs from "dayjs-ext";
+import { Dato } from "@arkecosystem/utils";
 import { configManager } from "../managers";
 
 class Slots {
@@ -36,10 +36,10 @@ class Slots {
      */
     public getEpochTime(time?: number): number {
         if (time === undefined) {
-            time = dayjs().valueOf();
+            time = Dato.now().toMilliseconds();
         }
 
-        const start = this.beginEpochTime().valueOf();
+        const start = this.beginEpochTime().toMilliseconds();
 
         return Math.floor((time - start) / 1000);
     }
@@ -47,8 +47,8 @@ class Slots {
     /**
      * Get beginning epoch time.
      */
-    public beginEpochTime(): dayjs.Dayjs {
-        return dayjs(this.getMilestone("epoch")).utc();
+    public beginEpochTime(): Dato {
+        return Dato.fromString(this.getMilestone("epoch"));
     }
 
     /**
@@ -66,7 +66,7 @@ class Slots {
             epochTime = this.getTime();
         }
 
-        const start = Math.floor(this.beginEpochTime().valueOf() / 1000) * 1000;
+        const start = Math.floor(this.beginEpochTime().toMilliseconds() / 1000) * 1000;
 
         return start + epochTime * 1000;
     }

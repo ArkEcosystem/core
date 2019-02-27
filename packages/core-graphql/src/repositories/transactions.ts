@@ -1,5 +1,5 @@
 import { constants, slots } from "@arkecosystem/crypto";
-import dayjs from "dayjs-ext";
+import { Dato } from "@arkecosystem/utils";
 
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/filter-query";
@@ -264,9 +264,9 @@ class TransactionsRepository extends Repository {
             .where(
                 this.query.timestamp.gte(
                     slots.getTime(
-                        dayjs()
-                            .subtract(30, "day")
-                            .valueOf(),
+                        Dato.now()
+                            .subtractDays(30)
+                            .toMilliseconds(),
                     ),
                 ),
             )

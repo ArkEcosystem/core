@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Dato } from "@arkecosystem/utils";
 import axios from "axios";
-import dayjs from "dayjs-ext";
 import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
@@ -32,7 +32,7 @@ export class Peer implements P2P.IPeer {
 
     public state: any;
     public url: string;
-    public lastPinged: dayjs.Dayjs | null;
+    public lastPinged: Dato | null;
     public verification: PeerVerificationResult | null;
 
     private config: any;
@@ -216,7 +216,7 @@ export class Peer implements P2P.IPeer {
             }
         }
 
-        this.lastPinged = dayjs();
+        this.lastPinged = Dato.now();
         this.state = body;
         return body;
     }
@@ -226,7 +226,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
+        return !!this.lastPinged && Dato.now().diffMinutes(this.lastPinged) < 2;
     }
 
     /**

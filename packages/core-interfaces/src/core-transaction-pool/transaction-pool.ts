@@ -1,4 +1,4 @@
-import dayjs from "dayjs-ext";
+import { Dato } from "@arkecosystem/utils";
 
 import { constants, models } from "@arkecosystem/crypto";
 
@@ -131,7 +131,7 @@ export interface ITransactionPool {
     /**
      * Blocks sender for a specified time
      */
-    blockSender(senderPublicKey: string): dayjs.Dayjs;
+    blockSender(senderPublicKey: string): Dato;
 
     /**
      * Processes recently accepted block by the blockchain.

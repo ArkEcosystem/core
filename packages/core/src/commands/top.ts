@@ -1,5 +1,5 @@
+import { Dato } from "@arkecosystem/utils";
 import Table from "cli-table3";
-import dayjs from "dayjs-ext";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { processManager } from "../process-manager";
@@ -40,7 +40,7 @@ $ ark top
                     process.pm2_env.version,
                     process.pm2_env.status,
                     // @ts-ignore
-                    prettyMs(dayjs().diff(process.pm2_env.pm_uptime)),
+                    prettyMs(Dato.now().diff(process.pm2_env.pm_uptime)),
                     `${process.monit.cpu}%`,
                     prettyBytes(process.monit.memory),
                 ]);

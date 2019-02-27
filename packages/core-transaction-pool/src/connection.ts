@@ -7,8 +7,8 @@ import {
     TransactionPool as transactionPool,
 } from "@arkecosystem/core-interfaces";
 
+import { Dato } from "@arkecosystem/utils";
 import assert from "assert";
-import dayjs from "dayjs-ext";
 import { PoolWalletManager } from "./pool-wallet-manager";
 
 import { Bignum, constants, models, Transaction } from "@arkecosystem/crypto";
@@ -32,7 +32,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     public mem: Mem;
     public storage: Storage;
     public loggedAllowedSenders: string[];
-    private blockedByPublicKey: { [key: string]: dayjs.Dayjs };
+    private blockedByPublicKey: { [key: string]: Dato };
 
     /**
      * Create a new transaction pool instance.
@@ -352,7 +352,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             return false;
         }
 
-        if (this.blockedByPublicKey[senderPublicKey] < dayjs()) {
+        if (this.blockedByPublicKey[senderPublicKey].isAfter(Dato.now())) {
             delete this.blockedByPublicKey[senderPublicKey];
             return false;
         }
@@ -363,8 +363,8 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Blocks sender for a specified time
      */
-    public blockSender(senderPublicKey: string): dayjs.Dayjs {
-        const blockReleaseTime = dayjs().add(1, "hour");
+    public blockSender(senderPublicKey: string): Dato {
+        const blockReleaseTime = Dato.now().addHours(1);
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 

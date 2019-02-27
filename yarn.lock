@@ -135,10 +135,10 @@
     webpack-node-externals "^1.7.2"
     wif "^2.0.6"
 
-"@arkecosystem/utils@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.4.tgz#1458a1046141adb55e9b8af0a355b00920d35332"
-  integrity sha512-24+DQLJ42KOJywFiq6oWd7oUJwbUZMRrVUkec8HprwXXza5MjmcIYf62cHqSfikTCxWJdXXKujUaKNd9ZJpPoA==
+"@arkecosystem/utils@^0.2.51":
+  version "0.2.51"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.51.tgz#a64a83b7148fe3a317918f3431dac6596b55334d"
+  integrity sha512-C20qGFVw+Rog+GvtFjw+m50ce+NBB2rYTuigTg0vz4gyWeMMd6NwxFaw3Y/8WAl31qljwCjkzyDhUROXep/mZQ==
   dependencies:
     "@flatten/array" "^1.1.7"
     dottie "^2.0.1"

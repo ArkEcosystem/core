@@ -39,6 +39,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
+        "@arkecosystem/utils": "^0.2.51",
         "@types/bip32": "^1.0.1",
         "@types/bip39": "^2.4.1",
         "@types/bytebuffer": "^5.0.40",
