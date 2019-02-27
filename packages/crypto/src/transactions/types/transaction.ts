@@ -64,7 +64,8 @@ export abstract class Transaction {
     }
 
     public static toBytes(data: ITransactionData): Buffer {
-        return this.fromData(data).serialized;
+        const transaction = TransactionRegistry.create(data);
+        return TransactionSerializer.serialize(transaction);
     }
 
     public get id(): string {

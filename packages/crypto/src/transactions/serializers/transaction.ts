@@ -44,7 +44,7 @@ export class TransactionSerializer {
 
         this.serializeSignatures(data, buffer);
 
-        const flippedBuffer = Buffer.from(buffer.flip().toBuffer());
+        const flippedBuffer = buffer.flip().toBuffer();
         transaction.serialized = flippedBuffer;
 
         return flippedBuffer;
@@ -196,7 +196,7 @@ export class TransactionSerializer {
         buffer.writeByte(transaction.type);
         buffer.writeUint32(transaction.timestamp);
         buffer.append(transaction.senderPublicKey, "hex");
-        buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
+        buffer.writeUint64(+transaction.fee);
     }
 
     private static serializeVendorField(transaction: Transaction, buffer: ByteBuffer): void {

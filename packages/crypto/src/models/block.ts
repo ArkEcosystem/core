@@ -37,35 +37,6 @@ export interface IBlockData {
     transactions?: ITransactionData[];
 }
 
-/**
- * TODO copy some parts to ArkDocs
- * @classdesc This model holds the block data, its verification and serialization
- *
- * A Block model stores on the db:
- *   - id
- *   - version (version of the block: could be used for changing how they are forged)
- *   - timestamp (related to the genesis block)
- *   - previousBlock (id of the previous block)
- *   - height
- *   - numberOfTransactions
- *   - totalAmount (in satoshi)
- *   - totalFee (in satoshi)
- *   - reward (in satoshi)
- *   - payloadHash (hash of the transactions)
- *   - payloadLength (total length in bytes of the IDs of the transactions)
- *   - generatorPublicKey (public key of the delegate that forged this block)
- *   - blockSignature
- *
- * The `transactions` are stored too, but in a different table.
- *
- * These data is exposed through the `data` attributed as a plain object and
- * serialized through the `serialized` attribute.
- *
- * In the future the IDs could be changed to use the hexadecimal version of them,
- * which would be more efficient for performance, disk usage and bandwidth reasons.
- * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
- */
-
 export class Block implements IBlock {
     /**
      * Create block from data.
