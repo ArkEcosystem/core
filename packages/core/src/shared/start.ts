@@ -1,6 +1,7 @@
 import cli from "cli-ux";
 import prompts from "prompts";
 import { BaseCommand } from "../commands/command";
+import { ProcessState } from "../enums";
 import { processManager } from "../process-manager";
 import { CommandFlags, ProcessDescription } from "../types";
 
@@ -20,11 +21,17 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
         try {
             if (processManager.exists(processName)) {
-                const app: ProcessDescription = processManager.describe(processName);
+                if (processManager.hasUnknownState(processName)) {
+                    this.warn(`The "${processName}" process has entered an unknown state, aborting restart.`);
+                    return;
+                }
 
-                if (app.pm2_env.status === "online") {
-                    cli.action.start(`Restarting ${processName}`);
+                if (processManager.hasErrored(processName)) {
+                    this.warn(`The "${processName}" process has previously errored, aborting restart.`);
+                    return;
+                }
 
+                if (processManager.isOnline(processName)) {
                     const response = await prompts({
                         type: "confirm",
                         name: "confirm",
@@ -35,11 +42,11 @@ export abstract class AbstractStartCommand extends BaseCommand {
                         this.warn(`The "${processName}" process has not been restarted.`);
                         return;
                     }
-                } else if (app.pm2_env.status === "stopped") {
-                    cli.action.start(`Starting ${processName}`);
-
-                    processManager.start(options, flags.daemon === false);
                 }
+
+                cli.action.start(`Restarting ${processName}`);
+
+                processManager.restart(processName);
             } else {
                 cli.action.start(`Starting ${processName}`);
 
@@ -53,9 +60,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
     }
 
     protected abortWhenRunning(processName: string): void {
-        const app: ProcessDescription = processManager.describe(processName);
-
-        if (app && app.pm2_env.status === "online") {
+        if (processManager.isOnline(processName)) {
             this.warn(`The "${processName}" process is already running.`);
             process.exit();
         }

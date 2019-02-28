@@ -1,4 +1,5 @@
 import { ExecaReturns, shellSync } from "execa";
+import { ProcessState } from "./enums";
 import { ProcessDescription } from "./types";
 
 class ProcessManager {
@@ -34,12 +35,28 @@ class ProcessManager {
         }
     }
 
-    public online(name: string): any {
+    public status(name: string): any {
         try {
-            return processManager.describe(name).pm2_env.status === "online";
+            return processManager.describe(name).pm2_env.status;
         } catch (error) {
             return false;
         }
+    }
+
+    public isOnline(name: string): boolean {
+        return this.status(name) === ProcessState.Online;
+    }
+
+    public isStopped(name: string): boolean {
+        return this.status(name) === ProcessState.Stopped;
+    }
+
+    public hasErrored(name: string): boolean {
+        return this.status(name) === ProcessState.Errored;
+    }
+
+    public hasUnknownState(name: string): boolean {
+        return !Object.values(ProcessState).includes(this.status(name));
     }
 
     public exists(name: string): boolean {
