@@ -88,10 +88,30 @@
         }
     },
     "jest": {
-        "preset": "./jest-preset.json",
+        "testEnvironment": "node",
+        "bail": true,
+        "verbose": true,
+        "transform": {
+            "^.+\\.tsx?$": "ts-jest"
+        },
+        "testMatch": [
+            "**/*.test.ts"
+        ],
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "jsx",
+            "json",
+            "node"
+        ],
+        "collectCoverage": false,
+        "coverageDirectory": "<rootDir>/.coverage",
         "collectCoverageFrom": [
-            "packages/**/src/**/*.ts",
+            "src/**/*.ts",
             "!**/node_modules/**"
-        ]
+        ],
+        "watchman": false,
+        "setupTestFrameworkScriptFile": "jest-extended"
     }
 }
