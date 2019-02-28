@@ -1,13 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import dayjs from "dayjs-ext";
+import { dato, Dato } from "@faustbrian/dato";
 import head from "lodash/head";
 import sumBy from "lodash/sumBy";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 
 import { config as localConfig } from "../config";
-import * as utils from "../utils";
 import { offences } from "./offences";
 
 const config = app.getConfig();
@@ -16,8 +15,8 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 export interface ISuspension {
     peer: any;
     reason: string;
-    until: dayjs.Dayjs;
-    nextSuspensionReminder?: dayjs.Dayjs;
+    until: Dato;
+    nextSuspensionReminder?: Dato;
 }
 
 export class Guard {
@@ -70,7 +69,7 @@ export class Guard {
         }
 
         if (peer.offences.length > 0) {
-            if (dayjs().isAfter((head(peer.offences) as any).until)) {
+            if (dato().isAfter((head(peer.offences) as any).until)) {
                 peer.offences = [];
             }
         }
@@ -100,7 +99,7 @@ export class Guard {
 
         // Don't unsuspend critical offenders before the ban is expired.
         if (peer.offences.some(offence => offence.critical)) {
-            if (dayjs().isBefore(this.suspensions[peer.ip].until)) {
+            if (dato().isBefore(this.suspensions[peer.ip].until)) {
                 return;
             }
         }
@@ -128,12 +127,12 @@ export class Guard {
     public isSuspended(peer) {
         const suspendedPeer = this.get(peer.ip);
 
-        if (suspendedPeer && dayjs().isBefore(suspendedPeer.until)) {
+        if (suspendedPeer && dato().isBefore(suspendedPeer.until)) {
             const nextSuspensionReminder = suspendedPeer.nextSuspensionReminder;
 
-            if (!nextSuspensionReminder || dayjs().isAfter(nextSuspensionReminder)) {
+            if (!nextSuspensionReminder || dato().isAfter(nextSuspensionReminder)) {
                 // @ts-ignore
-                const untilDiff = suspendedPeer.until.diff(dayjs());
+                const untilDiff = suspendedPeer.until.diff(dato());
 
                 logger.debug(
                     `${peer.ip} still suspended for ${prettyMs(untilDiff, {
@@ -141,7 +140,7 @@ export class Guard {
                     })} because of "${suspendedPeer.reason}".`,
                 );
 
-                suspendedPeer.nextSuspensionReminder = dayjs().add(5, "minute");
+                suspendedPeer.nextSuspensionReminder = dato().addMinutes(5);
             }
 
             return true;
@@ -219,7 +218,7 @@ export class Guard {
     /**
      * Decide for how long the peer should be banned.
      * @param  {Peer}  peer
-     * @return {dayjs}
+     * @return {Object}
      */
     public __determineOffence(peer) {
         if (this.isBlacklisted(peer)) {
@@ -297,9 +296,9 @@ export class Guard {
             offence = offences.REPEAT_OFFENDER;
         }
 
-        const until = dayjs().add(offence.number, offence.period);
+        const until = dato()[offence.period](offence.number);
         // @ts-ignore
-        const untilDiff = until.diff(dayjs());
+        const untilDiff = until.diff(dato());
 
         logger.debug(
             `Suspended ${peer.ip} for ${prettyMs(untilDiff, {

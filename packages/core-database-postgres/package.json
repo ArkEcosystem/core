@@ -24,11 +24,6 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
@@ -38,6 +33,7 @@
         "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
         "@arkecosystem/core-utils": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@faustbrian/dato": "^0.1.0",
         "@types/bluebird": "^3.5.25",
         "@types/lodash.chunk": "^4.2.4",
         "@types/pluralize": "^0.0.29",
@@ -53,8 +49,5 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

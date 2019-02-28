@@ -65,6 +65,7 @@
         "@arkecosystem/core-transaction-pool": "^2.2.0-beta.7",
         "@arkecosystem/core-webhooks": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@faustbrian/dato": "^0.1.0",
         "@oclif/command": "^1.5.8",
         "@oclif/config": "^1.10.3",
         "@oclif/plugin-autocomplete": "^0.1.0",
@@ -78,7 +79,6 @@
         "cli-progress": "^2.1.1",
         "cli-table3": "^0.5.1",
         "cli-ux": "^5.1.0",
-        "dayjs-ext": "^2.2.0",
         "env-paths": "^2.0.0",
         "envfile": "^3.0.0",
         "execa": "^1.0.0",
@@ -118,9 +118,6 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     },
     "oclif": {
         "commands": "./dist/commands",
