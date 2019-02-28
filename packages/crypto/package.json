@@ -78,9 +78,6 @@
     "publishConfig": {
         "access": "public"
     },
-    "jest": {
-        "preset": "../../jest-preset.json"
-    },
     "devDependencies": {
         "@types/webpack-merge": "^4.1.3",
         "@types/webpack-node-externals": "^1.6.3"
