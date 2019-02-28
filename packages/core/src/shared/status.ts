@@ -1,9 +1,10 @@
+import { dato } from "@faustbrian/dato";
 import Table from "cli-table3";
-import dayjs from "dayjs-ext";
-import pm2, { ProcessDescription } from "pm2";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { BaseCommand } from "../commands/command";
+import { processManager } from "../process-manager";
+import { ProcessDescription } from "../types";
 import { renderTable } from "../utils";
 
 export abstract class AbstractStatusCommand extends BaseCommand {
@@ -12,36 +13,26 @@ export abstract class AbstractStatusCommand extends BaseCommand {
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        this.createPm2Connection(() => {
-            pm2.describe(processName, (error, apps) => {
-                pm2.disconnect();
+        if (!processManager.exists(processName)) {
+            this.warn(`The "${processName}" process is not running.`);
+            return;
+        }
 
-                if (error) {
-                    this.error(error.message);
-                }
+        renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
+            const app: ProcessDescription = processManager.describe(processName);
 
-                if (!apps[0]) {
-                    this.warn(`The "${processName}" process is not running.`);
-                    return;
-                }
-
-                renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
-                    const process: ProcessDescription = apps[0];
-
-                    // @ts-ignore
-                    table.push([
-                        process.pid,
-                        process.name,
-                        // @ts-ignore
-                        process.pm2_env.version,
-                        process.pm2_env.status,
-                        // @ts-ignore
-                        prettyMs(dayjs().diff(process.pm2_env.pm_uptime)),
-                        `${process.monit.cpu}%`,
-                        prettyBytes(process.monit.memory),
-                    ]);
-                });
-            });
+            // @ts-ignore
+            table.push([
+                app.pid,
+                app.name,
+                // @ts-ignore
+                app.pm2_env.version,
+                app.pm2_env.status,
+                // @ts-ignore
+                prettyMs(dato().diff(app.pm2_env.pm_uptime)),
+                `${app.monit.cpu}%`,
+                prettyBytes(app.monit.memory),
+            ]);
         });
     }
 

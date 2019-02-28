@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-vote-report",
     "description": "Vote Report for Ark Core",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -23,22 +23,21 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.4",
-        "@arkecosystem/core-http-utils": "^2.2.0-beta.4",
-        "@arkecosystem/core-utils": "^2.2.0-beta.4",
-        "@arkecosystem/crypto": "^2.2.0-beta.4",
+        "@arkecosystem/core-container": "^2.2.0-beta.7",
+        "@arkecosystem/core-http-utils": "^2.2.0-beta.7",
+        "@arkecosystem/core-utils": "^2.2.0-beta.7",
+        "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@types/handlebars": "^4.0.40",
         "@types/lodash.sumby": "^4.6.4",
         "handlebars": "^4.1.0",
-        "lodash.sumby": "^4.6.0"
+        "lodash.sumby": "^4.6.0",
+        "vision": "^5.4.4"
+    },
+    "devDependencies": {
+        "@types/vision": "^5.3.5"
     },
     "publishConfig": {
         "access": "public"

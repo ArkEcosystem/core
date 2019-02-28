@@ -1,0 +1,50 @@
+{
+    "name": "@arkecosystem/core-logger-pino",
+    "description": "Pino integration for Ark Core",
+    "version": "2.2.0-beta.7",
+    "contributors": [
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index",
+    "types": "dist/index",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:stable": "npm publish --tag latest",
+        "prepublishOnly": "yarn build",
+        "pretest": "yarn lint && yarn build",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+    },
+    "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
+        "@arkecosystem/core-logger": "^2.2.0-beta.7",
+        "lodash.isempty": "^4.4.0",
+        "pino-multi-stream": "^4.0.2",
+        "rotating-file-stream": "^1.4.0"
+    },
+    "devDependencies": {
+        "@types/capture-console": "^1.0.0",
+        "@types/lodash.isempty": "^4.4.4",
+        "capture-console": "^1.0.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
+    }
+}

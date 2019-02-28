@@ -8,7 +8,7 @@ import {
     P2P,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { models, slots } from "@arkecosystem/crypto";
+import { models, slots, Transaction } from "@arkecosystem/crypto";
 
 import delay from "delay";
 import pluralize from "pluralize";
@@ -75,9 +75,9 @@ export class Blockchain implements blockchain.IBlockchain {
 
         if (this.state.networkStart) {
             logger.warn(
-                "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:",
+                "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
-            logger.info("Starting Ark Core for a new world, welcome aboard :rocket:");
+            logger.info("Starting Ark Core for a new world, welcome aboard");
         }
 
         this.actions = stateMachine.actionMap(this);
@@ -110,7 +110,7 @@ export class Blockchain implements blockchain.IBlockchain {
             if (action) {
                 setTimeout(() => action.call(this, event), 0);
             } else {
-                logger.error(`No action '${actionKey}' found :interrobang:`);
+                logger.error(`No action '${actionKey}' found`);
             }
         });
 
@@ -214,11 +214,9 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Hand the given transactions to the transaction handler.
-     * @param  {Array}   transactions
-     * @return {void}
      */
-    public async postTransactions(transactions) {
-        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)} :moneybag:`);
+    public async postTransactions(transactions: Transaction[]) {
+        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
 
         await this.transactionPool.addTransactions(transactions);
     }
@@ -248,7 +246,7 @@ export class Blockchain implements blockchain.IBlockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
         } else {
-            logger.info(`Block disregarded because blockchain is not ready :exclamation:`);
+            logger.info(`Block disregarded because blockchain is not ready`);
         }
     }
 
@@ -291,7 +289,7 @@ export class Blockchain implements blockchain.IBlockchain {
             this.state.lastDownloadedBlock = newLastBlock;
         };
 
-        logger.info(`Removing ${pluralize("block", height - newHeight, true)} to reset current round :warning:`);
+        logger.info(`Removing ${pluralize("block", height - newHeight, true)} to reset current round`);
 
         let count = 0;
         const max = this.state.getLastBlock().data.height - newHeight;
@@ -437,10 +435,10 @@ export class Blockchain implements blockchain.IBlockchain {
                 return callback();
             }
             this.state.lastDownloadedBlock = lastBlock;
-            logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork :knife_fork_plate:`);
+            logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork`);
             return callback();
         }
-        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`);
+        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed`);
         logger.warn(JSON.stringify(block.verification, null, 4));
         return callback();
     }
@@ -481,8 +479,12 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Fork the chain at the given block.
      */
-    public forkBlock(block: models.Block): void {
+    public forkBlock(block: models.Block, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
+
+        if (numberOfBlockToRollback) {
+            this.state.numberOfBlocksToRollback = numberOfBlockToRollback;
+        }
 
         this.dispatch("FORK");
     }
@@ -527,7 +529,7 @@ export class Blockchain implements blockchain.IBlockchain {
         block = block || this.getLastBlock();
 
         const remaining = slots.getTime() - block.data.timestamp;
-        logger.info(`Remaining block timestamp ${remaining} :hourglass:`);
+        logger.info(`Remaining block timestamp ${remaining}`);
 
         // stop fast rebuild 7 days before the last network block
         return slots.getTime() - block.data.timestamp < 3600 * 24 * 7;

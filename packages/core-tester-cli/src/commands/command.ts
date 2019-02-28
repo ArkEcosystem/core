@@ -1,6 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
 import { Address, Bignum, formatSatoshi } from "@arkecosystem/crypto";
-import { client } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
 import { satoshiFlag } from "../flags";

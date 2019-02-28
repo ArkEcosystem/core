@@ -11,7 +11,7 @@ export class AcceptBlockHandler extends BlockHandler {
 
             // Check if we recovered from a fork
             if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
-                this.logger.info("Successfully recovered from fork :star2:");
+                this.logger.info("Successfully recovered from fork");
                 state.forkedBlock = null;
             }
 

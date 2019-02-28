@@ -1,6 +1,11 @@
 import { models } from "@arkecosystem/crypto";
 import { EventEmitter, Logger } from "../index";
-import { IDelegatesBusinessRepository, IWalletsBusinessRepository } from "./business-repository";
+import {
+    IBlocksBusinessRepository,
+    IDelegatesBusinessRepository,
+    ITransactionsBusinessRepository,
+    IWalletsBusinessRepository,
+} from "./business-repository";
 import { IDatabaseConnection } from "./database-connection";
 import { IWalletManager } from "./wallet-manager";
 
@@ -10,6 +15,10 @@ export interface IDatabaseService {
     wallets: IWalletsBusinessRepository;
 
     delegates: IDelegatesBusinessRepository;
+
+    blocksBusinessRepository: IBlocksBusinessRepository;
+
+    transactionsBusinessRepository: ITransactionsBusinessRepository;
 
     connection: IDatabaseConnection;
 

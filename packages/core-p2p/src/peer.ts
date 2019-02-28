@@ -1,11 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { dato, Dato } from "@faustbrian/dato";
 import axios from "axios";
-import dayjs from "dayjs-ext";
+import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { PeerVerifier } from "./peer-verifier";
+import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
+import { replySchemas } from "./reply-schemas";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
@@ -30,7 +32,8 @@ export class Peer implements P2P.IPeer {
 
     public state: any;
     public url: string;
-    public lastPinged: dayjs.Dayjs | null;
+    public lastPinged: Dato | null;
+    public verification: PeerVerificationResult | null;
 
     private config: any;
     private logger: Logger.ILogger;
@@ -49,6 +52,7 @@ export class Peer implements P2P.IPeer {
         this.state = {};
         this.offences = [];
         this.lastPinged = null;
+        this.verification = null;
 
         this.headers = {
             version: app.getVersion(),
@@ -166,11 +170,7 @@ export class Peer implements P2P.IPeer {
 
             return blocks;
         } catch (error) {
-            this.logger.debug(
-                `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
-                    depth: 1,
-                })}`,
-            );
+            this.logger.debug(`Cannot download blocks from peer ${this.url} because of "${error.message}"`);
 
             this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
 
@@ -196,7 +196,7 @@ export class Peer implements P2P.IPeer {
         const body = await this.__get("/peer/status", delay);
 
         if (!body) {
-            throw new Error(`Peer ${this.ip} is unresponsive`);
+            throw new Error(`Peer ${this.ip}: could not get status response`);
         }
 
         if (!body.success) {
@@ -210,12 +210,13 @@ export class Peer implements P2P.IPeer {
                 throw new PeerPingTimeoutError(delay);
             }
 
-            if (!(await peerVerifier.checkState(body, deadline))) {
+            this.verification = await peerVerifier.checkState(body, deadline);
+            if (this.verification === null) {
                 throw new PeerVerificationFailedError();
             }
         }
 
-        this.lastPinged = dayjs();
+        this.lastPinged = dato();
         this.state = body;
         return body;
     }
@@ -225,7 +226,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
+        return !!this.lastPinged && dato().diffMinutes(this.lastPinged) < 2;
     }
 
     /**
@@ -236,6 +237,10 @@ export class Peer implements P2P.IPeer {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         const body = await this.__get("/peer/list");
+
+        if (!body) {
+            return [];
+        }
 
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
@@ -269,8 +274,6 @@ export class Peer implements P2P.IPeer {
             }
 
             if (!body.common) {
-                const bodyStr = util.inspect(body, { depth: 2 });
-                this.logger.error(`${errorMessage}: falsy "common" property in response: ${bodyStr}`);
                 return false;
             }
 
@@ -298,9 +301,13 @@ export class Peer implements P2P.IPeer {
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
-            this.delay = new Date().getTime() - temp;
-
             this.__parseHeaders(response);
+
+            if (!this.validateReply(response.data, endpoint)) {
+                return;
+            }
+
+            this.delay = new Date().getTime() - temp;
 
             if (!response.data) {
                 this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
@@ -369,10 +376,58 @@ export class Peer implements P2P.IPeer {
      * @return {(Object[]|undefined)}
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
-        return axios.get(`${this.url}/peer/blocks`, {
+        const endpoint = "/peer/blocks";
+        const response = await axios.get(`${this.url}${endpoint}`, {
             params: { lastBlockHeight: afterBlockHeight },
             headers: this.headers,
             timeout: 10000,
         });
+
+        if (!this.validateReply(response.data, endpoint)) {
+            throw new Error("Invalid reply to request for blocks");
+        }
+
+        return response;
+    }
+
+    /**
+     * Validate a reply from the peer according to a predefined JSON schema rules.
+     * @param {Object} reply peer's reply
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @return {Boolean} true if validated successfully
+     */
+    private validateReply(reply: any, endpoint: string): boolean {
+        let schema = replySchemas[endpoint];
+        if (schema === undefined) {
+            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
+            let len = 0;
+            const definedEndpoints = Object.keys(replySchemas);
+            for (const d of definedEndpoints) {
+                if (endpoint.startsWith(d) && len < d.length) {
+                    schema = replySchemas[d];
+                    len = d.length;
+                }
+            }
+
+            if (schema === undefined) {
+                this.logger.error(
+                    `Can't validate reply from "${endpoint}": none of the predefined ` +
+                        `schemas matches: ` +
+                        JSON.stringify(definedEndpoints),
+                );
+                return false;
+            }
+        }
+
+        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+
+        if (result.error) {
+            this.logger.error(
+                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` + result.error.message,
+            );
+            return false;
+        }
+
+        return true;
     }
 }

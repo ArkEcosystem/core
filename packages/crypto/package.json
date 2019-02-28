@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -31,14 +31,10 @@
         "clean": "del dist",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
         "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "jest --watch",
-        "test:watch:all": "jest --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
+        "@arkecosystem/utils": "^0.3.0",
         "@types/bip32": "^1.0.1",
         "@types/bip39": "^2.4.1",
         "@types/bytebuffer": "^5.0.40",
@@ -53,6 +49,9 @@
         "@types/pluralize": "^0.0.29",
         "@types/secp256k1": "^3.5.0",
         "@types/wif": "^2.0.1",
+        "ajv": "^6.9.1",
+        "ajv-keywords": "^3.4.0",
+        "bcrypto": "^3.0.2",
         "bignumber.js": "^8.0.2",
         "bip32": "^1.0.2",
         "bip39": "^2.5.0",

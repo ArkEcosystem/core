@@ -1,4 +1,5 @@
 import { AbstractStatusCommand } from "../../shared/status";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StatusCommand extends AbstractStatusCommand {
@@ -6,7 +7,7 @@ export class StatusCommand extends AbstractStatusCommand {
 
     public static examples: string[] = [`$ ark forger:status`];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 

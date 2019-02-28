@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for Ark Core",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.7",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -25,18 +25,13 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.4",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.4",
-        "@arkecosystem/core-p2p": "^2.2.0-beta.4",
-        "@arkecosystem/crypto": "^2.2.0-beta.4",
+        "@arkecosystem/core-container": "^2.2.0-beta.7",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
+        "@arkecosystem/core-p2p": "^2.2.0-beta.7",
+        "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@types/lodash.isempty": "^4.4.4",
         "@types/lodash.sample": "^4.2.4",
         "@types/lodash.uniq": "^4.5.4",
@@ -49,7 +44,6 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-beta.4",
         "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {

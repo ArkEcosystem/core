@@ -21,8 +21,8 @@ export class VerifySecondSignatureCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(VerifySecondSignatureCommand);
 
-        const transaction = new models.Transaction(flags.data);
+        const { data } = models.Transaction.fromHex(flags.data);
 
-        return handleOutput(flags, crypto.verifySecondSignature(transaction, flags.publicKey));
+        return handleOutput(flags, crypto.verifySecondSignature(data, flags.publicKey));
     }
 }

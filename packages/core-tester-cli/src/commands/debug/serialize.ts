@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -25,9 +25,9 @@ export class SerializeCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(SerializeCommand);
 
-        const serialized: any =
+        const serialized =
             flags.type === "transaction"
-                ? models.Transaction.serialize(JSON.parse(flags.data))
+                ? Transaction.fromData(JSON.parse(flags.data)).serialized
                 : models.Block[flags.full ? "serializeFull" : "serialize"](JSON.parse(flags.data));
 
         return handleOutput(flags, serialized.toString("hex"));
