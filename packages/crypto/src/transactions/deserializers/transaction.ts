@@ -10,10 +10,7 @@ import { ITransactionData } from "../interfaces";
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
     public deserialize(serialized: string | Buffer): Transaction {
-        const data = {
-            vendorFieldHex: null, // TODO: if they are missing from data postgres insert fails
-            recipientId: null,
-        } as ITransactionData;
+        const data = {} as ITransactionData;
 
         const buffer = this.getByteBuffer(serialized);
         this.deserializeCommon(data, buffer);

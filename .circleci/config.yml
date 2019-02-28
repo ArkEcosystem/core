@@ -47,7 +47,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -57,7 +56,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -166,7 +164,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -176,7 +173,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -285,7 +281,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -295,7 +290,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -338,10 +332,20 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-logger-pino/
       - run:
+          name: core-p2p - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-p2p/
+      - run:
           name: core-json-rpc - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-json-rpc/
+      - run:
+          name: core-p2p - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-p2p/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -399,7 +403,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -409,7 +412,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -421,11 +423,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-p2p - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-p2p/
       - run:
           name: core-snapshots - unit
           command: >-
@@ -461,11 +458,6 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/crypto/
-      - run:
-          name: core-p2p - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-p2p/
       - run:
           name: core-transaction-pool - integration
           command: >-
@@ -528,7 +520,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -538,7 +529,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -581,10 +571,20 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-logger-pino/
       - run:
+          name: core-p2p - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-p2p/
+      - run:
           name: core-json-rpc - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-json-rpc/
+      - run:
+          name: core-p2p - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-p2p/
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -642,7 +642,6 @@ jobs:
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
@@ -652,7 +651,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -664,11 +662,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-p2p - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-p2p/
       - run:
           name: core-snapshots - unit
           command: >-
@@ -704,11 +697,6 @@ jobs:
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/crypto/
-      - run:
-          name: core-p2p - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-p2p/
       - run:
           name: core-transaction-pool - integration
           command: >-
