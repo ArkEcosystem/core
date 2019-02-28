@@ -1,5 +1,3 @@
-import { delegateCalculator } from "@arkecosystem/core-utils";
-
 /**
  * Filter an Array of Objects based on the given parameters.
  * @param  {Array} rows
@@ -42,22 +40,13 @@ export = <T>(rows: T[], params, filters) =>
                 if (params[elem].hasOwnProperty("from") || params[elem].hasOwnProperty("to")) {
                     let isMoreThan = true;
                     let isLessThan = true;
-                    let value = item[elem];
-
-                    if (elem === "approval") {
-                        value = delegateCalculator.calculateApproval(item);
-                    } else if (elem === "productivity") {
-                        value = delegateCalculator.calculateProductivity(item);
-                    } else if (elem === "forgedTotal") {
-                        value = delegateCalculator.calculateForgedTotal(item);
-                    }
 
                     if (params[elem].hasOwnProperty("from")) {
-                        isMoreThan = value >= params[elem].from;
+                        isMoreThan = item[elem] >= params[elem].from;
                     }
 
                     if (params[elem].hasOwnProperty("to")) {
-                        isLessThan = value <= params[elem].to;
+                        isLessThan = item[elem] <= params[elem].to;
                     }
 
                     return isMoreThan && isLessThan;

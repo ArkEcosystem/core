@@ -14,12 +14,38 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
 
     /**
      * Get all local delegates.
+     * @param  {Object} params
+     * @return {Object}
      */
-    public getLocalDelegates() {
+    public getLocalDelegates(params: Database.IParameters = {}) {
         // TODO: What's the diff between this and just calling 'allByUsername'
-        return this.databaseServiceProvider()
+        let delegates = this.databaseServiceProvider()
             .walletManager.allByAddress()
             .filter(wallet => !!wallet.username);
+
+        if (
+            params.hasOwnProperty("approval") ||
+            params.hasOwnProperty("productivity") ||
+            params.hasOwnProperty("forgedTotal")
+        ) {
+            delegates = delegates.map(delegate => {
+                if (params.hasOwnProperty("approval")) {
+                    delegate["approval"] = delegateCalculator.calculateApproval(delegate);
+                }
+
+                if (params.hasOwnProperty("productivity")) {
+                    delegate["productivity"] = delegateCalculator.calculateProductivity(delegate);
+                }
+
+                if (params.hasOwnProperty("forgedTotal")) {
+                    delegate["forgedTotal"] = delegateCalculator.calculateForgedTotal(delegate);
+                }
+
+                return delegate;
+            });
+        }
+
+        return delegates;
     }
 
     /**
@@ -104,7 +130,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
 
         this.applyOrder(params);
 
-        let delegates = filterRows(this.getLocalDelegates(), params, query);
+        let delegates = filterRows(this.getLocalDelegates(params), params, query);
         delegates = sortEntries(params, delegates, ["rate", "asc"]);
 
         return {
