@@ -110,8 +110,8 @@ describe("Commands - Transfer", () => {
         await TransferCommand.run(toFlags(opts));
 
         expect(expectedTransactions).toHaveLength(1);
-        for (const t of expectedTransactions) {
-            expect(t.signSignature).toBeDefined();
+        for (const transaction of expectedTransactions) {
+            expect(transaction.secondSignature).toBeDefined();
         }
     });
 });
