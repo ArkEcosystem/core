@@ -82,23 +82,6 @@ describe("AjvWrapper", () => {
             });
         });
 
-        describe("numericString", () => {
-            it("should be ok", () => {
-                expect(AjvWrapper.validate("numericString", "1234").error).toBeNull();
-            });
-
-            it("should not be ok", () => {
-                expect(AjvWrapper.validate("numericString", "+12").error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", ".1").error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", "1.0").error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", "€").error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", 1).error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", "").error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", null).error).not.toBeNull();
-                expect(AjvWrapper.validate("numericString", undefined).error).not.toBeNull();
-            });
-        });
-
         describe("alphanumeric", () => {
             it("should be ok", () => {
                 expect(AjvWrapper.validate("alphanumeric", "abcDE1234").error).toBeNull();

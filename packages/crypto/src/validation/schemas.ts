@@ -11,12 +11,6 @@ export const schemas = {
         pattern: "^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$",
     },
 
-    numericString: {
-        $id: "numericString",
-        type: "string",
-        pattern: "^[0-9]+$",
-    },
-
     alphanumeric: {
         $id: "alphanumeric",
         type: "string",
@@ -40,7 +34,7 @@ export const schemas = {
 
     blockId: {
         $id: "blockId",
-        $ref: "numericString",
+        $ref: "hex",
     },
 
     publicKey: {

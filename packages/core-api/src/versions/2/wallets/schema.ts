@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
@@ -50,7 +51,7 @@ export const transactions: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
@@ -94,7 +95,7 @@ export const transactionsSent: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
@@ -132,7 +133,7 @@ export const transactionsReceived: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
