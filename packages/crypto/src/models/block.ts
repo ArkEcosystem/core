@@ -136,7 +136,7 @@ export class Block implements IBlock {
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
-            this.applyGenesisBlockFix(this.data);
+            this.applyGenesisBlockFix(data as IBlockData);
         }
 
         // fix on real timestamp, this is overloading transaction
