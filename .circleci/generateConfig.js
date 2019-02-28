@@ -42,7 +42,7 @@ fs.readdir("./packages", (_, packages) => {
                     .map(pkg => ({
                             run: {
                                 name: `${pkg} - ${testType}`,
-                                command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /${testType}/${pkg}/`,
+                                command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /${testType}/${pkg}/ --coverageDirectory .coverage/${testType}/${pkg}`,
                             },
                         })
                     )
