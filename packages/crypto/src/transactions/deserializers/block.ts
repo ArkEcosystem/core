@@ -72,8 +72,8 @@ class BlockDeserializer {
         const transactions: Transaction[] = [];
         block.transactions = [];
         transactionLengths.forEach(length => {
-            const serializedHex = buf.readBytes(length).toString("hex");
-            const transaction = Transaction.fromHex(serializedHex);
+            const transactionBytes = buf.readBytes(length).toBuffer();
+            const transaction = Transaction.fromBytes(transactionBytes);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
         });
