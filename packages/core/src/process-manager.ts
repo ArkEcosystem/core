@@ -69,6 +69,10 @@ class ProcessManager {
         }
     }
 
+    public missing(name: string): boolean {
+        return !this.exists(name);
+    }
+
     public list(token: string): any {
         try {
             const { stdout } = this.exec("pm2 jlist");

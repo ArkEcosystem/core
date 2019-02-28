@@ -21,20 +21,8 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
         try {
             if (processManager.exists(processName)) {
-                if (processManager.hasUnknownState(processName)) {
-                    this.warn(`The "${processName}" process has entered an unknown state, aborting start.`);
-                    return;
-                }
-
-                if (processManager.hasErrored(processName)) {
-                    this.warn(`The "${processName}" process has previously errored, aborting start.`);
-                    return;
-                }
-
-                if (processManager.isRunning(processName)) {
-                    this.warn(`The "${processName}" process is already running.`);
-                    return;
-                }
+                this.abortUnknownProcess(processName);
+                this.abortRunningProcess(processName);
             }
 
             cli.action.start(`Starting ${processName}`);
@@ -44,13 +32,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
             this.error(error.message);
         } finally {
             cli.action.stop();
-        }
-    }
-
-    protected abortWhenRunning(processName: string): void {
-        if (processManager.isRunning(processName)) {
-            this.warn(`The "${processName}" process is already running.`);
-            process.exit();
         }
     }
 }
