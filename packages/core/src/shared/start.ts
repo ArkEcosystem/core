@@ -21,8 +21,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
         try {
             if (processManager.exists(processName)) {
                 if (processManager.isOnline(processName)) {
-                    cli.action.start(`Restarting ${processName}`);
-
                     const response = await prompts({
                         type: "confirm",
                         name: "confirm",
@@ -34,11 +32,13 @@ export abstract class AbstractStartCommand extends BaseCommand {
                         return;
                     }
 
+                    cli.action.start(`Restarting ${processName}`);
+
                     processManager.restart(processName);
                 } else if (processManager.isStopped(processName)) {
                     cli.action.start(`Starting ${processName}`);
 
-                    processManager.start(options, flags.daemon === false);
+                    processManager.restart(processName);
                 }
             } else {
                 cli.action.start(`Starting ${processName}`);
