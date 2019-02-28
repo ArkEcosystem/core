@@ -4,6 +4,7 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { TransactionVersionError } from "../../errors";
+import { Address } from "../../identities";
 import { configManager } from "../../managers";
 import { Bignum, maxVendorFieldLength } from "../../utils";
 import { ITransactionData } from "../interfaces";
@@ -121,7 +122,9 @@ export class TransactionSerializer {
         const isBrokenTransaction = Object.values(transactionIdFixTable).includes(transaction.id);
         const correctType = transaction.type !== 1 && transaction.type !== 4;
         if (transaction.recipientId && (isBrokenTransaction || correctType)) {
-            const recipient = bs58check.decode(transaction.recipientId);
+            const recipientId =
+                transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
+            const recipient = bs58check.decode(recipientId);
             for (const byte of recipient) {
                 bb.writeByte(byte);
             }

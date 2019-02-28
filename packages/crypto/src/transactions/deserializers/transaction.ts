@@ -35,7 +35,7 @@ class TransactionDeserializer {
         }
 
         data.id = crypto.getId(data);
-        instance.serialized = Buffer.from(buffer.flip().toBuffer());
+        instance.serialized = buffer.flip().toBuffer();
 
         return instance;
     }
@@ -123,13 +123,6 @@ class TransactionDeserializer {
 
         if (transaction.vendorFieldHex) {
             transaction.vendorField = Buffer.from(transaction.vendorFieldHex, "hex").toString("utf8");
-        }
-
-        if (
-            transaction.type === TransactionTypes.SecondSignature ||
-            transaction.type === TransactionTypes.MultiSignature
-        ) {
-            transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
         }
     }
 
