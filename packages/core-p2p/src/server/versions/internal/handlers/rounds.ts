@@ -25,7 +25,7 @@ export const current = {
         const reward = config.getMilestone(height).reward;
         const delegates = await databaseService.getActiveDelegates(height);
         const timestamp = slots.getTime();
-
+        const blockTimestamp = slots.getSlotNumber(timestamp) * blockTime;
         const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
         const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
 
@@ -33,7 +33,7 @@ export const current = {
             data: {
                 current: +(height / maxActive),
                 reward,
-                timestamp,
+                timestamp: blockTimestamp,
                 delegates,
                 currentForger: delegates[currentForger],
                 nextForger: delegates[nextForger],
