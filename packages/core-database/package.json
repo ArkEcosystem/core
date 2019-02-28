@@ -39,15 +39,15 @@
         "@arkecosystem/core-utils": "^2.2.0-beta.11",
         "@arkecosystem/crypto": "^2.2.0-beta.11",
         "@arkecosystem/utils": "^0.2.4",
-        "@types/lodash.clonedeep": "^4.5.4",
-        "@types/lodash.compact": "^3.0.4",
-        "@types/lodash.uniq": "^4.5.4",
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
+        "@types/lodash.clonedeep": "^4.5.4",
+        "@types/lodash.compact": "^3.0.4",
+        "@types/lodash.uniq": "^4.5.4",
         "@arkecosystem/core-test-utils": "^2.2.0-beta.11",
         "@types/pluralize": "^0.0.29"
     },

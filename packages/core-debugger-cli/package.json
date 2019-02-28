@@ -44,8 +44,10 @@
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
-        "@types/clipboardy": "^1.1.0",
         "clipboardy": "^1.2.3"
+    },
+    "devDependencies": {
+        "@types/clipboardy": "^1.1.0"
     },
     "publishConfig": {
         "access": "public"
