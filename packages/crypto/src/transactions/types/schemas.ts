@@ -110,6 +110,7 @@ export const vote = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.Vote },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        recipientId: { $ref: "address" },
         asset: {
             type: "object",
             required: ["votes"],

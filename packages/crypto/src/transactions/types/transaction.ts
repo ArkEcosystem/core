@@ -36,10 +36,15 @@ export abstract class Transaction {
     private static fromSerialized(serialized: string | Buffer): Transaction {
         try {
             const transaction = TransactionDeserializer.deserialize(serialized);
+            const { value, error } = this.validateSchema(transaction.data, true);
+            if (error !== null) {
+                throw new TransactionSchemaError(error);
+            }
+
             transaction.isVerified = transaction.verify();
             return transaction;
         } catch (error) {
-            if (error instanceof TransactionVersionError) {
+            if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
                 throw error;
             }
 
