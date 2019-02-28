@@ -1,11 +1,10 @@
 import { models } from "@arkecosystem/crypto";
 
 export const sampleBlock = new models.Block({
-    id: "4398082439836560423",
     version: 0,
     timestamp: 35751416,
     height: 3342573,
-    previousBlock: "14909996519459393858",
+    previousBlock: "0000000000000000000000000000000000000000000000000000000000000000",
     numberOfTransactions: 0,
     totalAmount: 0,
     totalFee: 0,
