@@ -317,6 +317,5 @@ export class Block implements IBlock {
     private applyGenesisBlockFix(data: IBlockData): void {
         this.data.id = data.id;
         this.data.idHex = Block.toBytesHex(this.data.id);
-        delete this.data.previousBlock;
     }
 }
