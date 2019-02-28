@@ -55,6 +55,10 @@ class ProcessManager {
         return this.status(name) === ProcessState.Errored;
     }
 
+    public hasUnknownState(name: string): boolean {
+        return !Object.values(ProcessState).includes(this.status(name));
+    }
+
     public exists(name: string): boolean {
         try {
             const { stdout } = this.exec(`pm2 id ${name} | awk '{ print $2 }'`);
