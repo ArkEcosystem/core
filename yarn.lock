@@ -1815,7 +1815,7 @@
   dependencies:
     "@types/integer" "*"
 
-"@types/bip32@^1.0.0", "@types/bip32@^1.0.1":
+"@types/bip32@^1.0.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/bip32/-/bip32-1.0.1.tgz#366e31ebf30809542f470bad13f451898c67d32a"
   integrity sha512-wYXX2aKqnY5AsUep6eZsOPsZCZhzAJDeqO4ut19FY0Nhm6eyo4jN0GWEhs1xKoCuL4yU6WsLHXr0sx8tnWcnsg==
@@ -1866,7 +1866,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bytebuffer@^5.0.37", "@types/bytebuffer@^5.0.40":
+"@types/bytebuffer@^5.0.37":
   version "5.0.40"
   resolved "https://registry.yarnpkg.com/@types/bytebuffer/-/bytebuffer-5.0.40.tgz#d6faac40dcfb09cd856cdc4c01d3690ba536d3ee"
   integrity sha512-h48dyzZrPMz25K6Q4+NCwWaxwXany2FhQg/ErOcdZS1ZpsaDnDMZg8JYLMTGz7uvXKrcKGJUZJlZObyfgdaN9g==
@@ -13698,7 +13698,7 @@ ts-jest@^23.10.5:
     semver "^5.5"
     yargs-parser "10.x"
 
-ts-loader@^5.3.1, ts-loader@^5.3.3:
+ts-loader@^5.3.1:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-5.3.3.tgz#8b4af042e773132d86b3c99ef0acf3b4d325f473"
   integrity sha512-KwF1SplmOJepnoZ4eRIloH/zXL195F51skt7reEsS6jvDqzgc/YSbz9b8E07GxIUwLXdcD4ssrJu6v8CwaTafA==
@@ -14248,7 +14248,7 @@ webpack-cli@^3.1.2:
     v8-compile-cache "^2.0.2"
     yargs "^12.0.4"
 
-webpack-merge@^4.1.5, webpack-merge@^4.2.1:
+webpack-merge@^4.1.5:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/webpack-merge/-/webpack-merge-4.2.1.tgz#5e923cf802ea2ace4fd5af1d3247368a633489b4"
   integrity sha512-4p8WQyS98bUJcCvFMbdGZyZmsKuWjWVnVHnAS3FFg0HDaRVrPbkivx2RYCre8UiemD67RsiFFLfn4JhLAin8Vw==

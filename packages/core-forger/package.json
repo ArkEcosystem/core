@@ -37,10 +37,6 @@
         "@arkecosystem/core-interfaces": "^2.2.0-beta.11",
         "@arkecosystem/core-p2p": "^2.2.0-beta.11",
         "@arkecosystem/crypto": "^2.2.0-beta.11",
-        "@types/lodash.isempty": "^4.4.4",
-        "@types/lodash.sample": "^4.2.4",
-        "@types/lodash.uniq": "^4.5.4",
-        "@types/pluralize": "^0.0.29",
         "axios": "^0.18.0",
         "delay": "^4.1.0",
         "lodash.isempty": "^4.4.0",
@@ -50,6 +46,10 @@
     },
     "devDependencies": {
         "@arkecosystem/core-test-utils": "^2.2.0-beta.11",
+        "@types/lodash.isempty": "^4.4.4",
+        "@types/lodash.sample": "^4.2.4",
+        "@types/lodash.uniq": "^4.5.4",
+        "@types/pluralize": "^0.0.29",
         "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {

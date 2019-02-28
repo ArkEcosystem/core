@@ -35,10 +35,12 @@
         "@arkecosystem/core-http-utils": "^2.2.0-beta.11",
         "@arkecosystem/core-utils": "^2.2.0-beta.11",
         "@arkecosystem/crypto": "^2.2.0-beta.11",
-        "@types/handlebars": "^4.0.40",
-        "@types/lodash.sumby": "^4.6.4",
         "handlebars": "^4.1.0",
         "lodash.sumby": "^4.6.0"
+    },
+    "devDependencies": {
+        "@types/handlebars": "^4.0.40",
+        "@types/lodash.sumby": "^4.6.4"
     },
     "publishConfig": {
         "access": "public"

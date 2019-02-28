@@ -32,8 +32,6 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0-beta.11",
-        "@types/boom": "^7.2.1",
-        "@types/micromatch": "^3.1.0",
         "boom": "^7.3.0",
         "expand-home-dir": "^0.0.3",
         "good": "^8.1.2",
@@ -46,6 +44,14 @@
         "micromatch": "^3.1.10",
         "vision": "^5.4.4"
     },
+    "devDependencies": {
+        "@types/hapi": "^18.0.0",
+        "@types/inert": "^5.1.2",
+        "@types/vision": "^5.3.5",
+        "@types/boom": "^7.2.1",
+        "@types/micromatch": "^3.1.0",
+        "axios": "^0.18.0"
+    },
     "publishConfig": {
         "access": "public"
     },
@@ -54,11 +60,5 @@
     },
     "jest": {
         "preset": "../../jest-preset.json"
-    },
-    "devDependencies": {
-        "@types/hapi": "^18.0.0",
-        "@types/inert": "^5.1.2",
-        "@types/vision": "^5.3.5",
-        "axios": "^0.18.0"
     }
 }

@@ -36,16 +36,18 @@
         "@arkecosystem/core-container": "^2.2.0-beta.11",
         "@arkecosystem/crypto": "^2.2.0-beta.11",
         "@arkecosystem/utils": "^0.2.4",
-        "@types/bip39": "^2.4.1",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.isequal": "^4.5.3",
-        "@types/lodash.sortby": "^4.7.4",
         "bip39": "^2.5.0",
         "lodash.get": "^4.4.2",
         "lodash.isequal": "^4.5.0",
         "lodash.sortby": "^4.7.0",
         "superheroes": "^2.0.0",
         "xstate": "^4.3.1"
+    },
+    "devDependencies": {
+        "@types/bip39": "^2.4.1",
+        "@types/lodash.get": "^4.4.4",
+        "@types/lodash.isequal": "^4.5.3",
+        "@types/lodash.sortby": "^4.7.4"
     },
     "publishConfig": {
         "access": "public"

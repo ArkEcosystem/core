@@ -38,7 +38,6 @@
         "@arkecosystem/core-interfaces": "^2.2.0-beta.11",
         "@arkecosystem/core-utils": "^2.2.0-beta.11",
         "@arkecosystem/crypto": "^2.2.0-beta.11",
-        "@types/lodash.get": "^4.4.4",
         "async": "^2.6.2",
         "awilix": "^4.2.0",
         "delay": "^4.1.0",
@@ -51,6 +50,7 @@
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.2.0-beta.11",
         "@arkecosystem/core-test-utils": "^2.2.0-beta.11",
+        "@types/lodash.get": "^4.4.4",
         "@types/async": "^2.4.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
