@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-json-rpc",
     "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
-    "version": "2.2.0-beta.11",
+    "version": "2.2.0-beta.12",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -32,10 +32,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.11",
-        "@arkecosystem/core-http-utils": "^2.2.0-beta.11",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.11",
-        "@arkecosystem/crypto": "^2.2.0-beta.11",
+        "@arkecosystem/core-container": "^2.2.0-beta.12",
+        "@arkecosystem/core-http-utils": "^2.2.0-beta.12",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.12",
+        "@arkecosystem/crypto": "^2.2.0-beta.12",
         "@keyv/sqlite": "^2.0.0",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
@@ -48,14 +48,14 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.2.0-beta.11",
-        "@arkecosystem/core-test-utils": "^2.2.0-beta.11",
-        "@types/is-reachable": "^3.0.0",
-        "@types/keyv__sqlite": "^2.0.0",
+        "@arkecosystem/core-p2p": "^2.2.0-beta.12",
+        "@arkecosystem/core-test-utils": "^2.2.0-beta.12",
         "@types/bip39": "^2.4.1",
         "@types/boom": "^7.2.1",
+        "@types/is-reachable": "^3.0.0",
         "@types/joi": "^14.3.1",
         "@types/keyv": "^3.1.0",
+        "@types/keyv__sqlite": "^2.0.0",
         "@types/lodash.get": "^4.4.4",
         "@types/uuid": "^3.4.4",
         "@types/wif": "^2.0.1",
