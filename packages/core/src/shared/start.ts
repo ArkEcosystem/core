@@ -20,9 +20,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
         try {
             if (processManager.exists(processName)) {
-                const app: ProcessDescription = processManager.describe(processName);
-
-                if (app.pm2_env.status === "online") {
+                if (processManager.isOnline(processName)) {
                     cli.action.start(`Restarting ${processName}`);
 
                     const response = await prompts({
@@ -35,7 +33,9 @@ export abstract class AbstractStartCommand extends BaseCommand {
                         this.warn(`The "${processName}" process has not been restarted.`);
                         return;
                     }
-                } else if (app.pm2_env.status === "stopped") {
+
+                    processManager.restart(processName);
+                } else if (processManager.isStopped(processName)) {
                     cli.action.start(`Starting ${processName}`);
 
                     processManager.start(options, flags.daemon === false);
@@ -53,9 +53,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
     }
 
     protected abortWhenRunning(processName: string): void {
-        const app: ProcessDescription = processManager.describe(processName);
-
-        if (app && app.pm2_env.status === "online") {
+        if (processManager.isOnline(processName)) {
             this.warn(`The "${processName}" process is already running.`);
             process.exit();
         }
