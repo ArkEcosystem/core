@@ -1,10 +1,12 @@
 import pluralize from "pluralize";
 import { crypto, HashAlgorithms, slots } from "../crypto";
+import { BlockSchemaError } from "../errors";
 import { configManager } from "../managers/config";
 import { ITransactionData, Transaction } from "../transactions";
 import { BlockDeserializer } from "../transactions/deserializers";
 import { BlockSerializer } from "../transactions/serializers";
 import { Bignum } from "../utils";
+import { AjvWrapper } from "../validation";
 
 export interface BlockVerification {
     verified: boolean;
@@ -115,18 +117,26 @@ export class Block implements IBlock {
     public verification: BlockVerification;
 
     constructor(data: IBlockData | string) {
+        let deserialized;
         if (typeof data === "string") {
-            data = Block.deserialize(data);
+            this.serialized = data;
+        } else {
+            this.serialized = Block.serializeFull(data).toString("hex");
         }
 
-        this.serialized = Block.serializeFull(data).toString("hex");
-
-        const deserialized = BlockDeserializer.deserialize(this.serialized);
+        deserialized = BlockDeserializer.deserialize(this.serialized);
         this.data = deserialized.data;
 
+        const { value, error } = AjvWrapper.validate("block", deserialized.data);
+        if (error !== null) {
+            throw new BlockSchemaError(error);
+        }
+
+        this.data = value;
+
         // TODO genesis block calculated id is wrong for some reason
-        if (data.height === 1) {
-            this.applyGenesisBlockFix(data);
+        if (this.data.height === 1) {
+            this.applyGenesisBlockFix(this.data);
         }
 
         // fix on real timestamp, this is overloading transaction
