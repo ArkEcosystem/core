@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for Ark Core",
-    "version": "2.2.0-beta.11",
+    "version": "2.2.0-beta.12",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -40,8 +40,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-utils": "^2.2.0-beta.11",
-        "@arkecosystem/crypto": "^2.2.0-beta.11",
+        "@arkecosystem/core-utils": "^2.2.0-beta.12",
+        "@arkecosystem/crypto": "^2.2.0-beta.12",
         "@oclif/command": "^1.5.10",
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
@@ -57,12 +57,12 @@
         "superheroes": "^2.0.0"
     },
     "devDependencies": {
-        "axios-mock-adapter": "^1.16.0",
         "@types/bip39": "^2.4.1",
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.4",
         "@types/pino": "^5.8.4",
-        "@types/pluralize": "^0.0.29"
+        "@types/pluralize": "^0.0.29",
+        "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
         "access": "public"
