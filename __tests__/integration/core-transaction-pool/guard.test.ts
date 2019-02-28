@@ -427,33 +427,6 @@ describe("Transaction Guard", () => {
             expect(wallet2.username).toBe(null);
         });
 
-        describe("Sign a transaction then change some fields shouldn't pass validation", async () => {
-            const delegateRegistrations = [
-                generateDelegateRegistration("unitnet", wallets[14].passphrase, 1, false, "test_delegate")[0],
-                generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
-            ];
-
-            const result = await guard.validate(delegateRegistrations.map(tx => tx.data));
-            expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
-
-            delegateRegistrations.forEach(tx => {
-                expect(guard.errors[tx.id]).toEqual([
-                    {
-                        type: "ERR_CONFLICT",
-                        message: `Multiple delegate registrations for "${
-                            tx.data.asset.delegate.username
-                        }" in transaction payload`,
-                    },
-                ]);
-            });
-
-            const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
-            const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
-
-            expect(wallet1.username).toBe(null);
-            expect(wallet2.username).toBe(null);
-        });
-
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
             it("should not validate when changing fields after signing - transfer", async () => {
                 const sender = delegates[21];
