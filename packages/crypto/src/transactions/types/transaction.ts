@@ -223,6 +223,13 @@ export abstract class Transaction {
     }
 
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
+        // FIXME: legacy type 4 need special treatment
+        if (data.type === TransactionTypes.MultiSignature) {
+            data.amount = new Bignum(data.amount);
+            data.fee = new Bignum(data.amount);
+            return { value: data, error: null };
+        }
+
         const { $id } = TransactionRegistry.get(data.type).getSchema();
         return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
