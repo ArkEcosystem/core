@@ -70,7 +70,6 @@ export const schemas = {
             "reward",
             "generatorPublicKey",
             "blockSignature",
-            "transactions",
         ],
         additionalProperties: false,
         properties: {
@@ -82,8 +81,8 @@ export const schemas = {
             previousBlockHex: { blockId: { hex: true, allowNullWhenGenesis: true } },
             height: { type: "integer", minimum: 1 },
             numberOfTransactions: { type: "integer" },
-            totalAmount: { bignumber: { minimum: 0, bypassGenesis: true } },
-            totalFee: { bignumber: { minimum: 0, bypassGenesis: true } },
+            totalAmount: { bignumber: { minimum: 0, bypassGenesis: true, block: true } },
+            totalFee: { bignumber: { minimum: 0, bypassGenesis: true, block: true } },
             reward: { bignumber: { minimum: 0 } },
             payloadLength: { type: "integer", minimum: 0 },
             payloadHash: { $ref: "hex" },

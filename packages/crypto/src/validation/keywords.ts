@@ -71,7 +71,11 @@ const bignumber = (ajv: Ajv) => {
                 let bypassGenesis = false;
                 if (schema.bypassGenesis) {
                     if (parentObject.id) {
-                        bypassGenesis = isGenesisTransaction(parentObject.id);
+                        if (schema.block) {
+                            bypassGenesis = parentObject.height === 1;
+                        } else {
+                            bypassGenesis = isGenesisTransaction(parentObject.id);
+                        }
                     }
                 }
 
@@ -98,6 +102,7 @@ const bignumber = (ajv: Ajv) => {
                 minimum: { type: "integer" },
                 maximum: { type: "integer" },
                 bypassGenesis: { type: "boolean" },
+                block: { type: "boolean" },
             },
             additionalItems: false,
         },
