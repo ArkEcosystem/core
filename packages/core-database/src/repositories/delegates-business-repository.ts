@@ -40,7 +40,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
 
     /**
      * Search all delegates.
-     * TODO Currently it searches by username only
+     * TODO Search by last block
      * @param  {Object} [params]
      * @param  {Number} [params.limit] - Limit the number of results
      * @param  {Number} [params.offset] - Skip some results
@@ -88,6 +88,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
                 "forgedTotal",
                 "missedBlocks",
                 "producedBlocks",
+                "productivity",
                 "voteBalance",
             ],
         };

@@ -42,22 +42,22 @@ export = <T>(rows: T[], params, filters) =>
                 if (params[elem].hasOwnProperty("from") || params[elem].hasOwnProperty("to")) {
                     let isMoreThan = true;
                     let isLessThan = true;
-                    let property = item[elem];
+                    let value = item[elem];
 
                     if (elem === "approval") {
-                        property = delegateCalculator.calculateApproval(item);
+                        value = delegateCalculator.calculateApproval(item);
                     } else if (elem === "productivity") {
-                        property = delegateCalculator.calculateProductivity(item);
+                        value = delegateCalculator.calculateProductivity(item);
                     } else if (elem === "forgedTotal") {
-                        property = delegateCalculator.calculateForgedTotal(item);
+                        value = delegateCalculator.calculateForgedTotal(item);
                     }
 
                     if (params[elem].hasOwnProperty("from")) {
-                        isMoreThan = property >= params[elem].from;
+                        isMoreThan = value >= params[elem].from;
                     }
 
                     if (params[elem].hasOwnProperty("to")) {
-                        isLessThan = property <= params[elem].to;
+                        isLessThan = value <= params[elem].to;
                     }
 
                     return isMoreThan && isLessThan;
