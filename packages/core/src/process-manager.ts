@@ -43,15 +43,15 @@ class ProcessManager {
         }
     }
 
-    public isOnline(name: string): any {
+    public isOnline(name: string): boolean {
         return this.status(name) === ProcessState.Online;
     }
 
-    public isStopped(name: string): any {
+    public isStopped(name: string): boolean {
         return this.status(name) === ProcessState.Stopped;
     }
 
-    public hasErrored(name: string): any {
+    public hasErrored(name: string): boolean {
         return this.status(name) === ProcessState.Errored;
     }
 
