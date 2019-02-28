@@ -1,8 +1,8 @@
-import { generateTransfers } from "../../../utils/generators/transactions/transfer";
 import { models, Transaction } from "@arkecosystem/crypto";
-import blockFixture from "../fixtures/block.json";
+import { generateTransfers } from "../../../utils/generators/transactions/transfer";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
+import blockFixture from "../fixtures/block.json";
 
 const { Block } = models;
 
