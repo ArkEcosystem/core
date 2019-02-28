@@ -10,27 +10,8 @@ export class Network {
      * @return {void}
      */
     public static setUp(opts: any) {
-        let config;
+        const config = NetworkManager.findByName(opts.network);
 
-        // Default configuration...
-        if (opts.network) {
-            config = NetworkManager.findByName(opts.network);
-        } else {
-            try {
-                const networkPath = resolve(expandHomeDir(process.env.CORE_PATH_CONFIG));
-
-                config = {
-                    exceptions: require(`${networkPath}/exceptions`),
-                    milestones: require(`${networkPath}/milestones`),
-                    genesisBlock: require(`${networkPath}/genesisBlock`),
-                    network: require(`${networkPath}/network`),
-                };
-            } catch (error) {
-                config = false;
-            }
-        }
-
-        // Validate the configuration...
         const { error } = Joi.validate(config, schemaNetwork);
 
         if (error) {

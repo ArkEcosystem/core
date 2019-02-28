@@ -1,12 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import dayjs from "dayjs-ext";
+import Joi from "joi";
 import socketCluster from "socketcluster-client";
 import util from "util";
 import { config as localConfig } from "./config";
 import { guard } from "./court";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { PeerVerifier } from "./peer-verifier";
+import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
+import { replySchemas } from "./reply-schemas";
 import { SocketErrors } from "./socket-server/constants";
 import { socketEmit } from "./utils/socket";
 
@@ -35,6 +37,7 @@ export class Peer implements P2P.IPeer {
     public state: any;
     public url: string;
     public lastPinged: dayjs.Dayjs | null;
+    public verification: PeerVerificationResult | null;
 
     private config: any;
     private logger: Logger.ILogger;
@@ -53,6 +56,7 @@ export class Peer implements P2P.IPeer {
         this.state = {};
         this.offences = [];
         this.lastPinged = null;
+        this.verification = null;
 
         this.headers = {
             version: app.getVersion(),
@@ -152,11 +156,7 @@ export class Peer implements P2P.IPeer {
 
             return blocks;
         } catch (error) {
-            this.logger.debug(
-                `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
-                    depth: 1,
-                })}`,
-            );
+            this.logger.debug(`Cannot download blocks from peer ${this.url} because of "${error.message}"`);
 
             this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
 
@@ -181,7 +181,7 @@ export class Peer implements P2P.IPeer {
         const body: any = await this.emit("p2p.peer.getStatus", null, timeoutMsec);
 
         if (!body) {
-            throw new Error(`Peer ${this.ip} is unresponsive`);
+            throw new Error(`Peer ${this.ip}: could not get status response`);
         }
 
         if (!body.success) {
@@ -195,7 +195,8 @@ export class Peer implements P2P.IPeer {
                 throw new PeerPingTimeoutError(timeoutMsec);
             }
 
-            if (!(await peerVerifier.checkState(body, deadline))) {
+            this.verification = await peerVerifier.checkState(body, deadline);
+            if (this.verification === null) {
                 throw new PeerVerificationFailedError();
             }
         }
@@ -221,6 +222,10 @@ export class Peer implements P2P.IPeer {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         const body: any = await this.emit("p2p.peer.getPeers", null);
+
+        if (!body) {
+            return [];
+        }
 
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
@@ -249,8 +254,6 @@ export class Peer implements P2P.IPeer {
             }
 
             if (!body.common) {
-                const bodyStr = util.inspect(body, { depth: 2 });
-                this.logger.error(`${errorMessage}: falsy "common" property in response: ${bodyStr}`);
                 return false;
             }
 
@@ -288,11 +291,60 @@ export class Peer implements P2P.IPeer {
      * @return {(Object[]|undefined)}
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
-        return this.emit("p2p.peer.getBlocks", {
+        const response: any = this.emit("p2p.peer.getBlocks", {
             lastBlockHeight: afterBlockHeight,
             headers: this.headers,
             timeout: 10000,
         });
+
+        /*
+        // TODO adapt validateReply to sockets
+        if (!this.validateReply(response, endpoint)) {
+            throw new Error("Invalid reply to request for blocks");
+        }*/
+
+        return response;
+    }
+
+    /**
+     * Validate a reply from the peer according to a predefined JSON schema rules.
+     * @param {Object} reply peer's reply
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @return {Boolean} true if validated successfully
+     */
+    private validateReply(reply: any, endpoint: string): boolean {
+        let schema = replySchemas[endpoint];
+        if (schema === undefined) {
+            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
+            let len = 0;
+            const definedEndpoints = Object.keys(replySchemas);
+            for (const d of definedEndpoints) {
+                if (endpoint.startsWith(d) && len < d.length) {
+                    schema = replySchemas[d];
+                    len = d.length;
+                }
+            }
+
+            if (schema === undefined) {
+                this.logger.error(
+                    `Can't validate reply from "${endpoint}": none of the predefined ` +
+                        `schemas matches: ` +
+                        JSON.stringify(definedEndpoints),
+                );
+                return false;
+            }
+        }
+
+        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+
+        if (result.error) {
+            this.logger.error(
+                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` + result.error.message,
+            );
+            return false;
+        }
+
+        return true;
     }
 
     /*

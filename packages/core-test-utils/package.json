@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-test-utils",
     "description": "Test Utilities for Ark Core",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.11",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
@@ -17,7 +17,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -34,15 +34,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.4",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.4",
-        "@arkecosystem/core-jest-matchers": "^2.2.0-beta.4",
-        "@arkecosystem/crypto": "^2.2.0-beta.4",
-        "@types/bip39": "^2.4.1",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.isequal": "^4.5.3",
-        "@types/lodash.isstring": "^4.0.4",
-        "@types/lodash.sortby": "^4.7.4",
+        "@arkecosystem/core-container": "^2.2.0-beta.11",
+        "@arkecosystem/core-interfaces": "^2.2.0-beta.11",
+        "@arkecosystem/core-jest-matchers": "^2.2.0-beta.11",
+        "@arkecosystem/crypto": "^2.2.0-beta.11",
         "awilix": "^4.2.0",
         "bip39": "^2.5.0",
         "lodash.get": "^4.4.2",
@@ -51,6 +46,13 @@
         "lodash.sortby": "^4.7.0",
         "superheroes": "^2.0.0",
         "xstate": "^4.3.1"
+    },
+    "devDependencies": {
+        "@types/bip39": "^2.4.1",
+        "@types/lodash.get": "^4.4.4",
+        "@types/lodash.isequal": "^4.5.3",
+        "@types/lodash.isstring": "^4.0.4",
+        "@types/lodash.sortby": "^4.7.4"
     },
     "publishConfig": {
         "access": "public"

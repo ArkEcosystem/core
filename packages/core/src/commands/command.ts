@@ -1,11 +1,15 @@
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
+import cli from "cli-ux";
 import envPaths from "env-paths";
-import { readdirSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
-import { join } from "path";
-import pm2 from "pm2";
+import { join, resolve } from "path";
 import prompts from "prompts";
+import { configManager } from "../helpers/config";
+import { confirm } from "../helpers/prompts";
+import { processManager } from "../process-manager";
+import { CommandFlags, Options } from "../types";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
@@ -16,8 +20,6 @@ export abstract class BaseCommand extends Command {
     public static flagsNetwork: Record<string, object> = {
         token: flags.string({
             description: "the name of the token that should be used",
-            default: "ark",
-            required: true,
         }),
         network: flags.string({
             description: "the name of the network that should be used",
@@ -58,9 +60,19 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
+    public static flagsSnapshot: Record<string, object> = {
+        ...BaseCommand.flagsNetwork,
+        skipCompression: flags.boolean({
+            description: "skip gzip compression",
+        }),
+        trace: flags.boolean({
+            description: "dumps generated queries and settings to console",
+        }),
+    };
+
     protected tasks: Array<{ title: string; task: any }> = [];
 
-    protected buildPeerOptions(flags: Record<string, any>) {
+    protected buildPeerOptions(flags: CommandFlags) {
         const config = {
             networkStart: flags.networkStart,
             disableDiscovery: flags.disableDiscovery,
@@ -76,7 +88,7 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected async buildApplication(app, flags: Record<string, any>, config: Record<string, any>) {
+    protected async buildApplication(app, flags: CommandFlags, config: Options) {
         await app.setUp(version, flags, {
             ...{ skipPlugins: flags.skipPlugins },
             ...config,
@@ -85,7 +97,7 @@ export abstract class BaseCommand extends Command {
         return app;
     }
 
-    protected flagsToStrings(flags: Record<string, any>, ignoreKeys: string[] = []): string {
+    protected flagsToStrings(flags: CommandFlags, ignoreKeys: string[] = []): string {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {
@@ -112,11 +124,15 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async getPaths(flags: Record<string, any>): Promise<envPaths.Paths> {
-        const paths: envPaths.Paths = this.getEnvPaths(flags);
+    protected async getPaths(flags: CommandFlags): Promise<envPaths.Paths> {
+        let paths: envPaths.Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
             paths[key] = `${value}/${flags.network}`;
+        }
+
+        if (process.env.CORE_PATH_CONFIG) {
+            paths = { ...paths, ...{ config: resolve(process.env.CORE_PATH_CONFIG) } };
         }
 
         return paths;
@@ -125,15 +141,31 @@ export abstract class BaseCommand extends Command {
     protected async parseWithNetwork(command: any): Promise<any> {
         const { args, flags } = this.parse(command);
 
-        if (process.env.CORE_PATH_CONFIG) {
-            const network: string = process.env.CORE_PATH_CONFIG.split("/").pop();
+        if (!flags.token) {
+            flags.token = configManager.get("token");
+        }
+
+        if (process.env.CORE_PATH_CONFIG && !flags.network) {
+            let config: string = process.env.CORE_PATH_CONFIG;
+
+            if (!existsSync(config)) {
+                this.error(`The given config "${config}" does not exist.`);
+            }
+
+            if (config.endsWith("/")) {
+                config = config.slice(0, -1);
+            }
+
+            const network: string = config.split("/").pop();
 
             if (!this.isValidNetwork(network)) {
                 this.error(`The given network "${flags.network}" is not valid.`);
             }
 
             flags.network = network;
-        } else {
+        }
+
+        if (!flags.network) {
             const { config } = this.getEnvPaths(flags);
 
             try {
@@ -186,29 +218,7 @@ export abstract class BaseCommand extends Command {
         this.error("Please enter valid data and try again!");
     }
 
-    protected createPm2Connection(callback, noDaemonMode: boolean = false): void {
-        pm2.connect(noDaemonMode, error => {
-            if (error) {
-                this.error(error.message);
-            }
-
-            callback();
-        });
-    }
-
-    protected async describePm2Process(processName: string, callback): Promise<void> {
-        pm2.describe(processName, (error, apps) => {
-            if (error) {
-                pm2.disconnect();
-
-                this.error(error.message);
-            }
-
-            callback(apps[0]);
-        });
-    }
-
-    protected async buildBIP38(flags: Record<string, any>): Promise<Record<string, string>> {
+    protected async buildBIP38(flags: CommandFlags): Promise<Record<string, string>> {
         // initial values
         let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
         let password = flags.password || process.env.CORE_FORGER_PASSWORD;
@@ -219,7 +229,14 @@ export abstract class BaseCommand extends Command {
 
         // config
         const { config } = await this.getPaths(flags);
-        const delegates = require(join(config, "delegates.json"));
+
+        const configDelegates = join(config, "delegates.json");
+
+        if (!existsSync(configDelegates)) {
+            this.error(`The ${configDelegates} file does not exist.`);
+        }
+
+        const delegates = require(configDelegates);
 
         if (!bip38 && delegates.bip38) {
             bip38 = delegates.bip38;
@@ -267,7 +284,58 @@ export abstract class BaseCommand extends Command {
         return this.getNetworks().map(network => ({ title: network, value: network }));
     }
 
-    private getEnvPaths(flags: Record<string, any>): envPaths.Paths {
+    protected async restartProcess(processName: string) {
+        if (processManager.isRunning(processName)) {
+            await confirm(`Would you like to restart the ${processName} process?`, () => {
+                try {
+                    cli.action.start(`Restarting ${processName}`);
+
+                    processManager.restart(processName);
+                } catch (error) {
+                    this.error(error.message);
+                } finally {
+                    cli.action.stop();
+                }
+            });
+        }
+    }
+
+    protected abortRunningProcess(processName: string) {
+        if (processManager.isRunning(processName)) {
+            this.warn(`The "${processName}" process is already running.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortStoppedProcess(processName: string) {
+        if (processManager.hasStopped(processName)) {
+            this.warn(`The "${processName}" process is not running.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortErroredProcess(processName: string) {
+        if (processManager.hasErrored(processName)) {
+            this.warn(`The "${processName}" process has errored.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortUnknownProcess(processName: string) {
+        if (processManager.hasUnknownState(processName)) {
+            this.warn(`The "${processName}" process has entered an unknown state.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortMissingProcess(processName: string) {
+        if (processManager.missing(processName)) {
+            this.warn(`The "${processName}" process does not exist.`);
+            process.exit(1);
+        }
+    }
+
+    private getEnvPaths(flags: CommandFlags): envPaths.Paths {
         return envPaths(flags.token, { suffix: "core" });
     }
 }

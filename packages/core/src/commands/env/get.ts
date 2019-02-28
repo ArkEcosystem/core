@@ -1,5 +1,6 @@
 import envfile from "envfile";
 import { existsSync } from "fs-extra";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class GetCommand extends BaseCommand {
@@ -11,7 +12,7 @@ $ ark env:get CORE_LOG_LEVEL
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 

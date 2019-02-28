@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for Ark Core",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.0-beta.11",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -21,7 +21,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -40,17 +40,12 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-utils": "^2.2.0-beta.4",
-        "@arkecosystem/crypto": "^2.2.0-beta.4",
+        "@arkecosystem/core-utils": "^2.2.0-beta.11",
+        "@arkecosystem/crypto": "^2.2.0-beta.11",
         "@oclif/command": "^1.5.10",
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
-        "@types/bip39": "^2.4.1",
-        "@types/clipboardy": "^1.1.0",
-        "@types/lodash.fill": "^3.4.4",
-        "@types/pino": "^5.8.4",
-        "@types/pluralize": "^0.0.29",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
@@ -62,7 +57,12 @@
         "superheroes": "^2.0.0"
     },
     "devDependencies": {
-        "axios-mock-adapter": "^1.16.0"
+        "axios-mock-adapter": "^1.16.0",
+        "@types/bip39": "^2.4.1",
+        "@types/clipboardy": "^1.1.0",
+        "@types/lodash.fill": "^3.4.4",
+        "@types/pino": "^5.8.4",
+        "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
         "access": "public"

@@ -1,8 +1,7 @@
 import { flags } from "@oclif/command";
-import expandHomeDir from "expand-home-dir";
 import fs from "fs-extra";
-import { resolve } from "path";
 import prompts from "prompts";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 import { PublishCommand } from "./publish";
 
@@ -15,17 +14,14 @@ $ ark config:reset --network=mainnet
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
-        force: flags.boolean({
-            description: "force the configuration to be reset",
-        }),
     };
 
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(ResetCommand);
 
-        if (flags.force) {
+        if (flags.network) {
             return this.performReset(flags);
         }
 
@@ -43,7 +39,7 @@ $ ark config:reset --network=mainnet
         }
     }
 
-    private async performReset(flags: Record<string, any>): Promise<void> {
+    private async performReset(flags: CommandFlags): Promise<void> {
         const { config } = await this.getPaths(flags);
 
         this.addTask("Remove configuration", async () => {

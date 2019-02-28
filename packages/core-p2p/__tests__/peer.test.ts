@@ -115,6 +115,15 @@ describe("Peer", () => {
             expect(response).toBeArrayOfSize(1);
             expect(response[0].id).toBe(genesisBlockJSON.id);
         });
+
+        it("should update the height after download", async () => {
+            await addMock("getBlocks", { blocks: [genesisBlockJSON] });
+
+            peerMock.state.height = null;
+            await peerMock.downloadBlocks(1);
+
+            expect(peerMock.state.height).toBe(1);
+        });
     });
 
     describe("ping", () => {

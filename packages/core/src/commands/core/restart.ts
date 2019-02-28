@@ -1,4 +1,5 @@
 import { AbstractRestartCommand } from "../../shared/restart";
+import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RestartCommand extends AbstractRestartCommand {
@@ -10,7 +11,7 @@ $ ark core:restart
 `,
     ];
 
-    public static flags: Record<string, any> = {
+    public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
     };
 
@@ -19,6 +20,6 @@ $ ark core:restart
     }
 
     public getSuffix(): string {
-        return "core-forger";
+        return "core";
     }
 }
