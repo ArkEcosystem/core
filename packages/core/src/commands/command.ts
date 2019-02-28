@@ -285,7 +285,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async restartProcess(processName: string) {
-        if (processManager.isOnline(processName)) {
+        if (processManager.isRunning(processName)) {
             await confirm(`Would you like to restart the ${processName} process?`, () => {
                 try {
                     cli.action.start(`Restarting ${processName}`);

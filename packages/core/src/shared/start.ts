@@ -22,36 +22,24 @@ export abstract class AbstractStartCommand extends BaseCommand {
         try {
             if (processManager.exists(processName)) {
                 if (processManager.hasUnknownState(processName)) {
-                    this.warn(`The "${processName}" process has entered an unknown state, aborting restart.`);
+                    this.warn(`The "${processName}" process has entered an unknown state, aborting start.`);
                     return;
                 }
 
                 if (processManager.hasErrored(processName)) {
-                    this.warn(`The "${processName}" process has previously errored, aborting restart.`);
+                    this.warn(`The "${processName}" process has previously errored, aborting start.`);
                     return;
                 }
 
-                if (processManager.isOnline(processName)) {
-                    const response = await prompts({
-                        type: "confirm",
-                        name: "confirm",
-                        message: "A process is already running, would you like to restart it?",
-                    });
-
-                    if (!response.confirm) {
-                        this.warn(`The "${processName}" process has not been restarted.`);
-                        return;
-                    }
+                if (processManager.isRunning(processName)) {
+                    this.warn(`The "${processName}" process is already running.`);
+                    return;
                 }
-
-                cli.action.start(`Restarting ${processName}`);
-
-                processManager.restart(processName);
-            } else {
-                cli.action.start(`Starting ${processName}`);
-
-                processManager.start(options, flags.daemon === false);
             }
+
+            cli.action.start(`Starting ${processName}`);
+
+            processManager.start(options, flags.daemon === false);
         } catch (error) {
             this.error(error.message);
         } finally {
@@ -60,7 +48,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
     }
 
     protected abortWhenRunning(processName: string): void {
-        if (processManager.isOnline(processName)) {
+        if (processManager.isRunning(processName)) {
             this.warn(`The "${processName}" process is already running.`);
             process.exit();
         }
