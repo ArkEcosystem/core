@@ -23,22 +23,18 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             .walletManager.allByAddress()
             .filter(wallet => !!wallet.username);
 
-        if (
-            params.hasOwnProperty("approval") ||
-            params.hasOwnProperty("productivity") ||
-            params.hasOwnProperty("forgedTotal")
-        ) {
+        const manipulators = {
+            approval: delegateCalculator.calculateApproval,
+            productivity: delegateCalculator.calculateProductivity,
+            forgedTotal: delegateCalculator.calculateForgedTotal,
+        };
+
+        if (this.objectHasSomeOwnProperty(params, Object.keys(manipulators))) {
             delegates = delegates.map(delegate => {
-                if (params.hasOwnProperty("approval")) {
-                    delegate["approval"] = delegateCalculator.calculateApproval(delegate);
-                }
-
-                if (params.hasOwnProperty("productivity")) {
-                    delegate["productivity"] = delegateCalculator.calculateProductivity(delegate);
-                }
-
-                if (params.hasOwnProperty("forgedTotal")) {
-                    delegate["forgedTotal"] = delegateCalculator.calculateForgedTotal(delegate);
+                for (const [prop, method] of Object.entries(manipulators)) {
+                    if (params.hasOwnProperty(prop)) {
+                        delegate[prop] = method(delegate);
+                    }
                 }
 
                 return delegate;
@@ -198,5 +194,11 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             default:
                 return iteratee;
         }
+    }
+
+    private objectHasSomeOwnProperty(object, props): boolean {
+        return props.some(prop => {
+            return object.hasOwnProperty(prop);
+        });
     }
 }
