@@ -108,7 +108,7 @@
         "collectCoverage": false,
         "coverageDirectory": "<rootDir>/.coverage",
         "collectCoverageFrom": [
-            "src/**/*.ts",
+            "packages/**/src/**/*.ts",
             "!**/node_modules/**"
         ],
         "watchman": false,
