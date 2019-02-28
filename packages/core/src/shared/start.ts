@@ -22,12 +22,12 @@ export abstract class AbstractStartCommand extends BaseCommand {
         try {
             if (processManager.exists(processName)) {
                 if (processManager.hasUnknownState(processName)) {
-                    this.warn(`The "${processName}" process has entered an unknown state, aborting restart.`);
+                    this.warn(`The "${processName}" process has entered an unknown state, aborting start.`);
                     return;
                 }
 
                 if (processManager.hasErrored(processName)) {
-                    this.warn(`The "${processName}" process has previously errored, aborting restart.`);
+                    this.warn(`The "${processName}" process has previously errored, aborting start.`);
                     return;
                 }
 
