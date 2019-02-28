@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { VerifyCommand } from "../../../src/commands/debug/verify";
+import { VerifyCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/verify";
 
 describe("Commands - Verify", () => {
     const fixtureBlock = require("../../__fixtures__/block.json");

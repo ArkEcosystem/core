@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { VerifySecondSignatureCommand } from "../../../src/commands/debug/verify-second-signature";
+import { VerifySecondSignatureCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/verify-second-signature";
 
 describe("Commands - Verify Second", () => {
     const fixtureTransaction = require("../../__fixtures__/transaction-second.json");

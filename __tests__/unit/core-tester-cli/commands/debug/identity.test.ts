@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { IdentityCommand } from "../../../src/commands/debug/identity";
+import { IdentityCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/identity";
 
 describe("Commands - Identity", async () => {
     const fixtureIdentities = require("../../__fixtures__/identities.json");

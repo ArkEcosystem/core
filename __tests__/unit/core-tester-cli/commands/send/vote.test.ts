@@ -2,7 +2,7 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { VoteCommand } from "../../../src/commands/send/vote";
+import { VoteCommand } from "../../../../../packages/core-tester-cli/src/commands/send/vote";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
 const mockAxios = new MockAdapter(axios);

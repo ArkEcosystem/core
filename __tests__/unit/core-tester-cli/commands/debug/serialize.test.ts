@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { SerializeCommand } from "../../../src/commands/debug/serialize";
+import { SerializeCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/serialize";
 
 describe("Commands - Serialize", () => {
     const fixtureBlock = require("../../__fixtures__/block.json");

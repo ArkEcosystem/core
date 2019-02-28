@@ -2,7 +2,7 @@ import "jest-extended";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { SecondSignatureRegistrationCommand } from "../../../src/commands/send/second-signature-registration";
+import { SecondSignatureRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/second-signature-registration";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
 const mockAxios = new MockAdapter(axios);
