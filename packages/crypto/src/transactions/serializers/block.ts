@@ -21,7 +21,7 @@ class BlockSerializer {
             buffer.append(serialized);
         }
 
-        return Buffer.from(buffer.flip().toBuffer());
+        return buffer.flip().toBuffer();
     }
 
     public serialize(block: IBlockData, includeSignature: boolean = true): Buffer {
@@ -33,7 +33,7 @@ class BlockSerializer {
             this.serializeSignature(block, buffer);
         }
 
-        return Buffer.from(buffer.flip().toBuffer());
+        return buffer.flip().toBuffer();
     }
 
     private serializeHeader(block: IBlockData, buffer: ByteBuffer): any {

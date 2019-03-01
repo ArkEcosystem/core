@@ -217,3 +217,9 @@ export class InvalidMultiSignatureError extends CryptoError {
         super(`Failed to apply transaction, because the multi signature could not be verified.`);
     }
 }
+
+export class BlockSchemaError extends CryptoError {
+    constructor(what: string) {
+        super(what);
+    }
+}

@@ -1,7 +1,11 @@
-import ajv = require("ajv");
 import "jest-extended";
+
+import ajv = require("ajv");
+import { configManager } from "../../../../packages/crypto/src/managers/config";
+import { TransactionRegistry } from "../../../../packages/crypto/src/transactions/index";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { AjvWrapper } from "../../../../packages/crypto/src/validation";
+import { block2, genesisBlock } from "../../../utils/fixtures/unitnet/blocks";
 
 describe("AjvWrapper", () => {
     describe("validate", () => {
@@ -135,24 +139,6 @@ describe("AjvWrapper", () => {
             });
         });
 
-        describe("blockId", () => {
-            it("should be ok", () => {
-                expect(AjvWrapper.validate("blockId", "15654541800058894516").error).toBeNull();
-            });
-
-            it("should not be ok", () => {
-                expect(
-                    AjvWrapper.validate("blockId", "94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4")
-                        .error,
-                ).not.toBeNull();
-                expect(AjvWrapper.validate("blockId", "nein").error).not.toBeNull();
-                expect(AjvWrapper.validate("blockId", 1234).error).not.toBeNull();
-                expect(AjvWrapper.validate("blockId", "").error).not.toBeNull();
-                expect(AjvWrapper.validate("blockId", null).error).not.toBeNull();
-                expect(AjvWrapper.validate("blockId", undefined).error).not.toBeNull();
-            });
-        });
-
         describe("walletVote", () => {
             it("should be ok", () => {
                 expect(
@@ -197,6 +183,27 @@ describe("AjvWrapper", () => {
                 expect(AjvWrapper.validate("delegateUsername", "").error).not.toBeNull();
                 expect(AjvWrapper.validate("delegateUsername", null).error).not.toBeNull();
                 expect(AjvWrapper.validate("delegateUsername", undefined).error).not.toBeNull();
+            });
+        });
+
+        describe("block", () => {
+            beforeAll(() => {
+                TransactionRegistry.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
+                configManager.setFromPreset("unitnet");
+            });
+
+            it("should be ok", () => {
+                expect(AjvWrapper.validate("block", block2).error).toBeNull();
+                expect(AjvWrapper.validate("block", genesisBlock).error).toBeNull();
+            });
+
+            it("should not be ok", () => {
+                block2.numberOfTransactions = 1;
+                expect(AjvWrapper.validate("block", block2).error).not.toBeNull();
+                block2.numberOfTransactions = 11;
+                expect(AjvWrapper.validate("block", block2).error).not.toBeNull();
+                block2.numberOfTransactions = 10;
+                expect(AjvWrapper.validate("block", block2).error).toBeNull();
             });
         });
     });

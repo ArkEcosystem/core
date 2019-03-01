@@ -36,10 +36,15 @@ export abstract class Transaction {
     private static fromSerialized(serialized: string | Buffer): Transaction {
         try {
             const transaction = TransactionDeserializer.deserialize(serialized);
+            const { value, error } = this.validateSchema(transaction.data, true);
+            if (error !== null) {
+                throw new TransactionSchemaError(error);
+            }
+
             transaction.isVerified = transaction.verify();
             return transaction;
         } catch (error) {
-            if (error instanceof TransactionVersionError) {
+            if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
                 throw error;
             }
 
@@ -64,7 +69,8 @@ export abstract class Transaction {
     }
 
     public static toBytes(data: ITransactionData): Buffer {
-        return this.fromData(data).serialized;
+        const transaction = TransactionRegistry.create(data);
+        return TransactionSerializer.serialize(transaction);
     }
 
     public get id(): string {
@@ -217,6 +223,13 @@ export abstract class Transaction {
     }
 
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
+        // FIXME: legacy type 4 need special treatment
+        if (data.type === TransactionTypes.MultiSignature) {
+            data.amount = new Bignum(data.amount);
+            data.fee = new Bignum(data.amount);
+            return { value: data, error: null };
+        }
+
         const { $id } = TransactionRegistry.get(data.type).getSchema();
         return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
