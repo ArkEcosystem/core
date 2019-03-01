@@ -62,6 +62,55 @@ describe("keyword transactionType", () => {
     });
 });
 
+describe("keyword blockId", () => {
+    it("should be ok", () => {
+        const schema = { blockId: {} };
+        const validate = ajv.compile(schema);
+
+        expect(validate("15654541800058894516")).toBeTrue();
+        expect(validate("1234")).toBeTrue();
+        expect(validate("15654541800058894516")).toBeTrue();
+        expect(validate("AFFE")).toBeTrue();
+        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4")).toBeTrue();
+    });
+
+    it("should not be ok", () => {
+        const schema = { blockId: { hex: true } };
+        const validate = ajv.compile(schema);
+
+        expect(validate("nein")).toBeFalse();
+        expect(validate({})).toBeFalse();
+        expect(validate("")).toBeFalse();
+        expect(validate(null)).toBeFalse();
+        expect(validate(undefined)).toBeFalse();
+        expect(validate(1243)).toBeFalse();
+        expect(validate(new Bignum(0))).toBeFalse();
+    });
+
+    it("should be ok (genesis)", () => {
+        const schema = {
+            properties: {
+                height: { type: "number" },
+                previousBlock: { blockId: { hex: true, allowNullWhenGenesis: true } },
+            },
+        };
+
+        const validate = ajv.compile(schema);
+
+        expect(validate({ height: 1, previousBlock: "" })).toBeTrue();
+        expect(validate({ height: 1, previousBlock: null })).toBeTrue();
+        expect(validate({ height: 1, previousBlock: 0 })).toBeTrue();
+
+        expect(validate({ height: 1, previousBlock: "abc" })).toBeFalse();
+        expect(validate({ height: 1, previousBlock: {} })).toBeFalse();
+        expect(validate({ height: 1, previousBlock: "1234" })).toBeFalse();
+
+        expect(validate({ height: 2, previousBlock: "" })).toBeFalse();
+        expect(validate({ height: 2, previousBlock: null })).toBeFalse();
+        expect(validate({ height: 2, previousBlock: 0 })).toBeFalse();
+    });
+});
+
 describe("keyword bignumber", () => {
     it("should be ok if only one possible value is allowed", () => {
         const schema = { bignumber: { minimum: 100, maximum: 100 } };

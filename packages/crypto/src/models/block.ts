@@ -1,10 +1,12 @@
 import pluralize from "pluralize";
 import { crypto, HashAlgorithms, slots } from "../crypto";
+import { BlockSchemaError } from "../errors";
 import { configManager } from "../managers/config";
 import { ITransactionData, Transaction } from "../transactions";
 import { BlockDeserializer } from "../transactions/deserializers";
 import { BlockSerializer } from "../transactions/serializers";
 import { Bignum } from "../utils";
+import { AjvWrapper } from "../validation";
 
 export interface BlockVerification {
     verified: boolean;
@@ -36,35 +38,6 @@ export interface IBlockData {
     serialized?: string;
     transactions?: ITransactionData[];
 }
-
-/**
- * TODO copy some parts to ArkDocs
- * @classdesc This model holds the block data, its verification and serialization
- *
- * A Block model stores on the db:
- *   - id
- *   - version (version of the block: could be used for changing how they are forged)
- *   - timestamp (related to the genesis block)
- *   - previousBlock (id of the previous block)
- *   - height
- *   - numberOfTransactions
- *   - totalAmount (in satoshi)
- *   - totalFee (in satoshi)
- *   - reward (in satoshi)
- *   - payloadHash (hash of the transactions)
- *   - payloadLength (total length in bytes of the IDs of the transactions)
- *   - generatorPublicKey (public key of the delegate that forged this block)
- *   - blockSignature
- *
- * The `transactions` are stored too, but in a different table.
- *
- * These data is exposed through the `data` attributed as a plain object and
- * serialized through the `serialized` attribute.
- *
- * In the future the IDs could be changed to use the hexadecimal version of them,
- * which would be more efficient for performance, disk usage and bandwidth reasons.
- * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
- */
 
 export class Block implements IBlock {
     /**
@@ -144,18 +117,26 @@ export class Block implements IBlock {
     public verification: BlockVerification;
 
     constructor(data: IBlockData | string) {
+        let deserialized;
         if (typeof data === "string") {
-            data = Block.deserialize(data);
+            this.serialized = data;
+        } else {
+            this.serialized = Block.serializeFull(data).toString("hex");
         }
 
-        this.serialized = Block.serializeFull(data).toString("hex");
-
-        const deserialized = BlockDeserializer.deserialize(this.serialized);
+        deserialized = BlockDeserializer.deserialize(this.serialized);
         this.data = deserialized.data;
 
+        const { value, error } = AjvWrapper.validate("block", deserialized.data);
+        if (error !== null) {
+            throw new BlockSchemaError(error);
+        }
+
+        this.data = value;
+
         // TODO genesis block calculated id is wrong for some reason
-        if (data.height === 1) {
-            this.applyGenesisBlockFix(data);
+        if (this.data.height === 1) {
+            this.applyGenesisBlockFix(data as IBlockData);
         }
 
         // fix on real timestamp, this is overloading transaction
@@ -336,6 +317,5 @@ export class Block implements IBlock {
     private applyGenesisBlockFix(data: IBlockData): void {
         this.data.id = data.id;
         this.data.idHex = Block.toBytesHex(this.data.id);
-        delete this.data.previousBlock;
     }
 }
