@@ -11,7 +11,7 @@ import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
 import { PoolWalletManager } from "./pool-wallet-manager";
 
-import { Bignum, constants, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
@@ -203,7 +203,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Remove a transaction from the pool by transaction.
      */
-    public removeTransaction(transaction: models.Transaction) {
+    public removeTransaction(transaction: Transaction) {
         this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
@@ -226,7 +226,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Get a transaction by transaction id.
      */
-    public getTransaction(id: string): models.Transaction {
+    public getTransaction(id: string): Transaction {
         this.__purgeExpired();
 
         return this.mem.getTransactionById(id);
@@ -299,7 +299,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    public hasExceededMaxTransactions(transaction: models.ITransactionData): boolean {
+    public hasExceededMaxTransactions(transaction: ITransactionData): boolean {
         this.__purgeExpired();
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
@@ -540,7 +540,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * Create an error object which the TransactionGuard understands.
      */
     public __createError(
-        transaction: models.Transaction,
+        transaction: Transaction,
         type: string,
         message: string,
     ): transactionPool.IAddTransactionErrorResponse {

@@ -43,7 +43,7 @@ class TransactionDeserializer {
         transaction.network = buf.readUint8();
         transaction.type = buf.readUint8();
         transaction.timestamp = buf.readUint32();
-        transaction.senderPublicKey = buf.readBytes(33).toString("hex"); // serializedHex.substring(16, 16 + 33 * 2);
+        transaction.senderPublicKey = buf.readBytes(33).toString("hex");
         transaction.fee = new Bignum(buf.readUint64().toString());
         transaction.amount = Bignum.ZERO;
     }

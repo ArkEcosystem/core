@@ -1,4 +1,4 @@
-import { crypto, models } from "@arkecosystem/crypto";
+import { crypto, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -21,7 +21,7 @@ export class VerifySecondSignatureCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(VerifySecondSignatureCommand);
 
-        const { data } = models.Transaction.fromHex(flags.data);
+        const { data } = Transaction.fromHex(flags.data);
 
         return handleOutput(flags, crypto.verifySecondSignature(data, flags.publicKey));
     }
