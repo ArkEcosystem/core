@@ -121,7 +121,16 @@ const blockId = (ajv: Ajv) => {
                     return false;
                 }
 
-                return /^[0123456789A-Fa-f]+$/.test(data);
+                // Old/legacy block id, before the switch to full SHA256. 8 byte decimal integer.
+                const isPartial = /^[0-9]{1,20}$/.test(data);
+                const isFullSha256 = /^[0-9a-f]{64}$/i.test(data);
+
+                if (parentObject && parentObject.height) {
+                    const constants = configManager.getMilestone(parentObject.height);
+                    return constants.block.idFullSha256 ? isFullSha256 : isPartial;
+                }
+
+                return isPartial || isFullSha256;
             };
         },
         errors: false,
