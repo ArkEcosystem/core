@@ -121,18 +121,13 @@ const blockId = (ajv: Ajv) => {
                     return false;
                 }
 
-                if (schema.hex) {
-                    return /^[0123456789A-Fa-f]+$/.test(data);
-                }
-
-                return /^[0-9]+$/.test(data);
+                return /^[0123456789A-Fa-f]+$/.test(data);
             };
         },
         errors: false,
         metaSchema: {
             type: "object",
             properties: {
-                hex: { type: "boolean" },
                 allowNullWhenGenesis: { type: "boolean" },
             },
             additionalItems: false,

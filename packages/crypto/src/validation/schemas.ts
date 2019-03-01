@@ -74,11 +74,11 @@ export const schemas = {
         additionalProperties: false,
         properties: {
             id: { blockId: {} },
-            idHex: { blockId: { hex: true } },
+            idHex: { blockId: {} },
             version: { type: "integer", minimum: 0 },
             timestamp: { type: "integer", minimum: 0 },
             previousBlock: { blockId: { allowNullWhenGenesis: true } },
-            previousBlockHex: { blockId: { hex: true, allowNullWhenGenesis: true } },
+            previousBlockHex: { blockId: { allowNullWhenGenesis: true } },
             height: { type: "integer", minimum: 1 },
             numberOfTransactions: { type: "integer" },
             totalAmount: { bignumber: { minimum: 0, bypassGenesis: true, block: true } },
