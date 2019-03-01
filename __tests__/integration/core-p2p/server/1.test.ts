@@ -1,5 +1,5 @@
-import { generateTransfers } from "../../../utils/generators/transactions/transfer";
 import { models } from "@arkecosystem/crypto";
+import { generateTransfers } from "../../../utils/generators/transactions/transfer";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 import fullBlock from "../fixtures/block-with-transactions.json";
@@ -153,8 +153,12 @@ describe("API - Version 1", () => {
         });
 
         it("should not be ok, because previous block id is missing", async () => {
+            const block = new Block(fullBlock as any);
+            const blockPayload = block.toJson();
+            blockPayload.previousBlock = null;
+
             const response = await utils.POST("peer/blocks", {
-                block: genesisBlock.toJson(),
+                block: blockPayload,
             });
 
             expect(response.status).toBe(422);
