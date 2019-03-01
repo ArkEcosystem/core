@@ -1,7 +1,5 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../../errors";
-import { Wallet } from "../../models";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -32,26 +30,5 @@ export class DelegateRegistrationTransaction extends Transaction {
                 username: buf.readString(usernamelength),
             },
         };
-    }
-
-    public canBeApplied(wallet: Wallet): boolean {
-        const username = this.data.asset.delegate.username;
-        if (!username) {
-            throw new WalletUsernameEmptyError();
-        }
-
-        if (wallet.username) {
-            throw new WalletUsernameNotEmptyError();
-        }
-
-        return super.canBeApplied(wallet);
-    }
-
-    protected apply(wallet: Wallet): void {
-        wallet.username = this.data.asset.delegate.username;
-    }
-
-    protected revert(wallet: Wallet): void {
-        wallet.username = null;
     }
 }
