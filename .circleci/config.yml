@@ -453,6 +453,12 @@ jobs:
             test:coverage /unit/core-transaction-pool/ --coverageDirectory
             .coverage/unit/core-transaction-pool
       - run:
+          name: core-transactions - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-transactions/ --coverageDirectory
+            .coverage/unit/core-transactions
+      - run:
           name: core-utils - unit
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -698,6 +704,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-transaction-pool/ --coverageDirectory
             .coverage/unit/core-transaction-pool
+      - run:
+          name: core-transactions - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-transactions/ --coverageDirectory
+            .coverage/unit/core-transactions
       - run:
           name: core-utils - unit
           command: >-
