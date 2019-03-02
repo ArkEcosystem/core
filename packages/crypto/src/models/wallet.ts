@@ -62,46 +62,6 @@ export class Wallet {
     }
 
     /**
-     * Check if can apply a transaction to the wallet.
-     */
-    public canApply(transaction: Transaction): boolean {
-        // @ts-ignore
-        return transaction.canBeApplied(this);
-    }
-
-    /**
-     * Associate this wallet as the sender of a transaction.
-     */
-    public applyTransactionToSender(transaction: Transaction): void {
-        // @ts-ignore
-        return transaction.applyToSender(this);
-    }
-
-    /**
-     * Remove this wallet as the sender of a transaction.
-     */
-    public revertTransactionForSender(transaction: Transaction): void {
-        // @ts-ignore
-        return transaction.revertForSender(this);
-    }
-
-    /**
-     * Add transaction balance to this wallet.
-     */
-    public applyTransactionToRecipient(transaction: Transaction): void {
-        // @ts-ignore
-        return transaction.applyToRecipient(this);
-    }
-
-    /**
-     * Remove transaction balance from this wallet.
-     */
-    public revertTransactionForRecipient(transaction: Transaction): void {
-        // @ts-ignore
-        return transaction.revertForRecipient(this);
-    }
-
-    /**
      * Add block data to this wallet.
      */
     public applyBlock(block: IBlockData): boolean {
