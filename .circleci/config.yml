@@ -354,12 +354,6 @@ jobs:
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
       - run:
-          name: core-tester-cli - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-tester-cli/ --coverageDirectory
-            .coverage/unit/core-tester-cli
-      - run:
           name: core-json-rpc - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -371,6 +365,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-p2p/ --coverageDirectory
             .coverage/integration/core-p2p
+      - run:
+          name: core-tester-cli - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-tester-cli/ --coverageDirectory
+            .coverage/integration/core-tester-cli
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -612,12 +612,6 @@ jobs:
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
       - run:
-          name: core-tester-cli - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-tester-cli/ --coverageDirectory
-            .coverage/unit/core-tester-cli
-      - run:
           name: core-json-rpc - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -629,6 +623,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-p2p/ --coverageDirectory
             .coverage/integration/core-p2p
+      - run:
+          name: core-tester-cli - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-tester-cli/ --coverageDirectory
+            .coverage/integration/core-tester-cli
       - run:
           name: Last 1000 lines of test output
           when: on_fail
