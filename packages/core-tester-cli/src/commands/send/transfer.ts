@@ -53,27 +53,23 @@ export class TransferCommand extends SendCommand {
 
     protected async verifyTransactions(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
-            const wasCreated = await this.knockTransaction(transaction.id);
+            const response = await this.getTransaction(transaction.id);
+            
+            if (!response) {
+                logger.error(`[T] ${transaction.id} (not forged)`);
+            }
 
             if (wasCreated) {
+                logger.info(`[T] ${transaction.id} (${response.blockId})`);
+
                 await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
+
+                if (transaction.vendorField === response.vendorField) {
+                    logger.info(`[T] ${(transaction.id} (${transaction.vendorField})`);
+                } else {
+                    logger.error(`[T] ${(transaction.id} (${transaction.vendorField} / ${response.vendorField})`);
+                }
             }
-        }
-    }
-
-    private async knockTransaction(id: string): Promise<boolean> {
-        try {
-            const { data } = await this.api.get(`transactions/${id}`);
-
-            logger.info(`[T] ${id} (${data.blockId})`);
-
-            return true;
-        } catch (error) {
-            logger.error(error.message);
-
-            logger.error(`[T] ${id} (not forged)`);
-
-            return false;
         }
     }
 }
