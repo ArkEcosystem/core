@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { configManager } from "../../src";
-import { AjvWrapper } from "../../src/validation";
+import { configManager } from "../../../../packages/crypto/src";
+import { AjvWrapper } from "../../../../packages/crypto/src/validation";
 
 const ajv = AjvWrapper.instance();
 

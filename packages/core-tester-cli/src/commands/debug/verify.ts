@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -23,7 +23,7 @@ export class VerifyCommand extends BaseCommand {
 
         let output = false;
         if (flags.type === "transaction") {
-            output = models.Transaction.fromHex(flags.data).verified;
+            output = Transaction.fromHex(flags.data).verified;
         } else {
             output = new models.Block(models.Block.deserialize(flags.data)).verification.verified;
         }

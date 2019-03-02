@@ -1,10 +1,10 @@
-import "../../utils";
-import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
-import { models } from "@arkecosystem/crypto";
+import { ITransactionData, models } from "@arkecosystem/crypto";
 import delay from "delay";
 import { config } from "../../../packages/core-blockchain/src/config";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
+import "../../utils";
+import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = models;
@@ -180,7 +180,7 @@ describe("State Storage", () => {
 
     describe("cacheTransactions", () => {
         it("should add transaction id", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as models.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
@@ -188,11 +188,11 @@ describe("State Storage", () => {
         });
 
         it("should not add duplicate transaction ids", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as models.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
-            expect(stateStorage.cacheTransactions([{ id: "1" } as models.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
                 added: [],
                 notAdded: [{ id: "1" }],
             });
