@@ -2,22 +2,15 @@ import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 import genesisBlock from "../../utils/config/testnet/genesisBlock.json";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = models;
 
 let databaseService: Database.IDatabaseService;
 
 beforeAll(async () => {
-    await setUp();
-
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     await databaseService.saveBlock(new Block(genesisBlock));
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 describe("Connection", () => {

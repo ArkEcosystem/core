@@ -1,9 +1,8 @@
 /* tslint:disable:max-line-length */
-import "../../utils";
 import { asValue } from "awilix";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
-import { setUp, tearDown } from "./__support__/setup";
+import "../../utils";
 
 let container;
 let blockchain: Blockchain;
@@ -11,13 +10,9 @@ let blockchain: Blockchain;
 describe("constructor - networkStart", () => {
     let logger;
     beforeAll(async () => {
-        container = await setUp();
-
         logger = container.resolvePlugin("logger");
     });
     afterAll(async () => {
-        await tearDown();
-
         jest.restoreAllMocks();
     });
 

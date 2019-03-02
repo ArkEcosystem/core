@@ -1,21 +1,9 @@
 import "jest-extended";
 
-import { setUp, tearDown } from "../../__support__/setup";
-
 let filterRows;
 
-beforeAll(async done => {
-    await setUp();
-
+beforeAll(() => {
     filterRows = require("../../../../../packages/core-database/src/repositories/utils/filter-rows");
-
-    done();
-});
-
-afterAll(async done => {
-    await tearDown();
-
-    done();
 });
 
 describe("Filter Rows", () => {

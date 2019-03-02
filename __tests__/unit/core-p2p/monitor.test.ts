@@ -4,7 +4,6 @@ import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { setUp, tearDown } from "./__support__/setup";
 const { Block } = models;
 
 const axiosMock = new MockAdapter(axios);
@@ -14,16 +13,11 @@ let peerMock: Peer;
 let monitor;
 
 beforeAll(async () => {
-    await setUp();
     monitor = require("../../../packages/core-p2p/src/monitor").monitor;
 
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(async () => {

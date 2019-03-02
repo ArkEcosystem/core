@@ -7,11 +7,10 @@ import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
+import { TransactionPool } from "../../../packages/core-transaction-pool/src";
 import { generators } from "../../utils";
 import { block2, delegates } from "../../utils/fixtures/unitnet";
-import { TransactionPool } from "../../../packages/core-transaction-pool/src";
 import { transactions as mockData } from "./__fixtures__/transactions";
-import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { SATOSHI, TransactionTypes } = constants;
 const { Block } = models;
@@ -23,8 +22,6 @@ let databaseService: Database.IDatabaseService;
 let connection: TransactionPool;
 
 beforeAll(async () => {
-    await setUpFull();
-
     config = app.getConfig();
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     connection = app.resolvePlugin<TransactionPool>("transactionPool");
@@ -38,10 +35,6 @@ beforeAll(async () => {
     // 100+ years in the future to avoid our hardcoded transactions used in these
     // tests to expire
     connection.options.maxTransactionAge = 4036608000;
-});
-
-afterAll(async () => {
-    await tearDownFull();
 });
 
 beforeEach(() => {

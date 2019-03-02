@@ -1,10 +1,9 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
-import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
-import { setUp, tearDown } from "../__support__/setup";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 
 const { SATOSHI } = constants;
 const { Block } = models;
@@ -16,20 +15,10 @@ let walletsRepository: Database.IWalletsBusinessRepository;
 let walletManager: Database.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
-beforeAll(async done => {
-    await setUp();
-
+beforeAll(() => {
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(genesisBlockTestnet);
-
-    done();
-});
-
-afterAll(async done => {
-    await tearDown();
-
-    done();
 });
 
 beforeEach(async done => {

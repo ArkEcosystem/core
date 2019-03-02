@@ -1,9 +1,8 @@
-import "../../../utils";
 import { asValue } from "awilix";
 import delay from "delay";
-import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
-import { setUp, tearDown } from "../__support__/setup";
+import "../../../utils";
+import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 let rebuildQueue;
 let container;
@@ -34,7 +33,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
     jest.restoreAllMocks();
-    await tearDown();
 });
 
 beforeEach(async () => {

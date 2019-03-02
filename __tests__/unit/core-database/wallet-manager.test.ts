@@ -6,7 +6,6 @@ import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
 import { fixtures, generators } from "../../utils";
 import genesisBlockTestnet from "../../utils/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
 const { SATOSHI, TransactionTypes } = constants;
@@ -22,28 +21,18 @@ const walletData2 = wallets[1];
 let genesisBlock;
 let walletManager: Database.IWalletManager;
 
-beforeAll(async done => {
-    await setUp();
-
+beforeAll(() => {
     // Create the genesis block after the setup has finished or else it uses a potentially
     // wrong network config.
     genesisBlock = new Block(genesisBlockTestnet);
 
     const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
-
-    done();
 });
 
 beforeEach(() => {
     const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
-});
-
-afterAll(async done => {
-    await tearDown();
-
-    done();
 });
 
 describe("Wallet Manager", () => {

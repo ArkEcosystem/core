@@ -1,6 +1,3 @@
-import "../../../utils";
-import { fixtures, generators } from "../../../utils";
-import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { models } from "@arkecosystem/crypto";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
@@ -9,7 +6,9 @@ import {
     ExceptionHandler,
     VerificationFailedHandler,
 } from "../../../../packages/core-blockchain/src/processor/handlers";
-import { setUpFull, tearDownFull } from "../__support__/setup";
+import "../../../utils";
+import { fixtures, generators } from "../../../utils";
+import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 
 const { Block } = models;
 const { delegates } = fixtures;
@@ -20,13 +19,8 @@ let blockchain: Blockchain;
 let blockProcessor: BlockProcessor;
 
 beforeAll(async () => {
-    app = await setUpFull();
     blockchain = app.resolvePlugin("blockchain");
     blockProcessor = new BlockProcessor(blockchain);
-});
-
-afterAll(async () => {
-    await tearDownFull();
 });
 
 const resetBlocks = async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1); // reset to block height 1

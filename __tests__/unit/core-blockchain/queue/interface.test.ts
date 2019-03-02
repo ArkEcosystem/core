@@ -1,10 +1,9 @@
-import "../../../utils";
 import async from "async";
 import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
 import { QueueInterface } from "../../../../packages/core-blockchain/src/queue/interface";
-import { setUp, tearDown } from "../__support__/setup";
+import "../../../utils";
 
 let fakeQueue;
 let container;
@@ -25,8 +24,6 @@ class FakeQueue extends QueueInterface {
 }
 
 beforeAll(async () => {
-    container = await setUp();
-
     process.env.CORE_SKIP_BLOCKCHAIN = "true";
 
     // Manually register the blockchain
@@ -45,10 +42,6 @@ beforeAll(async () => {
             options: {},
         }),
     );
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(async () => {

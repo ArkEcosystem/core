@@ -5,7 +5,6 @@ import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Client } from "../../../packages/core-forger/src/client";
 import { sampleBlock } from "./__fixtures__/block";
-import { setUp, tearDown } from "./__support__/setup";
 
 const mockAxios = new MockAdapter(axios);
 
@@ -15,12 +14,7 @@ const host = `http://127.0.0.1:4000`;
 
 let client: Client;
 
-beforeAll(async () => {
-    await setUp();
-});
-
 afterAll(async () => {
-    await tearDown();
     mockAxios.restore();
 });
 

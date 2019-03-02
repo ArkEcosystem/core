@@ -1,17 +1,14 @@
-import "../../../utils";
 import { asValue } from "awilix";
 import delay from "delay";
-import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
-import { setUp, tearDown } from "../__support__/setup";
+import "../../../utils";
+import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 let processQueue;
 let container;
 let blockchain: Blockchain;
 
 beforeAll(async () => {
-    container = await setUp();
-
     process.env.CORE_SKIP_BLOCKCHAIN = "true";
 
     // Manually register the blockchain
@@ -34,7 +31,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
     jest.restoreAllMocks();
-    await tearDown();
 });
 
 beforeEach(async () => {

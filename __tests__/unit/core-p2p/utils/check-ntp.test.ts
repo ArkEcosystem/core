@@ -1,5 +1,4 @@
 import { checkNTP } from "../../../../packages/core-p2p/src/utils";
-import { setUp, tearDown } from "../__support__/setup";
 
 jest.mock("sntp", () => {
     return {
@@ -10,14 +9,6 @@ jest.mock("sntp", () => {
             return { t: 111 };
         }),
     };
-});
-
-beforeAll(async () => {
-    await setUp();
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 describe("Check NTP", () => {

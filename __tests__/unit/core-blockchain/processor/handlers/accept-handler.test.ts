@@ -1,11 +1,10 @@
-import "../../../../utils";
 import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
+import "../../../../utils";
 
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 import { Blockchain } from "../../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { setUpFull, tearDownFull } from "../../__support__/setup";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block } = models;
 let app;
@@ -13,7 +12,6 @@ let blockchain: Blockchain;
 let logger;
 
 beforeAll(async () => {
-    app = await setUpFull();
     blockchain = app.resolvePlugin("blockchain");
     logger = app.resolvePlugin("logger");
 
@@ -22,10 +20,6 @@ beforeAll(async () => {
     jest.spyOn(blockchain.database, "applyBlock").mockReturnValue(true);
     // @ts-ignore
     jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true);
-});
-
-afterAll(async () => {
-    await tearDownFull();
 });
 
 describe("Accept handler", () => {

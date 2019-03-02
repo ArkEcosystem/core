@@ -6,15 +6,12 @@ import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import "../../utils";
-import { setUp, tearDown } from "./__support__/setup";
 
 let stateMachine;
 let container;
 let blockchain: Blockchain;
 
 beforeAll(async () => {
-    container = await setUp();
-
     process.env.CORE_SKIP_BLOCKCHAIN = "true";
     process.env.CORE_ENV = "";
 
@@ -41,8 +38,6 @@ beforeAll(async () => {
 afterAll(async () => {
     // Manually stop  the blockchain
     await blockchain.stop();
-
-    await tearDown();
 });
 
 beforeEach(async () => {

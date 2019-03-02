@@ -1,11 +1,9 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { generators } from "../../utils";
-import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
-import bip39 from "bip39";
+import { configManager, constants, models, slots } from "@arkecosystem/crypto";
 import "jest-extended";
-import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
-import { setUpFull, tearDownFull } from "./__support__/setup";
+import { generators } from "../../utils";
+import { delegates, wallets } from "../../utils/fixtures/unitnet";
 
 const { Block } = models;
 const {
@@ -24,17 +22,11 @@ let transactionPool;
 let blockchain;
 
 beforeAll(async () => {
-    container = await setUpFull();
-
     TransactionGuard = require("../../../packages/core-transaction-pool/src").TransactionGuard;
 
     transactionPool = container.resolvePlugin("transactionPool");
     blockchain = container.resolvePlugin("blockchain");
     localConfig.init(transactionPool.options);
-});
-
-afterAll(async () => {
-    await tearDownFull();
 });
 
 beforeEach(() => {

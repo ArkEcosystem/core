@@ -2,20 +2,13 @@ import { dato } from "@faustbrian/dato";
 import { offences } from "../../../../packages/core-p2p/src/court/offences";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { Peer } from "../../../../packages/core-p2p/src/peer";
-import { setUp, tearDown } from "../__support__/setup";
 
 let guard;
 let peerMock;
 
 beforeAll(async () => {
-    await setUp();
-
     guard = require("../../../../packages/core-p2p/src/court/guard").guard;
     guard.config.set("minimumVersions", [">=2.0.0"]);
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(async () => {

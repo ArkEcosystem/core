@@ -7,7 +7,6 @@ import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
 
@@ -21,15 +20,10 @@ let container: Container.IContainer;
 let emitter: EventEmitter.EventEmitter;
 
 beforeAll(async () => {
-    container = await setUp();
     emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
     connection = new DatabaseConnectionStub();
     walletManager = new WalletManager();
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(() => {

@@ -5,7 +5,6 @@ import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = models;
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
@@ -13,14 +12,9 @@ let app;
 let stateStorage;
 
 beforeAll(async () => {
-    app = await setUp();
     config.init(defaults);
 
     stateStorage = require("../../../packages/core-blockchain/src").stateStorage;
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(() => {

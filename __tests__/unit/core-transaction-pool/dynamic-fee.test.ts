@@ -1,22 +1,15 @@
 import { Blockchain, Container } from "@arkecosystem/core-interfaces";
 import { calculateFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
 import { transactions } from "./__fixtures__/transactions";
-import { setUpFull, tearDownFull } from "./__support__/setup";
 
 let config;
 let blockchain: Blockchain.IBlockchain;
 let container: Container.IContainer;
 
 beforeAll(async () => {
-    container = await setUpFull();
-
     config = require("../../../packages/core-transaction-pool/src").config;
     config.init(container.resolveOptions("transactionPool"));
     blockchain = container.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-});
-
-afterAll(async () => {
-    await tearDownFull();
 });
 
 describe("static fees", () => {
