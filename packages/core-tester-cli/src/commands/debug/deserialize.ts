@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -24,7 +24,7 @@ export class DeserializeCommand extends BaseCommand {
 
         let output;
         if (flags.type === "transaction") {
-            output = models.Transaction.fromHex(flags.data).data;
+            output = Transaction.fromHex(flags.data).data;
         } else {
             const block = new models.Block(flags.data);
             output = { data: block.data, transactions: block.transactions.map(tx => tx.data) };

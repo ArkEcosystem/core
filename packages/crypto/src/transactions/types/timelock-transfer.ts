@@ -1,8 +1,6 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { NotImplementedError } from "../../errors";
-import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -31,17 +29,5 @@ export class TimelockTransferTransaction extends Transaction {
         data.timelockType = buf.readUint8();
         data.timelock = buf.readUint64().toNumber();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
-    }
-
-    public canBeApplied(wallet: Wallet): boolean {
-        return super.canBeApplied(wallet);
-    }
-
-    protected apply(wallet: Wallet): void {
-        throw new NotImplementedError();
-    }
-
-    protected revert(wallet: Wallet): void {
-        throw new NotImplementedError();
     }
 }
