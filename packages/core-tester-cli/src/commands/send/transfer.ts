@@ -67,9 +67,9 @@ export class TransferCommand extends SendCommand {
             await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
 
             if (transaction.vendorField === response.vendorField) {
-                logger.info(`[T] ${(transaction.id} (${transaction.vendorField})`);
+                logger.info(`[T] ${transaction.id} (${transaction.vendorField})`);
             } else {
-                logger.error(`[T] ${(transaction.id} (${transaction.vendorField} / ${response.vendorField})`);
+                logger.error(`[T] ${transaction.id} (${transaction.vendorField} / ${response.vendorField})`);
             }
         }
     }
