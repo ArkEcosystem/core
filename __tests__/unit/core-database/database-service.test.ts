@@ -1,6 +1,8 @@
-import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import "jest-extended";
+
+import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
+import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
@@ -205,9 +207,12 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(51, initialHeight);
 
             // Prepare sender wallet
+            const transactionService = TransactionServiceRegistry.get(TransactionTypes.Transfer);
+            const originalApply = transactionService.canBeApplied;
+            transactionService.canBeApplied = jest.fn(() => true);
+
             const sender = new Wallet(keys.address);
             sender.publicKey = keys.publicKey;
-            sender.canApply = jest.fn(() => true);
             walletManager.reindex(sender);
 
             // Apply 51 blocks, where each increases the vote balance of a delegate to
@@ -273,6 +278,8 @@ describe("Database Service", () => {
                 expect(restoredDelegatesRound2[i].rate).toBe(i + 1);
                 expect(restoredDelegatesRound2[i].publicKey).toBe(delegatesRound2[i].publicKey);
             }
+
+            transactionService.canBeApplied = originalApply;
         });
     });
 });
