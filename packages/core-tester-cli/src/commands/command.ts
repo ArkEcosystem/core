@@ -99,7 +99,7 @@ export abstract class BaseCommand extends Command {
 
         return this.api.post("transactions", { transactions });
     }
-    
+
     protected async knockTransaction(id: string): Promise<boolean> {
         try {
             const { data } = await this.api.get(`transactions/${id}`);
@@ -115,7 +115,7 @@ export abstract class BaseCommand extends Command {
             return false;
         }
     }
-    
+
     protected async knockBalance(address: string, expected: Bignum): Promise<void> {
         const actual = await this.getWalletBalance(address);
 
