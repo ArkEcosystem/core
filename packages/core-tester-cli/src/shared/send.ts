@@ -6,16 +6,18 @@ export abstract class SendCommand extends BaseCommand {
         const { flags } = await this.make(this.getCommand());
 
         // Waves...
+        let wallets = [];
         for (let i = 0; i < flags.waves; i++) {
             // Prepare...
-            const wallets = await this.createWalletsWithBalance(flags);
+            const newWallets = await this.createWalletsWithBalance(flags);
+            wallets = wallets.concat(newWallets);
 
             // Sign...
-            const transactions = await this.signTransactions(flags, wallets);
+            const transactions = await this.signTransactions(flags, newWallets);
 
             // Expect...
             if (!flags.skipProbing) {
-                await this.expectBalances(transactions, wallets);
+                await this.expectBalances(transactions, newWallets);
             }
 
             // Send...
@@ -23,7 +25,7 @@ export abstract class SendCommand extends BaseCommand {
 
             // Verify...
             if (!flags.skipProbing) {
-                await this.verifyTransactions(transactions, wallets);
+                await this.verifyTransactions(transactions, newWallets);
             }
         }
 
