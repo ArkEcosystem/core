@@ -1,12 +1,13 @@
 {
     "name": "@arkecosystem/core-transactions",
-    "description": "Transactions for Ark Core",
+    "description": "Transaction Services for Ark Core",
     "version": "2.2.0-beta.7",
     "contributors": [
         "Joshua Noack <joshua@ark.io>"
     ],
     "license": "MIT",
     "main": "dist/index.js",
+    "types": "dist/index",
     "files": [
         "dist"
     ],
@@ -25,9 +26,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.2.0-beta.7",
-        "@arkecosystem/core-transaction-pool": "^2.2.0-beta7",
-        "@arkecosystem/core-database": "^2.2.0-beta7"
+        "@arkecosystem/crypto": "^2.2.0-beta.7"
     },
     "devDependencies": {},
     "publishConfig": {
