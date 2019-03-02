@@ -60,4 +60,20 @@ export class TransferCommand extends SendCommand {
             }
         }
     }
+
+    private async knockTransaction(id: string): Promise<boolean> {
+        try {
+            const { data } = await this.api.get(`transactions/${id}`);
+
+            logger.info(`[T] ${id} (${data.blockId})`);
+
+            return true;
+        } catch (error) {
+            logger.error(error.message);
+
+            logger.error(`[T] ${id} (not forged)`);
+
+            return false;
+        }
+    }
 }
