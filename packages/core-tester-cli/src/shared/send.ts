@@ -6,11 +6,11 @@ export abstract class SendCommand extends BaseCommand {
         const { flags } = await this.make(this.getCommand());
 
         // Waves...
-        let wallets = [];
+        let wallets = {};
         for (let i = 0; i < flags.waves; i++) {
             // Prepare...
             const newWallets = await this.createWalletsWithBalance(flags);
-            wallets = wallets.concat(newWallets);
+            wallets = { ...wallets, ...newWallets };
 
             // Sign...
             const transactions = await this.signTransactions(flags, newWallets);
