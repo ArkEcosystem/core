@@ -12,6 +12,10 @@ export class TransferTransaction extends Transaction {
         return schemas.transfer;
     }
 
+    public hasVendorField(): boolean {
+        return true;
+    }
+
     public serialize(): ByteBuffer {
         const { data } = this;
         const buffer = new ByteBuffer(24, true);
