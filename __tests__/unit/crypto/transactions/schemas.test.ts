@@ -212,6 +212,25 @@ describe("Transfer Transaction", () => {
         expect(transfer.data.network).toBe(23);
         expect(Ajv.validate(transactionSchema.$id, transaction.getStruct()).error).toBeNull();
     });
+
+    it("should be ok and turn uppercase publicKey to lowercase", () => {
+        const transfer = transaction
+            .recipientId(address)
+            .amount(1)
+            .fee(1)
+            .network(configManager.get("pubKeyHash"))
+            .sign("passphrase")
+            .build();
+
+        const { senderPublicKey } = transfer.data;
+
+        transfer.data.senderPublicKey = senderPublicKey.toUpperCase();
+        expect(transfer.data.senderPublicKey).not.toBe(senderPublicKey);
+
+        const { value, error } = Ajv.validate(transactionSchema.$id, transfer.data);
+        expect(error).toBeNull();
+        expect(value.senderPublicKey).toBe(senderPublicKey);
+    });
 });
 
 describe("Second Signature Transaction", () => {

@@ -1,12 +1,12 @@
 import { Dato } from "@faustbrian/dato";
 
-import { constants, models } from "@arkecosystem/crypto";
+import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
 export interface IAddTransactionResponse {
     success: boolean;
 }
 export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
-    transaction: models.Transaction;
+    transaction: Transaction;
     type: string;
     message: string;
     success: boolean;
@@ -49,23 +49,23 @@ export interface ITransactionPool {
      * }
      */
     addTransactions(
-        transactions: models.Transaction[],
+        transactions: Transaction[],
     ): {
-        added: models.Transaction[];
+        added: Transaction[];
         notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: models.Transaction): IAddTransactionResponse;
+    addTransaction(transaction: Transaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
-    removeTransaction(transaction: models.Transaction): void;
+    removeTransaction(transaction: Transaction): void;
 
     /**
      * Remove a transaction from the pool by id.
@@ -80,7 +80,7 @@ export interface ITransactionPool {
     /**
      * Get a transaction by transaction id.
      */
-    getTransaction(id: string): models.Transaction;
+    getTransaction(id: string): Transaction;
 
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
@@ -110,7 +110,7 @@ export interface ITransactionPool {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: models.ITransactionData): boolean;
+    hasExceededMaxTransactions(transaction: ITransactionData): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).
