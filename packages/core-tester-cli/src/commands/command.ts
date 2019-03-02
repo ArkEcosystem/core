@@ -49,7 +49,7 @@ export abstract class BaseCommand extends Command {
         }),
         waves: flags.number({
             description: "number of waves to send",
-            default: 10,
+            default: 1,
         }),
     };
 
