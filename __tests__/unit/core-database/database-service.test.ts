@@ -1,5 +1,5 @@
 import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { Bignum, constants, models, transactionBuilder } from "@arkecosystem/crypto";
+import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import "jest-extended";
 import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
@@ -7,7 +7,7 @@ import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub"
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block, Transaction, Wallet } = models;
+const { Block, Wallet } = models;
 
 const { SATOSHI, TransactionTypes } = constants;
 
