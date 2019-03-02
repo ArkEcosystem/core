@@ -142,6 +142,18 @@ export abstract class BaseCommand extends Command {
         return this.awaitConfirmations(transactions);
     }
 
+    protected async getTransaction(id: string): Promise<any> {
+        try {
+            const { data } = await this.api.get(`transactions/${id}`);
+            
+            return data;
+        } catch (error) {
+            logger.error(error.message);
+
+            return false;
+        }
+    }
+
     protected castFlags(values: Record<string, any>): string[] {
         return Object.keys(BaseCommand.flagsConfig)
             .map((key: string) => {
