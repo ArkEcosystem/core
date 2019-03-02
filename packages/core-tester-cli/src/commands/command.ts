@@ -47,6 +47,10 @@ export abstract class BaseCommand extends Command {
         skipProbing: flags.boolean({
             description: "skip transaction probing",
         }),
+        floodWaves: flags.number({
+            description: "number of waves to send",
+            default: 10,
+        }),
     };
 
     public static flagsDebug = {
