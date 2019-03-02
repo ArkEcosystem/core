@@ -4,7 +4,7 @@ import { removeSync } from "fs-extra";
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
 import { BaseCommand } from "./command";
-import { CommandFlags } from "../../types";
+import { CommandFlags } from "../types";
 import { flags } from "@oclif/command";
 
 export class UpdateCommand extends BaseCommand {
