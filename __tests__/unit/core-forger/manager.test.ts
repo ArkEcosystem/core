@@ -1,4 +1,7 @@
+import "./mocks/core-container";
+
 import "jest-extended";
+
 import { generators } from "../../utils";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";

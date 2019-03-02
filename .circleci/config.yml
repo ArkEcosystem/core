@@ -354,6 +354,12 @@ jobs:
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
       - run:
+          name: core-forger - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-forger/ --coverageDirectory
+            .coverage/integration/core-forger
+      - run:
           name: core-json-rpc - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -611,6 +617,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
+      - run:
+          name: core-forger - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-forger/ --coverageDirectory
+            .coverage/integration/core-forger
       - run:
           name: core-json-rpc - integration
           command: >-
