@@ -465,12 +465,6 @@ jobs:
             test:coverage /unit/core-utils/ --coverageDirectory
             .coverage/unit/core-utils
       - run:
-          name: core-vote-report - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-vote-report/ --coverageDirectory
-            .coverage/unit/core-vote-report
-      - run:
           name: core-webhooks - unit
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -488,6 +482,18 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-transaction-pool/
             --coverageDirectory .coverage/integration/core-transaction-pool
+      - run:
+          name: core-vote-report - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-vote-report/ --coverageDirectory
+            .coverage/integration/core-vote-report
+      - run:
+          name: core-webhooks - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-webhooks/ --coverageDirectory
+            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -717,12 +723,6 @@ jobs:
             test:coverage /unit/core-utils/ --coverageDirectory
             .coverage/unit/core-utils
       - run:
-          name: core-vote-report - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-vote-report/ --coverageDirectory
-            .coverage/unit/core-vote-report
-      - run:
           name: core-webhooks - unit
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -740,6 +740,18 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-transaction-pool/
             --coverageDirectory .coverage/integration/core-transaction-pool
+      - run:
+          name: core-vote-report - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-vote-report/ --coverageDirectory
+            .coverage/integration/core-vote-report
+      - run:
+          name: core-webhooks - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-webhooks/ --coverageDirectory
+            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail
