@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
+import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { constants, crypto, isException, models, Transaction } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
@@ -89,7 +90,8 @@ export class PoolWalletManager extends WalletManager {
             );
         } else {
             try {
-                sender.canApply(transaction);
+                const transactionService = TransactionServiceRegistry.get(transaction.type);
+                transactionService.canBeApplied(transaction, sender);
             } catch (error) {
                 const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
                     sender.address
@@ -109,6 +111,8 @@ export class PoolWalletManager extends WalletManager {
     public revertTransactionForSender(transaction: Transaction) {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
-        sender.revertTransactionForSender(transaction);
+
+        const transactionService = TransactionServiceRegistry.get(transaction.type);
+        transactionService.revertForSender(transaction, sender);
     }
 }

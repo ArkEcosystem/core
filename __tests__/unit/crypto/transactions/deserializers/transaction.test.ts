@@ -8,7 +8,7 @@ import {
     UnkownTransactionError,
 } from "../../../../../packages/crypto/src/errors";
 import { configManager } from "../../../../../packages/crypto/src/managers";
-import { Transaction } from "../../../../../packages/crypto/src/models";
+import { Transaction } from "../../../../../packages/crypto/src/transactions";
 import { TransactionDeserializer } from "../../../../../packages/crypto/src/transactions/deserializers";
 import { TransactionSerializer } from "../../../../../packages/crypto/src/transactions/serializers";
 import { Bignum } from "../../../../../packages/crypto/src/utils";

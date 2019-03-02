@@ -34,6 +34,7 @@
         "@arkecosystem/core-container": "^2.2.0-beta.7",
         "@arkecosystem/core-database": "^2.2.0-beta.7",
         "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
+        "@arkecosystem/core-transactions": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@faustbrian/dato": "^0.1.0",
         "@types/better-sqlite3": "^5.2.2",

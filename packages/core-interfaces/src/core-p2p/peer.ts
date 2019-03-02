@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 
 export interface IPeer {
     setHeaders(headers: any): void;
@@ -37,7 +37,7 @@ export interface IPeer {
      * @param  {Transaction[]}      transactions
      * @return {(Object|undefined)}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<any>;
+    postTransactions(transactions: Transaction[]): Promise<any>;
 
     /**
      * Download blocks from peer.

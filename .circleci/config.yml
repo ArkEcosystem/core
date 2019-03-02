@@ -54,9 +54,9 @@ jobs:
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -177,9 +177,9 @@ jobs:
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -300,9 +300,9 @@ jobs:
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -353,6 +353,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
+      - run:
+          name: core-tester-cli - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-tester-cli/ --coverageDirectory
+            .coverage/unit/core-tester-cli
       - run:
           name: core-json-rpc - integration
           command: >-
@@ -429,9 +435,9 @@ jobs:
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -441,17 +447,17 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-tester-cli - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-tester-cli/ --coverageDirectory
-            .coverage/unit/core-tester-cli
-      - run:
           name: core-transaction-pool - unit
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-transaction-pool/ --coverageDirectory
             .coverage/unit/core-transaction-pool
+      - run:
+          name: core-transactions - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-transactions/ --coverageDirectory
+            .coverage/unit/core-transactions
       - run:
           name: core-utils - unit
           command: >-
@@ -546,9 +552,9 @@ jobs:
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -599,6 +605,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
+      - run:
+          name: core-tester-cli - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-tester-cli/ --coverageDirectory
+            .coverage/unit/core-tester-cli
       - run:
           name: core-json-rpc - integration
           command: >-
@@ -675,9 +687,9 @@ jobs:
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -687,17 +699,17 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-tester-cli - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-tester-cli/ --coverageDirectory
-            .coverage/unit/core-tester-cli
-      - run:
           name: core-transaction-pool - unit
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-transaction-pool/ --coverageDirectory
             .coverage/unit/core-transaction-pool
+      - run:
+          name: core-transactions - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-transactions/ --coverageDirectory
+            .coverage/unit/core-transactions
       - run:
           name: core-utils - unit
           command: >-

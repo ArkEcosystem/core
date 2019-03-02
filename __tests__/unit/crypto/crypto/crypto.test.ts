@@ -3,7 +3,7 @@ import { TransactionTypes } from "../../../../packages/crypto/src/constants";
 import { crypto } from "../../../../packages/crypto/src/crypto/crypto";
 import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
 import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { ITransactionData } from "../../../../packages/crypto/src/models";
+import { ITransactionData } from "../../../../packages/crypto/src/transactions";
 
 const networkMainnet = configManager.getPreset("mainnet");
 const networkDevnet = configManager.getPreset("devnet");

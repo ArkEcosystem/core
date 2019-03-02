@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { EventEmitter, Logger } from "../index";
 import {
     IBlocksBusinessRepository,
@@ -110,7 +110,7 @@ export interface IDatabaseService {
 
     revertBlock(block: models.Block): Promise<void>;
 
-    verifyTransaction(transaction: models.Transaction): Promise<boolean>;
+    verifyTransaction(transaction: Transaction): Promise<boolean>;
 
     getBlocksForRound(round?: number): Promise<models.Block[]>;
 

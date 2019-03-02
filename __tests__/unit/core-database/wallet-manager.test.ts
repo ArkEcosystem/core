@@ -1,8 +1,8 @@
 /* tslint:disable:max-line-length no-empty */
 import { Database } from "@arkecosystem/core-interfaces";
+import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
-import { InsufficientBalanceError } from "@arkecosystem/crypto/dist/errors";
 import { fixtures, generators } from "../../utils";
 import genesisBlockTestnet from "../../utils/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
