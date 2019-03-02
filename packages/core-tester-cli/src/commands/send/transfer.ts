@@ -57,18 +57,18 @@ export class TransferCommand extends SendCommand {
             
             if (!response) {
                 logger.error(`[T] ${transaction.id} (not forged)`);
+                
+                continue;
             }
 
-            if (wasCreated) {
-                logger.info(`[T] ${transaction.id} (${response.blockId})`);
+            logger.info(`[T] ${transaction.id} (${response.blockId})`);
 
-                await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
+            await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
 
-                if (transaction.vendorField === response.vendorField) {
-                    logger.info(`[T] ${(transaction.id} (${transaction.vendorField})`);
-                } else {
-                    logger.error(`[T] ${(transaction.id} (${transaction.vendorField} / ${response.vendorField})`);
-                }
+            if (transaction.vendorField === response.vendorField) {
+                logger.info(`[T] ${(transaction.id} (${transaction.vendorField})`);
+            } else {
+                logger.error(`[T] ${(transaction.id} (${transaction.vendorField} / ${response.vendorField})`);
             }
         }
     }
