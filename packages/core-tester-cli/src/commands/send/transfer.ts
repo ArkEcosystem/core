@@ -2,6 +2,7 @@ import { flags } from "@oclif/command";
 import { delay } from "bluebird";
 import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";
+import { logger } from "../../logger";
 
 export class TransferCommand extends SendCommand {
     public static description: string = "send multiple transactions";
