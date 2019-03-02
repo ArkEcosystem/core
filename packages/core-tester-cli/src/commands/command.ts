@@ -47,7 +47,7 @@ export abstract class BaseCommand extends Command {
         skipProbing: flags.boolean({
             description: "skip transaction probing",
         }),
-        waves: flags.number({
+        waves: flags.integer({
             description: "number of waves to send",
             default: 1,
         }),
