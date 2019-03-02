@@ -1,4 +1,4 @@
-import { constants, ITransactionData, models } from "@arkecosystem/crypto";
+import { constants, models, Transaction } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../errors";
 import { TransactionService } from "./transaction";
 
@@ -7,7 +7,8 @@ export class VoteTransactionService extends TransactionService {
         return constants.TransactionTypes.Vote;
     }
 
-    public canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean {
+    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+        const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
             if (wallet.vote) {
@@ -21,10 +22,11 @@ export class VoteTransactionService extends TransactionService {
             }
         }
 
-        return super.canBeApplied(data, wallet);
+        return super.canBeApplied(transaction, wallet);
     }
 
-    public apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
             wallet.vote = vote.slice(1);
@@ -33,7 +35,8 @@ export class VoteTransactionService extends TransactionService {
         }
     }
 
-    public revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
             wallet.vote = null;

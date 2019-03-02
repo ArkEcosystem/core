@@ -5,7 +5,6 @@ import { MultiPaymentTransactionService } from "./multi-payment";
 import { MultiSignatureTransactionService } from "./multi-signature";
 import { SecondSignatureTransactionService } from "./second-signature";
 import { TimelockTransferTransactionService } from "./timelock-transfer";
-import { TransactionService } from "./transaction";
 import { TransferTransactionService } from "./transfer";
 import { VoteTransactionService } from "./vote";
 

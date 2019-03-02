@@ -1,4 +1,4 @@
-import { constants, ITransactionData, models } from "@arkecosystem/crypto";
+import { constants, models, Transaction } from "@arkecosystem/crypto";
 import { WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
 import { TransactionService } from "./transaction";
 
@@ -7,7 +7,8 @@ export class DelegateRegistrationTransactionService extends TransactionService {
         return constants.TransactionTypes.DelegateRegistration;
     }
 
-    public canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean {
+    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+        const { data } = transaction;
         const { username } = data.asset.delegate;
         if (!username) {
             throw new WalletUsernameEmptyError();
@@ -17,14 +18,15 @@ export class DelegateRegistrationTransactionService extends TransactionService {
             throw new WalletUsernameNotEmptyError();
         }
 
-        return super.canBeApplied(data, wallet);
+        return super.canBeApplied(transaction, wallet);
     }
 
-    public apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         wallet.username = data.asset.delegate.username;
     }
 
-    public revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: models.Wallet): void {
         wallet.username = null;
     }
 }

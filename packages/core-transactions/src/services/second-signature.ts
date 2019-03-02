@@ -1,4 +1,4 @@
-import { constants, ITransactionData, models } from "@arkecosystem/crypto";
+import { constants, models, Transaction } from "@arkecosystem/crypto";
 import { SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionService } from "./transaction";
 
@@ -7,19 +7,19 @@ export class SecondSignatureTransactionService extends TransactionService {
         return constants.TransactionTypes.SecondSignature;
     }
 
-    public canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean {
+    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
         if (wallet.secondPublicKey) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        return super.canBeApplied(data, wallet);
+        return super.canBeApplied(transaction, wallet);
     }
 
-    public apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
-        wallet.secondPublicKey = data.asset.signature.publicKey;
+    public apply(transaction: Transaction, wallet: models.Wallet): void {
+        wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
     }
 
-    public revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: models.Wallet): void {
         wallet.secondPublicKey = null;
     }
 }

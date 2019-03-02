@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-import { configManager, crypto, ITransactionData, models } from "@arkecosystem/crypto";
+import { configManager, crypto, models, Transaction } from "@arkecosystem/crypto";
 import {
     InsufficientBalanceError,
     InvalidSecondSignatureError,
@@ -16,10 +16,11 @@ export abstract class TransactionService implements ITransactionService {
     /**
      * Wallet logic
      */
-    public canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean {
+    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
+        const { data } = transaction;
         if (wallet.multisignature) {
             throw new UnexpectedMultiSignatureError();
         }
@@ -54,40 +55,44 @@ export abstract class TransactionService implements ITransactionService {
         return true;
     }
 
-    public applyToSender(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public applyToSender(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
 
-            this.apply(data, wallet);
+            this.apply(transaction, wallet);
 
             wallet.dirty = true;
         }
     }
 
-    public applyToRecipient(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public applyToRecipient(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount);
             wallet.dirty = true;
         }
     }
 
-    public revertForSender(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revertForSender(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
 
-            this.revert(data, wallet);
+            this.revert(transaction, wallet);
 
             wallet.dirty = true;
         }
     }
 
-    public revertForRecipient(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revertForRecipient(transaction: Transaction, wallet: models.Wallet): void {
+        const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount);
             wallet.dirty = true;
         }
     }
 
-    public abstract apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
-    public abstract revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
+    public abstract apply(transaction: Transaction, wallet: models.Wallet): void;
+    public abstract revert(transaction: Transaction, wallet: models.Wallet): void;
 }

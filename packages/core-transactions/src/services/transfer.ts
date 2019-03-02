@@ -1,4 +1,4 @@
-import { constants, ITransactionData, models } from "@arkecosystem/crypto";
+import { constants, models, Transaction } from "@arkecosystem/crypto";
 import { TransactionService } from "./transaction";
 
 export class TransferTransactionService extends TransactionService {
@@ -6,19 +6,19 @@ export class TransferTransactionService extends TransactionService {
         return constants.TransactionTypes.Transfer;
     }
 
-    public canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean {
-        return super.canBeApplied(data, wallet);
+    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+        return super.canBeApplied(transaction, wallet);
     }
 
     public hasVendorField(): boolean {
         return true;
     }
 
-    public apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: models.Wallet): void {
         return;
     }
 
-    public revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: models.Wallet): void {
         return;
     }
 }

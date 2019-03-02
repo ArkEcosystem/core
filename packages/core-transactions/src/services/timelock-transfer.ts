@@ -1,4 +1,4 @@
-import { constants, ITransactionData, models } from "@arkecosystem/crypto";
+import { constants, models, Transaction } from "@arkecosystem/crypto";
 import { TransactionService } from "./transaction";
 
 export class TimelockTransferTransactionService extends TransactionService {
@@ -6,15 +6,15 @@ export class TimelockTransferTransactionService extends TransactionService {
         return constants.TransactionTypes.TimelockTransfer;
     }
 
-    public canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean {
-        return super.canBeApplied(data, wallet);
+    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+        return super.canBeApplied(transaction, wallet);
     }
 
-    public apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: models.Wallet): void {
         return;
     }
 
-    public revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: models.Wallet): void {
         return;
     }
 }

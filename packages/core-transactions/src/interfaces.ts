@@ -1,13 +1,13 @@
-import { constants, ITransactionData, models } from "@arkecosystem/crypto";
+import { constants, models, Transaction } from "@arkecosystem/crypto";
 
 export interface ITransactionService {
     getType(): constants.TransactionTypes | number;
 
-    canBeApplied(data: Readonly<ITransactionData>, wallet: models.Wallet): boolean;
-    applyToSender(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
-    applyToRecipient(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
-    revertForSender(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
-    revertForRecipient(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
-    apply(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
-    revert(data: Readonly<ITransactionData>, wallet: models.Wallet): void;
+    canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean;
+    applyToSender(transaction: Transaction, wallet: models.Wallet): void;
+    applyToRecipient(transaction: Transaction, wallet: models.Wallet): void;
+    revertForSender(transaction: Transaction, wallet: models.Wallet): void;
+    revertForRecipient(transaction: Transaction, wallet: models.Wallet): void;
+    apply(transaction: Transaction, wallet: models.Wallet): void;
+    revert(transaction: Transaction, wallet: models.Wallet): void;
 }
