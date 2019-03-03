@@ -38,7 +38,7 @@ export class ReinstallCommand extends BaseCommand {
         }
     }
     
-    private async performInstall(flags: CommandFlags, state: Record<string, any>): Promise<void> {
+    private async performInstall(flags: CommandFlags): Promise<void> {
         cli.action.start(`Reinstalling ${this.config.version}`);
 
         await installFromChannel(this.config.name, this.config.version);
