@@ -33,6 +33,12 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
+                if (name === "event-emitter") {
+                    return {
+                        emit: jest.fn(),
+                    };
+                }
+
                 return {};
             },
             resolve: name => {
