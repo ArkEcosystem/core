@@ -15,7 +15,7 @@
         "lint": "yarn lerna run lint",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
+        "test": "cross-env CORE_ENV=test jest --forceExit",
         "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
         "test:debug": "cross-env CORE_ENV=test node --inspect-brk ./node_modules/.bin/jest --runInBand",
         "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
