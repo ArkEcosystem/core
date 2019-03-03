@@ -21,6 +21,18 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
+                if (name === "database") {
+                    return {
+                        getBlocksByHeight: heights => {
+                            if (heights[0] === 1) {
+                                return [genesisBlock.data];
+                            }
+
+                            return [];
+                        },
+                    };
+                }
+
                 return {};
             },
             resolve: name => {

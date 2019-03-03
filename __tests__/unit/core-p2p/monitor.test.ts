@@ -2,24 +2,19 @@
 
 import "./mocks/core-container";
 
-import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import genesisBlockJson from "../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "./fixtures/block";
 
 const axiosMock = new MockAdapter(axios);
 
-let genesisBlock: models.Block;
 let peerMock: Peer;
 let monitor;
 
 beforeAll(() => {
     monitor = require("../../../packages/core-p2p/src/monitor").monitor;
-
-    // @FIX: TransactionSchemaError: data.fee should pass "bignumber" keyword validation
-    genesisBlock = new models.Block(genesisBlockJson);
 });
 
 beforeEach(async () => {
