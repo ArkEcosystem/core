@@ -56,25 +56,15 @@ export class UpdateCommand extends BaseCommand {
     }
     
     private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
-        let installVersion;
+        cli.action.start(`Updating from ${state.currentVersion} to ${state.newVersion}`);
         
-        if (flags.force) {
-            cli.action.start(`Updating from ${state.currentVersion} to ${state.newVersion}`);
-
-            installVersion = state.newVersion;
-        } else {
-            cli.action.start(`Reinstalling ${state.currentVersion}`);
-
-            installVersion = state.currentVersion;
-        }
-
-        await installFromChannel(state.name, installVersion);
+        await installFromChannel(state.name, state.newVersion);
         
         cli.action.stop();
 
         removeSync(state.cache);
 
-        this.warn(`Version ${installVersion} has been installed.`);
+        this.warn(`Version ${state.newVersion} has been installed.`);
 
         await this.restartProcess(`${flags.token}-core`);
         await this.restartProcess(`${flags.token}-relay`);
