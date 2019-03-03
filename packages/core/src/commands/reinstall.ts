@@ -20,13 +20,13 @@ export class ReinstallCommand extends BaseCommand {
         const { flags } = await this.parseWithNetwork(ReinstallCommand);
 
         if (flags.force) {
-            return this.execute(flags);
+            return this.performInstall(flags);
         }
 
         try {
             await confirm("Are you sure you want to reinstall?", async () => {
                 try {
-                    await this.execute(flags);
+                    await this.performInstall(flags);
                 } catch (err) {
                     this.error(err.message);
                 } finally {
@@ -38,7 +38,7 @@ export class ReinstallCommand extends BaseCommand {
         }
     }
     
-    private async execute(flags: CommandFlags, state: Record<string, any>): Promise<void> {
+    private async performInstall(flags: CommandFlags, state: Record<string, any>): Promise<void> {
         cli.action.start(`Reinstalling ${this.config.version}`);
 
         await installFromChannel(this.config.name, this.config.version);
