@@ -4,9 +4,17 @@ import { removeSync } from "fs-extra";
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
 import { BaseCommand } from "./command";
+import { CommandFlags } from "../types";
+import { flags } from "@oclif/command";
 
 export class UpdateCommand extends BaseCommand {
     public static description: string = "Update the core installation";
+
+    public static flags: CommandFlags = {
+        force: flags.boolean({
+            description: "force an update",
+        }),
+    };
 
     public async run(): Promise<void> {
         const state = await checkForUpdates(this);
@@ -15,6 +23,12 @@ export class UpdateCommand extends BaseCommand {
             this.log(`You already have the latest version (${state.currentVersion})`);
 
             return;
+        }
+
+        const { flags } = await this.parseWithNetwork(UpdateCommand);
+
+        if (flags.force) {
+            return this.performUpdate(flags, state);
         }
 
         try {
@@ -29,21 +43,7 @@ export class UpdateCommand extends BaseCommand {
 
             await confirm("Would you like to update?", async () => {
                 try {
-                    cli.action.start(`Updating from ${currentVersion} to ${newVersion}`);
-
-                    await installFromChannel(state.name, state.channel);
-
-                    cli.action.stop();
-
-                    removeSync(state.cache);
-
-                    this.warn(`Version ${newVersion} has been installed.`);
-
-                    const { flags } = await this.parseWithNetwork(UpdateCommand);
-
-                    await this.restartProcess(`${flags.token}-core`);
-                    await this.restartProcess(`${flags.token}-relay`);
-                    await this.restartProcess(`${flags.token}-forger`);
+                    await this.performUpdate(flags, state);
                 } catch (err) {
                     this.error(err.message);
                 } finally {
@@ -53,5 +53,21 @@ export class UpdateCommand extends BaseCommand {
         } catch (err) {
             this.error(err.message);
         }
+    }
+    
+    private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
+        cli.action.start(`Updating from ${state.currentVersion} to ${state.newVersion}`);
+        
+        await installFromChannel(state.name, state.newVersion);
+        
+        cli.action.stop();
+
+        removeSync(state.cache);
+
+        this.warn(`Version ${state.newVersion} has been installed.`);
+
+        await this.restartProcess(`${flags.token}-core`);
+        await this.restartProcess(`${flags.token}-relay`);
+        await this.restartProcess(`${flags.token}-forger`);
     }
 }
