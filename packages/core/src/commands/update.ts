@@ -17,8 +17,6 @@ export class UpdateCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(UpdateCommand);
-
         const state = await checkForUpdates(this);
 
         if (!state.ready) {
@@ -26,6 +24,8 @@ export class UpdateCommand extends BaseCommand {
 
             return;
         }
+
+        const { flags } = await this.parseWithNetwork(UpdateCommand);
 
         if (flags.force) {
             return this.performUpdate(flags, state);
