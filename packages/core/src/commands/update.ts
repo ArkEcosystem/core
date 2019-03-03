@@ -21,14 +21,14 @@ export class UpdateCommand extends BaseCommand {
 
         const state = await checkForUpdates(this);
 
-        if (flags.force) {
-            return this.performUpdate(flags, state);
-        }
-
         if (!state.ready) {
             this.log(`You already have the latest version (${state.currentVersion})`);
 
             return;
+        }
+
+        if (flags.force) {
+            return this.performUpdate(flags, state);
         }
 
         try {
