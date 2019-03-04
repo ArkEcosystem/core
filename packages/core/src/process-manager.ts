@@ -1,4 +1,5 @@
 import { ExecaReturns, shellSync } from "execa";
+import { ProcessState } from "./enums";
 import { ProcessDescription } from "./types";
 
 class ProcessManager {
@@ -17,7 +18,7 @@ class ProcessManager {
     }
 
     public restart(name: string): boolean {
-        return this.execWithHandler(`pm2 restart ${name}`);
+        return this.execWithHandler(`pm2 reload ${name} --update-env`);
     }
 
     public delete(name: string): boolean {
@@ -34,6 +35,30 @@ class ProcessManager {
         }
     }
 
+    public status(name: string): any {
+        try {
+            return processManager.describe(name).pm2_env.status;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    public isRunning(name: string): boolean {
+        return this.status(name) === ProcessState.Online;
+    }
+
+    public hasStopped(name: string): boolean {
+        return this.status(name) === ProcessState.Stopped;
+    }
+
+    public hasErrored(name: string): boolean {
+        return this.status(name) === ProcessState.Errored;
+    }
+
+    public hasUnknownState(name: string): boolean {
+        return !Object.values(ProcessState).includes(this.status(name));
+    }
+
     public exists(name: string): boolean {
         try {
             const { stdout } = this.exec(`pm2 id ${name} | awk '{ print $2 }'`);
@@ -42,6 +67,10 @@ class ProcessManager {
         } catch (error) {
             return false;
         }
+    }
+
+    public missing(name: string): boolean {
+        return !this.exists(name);
     }
 
     public list(token: string): any {

@@ -11,7 +11,7 @@
         "publish:alpha": "yarn lerna run publish:alpha",
         "publish:beta": "yarn lerna run publish:beta",
         "publish:rc": "yarn lerna run publish:rc",
-        "publish:stable": "yarn lerna run publish:latest",
+        "publish:latest": "yarn lerna run publish:latest",
         "lint": "yarn lerna run lint",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
