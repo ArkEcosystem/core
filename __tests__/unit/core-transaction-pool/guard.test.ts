@@ -1,27 +1,19 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { generators } from "../../utils";
-import { configManager, constants, crypto, models, slots } from "@arkecosystem/crypto";
-import bip39 from "bip39";
 import "jest-extended";
-import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
+
+import { Container } from "@arkecosystem/core-interfaces";
+import { configManager, constants, slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
+import { generators } from "../../utils";
+import { delegates, wallets } from "../../utils/fixtures/unitnet";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { Block } = models;
-const {
-    generateDelegateRegistration,
-    generateSecondSignature,
-    generateTransfers,
-    generateVote,
-    generateWallets,
-} = generators;
+const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
 let TransactionGuard;
 
 let container: Container.IContainer;
 let guard;
 let transactionPool;
-let blockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
@@ -29,7 +21,6 @@ beforeAll(async () => {
     TransactionGuard = require("../../../packages/core-transaction-pool/src").TransactionGuard;
 
     transactionPool = container.resolvePlugin("transactionPool");
-    blockchain = container.resolvePlugin("blockchain");
     localConfig.init(transactionPool.options);
 });
 
@@ -165,7 +156,9 @@ describe("Transaction Guard", () => {
             const tx = {
                 id: "1",
                 network: 23,
+                type: constants.TransactionTypes.Transfer,
                 senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+                recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
             };
             guard.__filterAndTransformTransactions([tx]);
 
@@ -189,7 +182,9 @@ describe("Transaction Guard", () => {
 
             const tx = {
                 id: "1",
+                type: constants.TransactionTypes.Transfer,
                 senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+                recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
             };
             guard.__filterAndTransformTransactions([tx]);
 
