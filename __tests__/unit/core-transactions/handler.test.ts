@@ -102,6 +102,13 @@ describe("General Tests", () => {
             wallet.balance = new Bignum(transaction.amount).plus(transaction.fee).minus(1);
             expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
+
+        it("should be true even with publicKey case mismatch", () => {
+            transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
+            wallet.publicKey = wallet.publicKey.toLowerCase();
+            instance = Transaction.fromData(transaction);
+            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+        });
     });
 
     describe("applyTransactionToSender", () => {
@@ -119,6 +126,18 @@ describe("General Tests", () => {
 
             service.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance));
+        });
+
+        it("should not fail due to case mismatch", () => {
+            const initialBalance = 1000 * ARKTOSHI;
+            wallet.balance = new Bignum(initialBalance);
+
+            transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
+            const instance = Transaction.fromData(transaction);
+            wallet.publicKey = wallet.publicKey.toLowerCase();
+
+            service.applyToSender(instance, wallet);
+            expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee));
         });
     });
 
