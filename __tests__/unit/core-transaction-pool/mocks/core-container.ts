@@ -1,6 +1,21 @@
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
+            getConfig: () => {
+                return {
+                    get: () => ({}),
+                };
+            },
+            resolve: name => {
+                if (name === "state") {
+                    return {
+                        cacheTransactions: () => null,
+                        removeCachedTransactionIds: () => null,
+                    };
+                }
+
+                return {};
+            },
             resolvePlugin: name => {
                 if (name === "logger") {
                     return {
@@ -18,6 +33,18 @@ jest.mock("@arkecosystem/core-container", () => {
                                 height: 20,
                             },
                         }),
+                    };
+                }
+
+                if (name === "event-emitter") {
+                    return {
+                        emit: () => ({}),
+                    };
+                }
+
+                if (name === "database") {
+                    return {
+                        getForgedTransactionsIds: () => [],
                     };
                 }
 

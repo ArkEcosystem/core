@@ -1,41 +1,36 @@
+import "./mocks/core-container";
+
 import { Container } from "@arkecosystem/core-interfaces";
-import { configManager, constants, models, slots } from "@arkecosystem/crypto";
+import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
+import { TransactionPool } from "../../../packages/core-transaction-pool/src/connection";
+import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
+import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";
 import { generators } from "../../utils";
 import { delegates, wallets } from "../../utils/fixtures/unitnet";
 
-const { Block } = models;
-const {
-    generateDelegateRegistration,
-    generateSecondSignature,
-    generateTransfers,
-    generateVote,
-    generateWallets,
-} = generators;
-
-let TransactionGuard;
+const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
 let container: Container.IContainer;
 let guard;
 let transactionPool;
-let blockchain;
 
 beforeAll(async () => {
-    TransactionGuard = require("../../../packages/core-transaction-pool/src").TransactionGuard;
+    localConfig.init(defaults);
 
-    transactionPool = container.resolvePlugin("transactionPool");
-    blockchain = container.resolvePlugin("blockchain");
-    localConfig.init(transactionPool.options);
+    transactionPool = new TransactionPool(defaults);
+    await transactionPool.make();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
     transactionPool.flush();
+
     guard = new TransactionGuard(transactionPool);
 });
 
 describe("Transaction Guard", () => {
-    describe("__cacheTransactions", () => {
+    describe.only("__cacheTransactions", () => {
         it("should add transactions to cache", () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
             expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
