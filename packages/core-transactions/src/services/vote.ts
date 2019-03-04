@@ -1,4 +1,5 @@
-import { constants, models, Transaction } from "@arkecosystem/crypto";
+import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../errors";
 import { TransactionService } from "./transaction";
 
@@ -43,5 +44,9 @@ export class VoteTransactionService extends TransactionService {
         } else {
             wallet.vote = vote.slice(1);
         }
+    }
+
+    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+        return !this.typeFromSenderAlreadyInPool(data, guard);
     }
 }
