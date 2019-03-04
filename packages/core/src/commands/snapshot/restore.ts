@@ -31,7 +31,7 @@ export class RestoreCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = this.parse(RestoreCommand);
+        const { flags } = await this.parseWithNetwork(RestoreCommand);
 
         await setUpLite(flags);
 
