@@ -1,11 +1,11 @@
+import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
 import { removeSync } from "fs-extra";
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
-import { BaseCommand } from "./command";
 import { CommandFlags } from "../types";
-import { flags } from "@oclif/command";
+import { BaseCommand } from "./command";
 
 export class ReinstallCommand extends BaseCommand {
     public static description: string = "Reinstall the core";
@@ -37,12 +37,12 @@ export class ReinstallCommand extends BaseCommand {
             this.error(err.message);
         }
     }
-    
+
     private async performInstall(flags: CommandFlags): Promise<void> {
         cli.action.start(`Reinstalling ${this.config.version}`);
 
         await installFromChannel(this.config.name, this.config.version);
-        
+
         cli.action.stop();
 
         this.warn(`Version ${this.config.version} has been installed.`);
