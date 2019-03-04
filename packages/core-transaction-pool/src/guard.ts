@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
-import { configManager, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
+import { InvalidTransactionTypeError, TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { configManager, constants, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -174,8 +174,23 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             return false;
         }
 
-        const service = TransactionServiceRegistry.get(transaction.type);
-        return service.canEnterTransactionPool(transaction, this);
+        const { type } = transaction;
+        try {
+            const service = TransactionServiceRegistry.get(type);
+            return service.canEnterTransactionPool(transaction, this);
+        } catch (error) {
+            if (error instanceof InvalidTransactionTypeError) {
+                this.pushError(
+                    transaction,
+                    "ERR_UNSUPPORTED",
+                    `Invalidating transaction of unsupported type '${constants.TransactionTypes[type]}'`,
+                );
+            } else {
+                this.pushError(transaction, "ERR_UNKNOWN", error.message);
+            }
+        }
+
+        return false;
     }
 
     /**

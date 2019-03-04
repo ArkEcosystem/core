@@ -121,9 +121,9 @@ export abstract class TransactionService implements ITransactionService {
                 `Sender ${senderPublicKey} already has a transaction of type '${TransactionTypes[type]}' in the pool`,
             );
 
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 }

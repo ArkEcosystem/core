@@ -39,11 +39,11 @@ export class DelegateRegistrationTransactionService extends TransactionService {
         }
 
         const { username } = data.asset.delegate;
-        const containsDelegateRegistrationForSameNameInPayload = guard.transactions.some(
+        const delegateRegistrationsSameNameInPayload = guard.transactions.filter(
             tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username,
         );
 
-        if (containsDelegateRegistrationForSameNameInPayload) {
+        if (delegateRegistrationsSameNameInPayload.length > 1) {
             guard.pushError(
                 data,
                 "ERR_CONFLICT",
