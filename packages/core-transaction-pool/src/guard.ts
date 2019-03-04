@@ -17,7 +17,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
     public invalid: Map<string, ITransactionData> = new Map();
     public errors: { [key: string]: transanctionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private pool: TransactionPool) {}
+    constructor(public pool: TransactionPool) {}
 
     public async validate(transactions: ITransactionData[]): Promise<transanctionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
@@ -56,7 +56,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
         notAdded.forEach(transaction => {
             if (!this.errors[transaction.id]) {
-                this.__pushError(transaction, "ERR_DUPLICATE", "Already in cache.");
+                this.pushError(transaction, "ERR_DUPLICATE", "Already in cache.");
             }
         });
 
@@ -86,15 +86,15 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             const exists = this.pool.transactionExists(transaction.id);
 
             if (exists) {
-                this.__pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
+                this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
             } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
-                this.__pushError(
+                this.pushError(
                     transaction,
                     "ERR_SENDER_BLOCKED",
                     `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`,
                 );
             } else if (JSON.stringify(transaction).length > this.pool.options.maxTransactionBytes) {
-                this.__pushError(
+                this.pushError(
                     transaction,
                     "ERR_TOO_LARGE",
                     `Transaction ${transaction.id} is larger than ${this.pool.options.maxTransactionBytes} bytes.`,
@@ -110,7 +110,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                         if (this.pool.walletManager.canApply(trx, applyErrors)) {
                             const dynamicFee = dynamicFeeMatcher(trx);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
-                                this.__pushError(
+                                this.pushError(
                                     transaction,
                                     "ERR_LOW_FEE",
                                     "The fee is too low to broadcast and accept the transaction",
@@ -125,11 +125,11 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                                 }
                             }
                         } else {
-                            this.__pushError(transaction, "ERR_APPLY", JSON.stringify(applyErrors));
+                            this.pushError(transaction, "ERR_APPLY", JSON.stringify(applyErrors));
                         }
                     } else {
                         transaction.id = receivedId;
-                        this.__pushError(
+                        this.pushError(
                             transaction,
                             "ERR_BAD_DATA",
                             "Transaction didn't pass the verification process.",
@@ -137,9 +137,9 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                     }
                 } catch (error) {
                     if (error instanceof errors.TransactionSchemaError) {
-                        this.__pushError(transaction, "ERR_TRANSACTION_SCHEMA", error.message);
+                        this.pushError(transaction, "ERR_TRANSACTION_SCHEMA", error.message);
                     } else {
-                        this.__pushError(transaction, "ERR_UNKNOWN", error.message);
+                        this.pushError(transaction, "ERR_UNKNOWN", error.message);
                     }
                 }
             }
@@ -264,7 +264,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
         app.resolve("state").removeCachedTransactionIds(forgedIdsSet);
 
         forgedIdsSet.forEach(id => {
-            this.__pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
+            this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
 
             this.accept.delete(id);
             this.broadcast.delete(id);
@@ -287,16 +287,16 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 this.broadcast.delete(item.transaction.id);
             }
 
-            this.__pushError(item.transaction, item.type, item.message);
+            this.pushError(item.transaction, item.type, item.message);
         });
     }
 
     /**
      * Adds a transaction to the errors object. The transaction id is mapped to an
      * array of errors. There may be multiple errors associated with a transaction in
-     * which case __pushError is called multiple times.
+     * which case pushError is called multiple times.
      */
-    public __pushError(transaction: ITransactionData, type: string, message: string) {
+    public pushError(transaction: ITransactionData, type: string, message: string) {
         if (!this.errors[transaction.id]) {
             this.errors[transaction.id] = [];
         }

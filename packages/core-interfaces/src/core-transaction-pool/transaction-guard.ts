@@ -14,7 +14,9 @@ export interface IValidationResult {
 }
 
 export interface ITransactionGuard {
+    pool: ITransactionPool;
     validate(transactions: ITransactionData[]): Promise<IValidationResult>;
+    pushError(transaction: ITransactionData, type: string, message: string);
 
     getBroadcastTransactions(): Transaction[];
 }

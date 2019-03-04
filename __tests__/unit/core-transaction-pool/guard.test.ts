@@ -460,11 +460,11 @@ describe("Transaction Guard", () => {
         });
     });
 
-    describe("__pushError", () => {
+    describe("pushError", () => {
         it("should have error for transaction", () => {
             expect(guard.errors).toBeEmpty();
 
-            guard.__pushError({ id: 1 }, "ERR_INVALID", "Invalid.");
+            guard.pushError({ id: 1 }, "ERR_INVALID", "Invalid.");
 
             expect(guard.errors).toBeObject();
             expect(guard.errors["1"]).toBeArray();
@@ -478,8 +478,8 @@ describe("Transaction Guard", () => {
         it("should have multiple errors for transaction", () => {
             expect(guard.errors).toBeEmpty();
 
-            guard.__pushError({ id: 1 }, "ERR_INVALID", "Invalid 1.");
-            guard.__pushError({ id: 1 }, "ERR_INVALID", "Invalid 2.");
+            guard.pushError({ id: 1 }, "ERR_INVALID", "Invalid 1.");
+            guard.pushError({ id: 1 }, "ERR_INVALID", "Invalid 2.");
 
             expect(guard.errors).toBeObject();
             expect(guard.errors["1"]).toBeArray();
