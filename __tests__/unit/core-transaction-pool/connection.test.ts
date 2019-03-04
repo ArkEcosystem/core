@@ -141,6 +141,10 @@ describe("Connection", () => {
 
             connection.options.maxTransactionsInPool = maxTransactionsInPoolOrig;
         });
+
+        it.skip("should raise ERR_ALREADY_IN_POOL when adding existing transactions", () => {
+            // TODO
+        });
     });
 
     describe("addTransactions", () => {

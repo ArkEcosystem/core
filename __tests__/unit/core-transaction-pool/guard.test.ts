@@ -5,10 +5,13 @@ import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
 import { TransactionPool } from "../../../packages/core-transaction-pool/src/connection";
+import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";
 import { generators } from "../../utils";
 import { delegates, wallets } from "../../utils/fixtures/unitnet";
+import { state } from "./mocks/state";
+import { database } from "./mocks/database";
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
@@ -30,14 +33,20 @@ beforeEach(async () => {
 });
 
 describe("Transaction Guard", () => {
-    describe.only("__cacheTransactions", () => {
+    describe("__cacheTransactions", () => {
         it("should add transactions to cache", () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
+            jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
+
             expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
         });
 
         it("should not add a transaction already in cache and add it as an error", () => {
             const transactions = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
+            jest.spyOn(state, "cacheTransactions")
+                .mockReturnValueOnce({ added: transactions, notAdded: [] })
+                .mockReturnValueOnce({ added: [], notAdded: [transactions[0]] });
+
             expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
             expect(guard.__cacheTransactions([transactions[0]])).toEqual([]);
             expect(guard.errors).toEqual({
@@ -54,8 +63,12 @@ describe("Transaction Guard", () => {
     describe("getBroadcastTransactions", () => {
         it("should return broadcast transaction", async () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
+            jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
 
-            await guard.validate(transactions.map(tx => tx.data));
+            for (const tx of transactions) {
+                guard.broadcast.set(tx.id, tx);
+            }
+
             expect(guard.getBroadcastTransactions()).toEqual(transactions);
         });
     });
@@ -227,7 +240,7 @@ describe("Transaction Guard", () => {
             const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
 
             // use guard.accept.set() call to introduce a throw
-            jest.spyOn(guard.accept, "set").mockImplementationOnce(() => {
+            jest.spyOn(guard.pool.walletManager, "canApply").mockImplementationOnce(() => {
                 throw new Error("hey");
             });
 
@@ -272,11 +285,9 @@ describe("Transaction Guard", () => {
                 generateDelegateRegistration("unitnet", wallets[16].passphrase, 1, false, "test_delegate")[0],
                 generateDelegateRegistration("unitnet", wallets[17].passphrase, 1, false, "test_delegate")[0],
             ];
+            const memPoolTx = new MemPoolTransaction(delegateRegistrations[0]);
+            jest.spyOn(guard.pool, "getTransactionsByType").mockReturnValueOnce(new Set([memPoolTx]));
 
-            expect(guard.__validateTransaction(delegateRegistrations[0].data)).toBeTrue();
-            guard.accept.set(delegateRegistrations[0].id, delegateRegistrations[0]);
-            guard.__addTransactionsToPool();
-            expect(guard.errors).toEqual({});
             expect(guard.__validateTransaction(delegateRegistrations[1].data)).toBeFalse();
             expect(guard.errors[delegateRegistrations[1].id]).toEqual([
                 {
@@ -286,32 +297,23 @@ describe("Transaction Guard", () => {
                     }" already in the pool`,
                 },
             ]);
-
-            const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[16].keys.publicKey);
-            const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[17].keys.publicKey);
-
-            expect(wallet1.username).toBe("test_delegate");
-            expect(wallet2.username).toBe(null);
         });
 
         it("should not validate when sender has same type transactions in the pool (only for 2nd sig, delegate registration, vote)", async () => {
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
-            const votes = [
-                generateVote("unitnet", wallets[10].passphrase, delegates[0].publicKey, 1)[0],
-                generateVote("unitnet", wallets[10].passphrase, delegates[1].publicKey, 1)[0],
-            ];
-            const delegateRegs = generateDelegateRegistration("unitnet", wallets[11].passphrase, 2);
-            const signatures = generateSecondSignature("unitnet", wallets[12].passphrase, 2);
+            jest.spyOn(guard.pool, "senderHasTransactionsOfType").mockReturnValue(true);
+            const vote = generateVote("unitnet", wallets[10].passphrase, delegates[0].publicKey, 1)[0];
+            const delegateReg = generateDelegateRegistration("unitnet", wallets[11].passphrase, 1)[0];
+            const signature = generateSecondSignature("unitnet", wallets[12].passphrase, 1)[0];
 
-            for (const transactions of [votes, delegateRegs, signatures]) {
-                await guard.validate([transactions[0].data]);
-                expect(guard.__validateTransaction(transactions[1].data)).toBeFalse();
-                expect(guard.errors[transactions[1].id]).toEqual([
+            for (const tx of [vote, delegateReg, signature]) {
+                expect(guard.__validateTransaction(tx.data)).toBeFalse();
+                expect(guard.errors[tx.id]).toEqual([
                     {
                         type: "ERR_PENDING",
                         message:
-                            `Sender ${transactions[1].data.senderPublicKey} already has a transaction of type ` +
-                            `'${constants.TransactionTypes[transactions[1].type]}' in the pool`,
+                            `Sender ${tx.data.senderPublicKey} already has a transaction of type ` +
+                            `'${constants.TransactionTypes[tx.type]}' in the pool`,
                     },
                 ]);
             }
@@ -353,9 +355,6 @@ describe("Transaction Guard", () => {
 
     describe("__removeForgedTransactions", () => {
         it("should remove forged transactions", async () => {
-            const database = container.resolvePlugin("database");
-            const getForgedTransactionsIds = database.getForgedTransactionsIds;
-
             const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
             transfers.forEach(tx => {
@@ -364,7 +363,7 @@ describe("Transaction Guard", () => {
             });
 
             const forgedTx = transfers[2];
-            database.getForgedTransactionsIds = jest.fn(() => [forgedTx.id]);
+            jest.spyOn(database, "getForgedTransactionsIds").mockReturnValueOnce([forgedTx.id]);
 
             await guard.__removeForgedTransactions();
 
@@ -373,8 +372,6 @@ describe("Transaction Guard", () => {
 
             expect(guard.errors[forgedTx.id]).toHaveLength(1);
             expect(guard.errors[forgedTx.id][0].type).toEqual("ERR_FORGED");
-
-            database.getForgedTransactionsIds = getForgedTransactionsIds;
         });
     });
 
@@ -388,6 +385,7 @@ describe("Transaction Guard", () => {
             });
 
             expect(guard.errors).toEqual({});
+            jest.spyOn(guard.pool, "addTransactions").mockReturnValueOnce({ added: transfers, notAdded: [] });
 
             guard.__addTransactionsToPool();
 
@@ -396,54 +394,58 @@ describe("Transaction Guard", () => {
             expect(guard.broadcast.size).toBe(4);
         });
 
-        it("should raise ERR_ALREADY_IN_POOL when adding existing transactions", () => {
-            const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
+        it("should delete from accept and broadcast transactions that were not added to the pool", () => {
+            const added = generateTransfers("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
+            const notAddedError = { type: "ERR_TEST", message: "" };
+            const notAdded = generateTransfers("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
+                transaction: tx,
+                ...notAddedError,
+            }));
 
-            transfers.forEach(tx => {
+            added.forEach(tx => {
                 guard.accept.set(tx.id, tx);
                 guard.broadcast.set(tx.id, tx);
             });
+            notAdded.forEach(tx => {
+                guard.accept.set(tx.transaction.id, tx);
+                guard.broadcast.set(tx.transaction.id, tx);
+            });
 
-            expect(guard.errors).toEqual({});
-
+            jest.spyOn(guard.pool, "addTransactions").mockReturnValueOnce({ added, notAdded });
             guard.__addTransactionsToPool();
 
-            expect(guard.errors).toEqual({});
-            expect(guard.accept.size).toBe(4);
-            expect(guard.broadcast.size).toBe(4);
+            expect(guard.accept.size).toBe(2);
+            expect(guard.broadcast.size).toBe(2);
 
-            // Adding again invokes ERR_ALREADY_IN_POOL
-            guard.__addTransactionsToPool();
-
-            expect(guard.accept.size).toBe(0);
-            expect(guard.broadcast.size).toBe(0);
-
-            for (const transfer of transfers) {
-                expect(guard.errors[transfer.id]).toHaveLength(1);
-                expect(guard.errors[transfer.id][0].type).toEqual("ERR_ALREADY_IN_POOL");
-            }
+            expect(guard.errors[notAdded[0].transaction.id]).toEqual([notAddedError]);
+            expect(guard.errors[notAdded[1].transaction.id]).toEqual([notAddedError]);
         });
 
-        it("should raise ERR_POOL_FULL when attempting to add transactions to a full pool", () => {
-            const poolSize = transactionPool.options.maxTransactionsInPool;
-            transactionPool.options.maxTransactionsInPool = 3;
+        it("should delete from accept but keep in broadcast transactions that were not added to the pool because of ERR_POOL_FULL", () => {
+            const added = generateTransfers("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
+            const notAddedError = { type: "ERR_POOL_FULL", message: "" };
+            const notAdded = generateTransfers("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
+                transaction: tx,
+                ...notAddedError,
+            }));
 
-            const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
-
-            transfers.forEach(tx => {
+            added.forEach(tx => {
                 guard.accept.set(tx.id, tx);
                 guard.broadcast.set(tx.id, tx);
             });
+            notAdded.forEach(tx => {
+                guard.accept.set(tx.transaction.id, tx);
+                guard.broadcast.set(tx.transaction.id, tx);
+            });
 
+            jest.spyOn(guard.pool, "addTransactions").mockReturnValueOnce({ added, notAdded });
             guard.__addTransactionsToPool();
 
-            expect(guard.accept.size).toBe(3);
+            expect(guard.accept.size).toBe(2);
             expect(guard.broadcast.size).toBe(4);
 
-            expect(guard.errors[transfers[3].id]).toHaveLength(1);
-            expect(guard.errors[transfers[3].id][0].type).toEqual("ERR_POOL_FULL");
-
-            transactionPool.options.maxTransactionsInPool = poolSize;
+            expect(guard.errors[notAdded[0].transaction.id]).toEqual([notAddedError]);
+            expect(guard.errors[notAdded[1].transaction.id]).toEqual([notAddedError]);
         });
     });
 

@@ -1,3 +1,6 @@
+import { state } from "./state";
+import { database } from "./database";
+
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
@@ -8,10 +11,7 @@ jest.mock("@arkecosystem/core-container", () => {
             },
             resolve: name => {
                 if (name === "state") {
-                    return {
-                        cacheTransactions: () => null,
-                        removeCachedTransactionIds: () => null,
-                    };
+                    return state;
                 }
 
                 return {};
@@ -43,9 +43,7 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 if (name === "database") {
-                    return {
-                        getForgedTransactionsIds: () => [],
-                    };
+                    return database;
                 }
 
                 return {};
