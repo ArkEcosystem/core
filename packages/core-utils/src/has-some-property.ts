@@ -5,7 +5,5 @@
  * @return {Boolean}
  */
 export function hasSomeProperty(object, props): boolean {
-    return props.some(prop => {
-        return object.hasOwnProperty(prop);
-    });
+    return props.some(prop => object.hasOwnProperty(prop));
 }
