@@ -1,11 +1,20 @@
+import { configManager } from "@arkecosystem/crypto";
 import { genesisBlock } from "../fixtures/block";
+
+configManager.setFromPreset("testnet");
 
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
             getConfig: () => {
                 return {
-                    get: () => ({}),
+                    get: key => {
+                        if (key === "network.nethash") {
+                            return configManager.get("nethash");
+                        }
+
+                        return null;
+                    },
                 };
             },
             getVersion: () => "2.3.0",

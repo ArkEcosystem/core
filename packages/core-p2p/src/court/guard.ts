@@ -9,9 +9,6 @@ import semver from "semver";
 import { config as localConfig } from "../config";
 import { offences } from "./offences";
 
-const config = app.getConfig();
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
 export interface ISuspension {
     peer: any;
     reason: string;
@@ -23,6 +20,9 @@ export class Guard {
     public readonly suspensions: { [ip: string]: ISuspension };
     public config: any;
     private monitor: any;
+
+    private readonly appConfig = app.getConfig();
+    private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Create a new guard instance.
@@ -115,7 +115,7 @@ export class Guard {
      * @return {void}
      */
     public async resetSuspendedPeers() {
-        logger.info("Clearing suspended peers.");
+        this.logger.info("Clearing suspended peers.");
         await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)));
     }
 
@@ -134,7 +134,7 @@ export class Guard {
                 // @ts-ignore
                 const untilDiff = suspendedPeer.until.diff(dato());
 
-                logger.debug(
+                this.logger.debug(
                     `${peer.ip} still suspended for ${prettyMs(untilDiff, {
                         verbose: true,
                     })} because of "${suspendedPeer.reason}".`,
@@ -194,7 +194,7 @@ export class Guard {
      */
     public isValidNetwork(peer) {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-        return nethash === config.get("network.nethash");
+        return nethash === this.appConfig.get("network.nethash");
     }
 
     /**
@@ -300,7 +300,7 @@ export class Guard {
         // @ts-ignore
         const untilDiff = until.diff(dato());
 
-        logger.debug(
+        this.logger.debug(
             `Suspended ${peer.ip} for ${prettyMs(untilDiff, {
                 verbose: true,
             })} because of "${offence.reason}"`,

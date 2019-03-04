@@ -4,21 +4,24 @@ import "./mocks/core-container";
 
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
+import { config as localConfig } from "../../../packages/core-p2p/src/config";
+import { Guard } from "../../../packages/core-p2p/src/court";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
+import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { genesisBlock } from "./fixtures/block";
 
 const axiosMock = new MockAdapter(axios);
 
 let peerMock: Peer;
-let monitor;
 
-beforeAll(() => {
-    monitor = require("../../../packages/core-p2p/src/monitor").monitor;
-});
-
-beforeEach(async () => {
+beforeEach(() => {
     monitor.config = defaults;
+    localConfig.init(defaults);
+
+    monitor.guard = new Guard();
+    monitor.guard.init(monitor);
+    monitor.guard.config = localConfig;
 
     const initialPeersMock = {};
     ["1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"].forEach(ip => {
@@ -49,7 +52,7 @@ describe("Monitor", () => {
         });
     });
 
-    describe("acceptNewPeer", () => {
+    describe.only("acceptNewPeer", () => {
         it("should be ok", async () => {
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
                 200,
