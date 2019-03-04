@@ -109,7 +109,7 @@ describe("Guard", () => {
             });
 
             expect(reason).toBe("Blacklisted");
-            expect(convertToMinutes(until)).toBe(525600);
+            expect(convertToMinutes(until)).toBeGreaterThanOrEqual(525600);
 
             guard.config.set("blacklist", []);
         });
