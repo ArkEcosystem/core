@@ -1,9 +1,5 @@
 import { constants } from "@arkecosystem/crypto";
-import {
-    InvalidTransactionServiceError,
-    NotImplementedError,
-    TransactionServiceAlreadyRegisteredError,
-} from "./errors";
+import { InvalidTransactionTypeError, NotImplementedError, TransactionServiceAlreadyRegisteredError } from "./errors";
 import { transactionServices } from "./services";
 import { TransactionService } from "./services/transaction";
 
@@ -21,7 +17,7 @@ class TransactionServiceRegistry {
 
     public get(type: constants.TransactionTypes): TransactionService {
         if (!this.coreTransactionServices.has(type)) {
-            throw new InvalidTransactionServiceError(type);
+            throw new InvalidTransactionTypeError(type);
         }
 
         return this.coreTransactionServices.get(type);

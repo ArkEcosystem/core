@@ -1,13 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
+import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { configManager, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
-import { MemPoolTransaction } from "./mem-pool-transaction";
-import { isRecipientOnActiveNetwork } from "./utils";
-
-const { TransactionTypes } = constants;
 
 export class TransactionGuard implements transanctionPool.ITransactionGuard {
     public transactions: ITransactionData[] = [];
@@ -160,7 +157,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
         const now = slots.getTime();
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture = transaction.timestamp - now;
-            this.__pushError(
+            this.pushError(
                 transaction,
                 "ERR_FROM_FUTURE",
                 `Transaction ${transaction.id} is ${secondsInFuture} seconds in the future`,
@@ -168,39 +165,8 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             return false;
         }
 
-        // This check must come before canApply otherwise a wallet may be incorrectly assigned a username when multiple
-        // conflicting delegate registrations for the same username exist in the same transaction payload
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
-            const username = transaction.asset.delegate.username;
-            const delegateRegistrationsInPayload = this.transactions.filter(
-                tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username,
-            );
-            if (delegateRegistrationsInPayload.length > 1) {
-                this.__pushError(
-                    transaction,
-                    "ERR_CONFLICT",
-                    `Multiple delegate registrations for "${username}" in transaction payload`,
-                );
-                return false;
-            }
-
-            const delegateRegistrationsInPool: MemPoolTransaction[] = Array.from(
-                this.pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
-            );
-            if (
-                delegateRegistrationsInPool.some(memTx => memTx.transaction.data.asset.delegate.username === username)
-            ) {
-                this.__pushError(
-                    transaction,
-                    "ERR_PENDING",
-                    `Delegate registration for "${username}" already in the pool`,
-                );
-                return false;
-            }
-        }
-
         if (transaction.network && transaction.network !== configManager.get("pubKeyHash")) {
-            this.__pushError(
+            this.pushError(
                 transaction,
                 "ERR_WRONG_NETWORK",
                 `Transaction network '${transaction.network}' does not match '${configManager.get("pubKeyHash")}'`,
@@ -208,47 +174,8 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             return false;
         }
 
-        switch (transaction.type) {
-            case TransactionTypes.Transfer:
-                if (!isRecipientOnActiveNetwork(transaction)) {
-                    this.__pushError(
-                        transaction,
-                        "ERR_INVALID_RECIPIENT",
-                        `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get(
-                            "pubKeyHash",
-                        )}`,
-                    );
-                    return false;
-                }
-                break;
-            case TransactionTypes.SecondSignature:
-            case TransactionTypes.DelegateRegistration:
-            case TransactionTypes.Vote:
-                if (this.pool.senderHasTransactionsOfType(transaction.senderPublicKey, transaction.type)) {
-                    this.__pushError(
-                        transaction,
-                        "ERR_PENDING",
-                        `Sender ${transaction.senderPublicKey} already has a transaction of type ` +
-                            `'${TransactionTypes[transaction.type]}' in the pool`,
-                    );
-                    return false;
-                }
-                break;
-            case TransactionTypes.MultiSignature:
-            case TransactionTypes.Ipfs:
-            case TransactionTypes.TimelockTransfer:
-            case TransactionTypes.MultiPayment:
-            case TransactionTypes.DelegateResignation:
-            default:
-                this.__pushError(
-                    transaction,
-                    "ERR_UNSUPPORTED",
-                    "Invalidating transaction of unsupported type " + `'${TransactionTypes[transaction.type]}'`,
-                );
-                return false;
-        }
-
-        return true;
+        const service = TransactionServiceRegistry.get(transaction.type);
+        return service.canEnterTransactionPool(transaction, this);
     }
 
     /**

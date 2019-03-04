@@ -30,9 +30,9 @@ export class TransactionServiceAlreadyRegisteredError extends TransactionError {
     }
 }
 
-export class InvalidTransactionServiceError extends TransactionError {
+export class InvalidTransactionTypeError extends TransactionError {
     constructor(type: number) {
-        super(`Transaction service for type ${type} does not exist.`);
+        super(`Transaction type ${type} does not exist.`);
     }
 }
 

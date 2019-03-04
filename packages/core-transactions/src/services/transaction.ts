@@ -1,6 +1,8 @@
 // tslint:disable:max-classes-per-file
 
-import { configManager, crypto, models, Transaction } from "@arkecosystem/crypto";
+import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { configManager, constants, crypto, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+
 import {
     InsufficientBalanceError,
     InvalidSecondSignatureError,
@@ -9,6 +11,8 @@ import {
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionService } from "../interfaces";
+
+const { TransactionTypes } = constants;
 
 export abstract class TransactionService implements ITransactionService {
     public abstract getType(): number;
@@ -95,4 +99,31 @@ export abstract class TransactionService implements ITransactionService {
 
     public abstract apply(transaction: Transaction, wallet: models.Wallet): void;
     public abstract revert(transaction: Transaction, wallet: models.Wallet): void;
+
+    /**
+     * Transaction Pool logic
+     */
+    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+        guard.pushError(
+            data,
+            "ERR_UNSUPPORTED",
+            `Invalidating transaction of unsupported type '${TransactionTypes[data.type]}'`,
+        );
+        return false;
+    }
+
+    protected typeFromSenderAlreadyInPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+        const { senderPublicKey, type } = data;
+        if (guard.pool.senderHasTransactionsOfType(senderPublicKey, type)) {
+            guard.pushError(
+                data,
+                "ERR_PENDING",
+                `Sender ${senderPublicKey} already has a transaction of type '${TransactionTypes[type]}' in the pool`,
+            );
+
+            return false;
+        }
+
+        return true;
+    }
 }

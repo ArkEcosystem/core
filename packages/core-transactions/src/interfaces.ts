@@ -1,4 +1,5 @@
-import { constants, models, Transaction } from "@arkecosystem/crypto";
+import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
 export interface ITransactionService {
     getType(): constants.TransactionTypes | number;
@@ -10,4 +11,6 @@ export interface ITransactionService {
     revertForRecipient(transaction: Transaction, wallet: models.Wallet): void;
     apply(transaction: Transaction, wallet: models.Wallet): void;
     revert(transaction: Transaction, wallet: models.Wallet): void;
+
+    canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean;
 }
