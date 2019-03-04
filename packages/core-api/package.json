@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-api",
     "description": "Public API for Ark Core",
-    "version": "2.2.0-beta.7",
+    "version": "2.2.0-rc.0",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -16,7 +16,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -28,17 +28,14 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.7",
-        "@arkecosystem/core-http-utils": "^2.2.0-beta.7",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
-        "@arkecosystem/core-transaction-pool": "^2.2.0-beta.7",
-        "@arkecosystem/core-utils": "^2.2.0-beta.7",
-        "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@arkecosystem/core-container": "^2.2.0-rc.0",
+        "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
+        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/core-transaction-pool": "^2.2.0-rc.0",
+        "@arkecosystem/core-utils": "^2.2.0-rc.0",
+        "@arkecosystem/crypto": "^2.2.0-rc.0",
         "@faustbrian/dato": "^0.1.0",
         "@faustbrian/hapi-version": "^0.2.11",
-        "@types/lodash.orderby": "^4.6.4",
-        "@types/lodash.partition": "^4.6.4",
-        "@types/lodash.snakecase": "^4.1.4",
         "ajv": "^6.9.1",
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
@@ -52,9 +49,13 @@
         "lodash.snakecase": "^4.1.1"
     },
     "devDependencies": {
+        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
         "@types/joi": "^14.3.1",
+        "@types/lodash.orderby": "^4.6.4",
+        "@types/lodash.partition": "^4.6.4",
+        "@types/lodash.snakecase": "^4.1.4",
         "axios": "^0.18.0"
     },
     "publishConfig": {

@@ -285,7 +285,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async restartProcess(processName: string) {
-        if (processManager.exists(processName)) {
+        if (processManager.isRunning(processName)) {
             await confirm(`Would you like to restart the ${processName} process?`, () => {
                 try {
                     cli.action.start(`Restarting ${processName}`);
@@ -297,6 +297,41 @@ export abstract class BaseCommand extends Command {
                     cli.action.stop();
                 }
             });
+        }
+    }
+
+    protected abortRunningProcess(processName: string) {
+        if (processManager.isRunning(processName)) {
+            this.warn(`The "${processName}" process is already running.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortStoppedProcess(processName: string) {
+        if (processManager.hasStopped(processName)) {
+            this.warn(`The "${processName}" process is not running.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortErroredProcess(processName: string) {
+        if (processManager.hasErrored(processName)) {
+            this.warn(`The "${processName}" process has errored.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortUnknownProcess(processName: string) {
+        if (processManager.hasUnknownState(processName)) {
+            this.warn(`The "${processName}" process has entered an unknown state.`);
+            process.exit(1);
+        }
+    }
+
+    protected abortMissingProcess(processName: string) {
+        if (processManager.missing(processName)) {
+            this.warn(`The "${processName}" process does not exist.`);
+            process.exit(1);
         }
     }
 

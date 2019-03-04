@@ -9,10 +9,7 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        if (!processManager.exists(processName)) {
-            this.warn(`The "${processName}" process is not running.`);
-            return;
-        }
+        this.abortMissingProcess(processName);
 
         const { pm2_env } = processManager.describe(processName);
 

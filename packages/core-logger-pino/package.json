@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-logger-pino",
     "description": "Pino integration for Ark Core",
-    "version": "2.2.0-beta.7",
+    "version": "2.2.0-rc.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -27,8 +27,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
-        "@arkecosystem/core-logger": "^2.2.0-beta.7",
+        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/core-logger": "^2.2.0-rc.0",
         "lodash.isempty": "^4.4.0",
         "pino-multi-stream": "^4.0.2",
         "rotating-file-stream": "^1.4.0"

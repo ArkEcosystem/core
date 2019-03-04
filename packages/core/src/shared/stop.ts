@@ -9,11 +9,15 @@ export abstract class AbstractStopCommand extends BaseCommand {
         const processName = `${flags.token}-${this.getSuffix()}`;
 
         try {
+            this.abortMissingProcess(processName);
+            this.abortUnknownProcess(processName);
+            this.abortStoppedProcess(processName);
+
             cli.action.start(`Stopping ${processName}`);
 
             processManager[flags.daemon ? "delete" : "stop"](processName);
         } catch (error) {
-            this.warn(`The "${processName}" process does not exist.`);
+            this.error(error.message);
         } finally {
             cli.action.stop();
         }

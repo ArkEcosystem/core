@@ -1,8 +1,8 @@
 import { flags } from "@oclif/command";
 import { delay } from "bluebird";
+import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";
-import { logger } from "../../logger";
 
 export class TransferCommand extends SendCommand {
     public static description: string = "send multiple transactions";
@@ -55,10 +55,10 @@ export class TransferCommand extends SendCommand {
     protected async verifyTransactions(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
             const response = await this.getTransaction(transaction.id);
-            
+
             if (!response) {
                 logger.error(`[T] ${transaction.id} (not forged)`);
-                
+
                 continue;
             }
 

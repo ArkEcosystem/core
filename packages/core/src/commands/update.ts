@@ -1,11 +1,11 @@
+import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
 import { removeSync } from "fs-extra";
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
-import { BaseCommand } from "./command";
 import { CommandFlags } from "../types";
-import { flags } from "@oclif/command";
+import { BaseCommand } from "./command";
 
 export class UpdateCommand extends BaseCommand {
     public static description: string = "Update the core installation";
@@ -54,12 +54,12 @@ export class UpdateCommand extends BaseCommand {
             this.error(err.message);
         }
     }
-    
+
     private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
         cli.action.start(`Updating from ${state.currentVersion} to ${state.newVersion}`);
-        
+
         await installFromChannel(state.name, state.newVersion);
-        
+
         cli.action.stop();
 
         removeSync(state.cache);

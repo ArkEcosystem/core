@@ -46,8 +46,8 @@ $ ark core:start --no-daemon
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {
-        this.abortWhenRunning(`${flags.token}-forger`);
-        this.abortWhenRunning(`${flags.token}-relay`);
+        this.abortRunningProcess(`${flags.token}-forger`);
+        this.abortRunningProcess(`${flags.token}-relay`);
 
         try {
             const { bip38, password } = await this.buildBIP38(flags);
