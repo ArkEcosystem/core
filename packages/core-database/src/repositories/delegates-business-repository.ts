@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { delegateCalculator } from "@arkecosystem/core-utils";
+import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
 import { orderBy } from "@arkecosystem/utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
@@ -29,7 +29,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             forgedTotal: delegateCalculator.calculateForgedTotal,
         };
 
-        if (this.objectHasSomeOwnProperty(params, Object.keys(manipulators))) {
+        if (hasSomeProperty(params, Object.keys(manipulators))) {
             delegates = delegates.map(delegate => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
@@ -194,11 +194,5 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             default:
                 return iteratee;
         }
-    }
-
-    private objectHasSomeOwnProperty(object, props): boolean {
-        return props.some(prop => {
-            return object.hasOwnProperty(prop);
-        });
     }
 }
