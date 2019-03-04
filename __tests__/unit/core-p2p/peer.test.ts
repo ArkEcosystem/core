@@ -4,7 +4,7 @@ import { Transaction } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { genesisBlock } from "./fixtures/block";
+import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 const axiosMock = new MockAdapter(axios);
 

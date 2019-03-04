@@ -5,7 +5,7 @@ import MockAdapter from "axios-mock-adapter";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerVerifier } from "../../../packages/core-p2p/src/peer-verifier";
 import { blocks2to100 as blocks2to100Json } from "../../utils/fixtures";
-import { genesisBlock } from "./fixtures/block";
+import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 const axiosMock = new MockAdapter(axios);
 

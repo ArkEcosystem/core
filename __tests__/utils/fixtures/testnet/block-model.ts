@@ -1,6 +1,6 @@
 import { configManager, models } from "@arkecosystem/crypto";
-import genesisBlockJson from "../../../utils/config/unitnet/genesisBlock.json";
+import genesisBlockJson from "../../config/testnet/genesisBlock.json";
 
-configManager.setFromPreset("unitnet");
+configManager.setFromPreset("testnet");
 
 export const genesisBlock = new models.Block(genesisBlockJson);

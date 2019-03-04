@@ -1,3 +1,5 @@
+import "../mocks/core-container";
+
 import { dato } from "@faustbrian/dato";
 import { offences } from "../../../../packages/core-p2p/src/court/offences";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";

@@ -1,3 +1,5 @@
+import "../mocks/core-container";
+
 import { checkNTP } from "../../../../packages/core-p2p/src/utils";
 
 jest.mock("sntp", () => {

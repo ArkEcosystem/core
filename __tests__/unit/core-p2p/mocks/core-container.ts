@@ -1,5 +1,5 @@
 import { configManager } from "@arkecosystem/crypto";
-import { genesisBlock } from "../fixtures/block";
+import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
 
 configManager.setFromPreset("testnet");
 

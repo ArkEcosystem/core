@@ -9,7 +9,7 @@ import { Guard } from "../../../packages/core-p2p/src/court";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { genesisBlock } from "./fixtures/block";
+import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 const axiosMock = new MockAdapter(axios);
 
