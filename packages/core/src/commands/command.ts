@@ -101,7 +101,7 @@ export abstract class BaseCommand extends Command {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {
-            if (!ignoreKeys.includes(key)) {
+            if (!ignoreKeys.includes(key) && value !== undefined) {
                 mappedFlags.push(value === true ? `--${key}` : `--${key}=${value}`);
             }
         }
@@ -267,6 +267,11 @@ export abstract class BaseCommand extends Command {
             }
 
             password = response.password;
+        }
+
+        if (bip38 && password) {
+            flags.bip38 = bip38;
+            flags.password = password;
         }
 
         return { bip38, password };
