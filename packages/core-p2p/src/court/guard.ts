@@ -19,7 +19,7 @@ export interface ISuspension {
 export class Guard {
     public readonly suspensions: { [ip: string]: ISuspension };
     public config: any;
-    private monitor: any;
+    public monitor: any;
 
     private readonly appConfig = app.getConfig();
     private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");

@@ -1,4 +1,6 @@
 import { configManager } from "@arkecosystem/crypto";
+import { blocks2to100 } from "../../../utils/fixtures";
+import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
 
 configManager.setFromPreset("testnet");
@@ -15,6 +17,9 @@ jest.mock("@arkecosystem/core-container", () => {
 
                         return null;
                     },
+                    getMilestone: () => ({
+                        activeDelegates: 51,
+                    }),
                 };
             },
             getVersion: () => "2.3.0",
@@ -38,6 +43,16 @@ jest.mock("@arkecosystem/core-container", () => {
                             }
 
                             return [];
+                        },
+                        getActiveDelegates: height => {
+                            return delegates;
+                        },
+                        loadActiveDelegateList: (count, height) => {
+                            if (height === 2) {
+                                return [blocks2to100[1]];
+                            }
+
+                            return delegates;
                         },
                     };
                 }

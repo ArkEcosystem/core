@@ -71,7 +71,6 @@ describe("Peer Verifier", () => {
         });
 
         it("higher than our chain (invalid)", async () => {
-            axiosMock.reset();
             axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                 200,
                 {
@@ -109,7 +108,6 @@ describe("Peer Verifier", () => {
         });
 
         it("higher than our chain (legit)", async () => {
-            axiosMock.reset();
             axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                 200,
                 {

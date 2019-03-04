@@ -1,21 +1,23 @@
 import "../mocks/core-container";
 
 import { dato } from "@faustbrian/dato";
+import { config as localConfig } from "../../../../packages/core-p2p/src/config";
+import { guard } from "../../../../packages/core-p2p/src/court/guard";
 import { offences } from "../../../../packages/core-p2p/src/court/offences";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
+import { monitor } from "../../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../../packages/core-p2p/src/peer";
 
-let guard;
 let peerMock;
 
-beforeAll(async () => {
-    guard = require("../../../../packages/core-p2p/src/court/guard").guard;
-    guard.config.set("minimumVersions", [">=2.0.0"]);
-});
-
 beforeEach(async () => {
-    guard.monitor.config = defaults;
-    guard.monitor.peers = {};
+    localConfig.init(defaults);
+
+    monitor.config = localConfig;
+    monitor.guard = guard;
+    monitor.guard.init(monitor);
+
+    guard.config.set("minimumVersions", [">=2.0.0"]);
 
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
