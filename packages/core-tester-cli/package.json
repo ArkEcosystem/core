@@ -32,11 +32,6 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
@@ -50,11 +45,10 @@
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
         "delay": "^4.1.0",
-        "lodash.fill": "^3.4.0",
         "pino": "^5.11.1",
         "pino-pretty": "^2.5.0",
         "pluralize": "^7.0.0",
-        "superheroes": "^2.0.0"
+        "pokemon": "^1.2.3"
     },
     "devDependencies": {
         "@types/bip39": "^2.4.1",
@@ -70,12 +64,20 @@
     "engines": {
         "node": ">=10.x"
     },
-    "jest": {
-        "preset": "../../jest-preset.json"
-    },
     "oclif": {
         "commands": "./dist/commands",
-        "bin": "snapshot",
+        "bin": "ark-tester",
+        "topics": {
+            "debug": {
+                "description": "debug blocks and transactions"
+            },
+            "send": {
+                "description": "send transactions of various types"
+            },
+            "make": {
+                "description": "make new identities"
+            }
+        },
         "plugins": [
             "@oclif/plugin-help",
             "@oclif/plugin-not-found"

@@ -55,7 +55,7 @@ export class SnapshotManager {
         logger.info(
             `Import from folder ${
                 params.meta.folder
-            } completed. Last block in database: ${lastBlock.height.toLocaleString()} :+1:`,
+            } completed. Last block in database: ${lastBlock.height.toLocaleString()}`,
         );
         if (!params.skipRestartRound) {
             const newLastBlock = await this.database.rollbackChain(lastBlock.height);

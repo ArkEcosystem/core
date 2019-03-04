@@ -58,7 +58,7 @@ const voters = async request => {
 
     const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, {
         ...request.query,
-        ...paginate(request)
+        ...paginate(request),
     });
 
     return toPagination(request, wallets, "wallet");

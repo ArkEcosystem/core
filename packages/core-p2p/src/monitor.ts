@@ -3,7 +3,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
-import dayjs from "dayjs-ext";
+import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import fs from "fs";
 import groupBy from "lodash/groupBy";
@@ -37,7 +37,7 @@ export class Monitor implements P2P.IMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean;
     private pendingPeers: { [ip: string]: any };
-    private coldStartPeriod: dayjs.Dayjs;
+    private coldStartPeriod: Dato;
 
     /**
      * @constructor
@@ -45,7 +45,7 @@ export class Monitor implements P2P.IMonitor {
      */
     constructor() {
         this.peers = {};
-        this.coldStartPeriod = dayjs().add(localConfig.get("coldStart"), "second");
+        this.coldStartPeriod = dato().addSeconds(localConfig.get("coldStart"));
         this.initializing = true;
 
         // Holds temporary peers which are in the process of being accepted. Prevents that
@@ -226,7 +226,7 @@ export class Monitor implements P2P.IMonitor {
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
         const max = keys.length;
 
-        logger.info(`Checking ${max} peers :telescope:`);
+        logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
@@ -588,7 +588,7 @@ export class Monitor implements P2P.IMonitor {
      * not all peers are up, or the network is not active
      */
     public __isColdStartActive() {
-        return this.coldStartPeriod.isAfter(dayjs());
+        return this.coldStartPeriod.isAfter(dato());
     }
 
     /**
@@ -615,9 +615,7 @@ export class Monitor implements P2P.IMonitor {
 
             logger.info(`Your NTP connectivity has been verified by ${host}`);
 
-            logger.info(
-                `Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP :alarm_clock:`,
-            );
+            logger.info(`Local clock is off by ${time.t < 0 ? "-" : ""}${prettyMs(Math.abs(time.t))} from NTP`);
         } catch (error) {
             logger.error(error.message);
         }
@@ -685,7 +683,7 @@ export class Monitor implements P2P.IMonitor {
         const peerList = config.get("peers.list");
 
         if (!peerList) {
-            app.forceExit("No seed peers defined in peers.json :interrobang:");
+            app.forceExit("No seed peers defined in peers.json");
         }
 
         let peers = peerList.map(peer => {

@@ -1,11 +1,12 @@
 import { constants, slots } from "@arkecosystem/crypto";
-import dayjs from "dayjs-ext";
+import { dato } from "@faustbrian/dato";
 import partition from "lodash/partition";
 import snakeCase from "lodash/snakeCase";
 import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
 
+// TODO: Deprecate this with v1
 export class TransactionsRepository extends Repository implements IRepository {
     constructor() {
         super();
@@ -273,9 +274,9 @@ export class TransactionsRepository extends Repository implements IRepository {
             .where(
                 this.query.timestamp.gte(
                     slots.getTime(
-                        dayjs()
-                            .subtract(30, "day")
-                            .valueOf(),
+                        dato()
+                            .addDays(30)
+                            .toMilliseconds(),
                     ),
                 ),
             )

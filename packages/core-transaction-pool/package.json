@@ -28,21 +28,20 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0-rc.0",
         "@arkecosystem/core-database": "^2.2.0-rc.0",
         "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/core-transactions": "^2.2.0-rc.0",
         "@arkecosystem/crypto": "^2.2.0-rc.0",
+        "@faustbrian/dato": "^0.1.0",
+        "@types/better-sqlite3": "^5.2.2",
+        "@types/fs-extra": "^5.0.5",
+        "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
         "bs58check": "^2.1.2",
-        "dayjs-ext": "^2.2.0",
         "delay": "^4.1.0",
         "fs-extra": "^7.0.1",
         "pluralize": "^7.0.0"
@@ -56,6 +55,7 @@
         "@types/pluralize": "^0.0.29",
         "@types/random-seed": "^0.3.3",
         "bip39": "^2.5.0",
+        "lodash.clonedeep": "^4.5.0",
         "random-seed": "^0.3.0"
     },
     "publishConfig": {
@@ -63,8 +63,5 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

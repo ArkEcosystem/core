@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
-import { configManager, models } from "@arkecosystem/crypto";
+import { configManager, ITransactionData, models } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
 import { config } from "./config";
@@ -20,7 +20,7 @@ let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet()
 
 // Map Block instances to block data.
 const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> =>
-    blocks.map(block => ({ ...block.data, transactions: block.transactions }));
+    blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -163,8 +163,8 @@ export class StateStorage implements Blockchain.IStateStorage {
      * Cache the ids of the given transactions.
      */
     public cacheTransactions(
-        transactions: models.ITransactionData[],
-    ): { added: models.ITransactionData[]; notAdded: models.ITransactionData[] } {
+        transactions: ITransactionData[],
+    ): { added: ITransactionData[]; notAdded: ITransactionData[] } {
         const notAdded = [];
         const added = transactions.filter(tx => {
             if (_cachedTransactionIds.has(tx.id)) {

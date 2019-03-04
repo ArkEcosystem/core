@@ -1,7 +1,8 @@
 import BigNumber from "bignumber.js";
 import { SATOSHI } from "./constants";
 import { configManager } from "./managers";
-import { IBlockData, ITransactionData } from "./models";
+import { IBlockData } from "./models";
+import { ITransactionData } from "./transactions/interfaces";
 
 class Bignum extends BigNumber {
     public static readonly ZERO = new BigNumber(0);
@@ -56,5 +57,22 @@ export function sortTransactions(transactions: ITransactionData[]): ITransaction
         return 0;
     });
 }
+
+let genesisTransactions: { [key: string]: boolean };
+let currentNetwork: number;
+
+export const isGenesisTransaction = (id: string): boolean => {
+    const network = configManager.get("pubKeyHash");
+    if (!genesisTransactions || currentNetwork !== network) {
+        currentNetwork = network;
+        genesisTransactions = configManager
+            .get("genesisBlock.transactions")
+            .reduce((acc, curr) => Object.assign(acc, { [curr.id]: true }), {});
+    }
+
+    return genesisTransactions[id];
+};
+
+export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
 
 export { Bignum };

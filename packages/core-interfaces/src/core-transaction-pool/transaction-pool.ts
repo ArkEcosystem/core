@@ -1,14 +1,15 @@
-import dayjs from "dayjs-ext";
+import { Dato } from "@faustbrian/dato";
 
-import { constants, models } from "@arkecosystem/crypto";
+import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
-export interface AddTransactionResponseDTO {
+export interface IAddTransactionResponse {
     success: boolean;
 }
-export interface AddTransactionErrorDTO extends AddTransactionResponseDTO {
-    transaction: models.Transaction;
+export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
+    transaction: Transaction;
     type: string;
     message: string;
+    success: boolean;
 }
 
 export interface ITransactionPool {
@@ -48,23 +49,23 @@ export interface ITransactionPool {
      * }
      */
     addTransactions(
-        transactions: models.Transaction[],
+        transactions: Transaction[],
     ): {
-        added: models.Transaction[];
-        notAdded: AddTransactionErrorDTO[];
+        added: Transaction[];
+        notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: models.Transaction): AddTransactionResponseDTO;
+    addTransaction(transaction: Transaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
-    removeTransaction(transaction: models.Transaction): void;
+    removeTransaction(transaction: Transaction): void;
 
     /**
      * Remove a transaction from the pool by id.
@@ -74,18 +75,18 @@ export interface ITransactionPool {
     /**
      * Get all transactions that are ready to be forged.
      */
-    getTransactionsForForging(blockSize: number): models.Transaction[];
+    getTransactionsForForging(blockSize: number): string[];
 
     /**
      * Get a transaction by transaction id.
      */
-    getTransaction(id: string): models.Transaction;
+    getTransaction(id: string): Transaction;
 
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
      * @return {(Array|void)} array of serialized transaction hex strings
      */
-    getTransactions(start: number, size: number, maxBytes?: number): string[];
+    getTransactions(start: number, size: number, maxBytes?: number): Buffer[];
 
     /**
      * Get all transactions within the specified range [start, start + size).
@@ -99,7 +100,7 @@ export interface ITransactionPool {
      * insertion time, if fees equal (earliest transaction first).
      * @return {Array} array of transaction[property]
      */
-    getTransactionsData(start: number, size: number, property: string, maxBytes?: number): any[];
+    getTransactionsData(start: number, size: number, property: string, maxBytes?: number): string[] | Buffer[];
 
     /**
      * Remove all transactions from the transaction pool belonging to specific sender.
@@ -109,7 +110,7 @@ export interface ITransactionPool {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: models.Transaction): boolean;
+    hasExceededMaxTransactions(transaction: ITransactionData): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).
@@ -130,7 +131,7 @@ export interface ITransactionPool {
     /**
      * Blocks sender for a specified time
      */
-    blockSender(senderPublicKey: string): dayjs.Dayjs;
+    blockSender(senderPublicKey: string): Dato;
 
     /**
      * Processes recently accepted block by the blockchain.

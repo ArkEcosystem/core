@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants, crypto, isException, models } from "@arkecosystem/crypto";
+import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { constants, crypto, isException, models, Transaction } from "@arkecosystem/crypto";
 
 const { Wallet } = models;
 const { TransactionTypes } = constants;
@@ -43,15 +44,12 @@ export class PoolWalletManager extends WalletManager {
 
     /**
      * Checks if the transaction can be applied.
-     * @param  {Object|Transaction} transaction
-     * @param  {Array} errors The errors are written into the array.
-     * @return {Boolean}
      */
-    public canApply(transaction, errors) {
+    public canApply(transaction: Transaction, errors): boolean {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        if (!this.databaseService.walletManager.exists(transaction.senderPublicKey)) {
-            const senderAddress = crypto.getAddress(transaction.senderPublicKey, this.networkId);
+        if (!this.databaseService.walletManager.exists(transaction.data.senderPublicKey)) {
+            const senderAddress = crypto.getAddress(transaction.data.senderPublicKey, this.networkId);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
                 errors.push("Cold wallet is not allowed to send until receiving transaction is confirmed.");
@@ -59,8 +57,9 @@ export class PoolWalletManager extends WalletManager {
             }
         }
 
-        const sender = this.findByPublicKey(transaction.senderPublicKey);
-        const { type, asset } = transaction;
+        const { data } = transaction;
+        const { type, asset } = data;
+        const sender = this.findByPublicKey(data.senderPublicKey);
 
         if (
             type === TransactionTypes.DelegateRegistration &&
@@ -85,16 +84,22 @@ export class PoolWalletManager extends WalletManager {
             );
 
             errors.push(`Can't apply transaction ${transaction.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (isException(transaction)) {
+        } else if (isException(data)) {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
-        } else if (!sender.canApply(transaction, errors)) {
-            const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
-                sender.address
-            }`;
-            this.logger.error(`${message} due to ${JSON.stringify(errors)}`);
-            errors.unshift(message);
+        } else {
+            try {
+                const transactionService = TransactionServiceRegistry.get(transaction.type);
+                transactionService.canBeApplied(transaction, sender);
+            } catch (error) {
+                const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
+                    sender.address
+                }`;
+                this.logger.error(`${message} due to ${JSON.stringify(error.message)}`);
+                errors.unshift(error.message);
+                errors.unshift(message);
+            }
         }
 
         return errors.length === 0;
@@ -102,15 +107,12 @@ export class PoolWalletManager extends WalletManager {
 
     /**
      * Remove the given transaction from a sender only.
-     * @param  {Transaction} transaction
-     * @return {Transaction}
      */
-    public revertTransactionForSender(transaction) {
+    public revertTransactionForSender(transaction: Transaction) {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
 
-        sender.revertTransactionForSender(data);
-
-        return data;
+        const transactionService = TransactionServiceRegistry.get(transaction.type);
+        transactionService.revertForSender(transaction, sender);
     }
 }

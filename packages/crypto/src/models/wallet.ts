@@ -1,9 +1,8 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
-import { transactionHandler } from "../handlers/transactions";
+import { IMultiSignatureAsset, ITransactionData, Transaction } from "../transactions";
 import { Bignum, formatSatoshi } from "../utils";
 import { IBlockData } from "./block";
-import { IMultiSignatureAsset, ITransactionData } from "./transaction";
 
 /**
  * TODO copy some parts to ArkDocs
@@ -42,6 +41,7 @@ export class Wallet {
     public missedBlocks: number;
     public forgedFees: Bignum;
     public forgedRewards: Bignum;
+    public rate?: number;
 
     constructor(address: string) {
         this.address = address;
@@ -59,41 +59,6 @@ export class Wallet {
         this.missedBlocks = 0;
         this.forgedFees = Bignum.ZERO;
         this.forgedRewards = Bignum.ZERO;
-    }
-
-    /**
-     * Check if can apply a transaction to the wallet.
-     */
-    public canApply(transaction: ITransactionData, errors: any[]): boolean {
-        return transactionHandler.canApply(this, transaction, errors);
-    }
-
-    /**
-     * Associate this wallet as the sender of a transaction.
-     */
-    public applyTransactionToSender(transaction: ITransactionData): void {
-        return transactionHandler.applyTransactionToSender(this, transaction);
-    }
-
-    /**
-     * Remove this wallet as the sender of a transaction.
-     */
-    public revertTransactionForSender(transaction: ITransactionData): void {
-        return transactionHandler.revertTransactionForSender(this, transaction);
-    }
-
-    /**
-     * Add transaction balance to this wallet.
-     */
-    public applyTransactionToRecipient(transaction: ITransactionData): void {
-        return transactionHandler.applyTransactionToRecipient(this, transaction);
-    }
-
-    /**
-     * Remove transaction balance from this wallet.
-     */
-    public revertTransactionForRecipient(transaction: ITransactionData): void {
-        return transactionHandler.revertTransactionForRecipient(this, transaction);
     }
 
     /**
@@ -282,7 +247,7 @@ export class Wallet {
      * Verify the wallet.
      */
     private verify(transaction: ITransactionData, signature: string, publicKey: string): boolean {
-        const hash = crypto.getHash(transaction, true, true);
+        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         return crypto.verifyHash(hash, signature, publicKey);
     }
 }

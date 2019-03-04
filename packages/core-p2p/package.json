@@ -27,11 +27,6 @@
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
@@ -39,11 +34,12 @@
         "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
         "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
         "@arkecosystem/core-transaction-pool": "^2.2.0-rc.0",
+        "@arkecosystem/core-utils": "^2.2.0-rc.0",
         "@arkecosystem/crypto": "^2.2.0-rc.0",
+        "@faustbrian/dato": "^0.1.0",
         "ajv": "^6.9.1",
         "axios": "^0.18.0",
         "boom": "^7.3.0",
-        "dayjs-ext": "^2.2.0",
         "delay": "^4.1.0",
         "hapi-rate-limit": "^3.1.1",
         "ip": "^1.1.5",
@@ -59,7 +55,7 @@
         "lodash.shuffle": "^4.2.0",
         "lodash.sumby": "^4.6.0",
         "lodash.take": "^4.1.1",
-        "micromatch": "^3.1.10",
+        "nanomatch": "^1.2.13",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
         "semver": "^5.6.0",
@@ -91,8 +87,5 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

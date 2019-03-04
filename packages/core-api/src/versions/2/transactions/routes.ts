@@ -20,10 +20,12 @@ export function registerRoutes(server: Hapi.Server): void {
         path: "/transactions",
         handler: controller.store,
         options: {
-            validate: Schema.store,
             plugins: {
                 pagination: {
                     enabled: false,
+                },
+                "hapi-ajv": {
+                    payloadSchema: Schema.store,
                 },
             },
         },

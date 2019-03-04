@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { IMonitor } from "../core-p2p";
 import { ITransactionPool } from "../core-transaction-pool";
 import { IStateStorage } from "./state-storage";
@@ -69,7 +69,7 @@ export interface IBlockchain {
      * @param  {Array}   transactions
      * @return {void}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<void>;
+    postTransactions(transactions: Transaction[]): Promise<void>;
 
     /**
      * Push a block to the process queue.

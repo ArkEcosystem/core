@@ -1,324 +1,165 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, crypto } from "@arkecosystem/crypto";
+import { Address, Bignum, formatSatoshi } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
-import bip39 from "bip39";
-import clipboardy from "clipboardy";
 import delay from "delay";
-import fs from "fs";
-import path from "path";
-import pluralize from "pluralize";
-import { config } from "../config";
-import { customFlags } from "../flags";
-import { logger, paginate, request } from "../utils";
+import { satoshiFlag } from "../flags";
+import { HttpClient } from "../http-client";
+import { logger } from "../logger";
+import { Signer } from "../signer";
 
 export abstract class BaseCommand extends Command {
-    public static flags = {
-        number: flags.integer({
-            description: "number of wallets",
-            default: 10,
+    public static flagsConfig = {
+        host: flags.string({
+            description: "API host",
+            default: "http://localhost",
         }),
-        amount: customFlags.number({
-            description: "initial wallet token amount",
-            default: 2,
-        }),
-        transferFee: customFlags.number({
-            description: "transfer fee",
-            default: 0.1,
-        }),
-        baseUrl: flags.string({
-            description: "base api url",
-        }),
-        apiPort: flags.integer({
-            description: "base api port",
+        portAPI: flags.integer({
+            description: "API port",
             default: 4003,
         }),
-        p2pPort: flags.integer({
-            description: "base p2p port",
-            default: 4002,
+        portP2P: flags.integer({
+            description: "P2P port",
+            default: 4000,
         }),
+    };
+
+    public static flagsSend = {
+        ...BaseCommand.flagsConfig,
         passphrase: flags.string({
             description: "passphrase of initial wallet",
+            default: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
         }),
         secondPassphrase: flags.string({
             description: "second passphrase of initial wallet",
         }),
-        skipValidation: flags.boolean({
-            description: "skip transaction validations",
+        number: flags.integer({
+            description: "number of wallets",
+            default: 1,
         }),
-        skipTesting: flags.boolean({
-            description: "skip testing",
+        amount: satoshiFlag({
+            description: "initial wallet token amount",
+            default: 2,
         }),
-        copy: flags.boolean({
-            description: "copy the transactions to the clipboard",
+        transferFee: satoshiFlag({
+            description: "transfer fee",
+            default: 0.1,
+        }),
+        skipProbing: flags.boolean({
+            description: "skip transaction probing",
+        }),
+        waves: flags.integer({
+            description: "number of waves to send",
+            default: 1,
         }),
     };
 
-    public options: any;
-    public config: any;
+    public static flagsDebug = {
+        log: flags.string({
+            description: "log the data to the console",
+        }),
+        copy: flags.string({
+            description: "copy the data to the clipboard",
+        }),
+    };
 
-    /**
-     * Init new instance of command.
-     * @param  {Object} options
-     * @return {*}
-     */
-    public async initialize(command): Promise<any> {
-        // tslint:disable-next-line:no-shadowed-variable
-        const { flags } = this.parse(command);
+    protected api: HttpClient;
+    protected p2p: HttpClient;
+    protected signer: Signer;
+    protected network: Record<string, any>;
+    protected constants: Record<string, any>;
 
-        this.options = flags;
-        this.applyConfig();
-        await this.loadConstants();
-        await this.loadNetworkConfig();
+    protected async make(command): Promise<any> {
+        const { args, flags } = this.parse(command);
 
-        return { flags };
+        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/v2/`);
+        this.p2p = new HttpClient(`${flags.host}:${flags.portP2P}/`);
+
+        await this.setupConstants();
+        await this.setupNetwork();
+
+        this.signer = new Signer(this.network);
+
+        return { args, flags };
     }
 
-    /**
-     * Copy transactions to clipboard.
-     * @param  {Object[]} transactions
-     * @return {void}
-     */
-    public copyToClipboard(transactions) {
+    protected async sendTransaction(transactions: any[]): Promise<Record<string, any>> {
+        if (!Array.isArray(transactions)) {
+            transactions = [transactions];
+        }
+
         for (const transaction of transactions) {
-            transaction.serialized = transaction.serialized.toString("hex");
-        }
+            let recipientId = transaction.recipientId;
 
-        clipboardy.writeSync(JSON.stringify(transactions));
-        logger.info(`Copied ${pluralize("transaction", transactions.length, true)}`);
-    }
-
-    /**
-     * Generate wallets based on quantity.
-     * @param  {Number} [quantity]
-     * @return {Object[]}
-     */
-    public generateWallets(quantity: any = null) {
-        if (!quantity) {
-            quantity = this.options.number;
-        }
-
-        const wallets = [];
-        for (let i = 0; i < quantity; i++) {
-            const passphrase = bip39.generateMnemonic();
-            const keys = crypto.getKeys(passphrase);
-            const address = crypto.getAddress(keys.publicKey, this.config.network.version);
-
-            wallets.push({ address, keys, passphrase });
-        }
-
-        const testWalletsPath = path.resolve(__dirname, "../../test-wallets");
-        fs.appendFileSync(testWalletsPath, `${new Date().toLocaleDateString()} ${"-".repeat(70)}\n`);
-        for (const wallet of wallets) {
-            fs.appendFileSync(testWalletsPath, `${wallet.address}: ${wallet.passphrase}\n`);
-        }
-
-        return wallets;
-    }
-
-    /**
-     * Get delegate API response.
-     * @return {Object[]}
-     * @throws 'Could not get delegates'
-     */
-    public async getDelegates() {
-        try {
-            const delegates = await paginate(this.config, "/api/v2/delegates");
-
-            return delegates;
-        } catch (error) {
-            const message = error.response ? error.response.data.message : error.message;
-            throw new Error(`Could not get delegates: ${message}`);
-        }
-    }
-
-    /**
-     * Get transaction from API by ID.
-     * @param  {String} id
-     * @return {(Object|null)}
-     */
-    public async getTransaction(id) {
-        try {
-            const response = await request(this.config).get(`/api/v2/transactions/${id}`);
-
-            if (response.data) {
-                return response.data;
-            }
-        } catch (error) {
-            //
-        }
-
-        return null;
-    }
-
-    /**
-     * Get delegate voters by public key.
-     * @param  {String} publicKey
-     * @return {Object[]}
-     */
-    public async getVoters(publicKey) {
-        try {
-            return paginate(this.config, `/api/v2/delegates/${publicKey}/voters`);
-        } catch (error) {
-            const message = error.response ? error.response.data.message : error.message;
-            throw new Error(`Could not get voters for '${publicKey}': ${message}`);
-        }
-    }
-
-    /**
-     * Get wallet balance by address.
-     * @param  {String} address
-     * @return {Bignum}
-     */
-    public async getWalletBalance(address) {
-        try {
-            return bignumify((await this.getWallet(address)).balance);
-        } catch (error) {
-            //
-        }
-
-        return Bignum.ZERO;
-    }
-
-    /**
-     * Get wallet by address.
-     * @param  {String} address
-     * @return {Object}
-     */
-    public async getWallet(address) {
-        try {
-            const response = await request(this.config).get(`/api/v2/wallets/${address}`);
-
-            if (response.data) {
-                return response.data;
+            if (!recipientId) {
+                recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
             }
 
-            return null;
-        } catch (error) {
-            const message = error.response ? error.response.data.message : error.message;
-            throw new Error(`Could not get wallet for '${address}': ${message}`);
-        }
-    }
-
-    /**
-     * Send transactions to API and wait for response.
-     * @param  {Object[]}  transactions
-     * @param  {String}  [transactionType]
-     * @param  {Boolean} [wait=true]
-     * @return {Object}
-     */
-    public async sendTransactions(transactions, transactionType: any = null, wait = true) {
-        const response = await this.postTransactions(transactions);
-
-        if (wait) {
-            const delaySeconds = this.getTransactionDelaySeconds(transactions);
-            transactionType = `${transactionType ? `${transactionType} ` : ""}transactions`;
-            logger.info(`Waiting ${delaySeconds} seconds to apply ${transactionType}`);
-            await delay(delaySeconds * 1000);
+            logger.info(
+                `[T] ${transaction.id} (${recipientId} / ${this.fromSatoshi(transaction.amount)} / ${this.fromSatoshi(
+                    transaction.fee,
+                )})`,
+            );
         }
 
-        return response;
+        return this.api.post("transactions", { transactions });
     }
 
-    /**
-     * Send transactions to API.
-     * @param  {Object[]} transactions
-     * @return {Object}
-     */
-    public async postTransactions(transactions) {
+    protected async knockTransaction(id: string): Promise<boolean> {
         try {
-            const response = await request(this.config).post("/api/v2/transactions", {
-                transactions,
-            });
-            return response.data;
+            const { data } = await this.api.get(`transactions/${id}`);
+
+            logger.info(`[T] ${id} (${data.blockId})`);
+
+            return true;
         } catch (error) {
-            const message = error.response ? error.response.data.message : error.message;
-            throw new Error(`Could not post transactions: ${message}`);
+            logger.error(error.message);
+
+            logger.error(`[T] ${id} (not forged)`);
+
+            return false;
         }
     }
 
-    /**
-     * Load constants from API and apply to config.
-     * @return {void}
-     */
-    public async loadConstants() {
+    protected async knockBalance(address: string, expected: Bignum): Promise<void> {
+        const actual = await this.getWalletBalance(address);
+
+        if (bignumify(expected).isEqualTo(actual)) {
+            logger.info(`[W] ${address} (${this.fromSatoshi(actual)})`);
+        } else {
+            logger.error(`[W] ${address} (${this.fromSatoshi(expected)} / ${this.fromSatoshi(actual)})`);
+        }
+    }
+
+    protected async getWalletBalance(address: string): Promise<Bignum> {
         try {
-            this.config.constants = (await request(this.config).get("/api/v2/node/configuration")).data.constants;
+            const { data } = await this.api.get(`wallets/${address}`);
+
+            return bignumify(data.balance);
         } catch (error) {
-            logger.error("Failed to get constants: ", error.message);
-            process.exit(1);
+            return Bignum.ZERO;
         }
     }
 
-    /**
-     * Load network from API and apply to config.
-     * @return {void}
-     */
-    public async loadNetworkConfig() {
+    protected async broadcastTransactions(transactions) {
+        await this.sendTransaction(transactions);
+
+        return this.awaitConfirmations(transactions);
+    }
+
+    protected async getTransaction(id: string): Promise<any> {
         try {
-            this.config.network = (await request(this.config).get("/config", true)).data.network;
+            const { data } = await this.api.get(`transactions/${id}`);
+            
+            return data;
         } catch (error) {
-            logger.error("Failed to get network config: ", error.message);
-            process.exit(1);
+            logger.error(error.message);
+
+            return false;
         }
-    }
-
-    /**
-     * Apply options to config.
-     * @return {void}
-     */
-    protected applyConfig() {
-        this.config = { ...config };
-
-        if (this.options.baseUrl) {
-            this.config.baseUrl = this.options.baseUrl.replace(/\/+$/, "");
-        }
-
-        if (this.options.apiPort) {
-            this.config.apiPort = this.options.apiPort;
-        }
-
-        if (this.options.p2pPort && process.env.NODE_ENV !== "test") {
-            this.config.p2pPort = this.options.p2pPort;
-        }
-
-        if (this.options.passphrase) {
-            this.config.passphrase = this.options.passphrase;
-        }
-
-        if (this.options.secondPassphrase) {
-            this.config.secondPassphrase = this.options.secondPassphrase;
-        }
-    }
-
-    /**
-     * Quit command and output error when problem sending transactions.
-     * @param  {Error} error
-     * @return {void}
-     */
-    protected problemSendingTransactions(error) {
-        const message = error.response ? error.response.data.message : error.message;
-        logger.error(`There was a problem sending transactions: ${message}`);
-        process.exit(1);
-    }
-
-    /**
-     * Determine how long to wait for transactions to process.
-     * @param  {Object[]} transactions
-     * @return {Number}
-     */
-    protected getTransactionDelaySeconds(transactions) {
-        if (process.env.NODE_ENV === "test") {
-            return 0;
-        }
-
-        const waitPerBlock = Math.round(this.config.constants.blocktime / 10) * 20;
-
-        return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions);
     }
 
     protected castFlags(values: Record<string, any>): string[] {
-        return Object.keys(BaseCommand.flags)
-            .filter(k => !["copy"].includes(k))
+        return Object.keys(BaseCommand.flagsConfig)
             .map((key: string) => {
                 const value = values[key];
 
@@ -333,5 +174,48 @@ export abstract class BaseCommand extends Command {
                 return `--${key}=${value}`;
             })
             .filter(value => value !== undefined);
+    }
+
+    protected toSatoshi(value) {
+        return bignumify(value)
+            .times(1e8)
+            .toFixed();
+    }
+
+    protected fromSatoshi(satoshi) {
+        return formatSatoshi(satoshi);
+    }
+
+    private async setupConstants() {
+        try {
+            const { data } = await this.api.get("node/configuration");
+
+            this.constants = data.constants;
+        } catch (error) {
+            logger.error(error.message);
+            process.exit(1);
+        }
+    }
+
+    private async setupNetwork() {
+        try {
+            const { data } = await this.p2p.get("config");
+
+            this.network = data.network;
+        } catch (error) {
+            logger.error(error.message);
+            process.exit(1);
+        }
+    }
+
+    private async awaitConfirmations(transactions): Promise<void> {
+        if (process.env.NODE_ENV === "test") {
+            return;
+        }
+
+        const waitPerBlock =
+            this.constants.blocktime * Math.ceil(transactions.length / this.constants.block.maxTransactions);
+
+        await delay(waitPerBlock * 1000);
     }
 }
