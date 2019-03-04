@@ -18,6 +18,7 @@ let peerMock: Peer;
 beforeEach(() => {
     monitor.config = defaults;
     localConfig.init(defaults);
+    localConfig.set("port", 4000);
 
     monitor.guard = new Guard();
     monitor.guard.init(monitor);
@@ -52,7 +53,7 @@ describe("Monitor", () => {
         });
     });
 
-    describe.only("acceptNewPeer", () => {
+    describe("acceptNewPeer", () => {
         it("should be ok", async () => {
             axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
                 200,
