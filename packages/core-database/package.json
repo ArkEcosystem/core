@@ -32,6 +32,7 @@
         "@arkecosystem/core-container": "^2.2.0-beta.7",
         "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
         "@arkecosystem/core-utils": "^2.2.0-beta.7",
+        "@arkecosystem/core-transactions": "^2.2.0-beta.7",
         "@arkecosystem/crypto": "^2.2.0-beta.7",
         "@arkecosystem/utils": "^0.3.0",
         "@types/lodash.clonedeep": "^4.5.4",

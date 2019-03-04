@@ -2,6 +2,7 @@ import { flags } from "@oclif/command";
 import { delay } from "bluebird";
 import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";
+import { logger } from "../../logger";
 
 export class TransferCommand extends SendCommand {
     public static description: string = "send multiple transactions";
@@ -53,10 +54,22 @@ export class TransferCommand extends SendCommand {
 
     protected async verifyTransactions(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
-            const wasCreated = await this.knockTransaction(transaction.id);
+            const response = await this.getTransaction(transaction.id);
+            
+            if (!response) {
+                logger.error(`[T] ${transaction.id} (not forged)`);
+                
+                continue;
+            }
 
-            if (wasCreated) {
-                await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
+            logger.info(`[T] ${transaction.id} (${response.blockId})`);
+
+            await this.knockBalance(transaction.recipientId, wallets[transaction.recipientId].expectedBalance);
+
+            if (transaction.vendorField === response.vendorField) {
+                logger.info(`[T] ${transaction.id} (${transaction.vendorField})`);
+            } else {
+                logger.error(`[T] ${transaction.id} (${transaction.vendorField} / ${response.vendorField})`);
             }
         }
     }

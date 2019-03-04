@@ -47,6 +47,10 @@ export abstract class BaseCommand extends Command {
         skipProbing: flags.boolean({
             description: "skip transaction probing",
         }),
+        waves: flags.integer({
+            description: "number of waves to send",
+            default: 1,
+        }),
     };
 
     public static flagsDebug = {
@@ -140,6 +144,18 @@ export abstract class BaseCommand extends Command {
         await this.sendTransaction(transactions);
 
         return this.awaitConfirmations(transactions);
+    }
+
+    protected async getTransaction(id: string): Promise<any> {
+        try {
+            const { data } = await this.api.get(`transactions/${id}`);
+            
+            return data;
+        } catch (error) {
+            logger.error(error.message);
+
+            return false;
+        }
     }
 
     protected castFlags(values: Record<string, any>): string[] {

@@ -1,17 +1,17 @@
-import { generators } from "../../utils";
 import "jest-extended";
+import { generators } from "../../utils";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models } from "@arkecosystem/crypto";
-import { testnet } from "../../../packages/crypto/src/networks";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
+import { testnet } from "../../../packages/crypto/src/networks";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Delegate, Transaction } = models;
+const { Delegate } = models;
 const { generateTransfers } = generators;
 
 jest.setTimeout(30000);
