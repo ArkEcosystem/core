@@ -95,9 +95,6 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * @param  {Object} [params.voteBalance] - Search by voteBalance
      * @param  {Number} [params.voteBalance.from] - Search by voteBalance (minimum)
      * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
-     * @param  {Object} [params.productivity] - Search by productivity
-     * @param  {Number} [params.productivity.from] - Search by productivity (minimum)
-     * @param  {Number} [params.productivity.to] - Search by productivity (maximum)
      */
     public search(params: Database.IParameters) {
         const query: any = {
