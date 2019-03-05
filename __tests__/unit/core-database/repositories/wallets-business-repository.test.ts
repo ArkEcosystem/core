@@ -1,36 +1,32 @@
+import "../mocks/core-container";
+
 import { Database } from "@arkecosystem/core-interfaces";
 import { Bignum, crypto, models } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
-import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
 import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 
-const { Block, Wallet } = models;
+const { Wallet } = models;
 
-let genesisBlock: models.Block;
 let genesisSenders;
 let repository;
 let walletManager: Database.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeAll(() => {
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(genesisBlockTestnet);
     genesisSenders = uniq(compact(genesisBlock.transactions.map(tx => tx.data.senderPublicKey)));
 });
 
-beforeEach(async done => {
+beforeEach(async () => {
     const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new WalletsBusinessRepository(() => databaseService);
 
     databaseService = new DatabaseService(null, null, walletManager, repository, null, null, null);
-
-    done();
 });
 
 function generateWallets() {

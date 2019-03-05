@@ -5,6 +5,7 @@ import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
@@ -15,13 +16,11 @@ const { SATOSHI, TransactionTypes } = constants;
 let connection: Database.IDatabaseConnection;
 let databaseService: DatabaseService;
 let walletManager: Database.IWalletManager;
-let genesisBlock: models.Block;
 let container: Container.IContainer;
 let emitter: EventEmitter.EventEmitter;
 
 beforeAll(async () => {
     emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
     connection = new DatabaseConnectionStub();
     walletManager = new WalletManager();
 });

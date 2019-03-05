@@ -1,10 +1,11 @@
 /* tslint:disable:max-line-length no-empty */
+import "./mocks/core-container";
+
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
 import { fixtures, generators } from "../../utils";
-import genesisBlockTestnet from "../../utils/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
 
 const { Block, Wallet } = models;
@@ -18,17 +19,7 @@ const block = new Block(block3);
 const walletData1 = wallets[0];
 const walletData2 = wallets[1];
 
-let genesisBlock;
 let walletManager: Database.IWalletManager;
-
-beforeAll(() => {
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(genesisBlockTestnet);
-
-    const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
-    walletManager = new WalletManager();
-});
 
 beforeEach(() => {
     const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
