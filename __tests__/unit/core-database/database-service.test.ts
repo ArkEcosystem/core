@@ -2,7 +2,8 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-container";
+import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { WalletManager } from "../../../packages/core-database/src";
@@ -17,10 +18,12 @@ const { SATOSHI, TransactionTypes } = constants;
 let connection: Database.IDatabaseConnection;
 let databaseService: DatabaseService;
 let walletManager: Database.IWalletManager;
-let container: Container.IContainer;
+let container;
 let emitter: EventEmitter.EventEmitter;
 
 beforeAll(() => {
+    container = app;
+    // @ts-ignore
     emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     connection = new DatabaseConnectionStub();
     walletManager = new WalletManager();
@@ -31,7 +34,10 @@ beforeEach(() => {
 });
 
 function createService() {
-    return new DatabaseService({}, connection, walletManager, null, null, null, null);
+    const service = new DatabaseService({}, connection, walletManager, null, null, null, null);
+    service.emitter = emitter;
+
+    return service;
 }
 
 describe("Database Service", () => {
