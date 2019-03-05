@@ -1,4 +1,4 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import { WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
 import { TransactionService } from "./transaction";
@@ -31,6 +31,10 @@ export class DelegateRegistrationTransactionService extends TransactionService {
 
     public revert(transaction: Transaction, wallet: models.Wallet): void {
         wallet.username = null;
+    }
+
+    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {
+        emitter.emit("delegate.registered", transaction.data);
     }
 
     public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {

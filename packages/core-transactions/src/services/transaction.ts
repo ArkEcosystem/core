@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, crypto, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
 import {
@@ -99,6 +99,12 @@ export abstract class TransactionService implements ITransactionService {
 
     public abstract apply(transaction: Transaction, wallet: models.Wallet): void;
     public abstract revert(transaction: Transaction, wallet: models.Wallet): void;
+
+    /**
+     * Database Service
+     */
+    // tslint:disable-next-line:no-empty
+    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {}
 
     /**
      * Transaction Pool logic

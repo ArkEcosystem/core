@@ -1,4 +1,4 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../errors";
 import { TransactionService } from "./transaction";
@@ -44,6 +44,15 @@ export class VoteTransactionService extends TransactionService {
         } else {
             wallet.vote = vote.slice(1);
         }
+    }
+
+    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {
+        const vote = transaction.data.asset.votes[0];
+
+        emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
+            delegate: vote,
+            transaction: transaction.data,
+        });
     }
 
     public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {

@@ -1,4 +1,4 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
 export interface ITransactionService {
@@ -13,4 +13,5 @@ export interface ITransactionService {
     revert(transaction: Transaction, wallet: models.Wallet): void;
 
     canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean;
+    emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void;
 }
