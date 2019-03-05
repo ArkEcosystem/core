@@ -23,7 +23,7 @@ export abstract class TransactionService implements ITransactionService {
     public canBeApplied(
         transaction: Transaction,
         wallet: models.Wallet,
-        databaseService?: Database.IDatabaseService,
+        walletManager?: Database.IWalletManager,
     ): boolean {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:

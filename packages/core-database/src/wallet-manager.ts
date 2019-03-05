@@ -388,7 +388,7 @@ export class WalletManager implements Database.IWalletManager {
      */
     public applyTransaction(transaction: Transaction) {
         const { data } = transaction;
-        const { type, asset, recipientId, senderPublicKey } = data;
+        const { type, recipientId, senderPublicKey } = data;
 
         const transactionService = TransactionServiceRegistry.get(transaction.type);
         const sender = this.findByPublicKey(senderPublicKey);
@@ -403,12 +403,16 @@ export class WalletManager implements Database.IWalletManager {
         // handle exceptions / verify that we can apply the transaction to the sender
         if (isException(data)) {
             this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
-        } else if (!transactionService.canBeApplied(transaction, sender)) {
-            this.logger.error(
-                `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${JSON.stringify(errors)}`,
-            );
-            this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
-            throw new Error(`Can't apply transaction ${data.id}`);
+        } else {
+            try {
+                transactionService.canBeApplied(transaction, sender, this);
+            } catch (error) {
+                this.logger.error(
+                    `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${error.message}`,
+                );
+                this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
+                throw new Error(`Can't apply transaction ${data.id}`);
+            }
         }
 
         transactionService.applyToSender(transaction, sender);

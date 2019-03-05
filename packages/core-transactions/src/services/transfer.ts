@@ -1,4 +1,4 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionService } from "./transaction";
@@ -8,8 +8,12 @@ export class TransferTransactionService extends TransactionService {
         return constants.TransactionTypes.Transfer;
     }
 
-    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
-        return super.canBeApplied(transaction, wallet);
+    public canBeApplied(
+        transaction: Transaction,
+        wallet: models.Wallet,
+        walletManager?: Database.IWalletManager,
+    ): boolean {
+        return super.canBeApplied(transaction, wallet, walletManager);
     }
 
     public hasVendorField(): boolean {

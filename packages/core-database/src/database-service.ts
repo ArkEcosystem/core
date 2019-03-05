@@ -9,7 +9,6 @@ import pluralize from "pluralize";
 import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
-const { TransactionTypes } = constants;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IDatabaseConnection;

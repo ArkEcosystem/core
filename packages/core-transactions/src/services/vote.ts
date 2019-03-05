@@ -11,7 +11,7 @@ export class VoteTransactionService extends TransactionService {
     public canBeApplied(
         transaction: Transaction,
         wallet: models.Wallet,
-        databaseService?: Database.IDatabaseService,
+        walletManager?: Database.IWalletManager,
     ): boolean {
         const { data } = transaction;
         const vote = data.asset.votes[0];
@@ -27,13 +27,13 @@ export class VoteTransactionService extends TransactionService {
             }
         }
 
-        if (databaseService) {
-            if (!databaseService.walletManager.isDelegate(vote.slice(1))) {
+        if (walletManager) {
+            if (!walletManager.isDelegate(vote.slice(1))) {
                 throw new VotedForNonDelegateError(vote);
             }
         }
 
-        return super.canBeApplied(transaction, wallet);
+        return super.canBeApplied(transaction, wallet, walletManager);
     }
 
     public apply(transaction: Transaction, wallet: models.Wallet): void {

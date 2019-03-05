@@ -13,7 +13,7 @@ export class DelegateRegistrationTransactionService extends TransactionService {
     public canBeApplied(
         transaction: Transaction,
         wallet: models.Wallet,
-        databaseService?: Database.IDatabaseService,
+        walletManager?: Database.IWalletManager,
     ): boolean {
         const { data } = transaction;
         const { username } = data.asset.delegate;
@@ -25,13 +25,13 @@ export class DelegateRegistrationTransactionService extends TransactionService {
             throw new WalletUsernameNotEmptyError();
         }
 
-        if (databaseService) {
-            if (databaseService.walletManager.findByUsername(username)) {
+        if (walletManager) {
+            if (walletManager.findByUsername(username)) {
                 throw new WalletUsernameAlreadyRegisteredError(username);
             }
         }
 
-        return super.canBeApplied(transaction, wallet);
+        return super.canBeApplied(transaction, wallet, walletManager);
     }
 
     public apply(transaction: Transaction, wallet: models.Wallet): void {

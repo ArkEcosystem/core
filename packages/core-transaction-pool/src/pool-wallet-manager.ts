@@ -67,7 +67,7 @@ export class PoolWalletManager extends WalletManager {
         } else {
             try {
                 const transactionService = TransactionServiceRegistry.get(transaction.type);
-                transactionService.canBeApplied(transaction, sender, this.databaseService);
+                transactionService.canBeApplied(transaction, sender, this.databaseService.walletManager);
             } catch (error) {
                 const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
                     sender.address

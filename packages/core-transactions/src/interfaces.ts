@@ -4,7 +4,7 @@ import { constants, ITransactionData, models, Transaction } from "@arkecosystem/
 export interface ITransactionService {
     getType(): constants.TransactionTypes | number;
 
-    canBeApplied(transaction: Transaction, wallet: models.Wallet, databaseService?: Database.IDatabaseService): boolean;
+    canBeApplied(transaction: Transaction, wallet: models.Wallet, walletManager?: Database.IWalletManager): boolean;
     applyToSender(transaction: Transaction, wallet: models.Wallet): void;
     applyToRecipient(transaction: Transaction, wallet: models.Wallet): void;
     revertForSender(transaction: Transaction, wallet: models.Wallet): void;
