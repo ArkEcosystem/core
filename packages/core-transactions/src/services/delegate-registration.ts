@@ -1,6 +1,6 @@
-import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
-import { WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
+import { WalletUsernameAlreadyRegisteredError, WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
 import { TransactionService } from "./transaction";
 
 const { TransactionTypes } = constants;
@@ -10,7 +10,11 @@ export class DelegateRegistrationTransactionService extends TransactionService {
         return constants.TransactionTypes.DelegateRegistration;
     }
 
-    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+    public canBeApplied(
+        transaction: Transaction,
+        wallet: models.Wallet,
+        databaseService?: Database.IDatabaseService,
+    ): boolean {
         const { data } = transaction;
         const { username } = data.asset.delegate;
         if (!username) {
@@ -19,6 +23,12 @@ export class DelegateRegistrationTransactionService extends TransactionService {
 
         if (wallet.username) {
             throw new WalletUsernameNotEmptyError();
+        }
+
+        if (databaseService) {
+            if (databaseService.walletManager.findByUsername(username)) {
+                throw new WalletUsernameAlreadyRegisteredError(username);
+            }
         }
 
         return super.canBeApplied(transaction, wallet);

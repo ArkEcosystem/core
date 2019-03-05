@@ -395,21 +395,8 @@ export class WalletManager implements Database.IWalletManager {
         const recipient = this.findByAddress(recipientId);
         const errors = [];
 
-        // specific verifications / adjustments depending on transaction type
-        if (type === TransactionTypes.DelegateRegistration && this.byUsername[asset.delegate.username.toLowerCase()]) {
-            this.logger.error(
-                `Can't apply transaction ${
-                    data.id
-                }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
-            );
-            throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`);
-
-            // NOTE: We use the vote public key, because vote transactions
-            // have the same sender and recipient
-        } else if (type === TransactionTypes.Vote && !this.isDelegate(asset.votes[0].slice(1))) {
-            this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
-            throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (type === TransactionTypes.SecondSignature) {
+        // TODO: can/should be removed?
+        if (type === TransactionTypes.SecondSignature) {
             data.recipientId = "";
         }
 

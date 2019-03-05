@@ -58,40 +58,16 @@ export class PoolWalletManager extends WalletManager {
         }
 
         const { data } = transaction;
-        const { type, asset } = data;
         const sender = this.findByPublicKey(data.senderPublicKey);
 
-        if (
-            type === TransactionTypes.DelegateRegistration &&
-            this.databaseService.walletManager.findByUsername(asset.delegate.username.toLowerCase())
-        ) {
-            this.logger.error(
-                `[PoolWalletManager] Can't apply transaction ${
-                    transaction.id
-                }: delegate name already taken. Data: ${JSON.stringify(transaction)}`,
-            );
-
-            errors.push(`Can't apply transaction ${transaction.id}: delegate name already taken.`);
-            // NOTE: We use the vote public key, because vote transactions have the same sender and recipient.
-        } else if (
-            type === TransactionTypes.Vote &&
-            !this.databaseService.walletManager.isDelegate(asset.votes[0].slice(1))
-        ) {
-            this.logger.error(
-                `[PoolWalletManager] Can't apply vote transaction: delegate ${
-                    asset.votes[0]
-                } does not exist. Data: ${JSON.stringify(transaction)}`,
-            );
-
-            errors.push(`Can't apply transaction ${transaction.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (isException(data)) {
+        if (isException(data)) {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
         } else {
             try {
                 const transactionService = TransactionServiceRegistry.get(transaction.type);
-                transactionService.canBeApplied(transaction, sender);
+                transactionService.canBeApplied(transaction, sender, this.databaseService);
             } catch (error) {
                 const message = `[PoolWalletManager] Can't apply transaction id:${transaction.id} from sender:${
                     sender.address

@@ -84,6 +84,12 @@ export class WalletNoUsernameError extends TransactionError {
     }
 }
 
+export class WalletUsernameAlreadyRegisteredError extends TransactionError {
+    constructor(username: string) {
+        super(`Failed to apply transaction, because the username '${username}' is already registered.`);
+    }
+}
+
 export class SecondSignatureAlreadyRegisteredError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because second signature is already enabled.`);
@@ -105,6 +111,12 @@ export class NoVoteError extends TransactionError {
 export class UnvoteMismatchError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the wallet vote does not match.`);
+    }
+}
+
+export class VotedForNonDelegateError extends TransactionError {
+    constructor(vote: string) {
+        super(`Failed to apply transaction, because only delegates can be voted.`);
     }
 }
 

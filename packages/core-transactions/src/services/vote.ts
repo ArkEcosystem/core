@@ -1,6 +1,6 @@
-import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
-import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../errors";
+import { AlreadyVotedError, NoVoteError, UnvoteMismatchError, VotedForNonDelegateError } from "../errors";
 import { TransactionService } from "./transaction";
 
 export class VoteTransactionService extends TransactionService {
@@ -8,7 +8,11 @@ export class VoteTransactionService extends TransactionService {
         return constants.TransactionTypes.Vote;
     }
 
-    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+    public canBeApplied(
+        transaction: Transaction,
+        wallet: models.Wallet,
+        databaseService?: Database.IDatabaseService,
+    ): boolean {
         const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
@@ -20,6 +24,12 @@ export class VoteTransactionService extends TransactionService {
                 throw new NoVoteError();
             } else if (wallet.vote !== vote.slice(1)) {
                 throw new UnvoteMismatchError();
+            }
+        }
+
+        if (databaseService) {
+            if (!databaseService.walletManager.isDelegate(vote.slice(1))) {
+                throw new VotedForNonDelegateError(vote);
             }
         }
 

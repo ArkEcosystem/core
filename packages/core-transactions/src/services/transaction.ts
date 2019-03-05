@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-import { EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { configManager, constants, crypto, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
 import {
@@ -20,7 +20,11 @@ export abstract class TransactionService implements ITransactionService {
     /**
      * Wallet logic
      */
-    public canBeApplied(transaction: Transaction, wallet: models.Wallet): boolean {
+    public canBeApplied(
+        transaction: Transaction,
+        wallet: models.Wallet,
+        databaseService?: Database.IDatabaseService,
+    ): boolean {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
