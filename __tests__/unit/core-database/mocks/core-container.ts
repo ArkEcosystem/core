@@ -1,10 +1,3 @@
-// import { configManager } from "@arkecosystem/crypto";
-// import { blocks2to100 } from "../../../utils/fixtures";
-// import { delegates } from "../../../utils/fixtures/testnet/delegates";
-import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
-
-// configManager.setFromPreset("testnet");
-
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
@@ -36,15 +29,6 @@ jest.mock("@arkecosystem/core-container", () => {
 
                 return {};
             },
-            // resolve: name => {
-            //     if (name === "state") {
-            //         return {
-            //             getLastBlock: () => genesisBlock,
-            //         };
-            //     }
-
-            //     return {};
-            // },
         },
     };
 });

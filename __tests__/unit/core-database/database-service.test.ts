@@ -1,5 +1,7 @@
 import "jest-extended";
 
+import "./mocks/core-container";
+
 import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
@@ -10,7 +12,6 @@ import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub"
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
 const { Block, Wallet } = models;
-
 const { SATOSHI, TransactionTypes } = constants;
 
 let connection: Database.IDatabaseConnection;
@@ -19,7 +20,7 @@ let walletManager: Database.IWalletManager;
 let container: Container.IContainer;
 let emitter: EventEmitter.EventEmitter;
 
-beforeAll(async () => {
+beforeAll(() => {
     emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     connection = new DatabaseConnectionStub();
     walletManager = new WalletManager();
