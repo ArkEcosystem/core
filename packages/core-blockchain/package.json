@@ -48,9 +48,7 @@
         "@types/async": "^2.4.0",
         "@types/lodash.get": "^4.4.4",
         "@types/pluralize": "^0.0.29",
-        "@types/pretty-ms": "^4.0.0",
-        "axios": "^0.18.0",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/pretty-ms": "^4.0.0"
     },
     "publishConfig": {
         "access": "public"

@@ -1,27 +1,27 @@
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 
 export class HttpClient {
-    private baseURL: any;
+    private baseUrl: string;
 
-    public constructor(baseURL: string) {
-        this.baseURL = baseURL;
+    public constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
     }
 
-    public async get(path: string, params?: Record<string, any>, headers?: Record<string, any>): Promise<any> {
+    public async get(path: string, query?: any, headers?: any): Promise<any> {
         try {
-            const { data } = await axios.get(`${this.baseURL}${path}`, { params, headers });
+            const { body } = await httpie.get(`${this.baseUrl}${path}`, { query, headers });
 
-            return data;
+            return body;
         } catch (error) {
             // do nothing...
         }
     }
 
-    public async post(path: string, payload: Record<string, any>): Promise<any> {
+    public async post(path: string, payload: any): Promise<any> {
         try {
-            const { data } = await axios.post(`${this.baseURL}${path}`, payload);
+            const { body } = await httpie.post(`${this.baseUrl}${path}`, { body: JSON.stringify(payload) });
 
-            return data;
+            return body;
         } catch (error) {
             // do nothing...
         }

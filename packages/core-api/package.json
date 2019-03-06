@@ -55,8 +55,7 @@
         "@types/joi": "^14.3.1",
         "@types/lodash.orderby": "^4.6.4",
         "@types/lodash.partition": "^4.6.4",
-        "@types/lodash.snakecase": "^4.1.4",
-        "axios": "^0.18.0"
+        "@types/lodash.snakecase": "^4.1.4"
     },
     "publishConfig": {
         "access": "public"

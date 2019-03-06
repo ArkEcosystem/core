@@ -30,7 +30,6 @@
         "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
         "@arkecosystem/crypto": "^2.2.0-rc.0",
         "awilix": "^4.2.0",
-        "axios": "^0.18.0",
         "delay": "^4.1.0",
         "env-paths": "^2.0.0",
         "envfile": "^3.0.0",
@@ -52,7 +51,6 @@
         "@types/lodash.isstring": "^4.0.4",
         "@types/lodash.set": "^4.3.4",
         "@types/semver": "^5.5.0",
-        "axios-mock-adapter": "^1.16.0",
         "jest-mock-process": "^1.1.0"
     },
     "publishConfig": {

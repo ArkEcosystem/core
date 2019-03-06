@@ -41,7 +41,6 @@
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
-        "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
         "delay": "^4.1.0",
@@ -55,8 +54,7 @@
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.4",
         "@types/pino": "^5.8.4",
-        "@types/pluralize": "^0.0.29",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
         "access": "public"

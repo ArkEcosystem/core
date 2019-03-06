@@ -30,9 +30,9 @@
         "@arkecosystem/core-container": "^2.2.0-rc.0",
         "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
         "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/core-utils": "^2.2.0-rc.0",
         "@arkecosystem/crypto": "^2.2.0-rc.0",
         "@keyv/sqlite": "^2.0.0",
-        "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "boom": "^7.3.0",
         "is-reachable": "^3.0.0",
@@ -53,8 +53,7 @@
         "@types/keyv__sqlite": "^2.0.0",
         "@types/lodash.get": "^4.4.4",
         "@types/uuid": "^3.4.4",
-        "@types/wif": "^2.0.1",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/wif": "^2.0.1"
     },
     "publishConfig": {
         "access": "public"

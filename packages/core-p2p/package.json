@@ -38,7 +38,6 @@
         "@arkecosystem/crypto": "^2.2.0-rc.0",
         "@faustbrian/dato": "^0.1.0",
         "ajv": "^6.9.1",
-        "axios": "^0.18.0",
         "boom": "^7.3.0",
         "delay": "^4.1.0",
         "hapi-rate-limit": "^3.1.1",
@@ -79,8 +78,7 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
-        "@types/semver": "^5.5.0",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/semver": "^5.5.0"
     },
     "publishConfig": {
         "access": "public"
