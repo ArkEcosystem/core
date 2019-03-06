@@ -1,4 +1,4 @@
-import { crypto, Transaction } from "@arkecosystem/crypto";
+import { configManager, crypto, NetworkName, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -20,6 +20,8 @@ export class VerifySecondSignatureCommand extends BaseCommand {
 
     public async run(): Promise<void> {
         const { flags } = this.parse(VerifySecondSignatureCommand);
+
+        configManager.setFromPreset(flags.network as NetworkName);
 
         const { data } = Transaction.fromHex(flags.data);
 

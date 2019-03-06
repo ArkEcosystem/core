@@ -13,9 +13,16 @@ describe("Commands - Identity", async () => {
             address: "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib",
         };
 
-        expect(await IdentityCommand.run(["--data", fixtureIdentities.passphrase, "--type", "passphrase"])).toEqual(
-            expected,
-        );
+        expect(
+            await IdentityCommand.run([
+                "--data",
+                fixtureIdentities.passphrase,
+                "--type",
+                "passphrase",
+                "--network",
+                "devnet",
+            ]),
+        ).toEqual(expected);
     });
 
     it("should return identities from privateKey", async () => {
@@ -25,9 +32,16 @@ describe("Commands - Identity", async () => {
             address: "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib",
         };
 
-        expect(await IdentityCommand.run(["--data", fixtureIdentities.privateKey, "--type", "privateKey"])).toEqual(
-            expected,
-        );
+        expect(
+            await IdentityCommand.run([
+                "--data",
+                fixtureIdentities.privateKey,
+                "--type",
+                "privateKey",
+                "--network",
+                "devnet",
+            ]),
+        ).toEqual(expected);
     });
 
     it("should return identities from publicKey", async () => {
@@ -36,8 +50,15 @@ describe("Commands - Identity", async () => {
             address: "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib",
         };
 
-        expect(await IdentityCommand.run(["--data", fixtureIdentities.publicKey, "--type", "publicKey"])).toEqual(
-            expected,
-        );
+        expect(
+            await IdentityCommand.run([
+                "--data",
+                fixtureIdentities.publicKey,
+                "--type",
+                "publicKey",
+                "--network",
+                "devnet",
+            ]),
+        ).toEqual(expected);
     });
 });
