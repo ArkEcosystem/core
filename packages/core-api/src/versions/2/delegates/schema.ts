@@ -78,8 +78,7 @@ export const active: object = {
     query: {
         height: Joi.number()
             .integer()
-            .min(1)
-            .required(),
+            .min(1),
     }
 };
 

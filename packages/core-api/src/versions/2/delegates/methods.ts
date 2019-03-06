@@ -19,7 +19,9 @@ const index = async request => {
 };
 
 const active = async request => {
-    const delegates = await databaseService.delegates.getActiveAtHeight(request.query.height);
+    const delegates = await databaseService.delegates.getActiveAtHeight(
+        request.query.height || this.blockchain.getLastHeight()
+    );
 
     if (!delegates.length) {
         return Boom.notFound("Delegates not found");
