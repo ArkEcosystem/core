@@ -17,7 +17,7 @@ export const walletTransactions = {
 
         return {
             count: response.meta.totalCount,
-            data: response.data,
+            data: response.body,
         };
     },
     schema: {

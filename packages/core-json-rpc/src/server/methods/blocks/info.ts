@@ -7,7 +7,7 @@ export const blockInfo = {
     async method(params) {
         const response = await network.sendRequest(`blocks/${params.id}`);
 
-        return response ? response.data : Boom.notFound(`Block ${params.id} could not be found.`);
+        return response ? response.body : Boom.notFound(`Block ${params.id} could not be found.`);
     },
     schema: {
         id: Joi.number()

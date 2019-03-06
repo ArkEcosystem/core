@@ -7,7 +7,7 @@ export const transactionInfo = {
     async method(params) {
         const response = await network.sendRequest(`transactions/${params.id}`);
 
-        return response ? response.data : Boom.notFound(`Transaction ${params.id} could not be found.`);
+        return response ? response.body : Boom.notFound(`Transaction ${params.id} could not be found.`);
     },
     schema: {
         id: Joi.string()
