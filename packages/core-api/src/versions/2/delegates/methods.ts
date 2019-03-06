@@ -93,15 +93,14 @@ const voterBalances = async request => {
 };
 
 export function registerMethods(server) {
-    const blockTime = config.getMilestone().blocktime;
-    const activeDelegates = config.getMilestone().activeDelegates;
+    const { activeDelegates, blocktime } = config.getMilestone();
 
     ServerCache.make(server)
         .method("v2.delegates.index", index, 8, request => ({
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.delegates.active", active, blockTime * activeDelegates, request => ({
+        .method("v2.delegates.active", active, activeDelegates * blocktime, request => ({
             ...request.query
         }))
         .method("v2.delegates.show", show, 8, request => ({ id: request.params.id }))
