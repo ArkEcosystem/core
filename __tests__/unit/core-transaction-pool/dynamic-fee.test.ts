@@ -29,7 +29,7 @@ describe("static fees", () => {
     });
 });
 
-describe("dynamic fees", () => {
+describe.only("dynamic fees", () => {
     let dynamicFeeConfig;
     beforeEach(() => {
         config.set("dynamicFees.enabled", true);
@@ -40,11 +40,14 @@ describe("dynamic fees", () => {
     it("should broadcast transactions with high enough fee", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
+
+        transactions.dynamicFeeNormalDummy1.data.fee =
+            calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dynamicFeeNormalDummy1) + 100;
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeTrue();
 
         // testing with transaction fee === min fee for transaction broadcast
-        transactions.dummy3.fee = calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy3);
-        transactions.dummy4.fee = calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy4);
+        transactions.dummy3.data.fee = calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy3);
+        transactions.dummy4.data.fee = calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy4);
         expect(dynamicFeeMatcher(transactions.dummy3).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy4).broadcast).toBeTrue();
     });
@@ -52,11 +55,14 @@ describe("dynamic fees", () => {
     it("should accept transactions with high enough fee to enter the pool", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).enterPool).toBeTrue();
+
+        transactions.dynamicFeeNormalDummy1.data.fee =
+            calculateFee(dynamicFeeConfig.minFeePool, transactions.dynamicFeeNormalDummy1) + 100;
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeTrue();
 
         // testing with transaction fee === min fee for transaction enter pool
-        transactions.dummy3.fee = calculateFee(dynamicFeeConfig.minFeePool, transactions.dummy3);
-        transactions.dummy4.fee = calculateFee(dynamicFeeConfig.minFeePool, transactions.dummy4);
+        transactions.dummy3.data.fee = calculateFee(dynamicFeeConfig.minFeePool, transactions.dummy3);
+        transactions.dummy4.data.fee = calculateFee(dynamicFeeConfig.minFeePool, transactions.dummy4);
         expect(dynamicFeeMatcher(transactions.dummy3).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy4).enterPool).toBeTrue();
     });
