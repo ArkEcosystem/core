@@ -300,7 +300,7 @@ export class PeerVerifier {
         // the last block in a round (so that the delegates calculations are still the same for
         // both chains).
 
-        const delegates = await this.getDelegates(round);
+        const delegates = await this.getDelegatesByRound(round);
 
         const hisBlocksByHeight = {};
 
@@ -327,7 +327,7 @@ export class PeerVerifier {
      * @param {Object} round to get delegates for
      * @return {Object} a map of { publicKey: delegate, ... } of all delegates for the given round
      */
-    private async getDelegates(round: any): Promise<any> {
+    private async getDelegatesByRound(round: any): Promise<any> {
         const numDelegates = round.maxDelegates;
 
         const heightOfFirstBlockInRound = (round.round - 1) * numDelegates + 1;
