@@ -19,7 +19,7 @@ export class HttpClient {
 
     public async post(path: string, payload: any): Promise<any> {
         try {
-            const { body } = await httpie.post(`${this.baseUrl}${path}`, { body: JSON.stringify(payload) });
+            const { body } = await httpie.post(`${this.baseUrl}${path}`, { body: payload });
 
             return body;
         } catch (error) {
