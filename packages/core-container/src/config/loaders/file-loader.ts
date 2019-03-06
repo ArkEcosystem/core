@@ -92,7 +92,7 @@ class FileLoader {
                 try {
                     const { body } = await got.get(source);
 
-                    configFile.list = JSON.parse(body).data;
+                    configFile.list = JSON.parse(body);
 
                     writeFileSync(configFile, JSON.stringify(configFile, null, 2));
 
