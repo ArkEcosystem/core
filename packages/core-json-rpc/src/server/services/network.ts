@@ -48,7 +48,7 @@ class Network {
 
             const response = await httpie.get(uri, { params, headers: this.headers });
 
-            return response.data;
+            return response.body;
         } catch (error) {
             this.logger.error(error.message);
         }
@@ -75,7 +75,7 @@ class Network {
             const peerPort = app.resolveOptions("p2p").port;
             const response = await httpie.get(`http://${this.server.ip}:${peerPort}/config`);
 
-            const plugin = response.data.data.plugins["@arkecosystem/core-api"];
+            const plugin = response.body.data.plugins["@arkecosystem/core-api"];
 
             if (!plugin.enabled) {
                 const index = this.peers.findIndex(peer => peer.ip === this.server.ip);

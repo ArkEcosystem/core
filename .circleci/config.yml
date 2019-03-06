@@ -41,7 +41,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -96,6 +95,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-database-postgres/ --coverageDirectory
             .coverage/unit/core-database-postgres
+      - run:
+          name: core-event-emitter - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-event-emitter/ --coverageDirectory
+            .coverage/unit/core-event-emitter
       - run:
           name: core-api - integration
           command: >-
@@ -159,7 +164,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -214,6 +218,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-database-postgres/ --coverageDirectory
             .coverage/unit/core-database-postgres
+      - run:
+          name: core-event-emitter - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-event-emitter/ --coverageDirectory
+            .coverage/unit/core-event-emitter
       - run:
           name: core-api - integration
           command: >-
@@ -277,7 +287,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -302,12 +311,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-event-emitter - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-event-emitter/ --coverageDirectory
-            .coverage/unit/core-event-emitter
       - run:
           name: core-forger - unit
           command: >-
@@ -350,6 +353,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
+      - run:
+          name: core-tester-cli - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-tester-cli/ --coverageDirectory
+            .coverage/unit/core-tester-cli
       - run:
           name: core-json-rpc - integration
           command: >-
@@ -413,7 +422,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -438,12 +446,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-tester-cli - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-tester-cli/ --coverageDirectory
-            .coverage/unit/core-tester-cli
       - run:
           name: core-transaction-pool - unit
           command: >-
@@ -537,7 +539,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -562,12 +563,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-event-emitter - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-event-emitter/ --coverageDirectory
-            .coverage/unit/core-event-emitter
       - run:
           name: core-forger - unit
           command: >-
@@ -610,6 +605,12 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /unit/core-snapshots/ --coverageDirectory
             .coverage/unit/core-snapshots
+      - run:
+          name: core-tester-cli - unit
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /unit/core-tester-cli/ --coverageDirectory
+            .coverage/unit/core-tester-cli
       - run:
           name: core-json-rpc - integration
           command: >-
@@ -673,7 +674,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -698,12 +698,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-tester-cli - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-tester-cli/ --coverageDirectory
-            .coverage/unit/core-tester-cli
       - run:
           name: core-transaction-pool - unit
           command: >-

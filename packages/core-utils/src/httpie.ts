@@ -27,12 +27,16 @@ class Httpie {
     }
 
     private async sendRequest(method: string, url: string, opts?): Promise<any> {
+        if (opts.body && typeof opts !== "string") {
+            opts.body = JSON.stringify(opts.body);
+        }
+
         const { body, headers, statusCode } = await got[method](url, opts);
 
         return {
             body: parseJSON(body).value,
             headers,
-            statusCode,
+            status: statusCode,
         };
     }
 }

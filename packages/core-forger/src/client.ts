@@ -75,7 +75,7 @@ export class Client {
 
             const response = await this.__get(`${this.host}/internal/rounds/current`);
 
-            return response.data.data;
+            return response.body.data;
         } catch (e) {
             return {};
         }
@@ -88,7 +88,7 @@ export class Client {
     public async getNetworkState(): Promise<NetworkState> {
         try {
             const response = await this.__get(`${this.host}/internal/network/state`);
-            const { data } = response.data;
+            const { data } = response.body;
 
             return NetworkState.parse(data);
         } catch (e) {
@@ -104,7 +104,7 @@ export class Client {
         try {
             const response = await this.__get(`${this.host}/internal/transactions/forging`);
 
-            return response.data.data;
+            return response.body.data;
         } catch (e) {
             return {};
         }
@@ -120,7 +120,7 @@ export class Client {
         try {
             const response = await this.__get(`${this.host}/internal/utils/usernames`);
 
-            return response.data.data;
+            return response.body.data;
         } catch (e) {
             return {};
         }

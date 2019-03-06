@@ -161,7 +161,7 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
-            const { blocks } = response.data;
+            const { blocks } = response.body;
             const size = blocks.length;
 
             if (size === 100 || size === 400) {
@@ -303,18 +303,18 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
-            if (!this.validateReply(response.data, endpoint)) {
+            if (!this.validateReply(response.body, endpoint)) {
                 return;
             }
 
             this.delay = new Date().getTime() - temp;
 
-            if (!response.data) {
+            if (!response.body) {
                 this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
                 return;
             }
 
-            return response.data;
+            return response.body;
         } catch (error) {
             this.delay = -1;
 
@@ -339,7 +339,7 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
-            return response.data;
+            return response.body;
         } catch (error) {
             this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
@@ -383,7 +383,7 @@ export class Peer implements P2P.IPeer {
             timeout: 10000,
         });
 
-        if (!this.validateReply(response.data, endpoint)) {
+        if (!this.validateReply(response.body, endpoint)) {
             throw new Error("Invalid reply to request for blocks");
         }
 
