@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import delay from "delay";
 import sample from "lodash/sample";
 import { URL } from "url";
@@ -175,10 +175,10 @@ export class Client {
     }
 
     public async __get(url) {
-        return axios.get(url, { headers: this.headers, timeout: 2000 });
+        return httpie.get(url, { headers: this.headers, timeout: 2000 });
     }
 
     public async __post(url, body) {
-        return axios.post(url, body, { headers: this.headers, timeout: 2000 });
+        return httpie.post(url, { body, headers: this.headers, timeout: 2000 });
     }
 }

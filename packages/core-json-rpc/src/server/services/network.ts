@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { httpie } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
-import axios from "axios";
 import isReachable from "is-reachable";
 import sample from "lodash/sample";
 
@@ -10,9 +10,16 @@ class Network {
     public p2p: P2P.IMonitor;
     public config: any;
     public network: any;
-    public client: any;
     public peers: any;
     public server: any;
+
+    public headers: Record<string, any> = {
+        headers: {
+            Accept: "application/vnd.core-api.v2+json",
+            "Content-Type": "application/json",
+        },
+        timeout: 3000,
+    };
 
     public async init() {
         this.logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -22,14 +29,6 @@ class Network {
         this.network = configManager.all();
 
         this.loadRemotePeers();
-
-        this.client = axios.create({
-            headers: {
-                Accept: "application/vnd.core-api.v2+json",
-                "Content-Type": "application/json",
-            },
-            timeout: 3000,
-        });
     }
 
     public setServer() {
@@ -47,7 +46,7 @@ class Network {
         try {
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
-            const response = await this.client.get(uri, { params });
+            const response = await httpie.get(uri, { params, headers: this.headers });
 
             return response.data;
         } catch (error) {
@@ -56,8 +55,11 @@ class Network {
     }
 
     public async broadcast(transaction) {
-        return this.client.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
-            transactions: [transaction],
+        return httpie.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
+            body: {
+                transactions: [transaction],
+            },
+            headers: this.headers,
         });
     }
 
@@ -71,7 +73,7 @@ class Network {
 
         try {
             const peerPort = app.resolveOptions("p2p").port;
-            const response = await axios.get(`http://${this.server.ip}:${peerPort}/config`);
+            const response = await httpie.get(`http://${this.server.ip}:${peerPort}/config`);
 
             const plugin = response.data.data.plugins["@arkecosystem/core-api"];
 

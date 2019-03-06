@@ -1,5 +1,5 @@
-import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
+import got from "got";
 import Joi from "joi";
 import { basename, extname, resolve } from "path";
 import { schemaConfig } from "../schema";
@@ -90,9 +90,9 @@ class FileLoader {
 
                 // URL...
                 try {
-                    const response = await axios.get(source);
+                    const { body } = await got.get(source);
 
-                    configFile.list = response.data;
+                    configFile.list = JSON.parse(body).data;
 
                     writeFileSync(configFile, JSON.stringify(configFile, null, 2));
 

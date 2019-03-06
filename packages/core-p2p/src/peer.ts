@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { httpie } from "@arkecosystem/core-utils";
 import { dato, Dato } from "@faustbrian/dato";
-import axios from "axios";
 import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
@@ -296,7 +296,7 @@ export class Peer implements P2P.IPeer {
         const temp = new Date().getTime();
 
         try {
-            const response = await axios.get(`${this.url}${endpoint}`, {
+            const response = await httpie.get(`${this.url}${endpoint}`, {
                 headers: this.headers,
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
@@ -335,7 +335,7 @@ export class Peer implements P2P.IPeer {
      */
     public async __post(endpoint, body, headers) {
         try {
-            const response = await axios.post(`${this.url}${endpoint}`, body, headers);
+            const response = await httpie.post(`${this.url}${endpoint}`, { body, headers });
 
             this.__parseHeaders(response);
 
@@ -377,8 +377,8 @@ export class Peer implements P2P.IPeer {
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
         const endpoint = "/peer/blocks";
-        const response = await axios.get(`${this.url}${endpoint}`, {
-            params: { lastBlockHeight: afterBlockHeight },
+        const response = await httpie.get(`${this.url}${endpoint}`, {
+            query: { lastBlockHeight: afterBlockHeight },
             headers: this.headers,
             timeout: 10000,
         });
