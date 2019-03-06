@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-json-rpc",
     "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
-    "version": "2.2.0-beta.7",
+    "version": "2.2.0-rc.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -15,7 +15,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -27,18 +27,11 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.7",
-        "@arkecosystem/core-http-utils": "^2.2.0-beta.7",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
-        "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@arkecosystem/core-container": "^2.2.0-rc.0",
+        "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
+        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/crypto": "^2.2.0-rc.0",
         "@keyv/sqlite": "^2.0.0",
-        "@types/bip39": "^2.4.1",
-        "@types/boom": "^7.2.1",
-        "@types/joi": "^14.3.1",
-        "@types/keyv": "^3.1.0",
-        "@types/lodash.get": "^4.4.4",
-        "@types/uuid": "^3.4.4",
-        "@types/wif": "^2.0.1",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "boom": "^7.3.0",
@@ -50,9 +43,17 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.2.0-beta.7",
+        "@arkecosystem/core-p2p": "^2.2.0-rc.0",
+        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
+        "@types/bip39": "^2.4.1",
+        "@types/boom": "^7.2.1",
         "@types/is-reachable": "^3.0.0",
+        "@types/joi": "^14.3.1",
+        "@types/keyv": "^3.1.0",
         "@types/keyv__sqlite": "^2.0.0",
+        "@types/lodash.get": "^4.4.4",
+        "@types/uuid": "^3.4.4",
+        "@types/wif": "^2.0.1",
         "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {

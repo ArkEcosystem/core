@@ -10,10 +10,7 @@ import { ITransactionData } from "../interfaces";
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
     public deserialize(serialized: string | Buffer): Transaction {
-        const data = {
-            vendorFieldHex: null, // TODO: if they are missing from data postgres insert fails
-            recipientId: null,
-        } as ITransactionData;
+        const data = {} as ITransactionData;
 
         const buffer = this.getByteBuffer(serialized);
         this.deserializeCommon(data, buffer);
@@ -35,7 +32,7 @@ class TransactionDeserializer {
         }
 
         data.id = crypto.getId(data);
-        instance.serialized = Buffer.from(buffer.flip().toBuffer());
+        instance.serialized = buffer.flip().toBuffer();
 
         return instance;
     }
@@ -46,7 +43,7 @@ class TransactionDeserializer {
         transaction.network = buf.readUint8();
         transaction.type = buf.readUint8();
         transaction.timestamp = buf.readUint32();
-        transaction.senderPublicKey = buf.readBytes(33).toString("hex"); // serializedHex.substring(16, 16 + 33 * 2);
+        transaction.senderPublicKey = buf.readBytes(33).toString("hex");
         transaction.fee = new Bignum(buf.readUint64().toString());
         transaction.amount = Bignum.ZERO;
     }
@@ -123,13 +120,6 @@ class TransactionDeserializer {
 
         if (transaction.vendorFieldHex) {
             transaction.vendorField = Buffer.from(transaction.vendorFieldHex, "hex").toString("utf8");
-        }
-
-        if (
-            transaction.type === TransactionTypes.SecondSignature ||
-            transaction.type === TransactionTypes.MultiSignature
-        ) {
-            transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
         }
     }
 

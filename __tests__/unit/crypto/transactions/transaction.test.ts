@@ -111,8 +111,12 @@ describe("Models - Transaction", () => {
                     const ser = Transaction.toBytes(transaction.data);
                     const newTransaction = Transaction.fromBytes(ser);
 
-                    delete transaction.data.id;
-                    delete transaction.data.recipientId;
+                    // TODO: Remove both from data when not needed
+                    delete transaction.data.signSignature;
+                    if (transaction.data.recipientId === null) {
+                        delete transaction.data.recipientId;
+                    }
+
                     transaction.data.amount = +transaction.data.amount;
                     transaction.data.fee = +transaction.data.fee;
 

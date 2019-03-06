@@ -71,7 +71,11 @@ const bignumber = (ajv: Ajv) => {
                 let bypassGenesis = false;
                 if (schema.bypassGenesis) {
                     if (parentObject.id) {
-                        bypassGenesis = isGenesisTransaction(parentObject.id);
+                        if (schema.block) {
+                            bypassGenesis = parentObject.height === 1;
+                        } else {
+                            bypassGenesis = isGenesisTransaction(parentObject.id);
+                        }
                     }
                 }
 
@@ -98,10 +102,37 @@ const bignumber = (ajv: Ajv) => {
                 minimum: { type: "integer" },
                 maximum: { type: "integer" },
                 bypassGenesis: { type: "boolean" },
+                block: { type: "boolean" },
             },
             additionalItems: false,
         },
     });
 };
 
-export const keywords = [bignumber, maxBytes, network, transactionType];
+const blockId = (ajv: Ajv) => {
+    ajv.addKeyword("blockId", {
+        compile(schema) {
+            return (data, dataPath, parentObject: any) => {
+                if (parentObject && parentObject.height === 1 && schema.allowNullWhenGenesis) {
+                    return !data || Number(data) === 0;
+                }
+
+                if (typeof data !== "string") {
+                    return false;
+                }
+
+                return /^[0123456789A-Fa-f]+$/.test(data);
+            };
+        },
+        errors: false,
+        metaSchema: {
+            type: "object",
+            properties: {
+                allowNullWhenGenesis: { type: "boolean" },
+            },
+            additionalItems: false,
+        },
+    });
+};
+
+export const keywords = [bignumber, blockId, maxBytes, network, transactionType];

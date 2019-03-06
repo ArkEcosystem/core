@@ -4,6 +4,7 @@ import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
 import { TransactionVersionError } from "../../errors";
+import { Address } from "../../identities";
 import { configManager } from "../../managers";
 import { Bignum, maxVendorFieldLength } from "../../utils";
 import { ITransactionData } from "../interfaces";
@@ -44,7 +45,7 @@ export class TransactionSerializer {
 
         this.serializeSignatures(data, buffer);
 
-        const flippedBuffer = Buffer.from(buffer.flip().toBuffer());
+        const flippedBuffer = buffer.flip().toBuffer();
         transaction.serialized = flippedBuffer;
 
         return flippedBuffer;
@@ -121,7 +122,9 @@ export class TransactionSerializer {
         const isBrokenTransaction = Object.values(transactionIdFixTable).includes(transaction.id);
         const correctType = transaction.type !== 1 && transaction.type !== 4;
         if (transaction.recipientId && (isBrokenTransaction || correctType)) {
-            const recipient = bs58check.decode(transaction.recipientId);
+            const recipientId =
+                transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
+            const recipient = bs58check.decode(recipientId);
             for (const byte of recipient) {
                 bb.writeByte(byte);
             }
@@ -196,7 +199,7 @@ export class TransactionSerializer {
         buffer.writeByte(transaction.type);
         buffer.writeUint32(transaction.timestamp);
         buffer.append(transaction.senderPublicKey, "hex");
-        buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
+        buffer.writeUint64(+transaction.fee);
     }
 
     private static serializeVendorField(transaction: Transaction, buffer: ByteBuffer): void {

@@ -13,10 +13,7 @@ export abstract class AbstractStatusCommand extends BaseCommand {
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        if (!processManager.exists(processName)) {
-            this.warn(`The "${processName}" process is not running.`);
-            return;
-        }
+        this.abortMissingProcess(processName);
 
         renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
             const app: ProcessDescription = processManager.describe(processName);

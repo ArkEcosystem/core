@@ -3,18 +3,11 @@ import { TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import {
-    InsufficientBalanceError,
-    InvalidSecondSignatureError,
     MalformedTransactionBytesError,
     NotImplementedError,
-    SenderWalletMismatchError,
     TransactionSchemaError,
     TransactionVersionError,
-    UnexpectedMultiSignatureError,
-    UnexpectedSecondSignatureError,
 } from "../../errors";
-import { configManager } from "../../managers";
-import { Wallet } from "../../models/wallet";
 import { Bignum, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
 import { TransactionDeserializer } from "../deserializers";
@@ -36,10 +29,15 @@ export abstract class Transaction {
     private static fromSerialized(serialized: string | Buffer): Transaction {
         try {
             const transaction = TransactionDeserializer.deserialize(serialized);
+            const { value, error } = this.validateSchema(transaction.data, true);
+            if (error !== null) {
+                throw new TransactionSchemaError(error);
+            }
+
             transaction.isVerified = transaction.verify();
             return transaction;
         } catch (error) {
-            if (error instanceof TransactionVersionError) {
+            if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
                 throw error;
             }
 
@@ -64,7 +62,8 @@ export abstract class Transaction {
     }
 
     public static toBytes(data: ITransactionData): Buffer {
-        return this.fromData(data).serialized;
+        const transaction = TransactionRegistry.create(data);
+        return TransactionSerializer.serialize(transaction);
     }
 
     public get id(): string {
@@ -89,93 +88,6 @@ export abstract class Transaction {
      */
     public abstract serialize(): ByteBuffer;
     public abstract deserialize(buf: ByteBuffer): void;
-
-    /**
-     * Wallet stuff
-     */
-    public canBeApplied(wallet: Wallet): boolean {
-        const { data } = this;
-        // NOTE: Checks if it can be applied based on sender wallet
-        // could be merged with `apply` so they are coupled together :thinking_face:
-
-        if (wallet.multisignature) {
-            throw new UnexpectedMultiSignatureError();
-        }
-
-        if (
-            wallet.balance
-                .minus(data.amount)
-                .minus(data.fee)
-                .isLessThan(0)
-        ) {
-            throw new InsufficientBalanceError();
-        }
-
-        if (data.senderPublicKey !== wallet.publicKey) {
-            throw new SenderWalletMismatchError();
-        }
-
-        if (wallet.secondPublicKey) {
-            if (!crypto.verifySecondSignature(data, wallet.secondPublicKey)) {
-                throw new InvalidSecondSignatureError();
-            }
-        } else {
-            if (data.secondSignature || data.signSignature) {
-                // Accept invalid second signature fields prior the applied patch.
-                // NOTE: only applies to devnet.
-                if (!configManager.getMilestone().ignoreInvalidSecondSignatureField) {
-                    throw new UnexpectedSecondSignatureError();
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public applyToSender(wallet: Wallet): void {
-        const { data } = this;
-
-        if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
-            wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
-
-            this.apply(wallet);
-
-            wallet.dirty = true;
-        }
-    }
-
-    public applyToRecipient(wallet: Wallet): void {
-        const { data } = this;
-
-        if (data.recipientId === wallet.address) {
-            wallet.balance = wallet.balance.plus(data.amount);
-            wallet.dirty = true;
-        }
-    }
-
-    public revertForSender(wallet: Wallet): void {
-        const { data } = this;
-
-        if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
-            wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
-
-            this.revert(wallet);
-
-            wallet.dirty = true;
-        }
-    }
-
-    public revertForRecipient(wallet: Wallet): void {
-        const { data } = this;
-
-        if (data.recipientId === wallet.address) {
-            wallet.balance = wallet.balance.minus(data.amount);
-            wallet.dirty = true;
-        }
-    }
-
-    protected abstract apply(wallet: Wallet): void;
-    protected abstract revert(wallet: Wallet): void;
 
     /**
      * Misc
@@ -217,6 +129,13 @@ export abstract class Transaction {
     }
 
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
+        // FIXME: legacy type 4 need special treatment
+        if (data.type === TransactionTypes.MultiSignature) {
+            data.amount = new Bignum(data.amount);
+            data.fee = new Bignum(data.amount);
+            return { value: data, error: null };
+        }
+
         const { $id } = TransactionRegistry.get(data.type).getSchema();
         return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }

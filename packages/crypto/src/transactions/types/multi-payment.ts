@@ -1,8 +1,6 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../constants";
-import { NotImplementedError } from "../../errors";
-import { Wallet } from "../../models";
 import { Bignum } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -41,16 +39,5 @@ export class MultiPaymentTransaction extends Transaction {
 
         data.amount = payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
         data.asset = { payments };
-    }
-
-    public canBeApplied(wallet: Wallet): boolean {
-        return super.canBeApplied(wallet);
-    }
-
-    protected apply(wallet: Wallet): void {
-        throw new NotImplementedError();
-    }
-    protected revert(wallet: Wallet): void {
-        throw new NotImplementedError();
     }
 }

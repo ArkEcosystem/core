@@ -1,10 +1,11 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { generators } from "../../utils";
-import { configManager, constants, crypto, ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
+import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { crypto, ITransactionData, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
-import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
+import { generators } from "../../utils";
+import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { Block } = models;
@@ -150,7 +151,8 @@ describe("Transaction Guard", () => {
             expect(guard.errors).toEqual({});
 
             // simulate forged transaction
-            newWallet.applyTransactionToRecipient(transfers[0]);
+            const transactionService = TransactionServiceRegistry.get(transfers[0].type);
+            transactionService.applyToRecipient(transfers[0], newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -190,7 +192,8 @@ describe("Transaction Guard", () => {
             await guard.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
-            newWallet.applyTransactionToRecipient(transfers[0]);
+            const transactionService = TransactionServiceRegistry.get(transfers[0].type);
+            transactionService.applyToRecipient(transfers[0], newWallet);
 
             expect(guard.errors).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -227,7 +230,8 @@ describe("Transaction Guard", () => {
             await guard.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
-            newWallet.applyTransactionToRecipient(transfers1[0]);
+            const transactionService = TransactionServiceRegistry.get(transfers1[0].type);
+            transactionService.applyToRecipient(transfers1[0], newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -238,7 +242,7 @@ describe("Transaction Guard", () => {
             await guard.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            delegateWallet.applyTransactionToRecipient(transfers2[0]);
+            transactionService.applyToRecipient(transfers2[0], delegateWallet);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 
@@ -407,33 +411,6 @@ describe("Transaction Guard", () => {
             ];
 
             const result = await guard.validate(delegateRegistrations.map(transaction => transaction.data));
-            expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
-
-            delegateRegistrations.forEach(tx => {
-                expect(guard.errors[tx.id]).toEqual([
-                    {
-                        type: "ERR_CONFLICT",
-                        message: `Multiple delegate registrations for "${
-                            tx.data.asset.delegate.username
-                        }" in transaction payload`,
-                    },
-                ]);
-            });
-
-            const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
-            const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
-
-            expect(wallet1.username).toBe(null);
-            expect(wallet2.username).toBe(null);
-        });
-
-        describe("Sign a transaction then change some fields shouldn't pass validation", async () => {
-            const delegateRegistrations = [
-                generateDelegateRegistration("unitnet", wallets[14].passphrase, 1, false, "test_delegate")[0],
-                generateDelegateRegistration("unitnet", wallets[15].passphrase, 1, false, "test_delegate")[0],
-            ];
-
-            const result = await guard.validate(delegateRegistrations.map(tx => tx.data));
             expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
 
             delegateRegistrations.forEach(tx => {

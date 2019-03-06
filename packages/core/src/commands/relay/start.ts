@@ -45,7 +45,7 @@ $ ark relay:start --no-daemon
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {
-        this.abortWhenRunning(`${flags.token}-core`);
+        this.abortRunningProcess(`${flags.token}-core`);
 
         await this.runWithPm2(
             {

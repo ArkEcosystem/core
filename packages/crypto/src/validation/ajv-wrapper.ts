@@ -2,7 +2,7 @@ import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
 import { TransactionSchemaAlreadyExistsError } from "../errors";
-import { ISchemaValidationResult } from "../models";
+import { ISchemaValidationResult } from "../transactions/interfaces";
 import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
 import { formats } from "./formats";
 import { keywords } from "./keywords";
