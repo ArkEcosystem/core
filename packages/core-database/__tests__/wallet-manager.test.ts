@@ -268,7 +268,7 @@ describe("Wallet Manager", () => {
             expect(recipient.balance).toEqual(Bignum.ZERO);
         });
 
-        it("should revert vote transaction from the sender & recipient", async () => {
+        it("should revert vote transaction and correctly update vote balances", async () => {
             const delegateKeys = crypto.getKeys("delegate");
             const voterKeys = crypto.getKeys("secret");
 
@@ -302,6 +302,54 @@ describe("Wallet Manager", () => {
 
             expect(voter.balance).toEqual(new Bignum(100_000));
             expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+        });
+
+        it("should revert unvote transaction and correctly update vote balances", async () => {
+            const delegateKeys = crypto.getKeys("delegate");
+            const voterKeys = crypto.getKeys("secret");
+
+            const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
+            delegate.username = "unittest";
+            delegate.balance = new Bignum(100_000_000);
+            delegate.vote = delegate.publicKey;
+            delegate.voteBalance = new Bignum(delegate.balance);
+            walletManager.reindex(delegate);
+
+            const voter = walletManager.findByPublicKey(voterKeys.publicKey);
+            voter.balance = new Bignum(100_000);
+
+            const voteTransaction = transactionBuilder
+                .vote()
+                .votesAsset([`+${delegateKeys.publicKey}`])
+                .fee(125)
+                .sign("secret")
+                .build();
+
+            expect(delegate.balance).toEqual(new Bignum(100_000_000));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+            expect(voter.balance).toEqual(new Bignum(100_000));
+
+            walletManager.applyTransaction(voteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.fee));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
+
+            const unvoteTransaction = transactionBuilder
+                .vote()
+                .votesAsset([`-${delegateKeys.publicKey}`])
+                .fee(125)
+                .sign("secret")
+                .build();
+
+            walletManager.applyTransaction(unvoteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.fee).minus(unvoteTransaction.fee));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+
+            walletManager.revertTransaction(unvoteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.fee));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
         });
     });
 
