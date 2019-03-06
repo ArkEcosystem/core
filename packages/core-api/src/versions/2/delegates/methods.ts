@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { orderBy } from "@arkecosystem/utils";
 import Boom from "boom";
 import { blocksRepository } from "../../../repositories";
@@ -8,6 +8,7 @@ import { paginate, respondWithResource, respondWithCollection, toPagination } fr
 
 const config = app.getConfig();
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
 const index = async request => {
     const delegates = await databaseService.delegates.findAll({
@@ -20,7 +21,7 @@ const index = async request => {
 
 const active = async request => {
     const delegates = await databaseService.delegates.getActiveAtHeight(
-        request.query.height || this.blockchain.getLastHeight()
+        request.query.height || blockchain.getLastHeight()
     );
 
     if (!delegates.length) {
