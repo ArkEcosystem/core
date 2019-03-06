@@ -45,4 +45,16 @@ function calculateProductivity(delegate) {
     return +(100 - missedBlocks / ((producedBlocks + missedBlocks) / 100)).toFixed(2);
 }
 
-export { calculateApproval, calculateProductivity };
+/**
+ * Calculate the forged total of the given delegate.
+ * @param {Delegate} delegate
+ * @return {Bignum} Forged total
+ */
+function calculateForgedTotal(delegate) {
+    const forgedFees = new Bignum(delegate.forgedFees);
+    const forgedRewards = new Bignum(delegate.forgedRewards);
+
+    return +forgedFees.plus(forgedRewards).toFixed();
+}
+
+export { calculateApproval, calculateProductivity, calculateForgedTotal };
