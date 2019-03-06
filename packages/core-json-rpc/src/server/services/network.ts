@@ -6,14 +6,14 @@ import isReachable from "is-reachable";
 import sample from "lodash/sample";
 
 class Network {
-    public logger: Logger.ILogger;
-    public p2p: P2P.IMonitor;
-    public config: any;
-    public network: any;
-    public peers: any;
-    public server: any;
+    private peers: any;
+    private server: any;
 
-    public headers: Record<string, any> = {
+    private readonly network: any = configManager.all();
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly p2p: P2P.IMonitor = app.resolvePlugin<P2P.IMonitor>("p2p");
+
+    private readonly headers: Record<string, any> = {
         headers: {
             Accept: "application/vnd.core-api.v2+json",
             "Content-Type": "application/json",
@@ -22,12 +22,6 @@ class Network {
     };
 
     public async init() {
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
-        this.config = app.getConfig();
-        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
-
-        this.network = configManager.all();
-
         this.loadRemotePeers();
     }
 
