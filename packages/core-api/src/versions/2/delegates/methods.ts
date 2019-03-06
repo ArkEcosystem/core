@@ -6,6 +6,7 @@ import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, respondWithCollection, toPagination } from "../utils";
 
+const config = app.getConfig();
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
@@ -92,12 +93,15 @@ const voterBalances = async request => {
 };
 
 export function registerMethods(server) {
+    const blockTime = config.getMilestone().blocktime;
+    const activeDelegates = config.getMilestone().activeDelegates;
+
     ServerCache.make(server)
         .method("v2.delegates.index", index, 8, request => ({
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.delegates.active", active, 30, request => ({
+        .method("v2.delegates.active", active, blockTime * activeDelegates, request => ({
             ...request.query
         }))
         .method("v2.delegates.show", show, 8, request => ({ id: request.params.id }))
