@@ -150,13 +150,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         const delegates = await this.databaseServiceProvider().getActiveDelegates(height);
 
         return delegates.map(delegate => {
-            const wallet = this.databaseServiceProvider().wallets.findById(delegate.publicKey);
-
-            return {
-                username: wallet.username,
-                approval: delegateCalculator.calculateApproval(delegate, height),
-                productivity: delegateCalculator.calculateProductivity(wallet),
-            };
+            return this.databaseServiceProvider().wallets.findById(delegate.publicKey);
         });
     }
 

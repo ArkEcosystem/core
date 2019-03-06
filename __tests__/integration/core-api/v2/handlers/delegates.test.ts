@@ -136,6 +136,25 @@ describe("API 2.0 - Delegates", () => {
         );
     });
 
+    describe("GET /delegates/active", () => {
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET all the active delegates at a specified height", async () => {
+                    const activeDelegates = app.getConfig().getMilestone(1).activeDelegates;
+
+                    const response = await utils[request]("GET", "delegates/active", { height: 1 });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+                    expect(response.data.data).toHaveLength(activeDelegates);
+
+                    response.data.data.forEach(utils.expectDelegate);
+                    expect(response.data.data.sort((a, b) => a.rank < b.rank)).toEqual(response.data.data);
+                });
+            },
+        );
+    });
+
     describe("GET /delegates/:id", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
