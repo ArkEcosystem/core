@@ -10,5 +10,5 @@ export interface IDelegatesBusinessRepository {
 
     findById(id: string): models.Wallet;
 
-    getActiveAtHeight(height: number): Promise<Array<{ username: string; approval: number; productivity: number }>>;
+    getActiveAtHeight(height: number): Promise<models.Wallet[]>;
 }

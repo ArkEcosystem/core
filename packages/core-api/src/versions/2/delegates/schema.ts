@@ -14,6 +14,32 @@ const schemaUsername = Joi.string()
     .min(1)
     .max(20);
 
+const schemaIntegerBetween = Joi.object()
+    .keys({
+        from: Joi
+            .number()
+            .integer()
+            .min(0),
+        to: Joi
+            .number()
+            .integer()
+            .min(0),
+    })
+
+const schemaPercentage = Joi.object()
+    .keys({
+        from: Joi
+            .number()
+            .precision(2)
+            .min(0)
+            .max(100),
+        to: Joi
+            .number()
+            .precision(2)
+            .min(0)
+            .max(100),
+    })
+
 export const index: object = {
     query: {
         ...pagination,
@@ -48,6 +74,14 @@ export const index: object = {
     },
 };
 
+export const active: object = {
+    query: {
+        height: Joi.number()
+            .integer()
+            .min(1),
+    }
+};
+
 export const show: object = {
     params: {
         id: schemaIdentifier,
@@ -62,12 +96,26 @@ export const search: object = {
         },
     },
     payload: {
+        address: Joi.string()
+            .alphanum()
+            .length(34),
+        publicKey: Joi.string()
+            .hex()
+            .length(66),
         username: schemaUsername,
         usernames: Joi.array()
             .unique()
             .min(1)
             .max(config.getMilestone().activeDelegates)
             .items(schemaUsername),
+        approval: schemaPercentage,
+        forgedFees: schemaIntegerBetween,
+        forgedRewards: schemaIntegerBetween,
+        forgedTotal: schemaIntegerBetween,
+        missedBlocks: schemaIntegerBetween,
+        producedBlocks: schemaIntegerBetween,
+        productivity: schemaPercentage,
+        voteBalance: schemaIntegerBetween,
     },
 };
 

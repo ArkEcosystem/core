@@ -18,7 +18,7 @@ export function transformDelegate(delegate) {
         forged: {
             fees: +delegate.forgedFees.toFixed(),
             rewards: +delegate.forgedRewards.toFixed(),
-            total: +delegate.forgedFees.plus(delegate.forgedRewards).toFixed(),
+            total: delegateCalculator.calculateForgedTotal(delegate),
         },
     };
 

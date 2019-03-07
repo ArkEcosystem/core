@@ -7,10 +7,21 @@ describe("Commands - Verify", () => {
     const fixtureTransaction = require("../../__fixtures__/transaction.json");
 
     it("should verify a block", async () => {
-        expect(await VerifyCommand.run(["--data", fixtureBlock.serializedFull, "--type", "block"])).toBeTrue();
+        expect(
+            await VerifyCommand.run(["--data", fixtureBlock.serializedFull, "--type", "block", "--network", "devnet"]),
+        ).toBeTrue();
     });
 
     it("should verify a transaction", async () => {
-        expect(await VerifyCommand.run(["--data", fixtureTransaction.serialized, "--type", "transaction"])).toBeTrue();
+        expect(
+            await VerifyCommand.run([
+                "--data",
+                fixtureTransaction.serialized,
+                "--type",
+                "transaction",
+                "--network",
+                "devnet",
+            ]),
+        ).toBeTrue();
     });
 });
