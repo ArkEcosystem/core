@@ -87,7 +87,7 @@ export class Client {
      */
     public async getNetworkState(): Promise<NetworkState> {
         try {
-            const response = await this.__get(`${this.host}/internal/network/state`, 7000);
+            const response = await this.__get(`${this.host}/internal/network/state`, 4000);
             const { data } = response.data;
 
             return NetworkState.parse(data);
