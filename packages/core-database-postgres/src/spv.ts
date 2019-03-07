@@ -1,4 +1,5 @@
 import { Bignum, Transaction } from "@arkecosystem/crypto";
+import { orderBy } from "@arkecosystem/utils";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
@@ -186,7 +187,7 @@ export class SPV {
 
         // NOTE: This is highly NOT reliable, however the number of missed blocks
         // is NOT used for the consensus
-        const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks);
+        const delegates = orderBy(this.walletManager.allByUsername(), ["voteBalance", "publicKey"], ["desc", "asc"]);
         delegates.forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
             wallet.missedBlocks = +delegate.missedBlocks;
@@ -220,36 +221,21 @@ export class SPV {
      * @returns {Boolean}
      */
     public async __verifyWalletsConsistency() {
-        const dbWallets = await this.query.manyOrNone(queries.wallets.all);
-        const inMemoryWallets = this.walletManager.allByPublicKey();
-
         let detectedInconsistency = false;
-        if (dbWallets.length !== inMemoryWallets.length) {
-            detectedInconsistency = true;
-        } else {
-            for (const dbWallet of dbWallets) {
-                if (dbWallet.balance < 0 && !this.isGenesis(dbWallet)) {
-                    detectedInconsistency = true;
-                    logger.warn(`Wallet '${dbWallet.address}' has a negative balance of '${dbWallet.balance}'`);
-                    break;
-                }
 
-                if (dbWallet.voteBalance < 0) {
-                    detectedInconsistency = true;
-                    logger.warn(`Wallet ${dbWallet.address} has a negative vote balance of '${dbWallet.voteBalance}'`);
-                    break;
-                }
+        for (const inMemoryWallet of this.walletManager.allByPublicKey()) {
+            if (inMemoryWallet.balance.isLessThan(0) && !this.isGenesis(inMemoryWallet)) {
+                detectedInconsistency = true;
+                logger.warn(`Wallet '${inMemoryWallet.address}' has a negative balance of '${inMemoryWallet.balance}'`);
+                break;
+            }
 
-                const inMemoryWallet = this.walletManager.findByPublicKey(dbWallet.publicKey);
-
-                if (
-                    !inMemoryWallet.balance.isEqualTo(dbWallet.balance) ||
-                    !inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance) ||
-                    dbWallet.username !== inMemoryWallet.username
-                ) {
-                    detectedInconsistency = true;
-                    break;
-                }
+            if (inMemoryWallet.voteBalance.isLessThan(0)) {
+                detectedInconsistency = true;
+                logger.warn(
+                    `Wallet ${inMemoryWallet.address} has a negative vote balance of '${inMemoryWallet.voteBalance}'`,
+                );
+                break;
             }
         }
 

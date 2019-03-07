@@ -4,7 +4,7 @@ import { orderBy } from "@arkecosystem/utils";
 import Boom from "boom";
 import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
-import { paginate, respondWithResource, respondWithCollection, toPagination } from "../utils";
+import { paginate, respondWithCollection, respondWithResource, toPagination } from "../utils";
 
 const config = app.getConfig();
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -21,7 +21,7 @@ const index = async request => {
 
 const active = async request => {
     const delegates = await databaseService.delegates.getActiveAtHeight(
-        request.query.height || blockchain.getLastHeight()
+        request.query.height || blockchain.getLastHeight(),
     );
 
     if (!delegates.length) {
@@ -104,7 +104,7 @@ export function registerMethods(server) {
             ...paginate(request),
         }))
         .method("v2.delegates.active", active, activeDelegates * blocktime, request => ({
-            ...request.query
+            ...request.query,
         }))
         .method("v2.delegates.show", show, 8, request => ({ id: request.params.id }))
         .method("v2.delegates.search", search, 30, request => ({

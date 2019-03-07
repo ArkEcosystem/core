@@ -26,7 +26,6 @@ export const queries = {
         blockRewards: loadQueryFile(__dirname, "./spv/block-rewards.sql"),
         delegates: loadQueryFile(__dirname, "./spv/delegates.sql"),
         delegatesForgedBlocks: loadQueryFile(__dirname, "./spv/delegates-forged-blocks.sql"),
-        delegatesRanks: loadQueryFile(__dirname, "./spv/delegates-ranks.sql"),
         lastForgedBlocks: loadQueryFile(__dirname, "./spv/last-forged-blocks.sql"),
         multiSignatures: loadQueryFile(__dirname, "./spv/multi-signatures.sql"),
         receivedTransactions: loadQueryFile(__dirname, "./spv/received-transactions.sql"),
@@ -42,11 +41,5 @@ export const queries = {
         forged: loadQueryFile(__dirname, "./transactions/forged.sql"),
         findById: loadQueryFile(__dirname, "./transactions/find-by-id.sql"),
         deleteByBlock: loadQueryFile(__dirname, "./transactions/delete-by-block.sql"),
-    },
-    wallets: {
-        all: loadQueryFile(__dirname, "./wallets/all.sql"),
-        findByAddress: loadQueryFile(__dirname, "./wallets/find-by-address.sql"),
-        findNegativeBalances: loadQueryFile(__dirname, "./wallets/find-negative-balances.sql"),
-        findNegativeVoteBalances: loadQueryFile(__dirname, "./wallets/find-negative-vote-balances.sql"),
     },
 };
