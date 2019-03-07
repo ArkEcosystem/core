@@ -40,8 +40,6 @@ export interface IDatabaseService {
 
     buildWallets(height: number): Promise<boolean>;
 
-    saveWallets(force: boolean): Promise<void>;
-
     saveBlock(block: models.Block): Promise<void>;
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...

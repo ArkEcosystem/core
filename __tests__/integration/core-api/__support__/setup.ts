@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import delay from "delay";
-import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 import { plugin } from "../../../../packages/core-api/src/plugin";
+import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
 import { delegates } from "../../../utils/fixtures";
 import { generateRound } from "./utils/generate-round";
@@ -33,7 +33,6 @@ async function setUp() {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     await databaseService.connection.roundsRepository.truncate();
     await databaseService.buildWallets(1);
-    await databaseService.saveWallets(true);
     await databaseService.saveRound(round);
 
     await registerWithContainer(plugin, options);

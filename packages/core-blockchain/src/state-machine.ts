@@ -123,7 +123,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             await blockchain.database.commitQueuedQueries();
             await blockchain.rollbackCurrentRound();
             await blockchain.database.buildWallets(stateStorage.getLastBlock().data.height);
-            await blockchain.database.saveWallets(true);
             await blockchain.transactionPool.buildWallets();
 
             return blockchain.dispatch("PROCESSFINISHED");
@@ -201,7 +200,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets(block.data.height);
-                await blockchain.database.saveWallets(true);
                 await blockchain.database.applyRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
 
@@ -246,7 +244,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.warn(
                     "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
-                await blockchain.database.saveWallets(true);
             }
 
             // NOTE: if the node is shutdown between round, the round has already been applied

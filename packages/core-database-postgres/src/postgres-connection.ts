@@ -193,30 +193,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         }
     }
 
-    public async saveWallets(wallets: any[], force?: boolean) {
-        if (force) {
-            // all wallets to be updated, performance is better without upsert
-            await this.walletsRepository.truncate();
-
-            try {
-                const chunks = chunk(wallets, 5000).map(c => this.walletsRepository.insert(c)); // this 5000 figure should be configurable...
-                await this.db.tx(t => t.batch(chunks));
-            } catch (error) {
-                this.logger.error(error.stack);
-            }
-        } else {
-            // NOTE: The list of delegates is calculated in-memory against the WalletManager,
-            // so it is safe to perform the costly UPSERT non-blocking during round change only:
-            // 'await saveWallets(false)' -> 'saveWallets(false)'
-            try {
-                const queries = wallets.map(wallet => this.walletsRepository.updateOrCreate(wallet));
-                await this.db.tx(t => t.batch(queries));
-            } catch (error) {
-                this.logger.error(error.stack);
-            }
-        }
-    }
-
     /**
      * Run all migrations.
      * @return {void}

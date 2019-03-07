@@ -82,7 +82,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
                 try {
                     this.updateDelegateStats(this.forgingDelegates);
-                    await this.saveWallets(false); // save only modified wallets during the last round
                     const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight); // get active delegate list from in-memory wallet manager
                     await this.saveRound(delegates); // save next round delegate list non-blocking
                     this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
@@ -405,25 +404,6 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.insert(activeDelegates);
 
         this.emitter.emit("round.created", activeDelegates);
-    }
-
-    public async saveWallets(force: boolean) {
-        const wallets = this.walletManager
-            .allByPublicKey()
-            .filter(wallet => wallet.publicKey && (force || wallet.dirty));
-
-        // Remove dirty flags first to not save all dirty wallets in the exit handler
-        // when called during a force insert right after SPV.
-        this.walletManager.clear();
-
-        await this.connection.saveWallets(wallets, force);
-
-        this.logger.info(`${wallets.length} modified ${pluralize("wallet", wallets.length)} committed to database`);
-
-        this.emitter.emit("wallet.saved", wallets.length);
-
-        // NOTE: commented out as more use cases to be taken care of
-        // this.walletManager.purgeEmptyNonDelegates()
     }
 
     public updateDelegateStats(delegates: any[]): void {

@@ -43,8 +43,4 @@ export class DatabaseConnectionStub implements Database.IDatabaseConnection {
     public saveBlock(block: models.Block): Promise<any> {
         return undefined;
     }
-
-    public saveWallets(wallets: any[], force?: boolean): Promise<void> {
-        return undefined;
-    }
 }
