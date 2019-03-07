@@ -104,7 +104,8 @@ export class DatabaseService implements Database.IDatabaseService {
         this.walletManager.reset();
 
         try {
-            return this.connection.buildWallets();
+            const result = await this.connection.buildWallets();
+            return result;
         } catch (e) {
             this.logger.error(e.stack);
         }

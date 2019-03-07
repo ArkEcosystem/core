@@ -31,8 +31,8 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public async buildWallets() {
         try {
-            const verifier = new IntegrityVerifier(this.query, this.walletManager);
-            return verifier.run();
+            const result = await new IntegrityVerifier(this.query, this.walletManager).run();
+            return result;
         } catch (error) {
             this.logger.error(error.stack);
         }
