@@ -10,10 +10,10 @@ import {
 } from "@arkecosystem/core-interfaces";
 import { models, slots, Transaction } from "@arkecosystem/crypto";
 
+import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
-import { Queue } from "./queue";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
 import { isBlockChained } from "./utils";
@@ -58,7 +58,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
     public isStopped: boolean;
     public options: any;
-    public queue: Queue;
+    public queue: async.AsyncQueue<any>;
     private actions: any;
     private blockProcessor: BlockProcessor;
 
@@ -81,7 +81,15 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.queue = new Queue(this, "PROCESSFINISHED");
+        this.queue = async.queue((block: models.IBlockData, cb) => {
+            try {
+                return this.processBlock(new models.Block(block), cb);
+            } catch (error) {
+                logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
+                logger.error(error.stack);
+                return cb();
+            }
+        }, 1);
     }
 
     /**
