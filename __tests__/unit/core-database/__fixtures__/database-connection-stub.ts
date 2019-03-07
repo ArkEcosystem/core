@@ -10,7 +10,7 @@ export class DatabaseConnectionStub implements Database.IDatabaseConnection {
     public walletsRepository: Database.IWalletsRepository;
     public options: any;
 
-    public buildWallets(height: number): Promise<boolean> {
+    public buildWallets(): Promise<boolean> {
         return undefined;
     }
 

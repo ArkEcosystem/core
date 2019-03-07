@@ -2,15 +2,13 @@ import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
-import fs from "fs";
-import chunk from "lodash/chunk";
 import path from "path";
 import pgPromise from "pg-promise";
+import { IntegrityVerifier } from "./integrity-verifier";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
-import { SPV } from "./spv";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
@@ -31,20 +29,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
 
-    public async buildWallets(height: number) {
-        const spvPath = `${process.env.CORE_PATH_CACHE}/spv.json`;
-
-        if (fs.existsSync(spvPath)) {
-            (fs as any).removeSync(spvPath);
-
-            this.logger.info("Ark Core ended unexpectedly - resuming from where we left off :runner:");
-
-            return true;
-        }
-
+    public async buildWallets() {
         try {
-            const spv = new SPV(this.query, this.walletManager);
-            return await spv.build(height);
+            const verifier = new IntegrityVerifier(this.query, this.walletManager);
+            return verifier.run();
         } catch (error) {
             this.logger.error(error.stack);
         }

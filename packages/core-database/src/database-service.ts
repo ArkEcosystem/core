@@ -5,7 +5,6 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
-import pluralize from "pluralize";
 import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
@@ -27,7 +26,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: any[] = null;
     public cache: Map<any, any> = new Map();
-    private spvFinished: boolean;
+    private hasBuildWallets: boolean;
 
     constructor(
         options: any,
@@ -102,12 +101,12 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async buildWallets(height: number): Promise<boolean> {
+    public async buildWallets(): Promise<boolean> {
         this.walletManager.reset();
 
         try {
-            const success = await this.connection.buildWallets(height);
-            this.spvFinished = true;
+            const success = await this.connection.buildWallets();
+            this.hasBuildWallets = true;
             return success;
         } catch (e) {
             this.logger.error(e.stack);
@@ -582,13 +581,6 @@ export class DatabaseService implements Database.IDatabaseService {
                 }
             } catch (err) {
                 this.logger.error(err);
-            }
-        });
-
-        this.emitter.once("shutdown", async () => {
-            if (!this.spvFinished) {
-                // Prevent dirty wallets to be saved when SPV didn't finish
-                this.walletManager.clear();
             }
         });
     }

@@ -11,42 +11,39 @@ const config = app.getConfig();
 
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
-export class SPV {
+export class IntegrityVerifier {
     constructor(private query: QueryExecutor, private walletManager: Database.IWalletManager) {}
 
     /**
-     * Perform the SPV (Simple Payment Verification).
-     * @param  {Number} height
-     * @return {void}
+     * Perform the State & Integrity Verification.
+     * @return {Boolean}
      */
-    public async build(height) {
-        logger.info("SPV Step 1 of 8: Received Transactions");
+    public async run() {
+        logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
         await this.__buildReceivedTransactions();
 
-        logger.info("SPV Step 2 of 8: Block Rewards");
+        logger.info("Integrity Verification - Step 2 of 8: Block Rewards");
         await this.__buildBlockRewards();
 
-        logger.info("SPV Step 3 of 8: Last Forged Blocks");
+        logger.info("Integrity Verification - Step 3 of 8: Last Forged Blocks");
         await this.__buildLastForgedBlocks();
 
-        logger.info("SPV Step 4 of 8: Sent Transactions");
+        logger.info("Integrity Verification - Step 4 of 8: Sent Transactions");
         await this.__buildSentTransactions();
 
-        logger.info("SPV Step 5 of 8: Second Signatures");
+        logger.info("Integrity Verification - Step 5 of 8: Second Signatures");
         await this.__buildSecondSignatures();
 
-        logger.info("SPV Step 6 of 8: Votes");
+        logger.info("Integrity Verification - Step 6 of 8: Votes");
         await this.__buildVotes();
 
-        logger.info("SPV Step 7 of 8: Delegates");
+        logger.info("Integrity Verification - Step 7 of 8: Delegates");
         await this.__buildDelegates();
 
-        logger.info("SPV Step 8 of 8: MultiSignatures");
+        logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
         await this.__buildMultisignatures();
 
-        logger.info(
-            `SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
-        );
+        logger.info(`Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
         logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         return this.__verifyWalletsConsistency();
@@ -57,7 +54,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildReceivedTransactions() {
-        const transactions = await this.query.many(queries.spv.receivedTransactions);
+        const transactions = await this.query.many(queries.integrityVerifier.receivedTransactions);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByAddress(transaction.recipientId);
@@ -73,7 +70,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildBlockRewards() {
-        const blocks = await this.query.many(queries.spv.blockRewards);
+        const blocks = await this.query.many(queries.integrityVerifier.blockRewards);
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
@@ -86,7 +83,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildLastForgedBlocks() {
-        const blocks = await this.query.many(queries.spv.lastForgedBlocks);
+        const blocks = await this.query.many(queries.integrityVerifier.lastForgedBlocks);
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
@@ -99,7 +96,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildSentTransactions() {
-        const transactions = await this.query.many(queries.spv.sentTransactions);
+        const transactions = await this.query.many(queries.integrityVerifier.sentTransactions);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -124,7 +121,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildSecondSignatures() {
-        const transactions = await this.query.manyOrNone(queries.spv.secondSignatures);
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.secondSignatures);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -138,7 +135,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildVotes() {
-        const transactions = await this.query.manyOrNone(queries.spv.votes);
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.votes);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -167,7 +164,7 @@ export class SPV {
      */
     public async __buildDelegates() {
         // Register...
-        const transactions = await this.query.manyOrNone(queries.spv.delegates);
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.delegates);
 
         transactions.forEach(transaction => {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -177,7 +174,7 @@ export class SPV {
         });
 
         // Forged Blocks...
-        const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks);
+        const forgedBlocks = await this.query.manyOrNone(queries.integrityVerifier.delegatesForgedBlocks);
         forgedBlocks.forEach(block => {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
             wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
@@ -204,7 +201,7 @@ export class SPV {
      * @return {void}
      */
     public async __buildMultisignatures() {
-        const transactions = await this.query.manyOrNone(queries.spv.multiSignatures);
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);

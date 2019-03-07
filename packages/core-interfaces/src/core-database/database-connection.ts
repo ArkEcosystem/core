@@ -19,7 +19,7 @@ export interface IDatabaseConnection {
 
     disconnect(): Promise<void>;
 
-    buildWallets(height: number): Promise<boolean>;
+    buildWallets(): Promise<boolean>;
 
     saveBlock(block: models.Block): Promise<any>;
 
