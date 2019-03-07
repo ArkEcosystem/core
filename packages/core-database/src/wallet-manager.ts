@@ -481,11 +481,11 @@ export class WalletManager implements Database.IWalletManager {
 
             if (vote.startsWith("+")) {
                 delegate.voteBalance = revert
-                    ? delegate.voteBalance.minus(sender.balance)
+                    ? delegate.voteBalance.minus(sender.balance.minus(transaction.fee))
                     : delegate.voteBalance.plus(sender.balance);
             } else {
                 delegate.voteBalance = revert
-                    ? delegate.voteBalance.plus(sender.balance.plus(transaction.fee))
+                    ? delegate.voteBalance.plus(sender.balance)
                     : delegate.voteBalance.minus(sender.balance.plus(transaction.fee));
             }
         }
