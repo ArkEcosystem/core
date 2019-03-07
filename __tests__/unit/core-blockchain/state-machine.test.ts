@@ -330,7 +330,7 @@ describe("State Machine", () => {
                 stateStorage.networkStart = true;
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
+                expect(databaseMocks.buildWallets).toHaveBeenCalled();
                 expect(databaseMocks.applyRound).toHaveBeenCalledWith(1);
 
                 stateStorage.networkStart = false; // reset to default value
@@ -342,7 +342,7 @@ describe("State Machine", () => {
                 const loggerVerbose = jest.spyOn(logger, "verbose");
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
+                expect(databaseMocks.buildWallets).toHaveBeenCalled();
                 expect(loggerVerbose).toHaveBeenCalledWith(
                     "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.",
                 );
