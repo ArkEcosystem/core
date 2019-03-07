@@ -183,14 +183,15 @@ export class IntegrityVerifier {
         });
 
         // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
-        const delegateWallets = Object.values(this.walletManager.allByUsername()).sort(
-            (a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance),
-        );
+        const delegateWallets = this.walletManager
+            .allByUsername()
+            .sort((a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance));
 
         sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
+            // @TODO: determine missed blocks without the database
             wallet.missedBlocks = +delegate.missedBlocks;
-            // TODO: unknown property 'rate' being access on Wallet class
+            // @TODO: unknown property 'rate' being access on Wallet class
             (wallet as any).rate = i + 1;
             this.walletManager.reindex(wallet);
         });
