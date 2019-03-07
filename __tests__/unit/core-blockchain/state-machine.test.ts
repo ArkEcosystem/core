@@ -391,61 +391,6 @@ describe("State Machine", () => {
             });
         });
 
-        describe("rebuildBlocks", () => {
-            let genesisBlock;
-
-            beforeAll(() => {
-                const config = container.getConfig();
-                genesisBlock = config.get("genesisBlock");
-            });
-
-            it("should dispatch NOBLOCK if no new blocks were downloaded from peer", async () => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlock);
-
-                const logger = container.resolvePlugin("logger");
-                const loggerInfo = jest.spyOn(logger, "info");
-
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([]);
-                await expect(() => actionMap.rebuildBlocks()).toDispatch(blockchain, "NOBLOCK");
-                expect(loggerInfo).toHaveBeenCalledWith("No new blocks found on this peer");
-            });
-
-            it("should dispatch DOWNLOADED if new blocks were successfully downloaded from peer", async () => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlock);
-
-                const logger = container.resolvePlugin("logger");
-                const loggerInfo = jest.spyOn(logger, "info");
-
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([
-                    {
-                        numberOfTransactions: 2,
-                        previousBlock: genesisBlock.id,
-                    },
-                ]);
-                await expect(() => actionMap.rebuildBlocks()).toDispatch(blockchain, "DOWNLOADED");
-                expect(loggerInfo).toHaveBeenCalledWith(
-                    "Downloaded 1 new block accounting for a total of 2 transactions",
-                );
-            });
-
-            it("should dispatch NOBLOCK if new blocks were downloaded from peer but didnt match last known block", async () => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlock);
-
-                const logger = container.resolvePlugin("logger");
-                const loggerWarn = jest.spyOn(logger, "warn");
-
-                const downloadedBlock = {
-                    numberOfTransactions: 2,
-                    previousBlock: "123456",
-                };
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([downloadedBlock]);
-                await expect(() => actionMap.rebuildBlocks()).toDispatch(blockchain, "NOBLOCK");
-                expect(loggerWarn).toHaveBeenCalledWith(
-                    `Downloaded block not accepted: ${JSON.stringify(downloadedBlock)}`,
-                );
-            });
-        });
-
         describe("downloadBlocks", () => {
             let genesisBlock;
             let loggerInfo;
