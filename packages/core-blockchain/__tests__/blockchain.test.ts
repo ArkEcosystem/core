@@ -366,58 +366,60 @@ describe("Blockchain", () => {
     });
 
     describe("rollback", () => {
-        it("should restore vote balances after a rollback", async () => {
-            const mockCallback = jest.fn(() => true);
-
+        beforeEach(async () => {
             await __resetToHeight1();
             await __addBlocks(155);
+        });
 
-            const getNextForger = async () => {
-                const lastBlock = blockchain.state.getLastBlock();
-                const activeDelegates = await blockchain.database.getActiveDelegates(lastBlock.data.height);
-                const nextSlot = slots.getSlotNumber(lastBlock.data.timestamp) + 1;
-                return activeDelegates[nextSlot % activeDelegates.length];
+        const getNextForger = async () => {
+            const lastBlock = blockchain.state.getLastBlock();
+            const activeDelegates = await blockchain.database.getActiveDelegates(lastBlock.data.height);
+            const nextSlot = slots.getSlotNumber(lastBlock.data.timestamp) + 1;
+            return activeDelegates[nextSlot % activeDelegates.length];
+        };
+
+        const createBlock = (generatorKeys: any, transactions: models.Transaction[]) => {
+            const transactionData = {
+                amount: Bignum.ZERO,
+                fee: Bignum.ZERO,
+                sha256: createHash("sha256"),
             };
 
-            const createBlock = (generatorWallet: any, transactions: models.Transaction[]) => {
-                const transactionData = {
-                    amount: Bignum.ZERO,
-                    fee: Bignum.ZERO,
-                    sha256: createHash("sha256"),
-                };
+            const sortedTransactions = sortTransactions(transactions);
+            sortedTransactions.forEach(transaction => {
+                transactionData.amount = transactionData.amount.plus(transaction.amount);
+                transactionData.fee = transactionData.fee.plus(transaction.fee);
+                transactionData.sha256.update(Buffer.from(transaction.id, "hex"));
+            });
 
-                const sortedTransactions = sortTransactions(transactions);
-                sortedTransactions.forEach(transaction => {
-                    transactionData.amount = transactionData.amount.plus(transaction.amount);
-                    transactionData.fee = transactionData.fee.plus(transaction.fee);
-                    transactionData.sha256.update(Buffer.from(transaction.id, "hex"));
-                });
-
-                const lastBlock = blockchain.state.getLastBlock();
-                const data = {
-                    timestamp: slots.getSlotTime(slots.getSlotNumber(lastBlock.data.timestamp) + 1),
-                    version: 0,
-                    previousBlock: lastBlock.data.id,
-                    previousBlockHex: lastBlock.data.idHex,
-                    height: lastBlock.data.height + 1,
-                    numberOfTransactions: sortedTransactions.length,
-                    totalAmount: transactionData.amount,
-                    totalFee: transactionData.fee,
-                    reward: Bignum.ZERO,
-                    payloadLength: 32 * sortedTransactions.length,
-                    payloadHash: transactionData.sha256.digest().toString("hex"),
-                    transactions: sortedTransactions,
-                };
-
-                return Block.create(data, crypto.getKeys(generatorWallet.secret));
+            const lastBlock = blockchain.state.getLastBlock();
+            const data = {
+                timestamp: slots.getSlotTime(slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                version: 0,
+                previousBlock: lastBlock.data.id,
+                previousBlockHex: lastBlock.data.idHex,
+                height: lastBlock.data.height + 1,
+                numberOfTransactions: sortedTransactions.length,
+                totalAmount: transactionData.amount,
+                totalFee: transactionData.fee,
+                reward: Bignum.ZERO,
+                payloadLength: 32 * sortedTransactions.length,
+                payloadHash: transactionData.sha256.digest().toString("hex"),
+                transactions: sortedTransactions,
             };
+
+            return Block.create(data, crypto.getKeys(generatorKeys.secret));
+        };
+
+        it("should restore vote balances after a rollback", async () => {
+            const mockCallback = jest.fn(() => true);
 
             // Create key pair for new voter
             const keyPair = crypto.getKeys("secret");
             const recipient = crypto.getAddress(keyPair.publicKey);
 
             let nextForger = await getNextForger();
-            const originalVoteBalance = nextForger.voteBalance;
+            const initialVoteBalance = nextForger.voteBalance;
 
             // First send funds to new voter wallet
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
@@ -436,8 +438,8 @@ describe("Blockchain", () => {
 
             // New wallet received funds and vote balance of delegate has been reduced by the same amount,
             // since it forged it's own transaction the fees for the transaction have been recovered.
-            expect(wallet.balance).toEqual(new Bignum(125));
-            expect(walletForger.voteBalance).toEqual(new Bignum(originalVoteBalance).minus(125));
+            expect(wallet.balance).toEqual(new Bignum(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(transfer.amount));
 
             // Now vote with newly created wallet for previous forger.
             const vote = transactionBuilder
@@ -448,7 +450,7 @@ describe("Blockchain", () => {
                 .build();
 
             nextForger = await getNextForger();
-            const nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
+            let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const voteBlock = createBlock(nextForgerWallet, [vote]);
             await blockchain.processBlock(voteBlock, mockCallback);
@@ -457,16 +459,37 @@ describe("Blockchain", () => {
             expect(wallet.balance).toEqual(new Bignum(124));
             expect(wallet.vote).toEqual(forgerKeys.publicKey);
 
-            // Vote balance of delegate now equals original balance minus 1 for the vote fee
+            // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
             // since it was forged by a different delegate.
-            expect(walletForger.voteBalance).toEqual(new Bignum(originalVoteBalance).minus(vote.fee));
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(vote.fee));
 
-            // Now roll back 2 blocks
-            await blockchain.removeBlocks(2);
+            // Now unvote again
+            const unvote = transactionBuilder
+                .vote()
+                .fee(1)
+                .votesAsset([`-${forgerKeys.publicKey}`])
+                .sign("secret")
+                .build();
 
-            // Wallet is now a cold wallet and the original vote balance has been restored.
+            nextForger = await getNextForger();
+            nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
+
+            const unvoteBlock = createBlock(nextForgerWallet, [unvote]);
+            await blockchain.processBlock(unvoteBlock, mockCallback);
+
+            // Wallet paid a fee of 1 and no longer voted a delegate
+            expect(wallet.balance).toEqual(new Bignum(123));
+            expect(wallet.vote).toBeNull();
+
+            // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(transfer.amount));
+
+            // Now rewind 3 blocks back to the initial state
+            await blockchain.removeBlocks(3);
+
+            // Wallet is now a cold wallet and the initial vote balance has been restored.
             expect(wallet.balance).toEqual(Bignum.ZERO);
-            expect(walletForger.voteBalance).toEqual(originalVoteBalance);
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance));
         });
     });
 
