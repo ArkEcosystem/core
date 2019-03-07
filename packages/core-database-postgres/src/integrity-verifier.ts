@@ -223,7 +223,7 @@ export class IntegrityVerifier {
     public async __verifyWalletsConsistency() {
         let detectedInconsistency = false;
 
-        for (const wallet of this.walletManager.allByPublicKey()) {
+        for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
                 detectedInconsistency = true;
                 logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
