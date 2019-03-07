@@ -61,7 +61,7 @@ export class UnchainedHandler extends BlockHandler {
     public async execute(): Promise<BlockProcessorResult> {
         super.execute();
 
-        this.blockchain.queue.clear();
+        this.blockchain.clearQueue();
 
         const status = this.checkUnchainedBlock();
         switch (status) {

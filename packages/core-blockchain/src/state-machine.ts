@@ -293,7 +293,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
-                blockchain.queue.clear();
+                blockchain.clearQueue();
             }
 
             stateStorage.noBlockCounter++;
