@@ -90,6 +90,8 @@ export class Blockchain implements blockchain.IBlockchain {
                 return cb();
             }
         }, 1);
+
+        this.queue.drain = () => this.dispatch("PROCESSFINISHED");
     }
 
     /**
