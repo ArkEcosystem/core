@@ -229,6 +229,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.warn(
                     "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
+                await blockchain.database.saveWallets(true);
             }
 
             // NOTE: if the node is shutdown between round, the round has already been applied

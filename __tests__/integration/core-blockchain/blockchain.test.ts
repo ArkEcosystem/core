@@ -1,12 +1,12 @@
 /* tslint:disable:max-line-length */
-import "../../utils";
-import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
-import { crypto, models, slots } from "@arkecosystem/crypto";
+import { crypto, models } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
+import "../../utils";
+import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;

@@ -7,9 +7,9 @@ import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
+import { TransactionPool } from "../../../packages/core-transaction-pool/src";
 import { generators } from "../../utils";
 import { block2, delegates } from "../../utils/fixtures/unitnet";
-import { TransactionPool } from "../../../packages/core-transaction-pool/src";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
