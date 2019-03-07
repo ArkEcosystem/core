@@ -1,10 +1,10 @@
-import "../../../../utils";
 import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
+import "../../../../utils";
 
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 import { Blockchain } from "../../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 import { setUpFull, tearDownFull } from "../../__support__/setup";
 
 const { Block } = models;

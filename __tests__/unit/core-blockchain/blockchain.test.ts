@@ -515,7 +515,7 @@ async function __resetToHeight1() {
         // Make sure the wallet manager has been fed or else revertRound
         // cannot determine the previous delegates. This is only necessary, because
         // the database is not dropped after the unit tests are done.
-        await blockchain.database.buildWallets();
+        await blockchain.database.buildWallets(lastBlock.data.height);
 
         // Index the genesis wallet or else revert block at height 1 fails
         const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey);

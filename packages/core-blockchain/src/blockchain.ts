@@ -157,7 +157,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
             this.dispatch("STOP");
 
-            this.queue.destroy();
+            this.queue.kill();
         }
     }
 
@@ -215,7 +215,7 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public clearAndStopQueue() {
         this.queue.pause();
-        this.queue.clear();
+        this.queue.remove(() => true);
     }
 
     /**
