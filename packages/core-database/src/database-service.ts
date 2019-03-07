@@ -26,7 +26,6 @@ export class DatabaseService implements Database.IDatabaseService {
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: any[] = null;
     public cache: Map<any, any> = new Map();
-    private hasBuildWallets: boolean;
 
     constructor(
         options: any,
@@ -105,12 +104,11 @@ export class DatabaseService implements Database.IDatabaseService {
         this.walletManager.reset();
 
         try {
-            const success = await this.connection.buildWallets();
-            this.hasBuildWallets = true;
-            return success;
+            return this.connection.buildWallets();
         } catch (e) {
             this.logger.error(e.stack);
         }
+
         return false;
     }
 
