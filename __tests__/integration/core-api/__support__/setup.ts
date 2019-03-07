@@ -49,7 +49,7 @@ async function tearDown() {
 async function calculateRanks() {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const delegateWallets = Object.values(this.walletManager.allByUsername()).sort(
+    const delegateWallets = Object.values(databaseService.walletManager.allByUsername()).sort(
         (a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance),
     );
 
