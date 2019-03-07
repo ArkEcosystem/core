@@ -189,8 +189,6 @@ export class IntegrityVerifier {
 
         sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
-            // @TODO: determine missed blocks without the database
-            wallet.missedBlocks = +delegate.missedBlocks;
             // @TODO: unknown property 'rate' being access on Wallet class
             (wallet as any).rate = i + 1;
             this.walletManager.reindex(wallet);
