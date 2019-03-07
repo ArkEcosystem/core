@@ -26,14 +26,6 @@ describe("Blockchain machine", () => {
             expect(blockchainMachine).toExecuteOnEntry({ state: "init", actions: ["init"] });
         });
 
-        it("should transition to `rebuild` on `REBUILD`", () => {
-            expect(blockchainMachine).toTransition({
-                from: "init",
-                on: "REBUILD",
-                to: "rebuild",
-            });
-        });
-
         it("should transition to `rebuild` on `NETWORKSTART`", () => {
             expect(blockchainMachine).toTransition({
                 from: "init",
@@ -52,20 +44,6 @@ describe("Blockchain machine", () => {
 
         it("should transition to `rebuild` on `FAILURE`", () => {
             expect(blockchainMachine).toTransition({ from: "init", on: "FAILURE", to: "exit" });
-        });
-    });
-
-    describe("state `rebuild`", () => {
-        it("should transition to `syncWithNetwork` on `REBUILDCOMPLETE`", () => {
-            expect(blockchainMachine).toTransition({
-                from: "rebuild",
-                on: "REBUILDCOMPLETE",
-                to: "syncWithNetwork",
-            });
-        });
-
-        it("should transition to `fork` on `FORK`", () => {
-            expect(blockchainMachine).toTransition({ from: "rebuild", on: "FORK", to: "fork" });
         });
     });
 

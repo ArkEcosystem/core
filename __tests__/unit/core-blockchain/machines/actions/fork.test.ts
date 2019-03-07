@@ -15,14 +15,6 @@ describe("Blockchain machine > Fork", () => {
             });
         });
 
-        it("should transition to `revertBlocks` on `REBUILD`", () => {
-            expect(blockchainMachine).toTransition({
-                from: "fork.analysing",
-                on: "REBUILD",
-                to: "fork.revertBlocks",
-            });
-        });
-
         it("should transition to `exit` on `NOFORK`", () => {
             expect(blockchainMachine).toTransition({
                 from: "fork.analysing",

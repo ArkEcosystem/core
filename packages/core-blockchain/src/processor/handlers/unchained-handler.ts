@@ -61,7 +61,7 @@ export class UnchainedHandler extends BlockHandler {
     public async execute(): Promise<BlockProcessorResult> {
         super.execute();
 
-        this.blockchain.processQueue.clear();
+        this.blockchain.queue.clear();
 
         const status = this.checkUnchainedBlock();
         switch (status) {
@@ -102,8 +102,8 @@ export class UnchainedHandler extends BlockHandler {
             // it is very likely that all blocks will be disregarded at this point anyway.
             // NOTE: This isn't really elegant, but still better than spamming the log with
             //       useless `not ready to accept` messages.
-            if (this.blockchain.processQueue.length() > 0) {
-                this.logger.debug(`Discarded ${this.blockchain.processQueue.length()} downloaded blocks.`);
+            if (this.blockchain.queue.length() > 0) {
+                this.logger.debug(`Discarded ${this.blockchain.queue.length()} downloaded blocks.`);
             }
 
             // If we consecutively fail to accept the same block, our chain is likely forked. In this

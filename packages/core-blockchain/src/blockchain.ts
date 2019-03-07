@@ -13,7 +13,7 @@ import { models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
 import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
-import { ProcessQueue, Queue, RebuildQueue } from "./queue";
+import { Queue } from "./queue";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
 import { isBlockChained } from "./utils";
@@ -58,10 +58,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
     public isStopped: boolean;
     public options: any;
-    public processQueue: ProcessQueue;
-    public rebuildQueue: RebuildQueue;
+    public queue: Queue;
     private actions: any;
-    private queue: Queue;
     private blockProcessor: BlockProcessor;
 
     /**
@@ -83,7 +81,7 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.__registerQueue();
+        this.queue = new Queue(this, "PROCESSFINISHED");
     }
 
     /**
@@ -258,7 +256,7 @@ export class Blockchain implements blockchain.IBlockchain {
             return;
         }
 
-        this.processQueue.push(blocks);
+        this.queue.push(blocks);
         this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
     }
 
@@ -603,19 +601,5 @@ export class Blockchain implements blockchain.IBlockchain {
             "wallet.saved",
             "wallet.created.cold",
         ];
-    }
-
-    /**
-     * Register the block queue.
-     * @return {void}
-     */
-    public __registerQueue() {
-        this.queue = new Queue(this, {
-            process: "PROCESSFINISHED",
-            rebuild: "REBUILDFINISHED",
-        });
-
-        this.processQueue = this.queue.process;
-        this.rebuildQueue = this.queue.rebuild;
     }
 }

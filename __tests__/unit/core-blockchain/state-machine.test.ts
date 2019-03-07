@@ -107,11 +107,6 @@ describe("State Machine", () => {
 
             it('should dispatch the event "PAUSED" if the blockchain rebuild / process queue is more than 10000 long', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.rebuildQueue.length = jest.fn(() => 10001);
-                blockchain.processQueue.length = jest.fn(() => 1);
-                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
-
-                blockchain.rebuildQueue.length = jest.fn(() => 1);
                 blockchain.processQueue.length = jest.fn(() => 10001);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
             });
@@ -208,12 +203,6 @@ describe("State Machine", () => {
         describe("syncingComplete", () => {
             it('should dispatch the event "SYNCFINISHED"', () => {
                 expect(() => actionMap.syncingComplete()).toDispatch(blockchain, "SYNCFINISHED");
-            });
-        });
-
-        describe("rebuildingComplete", () => {
-            it('should dispatch the event "REBUILDCOMPLETE"', () => {
-                expect(() => actionMap.rebuildingComplete()).toDispatch(blockchain, "REBUILDCOMPLETE");
             });
         });
 

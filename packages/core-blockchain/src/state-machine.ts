@@ -53,16 +53,14 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async checkLastDownloadedBlockSynced() {
         let event = "NOTSYNCED";
-        logger.debug(
-            `Queued blocks (rebuild: ${blockchain.rebuildQueue.length()} process: ${blockchain.processQueue.length()})`,
-        );
+        logger.debug(`Queued blocks (process: ${blockchain.queue.length()})`);
 
-        if (blockchain.rebuildQueue.length() > 10000 || blockchain.processQueue.length() > 10000) {
+        if (blockchain.queue.length() > 10000) {
             event = "PAUSED";
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (stateStorage.noBlockCounter > 5 && blockchain.processQueue.length() === 0) {
+        if (stateStorage.noBlockCounter > 5 && blockchain.queue.length() === 0) {
             logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             stateStorage.noBlockCounter = 0;
@@ -109,8 +107,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.networkStart = false;
 
             blockchain.dispatch("SYNCFINISHED");
-        } else if (blockchain.rebuildQueue.length() === 0) {
-            blockchain.dispatch("PROCESSFINISHED");
         }
     },
 
@@ -138,11 +134,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     syncingComplete() {
         logger.info("Blockchain 100% in sync");
         blockchain.dispatch("SYNCFINISHED");
-    },
-
-    rebuildingComplete() {
-        logger.info("Blockchain rebuild complete");
-        blockchain.dispatch("REBUILDCOMPLETE");
     },
 
     stopped() {
@@ -238,7 +229,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.warn(
                     "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
-                await blockchain.database.saveWallets(true);
             }
 
             // NOTE: if the node is shutdown between round, the round has already been applied
@@ -260,42 +250,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             logger.error(error.stack);
 
             return blockchain.dispatch("FAILURE");
-        }
-    },
-
-    async rebuildBlocks() {
-        const lastBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
-        const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height);
-
-        tickSyncTracker(blocks.length, lastBlock.data.height);
-
-        if (!blocks || blocks.length === 0) {
-            logger.info("No new blocks found on this peer");
-
-            blockchain.dispatch("NOBLOCK");
-        } else {
-            logger.info(
-                `Downloaded ${blocks.length} new ${pluralize(
-                    "block",
-                    blocks.length,
-                )} accounting for a total of ${pluralize(
-                    "transaction",
-                    blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0),
-                    true,
-                )}`,
-            );
-
-            if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
-                stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
-                blockchain.rebuildQueue.push(blocks);
-                blockchain.dispatch("DOWNLOADED");
-            } else {
-                logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
-                logger.warn(`Last block: ${JSON.stringify(lastBlock.data)}`);
-
-                // disregard the whole block list
-                blockchain.dispatch("NOBLOCK");
-            }
         }
     },
 
@@ -339,7 +293,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
-                blockchain.processQueue.clear();
+                blockchain.queue.clear();
             }
 
             stateStorage.noBlockCounter++;

@@ -1,12 +1,12 @@
 /* tslint:disable:max-line-length */
-import "../../utils";
-import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { crypto, models, slots } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
+import "../../utils";
+import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
@@ -478,7 +478,6 @@ describe("Blockchain", () => {
 
             expect(blockchain).toHaveProperty("queue");
             expect(blockchain).toHaveProperty("processQueue");
-            expect(blockchain).toHaveProperty("rebuildQueue");
         });
     });
 });
@@ -525,7 +524,7 @@ async function __resetToHeight1() {
         // Make sure the wallet manager has been fed or else revertRound
         // cannot determine the previous delegates. This is only necessary, because
         // the database is not dropped after the unit tests are done.
-        await blockchain.database.buildWallets(lastBlock.data.height);
+        await blockchain.database.buildWallets();
 
         // Index the genesis wallet or else revert block at height 1 fails
         const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey);
