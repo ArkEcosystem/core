@@ -210,9 +210,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             stateStorage.rebuild =
                 slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime;
-            // no fast rebuild if in last week
-            stateStorage.fastRebuild =
-                slots.getTime() - block.data.timestamp > 3600 * 24 * 7 && !!localConfig.get("fastRebuild");
 
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
@@ -223,12 +220,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 return blockchain.dispatch("STARTED");
             }
 
-            logger.info(`Fast rebuild: ${stateStorage.fastRebuild}`);
             logger.info(`Last block in database: ${block.data.height.toLocaleString()}`);
-
-            if (stateStorage.fastRebuild) {
-                return blockchain.dispatch("REBUILD");
-            }
 
             // removing blocks up to the last round to compute active delegate list later if needed
             const activeDelegates = await blockchain.database.getActiveDelegates(block.data.height);

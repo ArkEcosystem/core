@@ -351,26 +351,6 @@ describe("State Machine", () => {
                 );
             });
 
-            it("should dispatch REBUILD if stateStorage.fastRebuild", async () => {
-                process.env.NODE_ENV = "";
-
-                // mock getLastBlock() timestamp and fastRebuild config to trigger stateStorage.fastRebuild = true
-                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
-                    // @ts-ignore
-                    data: {
-                        height: 1,
-                        timestamp: 0,
-                    },
-                });
-                const mockConfigGet = jest
-                    .spyOn(localConfig, "get")
-                    .mockImplementation(key => (key === "fastRebuild" ? true : ""));
-
-                await expect(() => actionMap.init()).toDispatch(blockchain, "REBUILD");
-
-                mockConfigGet.mockRestore();
-            });
-
             it("should rollbackCurrentRound and dispatch STARTED if couldnt get activeDelegates", async () => {
                 process.env.NODE_ENV = "";
                 jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(undefined);
