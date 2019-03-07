@@ -1,5 +1,5 @@
-import { Bignum, Transaction } from "@arkecosystem/crypto";
-import { orderBy } from "@arkecosystem/utils";
+import { Bignum, models, Transaction } from "@arkecosystem/crypto";
+import { sortBy } from "@arkecosystem/utils";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
@@ -185,10 +185,12 @@ export class SPV {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        // NOTE: This is highly NOT reliable, however the number of missed blocks
-        // is NOT used for the consensus
-        const delegates = orderBy(this.walletManager.allByUsername(), ["voteBalance", "publicKey"], ["desc", "asc"]);
-        delegates.forEach((delegate, i) => {
+        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
+        const delegateWallets = Object.values(this.walletManager.allByUsername()).sort(
+            (a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance),
+        );
+
+        sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
             wallet.missedBlocks = +delegate.missedBlocks;
             // TODO: unknown property 'rate' being access on Wallet class
