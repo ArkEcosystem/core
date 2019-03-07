@@ -44,7 +44,7 @@ describe("Exception handler", () => {
 
         it("should log that blocks are being discarded when discarding blocks with height > current + 1", async () => {
             jest.spyOn(blockchain, "getLastBlock").mockReturnValue(new Block(blocks2to100[0]));
-            blockchain.processQueue.length = () => 5;
+            blockchain.queue.length = () => 5;
 
             const loggerDebug = jest.spyOn(app.resolvePlugin("logger"), "debug");
 

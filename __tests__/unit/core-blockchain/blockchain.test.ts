@@ -102,14 +102,14 @@ describe("Blockchain", () => {
 
     describe("enQueueBlocks", () => {
         it("should just return if blocks provided are an empty array", async () => {
-            const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
+            const processQueuePush = jest.spyOn(blockchain.queue, "push");
 
             blockchain.enqueueBlocks([]);
             expect(processQueuePush).not.toHaveBeenCalled();
         });
 
         it("should enqueue the blocks provided", async () => {
-            const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
+            const processQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blocksToEnqueue = [blocks101to155[54]];
             blockchain.enqueueBlocks(blocksToEnqueue);
@@ -469,15 +469,6 @@ describe("Blockchain", () => {
                 "wallet.saved",
                 "wallet.created.cold",
             ]);
-        });
-    });
-
-    describe("__registerQueue", () => {
-        it("should be ok", () => {
-            blockchain.__registerQueue();
-
-            expect(blockchain).toHaveProperty("queue");
-            expect(blockchain).toHaveProperty("processQueue");
         });
     });
 });
