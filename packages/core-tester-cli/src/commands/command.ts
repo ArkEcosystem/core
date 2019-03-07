@@ -54,10 +54,14 @@ export abstract class BaseCommand extends Command {
     };
 
     public static flagsDebug = {
-        log: flags.string({
+        network: flags.string({
+            description: "network used for crypto",
+            default: "testnet",
+        }),
+        log: flags.boolean({
             description: "log the data to the console",
         }),
-        copy: flags.string({
+        copy: flags.boolean({
             description: "copy the data to the clipboard",
         }),
     };
@@ -149,7 +153,7 @@ export abstract class BaseCommand extends Command {
     protected async getTransaction(id: string): Promise<any> {
         try {
             const { data } = await this.api.get(`transactions/${id}`);
-            
+
             return data;
         } catch (error) {
             logger.error(error.message);

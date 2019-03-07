@@ -1,4 +1,4 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import { configManager, models, NetworkName, Transaction } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -24,6 +24,8 @@ export class SerializeCommand extends BaseCommand {
 
     public async run(): Promise<void> {
         const { flags } = this.parse(SerializeCommand);
+
+        configManager.setFromPreset(flags.network as NetworkName);
 
         const serialized =
             flags.type === "transaction"

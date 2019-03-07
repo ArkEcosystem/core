@@ -405,10 +405,7 @@ describe("Delegate Repository", () => {
 
             expect(results).toBeArray();
             expect(results[0].username).toBeString();
-            expect(results[0].approval).toBeNumber();
-            expect(results[0].productivity).toBeNumber();
-            expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height));
-            expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate));
+            expect(results[0].username).toEqual(delegate.username);
         });
     });
 });
