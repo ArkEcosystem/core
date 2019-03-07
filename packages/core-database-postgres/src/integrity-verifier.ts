@@ -223,18 +223,16 @@ export class IntegrityVerifier {
     public async __verifyWalletsConsistency() {
         let detectedInconsistency = false;
 
-        for (const inMemoryWallet of this.walletManager.allByPublicKey()) {
-            if (inMemoryWallet.balance.isLessThan(0) && !this.isGenesis(inMemoryWallet)) {
+        for (const wallet of this.walletManager.allByPublicKey()) {
+            if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
                 detectedInconsistency = true;
-                logger.warn(`Wallet '${inMemoryWallet.address}' has a negative balance of '${inMemoryWallet.balance}'`);
+                logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
                 break;
             }
 
-            if (inMemoryWallet.voteBalance.isLessThan(0)) {
+            if (wallet.voteBalance.isLessThan(0)) {
                 detectedInconsistency = true;
-                logger.warn(
-                    `Wallet ${inMemoryWallet.address} has a negative vote balance of '${inMemoryWallet.voteBalance}'`,
-                );
+                logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
                 break;
             }
         }
