@@ -20,40 +20,40 @@ export class IntegrityVerifier {
      */
     public async run() {
         logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
-        await this.__buildReceivedTransactions();
+        await this.buildReceivedTransactions();
 
         logger.info("Integrity Verification - Step 2 of 8: Block Rewards");
-        await this.__buildBlockRewards();
+        await this.buildBlockRewards();
 
         logger.info("Integrity Verification - Step 3 of 8: Last Forged Blocks");
-        await this.__buildLastForgedBlocks();
+        await this.buildLastForgedBlocks();
 
         logger.info("Integrity Verification - Step 4 of 8: Sent Transactions");
-        await this.__buildSentTransactions();
+        await this.buildSentTransactions();
 
         logger.info("Integrity Verification - Step 5 of 8: Second Signatures");
-        await this.__buildSecondSignatures();
+        await this.buildSecondSignatures();
 
         logger.info("Integrity Verification - Step 6 of 8: Votes");
-        await this.__buildVotes();
+        await this.buildVotes();
 
         logger.info("Integrity Verification - Step 7 of 8: Delegates");
-        await this.__buildDelegates();
+        await this.buildDelegates();
 
         logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
-        await this.__buildMultisignatures();
+        await this.buildMultisignatures();
 
         logger.info(`Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
         logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
-        return this.__verifyWalletsConsistency();
+        return this.verifyWalletsConsistency();
     }
 
     /**
      * Load and apply received transactions to wallets.
      * @return {void}
      */
-    public async __buildReceivedTransactions() {
+    private async buildReceivedTransactions() {
         const transactions = await this.query.many(queries.integrityVerifier.receivedTransactions);
 
         for (const transaction of transactions) {
@@ -69,7 +69,7 @@ export class IntegrityVerifier {
      * Load and apply block rewards to wallets.
      * @return {void}
      */
-    public async __buildBlockRewards() {
+    private async buildBlockRewards() {
         const blocks = await this.query.many(queries.integrityVerifier.blockRewards);
 
         for (const block of blocks) {
@@ -82,7 +82,7 @@ export class IntegrityVerifier {
      * Load and apply last forged blocks to wallets.
      * @return {void}
      */
-    public async __buildLastForgedBlocks() {
+    private async buildLastForgedBlocks() {
         const blocks = await this.query.many(queries.integrityVerifier.lastForgedBlocks);
 
         for (const block of blocks) {
@@ -95,7 +95,7 @@ export class IntegrityVerifier {
      * Load and apply sent transactions to wallets.
      * @return {void}
      */
-    public async __buildSentTransactions() {
+    private async buildSentTransactions() {
         const transactions = await this.query.many(queries.integrityVerifier.sentTransactions);
 
         for (const transaction of transactions) {
@@ -112,7 +112,7 @@ export class IntegrityVerifier {
      * Used to determine if a wallet is a Genesis wallet.
      * @return {Boolean}
      */
-    public isGenesis(wallet) {
+    private isGenesis(wallet) {
         return genesisWallets.includes(wallet.address);
     }
 
@@ -120,7 +120,7 @@ export class IntegrityVerifier {
      * Load and apply second signature transactions to wallets.
      * @return {void}
      */
-    public async __buildSecondSignatures() {
+    private async buildSecondSignatures() {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.secondSignatures);
 
         for (const transaction of transactions) {
@@ -134,7 +134,7 @@ export class IntegrityVerifier {
      * Load and apply votes to wallets.
      * @return {void}
      */
-    public async __buildVotes() {
+    private async buildVotes() {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.votes);
 
         for (const transaction of transactions) {
@@ -162,7 +162,7 @@ export class IntegrityVerifier {
      * Load and apply delegate usernames to wallets.
      * @return {void}
      */
-    public async __buildDelegates() {
+    private async buildDelegates() {
         // Register...
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.delegates);
 
@@ -182,7 +182,7 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
+        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the private API.
         const delegateWallets = this.walletManager
             .allByUsername()
             .sort((a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance));
@@ -201,7 +201,7 @@ export class IntegrityVerifier {
      * Load and apply multisignatures to wallets.
      * @return {void}
      */
-    public async __buildMultisignatures() {
+    private async buildMultisignatures() {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
 
         for (const transaction of transactions) {
@@ -220,7 +220,7 @@ export class IntegrityVerifier {
      * NOTE: This is faster than rebuilding the entire table from scratch each time.
      * @returns {Boolean}
      */
-    public async __verifyWalletsConsistency() {
+    private async verifyWalletsConsistency() {
         let detectedInconsistency = false;
 
         for (const wallet of this.walletManager.allByAddress()) {
