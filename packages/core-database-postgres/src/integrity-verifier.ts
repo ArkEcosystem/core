@@ -182,7 +182,7 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the private API.
+        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
         const delegateWallets = this.walletManager
             .allByUsername()
             .sort((a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance));
