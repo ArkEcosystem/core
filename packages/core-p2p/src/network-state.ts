@@ -170,7 +170,6 @@ export class NetworkState {
             }
 
             if (!peer.state.forgingAllowed) {
-                quorum = false;
                 this.quorumDetails.peersForgingNotAllowed++;
             }
 
