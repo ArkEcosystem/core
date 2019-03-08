@@ -1,4 +1,6 @@
 /* tslint:disable:max-line-length */
+import "./mocks/core-container";
+
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
@@ -12,7 +14,6 @@ import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { generators } from "../../utils";
 import { block2, delegates } from "../../utils/fixtures/unitnet";
-import "./mocks/core-container";
 import { database as databaseService } from "./mocks/database";
 import { transactions as mockData } from "./__fixtures__/transactions";
 

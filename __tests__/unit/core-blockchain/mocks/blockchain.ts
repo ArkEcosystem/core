@@ -3,8 +3,7 @@ import { p2p } from "./p2p";
 import { transactionPool } from "./transactionPool";
 
 export const blockchain = {
-    rebuildQueue: { length: () => 0, push: () => null, clear: () => null },
-    processQueue: { length: () => 0, push: () => null, clear: () => null },
+    queue: { length: () => 0, push: () => null, clear: () => null },
     isStopped: false,
 
     setWakeUp: () => null,
@@ -21,6 +20,7 @@ export const blockchain = {
     forkBlock: () => null,
     resetLastDownloadedBlock: () => null,
     getLastBlock: () => null,
+    clearQueue: () => null,
 
     p2p,
     database,
