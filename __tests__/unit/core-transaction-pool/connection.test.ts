@@ -177,11 +177,7 @@ describe("Connection", () => {
             ];
 
             const { added, notAdded } = connection.addTransactions(transactions);
-            expect(notAdded[0].message).toEqual(
-                `["[PoolWalletManager] Can't apply transaction id:${
-                    mockData.dummy3.id
-                } from sender:AHkZLLjUdjjjJzNe1zCXqHh27bUhzg8GZw","Insufficient balance in the wallet."]`,
-            );
+            expect(notAdded[0].message).toEqual('["Insufficient balance in the wallet."]');
             expect(connection.getPoolSize()).toBe(5);
         });
     });

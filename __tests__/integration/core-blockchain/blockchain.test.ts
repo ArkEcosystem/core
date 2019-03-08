@@ -1,5 +1,14 @@
 /* tslint:disable:max-line-length */
-import { crypto, models } from "@arkecosystem/crypto";
+import {
+    Bignum,
+    crypto,
+    HashAlgorithms,
+    ITransactionData,
+    models,
+    slots,
+    sortTransactions,
+    transactionBuilder,
+} from "@arkecosystem/crypto";
 import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
@@ -7,6 +16,7 @@ import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
+import { delegates } from "../../utils/fixtures/testnet/delegates";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
@@ -118,6 +128,134 @@ describe("Blockchain", () => {
             const dbLastBlockAfter = await blockchain.database.getLastBlock();
 
             expect(dbLastBlockAfter.data.height).toBe(lastBlockHeight - 2);
+        });
+    });
+
+    describe("rollback", () => {
+        beforeEach(async () => {
+            await __resetToHeight1();
+            await __addBlocks(155);
+        });
+
+        const getNextForger = async () => {
+            const lastBlock = blockchain.state.getLastBlock();
+            const activeDelegates = await blockchain.database.getActiveDelegates(lastBlock.data.height);
+            const nextSlot = slots.getSlotNumber(lastBlock.data.timestamp) + 1;
+            return activeDelegates[nextSlot % activeDelegates.length];
+        };
+
+        const createBlock = (generatorKeys: any, transactions: ITransactionData[]) => {
+            const transactionData = {
+                amount: Bignum.ZERO,
+                fee: Bignum.ZERO,
+                ids: [],
+            };
+
+            const sortedTransactions = sortTransactions(transactions);
+            sortedTransactions.forEach(transaction => {
+                transactionData.amount = transactionData.amount.plus(transaction.amount);
+                transactionData.fee = transactionData.fee.plus(transaction.fee);
+                transactionData.ids.push(Buffer.from(transaction.id, "hex"));
+            });
+
+            const lastBlock = blockchain.state.getLastBlock();
+            const data = {
+                timestamp: slots.getSlotTime(slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                version: 0,
+                previousBlock: lastBlock.data.id,
+                previousBlockHex: lastBlock.data.idHex,
+                height: lastBlock.data.height + 1,
+                numberOfTransactions: sortedTransactions.length,
+                totalAmount: transactionData.amount,
+                totalFee: transactionData.fee,
+                reward: Bignum.ZERO,
+                payloadLength: 32 * sortedTransactions.length,
+                payloadHash: HashAlgorithms.sha256(transactionData.ids).toString("hex"),
+                transactions: sortedTransactions,
+            };
+
+            return Block.create(data, crypto.getKeys(generatorKeys.secret));
+        };
+
+        it("should restore vote balances after a rollback", async () => {
+            const mockCallback = jest.fn(() => true);
+
+            // Create key pair for new voter
+            const keyPair = crypto.getKeys("secret");
+            const recipient = crypto.getAddress(keyPair.publicKey);
+
+            let nextForger = await getNextForger();
+            const initialVoteBalance = nextForger.voteBalance;
+
+            // First send funds to new voter wallet
+            const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
+            const transfer = transactionBuilder
+                .transfer()
+                .recipientId(recipient)
+                .amount(125)
+                .sign(forgerKeys.passphrase)
+                .getStruct();
+
+            const transferBlock = createBlock(forgerKeys, [transfer]);
+            await blockchain.processBlock(transferBlock, mockCallback);
+
+            const wallet = blockchain.database.walletManager.findByPublicKey(keyPair.publicKey);
+            const walletForger = blockchain.database.walletManager.findByPublicKey(forgerKeys.publicKey);
+
+            // New wallet received funds and vote balance of delegate has been reduced by the same amount,
+            // since it forged it's own transaction the fees for the transaction have been recovered.
+            expect(wallet.balance).toEqual(new Bignum(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(transfer.amount));
+
+            // Now vote with newly created wallet for previous forger.
+            const vote = transactionBuilder
+                .vote()
+                .fee(1)
+                .votesAsset([`+${forgerKeys.publicKey}`])
+                .sign("secret")
+                .getStruct();
+
+            nextForger = await getNextForger();
+            let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
+
+            const voteBlock = createBlock(nextForgerWallet, [vote]);
+            await blockchain.processBlock(voteBlock, mockCallback);
+
+            // Wallet paid a fee of 1 and the vote has been placed.
+            expect(wallet.balance).toEqual(new Bignum(124));
+            expect(wallet.vote).toEqual(forgerKeys.publicKey);
+
+            // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
+            // since it was forged by a different delegate.
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(vote.fee));
+
+            // Now unvote again
+            const unvote = transactionBuilder
+                .vote()
+                .fee(1)
+                .votesAsset([`-${forgerKeys.publicKey}`])
+                .sign("secret")
+                .getStruct();
+
+            nextForger = await getNextForger();
+            nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
+
+            const unvoteBlock = createBlock(nextForgerWallet, [unvote]);
+            await blockchain.processBlock(unvoteBlock, mockCallback);
+
+            // Wallet paid a fee of 1 and no longer voted a delegate
+            expect(wallet.balance).toEqual(new Bignum(123));
+            expect(wallet.vote).toBeNull();
+
+            // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(transfer.amount));
+
+            // Now rewind 3 blocks back to the initial state
+            await blockchain.removeBlocks(3);
+
+            // Wallet is now a cold wallet and the initial vote balance has been restored.
+            expect(wallet.balance).toEqual(Bignum.ZERO);
+            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance));
         });
     });
 
