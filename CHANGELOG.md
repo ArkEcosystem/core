@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Reduce complexity and fix wrong offset handling in `core-elasticsearch` ([#2108])
 -   Stuck at not ready to accept new block ([#2139])
 -   Properly sort BigNumber values ([#2144])
+-   Properly update wallet balances if a vote transaction is reverted ([#2207])
 
 ### Changed
 
@@ -337,3 +338,4 @@ Closed security vulnerabilities:
 [#2144]: https://github.com/ArkEcosystem/core/pull/2144
 [#2149]: https://github.com/ArkEcosystem/core/pull/2149
 [#2152]: https://github.com/ArkEcosystem/core/pull/2152
+[#2207]: https://github.com/ArkEcosystem/core/pull/2207
