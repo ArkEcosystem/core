@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { models, slots } from "@arkecosystem/crypto";
-
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
 import { schema } from "./schema";
