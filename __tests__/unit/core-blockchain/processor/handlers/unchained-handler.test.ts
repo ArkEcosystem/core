@@ -1,9 +1,10 @@
+import "../../mocks/";
+
 import { models } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
 import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
 import "../../../../utils";
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
-import "../../mocks/";
 import { blockchain } from "../../mocks/blockchain";
 import { logger } from "../../mocks/logger";
 

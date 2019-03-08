@@ -1,4 +1,6 @@
 /* tslint:disable:max-line-length */
+import "./mocks/";
+
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
@@ -7,7 +9,6 @@ import { stateMachine } from "../../../packages/core-blockchain/src/state-machin
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
-import "./mocks/";
 import { config } from "./mocks/config";
 import { logger } from "./mocks/logger";
 

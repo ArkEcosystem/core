@@ -1,5 +1,5 @@
-import { state } from "./state";
 import { database } from "./database";
+import { state } from "./state";
 
 jest.mock("@arkecosystem/core-container", () => {
     return {

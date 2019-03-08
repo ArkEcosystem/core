@@ -1,3 +1,5 @@
+import "./mocks/core-container";
+
 import { Container } from "@arkecosystem/core-interfaces";
 import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
@@ -8,7 +10,6 @@ import { TransactionGuard } from "../../../packages/core-transaction-pool/src/gu
 import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { generators } from "../../utils";
 import { delegates, wallets } from "../../utils/fixtures/unitnet";
-import "./mocks/core-container";
 import { database } from "./mocks/database";
 import { state } from "./mocks/state";
 
