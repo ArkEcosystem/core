@@ -30,19 +30,19 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0-rc.0",
         "@arkecosystem/crypto": "^2.2.0-rc.0",
-        "@arkecosystem/utils": "^0.2.4",
+        "@arkecosystem/utils": "^0.3.0",
         "bip39": "^2.5.0",
         "lodash.get": "^4.4.2",
         "lodash.isequal": "^4.5.0",
         "lodash.sortby": "^4.7.0",
         "superheroes": "^2.0.0",
-        "xstate": "^4.3.1"
+        "xstate": "^4.3.3"
     },
     "devDependencies": {
-        "@types/bip39": "^2.4.1",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.isequal": "^4.5.3",
-        "@types/lodash.sortby": "^4.7.4"
+        "@types/bip39": "^2.4.2",
+        "@types/lodash.get": "^4.4.6",
+        "@types/lodash.isequal": "^4.5.5",
+        "@types/lodash.sortby": "^4.7.6"
     },
     "publishConfig": {
         "access": "public"

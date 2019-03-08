@@ -35,7 +35,7 @@
     },
     "devDependencies": {
         "@types/capture-console": "^1.0.0",
-        "@types/lodash.isempty": "^4.4.4",
+        "@types/lodash.isempty": "^4.4.6",
         "capture-console": "^1.0.1"
     },
     "publishConfig": {

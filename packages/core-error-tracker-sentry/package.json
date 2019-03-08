@@ -27,7 +27,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.1.1",
-        "@sentry/node": "^4.5.4"
+        "@sentry/node": "^4.6.4"
     },
     "publishConfig": {
         "access": "public"

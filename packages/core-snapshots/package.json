@@ -38,16 +38,16 @@
         "fs-extra": "^7.0.1",
         "lodash.pick": "^4.4.0",
         "msgpack-lite": "^0.1.26",
-        "pg-promise": "^8.5.5",
+        "pg-promise": "^8.6.3",
         "pg-query-stream": "^2.0.0",
         "pluralize": "^7.0.0",
         "xcase": "^2.0.1"
     },
     "devDependencies": {
-        "@types/bluebird": "^3.5.25",
+        "@types/bluebird": "^3.5.26",
         "@types/create-hash": "^1.2.0",
         "@types/fs-extra": "^5.0.5",
-        "@types/lodash.pick": "^4.4.4",
+        "@types/lodash.pick": "^4.4.6",
         "@types/msgpack-lite": "^0.1.6",
         "@types/pg-query-stream": "^1.0.2",
         "@types/pluralize": "^0.0.29"

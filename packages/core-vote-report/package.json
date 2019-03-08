@@ -38,8 +38,8 @@
         "@types/vision": "^5.3.5"
     },
     "devDependencies": {
-        "@types/handlebars": "^4.0.40",
-        "@types/lodash.sumby": "^4.6.4"
+        "@types/handlebars": "^4.1.0",
+        "@types/lodash.sumby": "^4.6.6"
     },
     "publishConfig": {
         "access": "public"
