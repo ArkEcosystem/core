@@ -4,13 +4,13 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { isException, models, slots } from "@arkecosystem/crypto";
+import { isException, models } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { config as localConfig } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
-import { isBlockChained, tickSyncTracker } from "./utils";
+import { isBlockChained } from "./utils";
 
 import { Blockchain } from "./blockchain";
 
@@ -47,22 +47,16 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         return blockchain.dispatch(blockchain.isSynced() ? "SYNCED" : "NOTSYNCED");
     },
 
-    checkRebuildBlockSynced() {
-        return blockchain.dispatch(blockchain.isRebuildSynced() ? "SYNCED" : "NOTSYNCED");
-    },
-
     async checkLastDownloadedBlockSynced() {
         let event = "NOTSYNCED";
-        logger.debug(
-            `Queued blocks (rebuild: ${blockchain.rebuildQueue.length()} process: ${blockchain.processQueue.length()})`,
-        );
+        logger.debug(`Queued blocks (process: ${blockchain.queue.length()})`);
 
-        if (blockchain.rebuildQueue.length() > 10000 || blockchain.processQueue.length() > 10000) {
+        if (blockchain.queue.length() > 10000) {
             event = "PAUSED";
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (stateStorage.noBlockCounter > 5 && blockchain.processQueue.length() === 0) {
+        if (stateStorage.noBlockCounter > 5 && blockchain.queue.length() === 0) {
             logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             stateStorage.noBlockCounter = 0;
@@ -109,26 +103,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.networkStart = false;
 
             blockchain.dispatch("SYNCFINISHED");
-        } else if (blockchain.rebuildQueue.length() === 0) {
+        } else {
             blockchain.dispatch("PROCESSFINISHED");
-        }
-    },
-
-    async rebuildFinished() {
-        try {
-            logger.info("Blockchain rebuild finished");
-
-            stateStorage.rebuild = false;
-
-            await blockchain.database.commitQueuedQueries();
-            await blockchain.rollbackCurrentRound();
-            await blockchain.database.buildWallets();
-            await blockchain.transactionPool.buildWallets();
-
-            return blockchain.dispatch("PROCESSFINISHED");
-        } catch (error) {
-            logger.error(error.stack);
-            return blockchain.dispatch("FAILURE");
         }
     },
 
@@ -137,11 +113,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     syncingComplete() {
         logger.info("Blockchain 100% in sync");
         blockchain.dispatch("SYNCFINISHED");
-    },
-
-    rebuildingComplete() {
-        logger.info("Blockchain rebuild complete");
-        blockchain.dispatch("REBUILDCOMPLETE");
     },
 
     stopped() {
@@ -194,7 +165,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             /** *******************************
              *  state machine data init      *
              ******************************* */
-            const constants = config.getMilestone(block.data.height);
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 
@@ -206,12 +176,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 return blockchain.dispatch("STARTED");
             }
 
-            stateStorage.rebuild =
-                slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime;
-            // no fast rebuild if in last week
-            stateStorage.fastRebuild =
-                slots.getTime() - block.data.timestamp > 3600 * 24 * 7 && !!localConfig.get("fastRebuild");
-
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
@@ -221,12 +185,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 return blockchain.dispatch("STARTED");
             }
 
-            logger.info(`Fast rebuild: ${stateStorage.fastRebuild}`);
             logger.info(`Last block in database: ${block.data.height.toLocaleString()}`);
-
-            if (stateStorage.fastRebuild) {
-                return blockchain.dispatch("REBUILD");
-            }
 
             // removing blocks up to the last round to compute active delegate list later if needed
             const activeDelegates = await blockchain.database.getActiveDelegates(block.data.height);
@@ -265,42 +224,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             logger.error(error.stack);
 
             return blockchain.dispatch("FAILURE");
-        }
-    },
-
-    async rebuildBlocks() {
-        const lastBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
-        const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height);
-
-        tickSyncTracker(blocks.length, lastBlock.data.height);
-
-        if (!blocks || blocks.length === 0) {
-            logger.info("No new blocks found on this peer");
-
-            blockchain.dispatch("NOBLOCK");
-        } else {
-            logger.info(
-                `Downloaded ${blocks.length} new ${pluralize(
-                    "block",
-                    blocks.length,
-                )} accounting for a total of ${pluralize(
-                    "transaction",
-                    blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0),
-                    true,
-                )}`,
-            );
-
-            if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
-                stateStorage.lastDownloadedBlock = { data: blocks.slice(-1)[0] };
-                blockchain.rebuildQueue.push(blocks);
-                blockchain.dispatch("DOWNLOADED");
-            } else {
-                logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
-                logger.warn(`Last block: ${JSON.stringify(lastBlock.data)}`);
-
-                // disregard the whole block list
-                blockchain.dispatch("NOBLOCK");
-            }
         }
     },
 
@@ -344,7 +267,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
-                blockchain.processQueue.clear();
+                blockchain.clearQueue();
             }
 
             stateStorage.noBlockCounter++;
