@@ -1,28 +1,19 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import "./mocks/core-container";
+
+import { Transaction } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { setUp, tearDown } from "./__support__/setup";
+import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 const axiosMock = new MockAdapter(axios);
-const { Block } = models;
 
-let genesisBlock: models.Block;
 let genesisTransaction;
 
 let peerMock: Peer;
 
-beforeAll(async () => {
-    await setUp();
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
+beforeAll(() => {
     genesisTransaction = Transaction.fromData(genesisBlock.transactions[0].data);
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(() => {

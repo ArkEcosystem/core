@@ -17,10 +17,6 @@ import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
 
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
 /**
  * Transaction pool. It uses a hybrid storage - caching the data
  * in memory and occasionally saving it to a persistent, on-disk storage (SQLite),
@@ -34,6 +30,10 @@ export class TransactionPool implements transactionPool.ITransactionPool {
     public storage: Storage;
     public loggedAllowedSenders: string[];
     private blockedByPublicKey: { [key: string]: Dato };
+
+    private readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    private readonly emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Create a new transaction pool instance.
@@ -61,7 +61,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         // Remove transactions that were forged while we were offline.
         const allIds = all.map(memPoolTransaction => memPoolTransaction.transaction.id);
 
-        const forgedIds = await databaseService.getForgedTransactionsIds(allIds);
+        const forgedIds = await this.databaseService.getForgedTransactionsIds(allIds);
 
         forgedIds.forEach(id => this.removeTransactionById(id));
 
@@ -149,7 +149,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      */
     public addTransaction(transaction: Transaction): transactionPool.IAddTransactionResponse {
         if (this.transactionExists(transaction.id)) {
-            logger.debug(
+            this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
                     `in the pool, id: ${transaction.id}`,
             );
@@ -306,7 +306,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
-                logger.debug(
+                this.logger.debug(
                     `Transaction pool: allowing sender public key: ${
                         transaction.senderPublicKey
                     } (listed in options.allowedSenders), thus skipping throttling.`,
@@ -370,7 +370,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-        logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toUTC()}`);
+        this.logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toUTC()}`);
 
         return blockReleaseTime;
     }
@@ -409,7 +409,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
 
-                    logger.error(
+                    this.logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
                             data.id
                         } due to ${error.message}. Possible double spending attack`,
@@ -465,15 +465,15 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                 transactionService.canBeApplied(transaction, senderWallet);
                 transactionService.applyToSender(transaction, senderWallet);
             } catch (error) {
-                logger.error(`BuildWallets from pool: ${error.message}`);
+                this.logger.error(`BuildWallets from pool: ${error.message}`);
                 this.purgeByPublicKey(transaction.data.senderPublicKey);
             }
         });
-        logger.info("Transaction Pool Manager build wallets complete");
+        this.logger.info("Transaction Pool Manager build wallets complete");
     }
 
     public purgeByPublicKey(senderPublicKey: string) {
-        logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
+        this.logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
 
         this.removeTransactionsForSender(senderPublicKey);
 
@@ -561,7 +561,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      */
     private __purgeExpired() {
         for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
-            emitter.emit("transaction.expired", transaction.data);
+            this.emitter.emit("transaction.expired", transaction.data);
 
             this.walletManager.revertTransactionForSender(transaction);
             this.mem.remove(transaction.id, transaction.data.senderPublicKey);
