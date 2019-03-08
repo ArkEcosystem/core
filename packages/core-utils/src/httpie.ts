@@ -56,6 +56,10 @@ class Httpie {
     }
 
     private async sendRequest(method: string, url: string, opts?): Promise<any> {
+        if (!opts) {
+            opts = {};
+        }
+
         if (opts.body && typeof opts !== "string") {
             opts.body = JSON.stringify(opts.body);
         }

@@ -1,3 +1,4 @@
+import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 import { setUp, tearDown } from "./__support__/setup";
 
@@ -11,9 +12,9 @@ afterAll(async () => {
 
 describe("Server", () => {
     it("should render the page", async () => {
-        const response = await axios.get("http://localhost:4006/");
+        const { body, status } = await httpie.get("http://localhost:4006/");
 
-        expect(response.status).toBe(200);
-        expect(response.data).toContain("Top 51 Delegates Stats");
+        expect(status).toBe(200);
+        expect(body).toContain("Top 51 Delegates Stats");
     });
 });

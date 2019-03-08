@@ -83,7 +83,7 @@ describe("Monitor", () => {
 
     describe("discoverPeers", () => {
         it("should be ok", async () => {
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/status")
                 .reply(
                     200,
@@ -97,7 +97,7 @@ describe("Monitor", () => {
                     peerMock.headers,
                 );
 
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/list")
                 .reply(
                     200,
@@ -119,7 +119,7 @@ describe("Monitor", () => {
 
     describe("getNetworkHeight", () => {
         it("should be ok", async () => {
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/status")
                 .reply(
                     200,
@@ -134,7 +134,7 @@ describe("Monitor", () => {
                     peerMock.headers,
                 );
 
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/list")
                 .reply(200, { peers: [] }, peerMock.headers);
 
@@ -150,11 +150,11 @@ describe("Monitor", () => {
 
     describe("getPBFTForgingStatus", () => {
         it("should be ok", async () => {
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/status")
                 .reply(200, { success: true, height: 2 }, peerMock.headers);
 
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/list")
                 .reply(200, { peers: [] }, peerMock.headers);
 
@@ -168,7 +168,7 @@ describe("Monitor", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/blocks/common")
                 .reply(
                     200,
@@ -179,7 +179,7 @@ describe("Monitor", () => {
                     peerMock.headers,
                 );
 
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/status")
                 .reply(
                     200,
@@ -190,8 +190,9 @@ describe("Monitor", () => {
                     peerMock.headers,
                 );
 
-            nock(peerMock.url)
+            nock(/.*/)
                 .get("/peer/blocks")
+                .query({ lastBlockHeight: 1 })
                 .reply(
                     200,
                     {
