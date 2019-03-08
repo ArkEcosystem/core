@@ -102,7 +102,13 @@ export abstract class BaseCommand extends Command {
 
         for (const [key, value] of Object.entries(flags)) {
             if (!ignoreKeys.includes(key) && value !== undefined) {
-                mappedFlags.push(value === true ? `--${key}` : `--${key}=${value}`);
+                if (value === true) {
+                    mappedFlags.push(`--${key}`);
+                } else if (typeof value === "string") {
+                    mappedFlags.push(`--${key}="${value}"`);
+                } else {
+                    mappedFlags.push(`--${key}=${value}`);
+                }
             }
         }
 
@@ -219,6 +225,10 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async buildBIP38(flags: CommandFlags): Promise<Record<string, string>> {
+        if (flags.bip39) {
+            return { bip38: undefined, password: undefined };
+        }
+
         // initial values
         let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
         let password = flags.password || process.env.CORE_FORGER_PASSWORD;
