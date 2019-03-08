@@ -8,7 +8,6 @@ import cloneDeep from "lodash/cloneDeep";
 import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
-const { TransactionTypes } = constants;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IDatabaseConnection;
@@ -542,22 +541,8 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
-            this.emitter.emit("delegate.registered", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.DelegateResignation) {
-            this.emitter.emit("delegate.resigned", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.data.asset.votes[0];
-
-            this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
-                delegate: vote,
-                transaction: transaction.data,
-            });
-        }
+        const service = TransactionServiceRegistry.get(transaction.type);
+        service.emitEvents(transaction, this.emitter);
     }
 
     private registerListeners() {

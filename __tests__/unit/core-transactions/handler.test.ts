@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Bignum, configManager, constants, crypto, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -18,13 +19,10 @@ import {
 } from "../../../packages/core-transactions/src/errors";
 import { TransactionServiceRegistry } from "../../../packages/core-transactions/src/index";
 import { TransactionService } from "../../../packages/core-transactions/src/services/transaction";
-import { crypto, ITransactionData, Transaction } from "../../../packages/crypto/src";
-import { ARKTOSHI } from "../../../packages/crypto/src/constants";
-import { configManager } from "../../../packages/crypto/src/managers/config";
-import { Wallet } from "../../../packages/crypto/src/models";
-import { Bignum } from "../../../packages/crypto/src/utils";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
+
+const { ARKTOSHI } = constants;
 
 let wallet;
 let transaction: ITransactionData;
@@ -88,8 +86,7 @@ describe("General Tests", () => {
             expect(() => service.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
         });
 
-        // FIXME: the config manager on service side is a different one for some reason...
-        it.skip("should be false if the transaction has a second signature but wallet does not", () => {
+        it("should be false if the transaction has a second signature but wallet does not", () => {
             delete configManager.getMilestone().ignoreInvalidSecondSignatureField;
             instance = Transaction.fromData(transactionWithSecondSignature);
             expect(() => service.canBeApplied(instance, wallet)).toThrow(UnexpectedSecondSignatureError);
@@ -104,6 +101,13 @@ describe("General Tests", () => {
             // 1 arktoshi short
             wallet.balance = new Bignum(transaction.amount).plus(transaction.fee).minus(1);
             expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+        });
+
+        it("should be true even with publicKey case mismatch", () => {
+            transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
+            wallet.publicKey = wallet.publicKey.toLowerCase();
+            instance = Transaction.fromData(transaction);
+            expect(service.canBeApplied(instance, wallet)).toBeTrue();
         });
     });
 
@@ -122,6 +126,18 @@ describe("General Tests", () => {
 
             service.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance));
+        });
+
+        it("should not fail due to case mismatch", () => {
+            const initialBalance = 1000 * ARKTOSHI;
+            wallet.balance = new Bignum(initialBalance);
+
+            transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
+            const instance = Transaction.fromData(transaction);
+            wallet.publicKey = wallet.publicKey.toLowerCase();
+
+            service.applyToSender(instance, wallet);
+            expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee));
         });
     });
 
@@ -490,7 +506,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
     let multisignatureTest;
 
     beforeEach(() => {
-        wallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+        wallet = new models.Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
         wallet.balance = new Bignum(100390000000);
         wallet.publicKey = "026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202";
         wallet.secondPublicKey = "0380728436880a0a11eadf608c4d4e7f793719e044ee5151074a5f2d5d43cb9066";
