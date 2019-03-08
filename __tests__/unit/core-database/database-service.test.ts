@@ -5,7 +5,7 @@ import "./mocks/core-container";
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
-import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import { Bignum, constants, models, Transaction, transactionBuilder, Address } from "@arkecosystem/crypto";
 import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
@@ -192,6 +192,7 @@ describe("Database Service", () => {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
                     wallet.username = Transaction.fromBytes(transaction.serialized).data.asset.delegate.username;
+                    wallet.address = Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
             }
