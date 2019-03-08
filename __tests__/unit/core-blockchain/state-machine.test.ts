@@ -19,6 +19,8 @@ beforeAll(async () => {
     stateMachine = require("../../../packages/core-blockchain/src/state-machine").stateMachine;
 
     genesisBlock = new Block(genesisBlockJSON);
+
+    process.env.CORE_ENV = "";
 });
 
 describe("State Machine", () => {
