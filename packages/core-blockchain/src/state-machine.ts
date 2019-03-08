@@ -103,6 +103,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.networkStart = false;
 
             blockchain.dispatch("SYNCFINISHED");
+        } else {
+            blockchain.dispatch("PROCESSFINISHED");
         }
     },
 
