@@ -1,5 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
-import got from "got";
+import { bignumify, httpie } from "@arkecosystem/core-utils";
 
 const defaultOpts = ["--skipProbing"];
 
@@ -20,15 +19,13 @@ export const expectTransactions = (transactions, obj) =>
 export const captureTransactions = (nock, expectedTransactions) => {
     nock("http://localhost:4003")
         .post("/api/v2/transactions")
+        .times(12)
         .reply(200, { data: {} });
 
     // @ts-ignore
-    jest.spyOn(got, "post").mockImplementation((uri, { transactions }) => {
-        console.log(transactions);
-        for (const transaction of transactions) {
+    jest.spyOn(httpie, "post").mockImplementation((url, { body }) => {
+        for (const transaction of body.transactions) {
             expectedTransactions.push(transaction);
         }
     });
-
-    console.log(expectedTransactions);
 };

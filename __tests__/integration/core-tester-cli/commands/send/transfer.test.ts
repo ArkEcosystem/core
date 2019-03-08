@@ -1,20 +1,27 @@
+import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
+import nock from "nock";
 import { TransferCommand } from "../../../../../packages/core-tester-cli/src/commands/send/transfer";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
-    mockAxios.onGet("http://localhost:4003/api/v2/node/configuration").reply(200, { data: { constants: {} } });
-    mockAxios.onGet("http://localhost:4000/config").reply(200, { data: { network: {} } });
+    nock("http://localhost:4003")
+        .get("/api/v2/node/configuration")
+        .times(2)
+        .reply(200, { data: { constants: {} } });
 
-    jest.spyOn(axios, "post");
+    nock("http://localhost:4000")
+        .get("/config")
+        .times(2)
+        .reply(200, { data: { network: {} } });
+
+    jest.spyOn(httpie, "post");
 });
 
 afterEach(() => {
-    mockAxios.reset();
+    nock.cleanAll();
 });
-
-afterAll(() => mockAxios.restore());
 
 describe("Commands - Transfer", () => {
     it("should postTransactions using custom smartBridge value", async () => {
@@ -30,7 +37,7 @@ describe("Commands - Transfer", () => {
         };
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await TransferCommand.run(toFlags(opts));
 
@@ -53,7 +60,7 @@ describe("Commands - Transfer", () => {
         };
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await TransferCommand.run(toFlags(opts));
 
@@ -76,7 +83,7 @@ describe("Commands - Transfer", () => {
         };
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await TransferCommand.run(toFlags(opts));
 
@@ -100,7 +107,7 @@ describe("Commands - Transfer", () => {
         };
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await TransferCommand.run(toFlags(opts));
 
