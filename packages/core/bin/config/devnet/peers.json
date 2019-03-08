@@ -1,25 +1,9 @@
 {
     "list": [
         {
-            "ip": "167.114.29.51",
-            "port": 4002
-        },
-        {
-            "ip": "167.114.29.52",
-            "port": 4002
-        },
-        {
-            "ip": "167.114.29.53",
-            "port": 4002
-        },
-        {
-            "ip": "167.114.29.54",
-            "port": 4002
-        },
-        {
-            "ip": "167.114.29.55",
-            "port": 4002
+            "ip": "127.0.0.1",
+            "port": 4102
         }
     ],
-    "sources": ["https://raw.githubusercontent.com/ArkEcosystem/peers/master/devnet.json"]
+    "sources": []
 }

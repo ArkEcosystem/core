@@ -7,9 +7,9 @@
         "block": {
             "version": 0,
             "maxTransactions": 150,
-            "maxPayload": 2097152
+            "maxPayload": 6291456
         },
-        "epoch": "2017-03-21T13:00:00.000Z",
+        "epoch": "2019-02-07T20:14:26.000Z",
         "fees": {
             "staticFees": {
                 "transfer": 10000000,
@@ -22,7 +22,8 @@
                 "multiPayment": 0,
                 "delegateResignation": 0
             }
-        }
+        },
+        "ignoreInvalidSecondSignatureField": true
     },
     {
         "height": 75600,
