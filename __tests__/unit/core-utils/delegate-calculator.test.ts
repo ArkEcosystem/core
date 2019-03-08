@@ -2,7 +2,11 @@ import "./mocks/core-container-calculator";
 
 import { Bignum, models } from "@arkecosystem/crypto";
 import "jest-extended";
-import { calculateApproval, calculateProductivity } from "../../../packages/core-utils/src/delegate-calculator";
+import {
+    calculateApproval,
+    calculateProductivity,
+    calculateForgedTotal,
+} from "../../../packages/core-utils/src/delegate-calculator";
 
 let delegate;
 
@@ -46,6 +50,15 @@ describe("Delegate Calculator", () => {
             delegate.producedBlocks = 0;
 
             expect(calculateProductivity(delegate)).toBe(0.0);
+        });
+    });
+
+    describe("calculateForgedTotal", () => {
+        it("should calculate correctly", () => {
+            delegate.forgedFees = new Bignum(10);
+            delegate.forgedRewards = new Bignum(100);
+
+            expect(calculateForgedTotal(delegate)).toBe(110);
         });
     });
 });

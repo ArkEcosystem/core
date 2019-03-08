@@ -1,14 +1,12 @@
-import "jest-extended";
-
-import "./mocks/core-container";
-
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
-import { Bignum, constants, models, Transaction, transactionBuilder, Address } from "@arkecosystem/crypto";
+import { Address, Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import "jest-extended";
 import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
+import "./mocks/core-container";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
@@ -49,7 +47,6 @@ describe("Database Service", () => {
 
         expect(emitter.on).toHaveBeenCalledWith("state:started", expect.toBeFunction());
         expect(emitter.on).toHaveBeenCalledWith("wallet.created.cold", expect.toBeFunction());
-        expect(emitter.once).toHaveBeenCalledWith("shutdown", expect.toBeFunction());
     });
 
     describe("applyBlock", () => {

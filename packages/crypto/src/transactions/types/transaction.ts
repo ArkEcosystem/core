@@ -132,7 +132,7 @@ export abstract class Transaction {
         // FIXME: legacy type 4 need special treatment
         if (data.type === TransactionTypes.MultiSignature) {
             data.amount = new Bignum(data.amount);
-            data.fee = new Bignum(data.amount);
+            data.fee = new Bignum(data.fee);
             return { value: data, error: null };
         }
 

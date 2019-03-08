@@ -1,16 +1,15 @@
 /* tslint:disable:max-line-length */
-import "./mocks/";
-import { logger } from "./mocks/logger";
-import { config } from "./mocks/config";
-
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
-import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import { config as localConfig } from "../../../packages/core-blockchain/src/config";
+import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
+import "./mocks/";
+import { config } from "./mocks/config";
+import { logger } from "./mocks/logger";
 
 const { Block } = models;
 
@@ -77,132 +76,20 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("rebuild", () => {
-        it("should throw an exception", () => {
-            expect(() => blockchain.rebuild()).toThrow("Method [rebuild] not implemented!");
-        });
-    });
-
-    describe("enQueueBlocks", () => {
+    describe("enqueueBlocks", () => {
         it("should just return if blocks provided are an empty array", async () => {
-            const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
+            const processQueuePush = jest.spyOn(blockchain.queue, "push");
 
             blockchain.enqueueBlocks([]);
             expect(processQueuePush).not.toHaveBeenCalled();
         });
 
         it("should enqueue the blocks provided", async () => {
-            const processQueuePush = jest.spyOn(blockchain.processQueue, "push");
+            const processQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blocksToEnqueue = [blocks101to155[54]];
             blockchain.enqueueBlocks(blocksToEnqueue);
             expect(processQueuePush).toHaveBeenCalledWith(blocksToEnqueue);
-        });
-    });
-
-    describe("rebuildBlock", () => {
-        const block3 = new Block(blocks2to100[1]);
-        let getLastBlock;
-        let setLastBlock;
-        beforeEach(() => {
-            getLastBlock = jest.fn(() => block3);
-            setLastBlock = jest.fn(() => null);
-            jest.spyOn(blockchain, "state", "get").mockReturnValue({
-                getLastBlock,
-                setLastBlock,
-            } as any);
-        });
-        afterAll(() => {
-            jest.restoreAllMocks();
-        });
-
-        it("should rebuild with a known block", async () => {
-            const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
-
-            await blockchain.rebuildBlock(lastBlock, mockCallback);
-            await delay(200);
-
-            expect(mockCallback.mock.calls.length).toBe(1);
-        });
-
-        it("should rebuild with a new chained block", async () => {
-            const mockCallback = jest.fn(() => true);
-
-            const chainedBlock = new Block(blocks2to100[2]);
-            await blockchain.rebuildBlock(chainedBlock, mockCallback);
-            await delay(200);
-
-            expect(mockCallback.mock.calls.length).toBe(1);
-            expect(setLastBlock).nthCalledWith(1, chainedBlock);
-        });
-
-        it("should disregard block with height == last height but different id", async () => {
-            const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
-            const lastBlockCopy = new Block(lastBlock.data);
-            lastBlockCopy.data.id = "123456";
-
-            const loggerInfo = jest.spyOn(logger, "info");
-
-            await blockchain.rebuildBlock(lastBlockCopy, mockCallback);
-            await delay(200);
-
-            expect(mockCallback.mock.calls.length).toBe(1);
-            expect(loggerInfo).toHaveBeenCalledWith(
-                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because on a fork`,
-            );
-        });
-
-        it("should disregard block with height > last height + 1", async () => {
-            const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
-            const lastBlockCopy = new Block(lastBlock.data);
-            lastBlockCopy.data.height += 2;
-
-            await blockchain.rebuildBlock(lastBlockCopy, mockCallback);
-            await delay(200);
-
-            expect(mockCallback.mock.calls.length).toBe(1);
-            expect(blockchain.state.lastDownloadedBlock).toBe(lastBlock);
-        });
-
-        it("should disregard block not verified", async () => {
-            const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
-            const lastBlockCopy = new Block(lastBlock.data);
-            lastBlockCopy.verification.verified = false;
-
-            const loggerWarn = jest.spyOn(logger, "warn");
-
-            await blockchain.rebuildBlock(lastBlockCopy, mockCallback);
-            await delay(200);
-
-            expect(mockCallback.mock.calls.length).toBe(1);
-            expect(loggerWarn).toHaveBeenCalledWith(
-                `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because verification failed`,
-            );
-        });
-
-        it("should commitQueuedQueries if block height % 20 000 == 0", async () => {
-            const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
-            const nextBlock = new Block(blocks2to100[2]);
-            lastBlock.data.height = 19999;
-            nextBlock.data.height = 20000;
-
-            const commitQueuedQueries = jest
-                .spyOn(blockchain.database, "commitQueuedQueries")
-                // @ts-ignore
-                .mockReturnValueOnce(true);
-            // @ts-ignore
-            jest.spyOn(blockchain.database, "enqueueSaveBlock").mockReturnValueOnce(true);
-
-            await blockchain.rebuildBlock(nextBlock, mockCallback);
-            await delay(200);
-
-            expect(mockCallback.mock.calls.length).toBe(1);
-            expect(commitQueuedQueries).toHaveBeenCalled();
         });
     });
 
@@ -373,43 +260,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("isRebuildSynced", () => {
-        describe("with a block param", () => {
-            it("should be ok", () => {
-                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
-                expect(
-                    blockchain.isRebuildSynced({
-                        data: {
-                            timestamp: slots.getTime() - 3600 * 24 * 6,
-                            height: blocks101to155[52].height,
-                        },
-                    } as models.IBlock),
-                ).toBeTrue();
-            });
-        });
-
-        describe("without a block param", () => {
-            it("should use the last block", () => {
-                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
-                const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
-                    // @ts-ignore
-                    data: {
-                        timestamp: slots.getTime(),
-                        height: genesisBlock.height,
-                    },
-                });
-                expect(blockchain.isRebuildSynced()).toBeTrue();
-                expect(getLastBlock).toHaveBeenCalled();
-            });
-        });
-
-        it("should return true when there is no peer", () => {
-            jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(false);
-
-            expect(blockchain.isRebuildSynced()).toBeTrue();
-        });
-    });
-
     describe("getBlockPing", () => {
         it("should return state.blockPing", () => {
             const blockPing = {
@@ -465,16 +315,6 @@ describe("Blockchain", () => {
                 "wallet.saved",
                 "wallet.created.cold",
             ]);
-        });
-    });
-
-    describe("__registerQueue", () => {
-        it("should be ok", () => {
-            blockchain.__registerQueue();
-
-            expect(blockchain).toHaveProperty("queue");
-            expect(blockchain).toHaveProperty("processQueue");
-            expect(blockchain).toHaveProperty("rebuildQueue");
         });
     });
 

@@ -33,10 +33,12 @@ $ ark forger:start --no-daemon
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {
-        this.abortWhenRunning(`${flags.token}-core`);
+        this.abortRunningProcess(`${flags.token}-core`);
 
         try {
             const { bip38, password } = await this.buildBIP38(flags);
+            flags.bip38 = bip38;
+            flags.password = password;
 
             await this.runWithPm2(
                 {

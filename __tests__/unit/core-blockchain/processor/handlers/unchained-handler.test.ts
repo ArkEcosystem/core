@@ -1,13 +1,11 @@
+import { models } from "@arkecosystem/crypto";
+import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
+import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
+import "../../../../utils";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 import "../../mocks/";
 import { blockchain } from "../../mocks/blockchain";
 import { logger } from "../../mocks/logger";
-
-import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
-import "../../../../utils";
-
-import { models } from "@arkecosystem/crypto";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block } = models;
 
@@ -35,7 +33,7 @@ describe("Exception handler", () => {
 
         it("should log that blocks are being discarded when discarding blocks with height > current + 1", async () => {
             jest.spyOn(blockchain, "getLastBlock").mockReturnValue(new Block(blocks2to100[0]));
-            blockchain.processQueue.length = () => 5;
+            blockchain.queue.length = () => 5;
 
             const loggerDebug = jest.spyOn(logger, "debug");
 

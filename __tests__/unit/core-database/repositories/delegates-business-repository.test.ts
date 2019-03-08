@@ -41,7 +41,11 @@ function generateWallets(): models.Wallet[] {
 
 describe("Delegate Repository", () => {
     describe("getLocalDelegates", () => {
-        const delegates = [{ username: "delegate-0" }, { username: "delegate-1" }, { username: "delegate-2" }];
+        const delegates = [
+            { username: "delegate-0", forgedFees: new Bignum(10), forgedRewards: new Bignum(10) },
+            { username: "delegate-1", forgedFees: new Bignum(20), forgedRewards: new Bignum(20) },
+            { username: "delegate-2", forgedFees: new Bignum(30), forgedRewards: new Bignum(30) },
+        ];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
         it("should return the local wallets of the connection that are delegates", () => {
@@ -52,6 +56,18 @@ describe("Delegate Repository", () => {
 
             expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
             expect(walletManager.allByAddress).toHaveBeenCalled();
+        });
+
+        it("should be ok with params (forgedTotal)", () => {
+            // @ts-ignore
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+
+            const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
+
+            actualDelegates.forEach(delegate => {
+                expect(delegate.hasOwnProperty("forgedTotal"));
+                expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
+            });
         });
     });
 
@@ -368,10 +384,7 @@ describe("Delegate Repository", () => {
 
             expect(results).toBeArray();
             expect(results[0].username).toBeString();
-            expect(results[0].approval).toBeNumber();
-            expect(results[0].productivity).toBeNumber();
-            expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height));
-            expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate));
+            expect(results[0].username).toEqual(delegate.username);
         });
     });
 });

@@ -35,9 +35,7 @@ module.exports = {
         host: process.env.CORE_P2P_HOST || "0.0.0.0",
         port: process.env.CORE_P2P_PORT || 4001,
     },
-    "@arkecosystem/core-blockchain": {
-        fastRebuild: false,
-    },
+    "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",

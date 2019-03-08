@@ -1,9 +1,3 @@
-import "./mocks/";
-import { blockchain } from "./mocks/blockchain";
-import { logger } from "./mocks/logger";
-import { container } from "./mocks/container";
-import { config } from "./mocks/config";
-
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { slots } from "@arkecosystem/crypto";
 import { Block } from "@arkecosystem/crypto/dist/models";
@@ -11,14 +5,16 @@ import { config as localConfig } from "../../../packages/core-blockchain/src/con
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import "../../utils";
 import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";
+import "./mocks/";
+import { blockchain } from "./mocks/blockchain";
+import { config } from "./mocks/config";
+import { container } from "./mocks/container";
+import { logger } from "./mocks/logger";
 
 let stateMachine;
-let genesisBlock;
 
 beforeAll(async () => {
     stateMachine = require("../../../packages/core-blockchain/src/state-machine").stateMachine;
-
-    genesisBlock = new Block(genesisBlockJSON);
 
     process.env.CORE_ENV = "";
 });
@@ -52,39 +48,22 @@ describe("State Machine", () => {
             });
         });
 
-        describe("checkRebuildBlockSynced", () => {
-            it('should dispatch the event "SYNCED" if the blockchain is synced after a rebuild', () => {
-                blockchain.isRebuildSynced = jest.fn(() => true);
-                expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, "SYNCED");
-            });
-
-            it('should dispatch the event "NOTSYNCED" if the blockchain is not synced after a rebuild', () => {
-                blockchain.isRebuildSynced = jest.fn(() => false);
-                expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, "NOTSYNCED");
-            });
-        });
-
         describe("checkLastDownloadedBlockSynced", () => {
             it('should dispatch the event "NOTSYNCED" by default', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.processQueue.length = () => 1;
+                blockchain.queue.length = jest.fn(() => 1);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
             });
 
-            it('should dispatch the event "PAUSED" if the blockchain rebuild / process queue is more than 10000 long', async () => {
+            it('should dispatch the event "PAUSED" if the blockchain process queue is more than 10000 long', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.rebuildQueue.length = () => 10001;
-                blockchain.processQueue.length = () => 1;
-                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
-
-                blockchain.rebuildQueue.length = () => 1;
-                blockchain.processQueue.length = () => 10001;
+                blockchain.queue.length = jest.fn(() => 10001);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
             });
 
             it('should dispatch the event "NETWORKHALTED" if stateStorage.noBlockCounter > 5 and process queue is empty', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.processQueue.length = () => 0;
+                blockchain.queue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NETWORKHALTED");
             });
@@ -94,7 +73,7 @@ describe("State Machine", () => {
                     - stateStorage.p2pUpdateCounter + 1 > 3 (network keeps missing blocks)
                     - blockchain.p2p.checkNetworkHealth() returns a forked network status`, async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.processQueue.length = () => 0;
+                blockchain.queue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
                 // @ts-ignore
@@ -143,23 +122,6 @@ describe("State Machine", () => {
             });
         });
 
-        describe("rebuildFinished", () => {
-            it('should dispatch the event "PROCESSFINISHED"', async () => {
-                jest.spyOn(localConfig, "get").mockReturnValueOnce(50);
-
-                stateStorage.setLastBlock(genesisBlock);
-
-                await expect(actionMap.rebuildFinished).toDispatch(blockchain, "PROCESSFINISHED");
-            });
-
-            it('should dispatch the event "FAILURE" when some called method threw an exception', async () => {
-                jest.spyOn(blockchain.database, "commitQueuedQueries").mockImplementationOnce(() => {
-                    throw new Error("oops");
-                });
-                await expect(actionMap.rebuildFinished).toDispatch(blockchain, "FAILURE");
-            });
-        });
-
         describe("downloadPaused", () => {
             it('should log the info message "Blockchain download paused"', () => {
                 const loggerInfo = jest.spyOn(logger, "info");
@@ -171,12 +133,6 @@ describe("State Machine", () => {
         describe("syncingComplete", () => {
             it('should dispatch the event "SYNCFINISHED"', () => {
                 expect(() => actionMap.syncingComplete()).toDispatch(blockchain, "SYNCFINISHED");
-            });
-        });
-
-        describe("rebuildingComplete", () => {
-            it('should dispatch the event "REBUILDCOMPLETE"', () => {
-                expect(() => actionMap.rebuildingComplete()).toDispatch(blockchain, "REBUILDCOMPLETE");
             });
         });
 
@@ -228,8 +184,6 @@ describe("State Machine", () => {
                     deleteRound: jest.spyOn(blockchain.database, "deleteRound").mockReturnValue(true),
                     // @ts-ignore
                     buildWallets: jest.spyOn(blockchain.database, "buildWallets").mockReturnValue(true),
-                    // @ts-ignore
-                    saveWallets: jest.spyOn(blockchain.database, "saveWallets").mockReturnValue(true),
                     // @ts-ignore
                     applyRound: jest.spyOn(blockchain.database, "applyRound").mockReturnValue(true),
                     // @ts-ignore
@@ -299,8 +253,7 @@ describe("State Machine", () => {
                 stateStorage.networkStart = true;
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
-                expect(databaseMocks.saveWallets).toHaveBeenCalledWith(true);
+                expect(databaseMocks.buildWallets).toHaveBeenCalled();
                 expect(databaseMocks.applyRound).toHaveBeenCalledWith(1);
 
                 stateStorage.networkStart = false; // reset to default value
@@ -311,30 +264,10 @@ describe("State Machine", () => {
                 const loggerVerbose = jest.spyOn(logger, "verbose");
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
+                expect(databaseMocks.buildWallets).toHaveBeenCalled();
                 expect(loggerVerbose).toHaveBeenCalledWith(
                     "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.",
                 );
-            });
-
-            it("should dispatch REBUILD if stateStorage.fastRebuild", async () => {
-                process.env.NODE_ENV = "";
-
-                // mock getLastBlock() timestamp and fastRebuild config to trigger stateStorage.fastRebuild = true
-                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
-                    // @ts-ignore
-                    data: {
-                        height: 1,
-                        timestamp: 0,
-                    },
-                });
-                const mockConfigGet = jest
-                    .spyOn(localConfig, "get")
-                    .mockImplementation(key => (key === "fastRebuild" ? true : ""));
-
-                await expect(() => actionMap.init()).toDispatch(blockchain, "REBUILD");
-
-                mockConfigGet.mockRestore();
             });
 
             it("should rollbackCurrentRound and dispatch STARTED if couldnt get activeDelegates", async () => {
@@ -362,7 +295,6 @@ describe("State Machine", () => {
                 expect(loggerWarn).toHaveBeenCalledWith(
                     "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
-                expect(databaseMocks.saveWallets).toHaveBeenCalledWith(true);
             });
 
             it("should clean round data if new round starts at block.height + 1 (and dispatch STARTED)", async () => {
@@ -385,51 +317,6 @@ describe("State Machine", () => {
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "FAILURE");
                 expect(loggerError.mock.calls[0][0]).toContain("Error: oops");
-            });
-        });
-
-        describe("rebuildBlocks", () => {
-            it("should dispatch NOBLOCK if no new blocks were downloaded from peer", async () => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlockJSON as any);
-
-                const loggerInfo = jest.spyOn(logger, "info");
-
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([]);
-                await expect(() => actionMap.rebuildBlocks()).toDispatch(blockchain, "NOBLOCK");
-                expect(loggerInfo).toHaveBeenCalledWith("No new blocks found on this peer");
-            });
-
-            it("should dispatch DOWNLOADED if new blocks were successfully downloaded from peer", async () => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlockJSON as any);
-
-                const loggerInfo = jest.spyOn(logger, "info");
-
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([
-                    {
-                        numberOfTransactions: 2,
-                        previousBlock: genesisBlockJSON.id,
-                    },
-                ]);
-                await expect(() => actionMap.rebuildBlocks()).toDispatch(blockchain, "DOWNLOADED");
-                expect(loggerInfo).toHaveBeenCalledWith(
-                    "Downloaded 1 new block accounting for a total of 2 transactions",
-                );
-            });
-
-            it("should dispatch NOBLOCK if new blocks were downloaded from peer but didnt match last known block", async () => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlockJSON as any);
-
-                const loggerWarn = jest.spyOn(logger, "warn");
-
-                const downloadedBlock = {
-                    numberOfTransactions: 2,
-                    previousBlock: "123456",
-                };
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([downloadedBlock]);
-                await expect(() => actionMap.rebuildBlocks()).toDispatch(blockchain, "NOBLOCK");
-                expect(loggerWarn).toHaveBeenCalledWith(
-                    `Downloaded block not accepted: ${JSON.stringify(downloadedBlock)}`,
-                );
             });
         });
 

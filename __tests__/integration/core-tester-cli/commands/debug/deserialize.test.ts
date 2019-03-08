@@ -7,7 +7,9 @@ describe("Commands - Deserialize", () => {
     const fixtureTransaction = require("../../__fixtures__/transaction.json");
 
     it("should deserialize a block (not-full)", async () => {
-        const actual = JSON.parse(await DeserializeCommand.run(["--data", fixtureBlock.serialized, "--type", "block"]));
+        const actual = JSON.parse(
+            await DeserializeCommand.run(["--data", fixtureBlock.serialized, "--type", "block", "--network", "devnet"]),
+        );
 
         expect(actual.data.version).toBe(fixtureBlock.data.version);
         expect(actual.data.timestamp).toBe(fixtureBlock.data.timestamp);
@@ -25,7 +27,14 @@ describe("Commands - Deserialize", () => {
 
     it("should deserialize a block (full)", async () => {
         const actual = JSON.parse(
-            await DeserializeCommand.run(["--data", fixtureBlock.serializedFull, "--type", "block"]),
+            await DeserializeCommand.run([
+                "--data",
+                fixtureBlock.serializedFull,
+                "--type",
+                "block",
+                "--network",
+                "devnet",
+            ]),
         );
 
         expect(actual.data.version).toBe(fixtureBlock.data.version);
@@ -45,7 +54,14 @@ describe("Commands - Deserialize", () => {
 
     it("should deserialize a transaction", async () => {
         const actual = JSON.parse(
-            await DeserializeCommand.run(["--data", fixtureTransaction.serialized, "--type", "transaction"]),
+            await DeserializeCommand.run([
+                "--data",
+                fixtureTransaction.serialized,
+                "--type",
+                "transaction",
+                "--network",
+                "devnet",
+            ]),
         );
 
         expect(actual.type).toBe(fixtureTransaction.data.type);

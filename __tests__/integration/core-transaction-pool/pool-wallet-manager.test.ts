@@ -33,7 +33,11 @@ describe("canApply", () => {
         const errors = [];
 
         expect(poolWalletManager.canApply(delegateReg, errors)).toBeFalse();
-        expect(errors).toEqual([`Can't apply transaction ${delegateReg.id}: delegate name already taken.`]);
+        expect(errors).toEqual([
+            `Failed to apply transaction, because the username '${
+                delegateReg.data.asset.delegate.username
+            }' is already registered.`,
+        ]);
     });
 
     it("should add an error when voting for a delegate that doesn't exist", () => {
@@ -41,9 +45,7 @@ describe("canApply", () => {
         const errors = [];
 
         expect(poolWalletManager.canApply(vote, errors)).toBeFalse();
-        expect(errors).toEqual([
-            `Can't apply transaction ${vote.id}: delegate +${wallets[12].keys.publicKey} does not exist.`,
-        ]);
+        expect(errors).toEqual([`Failed to apply transaction, because only delegates can be voted.`]);
     });
 });
 
@@ -137,11 +139,7 @@ describe("applyPoolTransactionToSender", () => {
                     expect(t.from).toBe(delegate);
                 } else {
                     expect(t.from).toBe(walletsGen[0]);
-                    expect(JSON.stringify(errors)).toEqual(
-                        `["[PoolWalletManager] Can't apply transaction id:${transfer.id} from sender:${
-                            t.from.address
-                        }","Insufficient balance in the wallet."]`,
-                    );
+                    expect(errors).toEqual(["Insufficient balance in the wallet."]);
                 }
 
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(

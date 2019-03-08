@@ -9,11 +9,14 @@ export abstract class AbstractRestartCommand extends BaseCommand {
         const processName = `${flags.token}-${this.getSuffix()}`;
 
         try {
+            this.abortMissingProcess(processName);
+            this.abortStoppedProcess(processName);
+
             cli.action.start(`Restarting ${processName}`);
 
             processManager.restart(processName);
         } catch (error) {
-            this.warn(`The "${processName}" process does not exist.`);
+            this.warn(error.message);
         } finally {
             cli.action.stop();
         }

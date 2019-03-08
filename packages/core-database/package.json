@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database",
     "description": "Database Interface for Ark Core",
-    "version": "2.2.0-beta.7",
+    "version": "2.2.0-rc.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -17,7 +17,7 @@
         "publish:alpha": "npm publish --tag alpha",
         "publish:beta": "npm publish --tag beta",
         "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -29,11 +29,11 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.7",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
-        "@arkecosystem/core-utils": "^2.2.0-beta.7",
-        "@arkecosystem/core-transactions": "^2.2.0-beta.7",
-        "@arkecosystem/crypto": "^2.2.0-beta.7",
+        "@arkecosystem/core-container": "^2.2.0-rc.0",
+        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/core-utils": "^2.2.0-rc.0",
+        "@arkecosystem/core-transactions": "^2.2.0-rc.0",
+        "@arkecosystem/crypto": "^2.2.0-rc.0",
         "@arkecosystem/utils": "^0.3.0",
         "@types/lodash.clonedeep": "^4.5.4",
         "@types/lodash.compact": "^3.0.4",
@@ -44,6 +44,10 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
+        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
+        "@types/lodash.clonedeep": "^4.5.4",
+        "@types/lodash.compact": "^3.0.4",
+        "@types/lodash.uniq": "^4.5.4",
         "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {

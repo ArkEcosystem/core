@@ -307,6 +307,7 @@ export class Mem {
         this.allIsSorted = true;
         this.byId = {};
         this.bySender = {};
+        this.byType = {};
         this.byExpiration = [];
         this.byExpirationIsSorted = true;
         this.dirty.added.clear();

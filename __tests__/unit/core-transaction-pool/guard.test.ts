@@ -1,17 +1,16 @@
-import "./mocks/core-container";
-
 import { Container } from "@arkecosystem/core-interfaces";
 import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
 import { TransactionPool } from "../../../packages/core-transaction-pool/src/connection";
-import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";
+import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { generators } from "../../utils";
 import { delegates, wallets } from "../../utils/fixtures/unitnet";
-import { state } from "./mocks/state";
+import "./mocks/core-container";
 import { database } from "./mocks/database";
+import { state } from "./mocks/state";
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
@@ -165,7 +164,9 @@ describe("Transaction Guard", () => {
             const tx = {
                 id: "1",
                 network: 23,
+                type: constants.TransactionTypes.Transfer,
                 senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+                recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
             };
             guard.__filterAndTransformTransactions([tx]);
 
@@ -189,7 +190,9 @@ describe("Transaction Guard", () => {
 
             const tx = {
                 id: "1",
+                type: constants.TransactionTypes.Transfer,
                 senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+                recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
             };
             guard.__filterAndTransformTransactions([tx]);
 
@@ -449,11 +452,11 @@ describe("Transaction Guard", () => {
         });
     });
 
-    describe("__pushError", () => {
+    describe("pushError", () => {
         it("should have error for transaction", () => {
             expect(guard.errors).toBeEmpty();
 
-            guard.__pushError({ id: 1 }, "ERR_INVALID", "Invalid.");
+            guard.pushError({ id: 1 }, "ERR_INVALID", "Invalid.");
 
             expect(guard.errors).toBeObject();
             expect(guard.errors["1"]).toBeArray();
@@ -467,8 +470,8 @@ describe("Transaction Guard", () => {
         it("should have multiple errors for transaction", () => {
             expect(guard.errors).toBeEmpty();
 
-            guard.__pushError({ id: 1 }, "ERR_INVALID", "Invalid 1.");
-            guard.__pushError({ id: 1 }, "ERR_INVALID", "Invalid 2.");
+            guard.pushError({ id: 1 }, "ERR_INVALID", "Invalid 1.");
+            guard.pushError({ id: 1 }, "ERR_INVALID", "Invalid 2.");
 
             expect(guard.errors).toBeObject();
             expect(guard.errors["1"]).toBeArray();

@@ -1,4 +1,5 @@
-import { Bignum, Transaction } from "@arkecosystem/crypto";
+import { Bignum, models, Transaction } from "@arkecosystem/crypto";
+import { sortBy } from "@arkecosystem/utils";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
@@ -10,53 +11,50 @@ const config = app.getConfig();
 
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
-export class SPV {
+export class IntegrityVerifier {
     constructor(private query: QueryExecutor, private walletManager: Database.IWalletManager) {}
 
     /**
-     * Perform the SPV (Simple Payment Verification).
-     * @param  {Number} height
-     * @return {void}
+     * Perform the State & Integrity Verification.
+     * @return {Boolean}
      */
-    public async build(height) {
-        logger.info("SPV Step 1 of 8: Received Transactions");
-        await this.__buildReceivedTransactions();
+    public async run() {
+        logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
+        await this.buildReceivedTransactions();
 
-        logger.info("SPV Step 2 of 8: Block Rewards");
-        await this.__buildBlockRewards();
+        logger.info("Integrity Verification - Step 2 of 8: Block Rewards");
+        await this.buildBlockRewards();
 
-        logger.info("SPV Step 3 of 8: Last Forged Blocks");
-        await this.__buildLastForgedBlocks();
+        logger.info("Integrity Verification - Step 3 of 8: Last Forged Blocks");
+        await this.buildLastForgedBlocks();
 
-        logger.info("SPV Step 4 of 8: Sent Transactions");
-        await this.__buildSentTransactions();
+        logger.info("Integrity Verification - Step 4 of 8: Sent Transactions");
+        await this.buildSentTransactions();
 
-        logger.info("SPV Step 5 of 8: Second Signatures");
-        await this.__buildSecondSignatures();
+        logger.info("Integrity Verification - Step 5 of 8: Second Signatures");
+        await this.buildSecondSignatures();
 
-        logger.info("SPV Step 6 of 8: Votes");
-        await this.__buildVotes();
+        logger.info("Integrity Verification - Step 6 of 8: Votes");
+        await this.buildVotes();
 
-        logger.info("SPV Step 7 of 8: Delegates");
-        await this.__buildDelegates();
+        logger.info("Integrity Verification - Step 7 of 8: Delegates");
+        await this.buildDelegates();
 
-        logger.info("SPV Step 8 of 8: MultiSignatures");
-        await this.__buildMultisignatures();
+        logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
+        await this.buildMultisignatures();
 
-        logger.info(
-            `SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
-        );
+        logger.info(`Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
         logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
-        return this.__verifyWalletsConsistency();
+        return this.verifyWalletsConsistency();
     }
 
     /**
      * Load and apply received transactions to wallets.
      * @return {void}
      */
-    public async __buildReceivedTransactions() {
-        const transactions = await this.query.many(queries.spv.receivedTransactions);
+    private async buildReceivedTransactions() {
+        const transactions = await this.query.many(queries.integrityVerifier.receivedTransactions);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByAddress(transaction.recipientId);
@@ -71,8 +69,8 @@ export class SPV {
      * Load and apply block rewards to wallets.
      * @return {void}
      */
-    public async __buildBlockRewards() {
-        const blocks = await this.query.many(queries.spv.blockRewards);
+    private async buildBlockRewards() {
+        const blocks = await this.query.many(queries.integrityVerifier.blockRewards);
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
@@ -84,8 +82,8 @@ export class SPV {
      * Load and apply last forged blocks to wallets.
      * @return {void}
      */
-    public async __buildLastForgedBlocks() {
-        const blocks = await this.query.many(queries.spv.lastForgedBlocks);
+    private async buildLastForgedBlocks() {
+        const blocks = await this.query.many(queries.integrityVerifier.lastForgedBlocks);
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
@@ -97,8 +95,8 @@ export class SPV {
      * Load and apply sent transactions to wallets.
      * @return {void}
      */
-    public async __buildSentTransactions() {
-        const transactions = await this.query.many(queries.spv.sentTransactions);
+    private async buildSentTransactions() {
+        const transactions = await this.query.many(queries.integrityVerifier.sentTransactions);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -114,7 +112,7 @@ export class SPV {
      * Used to determine if a wallet is a Genesis wallet.
      * @return {Boolean}
      */
-    public isGenesis(wallet) {
+    private isGenesis(wallet) {
         return genesisWallets.includes(wallet.address);
     }
 
@@ -122,8 +120,8 @@ export class SPV {
      * Load and apply second signature transactions to wallets.
      * @return {void}
      */
-    public async __buildSecondSignatures() {
-        const transactions = await this.query.manyOrNone(queries.spv.secondSignatures);
+    private async buildSecondSignatures() {
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.secondSignatures);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -136,8 +134,8 @@ export class SPV {
      * Load and apply votes to wallets.
      * @return {void}
      */
-    public async __buildVotes() {
-        const transactions = await this.query.manyOrNone(queries.spv.votes);
+    private async buildVotes() {
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.votes);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -164,9 +162,9 @@ export class SPV {
      * Load and apply delegate usernames to wallets.
      * @return {void}
      */
-    public async __buildDelegates() {
+    private async buildDelegates() {
         // Register...
-        const transactions = await this.query.manyOrNone(queries.spv.delegates);
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.delegates);
 
         transactions.forEach(transaction => {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -176,7 +174,7 @@ export class SPV {
         });
 
         // Forged Blocks...
-        const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks);
+        const forgedBlocks = await this.query.manyOrNone(queries.integrityVerifier.delegatesForgedBlocks);
         forgedBlocks.forEach(block => {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
             wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
@@ -184,13 +182,14 @@ export class SPV {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        // NOTE: This is highly NOT reliable, however the number of missed blocks
-        // is NOT used for the consensus
-        const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks);
-        delegates.forEach((delegate, i) => {
+        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
+        const delegateWallets = this.walletManager
+            .allByUsername()
+            .sort((a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance));
+
+        sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
-            wallet.missedBlocks = +delegate.missedBlocks;
-            // TODO: unknown property 'rate' being access on Wallet class
+            // @TODO: unknown property 'rate' being access on Wallet class
             (wallet as any).rate = i + 1;
             this.walletManager.reindex(wallet);
         });
@@ -200,8 +199,8 @@ export class SPV {
      * Load and apply multisignatures to wallets.
      * @return {void}
      */
-    public async __buildMultisignatures() {
-        const transactions = await this.query.manyOrNone(queries.spv.multiSignatures);
+    private async buildMultisignatures() {
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -219,37 +218,20 @@ export class SPV {
      * NOTE: This is faster than rebuilding the entire table from scratch each time.
      * @returns {Boolean}
      */
-    public async __verifyWalletsConsistency() {
-        const dbWallets = await this.query.manyOrNone(queries.wallets.all);
-        const inMemoryWallets = this.walletManager.allByPublicKey();
-
+    private async verifyWalletsConsistency() {
         let detectedInconsistency = false;
-        if (dbWallets.length !== inMemoryWallets.length) {
-            detectedInconsistency = true;
-        } else {
-            for (const dbWallet of dbWallets) {
-                if (dbWallet.balance < 0 && !this.isGenesis(dbWallet)) {
-                    detectedInconsistency = true;
-                    logger.warn(`Wallet '${dbWallet.address}' has a negative balance of '${dbWallet.balance}'`);
-                    break;
-                }
 
-                if (dbWallet.voteBalance < 0) {
-                    detectedInconsistency = true;
-                    logger.warn(`Wallet ${dbWallet.address} has a negative vote balance of '${dbWallet.voteBalance}'`);
-                    break;
-                }
+        for (const wallet of this.walletManager.allByAddress()) {
+            if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
+                detectedInconsistency = true;
+                logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+                break;
+            }
 
-                const inMemoryWallet = this.walletManager.findByPublicKey(dbWallet.publicKey);
-
-                if (
-                    !inMemoryWallet.balance.isEqualTo(dbWallet.balance) ||
-                    !inMemoryWallet.voteBalance.isEqualTo(dbWallet.voteBalance) ||
-                    dbWallet.username !== inMemoryWallet.username
-                ) {
-                    detectedInconsistency = true;
-                    break;
-                }
+            if (wallet.voteBalance.isLessThan(0)) {
+                detectedInconsistency = true;
+                logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
+                break;
             }
         }
 

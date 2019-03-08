@@ -5,11 +5,9 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
-import pluralize from "pluralize";
 import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
-const { TransactionTypes } = constants;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IDatabaseConnection;
@@ -27,7 +25,6 @@ export class DatabaseService implements Database.IDatabaseService {
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: any[] = null;
     public cache: Map<any, any> = new Map();
-    private spvFinished: boolean;
 
     constructor(
         options: any,
@@ -82,7 +79,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
                 try {
                     this.updateDelegateStats(this.forgingDelegates);
-                    await this.saveWallets(false); // save only modified wallets during the last round
                     const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight); // get active delegate list from in-memory wallet manager
                     await this.saveRound(delegates); // save next round delegate list non-blocking
                     this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
@@ -103,16 +99,16 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async buildWallets(height: number): Promise<boolean> {
+    public async buildWallets(): Promise<boolean> {
         this.walletManager.reset();
 
         try {
-            const success = await this.connection.buildWallets(height);
-            this.spvFinished = true;
-            return success;
+            const result = await this.connection.buildWallets();
+            return result;
         } catch (e) {
             this.logger.error(e.stack);
         }
+
         return false;
     }
 
@@ -407,25 +403,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("round.created", activeDelegates);
     }
 
-    public async saveWallets(force: boolean) {
-        const wallets = this.walletManager
-            .allByPublicKey()
-            .filter(wallet => wallet.publicKey && (force || wallet.dirty));
-
-        // Remove dirty flags first to not save all dirty wallets in the exit handler
-        // when called during a force insert right after SPV.
-        this.walletManager.clear();
-
-        await this.connection.saveWallets(wallets, force);
-
-        this.logger.info(`${wallets.length} modified ${pluralize("wallet", wallets.length)} committed to database`);
-
-        this.emitter.emit("wallet.saved", wallets.length);
-
-        // NOTE: commented out as more use cases to be taken care of
-        // this.walletManager.purgeEmptyNonDelegates()
-    }
-
     public updateDelegateStats(delegates: any[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
             return;
@@ -564,22 +541,8 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
-            this.emitter.emit("delegate.registered", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.DelegateResignation) {
-            this.emitter.emit("delegate.resigned", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.data.asset.votes[0];
-
-            this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
-                delegate: vote,
-                transaction: transaction.data,
-            });
-        }
+        const service = TransactionServiceRegistry.get(transaction.type);
+        service.emitEvents(transaction, this.emitter);
     }
 
     private registerListeners() {
@@ -602,13 +565,6 @@ export class DatabaseService implements Database.IDatabaseService {
                 }
             } catch (err) {
                 this.logger.error(err);
-            }
-        });
-
-        this.emitter.once("shutdown", async () => {
-            if (!this.spvFinished) {
-                // Prevent dirty wallets to be saved when SPV didn't finish
-                this.walletManager.clear();
             }
         });
     }

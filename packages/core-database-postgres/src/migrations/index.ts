@@ -11,4 +11,5 @@ export const migrations = [
     loadQueryFile(__dirname, "./20181204200000-add-timestamp-index-to-blocks-table.sql"),
     loadQueryFile(__dirname, "./20181204300000-add-sender_public_key-index-to-transactions-table.sql"),
     loadQueryFile(__dirname, "./20181204400000-add-recipient_id-index-to-transactions-table.sql"),
+    loadQueryFile(__dirname, "./20190307000000-drop-wallets-table.sql"),
 ];

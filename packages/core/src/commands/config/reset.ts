@@ -16,15 +16,12 @@ $ ark config:reset --network=mainnet
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
-        force: flags.boolean({
-            description: "force the configuration to be reset",
-        }),
     };
 
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(ResetCommand);
 
-        if (flags.force) {
+        if (flags.network) {
             return this.performReset(flags);
         }
 

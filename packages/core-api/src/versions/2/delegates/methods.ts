@@ -1,12 +1,14 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { orderBy } from "@arkecosystem/utils";
 import Boom from "boom";
 import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
-import { paginate, respondWithResource, toPagination } from "../utils";
+import { paginate, respondWithCollection, respondWithResource, toPagination } from "../utils";
 
+const config = app.getConfig();
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
 const index = async request => {
     const delegates = await databaseService.delegates.findAll({
@@ -15,6 +17,18 @@ const index = async request => {
     });
 
     return toPagination(request, delegates, "delegate");
+};
+
+const active = async request => {
+    const delegates = await databaseService.delegates.getActiveAtHeight(
+        request.query.height || blockchain.getLastHeight(),
+    );
+
+    if (!delegates.length) {
+        return Boom.notFound("Delegates not found");
+    }
+
+    return respondWithCollection(request, delegates, "delegate");
 };
 
 const show = async request => {
@@ -82,10 +96,15 @@ const voterBalances = async request => {
 };
 
 export function registerMethods(server) {
+    const { activeDelegates, blocktime } = config.getMilestone();
+
     ServerCache.make(server)
         .method("v2.delegates.index", index, 8, request => ({
             ...request.query,
             ...paginate(request),
+        }))
+        .method("v2.delegates.active", active, activeDelegates * blocktime, request => ({
+            ...request.query,
         }))
         .method("v2.delegates.show", show, 8, request => ({ id: request.params.id }))
         .method("v2.delegates.search", search, 30, request => ({

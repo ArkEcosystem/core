@@ -1,22 +1,20 @@
 /* tslint:disable:max-line-length */
-import "./mocks/core-container";
-import { database as databaseService } from "./mocks/database";
-
-import { Database } from "@arkecosystem/core-interfaces";
+import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { Wallet } from "@arkecosystem/crypto/src/models";
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
 import { TransactionPool } from "../../../packages/core-transaction-pool/src";
-import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
+import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { generators } from "../../utils";
 import { block2, delegates } from "../../utils/fixtures/unitnet";
+import "./mocks/core-container";
+import { database as databaseService } from "./mocks/database";
 import { transactions as mockData } from "./__fixtures__/transactions";
-import { Wallet } from "@arkecosystem/crypto/src/models";
 
 const { SATOSHI, TransactionTypes } = constants;
 const { Block } = models;
