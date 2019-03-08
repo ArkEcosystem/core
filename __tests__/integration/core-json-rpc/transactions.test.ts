@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p/dist/peer";
 import { crypto } from "@arkecosystem/crypto";
 import "jest-extended";
+import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
 
@@ -24,26 +25,24 @@ afterAll(async () => {
     await tearDown();
 });
 
-beforeEach(async () => {
-    axiosMock.onPost(/.*:8080.*/).passThrough();
-});
-
 afterEach(async () => {
-    nock.restore();
+    nock.cleanAll();
 });
 
 describe("Transactions", () => {
     describe("POST transactions.info", () => {
         it("should get the transaction for the given ID", async () => {
-            axiosMock.onGet(/.*\/api\/transactions/).reply(() => [
-                200,
-                {
-                    data: {
-                        id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
+            nock(/.*/)
+                .get("/api/transactions")
+                .reply(
+                    200,
+                    {
+                        data: {
+                            id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
+                        },
                     },
-                },
-                peerMock.headers,
-            ]);
+                    peerMock.headers,
+                );
 
             const response = await sendRequest("transactions.info", {
                 id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
@@ -85,7 +84,9 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            axiosMock.onPost(/.*\/api\/transactions/).reply(() => [200, { success: true }, peerMock.headers]);
+            nock(/.*/)
+                .post("/api/transactions")
+                .reply(200, { success: true }, peerMock.headers);
 
             const response = await sendRequest("transactions.broadcast", {
                 id: transaction.data.result.id,

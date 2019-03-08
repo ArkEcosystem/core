@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import "jest-extended";
+import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
 
@@ -23,18 +24,16 @@ afterAll(async () => {
     await tearDown();
 });
 
-beforeEach(async () => {
-    axiosMock.onPost(/.*:8080.*/).passThrough();
-});
-
 afterEach(async () => {
-    nock.restore();
+    nock.cleanAll();
 });
 
 describe("Blocks", () => {
     describe("POST blocks.latest", () => {
         it("should get the latest block", async () => {
-            axiosMock.onGet(/.*\/api\/blocks/).reply(() => [200, { data: [{ id: "123" }] }, peerMock.headers]);
+            nock(/.*/)
+                .get("/api/blocks")
+                .reply(200, { data: [{ id: "123" }] }, peerMock.headers);
 
             const response = await sendRequest("blocks.latest");
 
@@ -42,7 +41,9 @@ describe("Blocks", () => {
         });
 
         it("should not find the latest block", async () => {
-            axiosMock.onGet(/.*\/api\/blocks/).reply(() => [404, null, peerMock.headers]);
+            nock(/.*/)
+                .get("/api/blocks")
+                .reply(404, null, peerMock.headers);
 
             const response = await sendRequest("blocks.latest");
 
@@ -52,7 +53,9 @@ describe("Blocks", () => {
 
     describe("POST blocks.info", () => {
         it("should get the block information", async () => {
-            axiosMock.onGet(/.*\/api\/blocks\/123/).reply(() => [200, { data: { id: "123" } }, peerMock.headers]);
+            nock(/.*/)
+                .get("/api/blocks/123")
+                .reply(200, { data: { id: "123" } }, peerMock.headers);
 
             const response = await sendRequest("blocks.info", {
                 id: "123",
@@ -71,13 +74,9 @@ describe("Blocks", () => {
 
     describe("POST blocks.transactions", () => {
         it("should get the block transactions", async () => {
-            axiosMock
-                .onGet(/.*\/api\/blocks\/123\/transactions/)
-                .reply(() => [
-                    200,
-                    { meta: { totalCount: 1 }, data: [{ id: "123" }, { id: "123" }] },
-                    peerMock.headers,
-                ]);
+            nock(/.*/)
+                .get("/api/blocks/123/transactions")
+                .reply(200, { meta: { totalCount: 1 }, data: [{ id: "123" }, { id: "123" }] }, peerMock.headers);
 
             const response = await sendRequest("blocks.transactions", {
                 id: "123",

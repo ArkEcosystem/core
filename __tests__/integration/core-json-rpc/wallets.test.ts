@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p/dist/peer";
 import "jest-extended";
+import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
 
@@ -24,37 +25,44 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-    axiosMock.onGet(/.*\/api\/loader\/autoconfigure/).reply(() => [200, { network: {} }, peerMock.headers]);
-    axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 5 }, peerMock.headers]);
-    axiosMock.onGet(/.*\/peer\/list/).reply(() => [
-        200,
-        {
-            success: true,
-            peers: [
-                {
-                    status: "OK",
-                    ip: peerMock.ip,
-                    port: 4002,
-                    height: 5,
-                    delay: 8,
-                },
-            ],
-        },
-        peerMock.headers,
-    ]);
-    axiosMock.onPost(/.*:8080.*/).passThrough();
+    nock(/.*/)
+        .get("/api/loader/autoconfigure")
+        .reply(200, { network: {} }, peerMock.headers);
+
+    nock(/.*/)
+        .get("/peer/status")
+        .reply(200, { success: true, height: 5 }, peerMock.headers);
+
+    nock(/.*/)
+        .get("/peer/list")
+        .reply(
+            200,
+            {
+                success: true,
+                peers: [
+                    {
+                        status: "OK",
+                        ip: peerMock.ip,
+                        port: 4002,
+                        height: 5,
+                        delay: 8,
+                    },
+                ],
+            },
+            peerMock.headers,
+        );
 });
 
 afterEach(async () => {
-    nock.restore();
+    nock.cleanAll();
 });
 
 describe("Wallets", () => {
     describe("POST wallets.info", () => {
         it("should get information about the given wallet", async () => {
-            axiosMock
-                .onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/)
-                .reply(() => [200, { data: { address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv" } }, peerMock.headers]);
+            nock(/.*/)
+                .get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv")
+                .reply(200, { data: { address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv" } }, peerMock.headers);
 
             const response = await sendRequest("wallets.info", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
@@ -64,16 +72,18 @@ describe("Wallets", () => {
         });
 
         it("should fail to get information about the given wallet", async () => {
-            axiosMock.onGet(/.*\/api\/wallets\/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv/).reply(() => [
-                404,
-                {
-                    error: {
-                        code: 404,
-                        message: "Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.",
+            nock(/.*/)
+                .get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv")
+                .reply(
+                    404,
+                    {
+                        error: {
+                            code: 404,
+                            message: "Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.",
+                        },
                     },
-                },
-                peerMock.headers,
-            ]);
+                    peerMock.headers,
+                );
 
             const response = await sendRequest("wallets.info", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
@@ -86,13 +96,9 @@ describe("Wallets", () => {
 
     describe("POST wallets.transactions", () => {
         it("should get the transactions for the given wallet", async () => {
-            axiosMock
-                .onGet(/.*\/api\/transactions/)
-                .reply(() => [
-                    200,
-                    { meta: { totalCount: 2 }, data: [{ id: "123" }, { id: "1234" }] },
-                    peerMock.headers,
-                ]);
+            nock(/.*/)
+                .get("/api/transactions")
+                .reply(200, { meta: { totalCount: 2 }, data: [{ id: "123" }, { id: "1234" }] }, peerMock.headers);
 
             const response = await sendRequest("wallets.transactions", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
