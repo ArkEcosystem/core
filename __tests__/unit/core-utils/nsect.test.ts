@@ -1,6 +1,5 @@
-import "./__support__/mocks/core-container";
+import "./mocks/core-container";
 
-import { app } from "@arkecosystem/core-container";
 import "jest-extended";
 import { NSect } from "../../../packages/core-utils/src/nsect";
 

@@ -1,33 +1,28 @@
 /* tslint:disable:max-line-length  */
-import { models } from "@arkecosystem/crypto";
+
+import "./mocks/core-container";
+
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
+import { config as localConfig } from "../../../packages/core-p2p/src/config";
+import { Guard } from "../../../packages/core-p2p/src/court";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
+import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { setUp, tearDown } from "./__support__/setup";
-const { Block } = models;
+import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 const axiosMock = new MockAdapter(axios);
 
-let genesisBlock;
 let peerMock: Peer;
-let monitor;
 
-beforeAll(async () => {
-    await setUp();
-    monitor = require("../../../packages/core-p2p/src/monitor").monitor;
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
-});
-
-afterAll(async () => {
-    await tearDown();
-});
-
-beforeEach(async () => {
+beforeEach(() => {
     monitor.config = defaults;
+    localConfig.init(defaults);
+    localConfig.set("port", 4000);
+
+    monitor.guard = new Guard();
+    monitor.guard.init(monitor);
+    monitor.guard.config = localConfig;
 
     const initialPeersMock = {};
     ["1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"].forEach(ip => {
