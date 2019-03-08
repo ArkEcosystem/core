@@ -1,35 +1,31 @@
-import "jest-extended";
+import "./mocks/core-container";
 
-import { Container, Database, EventEmitter } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-container";
+import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
-import { Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import { Address, Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import "jest-extended";
 import { WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
-
 const { SATOSHI, TransactionTypes } = constants;
 
 let connection: Database.IDatabaseConnection;
 let databaseService: DatabaseService;
 let walletManager: Database.IWalletManager;
-let genesisBlock: models.Block;
-let container: Container.IContainer;
+let container;
 let emitter: EventEmitter.EventEmitter;
 
-beforeAll(async () => {
-    container = await setUp();
+beforeAll(() => {
+    container = app;
+    // @ts-ignore
     emitter = container.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
     connection = new DatabaseConnectionStub();
     walletManager = new WalletManager();
-});
-
-afterAll(async () => {
-    await tearDown();
 });
 
 beforeEach(() => {
@@ -37,7 +33,10 @@ beforeEach(() => {
 });
 
 function createService() {
-    return new DatabaseService({}, connection, walletManager, null, null, null, null);
+    const service = new DatabaseService({}, connection, walletManager, null, null, null, null);
+    service.emitter = emitter;
+
+    return service;
 }
 
 describe("Database Service", () => {
@@ -49,7 +48,6 @@ describe("Database Service", () => {
 
         expect(emitter.on).toHaveBeenCalledWith("state:started", expect.toBeFunction());
         expect(emitter.on).toHaveBeenCalledWith("wallet.created.cold", expect.toBeFunction());
-        expect(emitter.once).toHaveBeenCalledWith("shutdown", expect.toBeFunction());
     });
 
     describe("applyBlock", () => {
@@ -192,6 +190,7 @@ describe("Database Service", () => {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
                     wallet.username = Transaction.fromBytes(transaction.serialized).data.asset.delegate.username;
+                    wallet.address = Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
             }

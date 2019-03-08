@@ -10,7 +10,7 @@ export class DatabaseConnectionStub implements Database.IDatabaseConnection {
     public walletsRepository: Database.IWalletsRepository;
     public options: any;
 
-    public buildWallets(height: number): Promise<boolean> {
+    public buildWallets(): Promise<boolean> {
         return undefined;
     }
 
@@ -41,10 +41,6 @@ export class DatabaseConnectionStub implements Database.IDatabaseConnection {
     }
 
     public saveBlock(block: models.Block): Promise<any> {
-        return undefined;
-    }
-
-    public saveWallets(wallets: any[], force?: boolean): Promise<void> {
         return undefined;
     }
 }

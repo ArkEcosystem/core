@@ -1,46 +1,25 @@
+import "../mocks/core-container";
+
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
-import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
-import { setUp, tearDown } from "../__support__/setup";
+import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
-const { SATOSHI } = constants;
-const { Block } = models;
-
-let genesisBlock: models.Block;
 let repository;
 
 let walletsRepository: Database.IWalletsBusinessRepository;
 let walletManager: Database.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
-beforeAll(async done => {
-    await setUp();
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(genesisBlockTestnet);
-
-    done();
-});
-
-afterAll(async done => {
-    await tearDown();
-
-    done();
-});
-
-beforeEach(async done => {
+beforeEach(async () => {
     const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new DelegatesBusinessRepository(() => databaseService);
     walletsRepository = new WalletsBusinessRepository(() => databaseService);
     databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
-
-    done();
 });
 
 function generateWallets(): models.Wallet[] {
@@ -62,7 +41,11 @@ function generateWallets(): models.Wallet[] {
 
 describe("Delegate Repository", () => {
     describe("getLocalDelegates", () => {
-        const delegates = [{ username: "delegate-0" }, { username: "delegate-1" }, { username: "delegate-2" }];
+        const delegates = [
+            { username: "delegate-0", forgedFees: new Bignum(10), forgedRewards: new Bignum(10) },
+            { username: "delegate-1", forgedFees: new Bignum(20), forgedRewards: new Bignum(20) },
+            { username: "delegate-2", forgedFees: new Bignum(30), forgedRewards: new Bignum(30) },
+        ];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
         it("should return the local wallets of the connection that are delegates", () => {
@@ -73,6 +56,18 @@ describe("Delegate Repository", () => {
 
             expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
             expect(walletManager.allByAddress).toHaveBeenCalled();
+        });
+
+        it("should be ok with params (forgedTotal)", () => {
+            // @ts-ignore
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+
+            const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
+
+            actualDelegates.forEach(delegate => {
+                expect(delegate.hasOwnProperty("forgedTotal"));
+                expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
+            });
         });
     });
 
@@ -374,7 +369,7 @@ describe("Delegate Repository", () => {
             const delegate = {
                 username: "test",
                 publicKey: "test",
-                voteBalance: new Bignum(10000 * SATOSHI),
+                voteBalance: new Bignum(10000 * constants.SATOSHI),
                 producedBlocks: 1000,
                 missedBlocks: 500,
             };
@@ -389,10 +384,7 @@ describe("Delegate Repository", () => {
 
             expect(results).toBeArray();
             expect(results[0].username).toBeString();
-            expect(results[0].approval).toBeNumber();
-            expect(results[0].productivity).toBeNumber();
-            expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height));
-            expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate));
+            expect(results[0].username).toEqual(delegate.username);
         });
     });
 });

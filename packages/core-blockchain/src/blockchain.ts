@@ -10,10 +10,10 @@ import {
 } from "@arkecosystem/core-interfaces";
 import { models, slots, Transaction } from "@arkecosystem/crypto";
 
+import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
-import { ProcessQueue, Queue, RebuildQueue } from "./queue";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
 import { isBlockChained } from "./utils";
@@ -58,10 +58,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
     public isStopped: boolean;
     public options: any;
-    public processQueue: ProcessQueue;
-    public rebuildQueue: RebuildQueue;
+    public queue: async.AsyncQueue<any>;
     private actions: any;
-    private queue: Queue;
     private blockProcessor: BlockProcessor;
 
     /**
@@ -83,7 +81,17 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.__registerQueue();
+        this.queue = async.queue((block: models.IBlockData, cb) => {
+            try {
+                return this.processBlock(new models.Block(block), cb);
+            } catch (error) {
+                logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
+                logger.error(error.stack);
+                return cb();
+            }
+        }, 1);
+
+        this.queue.drain = () => this.dispatch("PROCESSFINISHED");
     }
 
     /**
@@ -151,7 +159,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
             this.dispatch("STOP");
 
-            this.queue.destroy();
+            this.queue.kill();
         }
     }
 
@@ -186,15 +194,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Rebuild N blocks in the blockchain.
-     * @param  {Number} nblocks
-     * @return {void}
-     */
-    public rebuild(nblocks?: number) {
-        throw new Error("Method [rebuild] not implemented!");
-    }
-
-    /**
      * Reset the state of the blockchain.
      * @return {void}
      */
@@ -209,7 +208,15 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public clearAndStopQueue() {
         this.queue.pause();
-        this.queue.clear();
+        this.clearQueue();
+    }
+
+    /**
+     * Clear the queue.
+     * @return {void}
+     */
+    public clearQueue() {
+        this.queue.remove(() => true);
     }
 
     /**
@@ -258,7 +265,7 @@ export class Blockchain implements blockchain.IBlockchain {
             return;
         }
 
-        this.processQueue.push(blocks);
+        this.queue.push(blocks);
         this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
     }
 
@@ -400,50 +407,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Hande a block during a rebuild.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
-     * @param  {Function} callback
-     * @return {Object}
-     */
-    public async rebuildBlock(block, callback) {
-        const lastBlock = this.state.getLastBlock();
-
-        if (block.verification.verified) {
-            if (isBlockChained(lastBlock, block)) {
-                // save block on database
-                this.database.enqueueSaveBlock(block);
-
-                // committing to db every 20,000 blocks
-                if (block.data.height % 20000 === 0) {
-                    await this.database.commitQueuedQueries();
-                }
-
-                this.state.setLastBlock(block);
-
-                return callback();
-            }
-            if (block.data.height > lastBlock.data.height + 1) {
-                this.state.lastDownloadedBlock = lastBlock;
-                return callback();
-            }
-            if (
-                block.data.height < lastBlock.data.height ||
-                (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id)
-            ) {
-                this.state.lastDownloadedBlock = lastBlock;
-                return callback();
-            }
-            this.state.lastDownloadedBlock = lastBlock;
-            logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork`);
-            return callback();
-        }
-        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed`);
-        logger.warn(JSON.stringify(block.verification, null, 4));
-        return callback();
-    }
-
-    /**
      * Process the given block.
      */
     public async processBlock(block: models.Block, callback) {
@@ -519,24 +482,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Determine if the blockchain is synced after a rebuild.
-     */
-    public isRebuildSynced(block?: models.IBlock): boolean {
-        if (!this.p2p.hasPeers()) {
-            return true;
-        }
-
-        block = block || this.getLastBlock();
-
-        const remaining = slots.getTime() - block.data.timestamp;
-        logger.info(`Remaining block timestamp ${remaining}`);
-
-        // stop fast rebuild 7 days before the last network block
-        return slots.getTime() - block.data.timestamp < 3600 * 24 * 7;
-        // return slots.getTime() - block.data.timestamp < 100 * config.getMilestone(block.data.height).blocktime
-    }
-
-    /**
      * Get the last block of the blockchain.
      */
     public getLastBlock(): models.Block {
@@ -603,19 +548,5 @@ export class Blockchain implements blockchain.IBlockchain {
             "wallet.saved",
             "wallet.created.cold",
         ];
-    }
-
-    /**
-     * Register the block queue.
-     * @return {void}
-     */
-    public __registerQueue() {
-        this.queue = new Queue(this, {
-            process: "PROCESSFINISHED",
-            rebuild: "REBUILDFINISHED",
-        });
-
-        this.processQueue = this.queue.process;
-        this.rebuildQueue = this.queue.rebuild;
     }
 }

@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { configManager, crypto, NetworkName } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -12,11 +12,6 @@ export class IdentityCommand extends BaseCommand {
             description: "the data to get the identities from",
             required: true,
         }),
-        network: flags.integer({
-            description: "the network version used for calculating the address.",
-            required: true,
-            default: 30,
-        }),
         type: flags.string({
             description: "the input type is either of passphrase, privateKey or publicKey",
             required: true,
@@ -26,6 +21,8 @@ export class IdentityCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(IdentityCommand);
 
+        configManager.setFromPreset(flags.network as NetworkName);
+
         let output;
 
         if (flags.type === "passphrase") {
@@ -34,19 +31,19 @@ export class IdentityCommand extends BaseCommand {
                 passphrase: flags.data,
                 publicKey: keys.publicKey,
                 privateKey: keys.privateKey,
-                address: crypto.getAddress(keys.publicKey, flags.network),
+                address: crypto.getAddress(keys.publicKey),
             };
         } else if (flags.type === "privateKey") {
             const keys = crypto.getKeysByPrivateKey(flags.data);
             output = {
                 publicKey: keys.publicKey,
                 privateKey: keys.privateKey,
-                address: crypto.getAddress(keys.publicKey, flags.network),
+                address: crypto.getAddress(keys.publicKey),
             };
         } else if (flags.type === "publicKey") {
             output = {
                 publicKey: flags.data,
-                address: crypto.getAddress(flags.data, flags.network),
+                address: crypto.getAddress(flags.data),
             };
         }
 

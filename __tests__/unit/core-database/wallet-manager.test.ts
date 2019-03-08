@@ -1,12 +1,12 @@
 /* tslint:disable:max-line-length no-empty */
+import "./mocks/core-container";
+
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
 import { fixtures, generators } from "../../utils";
-import genesisBlockTestnet from "../../utils/config/testnet/genesisBlock.json";
 import wallets from "./__fixtures__/wallets.json";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Wallet } = models;
 const { SATOSHI, TransactionTypes } = constants;
@@ -19,31 +19,11 @@ const block = new Block(block3);
 const walletData1 = wallets[0];
 const walletData2 = wallets[1];
 
-let genesisBlock;
 let walletManager: Database.IWalletManager;
-
-beforeAll(async done => {
-    await setUp();
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(genesisBlockTestnet);
-
-    const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
-    walletManager = new WalletManager();
-
-    done();
-});
 
 beforeEach(() => {
     const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
-});
-
-afterAll(async done => {
-    await tearDown();
-
-    done();
 });
 
 describe("Wallet Manager", () => {
@@ -264,6 +244,92 @@ describe("Wallet Manager", () => {
 
             expect(sender.balance).toEqual(transaction.data.amount);
             expect(recipient.balance).toEqual(Bignum.ZERO);
+        });
+
+        it("should revert vote transaction and correctly update vote balances", async () => {
+            const delegateKeys = crypto.getKeys("delegate");
+            const voterKeys = crypto.getKeys("secret");
+
+            const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
+            delegate.username = "unittest";
+            delegate.balance = new Bignum(100_000_000);
+            delegate.vote = delegate.publicKey;
+            delegate.voteBalance = new Bignum(delegate.balance);
+            walletManager.reindex(delegate);
+
+            const voter = walletManager.findByPublicKey(voterKeys.publicKey);
+            voter.balance = new Bignum(100_000);
+
+            const voteTransaction = transactionBuilder
+                .vote()
+                .votesAsset([`+${delegateKeys.publicKey}`])
+                .fee(125)
+                .sign("secret")
+                .build();
+
+            expect(delegate.balance).toEqual(new Bignum(100_000_000));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+            expect(voter.balance).toEqual(new Bignum(100_000));
+
+            walletManager.applyTransaction(voteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.data.fee));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
+
+            walletManager.revertTransaction(voteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+        });
+
+        it("should revert unvote transaction and correctly update vote balances", async () => {
+            const delegateKeys = crypto.getKeys("delegate");
+            const voterKeys = crypto.getKeys("secret");
+
+            const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
+            delegate.username = "unittest";
+            delegate.balance = new Bignum(100_000_000);
+            delegate.vote = delegate.publicKey;
+            delegate.voteBalance = new Bignum(delegate.balance);
+            walletManager.reindex(delegate);
+
+            const voter = walletManager.findByPublicKey(voterKeys.publicKey);
+            voter.balance = new Bignum(100_000);
+
+            const voteTransaction = transactionBuilder
+                .vote()
+                .votesAsset([`+${delegateKeys.publicKey}`])
+                .fee(125)
+                .sign("secret")
+                .build();
+
+            expect(delegate.balance).toEqual(new Bignum(100_000_000));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+            expect(voter.balance).toEqual(new Bignum(100_000));
+
+            walletManager.applyTransaction(voteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.data.fee));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
+
+            const unvoteTransaction = transactionBuilder
+                .vote()
+                .votesAsset([`-${delegateKeys.publicKey}`])
+                .fee(125)
+                .sign("secret")
+                .build();
+
+            walletManager.applyTransaction(unvoteTransaction);
+
+            expect(voter.balance).toEqual(
+                new Bignum(100_000).minus(voteTransaction.data.fee).minus(unvoteTransaction.data.fee),
+            );
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+
+            walletManager.revertTransaction(unvoteTransaction);
+
+            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.data.fee));
+            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
         });
     });
 

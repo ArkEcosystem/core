@@ -1,24 +1,14 @@
-import "../../../../utils";
-import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
+import "../../mocks/";
 
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
-import { Blockchain } from "../../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { setUpFull, tearDownFull } from "../../__support__/setup";
+import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
+import "../../../../utils";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
+import { blockchain } from "../../mocks/blockchain";
+import { logger } from "../../mocks/logger";
 
 const { Block } = models;
-let app;
-let blockchain: Blockchain;
-
-beforeAll(async () => {
-    app = await setUpFull();
-    blockchain = app.resolvePlugin("blockchain");
-});
-
-afterAll(async () => {
-    await tearDownFull();
-});
 
 describe("Exception handler", () => {
     describe("execute", () => {
@@ -36,7 +26,7 @@ describe("Exception handler", () => {
             const sameBlockDifferentId = new Block(blocks2to100[0]);
             sameBlockDifferentId.data.id = "7536951";
 
-            const handler = new UnchainedHandler(blockchain, sameBlockDifferentId, true);
+            const handler = new UnchainedHandler(blockchain as any, sameBlockDifferentId, true);
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
             expect(forkBlock).toHaveBeenCalled();
@@ -44,11 +34,11 @@ describe("Exception handler", () => {
 
         it("should log that blocks are being discarded when discarding blocks with height > current + 1", async () => {
             jest.spyOn(blockchain, "getLastBlock").mockReturnValue(new Block(blocks2to100[0]));
-            blockchain.processQueue.length = () => 5;
+            blockchain.queue.length = () => 5;
 
-            const loggerDebug = jest.spyOn(app.resolvePlugin("logger"), "debug");
+            const loggerDebug = jest.spyOn(logger, "debug");
 
-            const handler = new UnchainedHandler(blockchain, new Block(blocks2to100[5]), true);
+            const handler = new UnchainedHandler(blockchain as any, new Block(blocks2to100[5]), true);
 
             expect(await handler.execute()).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             expect(loggerDebug).toHaveBeenCalledWith("Discarded 5 downloaded blocks.");

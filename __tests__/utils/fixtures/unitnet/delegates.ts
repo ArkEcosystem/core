@@ -1,11 +1,11 @@
-import { client, crypto } from "@arkecosystem/crypto";
+import { configManager, crypto } from "@arkecosystem/crypto";
 
 /**
  * Get the unitnet genesis delegates information
  * @return {Array} array of objects like { secret, publicKey, address, balance }
  */
 
-client.getConfigManager().setFromPreset("unitnet");
+configManager.setFromPreset("unitnet");
 
 import { secrets } from "../../config/unitnet/delegates.json";
 import { transactions as genesisTransactions } from "../../config/unitnet/genesisBlock.json";
