@@ -1,3 +1,5 @@
+import { emitter } from "./emitter";
+
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
@@ -22,11 +24,7 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 if (name === "event-emitter") {
-                    return {
-                        on: jest.fn(),
-                        emit: jest.fn(),
-                        once: jest.fn(),
-                    };
+                    return emitter;
                 }
 
                 return {};
