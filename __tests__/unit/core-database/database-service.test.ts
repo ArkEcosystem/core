@@ -49,7 +49,6 @@ describe("Database Service", () => {
 
         expect(emitter.on).toHaveBeenCalledWith("state:started", expect.toBeFunction());
         expect(emitter.on).toHaveBeenCalledWith("wallet.created.cold", expect.toBeFunction());
-        expect(emitter.once).toHaveBeenCalledWith("shutdown", expect.toBeFunction());
     });
 
     describe("applyBlock", () => {

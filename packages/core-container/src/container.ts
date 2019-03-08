@@ -265,9 +265,6 @@ export class Container implements container.IContainer {
 
                     // Wait for event to be emitted and give time to finish
                     await delay(1000);
-
-                    // Save dirty wallets
-                    await database.saveWallets(false);
                 }
             } catch (error) {
                 // tslint:disable-next-line:no-console

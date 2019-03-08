@@ -256,7 +256,7 @@ export class WalletManager implements Database.IWalletManager {
 
     /**
      * Build vote balances of all delegates.
-     * NOTE: Only called during SPV.
+     * NOTE: Only called during integrity verification on boot.
      * @return {void}
      */
     public buildVoteBalances() {

@@ -38,9 +38,7 @@ export interface IDatabaseService {
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;
 
-    buildWallets(height: number): Promise<boolean>;
-
-    saveWallets(force: boolean): Promise<void>;
+    buildWallets(): Promise<boolean>;
 
     saveBlock(block: models.Block): Promise<void>;
 

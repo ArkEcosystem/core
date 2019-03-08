@@ -225,8 +225,6 @@ describe("State Machine", () => {
                     // @ts-ignore
                     buildWallets: jest.spyOn(blockchain.database, "buildWallets").mockReturnValue(true),
                     // @ts-ignore
-                    saveWallets: jest.spyOn(blockchain.database, "saveWallets").mockReturnValue(true),
-                    // @ts-ignore
                     applyRound: jest.spyOn(blockchain.database, "applyRound").mockReturnValue(true),
                     // @ts-ignore
                     getActiveDelegates: jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(true),
@@ -290,8 +288,7 @@ describe("State Machine", () => {
                 stateStorage.networkStart = true;
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
-                expect(databaseMocks.saveWallets).toHaveBeenCalledWith(true);
+                expect(databaseMocks.buildWallets).toHaveBeenCalled();
                 expect(databaseMocks.applyRound).toHaveBeenCalledWith(1);
 
                 stateStorage.networkStart = false; // reset to default value
@@ -303,7 +300,7 @@ describe("State Machine", () => {
                 const loggerVerbose = jest.spyOn(logger, "verbose");
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.buildWallets).toHaveBeenCalledWith(1);
+                expect(databaseMocks.buildWallets).toHaveBeenCalled();
                 expect(loggerVerbose).toHaveBeenCalledWith(
                     "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.",
                 );
@@ -334,7 +331,6 @@ describe("State Machine", () => {
                 expect(loggerWarn).toHaveBeenCalledWith(
                     "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
-                expect(databaseMocks.saveWallets).toHaveBeenCalledWith(true);
             });
 
             it("should clean round data if new round starts at block.height + 1 (and dispatch STARTED)", async () => {

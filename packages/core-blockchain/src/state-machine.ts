@@ -169,8 +169,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.lastDownloadedBlock = block;
 
             if (stateStorage.networkStart) {
-                await blockchain.database.buildWallets(block.data.height);
-                await blockchain.database.saveWallets(true);
+                await blockchain.database.buildWallets();
                 await blockchain.database.applyRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
 
@@ -181,7 +180,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 stateStorage.setLastBlock(new Block(config.get("genesisBlock")));
-                await blockchain.database.buildWallets(block.data.height);
+                await blockchain.database.buildWallets();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -198,13 +197,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             /** *******************************
              * database init                 *
              ******************************* */
-            // SPV rebuild
-            const verifiedWalletsIntegrity = await blockchain.database.buildWallets(block.data.height);
+            // Integrity Verification
+            const verifiedWalletsIntegrity = await blockchain.database.buildWallets();
             if (!verifiedWalletsIntegrity && block.data.height > 1) {
                 logger.warn(
                     "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
                 );
-                await blockchain.database.saveWallets(true);
             }
 
             // NOTE: if the node is shutdown between round, the round has already been applied
