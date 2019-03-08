@@ -15,31 +15,25 @@ const schemaUsername = Joi.string()
     .min(1)
     .max(20);
 
-const schemaIntegerBetween = Joi.object()
-    .keys({
-        from: Joi
-            .number()
-            .integer()
-            .min(0),
-        to: Joi
-            .number()
-            .integer()
-            .min(0),
-    })
+const schemaIntegerBetween = Joi.object().keys({
+    from: Joi.number()
+        .integer()
+        .min(0),
+    to: Joi.number()
+        .integer()
+        .min(0),
+});
 
-const schemaPercentage = Joi.object()
-    .keys({
-        from: Joi
-            .number()
-            .precision(2)
-            .min(0)
-            .max(100),
-        to: Joi
-            .number()
-            .precision(2)
-            .min(0)
-            .max(100),
-    })
+const schemaPercentage = Joi.object().keys({
+    from: Joi.number()
+        .precision(2)
+        .min(0)
+        .max(100),
+    to: Joi.number()
+        .precision(2)
+        .min(0)
+        .max(100),
+});
 
 export const index: object = {
     query: {
@@ -80,7 +74,7 @@ export const active: object = {
         height: Joi.number()
             .integer()
             .min(1),
-    }
+    },
 };
 
 export const show: object = {

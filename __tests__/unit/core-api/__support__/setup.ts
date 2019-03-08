@@ -1,13 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import delay from "delay";
-import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 import { plugin } from "../../../../packages/core-api/src/plugin";
+import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
 import { delegates } from "../../../utils/fixtures";
 import { generateRound } from "./utils/generate-round";
 
-import { queries } from "../../../../packages/core-database-postgres/src/queries";
+import { models } from "@arkecosystem/crypto";
+import { sortBy } from "@arkecosystem/utils";
 
 const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
 
@@ -33,8 +34,7 @@ async function setUp() {
 
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     await databaseService.connection.roundsRepository.truncate();
-    await databaseService.buildWallets(1);
-    await databaseService.saveWallets(true);
+    await databaseService.buildWallets();
     await databaseService.saveRound(round);
 
     await registerWithContainer(plugin, options);
@@ -50,9 +50,11 @@ async function tearDown() {
 async function calculateRanks() {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const rows = await (databaseService.connection as any).query.manyOrNone(queries.spv.delegatesRanks);
+    const delegateWallets = Object.values(databaseService.walletManager.allByUsername()).sort(
+        (a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance),
+    );
 
-    rows.forEach((delegate, i) => {
+    sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
         const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
         wallet.missedBlocks = +delegate.missedBlocks;
         (wallet as any).rate = i + 1;

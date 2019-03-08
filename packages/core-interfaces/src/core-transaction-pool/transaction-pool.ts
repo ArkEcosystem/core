@@ -103,6 +103,11 @@ export interface ITransactionPool {
     getTransactionsData(start: number, size: number, property: string, maxBytes?: number): string[] | Buffer[];
 
     /**
+     *  Get all transactions of a given type from the pool.
+     */
+    getTransactionsByType(type: any): any;
+
+    /**
      * Remove all transactions from the transaction pool belonging to specific sender.
      */
     removeTransactionsForSender(senderPublicKey: string): void;
