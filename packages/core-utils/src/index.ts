@@ -1,6 +1,6 @@
 import { bignumify } from "./bignumify";
 import { CappedSet } from "./capped-set";
-import { calculateApproval, calculateProductivity, calculateForgedTotal } from "./delegate-calculator";
+import { calculateApproval, calculateForgedTotal, calculateProductivity } from "./delegate-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
 import { NSect } from "./nsect";
@@ -11,4 +11,13 @@ const delegateCalculator = { calculateApproval, calculateProductivity, calculate
 const roundCalculator = { calculateRound, isNewRound };
 const supplyCalculator = { calculate };
 
-export { CappedSet, NSect, bignumify, delegateCalculator, formatTimestamp, hasSomeProperty, roundCalculator, supplyCalculator };
+export {
+    CappedSet,
+    NSect,
+    bignumify,
+    delegateCalculator,
+    formatTimestamp,
+    hasSomeProperty,
+    roundCalculator,
+    supplyCalculator,
+};
