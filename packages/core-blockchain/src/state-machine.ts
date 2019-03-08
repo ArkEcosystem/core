@@ -4,13 +4,13 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { isException, models, slots } from "@arkecosystem/crypto";
+import { isException, models } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { config as localConfig } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
-import { isBlockChained, tickSyncTracker } from "./utils";
+import { isBlockChained } from "./utils";
 
 import { Blockchain } from "./blockchain";
 
@@ -165,7 +165,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             /** *******************************
              *  state machine data init      *
              ******************************* */
-            const constants = config.getMilestone(block.data.height);
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 
@@ -177,9 +176,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
                 return blockchain.dispatch("STARTED");
             }
-
-            stateStorage.rebuild =
-                slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime;
 
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");

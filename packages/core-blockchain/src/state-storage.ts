@@ -31,7 +31,6 @@ export class StateStorage implements Blockchain.IStateStorage {
     public blockPing: any;
     public started: boolean;
     public forkedBlock: models.Block | null;
-    public rebuild: boolean;
     public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
@@ -51,7 +50,6 @@ export class StateStorage implements Blockchain.IStateStorage {
         this.blockPing = null;
         this.started = false;
         this.forkedBlock = null;
-        this.rebuild = true;
         this.wakeUpTimeout = null;
         this.noBlockCounter = 0;
         this.p2pUpdateCounter = 0;

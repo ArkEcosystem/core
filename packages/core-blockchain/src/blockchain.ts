@@ -194,15 +194,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Rebuild N blocks in the blockchain.
-     * @param  {Number} nblocks
-     * @return {void}
-     */
-    public rebuild(nblocks?: number) {
-        throw new Error("Method [rebuild] not implemented!");
-    }
-
-    /**
      * Reset the state of the blockchain.
      * @return {void}
      */
@@ -416,50 +407,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Hande a block during a rebuild.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
-     * @param  {Function} callback
-     * @return {Object}
-     */
-    public async rebuildBlock(block, callback) {
-        const lastBlock = this.state.getLastBlock();
-
-        if (block.verification.verified) {
-            if (isBlockChained(lastBlock, block)) {
-                // save block on database
-                this.database.enqueueSaveBlock(block);
-
-                // committing to db every 20,000 blocks
-                if (block.data.height % 20000 === 0) {
-                    await this.database.commitQueuedQueries();
-                }
-
-                this.state.setLastBlock(block);
-
-                return callback();
-            }
-            if (block.data.height > lastBlock.data.height + 1) {
-                this.state.lastDownloadedBlock = lastBlock;
-                return callback();
-            }
-            if (
-                block.data.height < lastBlock.data.height ||
-                (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id)
-            ) {
-                this.state.lastDownloadedBlock = lastBlock;
-                return callback();
-            }
-            this.state.lastDownloadedBlock = lastBlock;
-            logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork`);
-            return callback();
-        }
-        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed`);
-        logger.warn(JSON.stringify(block.verification, null, 4));
-        return callback();
-    }
-
-    /**
      * Process the given block.
      */
     public async processBlock(block: models.Block, callback) {
@@ -532,24 +479,6 @@ export class Blockchain implements blockchain.IBlockchain {
         block = block || this.getLastBlock();
 
         return slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
-    }
-
-    /**
-     * Determine if the blockchain is synced after a rebuild.
-     */
-    public isRebuildSynced(block?: models.IBlock): boolean {
-        if (!this.p2p.hasPeers()) {
-            return true;
-        }
-
-        block = block || this.getLastBlock();
-
-        const remaining = slots.getTime() - block.data.timestamp;
-        logger.info(`Remaining block timestamp ${remaining}`);
-
-        // stop fast rebuild 7 days before the last network block
-        return slots.getTime() - block.data.timestamp < 3600 * 24 * 7;
-        // return slots.getTime() - block.data.timestamp < 100 * config.getMilestone(block.data.height).blocktime
     }
 
     /**
