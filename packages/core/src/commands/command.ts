@@ -1,12 +1,11 @@
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
-import envPaths from "env-paths";
+import * as envPaths from "env-paths";
 import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
 import { join, resolve } from "path";
 import prompts from "prompts";
-
 import { configManager } from "../helpers/config";
 import { confirm } from "../helpers/prompts";
 import { processManager } from "../process-manager";

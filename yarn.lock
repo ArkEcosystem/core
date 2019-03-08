@@ -2082,11 +2082,6 @@
   resolved "https://registry.yarnpkg.com/@types/elasticsearch/-/elasticsearch-5.0.31.tgz#82c02c743a5eaca6dbb4b04a0689e6c53fd4f296"
   integrity sha512-XiYeE0vQMJG6rSrDw2WgNIK1RelWB1FmplDJGlmlLG5/Cb75Q0+EHS0X38hzptI+jjvyvPorE6pvJkgPoM6hhg==
 
-"@types/env-paths@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@types/env-paths/-/env-paths-1.0.2.tgz#8b2b2b89d959591de2bf74ea448a7db2289299aa"
-  integrity sha512-EVOU+P4CSugzatd2GD8tVEYYR/OMcwzkneaJLx0R091gTqW2wZO1vpiWoM+BKZAEYdzif0SfwRuBvegIZBcZnw==
-
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"

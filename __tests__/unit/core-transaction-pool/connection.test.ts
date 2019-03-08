@@ -512,7 +512,7 @@ describe("Connection", () => {
 
         it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
             const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            (connection as any).blockedByPublicKey[publicKey] = dato().subtractSeconds(1);
+            (connection as any).blockedByPublicKey[publicKey] = dato().subSeconds(1);
             expect(connection.isSenderBlocked(publicKey)).toBeFalse();
             expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
         });

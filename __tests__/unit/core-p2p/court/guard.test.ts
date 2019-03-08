@@ -37,7 +37,7 @@ describe("Guard", () => {
 
         it("should return false because passed", async () => {
             await guard.monitor.acceptNewPeer(peerMock);
-            guard.suspensions[peerMock.ip].until = dato().subtractMinutes(1);
+            guard.suspensions[peerMock.ip].until = dato().subMinutes(1);
 
             expect(guard.isSuspended(peerMock)).toBe(false);
         });
