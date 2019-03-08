@@ -1,70 +1,58 @@
 /* tslint:disable:max-line-length */
-import { crypto, models, slots } from "@arkecosystem/crypto";
-import { asValue } from "awilix";
+import "./mocks/";
+import { logger } from "./mocks/logger";
+import { config } from "./mocks/config";
+
+import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
-import { defaults } from "../../../packages/core-blockchain/src/defaults";
+import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
+import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 
-const { Block, Wallet } = models;
+const { Block } = models;
 
 let genesisBlock;
-let configManager;
-let container;
-let blockchain: Blockchain;
-let loggerDebugBackup;
+
+const blockchain = new Blockchain({});
 
 describe("Blockchain", () => {
-    let logger;
     beforeAll(async () => {
-        // Backup logger.debug function as we are going to mock it in the test suite
-        logger = container.resolvePlugin("logger");
-        loggerDebugBackup = logger.debug;
-
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
         genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
 
-        configManager = container.getConfig();
-
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
-        configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
-
-        // Manually register the blockchain and start it
-        await __start(false);
-    });
-
-    afterAll(async () => {
-        configManager.set("exceptions.transactions", []);
-
-        await __resetToHeight1();
-
-        // Manually stop the blockchain
-        await blockchain.stop();
-    });
-
-    afterEach(async () => {
-        // Restore original logger.debug function
-        logger.debug = loggerDebugBackup;
-
-        await __resetToHeight1();
-        await __addBlocks(5);
-        await __resetBlocksInCurrentRound();
+        config["exceptions.transactions"] = genesisBlock.transactions.map(tx => tx.id);
     });
 
     describe("dispatch", () => {
         it("should be ok", () => {
+            jest.spyOn(stateMachine, "transition").mockReturnValueOnce({ actions: [] });
             const nextState = blockchain.dispatch("START");
 
             expect(blockchain.state.blockchain).toEqual(nextState);
+        });
+
+        it("should log an error if no action is found", () => {
+            const loggerError = jest.spyOn(logger, "error");
+
+            // @ts-ignore
+            jest.spyOn(stateMachine, "transition").mockReturnValueOnce({
+                actions: ["yooo"],
+            });
+
+            blockchain.dispatch("STOP");
+            expect(loggerError).toHaveBeenCalledWith("No action 'yooo' found");
         });
     });
 
     describe("start", () => {
         it("should be ok", async () => {
+            jest.spyOn(stateMachine, "transition").mockReturnValueOnce({ actions: [] });
             process.env.CORE_SKIP_BLOCKCHAIN = "false";
 
             const started = await blockchain.start(true);
@@ -113,6 +101,21 @@ describe("Blockchain", () => {
     });
 
     describe("rebuildBlock", () => {
+        const block3 = new Block(blocks2to100[1]);
+        let getLastBlock;
+        let setLastBlock;
+        beforeEach(() => {
+            getLastBlock = jest.fn(() => block3);
+            setLastBlock = jest.fn(() => null);
+            jest.spyOn(blockchain, "state", "get").mockReturnValue({
+                getLastBlock,
+                setLastBlock,
+            } as any);
+        });
+        afterAll(() => {
+            jest.restoreAllMocks();
+        });
+
         it("should rebuild with a known block", async () => {
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
@@ -125,17 +128,13 @@ describe("Blockchain", () => {
 
         it("should rebuild with a new chained block", async () => {
             const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
 
-            await blockchain.removeBlocks(1); // remove 1 block so that we can add it then as a chained block
-
-            expect(blockchain.getLastBlock()).not.toEqual(lastBlock);
-
-            await blockchain.rebuildBlock(lastBlock, mockCallback);
+            const chainedBlock = new Block(blocks2to100[2]);
+            await blockchain.rebuildBlock(chainedBlock, mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
-            expect(blockchain.getLastBlock()).toEqual(lastBlock);
+            expect(setLastBlock).nthCalledWith(1, chainedBlock);
         });
 
         it("should disregard block with height == last height but different id", async () => {
@@ -153,7 +152,6 @@ describe("Blockchain", () => {
             expect(loggerInfo).toHaveBeenCalledWith(
                 `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because on a fork`,
             );
-            expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
         });
 
         it("should disregard block with height > last height + 1", async () => {
@@ -166,7 +164,6 @@ describe("Blockchain", () => {
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
-            expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
             expect(blockchain.state.lastDownloadedBlock).toBe(lastBlock);
         });
 
@@ -185,14 +182,12 @@ describe("Blockchain", () => {
             expect(loggerWarn).toHaveBeenCalledWith(
                 `Block ${lastBlockCopy.data.height.toLocaleString()} disregarded because verification failed`,
             );
-            expect(blockchain.getLastBlock().data.id).toBe(lastBlock.data.id);
         });
 
         it("should commitQueuedQueries if block height % 20 000 == 0", async () => {
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
-            const lastBlockHeight = lastBlock.data.height;
-            const nextBlock = new Block(blocks2to100[lastBlock.data.height - 1]);
+            const nextBlock = new Block(blocks2to100[2]);
             lastBlock.data.height = 19999;
             nextBlock.data.height = 20000;
 
@@ -208,28 +203,32 @@ describe("Blockchain", () => {
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(commitQueuedQueries).toHaveBeenCalled();
-            expect(blockchain.getLastBlock().data.id).toBe(nextBlock.data.id);
-
-            // reset to "stable" state
-            lastBlock.data.height = lastBlockHeight;
-            blockchain.state.setLastBlock(lastBlock);
         });
     });
 
     describe("processBlock", () => {
+        const block3 = new Block(blocks2to100[1]);
+        let getLastBlock;
+        let setLastBlock;
+        beforeEach(() => {
+            getLastBlock = jest.fn(() => block3);
+            setLastBlock = jest.fn(() => null);
+            jest.spyOn(blockchain, "state", "get").mockReturnValue({
+                getLastBlock,
+                setLastBlock,
+            } as any);
+        });
+        afterAll(() => {
+            jest.restoreAllMocks();
+        });
+
         it("should process a new chained block", async () => {
             const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.state.getLastBlock();
 
-            await blockchain.removeBlocks(1); // remove 1 block so that we can add it then as a chained block
-
-            expect(blockchain.getLastBlock()).not.toEqual(lastBlock);
-
-            await blockchain.processBlock(lastBlock, mockCallback);
+            await blockchain.processBlock(new Block(blocks2to100[2]), mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
-            expect(blockchain.getLastBlock()).toEqual(lastBlock);
         });
 
         it("should process a valid block already known", async () => {
@@ -246,8 +245,7 @@ describe("Blockchain", () => {
         it("should broadcast a block if (slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
-            lastBlock.data.timestamp =
-                slots.getSlotNumber() * configManager.getMilestone(lastBlock.data.height).blocktime;
+            lastBlock.data.timestamp = slots.getSlotNumber() * 8000;
 
             const broadcastBlock = jest.spyOn(blockchain.p2p, "broadcastBlock");
 
@@ -261,6 +259,7 @@ describe("Blockchain", () => {
 
     describe("getLastBlock", () => {
         it("should be ok", () => {
+            jest.spyOn(localConfig, "get").mockReturnValueOnce(50);
             blockchain.state.setLastBlock(genesisBlock);
 
             expect(blockchain.getLastBlock()).toEqual(genesisBlock);
@@ -269,6 +268,7 @@ describe("Blockchain", () => {
 
     describe("handleIncomingBlock", () => {
         it("should be ok", () => {
+            blockchain.state.started = true;
             const dispatch = blockchain.dispatch;
             const enqueueBlocks = blockchain.enqueueBlocks;
             blockchain.dispatch = jest.fn(() => true);
@@ -289,6 +289,7 @@ describe("Blockchain", () => {
         });
 
         it("should not handle block from future slot", () => {
+            blockchain.state.started = true;
             const dispatch = blockchain.dispatch;
             const enqueueBlocks = blockchain.enqueueBlocks;
             blockchain.dispatch = jest.fn(() => true);
@@ -476,73 +477,18 @@ describe("Blockchain", () => {
             expect(blockchain).toHaveProperty("rebuildQueue");
         });
     });
-});
 
-async function __start(networkStart) {
-    process.env.CORE_SKIP_BLOCKCHAIN = "false";
-    process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
-    process.env.CORE_ENV = "false";
+    describe("constructor - networkStart", () => {
+        it("should output log messages if launched in networkStart mode", async () => {
+            const loggerWarn = jest.spyOn(logger, "warn");
+            const loggerInfo = jest.spyOn(logger, "info");
 
-    const plugin = require("../../../packages/core-blockchain/src").plugin;
+            const blockchainNetworkStart = new Blockchain({ networkStart: true });
 
-    blockchain = await plugin.register(container, {
-        networkStart,
-        ...defaults,
+            expect(loggerWarn).toHaveBeenCalledWith(
+                "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
+            );
+            expect(loggerInfo).toHaveBeenCalledWith("Starting Ark Core for a new world, welcome aboard");
+        });
     });
-
-    await container.register(
-        "blockchain",
-        asValue({
-            name: "blockchain",
-            version: "0.1.0",
-            plugin: blockchain,
-            options: {},
-        }),
-    );
-
-    if (networkStart) {
-        return;
-    }
-
-    await __resetToHeight1();
-
-    await blockchain.start();
-    await __addBlocks(5);
-}
-
-async function __resetBlocksInCurrentRound() {
-    await blockchain.database.loadBlocksFromCurrentRound();
-}
-
-async function __resetToHeight1() {
-    const lastBlock = await blockchain.database.getLastBlock();
-    if (lastBlock) {
-        // Make sure the wallet manager has been fed or else revertRound
-        // cannot determine the previous delegates. This is only necessary, because
-        // the database is not dropped after the unit tests are done.
-        await blockchain.database.buildWallets(lastBlock.data.height);
-
-        // Index the genesis wallet or else revert block at height 1 fails
-        const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey);
-        const genesis = new Wallet(generator);
-        genesis.publicKey = genesisBlock.data.generatorPublicKey;
-        genesis.username = "genesis";
-        blockchain.database.walletManager.reindex(genesis);
-
-        blockchain.state.clear();
-
-        blockchain.state.setLastBlock(lastBlock);
-        await __resetBlocksInCurrentRound();
-        await blockchain.removeBlocks(lastBlock.data.height - 1);
-    }
-}
-
-async function __addBlocks(untilHeight) {
-    const allBlocks = [...blocks2to100, ...blocks101to155];
-    const lastHeight = blockchain.getLastHeight();
-
-    for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
-        const blockToProcess = new Block(allBlocks[height - 2]);
-        await blockchain.processBlock(blockToProcess, () => null);
-    }
-}
+});

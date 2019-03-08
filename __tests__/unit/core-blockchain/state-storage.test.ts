@@ -1,3 +1,6 @@
+import "./mocks/";
+import { logger } from "./mocks/logger";
+
 import { ITransactionData, models } from "@arkecosystem/crypto";
 import delay from "delay";
 import { config } from "../../../packages/core-blockchain/src/config";
@@ -316,7 +319,6 @@ describe("State Storage", () => {
                 block: blocks2to100[3],
             };
 
-            const logger = app.resolvePlugin("logger");
             const loggerInfo = jest.spyOn(logger, "info");
 
             stateStorage.pushPingBlock(blocks2to100[5]);

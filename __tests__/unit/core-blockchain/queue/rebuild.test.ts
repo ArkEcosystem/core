@@ -1,39 +1,12 @@
-import { asValue } from "awilix";
+import "../mocks/";
+import { blockchain } from "../mocks/blockchain";
+import { logger } from "../mocks/logger";
+
 import delay from "delay";
-import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
 import "../../../utils";
 import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 let rebuildQueue;
-let container;
-let blockchain: Blockchain;
-
-beforeAll(async () => {
-    container = await setUp();
-
-    process.env.CORE_SKIP_BLOCKCHAIN = "true";
-
-    // Manually register the blockchain
-    const plugin = require("../../../../packages/core-blockchain/src").plugin;
-
-    blockchain = await plugin.register(container, {
-        networkStart: false,
-    });
-
-    await container.register(
-        "blockchain",
-        asValue({
-            name: "blockchain",
-            version: "0.1.0",
-            plugin: blockchain,
-            options: {},
-        }),
-    );
-});
-
-afterAll(async () => {
-    jest.restoreAllMocks();
-});
 
 beforeEach(async () => {
     process.env.CORE_SKIP_BLOCKCHAIN = "false";
@@ -76,7 +49,7 @@ describe("RebuildQueue", () => {
             throw new Error("wooo");
         });
 
-        const loggerError = jest.spyOn(container.resolvePlugin("logger"), "error");
+        const loggerError = jest.spyOn(logger, "error");
 
         const cb = jest.fn(() => true);
         rebuildQueue.push(blocks2to100[3], cb);

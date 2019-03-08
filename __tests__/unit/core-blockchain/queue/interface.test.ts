@@ -1,13 +1,13 @@
+import "../mocks/";
+import { blockchain } from "../mocks/blockchain";
+
 import async from "async";
-import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../../packages/core-blockchain/src/blockchain";
 import { QueueInterface } from "../../../../packages/core-blockchain/src/queue/interface";
 import "../../../utils";
 
 let fakeQueue;
-let container;
-let blockchain: Blockchain;
 
 class FakeQueue extends QueueInterface {
     /**
@@ -23,31 +23,10 @@ class FakeQueue extends QueueInterface {
     }
 }
 
-beforeAll(async () => {
-    process.env.CORE_SKIP_BLOCKCHAIN = "true";
-
-    // Manually register the blockchain
-    const plugin = require("../../../../packages/core-blockchain/src").plugin;
-
-    blockchain = await plugin.register(container, {
-        networkStart: false,
-    });
-
-    await container.register(
-        "blockchain",
-        asValue({
-            name: "blockchain",
-            version: "0.1.0",
-            plugin: blockchain,
-            options: {},
-        }),
-    );
-});
-
 beforeEach(async () => {
     process.env.CORE_SKIP_BLOCKCHAIN = "false";
 
-    fakeQueue = new FakeQueue(blockchain, "fake");
+    fakeQueue = new FakeQueue(blockchain as any, "fake");
 });
 
 describe("FakeQueue", () => {
