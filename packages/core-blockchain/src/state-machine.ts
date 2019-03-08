@@ -47,10 +47,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         return blockchain.dispatch(blockchain.isSynced() ? "SYNCED" : "NOTSYNCED");
     },
 
-    checkRebuildBlockSynced() {
-        return blockchain.dispatch(blockchain.isRebuildSynced() ? "SYNCED" : "NOTSYNCED");
-    },
-
     async checkLastDownloadedBlockSynced() {
         let event = "NOTSYNCED";
         logger.debug(`Queued blocks (process: ${blockchain.queue.length()})`);
@@ -107,25 +103,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.networkStart = false;
 
             blockchain.dispatch("SYNCFINISHED");
-        }
-    },
-
-    async rebuildFinished() {
-        try {
-            logger.info("Blockchain rebuild finished");
-
-            stateStorage.rebuild = false;
-
-            await blockchain.database.commitQueuedQueries();
-            await blockchain.rollbackCurrentRound();
-            await blockchain.database.buildWallets(stateStorage.getLastBlock().data.height);
-            await blockchain.database.saveWallets(true);
-            await blockchain.transactionPool.buildWallets();
-
-            return blockchain.dispatch("PROCESSFINISHED");
-        } catch (error) {
-            logger.error(error.stack);
-            return blockchain.dispatch("FAILURE");
         }
     },
 
