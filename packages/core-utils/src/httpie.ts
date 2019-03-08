@@ -17,14 +17,16 @@ export class HttpieError extends Error {
             value: this.constructor.name,
         });
 
-        Object.defineProperty(this, "response", {
-            enumerable: false,
-            value: {
-                body: parseJSON(error.response.body).value,
-                headers: error.response.headers,
-                status: error.response.statusCode,
-            },
-        });
+        if (error.response) {
+            Object.defineProperty(this, "response", {
+                enumerable: false,
+                value: {
+                    body: parseJSON(error.response.body).value,
+                    headers: error.response.headers,
+                    status: error.response.statusCode,
+                },
+            });
+        }
 
         Error.captureStackTrace(this, this.constructor);
     }

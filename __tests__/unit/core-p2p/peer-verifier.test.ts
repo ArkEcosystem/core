@@ -118,7 +118,7 @@ describe("Peer Verifier", () => {
         it("higher than our chain (legit)", async () => {
             nock(peerMock.url)
                 .get("/peer/blocks/common")
-                .query({ ids: genesisBlock.data.id })
+                .query({ ids: `${genesisBlock.data.id},` })
                 .reply(
                     200,
                     {
@@ -130,6 +130,7 @@ describe("Peer Verifier", () => {
 
             nock(peerMock.url)
                 .get("/peer/blocks")
+                .query({ lastBlockHeight: 1 })
                 .reply(
                     200,
                     {

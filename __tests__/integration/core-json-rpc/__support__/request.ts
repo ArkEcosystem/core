@@ -9,7 +9,7 @@ export async function sendRequest(method, params: any = {}) {
         method,
         params,
     });
-    console.log(response);
+
     await expect(response.status).toBe(200);
     await expect(response.body.jsonrpc).toBe("2.0");
     await expect(response.body.id).toBe(id);
