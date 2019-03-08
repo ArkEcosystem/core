@@ -46,13 +46,6 @@ export interface IBlockchain {
     updateNetworkStatus(): Promise<any>;
 
     /**
-     * Rebuild N blocks in the blockchain.
-     * @param  {Number} nblocks
-     * @return {void}
-     */
-    rebuild(nblocks?: number): void;
-
-    /**
      * Reset the state of the blockchain.
      * @return {void}
      */
@@ -100,15 +93,6 @@ export interface IBlockchain {
     removeTopBlocks(count: any): Promise<void>;
 
     /**
-     * Hande a block during a rebuild.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
-     * @param  {Function} callback
-     * @return {Object}
-     */
-    rebuildBlock(block: models.Block, callback: any): Promise<any>;
-
-    /**
      * Process the given block.
      * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
      * @param  {Block} block
@@ -153,13 +137,6 @@ export interface IBlockchain {
      * @return {Boolean}
      */
     isSynced(block?: models.Block): boolean;
-
-    /**
-     * Determine if the blockchain is synced after a rebuild.
-     * @param  {Block}  block
-     * @return {Boolean}
-     */
-    isRebuildSynced(block?: models.Block): boolean;
 
     /**
      * Get the last block of the blockchain.
