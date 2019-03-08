@@ -86,18 +86,6 @@ describe("State Machine", () => {
             });
         });
 
-        describe("checkRebuildBlockSynced", () => {
-            it('should dispatch the event "SYNCED" if the blockchain is synced after a rebuild', () => {
-                blockchain.isRebuildSynced = jest.fn(() => true);
-                expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, "SYNCED");
-            });
-
-            it('should dispatch the event "NOTSYNCED" if the blockchain is not synced after a rebuild', () => {
-                blockchain.isRebuildSynced = jest.fn(() => false);
-                expect(() => actionMap.checkRebuildBlockSynced()).toDispatch(blockchain, "NOTSYNCED");
-            });
-        });
-
         describe("checkLastDownloadedBlockSynced", () => {
             it('should dispatch the event "NOTSYNCED" by default', async () => {
                 blockchain.isSynced = jest.fn(() => false);
@@ -105,7 +93,7 @@ describe("State Machine", () => {
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
             });
 
-            it('should dispatch the event "PAUSED" if the blockchain rebuild / process queue is more than 10000 long', async () => {
+            it('should dispatch the event "PAUSED" if the blockchain process queue is more than 10000 long', async () => {
                 blockchain.isSynced = jest.fn(() => false);
                 blockchain.queue.length = jest.fn(() => 10001);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
@@ -169,25 +157,6 @@ describe("State Machine", () => {
                     expect(() => actionMap.downloadFinished()).not.toDispatch(blockchain, "SYNCFINISHED");
                     expect(stateMachine.state.networkStart).toBe(false);
                 });
-            });
-        });
-
-        describe("rebuildFinished", () => {
-            it('should dispatch the event "PROCESSFINISHED"', async () => {
-                localConfig.set("state.maxLastBlocks", 50);
-                const config = container.getConfig();
-                const genesisBlock = config.get("genesisBlock");
-
-                stateStorage.setLastBlock(new Block(genesisBlock));
-
-                await expect(actionMap.rebuildFinished).toDispatch(blockchain, "PROCESSFINISHED");
-            });
-
-            it('should dispatch the event "FAILURE" when some called method threw an exception', async () => {
-                jest.spyOn(blockchain.database, "commitQueuedQueries").mockImplementationOnce(() => {
-                    throw new Error("oops");
-                });
-                await expect(actionMap.rebuildFinished).toDispatch(blockchain, "FAILURE");
             });
         });
 

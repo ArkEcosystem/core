@@ -26,7 +26,7 @@ describe("Blockchain machine", () => {
             expect(blockchainMachine).toExecuteOnEntry({ state: "init", actions: ["init"] });
         });
 
-        it("should transition to `rebuild` on `NETWORKSTART`", () => {
+        it("should transition to `idle` on `NETWORKSTART`", () => {
             expect(blockchainMachine).toTransition({
                 from: "init",
                 on: "NETWORKSTART",
@@ -34,7 +34,7 @@ describe("Blockchain machine", () => {
             });
         });
 
-        it("should transition to `rebuild` on `STARTED`", () => {
+        it("should transition to `syncWithNetwork` on `STARTED`", () => {
             expect(blockchainMachine).toTransition({
                 from: "init",
                 on: "STARTED",
@@ -42,7 +42,7 @@ describe("Blockchain machine", () => {
             });
         });
 
-        it("should transition to `rebuild` on `FAILURE`", () => {
+        it("should transition to `exit` on `FAILURE`", () => {
             expect(blockchainMachine).toTransition({ from: "init", on: "FAILURE", to: "exit" });
         });
     });
