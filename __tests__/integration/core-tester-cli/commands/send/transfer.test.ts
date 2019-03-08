@@ -1,11 +1,6 @@
 import "jest-extended";
-
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { TransferCommand } from "../../../../../packages/core-tester-cli/src/commands/send/transfer";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
-
-const mockAxios = new MockAdapter(axios);
 
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly

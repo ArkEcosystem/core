@@ -2515,6 +2515,14 @@
   dependencies:
     "@types/hapi" "*"
 
+"@types/vision@^5.3.6":
+  version "5.3.6"
+  resolved "https://registry.yarnpkg.com/@types/vision/-/vision-5.3.6.tgz#d696d007ca82254b955fd485bfae0f738d8ae617"
+  integrity sha512-Wo+9LNI9wGcHRShuZW+lbwwj+g6+dyTxtHtNpzfYl4iehYzvFVzGyNo1MgW4qTHQCFEYOirLHBlrutkIRE2TMw==
+  dependencies:
+    "@types/hapi" "*"
+    handlebars "^4.1.0"
+
 "@types/webpack-merge@^4.1.3":
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/@types/webpack-merge/-/webpack-merge-4.1.3.tgz#e6af0f2a0f20a86ac83d7da84a2e454063121ad4"

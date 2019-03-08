@@ -1,11 +1,11 @@
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 
 export function request(method, path, params = {}) {
     const url = `http://localhost:4004/api/${path}`;
-    const instance = axios[method.toLowerCase()];
+    const callable = httpie[method.toLowerCase()];
 
-    return ["GET", "DELETE"].includes(method) ? instance(url, { params }) : instance(url, params);
+    return ["GET", "DELETE"].includes(method) ? callable(url, { params }) : callable(url, params);
 }
 
 export function expectJson(response) {

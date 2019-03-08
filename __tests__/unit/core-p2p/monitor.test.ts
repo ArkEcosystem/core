@@ -2,16 +2,13 @@
 
 import "./mocks/core-container";
 
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import nock from "nock";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { Guard } from "../../../packages/core-p2p/src/court";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
-
-const axiosMock = new MockAdapter(axios);
 
 let peerMock: Peer;
 
@@ -39,7 +36,7 @@ beforeEach(() => {
     Object.assign(peerMock, peerMock.headers, { status: 200 });
     peerMock.nethash = "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192";
 
-    axiosMock.reset(); // important: resets any existing mocking behavior
+    nock.cleanAll();
 });
 
 describe("Monitor", () => {
@@ -55,17 +52,19 @@ describe("Monitor", () => {
 
     describe("acceptNewPeer", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
-                200,
-                {
-                    header: {
-                        height: 1,
-                        id: genesisBlock.data.id,
+            nock(peerMock.url)
+                .get("/peer/status")
+                .reply(
+                    200,
+                    {
+                        header: {
+                            height: 1,
+                            id: genesisBlock.data.id,
+                        },
+                        success: true,
                     },
-                    success: true,
-                },
-                peerMock.headers,
-            ]);
+                    peerMock.headers,
+                );
 
             await monitor.acceptNewPeer(peerMock);
 
@@ -84,25 +83,30 @@ describe("Monitor", () => {
 
     describe("discoverPeers", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
-                200,
-                {
-                    header: {
-                        height: 1,
-                        id: genesisBlock.data.id,
+            nock(peerMock.url)
+                .get("/peer/status")
+                .reply(
+                    200,
+                    {
+                        header: {
+                            height: 1,
+                            id: genesisBlock.data.id,
+                        },
+                        success: true,
                     },
-                    success: true,
-                },
-                peerMock.headers,
-            ]);
-            axiosMock.onGet(/.*\/peer\/list/).reply(() => [
-                200,
-                {
-                    peers: [peerMock.toBroadcastInfo()],
-                    success: true,
-                },
-                peerMock.headers,
-            ]);
+                    peerMock.headers,
+                );
+
+            nock(peerMock.url)
+                .get("/peer/list")
+                .reply(
+                    200,
+                    {
+                        peers: [peerMock.toBroadcastInfo()],
+                        success: true,
+                    },
+                    peerMock.headers,
+                );
 
             await monitor.discoverPeers();
             const peers = monitor.getPeers();
@@ -115,19 +119,25 @@ describe("Monitor", () => {
 
     describe("getNetworkHeight", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
-                200,
-                {
-                    header: {
-                        height: 1,
-                        id: genesisBlock.data.id,
+            nock(peerMock.url)
+                .get("/peer/status")
+                .reply(
+                    200,
+                    {
+                        header: {
+                            height: 1,
+                            id: genesisBlock.data.id,
+                        },
+                        height: 2,
+                        success: true,
                     },
-                    height: 2,
-                    success: true,
-                },
-                peerMock.headers,
-            ]);
-            axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
+                    peerMock.headers,
+                );
+
+            nock(peerMock.url)
+                .get("/peer/list")
+                .reply(200, { peers: [] }, peerMock.headers);
+
             await monitor.discoverPeers();
             await monitor.cleanPeers();
 
@@ -140,8 +150,13 @@ describe("Monitor", () => {
 
     describe("getPBFTForgingStatus", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
-            axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
+            nock(peerMock.url)
+                .get("/peer/status")
+                .reply(200, { success: true, height: 2 }, peerMock.headers);
+
+            nock(peerMock.url)
+                .get("/peer/list")
+                .reply(200, { peers: [] }, peerMock.headers);
 
             await monitor.discoverPeers();
             const pbftForgingStatus = monitor.getPBFTForgingStatus();
@@ -153,29 +168,37 @@ describe("Monitor", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/blocks\/common/).reply(() => [
-                200,
-                {
-                    success: true,
-                    common: true,
-                },
-                peerMock.headers,
-            ]);
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
-                200,
-                {
-                    success: true,
-                    height: 2,
-                },
-                peerMock.headers,
-            ]);
-            axiosMock.onGet(/.*\/peer\/blocks/).reply(() => [
-                200,
-                {
-                    blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
-                },
-                peerMock.headers,
-            ]);
+            nock(peerMock.url)
+                .get("/peer/blocks/common")
+                .reply(
+                    200,
+                    {
+                        success: true,
+                        common: true,
+                    },
+                    peerMock.headers,
+                );
+
+            nock(peerMock.url)
+                .get("/peer/status")
+                .reply(
+                    200,
+                    {
+                        success: true,
+                        height: 2,
+                    },
+                    peerMock.headers,
+                );
+
+            nock(peerMock.url)
+                .get("/peer/blocks")
+                .reply(
+                    200,
+                    {
+                        blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
+                    },
+                    peerMock.headers,
+                );
 
             const blocks = await monitor.downloadBlocks(1);
 

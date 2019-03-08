@@ -1,5 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import axios from "axios";
+import got from "got";
 
 const defaultOpts = ["--skipProbing"];
 
@@ -17,13 +17,18 @@ export const arkToSatoshi = value =>
 export const expectTransactions = (transactions, obj) =>
     expect(transactions).toEqual(expect.arrayContaining([expect.objectContaining(obj)]));
 
-export const captureTransactions = (mockAxios, expectedTransactions) => {
-    mockAxios.onPost("http://localhost:4003/api/v2/transactions").reply(200, { data: {} });
+export const captureTransactions = (nock, expectedTransactions) => {
+    nock("http://localhost:4003")
+        .post("/api/v2/transactions")
+        .reply(200, { data: {} });
 
     // @ts-ignore
-    jest.spyOn(axios, "post").mockImplementation((uri, { transactions }) => {
+    jest.spyOn(got, "post").mockImplementation((uri, { transactions }) => {
+        console.log(transactions);
         for (const transaction of transactions) {
             expectedTransactions.push(transaction);
         }
     });
+
+    console.log(expectedTransactions);
 };

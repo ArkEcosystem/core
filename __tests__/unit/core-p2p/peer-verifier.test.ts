@@ -1,13 +1,10 @@
 import "./mocks/core-container";
 
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import nock from "nock";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerVerifier } from "../../../packages/core-p2p/src/peer-verifier";
 import { blocks2to100 as blocks2to100Json } from "../../utils/fixtures";
 import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
-
-const axiosMock = new MockAdapter(axios);
 
 let peerMock: Peer;
 
@@ -15,7 +12,7 @@ beforeEach(() => {
     peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers);
 
-    axiosMock.reset(); // important: resets any existing mocking behavior
+    nock.cleanAll();
 });
 
 describe("Peer Verifier", () => {
@@ -29,14 +26,17 @@ describe("Peer Verifier", () => {
         });
 
         it("different chains, including the genesis block", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
-                200,
-                {
-                    common: null,
-                    success: true,
-                },
-                peerMock.headers,
-            );
+            nock(peerMock.url)
+                .get("/peer/blocks/common")
+                .query({ ids: genesisBlock.data.id })
+                .reply(
+                    200,
+                    {
+                        common: null,
+                        success: true,
+                    },
+                    peerMock.headers,
+                );
 
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 1, id: "123" } };
@@ -54,14 +54,17 @@ describe("Peer Verifier", () => {
             ];
 
             for (const commonBlockReply of commonBlockReplies) {
-                axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
-                    200,
-                    {
-                        common: commonBlockReply,
-                        success: true,
-                    },
-                    peerMock.headers,
-                );
+                nock(peerMock.url)
+                    .get("/peer/blocks/common")
+                    .query({ ids: genesisBlock.data.id })
+                    .reply(
+                        200,
+                        {
+                            common: commonBlockReply,
+                            success: true,
+                        },
+                        peerMock.headers,
+                    );
 
                 const peerVerifier = new PeerVerifier(peerMock);
                 const state = { header: { height: 1, id: "123" } };
@@ -71,14 +74,17 @@ describe("Peer Verifier", () => {
         });
 
         it("higher than our chain (invalid)", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
-                200,
-                {
-                    common: { id: `${genesisBlock.data.id}`, height: 1 },
-                    success: true,
-                },
-                peerMock.headers,
-            );
+            nock(peerMock.url)
+                .get("/peer/blocks/common")
+                .query({ ids: genesisBlock.data.id })
+                .reply(
+                    200,
+                    {
+                        common: { id: `${genesisBlock.data.id}`, height: 1 },
+                        success: true,
+                    },
+                    peerMock.headers,
+                );
 
             const overrides = [
                 // Altered payload (timestamp)
@@ -92,13 +98,15 @@ describe("Peer Verifier", () => {
             for (const override of overrides) {
                 const block2 = Object.assign({}, blocks2to100Json[0], override);
 
-                axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(
-                    200,
-                    {
-                        blocks: [block2],
-                    },
-                    peerMock.headers,
-                );
+                nock(peerMock.url)
+                    .get("/peer/blocks")
+                    .reply(
+                        200,
+                        {
+                            blocks: [block2],
+                        },
+                        peerMock.headers,
+                    );
 
                 const peerVerifier = new PeerVerifier(peerMock);
                 const state = { header: { height: 2, id: block2.id } };
@@ -108,22 +116,27 @@ describe("Peer Verifier", () => {
         });
 
         it("higher than our chain (legit)", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
-                200,
-                {
-                    common: { id: `${genesisBlock.data.id}`, height: 1 },
-                    success: true,
-                },
-                peerMock.headers,
-            );
+            nock(peerMock.url)
+                .get("/peer/blocks/common")
+                .query({ ids: genesisBlock.data.id })
+                .reply(
+                    200,
+                    {
+                        common: { id: genesisBlock.data.id, height: 1 },
+                        success: true,
+                    },
+                    peerMock.headers,
+                );
 
-            axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(
-                200,
-                {
-                    blocks: [blocks2to100Json[0]],
-                },
-                peerMock.headers,
-            );
+            nock(peerMock.url)
+                .get("/peer/blocks")
+                .reply(
+                    200,
+                    {
+                        blocks: [blocks2to100Json[0]],
+                    },
+                    peerMock.headers,
+                );
 
             const peerVerifier = new PeerVerifier(peerMock);
             const state = { header: { height: 2, id: blocks2to100Json[0].id } };

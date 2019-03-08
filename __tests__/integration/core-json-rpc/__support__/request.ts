@@ -1,4 +1,3 @@
-import axios from "axios";
 import uuid from "uuid/v4";
 
 export async function sendRequest(method, params: any = {}) {

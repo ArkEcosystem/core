@@ -1,14 +1,8 @@
-import "./mocks/core-container";
-
-import "jest-extended";
-
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import "jest-extended";
 import { Client } from "../../../packages/core-forger/src/client";
+import "./mocks/core-container";
 import { sampleBlock } from "./__fixtures__/block";
-
-const mockAxios = new MockAdapter(axios);
 
 jest.setTimeout(30000);
 

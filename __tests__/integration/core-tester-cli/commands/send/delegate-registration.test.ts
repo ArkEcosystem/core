@@ -1,12 +1,7 @@
 import "jest-extended";
-
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import pokemon from "pokemon";
 import { DelegateRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/delegate-registration";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
-
-const mockAxios = new MockAdapter(axios);
 
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly

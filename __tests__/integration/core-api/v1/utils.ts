@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
-import { ApiHelpers } from "../../../utils/helpers/api";
 import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
-import axios from "axios";
 import "jest-extended";
+import { ApiHelpers } from "../../../utils/helpers/api";
 
 class Helpers {
     public async request(method, path, params = {}) {

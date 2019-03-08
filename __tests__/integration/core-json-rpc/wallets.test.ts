@@ -1,13 +1,8 @@
-import "jest-extended";
-
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p/dist/peer";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import "jest-extended";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
-
-const axiosMock = new MockAdapter(axios);
 
 jest.mock("is-reachable", () => jest.fn(async peer => true));
 
@@ -51,7 +46,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-    axiosMock.reset(); // important: resets any existing mocking behavior
+    nock.restore();
 });
 
 describe("Wallets", () => {
