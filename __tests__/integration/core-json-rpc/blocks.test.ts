@@ -53,7 +53,7 @@ describe("Blocks", () => {
             mockHost.get("/api/blocks").reply(404, {}, peerMock.headers);
 
             const response = await sendRequest("blocks.latest");
-            console.log(response);
+
             expect(response.body.error.message).toBe("Latest block could not be found.");
         });
     });
