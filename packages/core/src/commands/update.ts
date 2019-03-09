@@ -37,8 +37,6 @@ export class UpdateCommand extends BaseCommand {
 
                     removeSync(state.cache);
 
-                    this.warn(`Version ${newVersion} has been installed.`);
-
                     const { flags } = await this.parseWithNetwork(UpdateCommand);
 
                     await this.restartProcess(`${flags.token}-core`);
