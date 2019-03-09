@@ -13,7 +13,7 @@ export const blockTransactions = {
         return response
             ? {
                   count: response.meta.totalCount,
-                  data: response.body,
+                  data: response.data,
               }
             : Boom.notFound(`Block ${params.id} could not be found.`);
     },

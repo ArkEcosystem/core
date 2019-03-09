@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { httpie } from "@arkecosystem/core-utils";
 import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
 import "jest-extended";
 import { ApiHelpers } from "../../../utils/helpers/api";
@@ -154,15 +155,12 @@ class Helpers {
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .getStruct();
 
-        await axios.post(
-            "http://127.0.0.1:4003/api/v2/transactions",
-            {
+        await httpie.post("http://127.0.0.1:4003/api/v2/transactions", {
+            body: {
                 transactions: [transaction],
             },
-            {
-                headers: { "Content-Type": "application/json" },
-            },
-        );
+            headers: { "Content-Type": "application/json" },
+        });
 
         return transaction;
     }

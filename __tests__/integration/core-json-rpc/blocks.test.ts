@@ -5,23 +5,34 @@ import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
 
-jest.mock("is-reachable", () => jest.fn(async peer => true));
+jest.mock("is-reachable", () => jest.fn(async () => true));
 
 let peerMock;
+let mockHost;
 
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4002);
+    peerMock = new Peer("1.0.0.99", 4000);
     Object.assign(peerMock, peerMock.headers, { status: "OK" });
 
     const monitor = app.resolvePlugin("p2p");
     monitor.peers = {};
     monitor.peers[peerMock.ip] = peerMock;
+
+    nock("http://localhost", { allowUnmocked: true });
+
+    mockHost = nock("http://localhost:4003");
 });
 
 afterAll(async () => {
     await tearDown();
+});
+
+beforeEach(async () => {
+    nock(peerMock.url)
+        .get("/peer/status")
+        .reply(200, { success: true, height: 1 }, peerMock.headers);
 });
 
 afterEach(async () => {
@@ -31,50 +42,44 @@ afterEach(async () => {
 describe("Blocks", () => {
     describe("POST blocks.latest", () => {
         it("should get the latest block", async () => {
-            nock(/.*/)
-                .get("/api/blocks")
-                .reply(200, { data: [{ id: "123" }] }, peerMock.headers);
+            mockHost.get("/api/blocks").reply(200, { data: [{ id: "123" }] }, peerMock.headers);
 
             const response = await sendRequest("blocks.latest");
 
-            expect(response.data.result.id).toBeString();
+            expect(response.body.result.id).toBe("123");
         });
 
         it("should not find the latest block", async () => {
-            nock(/.*/)
-                .get("/api/blocks")
-                .reply(404, null, peerMock.headers);
+            mockHost.get("/api/blocks").reply(404, {}, peerMock.headers);
 
             const response = await sendRequest("blocks.latest");
-
-            expect(response.data.error.message).toBe("Latest block could not be found.");
+            console.log(response);
+            expect(response.body.error.message).toBe("Latest block could not be found.");
         });
     });
 
     describe("POST blocks.info", () => {
         it("should get the block information", async () => {
-            nock(/.*/)
-                .get("/api/blocks/123")
-                .reply(200, { data: { id: "123" } }, peerMock.headers);
+            mockHost.get("/api/blocks/123").reply(200, { data: { id: "123" } }, peerMock.headers);
 
             const response = await sendRequest("blocks.info", {
                 id: "123",
             });
 
-            expect(response.data.result.id).toBe("123");
+            expect(response.body.result.id).toBe("123");
         });
 
         it("should fail to get the block information", async () => {
             const response = await sendRequest("blocks.info", { id: "123" });
 
-            expect(response.data.error.code).toBe(404);
-            expect(response.data.error.message).toBe("Block 123 could not be found.");
+            expect(response.body.error.code).toBe(404);
+            expect(response.body.error.message).toBe("Block 123 could not be found.");
         });
     });
 
     describe("POST blocks.transactions", () => {
         it("should get the block transactions", async () => {
-            nock(/.*/)
+            mockHost
                 .get("/api/blocks/123/transactions")
                 .reply(200, { meta: { totalCount: 1 }, data: [{ id: "123" }, { id: "123" }] }, peerMock.headers);
 
@@ -82,14 +87,14 @@ describe("Blocks", () => {
                 id: "123",
             });
 
-            expect(response.data.result.data).toHaveLength(2);
+            expect(response.body.result.data).toHaveLength(2);
         });
 
         it("should fail to get the block transactions", async () => {
             const response = await sendRequest("blocks.transactions", { id: "123" });
 
-            expect(response.data.error.code).toBe(404);
-            expect(response.data.error.message).toBe("Block 123 could not be found.");
+            expect(response.body.error.code).toBe(404);
+            expect(response.body.error.message).toBe("Block 123 could not be found.");
         });
     });
 });

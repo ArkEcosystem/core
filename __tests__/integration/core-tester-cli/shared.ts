@@ -19,7 +19,7 @@ export const expectTransactions = (transactions, obj) =>
 export const captureTransactions = (nock, expectedTransactions) => {
     nock("http://localhost:4003")
         .post("/api/v2/transactions")
-        .times(12)
+        .thrice()
         .reply(200, { data: {} });
 
     // @ts-ignore

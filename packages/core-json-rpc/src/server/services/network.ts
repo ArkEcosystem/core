@@ -13,7 +13,7 @@ class Network {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly p2p: P2P.IMonitor = app.resolvePlugin<P2P.IMonitor>("p2p");
 
-    private readonly headers: Record<string, any> = {
+    private readonly requestOpts: Record<string, any> = {
         headers: {
             Accept: "application/vnd.core-api.v2+json",
             "Content-Type": "application/json",
@@ -40,7 +40,7 @@ class Network {
         try {
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
-            const response = await httpie.get(uri, { params, headers: this.headers });
+            const response = await httpie.get(uri, { params, ...this.requestOpts });
 
             return response.body;
         } catch (error) {
@@ -53,7 +53,7 @@ class Network {
             body: {
                 transactions: [transaction],
             },
-            headers: this.headers,
+            ...this.requestOpts.headers,
         });
     }
 
@@ -97,7 +97,7 @@ class Network {
     private loadRemotePeers() {
         this.peers =
             this.network.name === "testnet"
-                ? [{ ip: "127.0.0.1", port: app.resolveOptions("api").port }]
+                ? [{ ip: "localhost", port: app.resolveOptions("api").port }]
                 : this.p2p.getPeers();
 
         if (!this.peers.length) {

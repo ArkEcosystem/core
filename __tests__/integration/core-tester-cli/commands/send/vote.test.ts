@@ -8,12 +8,12 @@ beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     nock("http://localhost:4003")
         .get("/api/v2/node/configuration")
-        .times(3)
+        .thrice()
         .reply(200, { data: { constants: {} } });
 
     nock("http://localhost:4000")
         .get("/config")
-        .times(3)
+        .thrice()
         .reply(200, { data: { network: {} } });
 
     jest.spyOn(httpie, "get");
