@@ -4,8 +4,6 @@ import "jest-extended";
 export async function request(method, path, params = {}) {
     const url = `http://localhost:4004/api/${path}`;
 
-    // return httpie[method.toLowerCase()](url, { query: params });
-
     return ["GET", "DELETE"].includes(method)
         ? httpie[method.toLowerCase()](url, { query: params })
         : httpie[method.toLowerCase()](url, { body: params });
