@@ -9,7 +9,7 @@ export class SerializeCommand extends BaseCommand {
     public static flags = {
         ...BaseCommand.flagsDebug,
         data: flags.string({
-            description: "the HEX blob to serialize",
+            description: "the JSON to serialize",
             required: true,
         }),
         type: flags.string({
