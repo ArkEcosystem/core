@@ -161,9 +161,10 @@ describe("Connection", () => {
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
             const highFeeTransaction = new Transaction(mockData.dummy3);
-            highFeeTransaction.fee = bignumify(1e9 * SATOSHI);
+            highFeeTransaction.data.fee = bignumify(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
-            highFeeTransaction.senderPublicKey = "000000000000000000000000000000000000000420000000000000000000000000";
+            highFeeTransaction.data.senderPublicKey =
+                "000000000000000000000000000000000000000420000000000000000000000000";
 
             const transactions = [
                 mockData.dummy1,
