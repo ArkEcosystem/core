@@ -291,12 +291,12 @@ export abstract class BaseCommand extends Command {
                     this.restartRunningProcess(processName);
                 });
             } else {
-                this.restartRunningProcess(processName);    
+                this.restartRunningProcess(processName);
             }
         }
     }
 
-    protected restartRunningProcess(processName: string) {
+    protected restartRunningProcess(processName: string): void {
         try {
             cli.action.start(`Restarting ${processName}`);
             processManager.restart(processName);
