@@ -306,7 +306,7 @@ export abstract class BaseCommand extends Command {
 
                     processManager.restart(processName);
                 } catch (error) {
-                    this.error(error.message);
+                    error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
                 } finally {
                     cli.action.stop();
                 }
