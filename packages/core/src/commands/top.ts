@@ -3,7 +3,7 @@ import dayjs from "dayjs-ext";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { processManager } from "../process-manager";
-import { CommandFlags } from "../types";
+import { CommandFlags, ProcessDescription } from "../types";
 import { renderTable } from "../utils";
 import { BaseCommand } from "./command";
 
@@ -23,9 +23,9 @@ $ ark top
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(TopCommand);
 
-        const processes = processManager.list(flags.token);
+        const processes: ProcessDescription[] = processManager.list(flags.token);
 
-        if (!Object.keys(processes).length) {
+        if (!processes || !Object.keys(processes).length) {
             this.warn("No processes are running.");
             return;
         }
