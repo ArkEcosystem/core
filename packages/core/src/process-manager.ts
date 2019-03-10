@@ -18,7 +18,7 @@ class ProcessManager {
     }
 
     public restart(name: string): ExecaReturns {
-        return shellSync(`pm2 reload ${name} --update-env`);
+        return shellSync(`pm2 restart ${name} --update-env`);
     }
 
     public delete(name: string): ExecaReturns {
