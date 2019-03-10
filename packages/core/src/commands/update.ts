@@ -83,26 +83,26 @@ export class UpdateCommand extends BaseCommand {
 
         if (this.hasRestartFlag(flags)) {
             if (flags.restart) {
-                this.restartProcess(`${flags.token}-core`, false);
-                this.restartProcess(`${flags.token}-relay`, false);
-                this.restartProcess(`${flags.token}-forger`, false);
+                this.restartRunningProcessPrompt(`${flags.token}-core`, false);
+                this.restartRunningProcessPrompt(`${flags.token}-relay`, false);
+                this.restartRunningProcessPrompt(`${flags.token}-forger`, false);
             } else {
                 if (flags.restartCore) {
-                    this.restartProcess(`${flags.token}-core`, false);
+                    this.restartRunningProcessPrompt(`${flags.token}-core`, false);
                 }
 
                 if (flags.restartRelay) {
-                    this.restartProcess(`${flags.token}-relay`, false);
+                    this.restartRunningProcessPrompt(`${flags.token}-relay`, false);
                 }
 
                 if (flags.restartForger) {
-                    this.restartProcess(`${flags.token}-forger`, false);
+                    this.restartRunningProcessPrompt(`${flags.token}-forger`, false);
                 }
             }
         } else {
-            await this.restartProcess(`${flags.token}-core`);
-            await this.restartProcess(`${flags.token}-relay`);
-            await this.restartProcess(`${flags.token}-forger`);
+            await this.restartRunningProcessPrompt(`${flags.token}-core`);
+            await this.restartRunningProcessPrompt(`${flags.token}-relay`);
+            await this.restartRunningProcessPrompt(`${flags.token}-forger`);
         }
     }
 

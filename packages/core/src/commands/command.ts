@@ -284,19 +284,19 @@ export abstract class BaseCommand extends Command {
         return this.getNetworks().map(network => ({ title: network, value: network }));
     }
 
-    protected async restartProcess(processName: string, showPrompt: boolean = true) {
+    protected async restartRunningProcessPrompt(processName: string, showPrompt: boolean = true) {
         if (processManager.isRunning(processName)) {
             if (showPrompt) {
                 await confirm(`Would you like to restart the ${processName} process?`, () => {
-                    this.restartRunningProcess(processName);
+                    this.restartProcess(processName);
                 });
             } else {
-                this.restartRunningProcess(processName);
+                this.restartProcess(processName);
             }
         }
     }
 
-    protected restartRunningProcess(processName: string): void {
+    protected restartProcess(processName: string): void {
         try {
             cli.action.start(`Restarting ${processName}`);
             processManager.restart(processName);
