@@ -41,7 +41,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -67,47 +66,10 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api - unit
+          name: Unit tests
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-api/ --coverageDirectory
-            .coverage/unit/core-api
-      - run:
-          name: core-blockchain - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-blockchain/ --coverageDirectory
-            .coverage/unit/core-blockchain
-      - run:
-          name: core-container - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-container/ --coverageDirectory
-            .coverage/unit/core-container
-      - run:
-          name: core-database - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-database/ --coverageDirectory
-            .coverage/unit/core-database
-      - run:
-          name: core-api - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-api/ --coverageDirectory
-            .coverage/integration/core-api
-      - run:
-          name: core-blockchain - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-blockchain/ --coverageDirectory
-            .coverage/integration/core-blockchain
-      - run:
-          name: core-database-postgres - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-database-postgres/
-            --coverageDirectory .coverage/integration/core-database-postgres
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -159,7 +121,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -185,47 +146,10 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api - unit
+          name: Unit tests
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-api/ --coverageDirectory
-            .coverage/unit/core-api
-      - run:
-          name: core-blockchain - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-blockchain/ --coverageDirectory
-            .coverage/unit/core-blockchain
-      - run:
-          name: core-container - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-container/ --coverageDirectory
-            .coverage/unit/core-container
-      - run:
-          name: core-database - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-database/ --coverageDirectory
-            .coverage/unit/core-database
-      - run:
-          name: core-api - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-api/ --coverageDirectory
-            .coverage/integration/core-api
-      - run:
-          name: core-blockchain - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-blockchain/ --coverageDirectory
-            .coverage/integration/core-blockchain
-      - run:
-          name: core-database-postgres - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-database-postgres/
-            --coverageDirectory .coverage/integration/core-database-postgres
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -277,7 +201,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -303,53 +226,23 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-event-emitter - unit
+          name: core-api - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-event-emitter/ --coverageDirectory
-            .coverage/unit/core-event-emitter
+            test:coverage /integration/core-api/ --coverageDirectory
+            .coverage/integration/core-api
       - run:
-          name: core-forger - unit
+          name: core-blockchain - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-forger/ --coverageDirectory
-            .coverage/unit/core-forger
+            test:coverage /integration/core-blockchain/ --coverageDirectory
+            .coverage/integration/core-blockchain
       - run:
-          name: core-http-utils - unit
+          name: core-database-postgres - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-http-utils/ --coverageDirectory
-            .coverage/unit/core-http-utils
-      - run:
-          name: core-jest-matchers - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-jest-matchers/ --coverageDirectory
-            .coverage/unit/core-jest-matchers
-      - run:
-          name: core-logger - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-logger/ --coverageDirectory
-            .coverage/unit/core-logger
-      - run:
-          name: core-logger-pino - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-logger-pino/ --coverageDirectory
-            .coverage/unit/core-logger-pino
-      - run:
-          name: core-p2p - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-p2p/ --coverageDirectory
-            .coverage/unit/core-p2p
-      - run:
-          name: core-snapshots - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-snapshots/ --coverageDirectory
-            .coverage/unit/core-snapshots
+            test:coverage /integration/core-database-postgres/
+            --coverageDirectory .coverage/integration/core-database-postgres
       - run:
           name: core-forger - integration
           command: >-
@@ -362,12 +255,6 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-json-rpc/ --coverageDirectory
             .coverage/integration/core-json-rpc
-      - run:
-          name: core-p2p - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-p2p/ --coverageDirectory
-            .coverage/integration/core-p2p
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -419,7 +306,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -444,36 +330,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-transaction-pool - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-transaction-pool/ --coverageDirectory
-            .coverage/unit/core-transaction-pool
-      - run:
-          name: core-transactions - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-transactions/ --coverageDirectory
-            .coverage/unit/core-transactions
-      - run:
-          name: core-utils - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-utils/ --coverageDirectory
-            .coverage/unit/core-utils
-      - run:
-          name: core-webhooks - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-webhooks/ --coverageDirectory
-            .coverage/unit/core-webhooks
-      - run:
-          name: crypto - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/crypto/ --coverageDirectory
-            .coverage/unit/crypto
       - run:
           name: core-tester-cli - integration
           command: >-
@@ -549,7 +405,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -575,53 +430,23 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-event-emitter - unit
+          name: core-api - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-event-emitter/ --coverageDirectory
-            .coverage/unit/core-event-emitter
+            test:coverage /integration/core-api/ --coverageDirectory
+            .coverage/integration/core-api
       - run:
-          name: core-forger - unit
+          name: core-blockchain - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-forger/ --coverageDirectory
-            .coverage/unit/core-forger
+            test:coverage /integration/core-blockchain/ --coverageDirectory
+            .coverage/integration/core-blockchain
       - run:
-          name: core-http-utils - unit
+          name: core-database-postgres - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-http-utils/ --coverageDirectory
-            .coverage/unit/core-http-utils
-      - run:
-          name: core-jest-matchers - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-jest-matchers/ --coverageDirectory
-            .coverage/unit/core-jest-matchers
-      - run:
-          name: core-logger - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-logger/ --coverageDirectory
-            .coverage/unit/core-logger
-      - run:
-          name: core-logger-pino - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-logger-pino/ --coverageDirectory
-            .coverage/unit/core-logger-pino
-      - run:
-          name: core-p2p - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-p2p/ --coverageDirectory
-            .coverage/unit/core-p2p
-      - run:
-          name: core-snapshots - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-snapshots/ --coverageDirectory
-            .coverage/unit/core-snapshots
+            test:coverage /integration/core-database-postgres/
+            --coverageDirectory .coverage/integration/core-database-postgres
       - run:
           name: core-forger - integration
           command: >-
@@ -634,12 +459,6 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-json-rpc/ --coverageDirectory
             .coverage/integration/core-json-rpc
-      - run:
-          name: core-p2p - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-p2p/ --coverageDirectory
-            .coverage/integration/core-p2p
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -691,7 +510,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -716,36 +534,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core-transaction-pool - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-transaction-pool/ --coverageDirectory
-            .coverage/unit/core-transaction-pool
-      - run:
-          name: core-transactions - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-transactions/ --coverageDirectory
-            .coverage/unit/core-transactions
-      - run:
-          name: core-utils - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-utils/ --coverageDirectory
-            .coverage/unit/core-utils
-      - run:
-          name: core-webhooks - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/core-webhooks/ --coverageDirectory
-            .coverage/unit/core-webhooks
-      - run:
-          name: crypto - unit
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /unit/crypto/ --coverageDirectory
-            .coverage/unit/crypto
       - run:
           name: core-tester-cli - integration
           command: >-
@@ -785,8 +573,8 @@ workflows:
   build_and_test:
     jobs:
       - test-node10-0
+      - test-node11-0
       - test-node10-1
       - test-node10-2
-      - test-node11-0
       - test-node11-1
       - test-node11-2
