@@ -50,7 +50,6 @@ describe("block deserializer", () => {
                 "fee",
                 "amount",
                 "recipientId",
-                "vendorField",
                 "signature",
             ];
             deserialized.transactions.forEach(tx => {
