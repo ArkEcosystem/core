@@ -65,8 +65,8 @@
                 },
                 {
                     "run": {
-                        "name": "Test",
-                        "command": ""
+                        "name": "Unit tests",
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/"
                     }
                 },
                 {
@@ -154,8 +154,8 @@
                 },
                 {
                     "run": {
-                        "name": "Test",
-                        "command": ""
+                        "name": "Unit tests",
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/"
                     }
                 },
                 {
@@ -183,7 +183,7 @@
     "workflows": {
         "version": 2,
         "build_and_test": {
-            "jobs": []
+            "jobs": ["test-node10-0", "test-node11-0"]
         }
     }
 }
