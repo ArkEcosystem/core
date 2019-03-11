@@ -62,9 +62,9 @@ $ ark config:cli --channel=mine
 
             const { flags } = await this.parseWithNetwork(CommandLineInterfaceCommand);
 
-            await this.restartProcess(`${flags.token}-core`);
-            await this.restartProcess(`${flags.token}-relay`);
-            await this.restartProcess(`${flags.token}-forger`);
+            await this.restartRunningProcessPrompt(`${flags.token}-core`);
+            await this.restartRunningProcessPrompt(`${flags.token}-relay`);
+            await this.restartRunningProcessPrompt(`${flags.token}-forger`);
         } catch (err) {
             this.error(err.message);
         } finally {

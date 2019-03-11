@@ -11,43 +11,28 @@ function jason(value) {
 
 fs.readdir("./packages", (_, packages) => {
     // test split
-    const packagesSplit = chunk(packages.sort(), 10);
+    const packagesChunks = splitPackages(packages);
 
-    const resetSqlCommand = "cd ~/core/.circleci && ./rebuild-db.sh"
-
-    for (const [name, job] of Object.entries(config.jobs)) {
+    for (const [name, unitJob] of Object.entries(config.jobs)) {
         // save cache
-        const saveCacheStep = config.jobs[name].steps.find(step => typeof step === "object" && step.save_cache);
+        const saveCacheStep = unitJob.steps.find(step => typeof step === "object" && step.save_cache);
         saveCacheStep.save_cache.paths = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules");
 
+        
+        // copy base unit jobs (unit tests) to adapt for integration tests
         const jobs = [
-            config.jobs[name],
-            jason(config.jobs[name]),
-            jason(config.jobs[name]), 
+            jason(unitJob),
+            jason(unitJob), 
         ];
 
         jobs.forEach((job, index) => {
             const testStepIndex = job.steps.findIndex(
-                step => typeof step === "object" && step.run && step.run.name === "Test",
+                step => typeof step === "object" && step.run && step.run.name === "Unit tests",
             );
 
-            const pkgs = packagesSplit[index].map(pkg => path.basename(pkg));
-
-            const steps = []
-            for (const testType of ["unit", "integration"]) {
-                steps.push(...pkgs
-                    .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/${testType}/${pkg}`)))
-                    .map(pkg => ({
-                            run: {
-                                name: `${pkg} - ${testType}`,
-                                command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /${testType}/${pkg}/ --coverageDirectory .coverage/${testType}/${pkg}`,
-                            },
-                        })
-                    )
-                );
-            }
+            const steps = getIntegrationSteps(packagesChunks[index]);
 
             const stepLog = job.steps[9];
             const stepLint = job.steps[10];
@@ -61,10 +46,41 @@ fs.readdir("./packages", (_, packages) => {
             job.steps.push(stepLint);
             job.steps.push(stepCoverage);
 
-            config.jobs[name.slice(0, -1) + index] = job;
-            config.workflows.build_and_test.jobs.push(name.slice(0, -1) + index);
+            config.jobs[name.slice(0, -1) + (index + 1)] = job;
+            config.workflows.build_and_test.jobs.push(name.slice(0, -1) + (index + 1));
         });
     }
 
     fs.writeFileSync(".circleci/config.yml", yaml.safeDump(config));
 });
+
+function splitPackages(packageNames) {
+    // split packages in two for integration tests
+    const integrationPackages = packageNames.sort()
+        .map(pkg => path.basename(pkg))
+        .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/integration/${pkg}`)))
+    
+    var indexToSplit = Math.floor(integrationPackages.length / 2);
+    return [
+        integrationPackages.slice(0, indexToSplit),
+        integrationPackages.slice(indexToSplit + 1)
+    ]
+}
+
+function getIntegrationSteps(packages) {
+    const resetSqlCommand = "cd ~/core/.circleci && ./rebuild-db.sh"
+
+    const steps = []
+    steps.push(...packages
+        .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/integration/${pkg}`)))
+        .map(pkg => ({
+                run: {
+                    name: `${pkg} - integration`,
+                    command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /integration/${pkg}/ --coverageDirectory .coverage/integration/${pkg}`,
+                },
+            })
+        )
+    );
+
+    return steps;
+}
