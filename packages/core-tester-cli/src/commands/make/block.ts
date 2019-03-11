@@ -1,5 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
-import { Address, configManager, models, slots } from "@arkecosystem/crypto";
+import { Address, configManager, models, NetworkName, slots } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import delay from "delay";
 import { writeFileSync } from "fs";
@@ -12,6 +11,7 @@ export class BlockCommand extends BaseCommand {
 
     public static flags = {
         ...BaseCommand.flagsConfig,
+        ...BaseCommand.flagsDebug,
         number: flags.integer({
             description: "number of blocks to generate",
             default: 1,
@@ -32,12 +32,6 @@ export class BlockCommand extends BaseCommand {
             description: "passphrase of the forger",
             default: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
         }),
-        log: flags.boolean({
-            description: "write the blocks to the CLI",
-        }),
-        copy: flags.boolean({
-            description: "write the blocks to the clipboard",
-        }),
         write: flags.boolean({
             description: "write the blocks to the disk",
         }),
@@ -46,7 +40,7 @@ export class BlockCommand extends BaseCommand {
     public async run(): Promise<models.IBlock[]> {
         const { flags } = await this.make(BlockCommand);
 
-        configManager.setFromPreset("unitnet");
+        configManager.setFromPreset(flags.network as NetworkName);
 
         // We always start with the genesis block!
         let previousBlock = configManager.get("genesisBlock");
