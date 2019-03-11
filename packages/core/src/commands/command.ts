@@ -105,7 +105,7 @@ export abstract class BaseCommand extends Command {
                 if (value === true) {
                     mappedFlags.push(`--${key}`);
                 } else if (typeof value === "string") {
-                    mappedFlags.push(`--${key}="${value}"`);
+                    mappedFlags.push(value.includes(" ") ? `--${key}="${value}"` : `--${key}=${value}`);
                 } else {
                     mappedFlags.push(`--${key}=${value}`);
                 }
