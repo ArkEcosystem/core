@@ -482,7 +482,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
             const senderWallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
             const errors = [];
-            if (senderWallet && senderWallet.canApply(transaction, errors)) {
+            if (senderWallet && senderWallet.canApply(transaction.data, errors)) {
                 senderWallet.applyTransactionToSender(transaction);
             } else {
                 logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);
