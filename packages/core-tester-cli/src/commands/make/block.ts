@@ -32,6 +32,10 @@ export class BlockCommand extends BaseCommand {
             description: "passphrase of the forger",
             default: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
         }),
+        previousBlock: flags.string({
+            description: `Previous block to base the generated block(s) on. For example: '{ "height": 50, "id": "123", "idHex": "7b" }'`,
+            default: "The genesis block"
+        }),
         write: flags.boolean({
             description: "write the blocks to the disk",
         }),
@@ -42,8 +46,12 @@ export class BlockCommand extends BaseCommand {
 
         configManager.setFromPreset(flags.network as NetworkName);
 
-        // We always start with the genesis block!
-        let previousBlock = configManager.get("genesisBlock");
+        let previousBlock
+        if (flags.previousBlock) {
+            previousBlock = JSON.parse(flags.previousBlock);
+        } else {
+            previousBlock = configManager.get("genesisBlock");
+        }
 
         const blocks: models.IBlock[] = [];
 
