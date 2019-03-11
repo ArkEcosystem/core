@@ -140,23 +140,23 @@ describe("Wallet Manager", () => {
 
         describe.skip("the delegate of the block is not indexed", () => {
             describe("not genesis block", () => {
-                it("throw an Error", () => {});
+                it("throw an Error", () => { });
             });
 
             describe("genesis block", () => {
-                it("generates a new wallet", () => {});
+                it("generates a new wallet", () => { });
             });
         });
     });
 
     describe.skip("revertBlock", () => {
-        it("should revert all transactions of the block", () => {});
+        it("should revert all transactions of the block", () => { });
 
-        it("should revert the block of the delegate", () => {});
+        it("should revert the block of the delegate", () => { });
     });
 
     describe("applyTransaction", () => {
-        describe("when the recipient is a cold wallet", () => {});
+        describe("when the recipient is a cold wallet", () => { });
 
         const transfer = generateTransfers("testnet", Math.random().toString(36), walletData2.address, 96579, 1)[0];
         const delegateReg = generateDelegateRegistration("testnet", Math.random().toString(36), 1)[0];

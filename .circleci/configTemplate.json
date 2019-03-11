@@ -7,8 +7,7 @@
                 "CORE_DB_DATABASE": "core_unitnet",
                 "CORE_DB_USERNAME": "core"
             },
-            "docker": [
-                {
+            "docker": [{
                     "image": "circleci/node:10-browsers"
                 },
                 {
@@ -48,7 +47,7 @@
                 {
                     "run": {
                         "name": "Install and build packages",
-                        "command": "yarn bootstrap && yarn build"
+                        "command": "yarn setup"
                     }
                 },
                 {
@@ -96,8 +95,7 @@
                 "CORE_DB_DATABASE": "core_unitnet",
                 "CORE_DB_USERNAME": "core"
             },
-            "docker": [
-                {
+            "docker": [{
                     "image": "circleci/node:11-browsers"
                 },
                 {
@@ -137,7 +135,7 @@
                 {
                     "run": {
                         "name": "Install and build packages",
-                        "command": "yarn bootstrap && yarn build"
+                        "command": "yarn setup"
                     }
                 },
                 {

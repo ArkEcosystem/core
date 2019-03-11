@@ -101,8 +101,14 @@ export abstract class BaseCommand extends Command {
         const mappedFlags = [];
 
         for (const [key, value] of Object.entries(flags)) {
-            if (!ignoreKeys.includes(key)) {
-                mappedFlags.push(value === true ? `--${key}` : `--${key}=${value}`);
+            if (!ignoreKeys.includes(key) && value !== undefined) {
+                if (value === true) {
+                    mappedFlags.push(`--${key}`);
+                } else if (typeof value === "string") {
+                    mappedFlags.push(value.includes(" ") ? `--${key}="${value}"` : `--${key}=${value}`);
+                } else {
+                    mappedFlags.push(`--${key}=${value}`);
+                }
             }
         }
 
@@ -219,6 +225,10 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async buildBIP38(flags: CommandFlags): Promise<Record<string, string>> {
+        if (flags.bip39) {
+            return { bip38: undefined, password: undefined };
+        }
+
         // initial values
         let bip38 = flags.bip38 || process.env.CORE_FORGER_BIP38;
         let password = flags.password || process.env.CORE_FORGER_PASSWORD;
@@ -262,11 +272,15 @@ export abstract class BaseCommand extends Command {
             ]);
 
             if (!response.password) {
-                this.warn("We've detected that you are using BIP38 but have not provided a valid password.");
-                process.exit();
+                this.error("We've detected that you are using BIP38 but have not provided a valid password.");
             }
 
             password = response.password;
+        }
+
+        if (bip38 && password) {
+            flags.bip38 = bip38;
+            flags.password = password;
         }
 
         return { bip38, password };
@@ -301,7 +315,7 @@ export abstract class BaseCommand extends Command {
             cli.action.start(`Restarting ${processName}`);
             processManager.restart(processName);
         } catch (error) {
-            this.error(error.message);
+            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
         } finally {
             cli.action.stop();
         }
@@ -309,36 +323,33 @@ export abstract class BaseCommand extends Command {
 
     protected abortRunningProcess(processName: string) {
         if (processManager.isRunning(processName)) {
-            this.warn(`The "${processName}" process is already running.`);
-            process.exit(1);
+            this.error(`The "${processName}" process is already running.`);
         }
     }
 
     protected abortStoppedProcess(processName: string) {
         if (processManager.hasStopped(processName)) {
-            this.warn(`The "${processName}" process is not running.`);
-            process.exit(1);
+            this.error(`The "${processName}" process is not running.`);
         }
     }
 
     protected abortErroredProcess(processName: string) {
         if (processManager.hasErrored(processName)) {
-            this.warn(`The "${processName}" process has errored.`);
-            process.exit(1);
+            this.error(`The "${processName}" process has errored.`);
         }
     }
 
     protected abortUnknownProcess(processName: string) {
         if (processManager.hasUnknownState(processName)) {
-            this.warn(`The "${processName}" process has entered an unknown state.`);
-            process.exit(1);
+            this.error(
+                `The "${processName}" process has entered an unknown state. (${processManager.status(processName)})`,
+            );
         }
     }
 
     protected abortMissingProcess(processName: string) {
         if (processManager.missing(processName)) {
-            this.warn(`The "${processName}" process does not exist.`);
-            process.exit(1);
+            this.error(`The "${processName}" process does not exist.`);
         }
     }
 
