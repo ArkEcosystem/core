@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-p2p",
     "description": "P2P API for Ark Core",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -30,12 +30,12 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
-        "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
-        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
-        "@arkecosystem/core-transaction-pool": "^2.2.0-rc.0",
-        "@arkecosystem/core-utils": "^2.2.0-rc.0",
-        "@arkecosystem/crypto": "^2.2.0-rc.0",
+        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-http-utils": "^2.2.1",
+        "@arkecosystem/core-interfaces": "^2.2.1",
+        "@arkecosystem/core-transaction-pool": "^2.2.1",
+        "@arkecosystem/core-utils": "^2.2.1",
+        "@arkecosystem/crypto": "^2.2.1",
         "@faustbrian/dato": "^0.1.0",
         "ajv": "^6.9.1",
         "axios": "^0.18.0",
@@ -62,7 +62,6 @@
         "sntp": "^3.0.2"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
         "@types/joi": "^14.3.1",

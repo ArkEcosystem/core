@@ -31,7 +31,7 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn bootstrap && yarn build
+          command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -41,7 +41,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -112,7 +111,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn bootstrap && yarn build
+          command: yarn setup
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -122,7 +121,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -193,7 +191,7 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn bootstrap && yarn build
+          command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -203,7 +201,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -299,7 +296,7 @@ jobs:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn bootstrap && yarn build
+          command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -309,7 +306,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -399,7 +395,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn bootstrap && yarn build
+          command: yarn setup
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -409,7 +405,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
@@ -505,7 +500,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn bootstrap && yarn build
+          command: yarn setup
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -515,7 +510,6 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-sentry/node_modules

@@ -58,10 +58,6 @@ $ ark core:start --no-daemon
                     // @ts-ignore
                     script: this.config.options.root,
                     args: `core:run ${this.flagsToStrings(flags, ["daemon"])}`,
-                    env: {
-                        CORE_FORGER_BIP38: bip38,
-                        CORE_FORGER_PASSWORD: password,
-                    },
                 },
                 flags,
             );
