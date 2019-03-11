@@ -151,7 +151,7 @@ jobs:
           name: Unit tests
           command: >-
             cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/
+            .coverage/unit/ --maxWorkers=2
       - run:
           name: Last 1000 lines of test output
           when: on_fail

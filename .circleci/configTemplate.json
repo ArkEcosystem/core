@@ -155,7 +155,7 @@
                 {
                     "run": {
                         "name": "Unit tests",
-                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/"
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2"
                     }
                 },
                 {
