@@ -1,8 +1,12 @@
-import "./__support__/mocks/core-container-calculator";
+import "./mocks/core-container-calculator";
 
 import { Bignum, models } from "@arkecosystem/crypto";
 import "jest-extended";
-import { calculateApproval, calculateProductivity, calculateForgedTotal } from "../../../packages/core-utils/src/delegate-calculator";
+import {
+    calculateApproval,
+    calculateProductivity,
+    calculateForgedTotal,
+} from "../../../packages/core-utils/src/delegate-calculator";
 
 let delegate;
 

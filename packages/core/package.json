@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core",
     "description": "Core of the Ark Blockchain",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -52,19 +52,20 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-api": "^2.2.0-rc.0",
-        "@arkecosystem/core-blockchain": "^2.2.0-rc.0",
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
-        "@arkecosystem/core-database-postgres": "^2.2.0-rc.0",
-        "@arkecosystem/core-event-emitter": "^2.2.0-rc.0",
-        "@arkecosystem/core-forger": "^2.2.0-rc.0",
-        "@arkecosystem/core-json-rpc": "^2.2.0-rc.0",
-        "@arkecosystem/core-logger-pino": "^2.2.0-rc.0",
-        "@arkecosystem/core-p2p": "^2.2.0-rc.0",
-        "@arkecosystem/core-snapshots": "^2.2.0-rc.0",
-        "@arkecosystem/core-transaction-pool": "^2.2.0-rc.0",
-        "@arkecosystem/core-webhooks": "^2.2.0-rc.0",
-        "@arkecosystem/crypto": "^2.2.0-rc.0",
+        "@arkecosystem/core-api": "^2.2.1",
+        "@arkecosystem/core-blockchain": "^2.2.1",
+        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-database-postgres": "^2.2.1",
+        "@arkecosystem/core-event-emitter": "^2.2.1",
+        "@arkecosystem/core-forger": "^2.2.1",
+        "@arkecosystem/core-json-rpc": "^2.2.1",
+        "@arkecosystem/core-logger-pino": "^2.2.0",
+        "@arkecosystem/core-p2p": "^2.2.1",
+        "@arkecosystem/core-snapshots": "^2.2.1",
+        "@arkecosystem/core-transaction-pool": "^2.2.1",
+        "@arkecosystem/core-utils": "^2.2.1",
+        "@arkecosystem/core-webhooks": "^2.2.1",
+        "@arkecosystem/crypto": "^2.2.1",
         "@faustbrian/dato": "^0.2.0",
         "@oclif/command": "^1.5.11",
         "@oclif/config": "^1.12.9",
@@ -82,10 +83,12 @@
         "env-paths": "^2.1.0",
         "envfile": "^3.0.0",
         "execa": "^1.0.0",
+        "fast-levenshtein": "^2.0.6",
         "fs-extra": "^7.0.1",
         "latest-version": "^4.0.0",
         "listr": "^0.14.3",
         "ora": "^3.2.0",
+        "lodash.minby": "^4.6.0",
         "pretty-bytes": "^5.1.0",
         "pretty-ms": "^4.0.0",
         "prompts": "^2.0.3",
@@ -124,6 +127,9 @@
             "init": [
                 "./dist/hooks/init/config",
                 "./dist/hooks/init/update"
+            ],
+            "command_not_found": [
+                "./dist/hooks/command_not_found/suggest"
             ]
         },
         "bin": "ark",
@@ -150,8 +156,7 @@
         "plugins": [
             "@oclif/plugin-autocomplete",
             "@oclif/plugin-commands",
-            "@oclif/plugin-help",
-            "@oclif/plugin-not-found"
+            "@oclif/plugin-help"
         ]
     }
 }

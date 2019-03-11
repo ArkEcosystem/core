@@ -1,46 +1,25 @@
+import "../mocks/core-container";
+
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
-import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
-import { setUp, tearDown } from "../__support__/setup";
+import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
-const { SATOSHI } = constants;
-const { Block } = models;
-
-let genesisBlock: models.Block;
 let repository;
 
 let walletsRepository: Database.IWalletsBusinessRepository;
 let walletManager: Database.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
-beforeAll(async done => {
-    await setUp();
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new Block(genesisBlockTestnet);
-
-    done();
-});
-
-afterAll(async done => {
-    await tearDown();
-
-    done();
-});
-
-beforeEach(async done => {
+beforeEach(async () => {
     const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new DelegatesBusinessRepository(() => databaseService);
     walletsRepository = new WalletsBusinessRepository(() => databaseService);
     databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
-
-    done();
 });
 
 function generateWallets(): models.Wallet[] {
@@ -86,9 +65,9 @@ describe("Delegate Repository", () => {
             const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
 
             actualDelegates.forEach(delegate => {
-                expect(delegate.hasOwnProperty('forgedTotal'));
+                expect(delegate.hasOwnProperty("forgedTotal"));
                 expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
-            })
+            });
         });
     });
 
@@ -390,7 +369,7 @@ describe("Delegate Repository", () => {
             const delegate = {
                 username: "test",
                 publicKey: "test",
-                voteBalance: new Bignum(10000 * SATOSHI),
+                voteBalance: new Bignum(10000 * constants.SATOSHI),
                 producedBlocks: 1000,
                 missedBlocks: 500,
             };

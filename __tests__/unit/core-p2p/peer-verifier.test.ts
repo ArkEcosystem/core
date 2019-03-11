@@ -1,31 +1,15 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import "./mocks/core-container";
+
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerVerifier } from "../../../packages/core-p2p/src/peer-verifier";
-import genesisBlockJson from "../../utils/config/testnet/genesisBlock.json";
 import { blocks2to100 as blocks2to100Json } from "../../utils/fixtures";
-import { setUp, tearDown } from "./__support__/setup";
+import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 const axiosMock = new MockAdapter(axios);
 
-let genesisBlock: models.Block;
-let genesisTransaction;
-
 let peerMock: Peer;
-
-beforeAll(async () => {
-    await setUp();
-
-    // Create the genesis block after the setup has finished or else it uses a potentially
-    // wrong network config.
-    genesisBlock = new models.Block(genesisBlockJson);
-    genesisTransaction = Transaction.fromData(genesisBlock.transactions[0].data);
-});
-
-afterAll(async () => {
-    await tearDown();
-});
 
 beforeEach(() => {
     peerMock = new Peer("1.0.0.99", 4002);
@@ -87,7 +71,6 @@ describe("Peer Verifier", () => {
         });
 
         it("higher than our chain (invalid)", async () => {
-            axiosMock.reset();
             axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                 200,
                 {
@@ -125,7 +108,6 @@ describe("Peer Verifier", () => {
         });
 
         it("higher than our chain (legit)", async () => {
-            axiosMock.reset();
             axiosMock.onGet(`${peerMock.url}/peer/blocks/common?ids=${genesisBlock.data.id},`).reply(
                 200,
                 {

@@ -46,8 +46,8 @@ export class ReinstallCommand extends BaseCommand {
 
         this.warn(`Version ${this.config.version} has been installed.`);
 
-        await this.restartProcess(`${flags.token}-core`);
-        await this.restartProcess(`${flags.token}-relay`);
-        await this.restartProcess(`${flags.token}-forger`);
+        await this.restartRunningProcessPrompt(`${flags.token}-core`);
+        await this.restartRunningProcessPrompt(`${flags.token}-relay`);
+        await this.restartRunningProcessPrompt(`${flags.token}-forger`);
     }
 }

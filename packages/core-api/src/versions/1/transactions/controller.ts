@@ -38,7 +38,7 @@ export class TransactionsController extends Controller {
             const pagination = super.paginate(request);
 
             const transactions = this.transactionPool
-                .getTransactions(pagination.offset, pagination.limit)
+                .getTransactions(pagination.offset, pagination.limit, 0)
                 .map(transaction => ({
                     serialized: transaction,
                 }));

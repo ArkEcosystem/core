@@ -1,22 +1,18 @@
-import "../../../../utils";
+import "../../mocks/";
+import { blockchain } from "../../mocks/blockchain";
+import { logger } from "../../mocks/logger";
+
 import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
+import "../../../../utils";
 
 import { models } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
-import { Blockchain } from "../../../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { setUpFull, tearDownFull } from "../../__support__/setup";
+import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block } = models;
 let app;
-let blockchain: Blockchain;
-let logger;
 
 beforeAll(async () => {
-    app = await setUpFull();
-    blockchain = app.resolvePlugin("blockchain");
-    logger = app.resolvePlugin("logger");
-
     // mock apply / saveBlock - we dont want to actually do anything to the db
     // @ts-ignore
     jest.spyOn(blockchain.database, "applyBlock").mockReturnValue(true);
@@ -24,14 +20,10 @@ beforeAll(async () => {
     jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true);
 });
 
-afterAll(async () => {
-    await tearDownFull();
-});
-
 describe("Accept handler", () => {
     describe("execute", () => {
         it("should log message if we recovered from fork and update state.forkedBlock", async () => {
-            const handler = new AcceptBlockHandler(blockchain, new Block(blocks2to100[0]));
+            const handler = new AcceptBlockHandler(blockchain as any, new Block(blocks2to100[0]));
 
             const loggerInfo = jest.spyOn(logger, "info");
             blockchain.state.forkedBlock = new Block(blocks2to100[0]);
@@ -42,7 +34,7 @@ describe("Accept handler", () => {
         });
 
         it("should log warning message if transactionPool accepChainedBlock threw an exception", async () => {
-            const handler = new AcceptBlockHandler(blockchain, new Block(blocks2to100[0]));
+            const handler = new AcceptBlockHandler(blockchain as any, new Block(blocks2to100[0]));
 
             const loggerWarn = jest.spyOn(logger, "warn");
             jest.spyOn(blockchain.transactionPool, "acceptChainedBlock").mockImplementationOnce(() => {
@@ -55,7 +47,7 @@ describe("Accept handler", () => {
 
         it("should log error message if an exception was thrown", async () => {
             const block = new Block(blocks2to100[0]);
-            const handler = new AcceptBlockHandler(blockchain, block);
+            const handler = new AcceptBlockHandler(blockchain as any, block);
 
             jest.restoreAllMocks();
             const loggerError = jest.spyOn(logger, "error");

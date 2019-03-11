@@ -1,4 +1,7 @@
+import "./mocks/core-container";
+
 import "jest-extended";
+
 import { generators } from "../../utils";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
@@ -9,7 +12,6 @@ import { testnet } from "../../../packages/crypto/src/networks";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
-import { setUp, tearDown } from "./__support__/setup";
 
 const { Delegate } = models;
 const { generateTransfers } = generators;
@@ -19,12 +21,7 @@ jest.mock("../../../packages/core-forger/src/client");
 
 let forgeManager;
 
-beforeAll(async () => {
-    await setUp();
-});
-
 afterAll(async () => {
-    await tearDown();
     jest.restoreAllMocks();
 });
 
