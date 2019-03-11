@@ -63,6 +63,7 @@
         "@arkecosystem/core-p2p": "^2.2.0-rc.0",
         "@arkecosystem/core-snapshots": "^2.2.0-rc.0",
         "@arkecosystem/core-transaction-pool": "^2.2.0-rc.0",
+        "@arkecosystem/core-utils": "^2.2.0-rc.0",
         "@arkecosystem/core-webhooks": "^2.2.0-rc.0",
         "@arkecosystem/crypto": "^2.2.0-rc.0",
         "@faustbrian/dato": "^0.1.0",
