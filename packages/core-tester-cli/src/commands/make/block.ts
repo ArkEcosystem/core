@@ -34,7 +34,6 @@ export class BlockCommand extends BaseCommand {
         }),
         previousBlock: flags.string({
             description: `Previous block to base the generated block(s) on. For example: '{ "height": 50, "id": "123", "idHex": "7b" }'`,
-            default: "The genesis block"
         }),
         write: flags.boolean({
             description: "write the blocks to the disk",
