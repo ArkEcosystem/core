@@ -4,7 +4,7 @@ import { utils } from "../utils";
 
 import { blocks2to100 } from "../../../../core-test-utils/src/fixtures/testnet/blocks2to100";
 
-import { models } from "@arkecosystem/crypto";
+import { Bignum, models } from "@arkecosystem/crypto";
 const { Block } = models;
 
 import { app } from "@arkecosystem/core-container";
@@ -37,6 +37,34 @@ describe("API 2.0 - Delegates", () => {
 
                     response.data.data.forEach(utils.expectDelegate);
                     expect(response.data.data.sort((a, b) => a.rank < b.rank)).toEqual(response.data.data);
+                });
+
+                it("should GET all the delegates sorted by votes,asc", async () => {
+                    const wm = app.resolvePlugin("database").walletManager;
+                    const wallet = wm.findByUsername("genesis_51");
+                    wallet.voteBalance = new Bignum(1);
+                    wm.reindex(wallet);
+
+                    const response = await utils[request]("GET", "delegates", { orderBy: "votes:asc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data[0].username).toBe(wallet.username);
+                    expect(response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
+                });
+
+                it("should GET all the delegates sorted by votes,desc", async () => {
+                    const wm = app.resolvePlugin("database").walletManager;
+                    const wallet = wm.findByUsername("genesis_1");
+                    wallet.voteBalance = new Bignum(12500000000000000);
+                    wm.reindex(wallet);
+
+                    const response = await utils[request]("GET", "delegates", { orderBy: "votes:desc" });
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    expect(response.data.data[0].username).toBe(wallet.username);
+                    expect(response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
                 });
             },
         );
@@ -164,7 +192,7 @@ describe("API 2.0 - Delegates", () => {
                     );
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
-                    utils.expectBlock(response.data.data[0]);
+                    response.data.data.forEach(utils.expectBlock);
 
                     await databaseService.deleteBlock(block2); // reset to genesis block
                 });
@@ -181,7 +209,22 @@ describe("API 2.0 - Delegates", () => {
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
 
-                    utils.expectWallet(response.data.data[0]);
+                    response.data.data.forEach(utils.expectWallet);
+                    expect(response.data.data.sort((a, b) => a.balance > b.balance)).toEqual(response.data.data);
+                });
+            },
+        );
+
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET all voters (wallets) for a delegate by the given identifier ordered by 'balance:asc'", async () => {
+                    const response = await utils[request]("GET", `delegates/${delegate.publicKey}/voters`);
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    response.data.data.forEach(utils.expectWallet);
+                    expect(response.data.data.sort((a, b) => a.balance < b.balance)).toEqual(response.data.data);
                 });
             },
         );

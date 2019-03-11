@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto, formatArktoshi, isException, models } from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, formatSatoshi, isException, models } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
 const { Wallet } = models;
@@ -198,7 +198,7 @@ export class WalletManager implements Database.IWalletManager {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${
                     delegatesWallets.length
-                    }. This indicates an issue with the genesis block & delegates.`,
+                }. This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -221,7 +221,7 @@ export class WalletManager implements Database.IWalletManager {
                         throw new Error(
                             `The balance and public key of both delegates are identical! Delegate "${
                                 a.username
-                                }" appears twice in the list.`,
+                            }" appears twice in the list.`,
                         );
                     }
 
@@ -242,7 +242,7 @@ export class WalletManager implements Database.IWalletManager {
             if (delegates.includes(values[0])) {
                 const mapped = values.map(v => `${v.username} (${v.publicKey})`);
                 this.logger.warn(
-                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatArktoshi(
+                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatSatoshi(
                         voteBalance,
                     )}`,
                 );
@@ -403,7 +403,7 @@ export class WalletManager implements Database.IWalletManager {
             this.logger.error(
                 `Can't apply transaction ${
                     data.id
-                    }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
+                }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
             );
             throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`);
 
@@ -481,11 +481,11 @@ export class WalletManager implements Database.IWalletManager {
 
             if (vote.startsWith("+")) {
                 delegate.voteBalance = revert
-                    ? delegate.voteBalance.minus(sender.balance)
+                    ? delegate.voteBalance.minus(sender.balance.minus(transaction.fee))
                     : delegate.voteBalance.plus(sender.balance);
             } else {
                 delegate.voteBalance = revert
-                    ? delegate.voteBalance.plus(sender.balance.plus(transaction.fee))
+                    ? delegate.voteBalance.plus(sender.balance)
                     : delegate.voteBalance.minus(sender.balance.plus(transaction.fee));
             }
         }

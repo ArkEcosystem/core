@@ -1,7 +1,12 @@
 /**
- * The Arktoshi base.
+ * The Satoshi base.
  */
-export const ARKTOSHI: number = 1e8;
+export const SATOSHI: number = 1e8;
+
+/**
+ * Alias of SATOSHI.
+ */
+export const ARKTOSHI: number = SATOSHI;
 
 /**
  * Available transaction types.

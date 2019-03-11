@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-blockchain",
     "description": "Blockchain Manager for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -14,6 +14,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -30,28 +34,28 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/lodash.get": "^4.4.4",
-        "async": "^2.6.1",
-        "awilix": "^4.0.1",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.0",
+        "@arkecosystem/core-utils": "^2.2.0",
+        "@arkecosystem/crypto": "^2.2.0",
+        "async": "^2.6.2",
+        "awilix": "^4.2.0",
         "delay": "^4.1.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
-        "xstate": "^4.2.2"
+        "xstate": "^4.3.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.1.0",
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "@types/async": "^2.0.50",
+        "@arkecosystem/core-p2p": "^2.2.0",
+        "@arkecosystem/core-test-utils": "^2.2.0",
+        "@types/async": "^2.4.0",
+        "@types/lodash.get": "^4.4.4",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
         "axios": "^0.18.0",
-        "axios-mock-adapter": "^1.15.0"
+        "axios-mock-adapter": "^1.16.0"
     },
     "publishConfig": {
         "access": "public"

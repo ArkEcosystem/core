@@ -56,7 +56,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -68,11 +67,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/core &&
-            yarn test:coverage
       - run:
           name: core-api
           command: >-
@@ -107,6 +101,9 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
@@ -166,7 +163,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -178,11 +174,6 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
-      - run:
-          name: core
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/core &&
-            yarn test:coverage
       - run:
           name: core-api
           command: >-
@@ -217,6 +208,9 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
@@ -276,7 +270,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -337,6 +330,9 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
@@ -396,7 +392,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -452,6 +447,9 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
@@ -511,7 +509,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -573,6 +570,9 @@ jobs:
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
+          name: Lint
+          command: yarn lint
+      - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
   test-node11-2:
@@ -631,7 +631,6 @@ jobs:
             - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-snapshots-cli/node_modules
             - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
@@ -687,6 +686,9 @@ jobs:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov

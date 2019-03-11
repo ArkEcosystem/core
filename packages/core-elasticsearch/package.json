@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-elasticsearch",
     "description": "A powerful Elasticsearch integration for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -11,6 +11,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -22,22 +26,18 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/elasticsearch": "^5.0.30",
-        "@types/fs-extra": "^5.0.4",
-        "@types/joi": "^14.0.1",
-        "@types/lodash.first": "^3.0.4",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.last": "^3.0.4",
-        "elasticsearch": "^15.2.0",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-http-utils": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.0",
+        "@arkecosystem/crypto": "^2.2.0",
+        "elasticsearch": "^15.4.1",
         "fs-extra": "^7.0.1",
-        "joi": "^14.3.0",
-        "lodash.first": "^3.0.0",
-        "lodash.get": "^4.4.2",
-        "lodash.last": "^3.0.0"
+        "joi": "^14.3.1"
+    },
+    "devDependencies": {
+        "@types/elasticsearch": "^5.0.30",
+        "@types/fs-extra": "^5.0.5",
+        "@types/joi": "^14.3.1"
     },
     "publishConfig": {
         "access": "public"

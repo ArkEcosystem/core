@@ -208,6 +208,8 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public clearAndStopQueue() {
+        this.state.lastDownloadedBlock = this.getLastBlock();
+
         this.queue.pause();
         this.queue.clear();
     }
@@ -481,8 +483,12 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Fork the chain at the given block.
      */
-    public forkBlock(block: models.Block): void {
+    public forkBlock(block: models.Block, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
+
+        if (numberOfBlockToRollback) {
+            this.state.numberOfBlocksToRollback = numberOfBlockToRollback;
+        }
 
         this.dispatch("FORK");
     }

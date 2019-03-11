@@ -69,6 +69,7 @@ describe("Identities - Keys", () => {
         });
 
         it("should fail with an invalid network version", () => {
+            // @ts-ignore
             wif.decode = jest.fn(() => ({ version: 1 }));
 
             expect(() => {

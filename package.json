@@ -8,6 +8,10 @@
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
+        "publish:alpha": "yarn lerna run publish:alpha",
+        "publish:beta": "yarn lerna run publish:beta",
+        "publish:rc": "yarn lerna run publish:rc",
+        "publish:latest": "yarn lerna run publish:latest",
         "lint": "yarn lerna run lint",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
@@ -16,7 +20,6 @@
         "snyk": "./node_modules/.bin/snyk protect",
         "upgrade": "cross-env-shell ./scripts/upgrade.sh",
         "version": "cross-env-shell ./scripts/version.sh",
-        "release": "cross-env-shell ./scripts/release.sh",
         "updates": "yarn lerna run updates",
         "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"

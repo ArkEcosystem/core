@@ -273,6 +273,7 @@ describe("crypto.js", () => {
             const transactionV2 = Object.assign({}, transaction, { version: 2 });
             delete transactionV2.secondSignature;
             delete transactionV2.signSignature;
+            // @ts-ignore
             const getHashMock = jest.spyOn(crypto, "getHash").mockImplementation(() => "");
 
             crypto.verifySecondSignature(transactionV2, keys2.publicKey);

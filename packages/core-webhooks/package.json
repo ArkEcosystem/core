@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-webhooks",
     "description": "Webhooks for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -11,6 +11,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -27,26 +31,26 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@types/fs-extra": "^5.0.4",
-        "@types/joi": "^14.0.1",
-        "@types/sequelize": "^4.27.33",
-        "@types/sqlite3": "^3.1.3",
-        "@types/umzug": "^2.2.0",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-http-utils": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.0",
         "axios": "^0.18.0",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
         "hapi-pagination": "^2.0.1",
-        "joi": "^14.3.0",
+        "joi": "^14.3.1",
         "sequelize": "^4.42.0",
-        "sqlite3": "^4.0.4",
+        "sqlite3": "^4.0.6",
         "umzug": "^2.2.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "@types/boom": "^7.2.1"
+        "@arkecosystem/core-test-utils": "^2.2.0",
+        "@types/boom": "^7.2.1",
+        "@types/fs-extra": "^5.0.5",
+        "@types/joi": "^14.3.1",
+        "@types/sequelize": "^4.27.36",
+        "@types/sqlite3": "^3.1.3",
+        "@types/umzug": "^2.2.0"
     },
     "publishConfig": {
         "access": "public"

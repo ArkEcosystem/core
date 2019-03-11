@@ -12,7 +12,7 @@ import { TransactionPool } from "../dist";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { ARKTOSHI, TransactionTypes } = constants;
+const { SATOSHI, TransactionTypes } = constants;
 const { Block, Transaction } = models;
 const { generateTransfers } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
@@ -161,9 +161,10 @@ describe("Connection", () => {
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
             const highFeeTransaction = new Transaction(mockData.dummy3);
-            highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI);
+            highFeeTransaction.data.fee = bignumify(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
-            highFeeTransaction.senderPublicKey = "000000000000000000000000000000000000000420000000000000000000000000";
+            highFeeTransaction.data.senderPublicKey =
+                "000000000000000000000000000000000000000420000000000000000000000000";
 
             const transactions = [
                 mockData.dummy1,
@@ -717,6 +718,7 @@ describe("Connection", () => {
             // they are not loaded from the local storage and this fails otherwise.
             // TODO: Use jest.spyOn() to change behavior instead. jest.restoreAllMocks() will reset afterwards
             const original = databaseService.getForgedTransactionsIds;
+            // @ts-ignore
             databaseService.getForgedTransactionsIds = jest.fn(() => [forgedTransaction.id]);
 
             expect(forgedTransaction instanceof Transaction).toBeTrue();
@@ -805,7 +807,7 @@ describe("Connection", () => {
             for (let i = 0; i < nAdd; i++) {
                 const transaction = new Transaction(mockData.dummy1);
                 transaction.id = fakeTransactionId(i);
-                transaction.fee = bignumify(rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI));
+                transaction.fee = bignumify(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
                 transaction.serialized = Transaction.serialize(transaction).toString("hex");
                 allTransactions.push(transaction);
             }

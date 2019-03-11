@@ -49,7 +49,7 @@ const register = async (server, options) => {
                         },
                         version: {
                             type: "string",
-                            maxLength: 11,
+                            maxLength: 16,
                         },
                     },
                     required: ["version", "nethash", "port"],

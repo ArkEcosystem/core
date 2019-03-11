@@ -76,7 +76,8 @@ function generateFullWallets() {
 describe("Wallet Repository", () => {
     describe("all", () => {
         it("should return the local wallets of the connection", () => {
-            jest.spyOn(walletManager, 'allByAddress').mockReturnValue(null);
+            // @ts-ignore
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue(null);
 
             repository.all();
 
@@ -140,6 +141,8 @@ describe("Wallet Repository", () => {
                 if (i < 17) {
                     wallet.vote = vote;
                 }
+
+                wallet.balance = new Bignum(0);
             });
             walletManager.index(wallets);
         });
@@ -216,12 +219,11 @@ describe("Wallet Repository", () => {
     });
 
     describe("top", () => {
-
         beforeEach(() => {
             [
-                { address: 'dummy-1', balance: new Bignum(1000) },
-                { address: 'dummy-2', balance: new Bignum(2000) },
-                { address: 'dummy-3', balance: new Bignum(3000) },
+                { address: "dummy-1", balance: new Bignum(1000) },
+                { address: "dummy-2", balance: new Bignum(2000) },
+                { address: "dummy-3", balance: new Bignum(3000) },
             ].forEach(o => {
                 const wallet = new Wallet(o.address);
                 wallet.balance = o.balance;

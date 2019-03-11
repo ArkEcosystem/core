@@ -3,7 +3,7 @@ import "jest-extended";
 import { crypto } from "../../../src/crypto";
 import { MultiSignatureHandler } from "../../../src/handlers/transactions/multi-signature";
 import { Wallet } from "../../../src/models/wallet";
-import { Bignum } from "../../../src/utils/bignum";
+import { Bignum } from "../../../src/utils";
 import { transactionValidator } from "../../../src/validation";
 
 const handler = new MultiSignatureHandler();
@@ -138,6 +138,7 @@ describe("MultiSignatureHandler", () => {
 
             wallet.verifySignatures = jest.fn(() => true);
             crypto.verifySecondSignature = jest.fn(() => true);
+            // @ts-ignore
             transactionValidator.validate = jest.fn(() => ({ fails: false }));
 
             transaction.asset.multisignature.keysgroup.splice(0, 5);
@@ -151,6 +152,7 @@ describe("MultiSignatureHandler", () => {
 
             wallet.verifySignatures = jest.fn(() => true);
             crypto.verifySecondSignature = jest.fn(() => true);
+            // @ts-ignore
             transactionValidator.validate = jest.fn(() => ({ fails: false }));
 
             transaction.signatures.splice(0, 5);

@@ -11,7 +11,7 @@ const { Transaction } = models;
  */
 export class Storage {
     private table: string;
-    private db: BetterSqlite3;
+    private db: BetterSqlite3.Database;
 
     /**
      * Construct the storage.

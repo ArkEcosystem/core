@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-api",
     "description": "Public API for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -13,6 +13,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -29,34 +33,35 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@arkecosystem/core-transaction-pool": "^2.1.0",
-        "@arkecosystem/core-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/lodash.orderby": "^4.6.4",
-        "@types/lodash.partition": "^4.6.4",
-        "@types/lodash.snakecase": "^4.1.4",
-        "ajv": "^6.6.2",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-http-utils": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.0",
+        "@arkecosystem/core-transaction-pool": "^2.2.0",
+        "@arkecosystem/core-utils": "^2.2.0",
+        "@arkecosystem/crypto": "^2.2.0",
+        "@arkecosystem/utils": "^0.2.4",
+        "@faustbrian/hapi-version": "^0.2.11",
+        "ajv": "^6.9.1",
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
         "dayjs-ext": "^2.2.0",
         "delay": "^4.1.0",
-        "hapi-api-version": "^2.1.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
-        "hapi-rate-limit": "^3.0.0",
+        "hapi-rate-limit": "^3.1.1",
         "ip": "^1.1.5",
-        "joi": "^14.3.0",
+        "joi": "^14.3.1",
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
+        "@arkecosystem/core-test-utils": "^2.2.0",
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
-        "@types/joi": "^14.0.1",
+        "@types/joi": "^14.3.1",
+        "@types/lodash.orderby": "^4.6.4",
+        "@types/lodash.partition": "^4.6.4",
+        "@types/lodash.snakecase": "^4.1.4",
         "axios": "^0.18.0"
     },
     "publishConfig": {

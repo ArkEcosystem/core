@@ -3,7 +3,7 @@ import "jest-extended";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { VoteCommand } from "../../src/commands/vote";
-import { arkToArktoshi } from "../../src/utils";
+import { arkToSatoshi } from "../../src/utils";
 import { toFlags } from "../shared";
 
 const mockAxios = new MockAdapter(axios);
@@ -37,13 +37,12 @@ describe("Commands - Vote", () => {
         const flags = toFlags(opts);
         await VoteCommand.run(flags);
 
-        expect(axios.post).toHaveBeenNthCalledWith(
-            4,
+        expect(axios.post).toHaveBeenCalledWith(
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: arkToArktoshi(opts.voteFee),
+                        fee: arkToSatoshi(opts.voteFee),
                         asset: {
                             votes: [`+${expectedDelegate}`],
                         },
@@ -72,13 +71,12 @@ describe("Commands - Vote", () => {
         const flags = toFlags(opts);
         await VoteCommand.run(flags);
 
-        expect(axios.post).toHaveBeenNthCalledWith(
-            4,
+        expect(axios.post).toHaveBeenCalledWith(
             "http://localhost:4003/api/v2/transactions",
             {
                 transactions: [
                     expect.objectContaining({
-                        fee: arkToArktoshi(opts.voteFee),
+                        fee: arkToSatoshi(opts.voteFee),
                         asset: {
                             votes: [`+${expectedDelegate}`],
                         },

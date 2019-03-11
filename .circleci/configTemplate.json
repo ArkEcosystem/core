@@ -78,6 +78,12 @@
                 },
                 {
                     "run": {
+                        "name": "Lint",
+                        "command": "yarn lint"
+                    }
+                },
+                {
+                    "run": {
                         "name": "Codecov",
                         "command": "./node_modules/.bin/codecov"
                     }
@@ -157,6 +163,12 @@
                         "name": "Last 1000 lines of test output",
                         "when": "on_fail",
                         "command": "tail -n 1000 test_output.txt"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Lint",
+                        "command": "yarn lint"
                     }
                 },
                 {

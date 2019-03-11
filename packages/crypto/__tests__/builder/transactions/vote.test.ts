@@ -58,6 +58,7 @@ describe("Vote Transaction", () => {
         it("establishes the recipient id", () => {
             const pass = "dummy pass";
 
+            // @ts-ignore
             crypto.getKeys = jest.fn(() => ({
                 publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
             }));
@@ -72,6 +73,7 @@ describe("Vote Transaction", () => {
         it("establishes the recipient id", () => {
             const pass = "dummy pass";
 
+            // @ts-ignore
             crypto.getKeysFromWIF = jest.fn(() => ({
                 publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
             }));

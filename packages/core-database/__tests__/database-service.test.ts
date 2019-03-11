@@ -9,15 +9,14 @@ import { setUp, tearDown } from "./__support__/setup";
 
 const { Block, Transaction, Wallet } = models;
 
-const { ARKTOSHI, TransactionTypes } = constants;
+const { SATOSHI, TransactionTypes } = constants;
 
-let connection : Database.IDatabaseConnection;
-let databaseService : DatabaseService;
-let walletManager : Database.IWalletManager;
-let genesisBlock : models.Block;
+let connection: Database.IDatabaseConnection;
+let databaseService: DatabaseService;
+let walletManager: Database.IWalletManager;
+let genesisBlock: models.Block;
 let container: Container.IContainer;
-let emitter : EventEmitter.EventEmitter;
-
+let emitter: EventEmitter.EventEmitter;
 
 beforeAll(async () => {
     container = await setUp();
@@ -31,93 +30,167 @@ afterAll(async () => {
     await tearDown();
 });
 
-beforeEach(()=> {
-    jest.restoreAllMocks()
+beforeEach(() => {
+    jest.restoreAllMocks();
 });
 
 function createService() {
     return new DatabaseService({}, connection, walletManager, null, null);
 }
 
-describe('Database Service', () => {
-    it('should listen for emitter events during constructor', () => {
-        jest.spyOn(emitter, 'on');
-        jest.spyOn(emitter, 'once');
+describe("Database Service", () => {
+    it("should listen for emitter events during constructor", () => {
+        jest.spyOn(emitter, "on");
+        jest.spyOn(emitter, "once");
 
         databaseService = createService();
 
-
-        expect(emitter.on).toHaveBeenCalledWith('state:started', expect.toBeFunction());
-        expect(emitter.on).toHaveBeenCalledWith('wallet.created.cold', expect.toBeFunction());
-        expect(emitter.once).toHaveBeenCalledWith('shutdown', expect.toBeFunction());
+        expect(emitter.on).toHaveBeenCalledWith("state:started", expect.toBeFunction());
+        expect(emitter.on).toHaveBeenCalledWith("wallet.created.cold", expect.toBeFunction());
+        expect(emitter.once).toHaveBeenCalledWith("shutdown", expect.toBeFunction());
     });
 
-    describe('applyBlock', () => {
-        it('should applyBlock', async () => {
-            jest.spyOn(walletManager, 'applyBlock').mockImplementation( (block) => block );
-            jest.spyOn(emitter, 'emit');
-
+    describe("applyBlock", () => {
+        it("should applyBlock", async () => {
+            jest.spyOn(walletManager, "applyBlock").mockImplementation(block => block);
+            jest.spyOn(emitter, "emit");
 
             databaseService = createService();
-            jest.spyOn(databaseService, 'applyRound').mockImplementation(() => null); // test applyRound logic separately
+            jest.spyOn(databaseService, "applyRound").mockImplementation(() => null); // test applyRound logic separately
 
             await databaseService.applyBlock(genesisBlock);
 
-
             expect(walletManager.applyBlock).toHaveBeenCalledWith(genesisBlock);
-            expect(emitter.emit).toHaveBeenCalledWith('block.applied', genesisBlock.data);
-            genesisBlock.transactions.forEach(tx => expect(emitter.emit).toHaveBeenCalledWith('transaction.applied', tx.data));
-        })
+            expect(emitter.emit).toHaveBeenCalledWith("block.applied", genesisBlock.data);
+            genesisBlock.transactions.forEach(tx =>
+                expect(emitter.emit).toHaveBeenCalledWith("transaction.applied", tx.data),
+            );
+        });
     });
 
-    describe('getBlocksForRound', () => {
-        it('should fetch blocks using lastBlock in state-storage', async() => {
+    describe("getBlocksByHeight", () => {
+        it("should deliver blocks for the given heights", async () => {
+            const requestHeightsLow = [1, 5, 20];
+            const requestHeightsHigh = [100, 200, 500];
             const stateStorageStub = new StateStorageStub();
-            jest.spyOn(stateStorageStub, 'getLastBlock').mockReturnValue(null);
-            jest.spyOn(container, 'has').mockReturnValue(true);
-            jest.spyOn(container, 'resolve').mockReturnValue(stateStorageStub);
+            // @ts-ignore
+            jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation((heightFrom, heightTo) => {
+                if (requestHeightsHigh[0] <= heightFrom) {
+                    return [{ height: heightFrom, fromState: true }];
+                }
+                return undefined;
+            });
+            jest.spyOn(container, "has").mockReturnValue(true);
+            jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
 
             databaseService = createService();
-            jest.spyOn(databaseService, 'getLastBlock').mockReturnValue(null);
+            databaseService.connection.blocksRepository = {
+                findById: null,
+                findByHeight: jest.fn(heights => {
+                    const r = heights.map(h => ({ height: Number(h), fromDb: true }));
+                    return r;
+                }),
+                count: null,
+                common: null,
+                heightRange: null,
+                latest: null,
+                recent: null,
+                statistics: null,
+                top: null,
+                delete: null,
+                estimate: null,
+                truncate: null,
+                insert: null,
+                update: null,
+            };
 
+            let requestHeights = requestHeightsHigh;
+
+            let blocks = await databaseService.getBlocksByHeight(requestHeights);
+
+            expect(stateStorageStub.getLastBlocksByHeight).toHaveBeenCalled();
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(requestHeights.length);
+            for (let i = 0; i < requestHeights.length; i++) {
+                expect(blocks[i].height).toBe(requestHeights[i]);
+                expect(blocks[i].fromState).toBe(true);
+            }
+
+            requestHeights = [...requestHeightsLow, ...requestHeightsHigh];
+
+            blocks = await databaseService.getBlocksByHeight(requestHeights);
+
+            expect(stateStorageStub.getLastBlocksByHeight).toHaveBeenCalled();
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(requestHeights.length);
+            for (let i = 0; i < requestHeights.length; i++) {
+                expect(blocks[i].height).toBe(requestHeights[i]);
+                if (requestHeightsHigh.includes(requestHeights[i])) {
+                    expect(blocks[i].fromState).toBe(true);
+                } else {
+                    expect(blocks[i].fromDb).toBe(true);
+                }
+            }
+
+            jest.spyOn(container, "has").mockReturnValue(false);
+
+            blocks = await databaseService.getBlocksByHeight(requestHeights);
+
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(requestHeights.length);
+            for (let i = 0; i < requestHeights.length; i++) {
+                expect(blocks[i].height).toBe(requestHeights[i]);
+                expect(blocks[i].fromDb).toBe(true);
+            }
+        });
+    });
+
+    describe("getBlocksForRound", () => {
+        it("should fetch blocks using lastBlock in state-storage", async () => {
+            const stateStorageStub = new StateStorageStub();
+            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(container, "has").mockReturnValue(true);
+            jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
+
+            databaseService = createService();
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(null);
 
             const blocks = await databaseService.getBlocksForRound();
-
 
             expect(blocks).toBeEmpty();
             expect(stateStorageStub.getLastBlock).toHaveBeenCalled();
             expect(databaseService.getLastBlock).not.toHaveBeenCalled();
-
         });
 
-        it('should fetch blocks using lastBlock in database', async () => {
-            jest.spyOn(container, 'has').mockReturnValue(false);
+        it("should fetch blocks using lastBlock in database", async () => {
+            jest.spyOn(container, "has").mockReturnValue(false);
 
             databaseService = createService();
-            jest.spyOn(databaseService, 'getLastBlock').mockReturnValue(null);
-
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(null);
 
             const blocks = await databaseService.getBlocksForRound();
-
 
             expect(blocks).toBeEmpty();
             expect(databaseService.getLastBlock).toHaveBeenCalled();
         });
 
-        it('should fetch blocks from lastBlock height', async () => {
+        it("should fetch blocks from lastBlock height", async () => {
             databaseService = createService();
 
-            jest.spyOn(databaseService, 'getLastBlock').mockReturnValue(genesisBlock);
-            jest.spyOn(databaseService, 'getBlocks').mockReturnValue([]);
-            jest.spyOn(container, 'has').mockReturnValue(false);
-
+            // @ts-ignore
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(genesisBlock);
+            // @ts-ignore
+            jest.spyOn(databaseService, "getBlocks").mockReturnValue([]);
+            jest.spyOn(container, "has").mockReturnValue(false);
 
             const blocks = await databaseService.getBlocksForRound();
 
-
             expect(blocks).toBeEmpty();
-            expect(databaseService.getBlocks).toHaveBeenCalledWith(1, container.getConfig().getMilestone(genesisBlock.data.height).activeDelegates);
-        })
+            expect(databaseService.getBlocks).toHaveBeenCalledWith(
+                1,
+                container.getConfig().getMilestone(genesisBlock.data.height).activeDelegates,
+            );
+        });
     });
 
     /* TODO: Testing a method that's private. This needs a replacement by testing a public method instead */
@@ -160,7 +233,7 @@ describe('Database Service', () => {
             for (let i = 0; i < 51; i++) {
                 const transfer = transactionBuilder
                     .transfer()
-                    .amount(i * ARKTOSHI)
+                    .amount(i * SATOSHI)
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();
@@ -198,11 +271,12 @@ describe('Database Service', () => {
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
             }
 
-
-            jest.spyOn(databaseService, 'getBlocksForRound').mockReturnValue(blocksInRound);
+            // @ts-ignore
+            jest.spyOn(databaseService, "getBlocksForRound").mockReturnValue(blocksInRound);
             databaseService.walletManager = walletManager;
 
             // Necessary for revertRound to not blow up.
+            // @ts-ignore
             walletManager.allByUsername = jest.fn(() => {
                 const usernames = Object.values((walletManager as any).byUsername);
                 usernames.push(sender);

@@ -28,12 +28,21 @@ export const defaults = {
         key: process.env.CORE_API_SSL_KEY,
         cert: process.env.CORE_API_SSL_CERT,
     },
-    // @see https://github.com/p-meier/hapi-api-version
+    // @see https://github.com/faustbrian/hapi-version
     versions: {
-        validVersions: [1, 2],
-        defaultVersion: 1,
         basePath: "/api/",
-        vendorName: "core-api",
+        versions: {
+            default: 1,
+            allowed: [1, 2],
+        },
+        strategies: {
+            acceptHeader: {
+                subType: "core-api",
+            },
+            customHeader: {
+                parameter: "api-version",
+            },
+        },
     },
     // @see https://github.com/wraithgar/hapi-rate-limit
     rateLimit: {

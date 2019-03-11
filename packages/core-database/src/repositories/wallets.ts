@@ -1,14 +1,15 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import orderBy from "lodash/orderBy";
+import { orderBy } from "@arkecosystem/utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
+import { sortEntries } from "./utils/sort-entries";
 
 export class WalletsRepository implements Database.IWalletsBusinessRepository {
     /**
      * Create a new wallet repository instance.
      * @param  {DatabaseConnection} databaseService
      */
-    public constructor(private databaseServiceProvider : () => Database.IDatabaseService) {}
+    public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
     /**
      * Get all local wallets.
@@ -24,12 +25,10 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
      * @return {Object}
      */
     public findAll(params: Database.IParameters = {}) {
-        const wallets = this.all();
-
-        const [iteratee, order] = params.orderBy ? params.orderBy.split(":") : ["rate", "asc"];
+        const wallets = sortEntries(params, this.all(), ["rate", "asc"]);
 
         return {
-            rows: limitRows(orderBy(wallets, iteratee, order as "desc" | "asc"), params),
+            rows: limitRows(wallets, params),
             count: wallets.length,
         };
     }
@@ -44,7 +43,7 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
         return {
-            rows: limitRows(wallets, params),
+            rows: limitRows(sortEntries(params, wallets, ["balance", "desc"]), params),
             count: wallets.length,
         };
     }
@@ -67,7 +66,7 @@ export class WalletsRepository implements Database.IWalletsBusinessRepository {
      * Find all wallets sorted by balance.
      */
     public top(params: Database.IParameters = {}) {
-        const wallets = Object.values(this.all()).sort((a: any, b: any) => +b.balance.minus(a.balance).toFixed());
+        const wallets = sortEntries(params, this.all(), ["balance", "desc"]);
 
         return {
             rows: limitRows(wallets, params),

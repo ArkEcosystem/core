@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-vote-report",
     "description": "Vote Report for Ark Core",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -11,6 +11,10 @@
         "dist"
     ],
     "scripts": {
+        "publish:alpha": "npm publish --tag alpha",
+        "publish:beta": "npm publish --tag beta",
+        "publish:rc": "npm publish --tag rc",
+        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -27,14 +31,16 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@arkecosystem/core-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/handlebars": "^4.0.39",
-        "@types/lodash.sumby": "^4.6.4",
-        "handlebars": "^4.0.12",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-http-utils": "^2.2.0",
+        "@arkecosystem/core-utils": "^2.2.0",
+        "@arkecosystem/crypto": "^2.2.0",
+        "handlebars": "^4.1.0",
         "lodash.sumby": "^4.6.0"
+    },
+    "devDependencies": {
+        "@types/handlebars": "^4.0.40",
+        "@types/lodash.sumby": "^4.6.4"
     },
     "publishConfig": {
         "access": "public"

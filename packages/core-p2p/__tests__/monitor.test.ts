@@ -1,18 +1,25 @@
 /* tslint:disable:max-line-length  */
+import { models } from "@arkecosystem/crypto";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { defaults } from "../src/defaults";
 import { Peer } from "../src/peer";
 import { setUp, tearDown } from "./__support__/setup";
+const { Block } = models;
 
 const axiosMock = new MockAdapter(axios);
 
+let genesisBlock;
 let peerMock: Peer;
 let monitor;
 
 beforeAll(async () => {
     await setUp();
     monitor = require("../src/monitor").monitor;
+
+    // Create the genesis block after the setup has finished or else it uses a potentially
+    // wrong network config.
+    genesisBlock = new Block(require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json"));
 });
 
 afterAll(async () => {
@@ -27,6 +34,7 @@ beforeEach(async () => {
         const initialPeer = new Peer(ip, 4000);
         initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
             ban: 0,
+            verification: { forked: false },
         });
     });
 
@@ -52,14 +60,21 @@ describe("Monitor", () => {
 
     describe("acceptNewPeer", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers]);
-            process.env.CORE_ENV = "false";
+            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
 
             await monitor.acceptNewPeer(peerMock);
 
             expect(monitor.peers[peerMock.ip]).toBeObject();
-
-            process.env.CORE_ENV = "test";
         });
     });
 
@@ -72,35 +87,27 @@ describe("Monitor", () => {
         });
     });
 
-    describe("getRandomPeer", () => {
-        it("should be ok", async () => {
-            const peer = monitor.getRandomPeer();
-
-            expect(peer).toBeObject();
-            expect(peer).toHaveProperty("ip");
-            expect(peer).toHaveProperty("port");
-        });
-    });
-
-    describe("getRandomDownloadBlocksPeer", () => {
-        it("should be ok", async () => {
-            axiosMock
-                .onGet(/.*\/peer\/blocks\/common/)
-                .reply(() => [200, { success: true, common: true }, peerMock.headers]);
-            const peer = await monitor.getRandomDownloadBlocksPeer();
-
-            expect(peer).toBeObject();
-            expect(peer).toHaveProperty("ip");
-            expect(peer).toHaveProperty("port");
-        });
-    });
-
     describe("discoverPeers", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true }, peerMock.headers]);
-            axiosMock
-                .onGet(/.*\/peer\/list/)
-                .reply(() => [200, { peers: [peerMock.toBroadcastInfo()] }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
+            axiosMock.onGet(/.*\/peer\/list/).reply(() => [
+                200,
+                {
+                    peers: [peerMock.toBroadcastInfo()],
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
 
             await monitor.discoverPeers();
             const peers = monitor.getPeers();
@@ -113,9 +120,21 @@ describe("Monitor", () => {
 
     describe("getNetworkHeight", () => {
         it("should be ok", async () => {
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
+                200,
+                {
+                    header: {
+                        height: 1,
+                        id: genesisBlock.data.id,
+                    },
+                    height: 2,
+                    success: true,
+                },
+                peerMock.headers,
+            ]);
             axiosMock.onGet(/.*\/peer\/list/).reply(() => [200, { peers: [] }, peerMock.headers]);
             await monitor.discoverPeers();
+            await monitor.cleanPeers();
 
             const height = await monitor.getNetworkHeight();
             expect(height).toBe(2);
@@ -139,13 +158,29 @@ describe("Monitor", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            axiosMock
-                .onGet(/.*\/peer\/blocks\/common/)
-                .reply(() => [200, { success: true, common: true }, peerMock.headers]);
-            axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 2 }, peerMock.headers]);
-            axiosMock
-                .onGet(/.*\/peer\/blocks/)
-                .reply(() => [200, { blocks: [{ id: 1 }, { id: 2 }] }, peerMock.headers]);
+            axiosMock.onGet(/.*\/peer\/blocks\/common/).reply(() => [
+                200,
+                {
+                    success: true,
+                    common: true,
+                },
+                peerMock.headers,
+            ]);
+            axiosMock.onGet(/.*\/peer\/status/).reply(() => [
+                200,
+                {
+                    success: true,
+                    height: 2,
+                },
+                peerMock.headers,
+            ]);
+            axiosMock.onGet(/.*\/peer\/blocks/).reply(() => [
+                200,
+                {
+                    blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
+                },
+                peerMock.headers,
+            ]);
 
             const blocks = await monitor.downloadBlocks(1);
 

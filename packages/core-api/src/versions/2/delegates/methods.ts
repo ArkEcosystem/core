@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
+import { orderBy } from "@arkecosystem/utils";
 import Boom from "boom";
-import orderBy from "lodash/orderBy";
 import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
@@ -56,7 +56,10 @@ const voters = async request => {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, paginate(request));
+    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, {
+        ...request.query,
+        ...paginate(request)
+    });
 
     return toPagination(request, wallets, "wallet");
 };

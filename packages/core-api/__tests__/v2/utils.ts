@@ -12,21 +12,17 @@ class Helpers {
             "Content-Type": "application/json",
         };
 
-        const server = app.resolvePlugin("api");
-
-        return ApiHelpers.request(server.http, method, url, headers, params);
+        return ApiHelpers.request(app.resolvePlugin("api").http, method, url, headers, params);
     }
 
     public async requestWithAcceptHeader(method, path, params = {}) {
         const url = `http://localhost:4003/api/${path}`;
         const headers = {
-            Accept: "application/vnd.core-api.v2+json",
+            "API-Version": 2,
             "Content-Type": "application/json",
         };
 
-        const server = app.resolvePlugin("api");
-
-        return ApiHelpers.request(server.http, method, url, headers, params);
+        return ApiHelpers.request(app.resolvePlugin("api").http, method, url, headers, params);
     }
 
     public expectJson(response) {
@@ -156,7 +152,7 @@ class Helpers {
             .amount(1 * 1e8)
             .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
             .vendorField("test")
-            .sign("prison tobacco acquire stone dignity palace note decade they current lesson robot")
+            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .getStruct();
 
         await axios.post(

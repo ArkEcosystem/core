@@ -6,7 +6,6 @@ import { slots } from "@arkecosystem/crypto";
 import dayjs from "dayjs-ext";
 import delay from "delay";
 import fs from "fs";
-import flatten from "lodash/flatten";
 import groupBy from "lodash/groupBy";
 import sample from "lodash/sample";
 import shuffle from "lodash/shuffle";
@@ -24,6 +23,11 @@ import { checkDNS, checkNTP, isValidPeer, restorePeers } from "./utils";
 let config;
 let logger: Logger.ILogger;
 let emitter: EventEmitter.EventEmitter;
+
+interface IAcceptNewPeerOptions {
+    seed?: boolean;
+    lessVerbose?: boolean;
+}
 
 export class Monitor implements P2P.IMonitor {
     public peers: { [ip: string]: any };
@@ -69,7 +73,7 @@ export class Monitor implements P2P.IMonitor {
         const cachedPeers = restorePeers();
         localConfig.set("peers", cachedPeers);
 
-        this.populateSeedPeers();
+        await this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
             logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
@@ -121,7 +125,7 @@ export class Monitor implements P2P.IMonitor {
         let nextRunDelaySeconds = 600;
 
         if (!this.hasMinimumPeers()) {
-            this.populateSeedPeers();
+            await this.populateSeedPeers();
             nextRunDelaySeconds = 5;
             logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
@@ -134,18 +138,13 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Peer} peer
      * @throws {Error} If invalid peer
      */
-    public async acceptNewPeer(peer) {
+    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}) {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return;
         }
 
-        if (
-            !isValidPeer(peer) ||
-            this.guard.isSuspended(peer) ||
-            this.pendingPeers[peer.ip] ||
-            process.env.CORE_ENV === "test"
-        ) {
+        if (!isValidPeer(peer) || this.guard.isSuspended(peer) || this.pendingPeers[peer.ip]) {
             return;
         }
 
@@ -159,12 +158,12 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersion: string = localConfig.get("minimumVersion");
+            const minimumVersions: string[] = localConfig.get("minimumVersions");
 
             logger.debug(
                 `Rejected peer ${
                     peer.ip
-                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersion} - Received: ${
+                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
                     peer.version
                 }`,
             );
@@ -172,21 +171,11 @@ export class Monitor implements P2P.IMonitor {
             return this.guard.suspend(newPeer);
         }
 
-        if (!this.guard.isValidNetwork(peer)) {
+        if (!this.guard.isValidNetwork(peer) && !options.seed) {
             logger.debug(
                 `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.get(
                     "network.nethash",
                 )} - Received: ${peer.nethash}`,
-            );
-
-            return this.guard.suspend(newPeer);
-        }
-
-        if (!this.guard.isValidMilestoneHash(newPeer)) {
-            logger.debug(
-                `Rejected peer ${peer.ip} as it has a different milestone hash. Expected: ${config.get(
-                    "milestoneHash",
-                )} - Received: ${peer.milestoneHash}`,
             );
 
             return this.guard.suspend(newPeer);
@@ -199,15 +188,17 @@ export class Monitor implements P2P.IMonitor {
         try {
             this.pendingPeers[peer.ip] = true;
 
-            await newPeer.ping(1500);
+            await newPeer.ping(3000);
 
             this.peers[peer.ip] = newPeer;
 
-            logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            if (!options.lessVerbose) {
+                logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            }
 
             emitter.emit("peer.added", newPeer);
         } catch (error) {
-            logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`);
+            logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
 
             this.guard.suspend(newPeer);
         } finally {
@@ -236,6 +227,7 @@ export class Monitor implements P2P.IMonitor {
         const max = keys.length;
 
         logger.info(`Checking ${max} peers :telescope:`);
+        const peerErrors = {};
         await Promise.all(
             keys.map(async ip => {
                 const peer = this.getPeer(ip);
@@ -244,8 +236,12 @@ export class Monitor implements P2P.IMonitor {
                 } catch (error) {
                     unresponsivePeers++;
 
-                    const formattedDelay = prettyMs(pingDelay, { verbose: true });
-                    logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`);
+                    if (peerErrors[error]) {
+                        peerErrors[error].push(peer);
+                    } else {
+                        peerErrors[error] = [peer];
+                    }
+
                     emitter.emit("peer.removed", peer);
 
                     this.removePeer(peer);
@@ -254,6 +250,11 @@ export class Monitor implements P2P.IMonitor {
                 }
             }),
         );
+
+        Object.keys(peerErrors).forEach((key: any) => {
+            const peerCount = peerErrors[key].length;
+            logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
+        });
 
         if (this.initializing) {
             logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
@@ -301,94 +302,36 @@ export class Monitor implements P2P.IMonitor {
     }
 
     public async peerHasCommonBlocks(peer, blockIds) {
-        if (!(await peer.hasCommonBlocks(blockIds))) {
-            logger.error(`Could not get common block for ${peer.ip}`);
-
-            peer.commonBlocks = false;
-
-            this.guard.suspend(peer);
-
-            return false;
+        if (await peer.hasCommonBlocks(blockIds)) {
+            return true;
         }
 
-        return true;
-    }
+        peer.commonBlocks = false;
 
-    /**
-     * Get a random, available peer.
-     * @param  {(Number|undefined)} acceptableDelay
-     * @return {Peer}
-     */
-    public getRandomPeer(acceptableDelay?, downloadSize?, failedAttempts?) {
-        failedAttempts = failedAttempts === undefined ? 0 : failedAttempts;
+        this.guard.suspend(peer);
 
-        const peers = this.getPeers().filter(peer => {
-            if (peer.ban < new Date().getTime()) {
-                return true;
-            }
-
-            if (acceptableDelay && peer.delay < acceptableDelay) {
-                return true;
-            }
-
-            if (downloadSize && peer.downloadSize !== downloadSize) {
-                return true;
-            }
-
-            return false;
-        });
-
-        const randomPeer = sample(peers);
-        if (!randomPeer) {
-            failedAttempts++;
-
-            if (failedAttempts > 10) {
-                throw new Error("Failed to find random peer");
-            } else if (failedAttempts > 5) {
-                return this.getRandomPeer(null, downloadSize, failedAttempts);
-            }
-
-            return this.getRandomPeer(acceptableDelay, downloadSize, failedAttempts);
-        }
-
-        return randomPeer;
-    }
-
-    /**
-     * Get a random, available peer which can be used for downloading blocks.
-     * @return {Peer}
-     */
-    public async getRandomDownloadBlocksPeer() {
-        const randomPeer = this.getRandomPeer(null, 100);
-
-        const recentBlockIds = await this.__getRecentBlockIds();
-        if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
-            return this.getRandomDownloadBlocksPeer();
-        }
-
-        return randomPeer;
+        return false;
     }
 
     /**
      * Populate list of available peers from random peers.
      */
     public async discoverPeers() {
+        const queryAtLeastNPeers = 4;
+        let queriedPeers = 0;
+
         const shuffledPeers = shuffle(this.getPeers());
 
         for (const peer of shuffledPeers) {
             try {
                 const hisPeers = await peer.getPeers();
-
-                for (const p of hisPeers) {
-                    if (isValidPeer(p) && !this.getPeer(p.ip)) {
-                        this.addPeer(p);
-                    }
-                }
+                queriedPeers++;
+                await Promise.all(hisPeers.map(p => this.acceptNewPeer(p, { lessVerbose: true })));
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
             }
 
-            if (this.hasMinimumPeers()) {
+            if (this.hasMinimumPeers() && queriedPeers >= queryAtLeastNPeers) {
                 return;
             }
         }
@@ -467,10 +410,6 @@ export class Monitor implements P2P.IMonitor {
         if (forkedBlock) {
             this.suspendPeer(forkedBlock.ip);
         }
-
-        const recentBlockIds = await this.__getRecentBlockIds();
-
-        await Promise.all(this.getPeers().map(peer => this.peerHasCommonBlocks(peer, recentBlockIds)));
     }
 
     /**
@@ -482,7 +421,7 @@ export class Monitor implements P2P.IMonitor {
         let randomPeer;
 
         try {
-            randomPeer = await this.getRandomDownloadBlocksPeer();
+            randomPeer = this.getRandomPeerForDownloadingBlocks();
         } catch (error) {
             logger.error(`Could not download blocks: ${error.message}`);
 
@@ -570,126 +509,51 @@ export class Monitor implements P2P.IMonitor {
     }
 
     /**
-     * Update all peers based on height and last block id.
-     *
-     * Grouping peers by height and then by common id results in one of the following
-     * scenarios:
-     *
-     *  1) Same height, same common id
-     *  2) Same height, mixed common id
-     *  3) Mixed height, same common id
-     *  4) Mixed height, mixed common id
-     *
-     * Scenario 1: Do nothing.
-     * Scenario 2-4:
-     *  - If own height is ahead of majority do nothing for now.
-     *  - Pick most common id from peers with most common height and calculate quota,
-     *    depending on which the node rolls back or waits.
-     *
-     * NOTE: Only called when the network is consecutively missing blocks `p2pUpdateCounter` times.
-     * @return {String}
+     * Check if too many peers are forked and if rollback is necessary.
+     * Returns the number of blocks to rollback if any.
+     * @return {Promise<INetworkStatus>}
      */
-    public async updatePeersOnMissingBlocks() {
-        // First ping all peers to get updated heights and remove unresponsive ones.
+    public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true);
-        }
-
-        const peersGroupedByHeight = groupBy(this.getPeers(), "state.height");
-        const commonHeightGroups = Object.values(peersGroupedByHeight).sort((a, b) => b.length - a.length);
-        const peersMostCommonHeight = commonHeightGroups[0];
-        const groupedByCommonId = groupBy(peersMostCommonHeight, "state.header.id");
-        const commonIdGroupCount = Object.keys(groupedByCommonId).length;
-        let state = "";
-
-        if (commonHeightGroups.length === 1 && commonIdGroupCount === 1) {
-            // No need to do anything.
-            return state;
+            await this.cleanPeers(true, true);
+            await this.guard.resetSuspendedPeers();
         }
 
         const lastBlock = app.resolve("state").getLastBlock();
 
-        // Do nothing if majority of peers are lagging behind
-        if (commonHeightGroups.length > 1) {
-            if (lastBlock.data.height > peersMostCommonHeight[0].state.height) {
-                logger.info(
-                    `${pluralize(
-                        "peer",
-                        peersMostCommonHeight.length,
-                        true,
-                    )} are at height ${peersMostCommonHeight[0].state.height.toLocaleString()} and lagging behind last height ${lastBlock.data.height.toLocaleString()}. :zzz:`,
-                );
-                return state;
-            }
+        const peers = this.getPeers();
+        const suspendedPeers = Object.values(this.getSuspendedPeers())
+            .map(suspendedPeer => suspendedPeer.peer)
+            .filter(peer => peer.verification !== null);
+
+        const allPeers = [...peers, ...suspendedPeers];
+        const forkedPeers = allPeers.filter(peer => peer.verification.forked);
+        const majorityOnOurChain = forkedPeers.length / allPeers.length < 0.5;
+
+        if (majorityOnOurChain) {
+            logger.info("The majority of peers is not forked. No need to rollback.");
+            return { forked: false };
         }
 
-        // Sort common id groups by length DESC
-        const commonIdGroups = Object.values(groupedByCommonId).sort((a, b) => b.length - a.length);
+        const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
 
-        // Peers are sitting on the same height, but there might not be enough
-        // quorum to move on, because of different last blocks.
-        if (commonIdGroupCount > 1) {
-            const chosenPeers = commonIdGroups[0];
-            const restGroups = commonIdGroups.slice(1);
+        const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
 
-            if (restGroups.some(group => group.length === chosenPeers.length)) {
-                logger.warn("Peers are evenly split at same height with different block ids. :zap:");
-            }
+        // Sort by longest
+        // @ts-ignore
+        const longest = Object.keys(groupedByLength).sort((a, b) => b - a)[0];
+        const longestGroups = groupedByLength[longest];
 
-            logger.info(
-                `Detected peers at the same height ${peersMostCommonHeight[0].state.height.toLocaleString()} with different block ids: ${JSON.stringify(
-                    Object.keys(groupedByCommonId).map(k => `${k}: ${groupedByCommonId[k].length}`),
-                    null,
-                    4,
-                )}`,
-            );
+        // Sort by highest common height DESC
+        longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
+        const peersMostCommonHeight = longestGroups[0];
 
-            const badLastBlock =
-                chosenPeers[0].state.height === lastBlock.data.height &&
-                chosenPeers[0].state.header.id !== lastBlock.data.id;
-            const quota = chosenPeers.length / flatten(commonIdGroups).length;
-            if (quota < 0.66) {
-                // or quota too low TODO: find better number
-                logger.info(`Common id quota '${quota}' is too low. Going to rollback. :repeat:`);
-                state = "rollback";
-            } else if (badLastBlock) {
-                // Rollback if last block is bad and quota high
-                logger.info(
-                    `Last block id ${lastBlock.data.id} is bad, ` +
-                        `but got enough common id quota: ${quota}. Going to rollback. :repeat:`,
-                );
-                state = "rollback";
-            }
+        const { highestCommonHeight } = peersMostCommonHeight[0].verification;
+        logger.info(`Rolling back to most common height ${highestCommonHeight}. Own height: ${lastBlock.data.height}`);
 
-            if (state === "rollback") {
-                // Ban all rest peers
-                const peersToBan = flatten(restGroups);
-                peersToBan.forEach(peer => {
-                    (peer as any).commonId = false;
-                    this.suspendPeer(peer.ip);
-                });
-
-                logger.debug(
-                    `Banned ${pluralize(
-                        "peer",
-                        peersToBan.length,
-                        true,
-                    )} at height '${peersMostCommonHeight[0].state.height.toLocaleString()}' which do not have common id '${
-                        chosenPeers[0].state.header.id
-                    }'.`,
-                );
-            }
-        } else {
-            // Under certain circumstances the headers can be missing (i.e. seed peers when starting up)
-            const commonHeader = peersMostCommonHeight[0].state.header;
-            logger.info(
-                `All peers at most common height ${peersMostCommonHeight[0].state.height.toLocaleString()} share the same block id${
-                    commonHeader ? ` '${commonHeader.id}'` : ""
-                }. :pray:`,
-            );
-        }
-
-        return state;
+        // Now rollback blocks equal to the distance to the most common height.
+        const blocksToRollback = lastBlock.data.height - highestCommonHeight;
+        return { forked: true, blocksToRollback };
     }
 
     /**
@@ -760,32 +624,24 @@ export class Monitor implements P2P.IMonitor {
     }
 
     /**
-     * Add a new peer after it passes a few checks.
-     * @param  {Peer} peer
-     * @return {void}
+     * Get a random peer for downloading blocks.
+     * @return {Peer}
+     * @throws {Error} if a peer could not be selected
      */
-    private addPeer(peer) {
-        if (this.guard.isBlacklisted(peer)) {
-            return;
+    private getRandomPeerForDownloadingBlocks() {
+        const now = new Date().getTime();
+        const peersAll = this.getPeers();
+
+        const peersFiltered = peersAll.filter(peer => peer.ban < now && !peer.verification.forked);
+
+        if (peersFiltered.length === 0) {
+            throw new Error(
+                `Failed to pick a random peer from our list of ${peersAll.length} peers: ` +
+                    `all are either banned or on a different chain than us`,
+            );
         }
 
-        if (!this.guard.isValidVersion(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidNetwork(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidMilestoneHash(peer)) {
-            return;
-        }
-
-        if (!this.guard.isValidPort(peer)) {
-            return;
-        }
-
-        this.peers[peer.ip] = new Peer(peer.ip, peer.port);
+        return sample(peersFiltered);
     }
 
     /**
@@ -825,7 +681,7 @@ export class Monitor implements P2P.IMonitor {
      * Populate the initial seed list.
      * @return {void}
      */
-    private populateSeedPeers() {
+    private async populateSeedPeers() {
         const peerList = config.get("peers.list");
 
         if (!peerList) {
@@ -841,26 +697,12 @@ export class Monitor implements P2P.IMonitor {
             peers = { ...peers, ...localConfig.get("peers") };
         }
 
-        const filteredPeers: any[] = Object.values(peers).filter((peer: any) => {
-            if (!isValidPeer(peer)) {
-                return false;
-            }
-
-            if (!this.guard.isValidPort(peer)) {
-                return false;
-            }
-
-            if (!this.guard.isValidVersion(peer)) {
-                return false;
-            }
-
-            return true;
-        });
-
-        for (const peer of filteredPeers) {
-            delete this.guard.suspensions[peer.ip];
-            this.peers[peer.ip] = new Peer(peer.ip, peer.port);
-        }
+        return Promise.all(
+            Object.values(peers).map((peer: any) => {
+                delete this.guard.suspensions[peer.ip];
+                return this.acceptNewPeer(peer, { seed: true, lessVerbose: true });
+            }),
+        );
     }
 }
 

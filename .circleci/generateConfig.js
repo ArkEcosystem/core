@@ -55,13 +55,15 @@ fs.readdir("./packages", (_, packages) => {
                 });
 
             const stepLog = job.steps[9];
-            const stepCoverage = job.steps[10];
+            const stepLint = job.steps[10];
+            const stepCoverage = job.steps[11];
 
             for (i = 0; i < steps.length; i++) {
                 job.steps[testStepIndex + i] = steps[i];
             }
 
             job.steps.push(stepLog);
+            job.steps.push(stepLint);
             job.steps.push(stepCoverage);
 
             config.jobs[name.slice(0, -1) + index] = job;

@@ -1,4 +1,3 @@
-import { configManager } from "@arkecosystem/crypto";
 import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import Joi from "joi";
@@ -52,6 +51,14 @@ class FileLoader {
 
         if (!existsSync(basePath)) {
             throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
+        }
+
+        for (const file of ["peers.json", "plugins.js"]) {
+            const fullPath = `${basePath}/${file}`;
+
+            if (!existsSync(fullPath)) {
+                throw new Error(`The ${fullPath} file could not be found.`);
+            }
         }
 
         const configTree = {};

@@ -17,6 +17,7 @@ app.getConfig = jest.fn(() => {
     };
 });
 
+// @ts-ignore
 app.resolvePlugin = jest.fn(plugin => {
     if (plugin === "blockchain") {
         return {

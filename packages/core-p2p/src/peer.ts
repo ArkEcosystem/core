@@ -2,14 +2,17 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import axios from "axios";
 import dayjs from "dayjs-ext";
+import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
+import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
+import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
+import { replySchemas } from "./reply-schemas";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
     public hashid: string;
     public nethash: any;
-    public milestoneHash: string;
     public version: any;
     public os: any;
     public status: any;
@@ -21,7 +24,6 @@ export class Peer implements P2P.IPeer {
         version: string;
         port: number;
         nethash: number;
-        milestoneHash: string;
         height: number | null;
         "Content-Type": "application/json";
         hashid?: string;
@@ -31,6 +33,7 @@ export class Peer implements P2P.IPeer {
     public state: any;
     public url: string;
     public lastPinged: dayjs.Dayjs | null;
+    public verification: PeerVerificationResult | null;
 
     private config: any;
     private logger: Logger.ILogger;
@@ -49,12 +52,12 @@ export class Peer implements P2P.IPeer {
         this.state = {};
         this.offences = [];
         this.lastPinged = null;
+        this.verification = null;
 
         this.headers = {
             version: app.getVersion(),
             port: localConfig.get("port"),
             nethash: this.config.get("network.nethash"),
-            milestoneHash: this.config.get("milestoneHash"),
             height: null,
             "Content-Type": "application/json",
         };
@@ -70,7 +73,7 @@ export class Peer implements P2P.IPeer {
      * @return {void}
      */
     public setHeaders(headers) {
-        ["nethash", "milestoneHash", "os", "version"].forEach(key => {
+        ["nethash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
     }
@@ -93,7 +96,6 @@ export class Peer implements P2P.IPeer {
             ip: this.ip,
             port: +this.port,
             nethash: this.nethash,
-            milestoneHash: this.milestoneHash,
             version: this.version,
             os: this.os,
             status: this.status,
@@ -155,11 +157,7 @@ export class Peer implements P2P.IPeer {
      */
     public async downloadBlocks(fromBlockHeight) {
         try {
-            const response = await axios.get(`${this.url}/peer/blocks`, {
-                params: { lastBlockHeight: fromBlockHeight },
-                headers: this.headers,
-                timeout: 10000,
-            });
+            const response = await this.getPeerBlocks(fromBlockHeight);
 
             this.__parseHeaders(response);
 
@@ -172,11 +170,7 @@ export class Peer implements P2P.IPeer {
 
             return blocks;
         } catch (error) {
-            this.logger.debug(
-                `Cannot download blocks from peer ${this.url} - ${util.inspect(error, {
-                    depth: 1,
-                })}`,
-            );
+            this.logger.debug(`Cannot download blocks from peer ${this.url} because of "${error.message}"`);
 
             this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000;
 
@@ -187,20 +181,39 @@ export class Peer implements P2P.IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} [delay=5000]
+     * @param  {Number} delay operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    public async ping(delay, force = false) {
+    public async ping(delay: number, force = false) {
+        const deadline = new Date().getTime() + delay;
+
         if (this.recentlyPinged() && !force) {
             return;
         }
 
-        const body = await this.__get("/peer/status", delay || localConfig.get("globalTimeout"));
+        const body = await this.__get("/peer/status", delay);
 
         if (!body) {
-            throw new Error(`Peer ${this.ip} is unresponsive`);
+            throw new Error(`Peer ${this.ip}: could not get status response`);
+        }
+
+        if (!body.success) {
+            throw new PeerStatusResponseError(JSON.stringify(body));
+        }
+
+        if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
+            const peerVerifier = new PeerVerifier(this);
+
+            if (deadline <= new Date().getTime()) {
+                throw new PeerPingTimeoutError(delay);
+            }
+
+            this.verification = await peerVerifier.checkState(body, deadline);
+            if (this.verification === null) {
+                throw new PeerVerificationFailedError();
+            }
         }
 
         this.lastPinged = dayjs();
@@ -223,9 +236,11 @@ export class Peer implements P2P.IPeer {
     public async getPeers() {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
-        await this.ping(2000);
-
         const body = await this.__get("/peer/list");
+
+        if (!body) {
+            return [];
+        }
 
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
@@ -235,19 +250,37 @@ export class Peer implements P2P.IPeer {
     /**
      * Check if peer has common blocks.
      * @param  {[]String} ids
+     * @param {Number} timeoutMsec timeout for the operation, in milliseconds
      * @return {Boolean}
      */
-    public async hasCommonBlocks(ids) {
+    public async hasCommonBlocks(ids, timeoutMsec?: number) {
+        const errorMessage = `Could not determine common blocks with ${this.ip}`;
         try {
             let url = `/peer/blocks/common?ids=${ids.join(",")}`;
             if (ids.length === 1) {
                 url += ",";
             }
-            const body = await this.__get(url);
 
-            return body && body.success && body.common;
+            const body = await this.__get(url, timeoutMsec);
+
+            if (!body) {
+                return false;
+            }
+
+            if (!body.success) {
+                const bodyStr = util.inspect(body, { depth: 2 });
+                this.logger.error(`${errorMessage}: unsuccessful response: ${bodyStr}`);
+                return false;
+            }
+
+            if (!body.common) {
+                return false;
+            }
+
+            return body.common;
         } catch (error) {
-            this.logger.error(`Could not determine common blocks with ${this.ip}: ${error}`);
+            const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
+            this.logger.error(`Could not determine common blocks with ${this.ip}${sfx}: ${error.message}`);
         }
 
         return false;
@@ -268,15 +301,24 @@ export class Peer implements P2P.IPeer {
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
+            this.__parseHeaders(response);
+
+            if (!this.validateReply(response.data, endpoint)) {
+                return;
+            }
+
             this.delay = new Date().getTime() - temp;
 
-            this.__parseHeaders(response);
+            if (!response.data) {
+                this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
+                return;
+            }
 
             return response.data;
         } catch (error) {
             this.delay = -1;
 
-            this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
+            this.logger.debug(`Request to ${this.url}${endpoint} failed: ${error.message}`);
 
             if (error.response) {
                 this.__parseHeaders(error.response);
@@ -317,10 +359,6 @@ export class Peer implements P2P.IPeer {
             this[key] = response.headers[key] || this[key];
         });
 
-        if (response.headers.milestonehash) {
-            this.milestoneHash = response.headers.milestonehash;
-        }
-
         if (response.headers.height) {
             this.state.height = +response.headers.height;
         }
@@ -328,5 +366,72 @@ export class Peer implements P2P.IPeer {
         this.status = response.status;
 
         return response;
+    }
+
+    /**
+     * GET /peer/blocks and return the raw response.
+     * The API is such that the response is supposed to contain blocks at height
+     * afterBlockHeight + 1, afterBlockHeight + 2, and so on up to some limit determined by the peer.
+     * @param  {Number} afterBlockHeight
+     * @return {(Object[]|undefined)}
+     */
+    public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
+        const endpoint = "/peer/blocks";
+        const response = await axios.get(`${this.url}${endpoint}`, {
+            params: { lastBlockHeight: afterBlockHeight },
+            headers: this.headers,
+            timeout: 10000,
+        });
+
+        if (!this.validateReply(response.data, endpoint)) {
+            throw new Error("Invalid reply to request for blocks");
+        }
+
+        return response;
+    }
+
+    /**
+     * Validate a reply from the peer according to a predefined JSON schema rules.
+     * @param {Object} reply peer's reply
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @return {Boolean} true if validated successfully
+     */
+    private validateReply(reply: any, endpoint: string): boolean {
+        let schema = replySchemas[endpoint];
+        if (schema === undefined) {
+            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
+            let len = 0;
+            const definedEndpoints = Object.keys(replySchemas);
+            for (const d of definedEndpoints) {
+                if (endpoint.startsWith(d) && len < d.length) {
+                    schema = replySchemas[d];
+                    len = d.length;
+                }
+            }
+
+            if (schema === undefined) {
+                this.logger.error(
+                    `Can't validate reply from "${endpoint}": none of the predefined ` +
+                        `schemas matches: ` +
+                        JSON.stringify(definedEndpoints),
+                );
+                return false;
+            }
+        }
+
+        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+
+        if (result.error) {
+            let errorMessage = result.error.message;
+            if (result.error.details && result.error.details.length > 0) {
+                const context = result.error.details[0].context;
+                errorMessage += ` - ${context.key}: ${context.value}`;
+            }
+
+            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errorMessage}`);
+            return false;
+        }
+
+        return true;
     }
 }
