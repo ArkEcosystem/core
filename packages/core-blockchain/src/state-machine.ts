@@ -353,8 +353,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 blockchain.processQueue.clear();
             }
 
-            stateStorage.noBlockCounter++;
-            stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
+            if (blockchain.processQueue.length() === 0) {
+                stateStorage.noBlockCounter++;
+                stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
+            }
 
             blockchain.dispatch("NOBLOCK");
         }
