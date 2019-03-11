@@ -85,7 +85,7 @@ export interface ITransactionPool {
      * Get all transactions within the specified range [start, start + size), ordered by fee.
      * @return {(Array|void)} array of serialized transaction hex strings
      */
-    getTransactions(start: number, size: number, maxBytes?: number): string[];
+    getTransactions(start: number, size: number, maxBytes: number): string[];
 
     /**
      * Get all transactions within the specified range [start, start + size).
@@ -99,7 +99,7 @@ export interface ITransactionPool {
      * insertion time, if fees equal (earliest transaction first).
      * @return {Array} array of transaction[property]
      */
-    getTransactionsData(start: number, size: number, property: string, maxBytes?: number): any[];
+    getTransactionsData(start: number, size: number, property: string, maxBytes: number): any[];
 
     /**
      * Remove all transactions from the transaction pool belonging to specific sender.

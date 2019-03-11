@@ -242,7 +242,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @param  {Number} maxBytes for the total transaction array or 0 for no limit
      * @return {(Array|void)} array of serialized transaction hex strings
      */
-    public getTransactions(start, size, maxBytes?: number) {
+    public getTransactions(start, size, maxBytes) {
         return this.getTransactionsData(start, size, "serialized", maxBytes);
     }
 
@@ -266,7 +266,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * @param  {String} property
      * @return {Array} array of transaction[property]
      */
-    public getTransactionsData(start, size, property, maxBytes = 0) {
+    public getTransactionsData(start, size, property, maxBytes) {
         this.__purgeExpired();
 
         const data = [];
