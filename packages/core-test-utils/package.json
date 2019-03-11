@@ -1,13 +1,15 @@
 {
-    "name": "@arkecosystem/core-json-rpc",
-    "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
+    "name": "@arkecosystem/core-test-utils",
+    "description": "Test Utilities for Ark Core",
     "version": "2.2.0",
     "contributors": [
-        "François-Xavier Thoorens <fx@ark.io>",
-        "Brian Faust <brian@ark.io>"
+        "Brian Faust <brian@ark.io>",
+        "Erwann Gentric <erwann@ark.io>",
+        "Joshua Noack <joshua@ark.io>"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
+    "main": "dist/index",
+    "types": "dist/index",
     "files": [
         "dist"
     ],
@@ -17,49 +19,48 @@
         "publish:rc": "npm publish --tag rc",
         "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
+        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
+        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
+        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
+        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0",
-        "@arkecosystem/core-http-utils": "^2.2.0",
         "@arkecosystem/core-interfaces": "^2.2.0",
+        "@arkecosystem/core-jest-matchers": "^2.2.0",
         "@arkecosystem/crypto": "^2.2.0",
-        "@keyv/sqlite": "^2.0.0",
-        "axios": "^0.18.0",
+        "awilix": "^4.2.0",
         "bip39": "^2.5.0",
-        "boom": "^7.3.0",
-        "is-reachable": "^3.0.0",
-        "joi": "^14.3.1",
-        "keyv": "^3.1.0",
         "lodash.get": "^4.4.2",
-        "uuid": "^3.3.2",
-        "wif": "^2.0.6"
+        "lodash.isequal": "^4.5.0",
+        "lodash.isstring": "^4.0.1",
+        "lodash.sortby": "^4.7.0",
+        "superheroes": "^2.0.0",
+        "xstate": "^4.3.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.2.0",
-        "@arkecosystem/core-test-utils": "^2.2.0",
         "@types/bip39": "^2.4.1",
-        "@types/boom": "^7.2.1",
-        "@types/is-reachable": "^3.0.0",
-        "@types/joi": "^14.3.1",
-        "@types/keyv": "^3.1.0",
-        "@types/keyv__sqlite": "^2.0.0",
         "@types/lodash.get": "^4.4.4",
-        "@types/uuid": "^3.4.4",
-        "@types/wif": "^2.0.1",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/lodash.isequal": "^4.5.3",
+        "@types/lodash.isstring": "^4.0.4",
+        "@types/lodash.sortby": "^4.7.4"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
+    },
+    "jest": {
+        "preset": "../../jest-preset.json"
     }
 }

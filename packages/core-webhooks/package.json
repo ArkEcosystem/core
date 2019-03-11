@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-webhooks",
     "description": "Webhooks for Ark Core",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -26,9 +26,9 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
-        "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
-        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-http-utils": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.0",
         "axios": "^0.18.0",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
@@ -38,7 +38,7 @@
         "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
+        "@arkecosystem/core-test-utils": "^2.2.0",
         "@types/boom": "^7.2.1",
         "@types/fs-extra": "^5.0.5",
         "@types/joi": "^14.3.1",

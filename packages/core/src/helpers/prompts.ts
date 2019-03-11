@@ -1,6 +1,6 @@
 import prompts from "prompts";
 
-export async function confirm(message: string, callback: any): Promise<void> {
+export async function confirm(message: string, yesCallback: any, noCallback?: any): Promise<void> {
     const { confirm } = await prompts([
         {
             type: "confirm",
@@ -10,6 +10,8 @@ export async function confirm(message: string, callback: any): Promise<void> {
     ]);
 
     if (confirm) {
-        await callback();
+        await yesCallback();
+    } else if (noCallback) {
+        await noCallback();
     }
 }

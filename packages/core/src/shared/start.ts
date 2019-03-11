@@ -29,7 +29,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
             processManager.start(options, flags.daemon === false);
         } catch (error) {
-            this.error(error.message);
+            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
         } finally {
             cli.action.stop();
         }
