@@ -1,19 +1,19 @@
 import { models } from "@arkecosystem/crypto";
 
 export const sampleBlock = new models.Block({
-    id: "4398082439836560423",
+    id: "7686497416922799951",
     version: 0,
-    timestamp: 35751416,
-    height: 3342573,
-    previousBlock: "14909996519459393858",
+    timestamp: 62225384,
+    height: 1760011,
+    previousBlock: "1111111111111111111",
     numberOfTransactions: 0,
     totalAmount: 0,
     totalFee: 0,
     reward: 200000000,
     payloadLength: 0,
     payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    generatorPublicKey: "03806036bc1bb470144184b10f815431c580ae2b806d5fd0ba2118dca823c5c4a6",
+    generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
     blockSignature:
         // tslint:disable-next-line:max-line-length
-        "3045022100d0ad616575b1039b89ae22bb8efbce80dd14f52d193ef7a1d0a76fab0253aa4f02206a347bb5d4dc372e5a7ad3f16ae44409d9190fbd8138e9b4e99f83ca3236f91d",
+        "304402205b5da8a3cfb28398baaa50e299d735226c4455bdfdf5cb650afb53b0f22a93c60220572c4a4652edcd1bb85720884a7b0732add4dd50e7a0984325807770c99939bd",
 });
