@@ -149,7 +149,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -539,7 +539,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
@@ -681,7 +681,7 @@ jobs:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
           name: Install and build packages
-          command: yarn setup
+          command: yarn bootstrap && yarn build
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:

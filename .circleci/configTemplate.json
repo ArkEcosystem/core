@@ -137,7 +137,7 @@
                 {
                     "run": {
                         "name": "Install and build packages",
-                        "command": "yarn setup"
+                        "command": "yarn bootstrap && yarn build"
                     }
                 },
                 {
