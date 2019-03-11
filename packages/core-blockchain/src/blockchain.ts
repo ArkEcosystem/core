@@ -16,7 +16,6 @@ import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
-import { isBlockChained } from "./utils";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -207,6 +206,8 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public clearAndStopQueue() {
+        this.state.lastDownloadedBlock = this.getLastBlock();
+
         this.queue.pause();
         this.clearQueue();
     }

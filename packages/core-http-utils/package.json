@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-http-utils",
     "description": "Http Utilities for Ark Core",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.1",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -26,7 +26,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
+        "@arkecosystem/core-container": "^2.2.1",
         "boom": "^7.3.0",
         "expand-home-dir": "^0.0.3",
         "good": "^8.1.2",
@@ -38,10 +38,10 @@
     },
     "devDependencies": {
         "@types/boom": "^7.2.1",
-        "@types/hapi": "^18.0.0",
+        "@types/hapi": "^18.0.1",
         "@types/inert": "^5.1.2",
         "@types/micromatch": "^3.1.0",
-        "@types/vision": "^5.3.5",
+        "@types/vision": "^5.3.6",
         "axios": "^0.18.0"
     },
     "publishConfig": {

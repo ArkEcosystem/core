@@ -3,7 +3,6 @@ import { Transaction, TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { TransactionVersionError } from "../../errors";
-import { configManager } from "../../managers";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
 

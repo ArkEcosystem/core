@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-json-rpc",
     "description": "A JSON-RPC 2.0 Specification compliant server to interact with the Ark Blockchain.",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -27,10 +27,10 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
-        "@arkecosystem/core-http-utils": "^2.2.0-rc.0",
-        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
-        "@arkecosystem/crypto": "^2.2.0-rc.0",
+        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-http-utils": "^2.2.1",
+        "@arkecosystem/core-interfaces": "^2.2.1",
+        "@arkecosystem/crypto": "^2.2.1",
         "@keyv/sqlite": "^2.0.0",
         "axios": "^0.18.0",
         "bip39": "^2.5.0",
@@ -43,15 +43,14 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.2.0-rc.0",
-        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
-        "@types/bip39": "^2.4.1",
+        "@arkecosystem/core-p2p": "^2.2.1",
+        "@types/bip39": "^2.4.2",
         "@types/boom": "^7.2.1",
         "@types/is-reachable": "^3.0.0",
-        "@types/joi": "^14.3.1",
+        "@types/joi": "^14.3.2",
         "@types/keyv": "^3.1.0",
         "@types/keyv__sqlite": "^2.0.0",
-        "@types/lodash.get": "^4.4.4",
+        "@types/lodash.get": "^4.4.6",
         "@types/uuid": "^3.4.4",
         "@types/wif": "^2.0.1",
         "axios-mock-adapter": "^1.16.0"

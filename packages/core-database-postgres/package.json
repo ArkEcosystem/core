@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database-postgres",
     "description": "PostgreSQL integration for Ark Core",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.1",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -28,25 +28,25 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
-        "@arkecosystem/core-database": "^2.2.0-rc.0",
-        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
-        "@arkecosystem/core-utils": "^2.2.0-rc.0",
-        "@arkecosystem/crypto": "^2.2.0-rc.0",
-        "@faustbrian/dato": "^0.1.0",
-        "@types/bluebird": "^3.5.25",
-        "@types/lodash.chunk": "^4.2.4",
+        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-database": "^2.2.1",
+        "@arkecosystem/core-interfaces": "^2.2.1",
+        "@arkecosystem/core-utils": "^2.2.1",
+        "@arkecosystem/crypto": "^2.2.1",
+        "@faustbrian/dato": "^0.2.0",
+        "@types/bluebird": "^3.5.26",
+        "@types/lodash.chunk": "^4.2.6",
         "@types/pluralize": "^0.0.29",
         "bluebird": "^3.5.3",
         "cpy-cli": "^2.0.0",
         "lodash.chunk": "^4.2.0",
-        "pg-promise": "^8.5.5",
+        "pg-promise": "^8.6.3",
         "pluralize": "^7.0.0",
         "sql": "^0.78.0"
     },
     "devDependencies": {
-        "@types/bluebird": "^3.5.25",
-        "@types/lodash.chunk": "^4.2.4",
+        "@types/bluebird": "^3.5.26",
+        "@types/lodash.chunk": "^4.2.6",
         "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {

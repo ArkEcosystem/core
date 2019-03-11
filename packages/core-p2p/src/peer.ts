@@ -226,7 +226,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && dato().diffMinutes(this.lastPinged) < 2;
+        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
     }
 
     /**
@@ -422,9 +422,13 @@ export class Peer implements P2P.IPeer {
         const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
 
         if (result.error) {
-            this.logger.error(
-                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` + result.error.message,
-            );
+            let errorMessage = result.error.message;
+            if (result.error.details && result.error.details.length > 0) {
+                const context = result.error.details[0].context;
+                errorMessage += ` - ${context.key}: ${context.value}`;
+            }
+
+            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errorMessage}`);
             return false;
         }
 

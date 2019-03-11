@@ -16,7 +16,7 @@ export abstract class AbstractRestartCommand extends BaseCommand {
 
             processManager.restart(processName);
         } catch (error) {
-            this.warn(error.message);
+            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
         } finally {
             cli.action.stop();
         }

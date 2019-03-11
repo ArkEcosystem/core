@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
 import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
-import { crypto, models, Transaction } from "@arkecosystem/crypto";
+import { crypto, Transaction } from "@arkecosystem/crypto";
 
 export function transformTransaction(model) {
     const config = app.getConfig();

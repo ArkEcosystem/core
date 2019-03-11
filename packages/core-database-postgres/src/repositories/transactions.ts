@@ -1,6 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
-import { models } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash/partition";
 import { Transaction } from "../models";
@@ -95,7 +94,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 this.query.timestamp.gte(
                     slots.getTime(
                         dato()
-                            .subtractDays(30)
+                            .subDays(30)
                             .toMilliseconds(),
                     ),
                 ),
