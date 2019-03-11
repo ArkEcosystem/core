@@ -44,7 +44,6 @@
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.2.1",
-        "@arkecosystem/core-test-utils": "^2.2.1",
         "@types/async": "^2.4.0",
         "@types/lodash.get": "^4.4.4",
         "@types/pluralize": "^0.0.29",

@@ -47,7 +47,6 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.1",
         "@arkecosystem/core-utils": "^2.2.1",
         "@types/better-sqlite3": "^5.2.2",
         "@types/bip39": "^2.4.1",

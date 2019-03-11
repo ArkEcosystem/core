@@ -44,7 +44,6 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.1",
         "@types/lodash.clonedeep": "^4.5.4",
         "@types/lodash.compact": "^3.0.4",
         "@types/lodash.uniq": "^4.5.4",

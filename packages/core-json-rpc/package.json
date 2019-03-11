@@ -44,7 +44,6 @@
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.2.1",
-        "@arkecosystem/core-test-utils": "^2.2.1",
         "@types/bip39": "^2.4.1",
         "@types/boom": "^7.2.1",
         "@types/is-reachable": "^3.0.0",

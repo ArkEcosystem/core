@@ -275,7 +275,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 blockchain.clearQueue();
             }
 
-            if (blockchain.processQueue.length() === 0) {
+            if (blockchain.queue.length() === 0) {
                 stateStorage.noBlockCounter++;
                 stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
             }
