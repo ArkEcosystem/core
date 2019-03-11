@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
     "description": "Transaction Pool Manager for Ark Core",
-    "version": "2.2.0-rc.0",
+    "version": "2.2.1",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -31,11 +31,11 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-rc.0",
-        "@arkecosystem/core-database": "^2.2.0-rc.0",
-        "@arkecosystem/core-interfaces": "^2.2.0-rc.0",
-        "@arkecosystem/core-transactions": "^2.2.0-rc.0",
-        "@arkecosystem/crypto": "^2.2.0-rc.0",
+        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-database": "^2.2.1",
+        "@arkecosystem/core-interfaces": "^2.2.1",
+        "@arkecosystem/core-transactions": "^2.2.0",
+        "@arkecosystem/crypto": "^2.2.1",
         "@faustbrian/dato": "^0.1.0",
         "@types/better-sqlite3": "^5.2.2",
         "@types/fs-extra": "^5.0.5",
@@ -47,8 +47,7 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.2.0-rc.0",
-        "@arkecosystem/core-utils": "^2.2.0-rc.0",
+        "@arkecosystem/core-utils": "^2.2.1",
         "@types/better-sqlite3": "^5.2.2",
         "@types/bip39": "^2.4.1",
         "@types/fs-extra": "^5.0.5",

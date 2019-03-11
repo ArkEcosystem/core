@@ -87,11 +87,12 @@ export class Client {
      */
     public async getNetworkState(): Promise<NetworkState> {
         try {
-            const response = await this.__get(`${this.host}/internal/network/state`);
-            const { data } = response.body;
+            const response = await this.__get(`${this.host}/internal/network/state`, 4000);
+            const { data } = response.data;
 
             return NetworkState.parse(data);
         } catch (e) {
+            this.logger.error(`Could not retrieve network state: ${this.host}/internal/network/state: ${e.message}`);
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
@@ -174,8 +175,8 @@ export class Client {
         }
     }
 
-    public async __get(url) {
-        return httpie.get(url, { headers: this.headers, timeout: 2000 });
+    public async __get(url, timeout: number = 2000) {
+        return httpie.get(url, { headers: this.headers, timeout });
     }
 
     public async __post(url, body) {
