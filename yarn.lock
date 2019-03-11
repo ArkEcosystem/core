@@ -2,104 +2,6 @@
 # yarn lockfile v1
 
 
-"@arkecosystem/core-container@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/core-container/-/core-container-2.1.1.tgz#164f4ee3cbeb3c205b8cc1c05eabffcbf9fa1b05"
-  integrity sha512-06O252p0entfFP77EHUUJdNkmhLKCX7yKxsmVIqNXsY52J4vfNba4nAH0gwNycExhXPx+KcjJ8ZOISSPP9Wjng==
-  dependencies:
-    "@arkecosystem/core-interfaces" "^2.1.0"
-    "@arkecosystem/crypto" "^2.1.0"
-    "@types/fs-extra" "^5.0.4"
-    "@types/hoek" "^4.1.3"
-    "@types/joi" "^14.0.1"
-    "@types/lodash.get" "^4.4.4"
-    "@types/lodash.isstring" "^4.0.4"
-    "@types/lodash.set" "^4.3.4"
-    "@types/semver" "^5.5.0"
-    awilix "^4.0.1"
-    axios "^0.18.0"
-    delay "^4.1.0"
-    env-paths "^2.0.0"
-    envfile "^2.3.0"
-    expand-home-dir "^0.0.3"
-    fs-extra "^7.0.1"
-    hoek "^6.1.2"
-    joi "^14.3.0"
-    lodash.get "^4.4.2"
-    lodash.isstring "^4.0.1"
-    lodash.set "^4.3.2"
-    semver "^5.6.0"
-
-"@arkecosystem/core-interfaces@^2.1.0", "@arkecosystem/core-interfaces@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/core-interfaces/-/core-interfaces-2.1.1.tgz#20009caf608328b34bec70b070b3e93e7e3e747c"
-  integrity sha512-nS2fqYaO+VRUx3DTbAOAG8zcfR2qGckcysQGkaNX4+/nEEF1ZkoxAuvCvxeR8Ky6/9CIB9yELCWa+tcn5kISkA==
-  dependencies:
-    "@arkecosystem/crypto" "^2.1.0"
-    awilix "^4.0.1"
-    eventemitter3 "^3.1.0"
-
-"@arkecosystem/core-test-utils@^2.2.0-rc.0":
-  version "2.2.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/core-test-utils/-/core-test-utils-2.2.0-rc.0.tgz#987306f6128a436c1ea75c8123f610372ded014d"
-  integrity sha512-8ejYwAWkvPSi2iUBUSdXRJyS9fzZB5GqhpSCc3BsB6HmOOgP4B/f0orvuUy1OenvU6meQzMcKkCY96/BoaPvfA==
-  dependencies:
-    "@arkecosystem/core-container" "^2.2.0-rc.0"
-    "@arkecosystem/core-interfaces" "^2.2.0-rc.0"
-    "@arkecosystem/core-jest-matchers" "^2.2.0-rc.0"
-    "@arkecosystem/crypto" "^2.2.0-rc.0"
-    awilix "^4.2.0"
-    bip39 "^2.5.0"
-    lodash.get "^4.4.2"
-    lodash.isequal "^4.5.0"
-    lodash.isstring "^4.0.1"
-    lodash.sortby "^4.7.0"
-    superheroes "^2.0.0"
-    xstate "^4.3.1"
-
-"@arkecosystem/crypto@^2.1.0":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto/-/crypto-2.1.1.tgz#4cc9ed1a3a248af3c087623dd6ecbb66a94f4433"
-  integrity sha512-ZYmJO+pk8PSG9okUhM9rXyRdXv6d0vV5tYpft63oQH96tdSBCD1ynXa4KvhFn66TmPQQ1/Cei/o9G7y7AsivEg==
-  dependencies:
-    "@types/bip32" "^1.0.0"
-    "@types/bip39" "^2.4.1"
-    "@types/bytebuffer" "^5.0.37"
-    "@types/create-hash" "^1.2.0"
-    "@types/deepmerge" "^2.2.0"
-    "@types/joi" "^14.0.1"
-    "@types/lodash.camelcase" "^4.3.4"
-    "@types/lodash.get" "^4.4.4"
-    "@types/lodash.set" "^4.3.4"
-    "@types/lodash.sumby" "^4.6.4"
-    "@types/node-forge" "^0.7.11"
-    "@types/otplib" "^7.0.0"
-    "@types/pluralize" "^0.0.29"
-    "@types/secp256k1" "^3.5.0"
-    "@types/wif" "^2.0.1"
-    bignumber.js "^8.0.1"
-    bip32 "^1.0.2"
-    bip39 "^2.5.0"
-    bs58check "^2.1.2"
-    bytebuffer "^5.0.1"
-    create-hash "^1.2.0"
-    dayjs-ext "^2.2.0"
-    deepmerge "^3.0.0"
-    joi "^14.3.0"
-    lodash.camelcase "^4.3.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-    lodash.sumby "^4.6.0"
-    node-forge "^0.7.6"
-    otplib "^10.0.1"
-    pluralize "^7.0.0"
-    secp256k1 "^3.5.2"
-    tiny-glob "^0.2.6"
-    ts-loader "^5.3.1"
-    webpack-merge "^4.1.5"
-    webpack-node-externals "^1.7.2"
-    wif "^2.0.6"
-
 "@arkecosystem/utils@^0.2.4":
   version "0.2.51"
   resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.2.51.tgz#a64a83b7148fe3a317918f3431dac6596b55334d"
@@ -1736,7 +1638,7 @@
   dependencies:
     "@types/integer" "*"
 
-"@types/bip32@^1.0.0", "@types/bip32@^1.0.1":
+"@types/bip32@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/bip32/-/bip32-1.0.1.tgz#366e31ebf30809542f470bad13f451898c67d32a"
   integrity sha512-wYXX2aKqnY5AsUep6eZsOPsZCZhzAJDeqO4ut19FY0Nhm6eyo4jN0GWEhs1xKoCuL4yU6WsLHXr0sx8tnWcnsg==
@@ -1787,7 +1689,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bytebuffer@^5.0.37", "@types/bytebuffer@^5.0.40":
+"@types/bytebuffer@^5.0.40":
   version "5.0.40"
   resolved "https://registry.yarnpkg.com/@types/bytebuffer/-/bytebuffer-5.0.40.tgz#d6faac40dcfb09cd856cdc4c01d3690ba536d3ee"
   integrity sha512-h48dyzZrPMz25K6Q4+NCwWaxwXany2FhQg/ErOcdZS1ZpsaDnDMZg8JYLMTGz7uvXKrcKGJUZJlZObyfgdaN9g==
@@ -5274,16 +5176,6 @@ env-paths@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-2.0.0.tgz#5a71723f3df7ca98113541f6fa972184f2c9611d"
   integrity sha512-13VpSqOO91W3MskXxWJ8x+Y33RKaPT53/HviPp8QcMmEbAJaPFEm8BmMpxCHroJ5rGADqr34Zl6zosBt3F+xAA==
-
-envfile@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/envfile/-/envfile-2.3.0.tgz#0ced8f8846e45e2868623c54ecfe3d1914b1e3f4"
-  integrity sha512-xcwno0xGhSVhgBfFx9SxwYd6FNfTdq8SMFjrQ4FYsxYUNQMPJTXn7dERrX439F1V4Ukk9x/nL/5GcNZaIVUT7g==
-  dependencies:
-    ambi "^2.4.0"
-    eachr "^3.1.0"
-    editions "^1.3.3"
-    typechecker "^4.0.1"
 
 envfile@^3.0.0:
   version "3.0.0"
@@ -13049,7 +12941,7 @@ ts-jest@^23.10.5:
     semver "^5.5"
     yargs-parser "10.x"
 
-ts-loader@^5.3.1, ts-loader@^5.3.3:
+ts-loader@^5.3.3:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-5.3.3.tgz#8b4af042e773132d86b3c99ef0acf3b4d325f473"
   integrity sha512-KwF1SplmOJepnoZ4eRIloH/zXL195F51skt7reEsS6jvDqzgc/YSbz9b8E07GxIUwLXdcD4ssrJu6v8CwaTafA==
