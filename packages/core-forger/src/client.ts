@@ -176,7 +176,7 @@ export class Client {
     }
 
     public async __get(url, timeout: number = 2000) {
-        return axios.get(url, { headers: this.headers, timeout: timeout });
+        return axios.get(url, { headers: this.headers, timeout });
     }
 
     public async __post(url, body) {
