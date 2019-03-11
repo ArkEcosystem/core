@@ -2,10 +2,10 @@ import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import set from "lodash/set";
-import { feeManager } from "./fee";
 
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
+import { feeManager } from "./fee";
 
 interface IMilestone {
     index: number;

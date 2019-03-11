@@ -3,13 +3,15 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import fs from "fs-extra";
 
 export const getPath = (table, folder, codec) => {
-    const filename = `${table}.${codec}`;
-    return this.getFilePath(filename, folder);
+    return this.getFilePath(`${table}.${codec}`, folder);
 };
 
 export const writeMetaFile = snapshotInfo => {
-    const path = `${process.env.CORE_PATH_DATA}/snapshots/${snapshotInfo.folder}/meta.json`;
-    fs.writeFileSync(path, JSON.stringify(snapshotInfo), "utf8");
+    fs.writeFileSync(
+        `${process.env.CORE_PATH_DATA}/snapshots/${snapshotInfo.folder}/meta.json`,
+        JSON.stringify(snapshotInfo),
+        "utf8",
+    );
 };
 
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;

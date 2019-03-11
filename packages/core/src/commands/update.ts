@@ -1,3 +1,4 @@
+import { hasSomeProperty } from "@arkecosystem/core-utils";
 import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
@@ -6,7 +7,6 @@ import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
 import { CommandFlags } from "../types";
 import { BaseCommand } from "./command";
-import { hasSomeProperty } from "@arkecosystem/core-utils";
 
 export class UpdateCommand extends BaseCommand {
     public static description: string = "Update the core installation";

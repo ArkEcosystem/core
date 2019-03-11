@@ -1,6 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
-import { orderBy } from "@arkecosystem/utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
