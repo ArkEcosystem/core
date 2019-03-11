@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-container",
     "description": "Container for Ark Core",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -27,8 +27,8 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.2.0",
-        "@arkecosystem/crypto": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.1",
+        "@arkecosystem/crypto": "^2.2.1",
         "awilix": "^4.2.0",
         "axios": "^0.18.0",
         "delay": "^4.1.0",
