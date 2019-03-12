@@ -8,9 +8,7 @@ describe("make:block", () => {
 
         expect(blocks).toHaveLength(1);
 
-        expect(blocks[0].data.generatorPublicKey).toBe(
-            "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
-        );
+        expect(blocks[0].generatorPublicKey).toBe("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37");
     });
 
     it("should generate 1 block with 10 transactions", async () => {
