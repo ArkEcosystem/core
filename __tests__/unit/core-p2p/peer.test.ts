@@ -20,6 +20,10 @@ beforeEach(() => {
     nock.cleanAll();
 });
 
+afterAll(() => {
+    nock.cleanAll();
+});
+
 describe("Peer", () => {
     describe("toBroadcastInfo", () => {
         it("should be ok", async () => {

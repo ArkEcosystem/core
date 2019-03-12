@@ -26,6 +26,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    nock.cleanAll();
     await tearDown();
 });
 

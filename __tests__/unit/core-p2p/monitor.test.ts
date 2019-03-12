@@ -39,6 +39,10 @@ beforeEach(() => {
     nock.cleanAll();
 });
 
+afterAll(() => {
+    nock.cleanAll();
+});
+
 describe("Monitor", () => {
     describe("cleanPeers", () => {
         it("should be ok", async () => {

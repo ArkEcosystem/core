@@ -15,6 +15,10 @@ beforeEach(() => {
     nock.cleanAll();
 });
 
+afterAll(() => {
+    nock.cleanAll();
+});
+
 describe("Peer Verifier", () => {
     describe("checkState", () => {
         it("identical chains", async () => {

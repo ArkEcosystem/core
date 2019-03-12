@@ -27,9 +27,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    nock.cleanAll();
     await tearDown();
 });
-
 beforeEach(async () => {
     nock(peerMock.url)
         .get("/peer/status")
