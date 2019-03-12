@@ -88,9 +88,8 @@ export class Client {
     public async getNetworkState(): Promise<NetworkState> {
         try {
             const response = await this.__get(`${this.host}/internal/network/state`, 4000);
-            const { data } = response.data;
 
-            return NetworkState.parse(data);
+            return NetworkState.parse(response.body.data);
         } catch (e) {
             this.logger.error(`Could not retrieve network state: ${this.host}/internal/network/state: ${e.message}`);
             return new NetworkState(NetworkStateStatus.Unknown);
