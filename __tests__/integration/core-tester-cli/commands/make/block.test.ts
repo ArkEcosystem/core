@@ -34,8 +34,6 @@ describe("make:block", () => {
     it("should generate a block with a custom passphrase", async () => {
         const blocks = await BlockCommand.run(["--network=unitnet", "--passphrase=123"]);
 
-        expect(blocks[0].data.generatorPublicKey).toBe(
-            "03be686ed7f0539affbaf634f3bcc2b235e8e220e7be57e9397ab1c14c39137eb4",
-        );
+        expect(blocks[0].generatorPublicKey).toBe("03be686ed7f0539affbaf634f3bcc2b235e8e220e7be57e9397ab1c14c39137eb4");
     });
 });
