@@ -7,7 +7,7 @@ import { copyToClipboard } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class BlockCommand extends BaseCommand {
-    public static description: string = "send multiple transactions";
+    public static description: string = "create a new block";
 
     public static flags = {
         ...BaseCommand.flagsConfig,
