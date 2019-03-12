@@ -95,7 +95,7 @@ export const offences = {
     },
     SOCKET_NOT_OPEN: {
         number: 5,
-        period: "minutes",
+        period: "addMinutes",
         reason: "Socket not open",
         weight: 3,
     },

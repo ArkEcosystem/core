@@ -1,13 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
-import { models } from "@arkecosystem/crypto";
+import { Transaction } from "@arkecosystem/crypto";
 // import * as schema from "../schemas/transactions";
 
 const config = app.getConfig();
-const { Transaction } = models;
 
 export const verifyTransaction = async req => {
-    const transaction = new Transaction(Transaction.deserialize(req.data.transaction));
+    const transaction = Transaction.fromBytes(req.data.transaction);
 
     return {
         data: {

@@ -8,8 +8,6 @@ import { join } from "path";
 import semver from "semver";
 import { configManager } from "./config";
 
-import { configManager } from "./config";
-
 async function getLatestVersion(name: string, channel: string): Promise<string> {
     try {
         const version = await latestVersion(name, { version: channel });
