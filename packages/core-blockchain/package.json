@@ -34,18 +34,18 @@
         "@arkecosystem/core-utils": "^2.2.1",
         "@arkecosystem/crypto": "^2.2.1",
         "async": "^2.6.2",
-        "awilix": "^4.2.0",
+        "awilix": "^4.2.1",
         "delay": "^4.1.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
-        "xstate": "^4.3.1"
+        "xstate": "^4.3.3"
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.2.1",
-        "@types/async": "^2.4.0",
-        "@types/lodash.get": "^4.4.4",
+        "@types/async": "^2.4.1",
+        "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0"
     },

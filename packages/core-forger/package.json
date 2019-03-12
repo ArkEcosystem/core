@@ -40,9 +40,9 @@
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@types/lodash.isempty": "^4.4.4",
-        "@types/lodash.sample": "^4.2.4",
-        "@types/lodash.uniq": "^4.5.4",
+        "@types/lodash.isempty": "^4.4.6",
+        "@types/lodash.sample": "^4.2.6",
+        "@types/lodash.uniq": "^4.5.6",
         "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {

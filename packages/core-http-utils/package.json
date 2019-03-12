@@ -39,10 +39,10 @@
     },
     "devDependencies": {
         "@types/boom": "^7.2.1",
-        "@types/hapi": "^18.0.0",
+        "@types/hapi": "^18.0.1",
         "@types/inert": "^5.1.2",
         "@types/micromatch": "^3.1.0",
-        "@types/vision": "^5.3.5"
+        "@types/vision": "^5.3.6"
     },
     "publishConfig": {
         "access": "public"

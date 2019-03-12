@@ -151,7 +151,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         if (this.transactionExists(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return this.__createError(transaction, "ERR_ALREADY_IN_POOL", "Already in pool");
@@ -176,8 +176,8 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                     transaction,
                     "ERR_POOL_FULL",
                     `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
-                    `${fee.toFixed()} is not higher than the lowest fee already in pool ` +
-                    `${lowestFee.toFixed()}`,
+                        `${fee.toFixed()} is not higher than the lowest fee already in pool ` +
+                        `${lowestFee.toFixed()}`,
                 );
             }
         }
@@ -308,7 +308,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key: ${
-                    transaction.senderPublicKey
+                        transaction.senderPublicKey
                     } (listed in options.allowedSenders), thus skipping throttling.`,
                 );
                 this.loggedAllowedSenders.push(transaction.senderPublicKey);
@@ -411,7 +411,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
                     this.logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-                        data.id
+                            data.id
                         } due to ${error.message}. Possible double spending attack`,
                     );
                     return;

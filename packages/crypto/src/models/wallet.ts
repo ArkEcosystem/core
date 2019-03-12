@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto/crypto";
-import { IMultiSignatureAsset, ITransactionData, Transaction } from "../transactions";
+import { IMultiSignatureAsset, ITransactionData } from "../transactions";
 import { Bignum, formatSatoshi } from "../utils";
 import { IBlockData } from "./block";
 

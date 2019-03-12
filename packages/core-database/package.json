@@ -31,22 +31,19 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
         "@arkecosystem/core-interfaces": "^2.2.1",
-        "@arkecosystem/core-transactions": "^2.2.0",
+        "@arkecosystem/core-transactions": "^2.2.1",
         "@arkecosystem/core-utils": "^2.2.1",
         "@arkecosystem/crypto": "^2.2.1",
         "@arkecosystem/utils": "^0.3.0",
-        "@types/lodash.clonedeep": "^4.5.4",
-        "@types/lodash.compact": "^3.0.4",
-        "@types/lodash.uniq": "^4.5.4",
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@types/lodash.clonedeep": "^4.5.4",
-        "@types/lodash.compact": "^3.0.4",
-        "@types/lodash.uniq": "^4.5.4",
+        "@types/lodash.clonedeep": "^4.5.6",
+        "@types/lodash.compact": "^3.0.6",
+        "@types/lodash.uniq": "^4.5.6",
         "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {

@@ -1,4 +1,3 @@
-import { flags } from "@oclif/command";
 import fs from "fs-extra";
 import prompts from "prompts";
 import { CommandFlags } from "../../types";

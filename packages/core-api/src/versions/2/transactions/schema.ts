@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import joi from "joi";
 import { pagination } from "../shared/schemas/pagination";
 
