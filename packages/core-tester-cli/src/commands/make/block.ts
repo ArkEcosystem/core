@@ -41,16 +41,12 @@ export class BlockCommand extends BaseCommand {
     };
 
     public async run(): Promise<models.IBlock[]> {
-        const { flags } = await this.make(BlockCommand);
+        const { flags } = this.makeWithoutNetwork(BlockCommand);
 
-        configManager.setFromPreset(flags.network as NetworkName);
+        const genesisBlock = configManager.get("genesisBlock");
+        const genesisWallets = genesisBlock.transactions.map(t => t.recipientId).filter(a => !!a);
 
-        let previousBlock
-        if (flags.previousBlock) {
-            previousBlock = JSON.parse(flags.previousBlock);
-        } else {
-            previousBlock = configManager.get("genesisBlock");
-        }
+        let previousBlock = flags.previousBlock ? JSON.parse(flags.previousBlock) : genesisBlock;
 
         const blocks: models.IBlock[] = [];
 
@@ -64,14 +60,12 @@ export class BlockCommand extends BaseCommand {
                     this.signer.makeTransfer({
                         ...flags,
                         ...{
-                            amount: flags.transactionAmount + 10,
+                            amount: flags.transactionAmount + i,
                             transferFee: flags.transactionFee,
-                            recipient: Address.fromPassphrase(flags.passphrase),
+                            recipient: genesisWallets[Math.floor(Math.random() * genesisWallets.length)],
                         },
                     }),
                 );
-
-                await delay(100);
             }
 
             const newBlock = await delegate.forge(transactions, {
