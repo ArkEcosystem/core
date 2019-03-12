@@ -2,9 +2,10 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash/cloneDeep";
+
 import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;

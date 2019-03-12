@@ -36,7 +36,7 @@
         "@arkecosystem/core-interfaces": "^2.2.1",
         "@arkecosystem/core-transactions": "^2.2.0",
         "@arkecosystem/crypto": "^2.2.1",
-        "@faustbrian/dato": "^0.1.0",
+        "@faustbrian/dato": "^0.2.0",
         "@types/better-sqlite3": "^5.2.2",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
@@ -49,7 +49,7 @@
     "devDependencies": {
         "@arkecosystem/core-utils": "^2.2.1",
         "@types/better-sqlite3": "^5.2.2",
-        "@types/bip39": "^2.4.1",
+        "@types/bip39": "^2.4.2",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "@types/random-seed": "^0.3.3",

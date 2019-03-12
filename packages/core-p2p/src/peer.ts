@@ -226,7 +226,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && dato().diffMinutes(this.lastPinged) < 2;
+        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
     }
 
     /**

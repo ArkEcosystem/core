@@ -16,7 +16,6 @@ import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 import { StateStorage } from "./state-storage";
-import { isBlockChained } from "./utils";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();

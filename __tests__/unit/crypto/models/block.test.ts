@@ -4,7 +4,7 @@ import { generators } from "../../../utils";
 const { generateTransfers } = generators;
 
 import ByteBuffer from "bytebuffer";
-import { configManager } from "../../../../packages/crypto/src";
+import { configManager, NetworkName } from "../../../../packages/crypto/src";
 import { slots } from "../../../../packages/crypto/src/crypto";
 import { Block, Delegate } from "../../../../packages/crypto/src/models";
 import { testnet } from "../../../../packages/crypto/src/networks";
@@ -364,14 +364,17 @@ describe("Models - Block", () => {
 
     describe("serializeFull", () => {
         describe("genesis block", () => {
-            describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])("%s", (network, length) => {
-                configManager.setFromPreset(network);
-                const genesis = require(`@arkecosystem/crypto/src/networks/${network}/genesisBlock.json`);
-                const serialized = Block.serializeFull(genesis).toString("hex");
-                const genesisBlock = new Block(Block.deserialize(serialized));
-                expect(serialized).toHaveLength(length);
-                expect(genesisBlock.verifySignature()).toBeTrue();
-            });
+            describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])(
+                "%s",
+                (network: NetworkName, length: number) => {
+                    configManager.setFromPreset(network);
+                    const genesis = require(`@arkecosystem/crypto/src/networks/${network}/genesisBlock.json`);
+                    const serialized = Block.serializeFull(genesis).toString("hex");
+                    const genesisBlock = new Block(Block.deserialize(serialized));
+                    expect(serialized).toHaveLength(length);
+                    expect(genesisBlock.verifySignature()).toBeTrue();
+                },
+            );
 
             configManager.setFromPreset("devnet");
         });
