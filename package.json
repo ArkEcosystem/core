@@ -123,6 +123,8 @@
             "!**/node_modules/**"
         ],
         "watchman": false,
-        "setupTestFrameworkScriptFile": "jest-extended"
+        "setupFilesAfterEnv": [
+            "jest-extended"
+        ]
     }
 }
