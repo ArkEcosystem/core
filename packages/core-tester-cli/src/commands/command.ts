@@ -86,7 +86,7 @@ export abstract class BaseCommand extends Command {
         return { args, flags };
     }
 
-    protected makeWithoutNetwork(command): any {
+    protected makeOffline(command): any {
         const { args, flags } = this.parse(command);
 
         configManager.setFromPreset(flags.network as NetworkName);

@@ -41,7 +41,7 @@ export class BlockCommand extends BaseCommand {
     };
 
     public async run(): Promise<models.IBlock[]> {
-        const { flags } = this.makeWithoutNetwork(BlockCommand);
+        const { flags } = this.makeOffline(BlockCommand);
 
         const genesisBlock = configManager.get("genesisBlock");
         const genesisWallets = genesisBlock.transactions.map(t => t.recipientId).filter(a => !!a);
