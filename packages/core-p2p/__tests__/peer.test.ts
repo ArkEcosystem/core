@@ -1,67 +1,28 @@
 import { generators } from "@arkecosystem/core-test-utils";
-import socketCluster from "socketcluster-client";
 import { delegates } from "../../core-test-utils/src/fixtures";
 
+import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 import { setUpFull, tearDownFull } from "./__support__/setup";
-
-import { fork } from "child_process";
-import delay from "delay";
 
 let genesisBlockJSON;
 
 let peerMock;
 let localConfig;
-let mockServer;
-let socket;
-let emit;
-let addMock;
-let resetAllMocks;
+let socketManager: MockSocketManager;
 
 beforeAll(async () => {
     await setUpFull();
 
     genesisBlockJSON = require("@arkecosystem/core-test-utils/src/config/testnet/genesisBlock.json");
 
-    // launching a "mock socket server" so that we can mock a peer
-    mockServer = fork(__dirname + "/__support__/mock-socket-server/index.js");
-
-    await delay(2000);
-
-    // client socket so we can send mocking instructions to our mock server
-    socket = socketCluster.create({
-        port: 4009,
-        hostname: "127.0.0.1",
-    });
-
-    emit = async (event, data) =>
-        new Promise((resolve, reject) => {
-            socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
-        });
-
-    addMock = async (endpoint, mockData, headers?) =>
-        emit("mock.add", {
-            endpoint: `p2p.peer.${endpoint}`,
-            value: {
-                data: mockData,
-                headers: headers || {
-                    version: "2.2.0-beta.4",
-                    port: 4000,
-                    nethash: "27acac9ce53a648f05ba43cdee17454ebb891f205a98196ad6a0ed761abc8e48",
-                    height: 1,
-                    "Content-Type": "application/json",
-                    hashid: "a4e0e642",
-                },
-            },
-        });
-    resetAllMocks = async () => emit("mock.resetAll", {});
-
-    await delay(2000);
+    socketManager = new MockSocketManager();
+    await socketManager.init();
 });
 
 afterAll(async () => {
     await tearDownFull();
 
-    mockServer.kill();
+    socketManager.stopServer();
 });
 
 beforeEach(() => {
@@ -75,11 +36,11 @@ beforeEach(() => {
 });
 
 describe("Peer", () => {
-    afterEach(async () => resetAllMocks());
+    afterEach(async () => socketManager.resetAllMocks());
 
     describe("postBlock", () => {
         it("should get back success when posting genesis block", async () => {
-            await addMock("postBlock", { success: true });
+            await socketManager.addMock("postBlock", { success: true });
             const response = await peerMock.postBlock(genesisBlockJSON);
 
             expect(response).toBeObject();
@@ -90,7 +51,7 @@ describe("Peer", () => {
 
     describe("postTransactions", () => {
         it("should be ok", async () => {
-            await addMock("postTransactions", { success: true });
+            await socketManager.addMock("postTransactions", { success: true });
             const transactions = generators.generateTransfers(
                 "testnet",
                 delegates[1].passphrase,
@@ -109,7 +70,7 @@ describe("Peer", () => {
 
     describe("downloadBlocks", () => {
         it("should return the blocks with status 200", async () => {
-            await addMock("getBlocks", { blocks: [genesisBlockJSON] });
+            await socketManager.addMock("getBlocks", { blocks: [genesisBlockJSON] });
             const response = await peerMock.downloadBlocks(1);
 
             expect(response).toBeArrayOfSize(1);
@@ -117,7 +78,7 @@ describe("Peer", () => {
         });
 
         it("should update the height after download", async () => {
-            await addMock("getBlocks", { blocks: [genesisBlockJSON] });
+            await socketManager.addMock("getBlocks", { blocks: [genesisBlockJSON] });
 
             peerMock.state.height = null;
             await peerMock.downloadBlocks(1);
@@ -135,7 +96,7 @@ describe("Peer", () => {
                 currentSlot: 1,
                 header: {},
             };
-            await addMock("getStatus", mockStatus);
+            await socketManager.addMock("getStatus", mockStatus);
             process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
 
             const status = await peerMock.ping(1000);
@@ -144,7 +105,7 @@ describe("Peer", () => {
         });
 
         it.skip("when ping request timeouts", async () => {
-            await resetAllMocks();
+            await socketManager.resetAllMocks();
             process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
             await peerMock.ping(400);
         });
@@ -159,7 +120,7 @@ describe("Peer", () => {
                 currentSlot: 1,
                 header: {},
             };
-            await addMock("getStatus", mockStatus);
+            await socketManager.addMock("getStatus", mockStatus);
 
             peerMock.lastPinged = null;
 
@@ -177,7 +138,7 @@ describe("Peer", () => {
     describe("getPeers", () => {
         it("should return the list of peers", async () => {
             const peersMock = [{ ip: "1.1.1.1" }];
-            await addMock("getPeers", { peers: peersMock });
+            await socketManager.addMock("getPeers", { peers: peersMock });
             const peers = await peerMock.getPeers();
             expect(peers).toEqual(peersMock);
         });
@@ -185,14 +146,14 @@ describe("Peer", () => {
 
     describe("hasCommonBlocks", () => {
         it("should return false when peer has no common block", async () => {
-            await addMock("getCommonBlocks", { success: true, common: null });
+            await socketManager.addMock("getCommonBlocks", { success: true, common: null });
             const commonBlocks = await peerMock.hasCommonBlocks([genesisBlockJSON.id]);
             expect(commonBlocks).toBeFalse();
         });
 
         it("should return true when peer has common block", async () => {
-            await resetAllMocks();
-            await addMock("getCommonBlocks", { success: true, common: genesisBlockJSON });
+            await socketManager.resetAllMocks();
+            await socketManager.addMock("getCommonBlocks", { success: true, common: genesisBlockJSON });
             const commonBlocks = await peerMock.hasCommonBlocks([genesisBlockJSON.id]);
             expect(commonBlocks).toEqual(genesisBlockJSON);
         });

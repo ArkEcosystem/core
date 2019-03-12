@@ -1,16 +1,18 @@
 import { app } from "@arkecosystem/core-container";
 import dayjs from "dayjs-ext";
+import delay from "delay";
 import { offences } from "../../src/court/offences";
 import { defaults } from "../../src/defaults";
-import { Peer } from "../../src/peer";
 import { setUp, tearDown } from "../__support__/setup";
 
 let guard;
+let Peer;
 let peerMock;
 
 beforeAll(async () => {
     await setUp();
 
+    Peer = require("../../src/peer").Peer;
     guard = require("../../src/court/guard").guard;
     guard.config.set("minimumVersions", [">=2.0.0"]);
 });
@@ -26,6 +28,8 @@ beforeEach(async () => {
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers);
+
+    await delay(2000);
 });
 
 describe("Guard", () => {
@@ -99,6 +103,10 @@ describe("Guard", () => {
             version: "2.1.1",
             status: 200,
             state: {},
+            socket: {
+                getState: () => "open",
+                OPEN: "open",
+            },
         };
 
         it('should return a 1 year suspension for "Blacklisted"', () => {

@@ -1,17 +1,12 @@
-import { fork } from "child_process";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { setUpFull, tearDownFull } from "../__support__/setup";
 
 let socket;
 let emit;
-let mockServer;
 
 beforeAll(async () => {
     await setUpFull();
-
-    // launching a "mock socket server" so that we can mock a peer
-    mockServer = fork(__dirname + "/../__support__/mock-socket-server/index.js");
 
     await delay(3000);
     socket = socketCluster.create({
@@ -21,19 +16,12 @@ beforeAll(async () => {
 
     emit = (event, data) =>
         new Promise((resolve, reject) => {
-            socket.emit(event, data, (err, val) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(val);
-                }
-            });
+            socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
 });
 
 afterAll(async () => {
     await tearDownFull();
-    mockServer.kill();
 });
 
 describe("Peer socket endpoint", () => {
@@ -52,15 +40,26 @@ describe("Peer socket endpoint", () => {
             const peers = await emit("p2p.peer.getPeers", {
                 headers,
             });
-            expect(peers.peers).toBeArray();
+            expect(peers.data.peers).toBeArray();
         });
 
         it("should getStatus", async () => {
             const status = await emit("p2p.peer.getStatus", {
                 headers,
             });
-            expect(status.success).toBeTrue();
-            expect(status.height).toBe(1);
+            expect(status.data.success).toBeTrue();
+            expect(status.data.height).toBe(1);
+        });
+    });
+
+    describe("Socket errors", () => {
+        it("should send back an error if no data.headers", async () => {
+            try {
+                const peers = await emit("p2p.peer.getPeers", {});
+            } catch (e) {
+                expect(e.name).toEqual("CoreHeadersRequiredError");
+                expect(e.message).toEqual("Request data and data.headers is mandatory");
+            }
         });
     });
 });

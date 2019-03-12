@@ -17,6 +17,7 @@ export const setUp = async () => {
     });
 
     // register p2p plugin
+    process.env.CORE_ENV = "test";
     await registerWithContainer(require("../../src/plugin").plugin, options);
     await registerWithContainer(require("@arkecosystem/core-blockchain").plugin, {});
 };
