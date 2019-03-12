@@ -1,13 +1,12 @@
-import { Address, configManager, models, NetworkName, slots } from "@arkecosystem/crypto";
+import { configManager, models, slots } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import delay from "delay";
 import { writeFileSync } from "fs";
 import { satoshiFlag } from "../../flags";
 import { copyToClipboard } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class BlockCommand extends BaseCommand {
-    public static description: string = "create a new block";
+    public static description: string = "create new blocks";
 
     public static flags = {
         ...BaseCommand.flagsConfig,
@@ -48,7 +47,7 @@ export class BlockCommand extends BaseCommand {
 
         let previousBlock = flags.previousBlock ? JSON.parse(flags.previousBlock) : genesisBlock;
 
-        const blocks: models.IBlock[] = [];
+        const blocks: models.IBlockData[] = [];
 
         for (let i = 0; i < flags.number; i++) {
             const milestone = configManager.getMilestone(previousBlock.height);
@@ -73,9 +72,16 @@ export class BlockCommand extends BaseCommand {
                 timestamp: slots.getSlotNumber(slots.getTime()) * milestone.blocktime,
                 reward: milestone.reward,
             });
-            previousBlock = newBlock.data;
 
-            blocks.push(newBlock);
+            const blockPayload = newBlock.data;
+            blockPayload.transactions = newBlock.transactions.map(tx => ({
+                ...tx.toJson(),
+                serialized: tx.serialized.toString("hex"),
+            }));
+            blockPayload.serialized = newBlock.serialized;
+            previousBlock = blockPayload;
+
+            blocks.push(blockPayload);
         }
 
         if (flags.log) {
@@ -90,6 +96,6 @@ export class BlockCommand extends BaseCommand {
             writeFileSync("./blocks.json", JSON.stringify(blocks));
         }
 
-        return blocks;
+        return blocks as any;
     }
 }
