@@ -3,7 +3,7 @@ import { blocks2to100 } from "../../../utils/fixtures";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
 
-configManager.setFromPreset("testnet");
+configManager.setFromPreset("unitnet");
 
 jest.mock("@arkecosystem/core-container", () => {
     return {
@@ -11,8 +11,9 @@ jest.mock("@arkecosystem/core-container", () => {
             getConfig: () => {
                 return {
                     get: key => {
-                        if (key === "network.nethash") {
-                            return configManager.get("nethash");
+                        switch (key) {
+                            case "network.nethash":
+                                return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
                         }
 
                         return null;
@@ -28,10 +29,10 @@ jest.mock("@arkecosystem/core-container", () => {
             resolvePlugin: name => {
                 if (name === "logger") {
                     return {
-                        info: jest.fn(),
-                        warn: jest.fn(),
-                        error: jest.fn(),
-                        debug: jest.fn(),
+                        info: console.log,
+                        warn: console.log,
+                        error: console.error,
+                        debug: console.log,
                     };
                 }
 
@@ -60,6 +61,18 @@ jest.mock("@arkecosystem/core-container", () => {
                 if (name === "event-emitter") {
                     return {
                         emit: jest.fn(),
+                    };
+                }
+
+                if (name === "blockchain") {
+                    return {
+                        getLastBlock: jest.fn().mockReturnValue({ data: { height: 1 }, getHeader: () => ({}) }),
+                    };
+                }
+
+                if (name === "p2p") {
+                    return {
+                        guard: {},
                     };
                 }
 

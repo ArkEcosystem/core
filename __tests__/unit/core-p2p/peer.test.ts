@@ -8,6 +8,7 @@ import genesisBlockJSON from "../../utils/config/unitnet/genesisBlock.json";
 import { delegates } from "../../utils/fixtures/unitnet";
 
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
+import delay from "delay";
 
 let genesisTransaction;
 
@@ -20,20 +21,21 @@ beforeAll(async () => {
 
     socketManager = new MockSocketManager();
     await socketManager.init();
+
+    localConfig = require("../../../packages/core-p2p/src/config").config;
+
+    localConfig.init({});
+    localConfig.set("port", 4009); // we mock a peer on localhost:4009
+    localConfig.set("blacklist", []);
+    localConfig.set("minimumVersions", [">=2.1.0"]);
+
+    peerMock = new Peer("127.0.0.1", 4009);
+    peerMock.nethash = "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
+    await delay(2000);
 });
 
 afterAll(async () => {
     socketManager.stopServer();
-});
-
-beforeEach(() => {
-    localConfig = require("../src/config").config;
-
-    localConfig.init({});
-    localConfig.set("port", 4009); // we mock a peer on localhost:4009
-
-    const { Peer } = require("../src/peer");
-    peerMock = new Peer("127.0.0.1", 4009);
 });
 
 describe("Peer", () => {

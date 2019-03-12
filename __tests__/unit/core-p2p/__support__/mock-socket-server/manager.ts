@@ -30,9 +30,9 @@ export class MockSocketManager {
             value: {
                 data: mockData,
                 headers: headers || {
-                    version: "2.2.0-beta.4",
+                    version: "2.2.1",
                     port: 4000,
-                    nethash: "27acac9ce53a648f05ba43cdee17454ebb891f205a98196ad6a0ed761abc8e48",
+                    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
                     height: 1,
                     "Content-Type": "application/json",
                     hashid: "a4e0e642",

@@ -5,13 +5,10 @@ import { models, slots } from "@arkecosystem/crypto";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
-import { Guard } from "../../../packages/core-p2p/src/court";
+import { guard } from "../../../packages/core-p2p/src/court";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
-
-const { Block } = models;
 
 let peerMock;
 let socketManager: MockSocketManager;
@@ -32,7 +29,7 @@ beforeEach(async () => {
     localConfig.init(defaults);
     localConfig.set("port", 4000);
 
-    monitor.guard = new Guard();
+    monitor.guard = guard;
     monitor.guard.init(monitor);
     monitor.guard.config = localConfig;
 

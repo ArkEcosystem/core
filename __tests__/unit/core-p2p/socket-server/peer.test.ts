@@ -1,13 +1,16 @@
+import "../mocks/core-container";
+
 import delay from "delay";
 import socketCluster from "socketcluster-client";
-import { setUpFull, tearDownFull } from "../__support__/setup";
+import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
+import { monitor } from "../../../../packages/core-p2p/src/monitor";
 
 let socket;
 let emit;
 
 beforeAll(async () => {
-    await setUpFull();
-
+    process.env.CORE_ENV = "test";
+    await startSocketServer({ port: 4000 });
     await delay(3000);
     socket = socketCluster.create({
         port: 4000,
@@ -18,17 +21,15 @@ beforeAll(async () => {
         new Promise((resolve, reject) => {
             socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
-});
 
-afterAll(async () => {
-    await tearDownFull();
+    jest.spyOn(monitor, "acceptNewPeer").mockImplementation(async () => {});
 });
 
 describe("Peer socket endpoint", () => {
     const headers = {
         version: "2.1.0",
         port: "4009",
-        nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+        nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
         milestoneHash: "519afa9b68898c31",
         height: 1,
         "Content-Type": "application/json",
