@@ -12,6 +12,9 @@ const startSocketServer = async config => {
     const internalHandlers = require("./versions/internal");
     const utilsHandlers = require("./versions/utils");
 
+    // when testing we also need to get socket files from dist folder
+    const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
+
     const server = new SocketCluster({
         workers: 1,
         brokers: 1,
@@ -19,8 +22,8 @@ const startSocketServer = async config => {
         appName: "core-p2p",
 
         wsEngine: "ws",
-        workerController: __dirname + "/worker.js",
-        brokerController: __dirname + "/broker.js",
+        workerController: __dirname + `${relativeSocketPath}/worker.js`,
+        brokerController: __dirname + `${relativeSocketPath}/broker.js`,
         rebootWorkerOnCrash: true,
     });
 
