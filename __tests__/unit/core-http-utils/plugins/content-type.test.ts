@@ -1,6 +1,6 @@
 import "../mocks/core-container";
 
-import axios from "axios";
+import got from "got";
 import { contentType } from "../../../../packages/core-http-utils/src/plugins/content-type";
 import { createServer } from "../../../../packages/core-http-utils/src/server/create";
 import { mountServer } from "../../../../packages/core-http-utils/src/server/mount";
@@ -17,7 +17,7 @@ beforeAll(async () => {
     server.route({
         method: "GET",
         path: "/",
-        handler: (request, h) => "Hello!",
+        handler: () => "Hello!",
     });
 
     await mountServer("Dummy", server);
@@ -30,20 +30,20 @@ afterAll(async () => {
 describe("Plugins - Content-Type", () => {
     describe("GET /", () => {
         it("should return code 200", async () => {
-            const response = await axios.get("http://0.0.0.0:3000/", {
+            const response = await got.get("http://0.0.0.0:3000/", {
                 headers: { "Content-Type": "application/json" },
             });
 
-            expect(response.status).toBe(200);
+            expect(response.statusCode).toBe(200);
         });
 
         it("should return code 415", async () => {
             try {
-                await axios.get("http://0.0.0.0:3000/", {
+                await got.get("http://0.0.0.0:3000/", {
                     headers: { "Content-Type": "application/text" },
                 });
             } catch (e) {
-                expect(e.response.status).toBe(415);
+                expect(e.response.statusCode).toBe(415);
             }
         });
     });

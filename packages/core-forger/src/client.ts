@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import delay from "delay";
 import sample from "lodash/sample";
 import { URL } from "url";
@@ -75,7 +75,7 @@ export class Client {
 
             const response = await this.__get(`${this.host}/internal/rounds/current`);
 
-            return response.data.data;
+            return response.body.data;
         } catch (e) {
             return {};
         }
@@ -88,9 +88,8 @@ export class Client {
     public async getNetworkState(): Promise<NetworkState> {
         try {
             const response = await this.__get(`${this.host}/internal/network/state`, 4000);
-            const { data } = response.data;
 
-            return NetworkState.parse(data);
+            return NetworkState.parse(response.body.data);
         } catch (e) {
             this.logger.error(`Could not retrieve network state: ${this.host}/internal/network/state: ${e.message}`);
             return new NetworkState(NetworkStateStatus.Unknown);
@@ -105,7 +104,7 @@ export class Client {
         try {
             const response = await this.__get(`${this.host}/internal/transactions/forging`);
 
-            return response.data.data;
+            return response.body.data;
         } catch (e) {
             return {};
         }
@@ -121,7 +120,7 @@ export class Client {
         try {
             const response = await this.__get(`${this.host}/internal/utils/usernames`);
 
-            return response.data.data;
+            return response.body.data;
         } catch (e) {
             return {};
         }
@@ -176,10 +175,10 @@ export class Client {
     }
 
     public async __get(url, timeout: number = 2000) {
-        return axios.get(url, { headers: this.headers, timeout });
+        return httpie.get(url, { headers: this.headers, timeout });
     }
 
     public async __post(url, body) {
-        return axios.post(url, body, { headers: this.headers, timeout: 2000 });
+        return httpie.post(url, { body, headers: this.headers, timeout: 2000 });
     }
 }
