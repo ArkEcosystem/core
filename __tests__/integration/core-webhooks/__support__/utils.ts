@@ -1,15 +1,16 @@
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 
-export function request(method, path, params = {}) {
+export async function request(method, path, params = {}) {
     const url = `http://localhost:4004/api/${path}`;
-    const instance = axios[method.toLowerCase()];
 
-    return ["GET", "DELETE"].includes(method) ? instance(url, { params }) : instance(url, params);
+    return ["GET", "DELETE"].includes(method)
+        ? httpie[method.toLowerCase()](url, { query: params })
+        : httpie[method.toLowerCase()](url, { body: params });
 }
 
 export function expectJson(response) {
-    expect(response.data).toBeObject();
+    expect(response.body).toBeObject();
 }
 
 export function expectStatus(response, code) {
@@ -17,23 +18,23 @@ export function expectStatus(response, code) {
 }
 
 export function expectResource(response) {
-    expect(response.data.data).toBeObject();
+    expect(response.body.data).toBeObject();
 }
 
 export function expectCollection(response) {
-    expect(Array.isArray(response.data.data)).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
 }
 
-export function expectPaginator(response, firstPage = true) {
-    expect(response.data.meta).toBeObject();
-    expect(response.data.meta).toHaveProperty("count");
-    expect(response.data.meta).toHaveProperty("pageCount");
-    expect(response.data.meta).toHaveProperty("totalCount");
-    expect(response.data.meta).toHaveProperty("next");
-    expect(response.data.meta).toHaveProperty("previous");
-    expect(response.data.meta).toHaveProperty("self");
-    expect(response.data.meta).toHaveProperty("first");
-    expect(response.data.meta).toHaveProperty("last");
+export function expectPaginator(response) {
+    expect(response.body.meta).toBeObject();
+    expect(response.body.meta).toHaveProperty("count");
+    expect(response.body.meta).toHaveProperty("pageCount");
+    expect(response.body.meta).toHaveProperty("totalCount");
+    expect(response.body.meta).toHaveProperty("next");
+    expect(response.body.meta).toHaveProperty("previous");
+    expect(response.body.meta).toHaveProperty("self");
+    expect(response.body.meta).toHaveProperty("first");
+    expect(response.body.meta).toHaveProperty("last");
 }
 
 export function expectSuccessful(response, statusCode = 200) {
@@ -44,7 +45,7 @@ export function expectSuccessful(response, statusCode = 200) {
 export function expectError(response, statusCode = 404) {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
-    expect(response.data.statusCode).toBeNumber();
-    expect(response.data.error).toBeString();
-    expect(response.data.message).toBeString();
+    expect(response.body.statusCode).toBeNumber();
+    expect(response.body.error).toBeString();
+    expect(response.body.message).toBeString();
 }

@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import { setUpContainer } from "../../../utils/helpers/container";
 import { tmpdir } from "os";
 import { database } from "../../../../packages/core-webhooks/src/database";
 import { startServer } from "../../../../packages/core-webhooks/src/server";
+import { setUpContainer } from "../../../utils/helpers/container";
 
 export async function setUp() {
     process.env.CORE_PATH_CACHE = tmpdir();

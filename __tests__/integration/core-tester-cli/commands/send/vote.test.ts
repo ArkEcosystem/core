@@ -1,26 +1,29 @@
+import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
-
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import nock from "nock";
 import { VoteCommand } from "../../../../../packages/core-tester-cli/src/commands/send/vote";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
-const mockAxios = new MockAdapter(axios);
-
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
-    mockAxios.onGet("http://localhost:4003/api/v2/node/configuration").reply(200, { data: { constants: {} } });
-    mockAxios.onGet("http://localhost:4000/config").reply(200, { data: { network: {} } });
-    jest.spyOn(axios, "get");
-    jest.spyOn(axios, "post");
+    nock("http://localhost:4003")
+        .get("/api/v2/node/configuration")
+        .thrice()
+        .reply(200, { data: { constants: {} } });
+
+    nock("http://localhost:4000")
+        .get("/config")
+        .thrice()
+        .reply(200, { data: { network: {} } });
+
+    jest.spyOn(httpie, "get");
+    jest.spyOn(httpie, "post");
 });
 
 afterEach(() => {
-    mockAxios.reset();
+    nock.cleanAll();
     jest.restoreAllMocks();
 });
-
-afterAll(() => mockAxios.restore());
 
 describe("Commands - Vote", () => {
     it("should vote for specified delegate", async () => {
@@ -32,11 +35,11 @@ describe("Commands - Vote", () => {
         };
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await VoteCommand.run(toFlags(opts));
 
-        expect(axios.post).toHaveBeenCalledTimes(2);
+        expect(httpie.post).toHaveBeenCalledTimes(2);
 
         expectTransactions(expectedTransactions, {
             fee: arkToSatoshi(opts.voteFee),
@@ -53,17 +56,19 @@ describe("Commands - Vote", () => {
             voteFee: 1,
         };
 
-        mockAxios.onGet(/http:\/\/localhost:4003\/api\/v2\/delegates/).reply(200, {
-            meta: { pageCount: 1 },
-            data: [{ publicKey: expectedDelegate }],
-        });
+        nock("http://localhost:4003")
+            .get("/api/v2/delegates")
+            .reply(200, {
+                meta: { pageCount: 1 },
+                data: [{ publicKey: expectedDelegate }],
+            });
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await VoteCommand.run(toFlags(opts));
 
-        expect(axios.post).toHaveBeenCalledTimes(2);
+        expect(httpie.post).toHaveBeenCalledTimes(2);
 
         expectTransactions(expectedTransactions, {
             fee: arkToSatoshi(opts.voteFee),
