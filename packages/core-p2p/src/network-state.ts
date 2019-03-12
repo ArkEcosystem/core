@@ -39,7 +39,7 @@ class QuorumDetails {
      */
 
     /**
-     * Number of peers with a different last block id.
+     * Number of peers that are on a different chain (forked).
      */
     public peersForked = 0;
 
