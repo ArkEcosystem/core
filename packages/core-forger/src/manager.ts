@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
@@ -128,9 +128,16 @@ export class ForgerManager {
             }
 
             const networkState = await this.client.getNetworkState();
+            if (networkState.nodeHeight !== round.lastBlock.height) {
+                this.logger.warn(
+                    `The NetworkState height (${networkState.nodeHeight}) and round height (${
+                        round.lastBlock.height
+                    }) are out of sync. This indicates delayed blocks on the network.`,
+                );
+            }
 
             if (this.__parseNetworkState(networkState, delegate)) {
-                await this.__forgeNewBlock(delegate, round);
+                await this.__forgeNewBlock(delegate, round, networkState);
             }
 
             await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
@@ -165,22 +172,18 @@ export class ForgerManager {
 
     /**
      * Creates new block by the delegate and sends it to relay node for verification and broadcast
-     * @param {Object} delegate
-     * @param {Object} round
      */
-    public async __forgeNewBlock(delegate: models.Delegate, round) {
-        // TODO: Disabled for now as this could cause a delay in forging that
-        // results in missing a block which we want to avoid.
-        //
-        // We should either use a very radical timeout like 500ms or look
-        // into another solution for broadcasting this specific event.
-        //
-        // this.client.emitEvent('forger.started', delegate.publicKey)
-
+    public async __forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
         const transactions = await this.__getTransactionsForForging();
 
+        const previousBlock = {
+            id: networkState.lastBlockId,
+            idHex: models.Block.toBytesHex(networkState.lastBlockId),
+            height: networkState.nodeHeight,
+        };
+
         const blockOptions = {
-            previousBlock: round.lastBlock,
+            previousBlock,
             timestamp: round.timestamp,
             reward: round.reward,
         };
