@@ -1,5 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Address, Bignum, formatSatoshi } from "@arkecosystem/crypto";
+import { Address, Bignum, configManager, formatSatoshi, NetworkName } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
 import { satoshiFlag } from "../flags";
@@ -82,6 +82,16 @@ export abstract class BaseCommand extends Command {
         await this.setupNetwork();
 
         this.signer = new Signer(this.network);
+
+        return { args, flags };
+    }
+
+    protected makeOffline(command): any {
+        const { args, flags } = this.parse(command);
+
+        configManager.setFromPreset(flags.network as NetworkName);
+
+        this.signer = new Signer(configManager.all());
 
         return { args, flags };
     }
