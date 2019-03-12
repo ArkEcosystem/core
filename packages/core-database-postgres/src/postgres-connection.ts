@@ -2,20 +2,17 @@ import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
-import fs from "fs";
-import chunk from "lodash/chunk";
 import path from "path";
 import pgPromise from "pg-promise";
+import { IntegrityVerifier } from "./integrity-verifier";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
-import { SPV } from "./spv";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IDatabaseConnection {
-
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public models: { [key: string]: Model } = {};
     public query: QueryExecutor;
@@ -26,30 +23,16 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     public walletsRepository: Database.IWalletsRepository;
     public pgp: any;
     private emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private migrationsRepository : MigrationsRepository;
+    private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
+    public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
 
-    public constructor(readonly options: any, private walletManager: Database.IWalletManager) {
-
-    }
-
-
-    public async buildWallets(height: number) {
-        const spvPath = `${process.env.CORE_PATH_CACHE}/spv.json`;
-
-        if (fs.existsSync(spvPath)) {
-            (fs as any).removeSync(spvPath);
-
-            this.logger.info("Ark Core ended unexpectedly - resuming from where we left off :runner:");
-
-            return true;
-        }
-
+    public async buildWallets() {
         try {
-            const spv = new SPV(this.query, this.walletManager);
-            return await spv.build(height);
+            const result = await new IntegrityVerifier(this.query, this.walletManager).run();
+            return result;
         } catch (error) {
             this.logger.error(error.stack);
         }
@@ -76,7 +59,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public async connect() {
-
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
         const initialization = {
             receive(data, result, e) {
@@ -97,7 +79,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public async deleteBlock(block: models.Block) {
         try {
-            const queries = [this.transactionsRepository.deleteByBlockId(block.data.id), this.blocksRepository.delete(block.data.id)];
+            const queries = [
+                this.transactionsRepository.deleteByBlockId(block.data.id),
+                this.blocksRepository.delete(block.data.id),
+            ];
 
             await this.db.tx(t => t.batch(queries));
         } catch (error) {
@@ -125,7 +110,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     }
 
     public enqueueDeleteBlock(block: models.Block): any {
-        const queries = [this.transactionsRepository.deleteByBlockId(block.data.id), this.blocksRepository.delete(block.data.id)];
+        const queries = [
+            this.transactionsRepository.deleteByBlockId(block.data.id),
+            this.blocksRepository.delete(block.data.id),
+        ];
 
         this.enqueueQueries(queries);
     }
@@ -180,36 +168,16 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             const queries = [this.blocksRepository.insert(block.data)];
 
             if (block.transactions.length > 0) {
-                queries.push(this.transactionsRepository.insert(block.transactions));
+                queries.push(
+                    this.transactionsRepository.insert(
+                        block.transactions.map(tx => ({ ...tx.data, serialized: tx.serialized })),
+                    ),
+                );
             }
 
             await this.db.tx(t => t.batch(queries));
         } catch (err) {
             this.logger.error(err.message);
-        }
-    }
-
-    public async saveWallets(wallets: any[], force?: boolean) {
-        if (force) {
-            // all wallets to be updated, performance is better without upsert
-            await this.walletsRepository.truncate();
-
-            try {
-                const chunks = chunk(wallets, 5000).map(c => this.walletsRepository.insert(c)); // this 5000 figure should be configurable...
-                await this.db.tx(t => t.batch(chunks));
-            } catch (error) {
-                this.logger.error(error.stack);
-            }
-        } else {
-            // NOTE: The list of delegates is calculated in-memory against the WalletManager,
-            // so it is safe to perform the costly UPSERT non-blocking during round change only:
-            // 'await saveWallets(false)' -> 'saveWallets(false)'
-            try {
-                const queries = wallets.map(wallet => this.walletsRepository.updateOrCreate(wallet));
-                await this.db.tx(t => t.batch(queries));
-            } catch (error) {
-                this.logger.error(error.stack);
-            }
         }
     }
 
@@ -237,7 +205,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             }
         }
     }
-
 
     /**
      * Register all models.

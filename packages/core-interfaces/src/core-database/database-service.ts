@@ -1,6 +1,11 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { EventEmitter, Logger } from "../index";
-import { IDelegatesBusinessRepository, IWalletsBusinessRepository } from "./business-repository";
+import {
+    IBlocksBusinessRepository,
+    IDelegatesBusinessRepository,
+    ITransactionsBusinessRepository,
+    IWalletsBusinessRepository,
+} from "./business-repository";
 import { IDatabaseConnection } from "./database-connection";
 import { IWalletManager } from "./wallet-manager";
 
@@ -10,6 +15,10 @@ export interface IDatabaseService {
     wallets: IWalletsBusinessRepository;
 
     delegates: IDelegatesBusinessRepository;
+
+    blocksBusinessRepository: IBlocksBusinessRepository;
+
+    transactionsBusinessRepository: ITransactionsBusinessRepository;
 
     connection: IDatabaseConnection;
 
@@ -29,9 +38,7 @@ export interface IDatabaseService {
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;
 
-    buildWallets(height: number): Promise<boolean>;
-
-    saveWallets(force: boolean): Promise<void>;
+    buildWallets(): Promise<boolean>;
 
     saveBlock(block: models.Block): Promise<void>;
 
@@ -101,7 +108,7 @@ export interface IDatabaseService {
 
     revertBlock(block: models.Block): Promise<void>;
 
-    verifyTransaction(transaction: models.Transaction): Promise<boolean>;
+    verifyTransaction(transaction: Transaction): Promise<boolean>;
 
     getBlocksForRound(round?: number): Promise<models.Block[]>;
 

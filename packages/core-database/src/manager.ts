@@ -26,7 +26,10 @@ export class DatabaseManager {
      * @param  {String} name
      * @return {void}
      */
-    public async makeConnection(connection: Database.IDatabaseConnection, name = "default"): Promise<Database.IDatabaseConnection> {
+    public async makeConnection(
+        connection: Database.IDatabaseConnection,
+        name = "default",
+    ): Promise<Database.IDatabaseConnection> {
         this.connections[name] = await connection.make();
         return this.connection(name);
     }

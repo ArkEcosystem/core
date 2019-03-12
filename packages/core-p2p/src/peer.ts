@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
-import dayjs from "dayjs-ext";
+import { dato, Dato } from "@faustbrian/dato";
 import Joi from "joi";
 import socketCluster from "socketcluster-client";
 import util from "util";
@@ -36,7 +36,7 @@ export class Peer implements P2P.IPeer {
 
     public state: any;
     public url: string;
-    public lastPinged: dayjs.Dayjs | null;
+    public lastPinged: Dato | null;
     public verification: PeerVerificationResult | null;
 
     private config: any;
@@ -201,7 +201,7 @@ export class Peer implements P2P.IPeer {
             }
         }
 
-        this.lastPinged = dayjs();
+        this.lastPinged = dato();
         this.state = body;
         return body;
     }
@@ -211,7 +211,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
+        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
     }
 
     /**
@@ -222,6 +222,10 @@ export class Peer implements P2P.IPeer {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         const body: any = await this.emit("p2p.peer.getPeers", null);
+
+        if (!body) {
+            return [];
+        }
 
         if (!body) {
             return [];
@@ -338,9 +342,13 @@ export class Peer implements P2P.IPeer {
         const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
 
         if (result.error) {
-            this.logger.error(
-                `Got unexpected reply from ${this.url}${endpoint}: ${JSON.stringify(reply)}: ` + result.error.message,
-            );
+            let errorMessage = result.error.message;
+            if (result.error.details && result.error.details.length > 0) {
+                const context = result.error.details[0].context;
+                errorMessage += ` - ${context.key}: ${context.value}`;
+            }
+
+            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errorMessage}`);
             return false;
         }
 

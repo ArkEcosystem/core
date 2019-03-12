@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 import { IMonitor } from "../core-p2p";
 import { ITransactionPool } from "../core-transaction-pool";
 import { IStateStorage } from "./state-storage";
@@ -46,13 +46,6 @@ export interface IBlockchain {
     updateNetworkStatus(): Promise<any>;
 
     /**
-     * Rebuild N blocks in the blockchain.
-     * @param  {Number} nblocks
-     * @return {void}
-     */
-    rebuild(nblocks?: number): void;
-
-    /**
      * Reset the state of the blockchain.
      * @return {void}
      */
@@ -69,7 +62,7 @@ export interface IBlockchain {
      * @param  {Array}   transactions
      * @return {void}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<void>;
+    postTransactions(transactions: Transaction[]): Promise<void>;
 
     /**
      * Push a block to the process queue.
@@ -98,15 +91,6 @@ export interface IBlockchain {
      * @return {void}
      */
     removeTopBlocks(count: any): Promise<void>;
-
-    /**
-     * Hande a block during a rebuild.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
-     * @param  {Function} callback
-     * @return {Object}
-     */
-    rebuildBlock(block: models.Block, callback: any): Promise<any>;
 
     /**
      * Process the given block.
@@ -153,13 +137,6 @@ export interface IBlockchain {
      * @return {Boolean}
      */
     isSynced(block?: models.Block): boolean;
-
-    /**
-     * Determine if the blockchain is synced after a rebuild.
-     * @param  {Block}  block
-     * @return {Boolean}
-     */
-    isRebuildSynced(block?: models.Block): boolean;
 
     /**
      * Get the last block of the blockchain.

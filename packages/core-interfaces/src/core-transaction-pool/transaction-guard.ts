@@ -1,20 +1,25 @@
-import { models } from "@arkecosystem/crypto";
+import { ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { ITransactionPool } from "./transaction-pool";
 
-export interface TransactionErrorDTO {
+export interface ITransactionErrorResponse {
     type: string;
     message: string;
 }
 
-export interface ValidationResultDTO {
+export interface IValidationResult {
     accept: string[];
     broadcast: string[];
     invalid: string[];
     excess: string[];
-    errors: { [key: string]: TransactionErrorDTO[] } | null;
+    errors: { [key: string]: ITransactionErrorResponse[] } | null;
 }
 
 export interface ITransactionGuard {
-    validate(transactions: models.Transaction[]): Promise<ValidationResultDTO>;
+    pool: ITransactionPool;
+    transactions: ITransactionData[];
 
-    getBroadcastTransactions(): models.Transaction[];
+    validate(transactions: ITransactionData[]): Promise<IValidationResult>;
+    pushError(transaction: ITransactionData, type: string, message: string);
+
+    getBroadcastTransactions(): Transaction[];
 }

@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "2.2.0-beta.11",
+    "version": "2.2.1",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -31,28 +31,24 @@
         "clean": "del dist",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
         "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "jest --watch",
-        "test:watch:all": "jest --watchAll",
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "bignumber.js": "^8.0.2",
+        "bcrypto": "^3.0.2",
+        "bignumber.js": "^8.1.1",
         "bip32": "^1.0.2",
         "bip39": "^2.5.0",
         "bs58check": "^2.1.2",
         "bytebuffer": "^5.0.1",
         "create-hash": "^1.2.0",
         "dayjs-ext": "^2.2.0",
-        "deepmerge": "^3.1.0",
+        "deepmerge": "^3.2.0",
         "joi": "^14.3.1",
         "lodash.camelcase": "^4.3.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "lodash.sumby": "^4.6.0",
-        "node-forge": "^0.8.0",
+        "node-forge": "^0.8.1",
         "otplib": "^10.0.1",
         "pluralize": "^7.0.0",
         "secp256k1": "^3.6.2",
@@ -61,18 +57,20 @@
     },
     "devDependencies": {
         "@types/bip32": "^1.0.1",
-        "@types/bip39": "^2.4.1",
+        "@types/bip39": "^2.4.2",
         "@types/bytebuffer": "^5.0.40",
         "@types/create-hash": "^1.2.0",
-        "@types/joi": "^14.3.1",
-        "@types/lodash.camelcase": "^4.3.4",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.set": "^4.3.4",
-        "@types/lodash.sumby": "^4.6.4",
+        "@types/joi": "^14.3.2",
+        "@types/lodash.camelcase": "^4.3.6",
+        "@types/lodash.get": "^4.4.6",
+        "@types/lodash.set": "^4.3.6",
+        "@types/lodash.sumby": "^4.6.6",
         "@types/node-forge": "^0.7.11",
         "@types/otplib": "^7.0.0",
         "@types/pluralize": "^0.0.29",
         "@types/secp256k1": "^3.5.0",
+        "@types/webpack-merge": "^4.1.3",
+        "@types/webpack-node-externals": "^1.6.3",
         "@types/wif": "^2.0.1",
         "ts-loader": "^5.3.3",
         "webpack-merge": "^4.2.1",
@@ -80,12 +78,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
-    },
-    "devDependencies": {
-        "@types/webpack-merge": "^4.1.3",
-        "@types/webpack-node-externals": "^1.6.3"
     }
 }

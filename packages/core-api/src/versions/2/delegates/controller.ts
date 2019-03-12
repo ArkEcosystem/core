@@ -14,6 +14,17 @@ export class DelegatesController extends Controller {
         }
     }
 
+    public async active(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        try {
+            // @ts-ignore
+            const data = await request.server.methods.v2.delegates.active(request);
+
+            return super.respondWithCache(data, h);
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // @ts-ignore

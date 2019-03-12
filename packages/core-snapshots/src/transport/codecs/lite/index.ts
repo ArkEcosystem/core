@@ -2,8 +2,7 @@ import msgpack from "msgpack-lite";
 import { columns } from "../../../db/utils/column-set";
 
 export const blockEncode = block => {
-    const values = Object.values(block);
-    return msgpack.encode(values);
+    return msgpack.encode(Object.values(block));
 };
 
 export const blockDecode = bufferData => {
@@ -16,8 +15,7 @@ export const blockDecode = bufferData => {
 };
 
 export const transactionEncode = transactionRecord => {
-    const values = Object.values(transactionRecord);
-    return msgpack.encode(values);
+    return msgpack.encode(Object.values(transactionRecord));
 };
 
 export const transactionDecode = bufferData => {

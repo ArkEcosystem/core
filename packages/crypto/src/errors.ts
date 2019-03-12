@@ -48,6 +48,12 @@ export class NetworkVersionError extends CryptoError {
     }
 }
 
+export class NotImplementedError extends CryptoError {
+    constructor() {
+        super(`Feature is not available.`);
+    }
+}
+
 export class PrivateKeyLengthError extends CryptoError {
     constructor(expected: string | number, given: string | number) {
         super(`Expected length to be ${expected}, but got ${given}.`);
@@ -66,9 +72,39 @@ export class TransactionTypeError extends CryptoError {
     }
 }
 
+export class MalformedTransactionBytesError extends CryptoError {
+    constructor() {
+        super(`Failed to deserialize transaction, because the bytes are malformed.`);
+    }
+}
+
+export class TransactionSchemaError extends CryptoError {
+    constructor(what: string) {
+        super(what);
+    }
+}
+
 export class TransactionVersionError extends CryptoError {
     constructor(given: number) {
         super(`Version ${given} not supported.`);
+    }
+}
+
+export class UnkownTransactionError extends CryptoError {
+    constructor(given: number) {
+        super(`Transaction type ${given} is not registered.`);
+    }
+}
+
+export class TransactionAlreadyRegisteredError extends CryptoError {
+    constructor(name: string) {
+        super(`Transaction type ${name} is already registered.`);
+    }
+}
+
+export class TransactionSchemaAlreadyExistsError extends CryptoError {
+    constructor(name: string) {
+        super(`Schema ${name} is already registered.`);
     }
 }
 
@@ -81,5 +117,11 @@ export class MaximumPaymentCountExceededError extends CryptoError {
 export class MissingTransactionSignatureError extends CryptoError {
     constructor() {
         super(`Expected the transaction to be signed.`);
+    }
+}
+
+export class BlockSchemaError extends CryptoError {
+    constructor(what: string) {
+        super(what);
     }
 }

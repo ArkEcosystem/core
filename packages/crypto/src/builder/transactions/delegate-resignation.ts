@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../../constants";
 import { feeManager } from "../../managers";
-import { ITransactionData } from "../../models";
+import { ITransactionData } from "../../transactions";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateResignationBuilder extends TransactionBuilder<DelegateResignationBuilder> {

@@ -1,15 +1,11 @@
 import { asValue } from "awilix";
-import expandHomeDir from "expand-home-dir";
-import { existsSync } from "fs";
 import Hoek from "hoek";
 import isString from "lodash/isString";
-import { dirname, resolve } from "path";
 import semver from "semver";
 
 export class PluginRegistrar {
     private container: any;
     private plugins: any;
-    private resolvedPlugins: any;
     private options: any;
     private deregister: any;
 
@@ -21,7 +17,6 @@ export class PluginRegistrar {
     constructor(container, options: any = {}) {
         this.container = container;
         this.plugins = container.config.get("plugins");
-        this.resolvedPlugins = [];
         this.options = this.__castOptions(options);
         this.deregister = [];
     }

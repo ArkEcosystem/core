@@ -13,13 +13,12 @@ export const plugin: Container.PluginDescriptor = {
         const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!forgers) {
-            logger.info("Forger is disabled :grey_exclamation:");
+            logger.info("Forger is disabled");
             return false;
         }
 
         // Don't keep bip38 password in memory
-        delete process.env.CORE_FORGER_BIP38;
-        delete process.env.CORE_FORGER_PASSWORD;
+        delete options.bip38;
         delete options.password;
 
         logger.info(`Forger Manager started with ${pluralize("forger", forgers.length, true)}`);

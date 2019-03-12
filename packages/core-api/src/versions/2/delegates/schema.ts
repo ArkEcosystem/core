@@ -1,5 +1,8 @@
+import { app } from "@arkecosystem/core-container";
 import * as Joi from "joi";
 import { pagination } from "../shared/schemas/pagination";
+
+const config = app.getConfig();
 
 const schemaIdentifier = Joi.string()
     .regex(/^[a-zA-Z0-9!@$&_.]+$/)
@@ -10,6 +13,26 @@ const schemaUsername = Joi.string()
     .regex(/^[a-z0-9!@$&_.]+$/)
     .min(1)
     .max(20);
+
+const schemaIntegerBetween = Joi.object().keys({
+    from: Joi.number()
+        .integer()
+        .min(0),
+    to: Joi.number()
+        .integer()
+        .min(0),
+});
+
+const schemaPercentage = Joi.object().keys({
+    from: Joi.number()
+        .precision(2)
+        .min(0)
+        .max(100),
+    to: Joi.number()
+        .precision(2)
+        .min(0)
+        .max(100),
+});
 
 export const index: object = {
     query: {
@@ -45,6 +68,14 @@ export const index: object = {
     },
 };
 
+export const active: object = {
+    query: {
+        height: Joi.number()
+            .integer()
+            .min(1),
+    },
+};
+
 export const show: object = {
     params: {
         id: schemaIdentifier,
@@ -52,9 +83,33 @@ export const show: object = {
 };
 
 export const search: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
+    },
     payload: {
+        address: Joi.string()
+            .alphanum()
+            .length(34),
+        publicKey: Joi.string()
+            .hex()
+            .length(66),
         username: schemaUsername,
+        usernames: Joi.array()
+            .unique()
+            .min(1)
+            .max(config.getMilestone().activeDelegates)
+            .items(schemaUsername),
+        approval: schemaPercentage,
+        forgedFees: schemaIntegerBetween,
+        forgedRewards: schemaIntegerBetween,
+        forgedTotal: schemaIntegerBetween,
+        missedBlocks: schemaIntegerBetween,
+        producedBlocks: schemaIntegerBetween,
+        productivity: schemaPercentage,
+        voteBalance: schemaIntegerBetween,
     },
 };
 

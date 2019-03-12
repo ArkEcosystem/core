@@ -49,7 +49,7 @@ export class Client {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
-            } transactions to ${this.host} :package:`,
+            } transactions to ${this.host}`,
         );
 
         let response;
@@ -102,6 +102,7 @@ export class Client {
 
             return NetworkState.parse(response.data);
         } catch (e) {
+            this.logger.error(`Could not retrieve network state: ${this.host}/internal/network/state: ${e.message}`);
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
@@ -174,7 +175,7 @@ export class Client {
 
             this.host = host;
         } catch (error) {
-            this.logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`);
+            this.logger.debug(`${host} didn't respond to the forger. Trying another host`);
 
             if (wait > 0) {
                 await delay(wait);

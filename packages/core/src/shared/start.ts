@@ -1,9 +1,8 @@
 import cli from "cli-ux";
-import prompts from "prompts";
+
 import { BaseCommand } from "../commands/command";
-import { ProcessState } from "../enums";
 import { processManager } from "../process-manager";
-import { CommandFlags, ProcessDescription } from "../types";
+import { CommandFlags } from "../types";
 
 export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {
@@ -29,7 +28,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
             processManager.start(options, flags.daemon === false);
         } catch (error) {
-            this.error(error.message);
+            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
         } finally {
             cli.action.stop();
         }
