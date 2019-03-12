@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
+import semver from "semver";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
@@ -38,11 +39,18 @@ export class PeersController extends Controller {
                 // @ts-ignore
                 const order = request.query.orderBy.split(":");
 
-                if (["port", "status", "os", "version"].includes(order[0])) {
+                if (["port", "status", "os"].includes(order[0])) {
                     result =
                         order[1].toUpperCase() === "ASC"
                             ? result.sort((a, b) => a[order[0]] - b[order[0]])
                             : result.sort((a, b) => a[order[0]] + b[order[0]]);
+                }
+
+                if (order[0] === "version") {
+                    result =
+                        order[1].toUpperCase() === "ASC"
+                            ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
+                            : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
                 }
             }
 

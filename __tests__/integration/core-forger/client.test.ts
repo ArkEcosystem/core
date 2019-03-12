@@ -1,33 +1,28 @@
 import "./mocks/core-container";
 
-import "jest-extended";
-
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import { httpie } from "@arkecosystem/core-utils";
+import "jest-extended";
+import nock from "nock";
 import { Client } from "../../../packages/core-forger/src/client";
 import { sampleBlock } from "./__fixtures__/block";
 
-const mockAxios = new MockAdapter(axios);
-
 jest.setTimeout(30000);
 
-const host = `http://127.0.0.1:4000`;
+const host = "http://127.0.0.1:4000";
 
 let client: Client;
-
-afterAll(async () => {
-    mockAxios.restore();
-});
 
 beforeEach(() => {
     client = new Client(host);
 
-    mockAxios.onGet(`${host}/peer/status`).reply(200);
+    nock(host)
+        .get("/peer/status")
+        .reply(200);
 });
 
 afterEach(() => {
-    mockAxios.reset();
+    nock.cleanAll();
 });
 
 describe("Client", () => {
@@ -44,14 +39,17 @@ describe("Client", () => {
     describe("broadcast", () => {
         describe("when the host is available", () => {
             it("should be truthy if broadcasts", async () => {
-                mockAxios.onPost(`${host}/internal/blocks`).reply(c => {
-                    expect(JSON.parse(c.data).block).toMatchObject(
-                        expect.objectContaining({
-                            id: sampleBlock.data.id,
-                        }),
-                    );
-                    return [200, true];
-                });
+                nock(host)
+                    .post("/internal/blocks")
+                    .reply(200, (_, requestBody) => {
+                        expect(requestBody.block).toMatchObject(
+                            expect.objectContaining({
+                                id: sampleBlock.data.id,
+                            }),
+                        );
+
+                        return requestBody;
+                    });
 
                 await client.__chooseHost();
 
@@ -65,7 +63,9 @@ describe("Client", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = { foo: "bar" };
-                mockAxios.onGet(`${host}/internal/rounds/current`).reply(200, { data: expectedResponse });
+                nock(host)
+                    .get("/internal/rounds/current")
+                    .reply(200, { data: expectedResponse });
 
                 const response = await client.getRound();
 
@@ -78,7 +78,9 @@ describe("Client", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = { foo: "bar" };
-                mockAxios.onGet(`${host}/internal/transactions/forging`).reply(200, { data: expectedResponse });
+                nock(host)
+                    .get("/internal/transactions/forging")
+                    .reply(200, { data: expectedResponse });
 
                 await client.__chooseHost();
                 const response = await client.getTransactions();
@@ -92,7 +94,9 @@ describe("Client", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = new NetworkState(NetworkStateStatus.Test);
-                mockAxios.onGet(`${host}/internal/network/state`).reply(200, { data: expectedResponse });
+                nock(host)
+                    .get("/internal/network/state")
+                    .reply(200, { data: expectedResponse });
 
                 await client.__chooseHost();
                 const response = await client.getNetworkState();
@@ -104,20 +108,24 @@ describe("Client", () => {
 
     describe("syncCheck", () => {
         it("should induce network sync", async () => {
-            jest.spyOn(axios, "get");
-            mockAxios.onGet(`${host}/internal/blockchain/sync`).reply(200);
+            jest.spyOn(httpie, "get");
+            nock(host)
+                .get("/internal/blockchain/sync")
+                .reply(200);
 
             await client.syncCheck();
 
-            expect(axios.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
+            expect(httpie.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
         });
     });
 
     describe("getUsernames", () => {
         it("should fetch usernames", async () => {
-            jest.spyOn(axios, "get");
+            jest.spyOn(httpie, "get");
             const expectedResponse = { foo: "bar" };
-            mockAxios.onGet(`${host}/internal/utils/usernames`).reply(200, { data: expectedResponse });
+            nock(host)
+                .get("/internal/utils/usernames")
+                .reply(200, { data: expectedResponse });
 
             const response = await client.getUsernames();
 
@@ -127,20 +135,29 @@ describe("Client", () => {
 
     describe("emitEvent", () => {
         it("should emit events", async () => {
-            jest.spyOn(axios, "post");
-            mockAxios.onPost(`${host}/internal/utils/events`).reply(c => {
-                expect(JSON.parse(c.data)).toMatchObject({ event: "foo", body: "bar" });
-                return [200];
-            });
+            jest.spyOn(httpie, "post");
+            nock(host)
+                .post("/internal/utils/events")
+                .reply(200, (_, requestBody) => {
+                    expect(requestBody).toMatchObject({ event: "foo", body: "bar" });
+                    return [200];
+                });
 
             await client.__chooseHost();
             await client.emitEvent("foo", "bar");
 
-            expect(axios.post).toHaveBeenCalledWith(
-                `${host}/internal/utils/events`,
-                { event: "foo", body: "bar" },
-                expect.any(Object),
-            );
+            expect(httpie.post).toHaveBeenCalledWith(`${host}/internal/utils/events`, {
+                body: JSON.stringify({ event: "foo", body: "bar" }),
+                headers: {
+                    "Content-Type": "application/json",
+                    nethash: {},
+                    port: "4000",
+                    version: "2.3.0",
+                    "x-auth": "forger",
+                },
+                retry: { retries: 0 },
+                timeout: 2000,
+            });
         });
     });
 });

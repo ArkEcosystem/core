@@ -1,22 +1,27 @@
+import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
-
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import nock from "nock";
 import { SecondSignatureRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/second-signature-registration";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
-const mockAxios = new MockAdapter(axios);
-
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
-    mockAxios.onGet("http://localhost:4003/api/v2/node/configuration").reply(200, { data: { constants: {} } });
-    mockAxios.onGet("http://localhost:4000/config").reply(200, { data: { network: {} } });
-    jest.spyOn(axios, "get");
-    jest.spyOn(axios, "post");
+    nock("http://localhost:4003")
+        .get("/api/v2/node/configuration")
+        .thrice()
+        .reply(200, { data: { constants: {} } });
+
+    nock("http://localhost:4000")
+        .get("/config")
+        .thrice()
+        .reply(200, { data: { network: {} } });
+
+    jest.spyOn(httpie, "get");
+    jest.spyOn(httpie, "post");
 });
 
 afterEach(() => {
-    mockAxios.reset();
+    nock.cleanAll();
 });
 
 describe("Commands - Second signature", () => {
@@ -27,11 +32,11 @@ describe("Commands - Second signature", () => {
         };
 
         const expectedTransactions = [];
-        captureTransactions(mockAxios, expectedTransactions);
+        captureTransactions(nock, expectedTransactions);
 
         await SecondSignatureRegistrationCommand.run(toFlags(opts));
 
-        expect(axios.post).toHaveBeenCalledTimes(2);
+        expect(httpie.post).toHaveBeenCalledTimes(2);
 
         expectTransactions(expectedTransactions, {
             fee: arkToSatoshi(opts.signatureFee),

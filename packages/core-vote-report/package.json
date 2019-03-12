@@ -36,7 +36,8 @@
     },
     "devDependencies": {
         "@types/handlebars": "^4.1.0",
-        "@types/lodash.sumby": "^4.6.6"
+        "@types/lodash.sumby": "^4.6.6",
+        "@types/vision": "^5.3.6"
     },
     "publishConfig": {
         "access": "public"

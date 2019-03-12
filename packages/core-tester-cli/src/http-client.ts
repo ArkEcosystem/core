@@ -1,30 +1,32 @@
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import { logger } from "./logger";
 
 export class HttpClient {
-    private baseURL: any;
+    private baseUrl: string;
 
-    public constructor(baseURL: string) {
-        this.baseURL = baseURL;
+    public constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
     }
 
-    public async get(path: string, params?: Record<string, any>, headers?: Record<string, any>): Promise<any> {
-        const fullURL = this.baseURL + path
-        try {
-            const { data } = await axios.get(fullURL, { params, headers });
+    public async get(path: string, query?: any, headers?: any): Promise<any> {
+        const fullURL = `${this.baseUrl}${path}`;
 
-            return data;
+        try {
+            const { body } = await httpie.get(fullURL, { query, headers });
+
+            return body;
         } catch (error) {
             logger.error(`${fullURL}: ${error.message}`);
         }
     }
 
-    public async post(path: string, payload: Record<string, any>): Promise<any> {
-        const fullURL = this.baseURL + path
-        try {
-            const { data } = await axios.post(fullURL, payload);
+    public async post(path: string, payload: any): Promise<any> {
+        const fullURL = `${this.baseUrl}${path}`;
 
-            return data;
+        try {
+            const { body } = await httpie.post(fullURL, { body: payload });
+
+            return body;
         } catch (error) {
             logger.error(`${fullURL}: ${error.message}`);
         }

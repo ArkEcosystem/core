@@ -46,7 +46,8 @@
         "joi": "^14.3.1",
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
-        "lodash.snakecase": "^4.1.1"
+        "lodash.snakecase": "^4.1.1",
+        "semver": "^5.6.0"
     },
     "devDependencies": {
         "@types/boom": "^7.2.1",
@@ -55,7 +56,7 @@
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
-        "axios": "^0.18.0"
+        "@types/semver": "^5.5.0"
     },
     "publishConfig": {
         "access": "public"

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
 
@@ -16,19 +16,16 @@ class WebhookManager {
 
                 for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
                     try {
-                        const response = await axios.post(
-                            webhook.target,
-                            {
+                        const response = await httpie.post(webhook.target, {
+                            body: {
                                 timestamp: +new Date(),
                                 data: payload,
                                 event: webhook.event,
                             },
-                            {
-                                headers: {
-                                    Authorization: webhook.token,
-                                },
+                            headers: {
+                                Authorization: webhook.token,
                             },
-                        );
+                        });
 
                         this.logger.debug(
                             `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${

@@ -6,7 +6,7 @@ import { copyToClipboard } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class WalletCommand extends BaseCommand {
-    public static description: string = "send multiple transactions";
+    public static description: string = "create new wallets";
 
     public static flags = {
         ...BaseCommand.flagsConfig,
