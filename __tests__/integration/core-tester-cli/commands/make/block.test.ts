@@ -1,22 +1,6 @@
 import "jest-extended";
 
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
 import { BlockCommand } from "../../../../../packages/core-tester-cli/dist/commands/make/block";
-
-const mockAxios = new MockAdapter(axios);
-
-beforeEach(() => {
-    // Just passthru. We'll test the Command class logic in its own test file more thoroughly
-    mockAxios.onGet("http://localhost:4003/api/v2/node/configuration").reply(200, { data: { constants: {} } });
-    mockAxios.onGet("http://localhost:4000/config").reply(200, { data: { network: { version: 23 } } });
-});
-
-afterEach(() => {
-    mockAxios.reset();
-});
-
-afterAll(() => mockAxios.restore());
 
 describe("make:block", () => {
     it("should generate 1 block with default flags", async () => {
