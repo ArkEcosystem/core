@@ -319,6 +319,11 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             return;
         }
 
+        // Could have changed since entering this function, e.g. due to a rollback.
+        if (lastDownloadedBlock.data.id !== stateStorage.lastDownloadedBlock.data.id) {
+            return;
+        }
+
         const empty = !blocks || blocks.length === 0;
         const chained = !empty && (isBlockChained(lastDownloadedBlock, { data: blocks[0] }) || isException(blocks[0]));
 
@@ -348,8 +353,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 blockchain.processQueue.clear();
             }
 
-            stateStorage.noBlockCounter++;
-            stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
+            if (blockchain.processQueue.length() === 0) {
+                stateStorage.noBlockCounter++;
+                stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
+            }
 
             blockchain.dispatch("NOBLOCK");
         }

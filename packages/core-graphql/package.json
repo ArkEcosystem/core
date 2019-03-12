@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-graphql",
     "description": "GraphQL Integration for Ark Core",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "contributors": [
         "Lúcio Rubens <lucio@ark.io>"
     ],
@@ -31,16 +31,16 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0",
-        "@arkecosystem/core-http-utils": "^2.2.0",
-        "@arkecosystem/core-interfaces": "^2.2.0",
-        "@arkecosystem/crypto": "^2.2.0",
+        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-http-utils": "^2.2.1",
+        "@arkecosystem/core-interfaces": "^2.2.1",
+        "@arkecosystem/crypto": "^2.2.1",
         "apollo-server-hapi": "^2.4.0",
         "dayjs-ext": "^2.2.0",
         "graphql-tools-types": "^1.2.1"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.1"
+        "@arkecosystem/core-test-utils": "^2.2.1"
     },
     "publishConfig": {
         "access": "public"

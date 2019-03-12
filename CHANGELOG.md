@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Stuck at not ready to accept new block ([#2139])
 -   Properly sort BigNumber values ([#2144])
 -   Properly update wallet balances if a vote transaction is reverted ([#2207])
+-   Invalid transactions after a rollback because block timestamps were used as transaction timestamp ([#2217])
 
 ### Changed
 
@@ -339,3 +340,4 @@ Closed security vulnerabilities:
 [#2149]: https://github.com/ArkEcosystem/core/pull/2149
 [#2152]: https://github.com/ArkEcosystem/core/pull/2152
 [#2207]: https://github.com/ArkEcosystem/core/pull/2207
+[#2217]: https://github.com/ArkEcosystem/core/pull/2217

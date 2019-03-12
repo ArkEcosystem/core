@@ -208,6 +208,8 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public clearAndStopQueue() {
+        this.state.lastDownloadedBlock = this.getLastBlock();
+
         this.queue.pause();
         this.queue.clear();
     }

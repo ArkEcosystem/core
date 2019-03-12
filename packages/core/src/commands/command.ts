@@ -105,7 +105,7 @@ export abstract class BaseCommand extends Command {
                 if (value === true) {
                     mappedFlags.push(`--${key}`);
                 } else if (typeof value === "string") {
-                    mappedFlags.push(`--${key}="${value}"`);
+                    mappedFlags.push(value.includes(" ") ? `--${key}="${value}"` : `--${key}=${value}`);
                 } else {
                     mappedFlags.push(`--${key}=${value}`);
                 }
@@ -272,8 +272,7 @@ export abstract class BaseCommand extends Command {
             ]);
 
             if (!response.password) {
-                this.warn("We've detected that you are using BIP38 but have not provided a valid password.");
-                process.exit();
+                this.error("We've detected that you are using BIP38 but have not provided a valid password.");
             }
 
             password = response.password;
@@ -307,7 +306,7 @@ export abstract class BaseCommand extends Command {
 
                     processManager.restart(processName);
                 } catch (error) {
-                    this.error(error.message);
+                    error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
                 } finally {
                     cli.action.stop();
                 }
@@ -317,36 +316,33 @@ export abstract class BaseCommand extends Command {
 
     protected abortRunningProcess(processName: string) {
         if (processManager.isRunning(processName)) {
-            this.warn(`The "${processName}" process is already running.`);
-            process.exit(1);
+            this.error(`The "${processName}" process is already running.`);
         }
     }
 
     protected abortStoppedProcess(processName: string) {
         if (processManager.hasStopped(processName)) {
-            this.warn(`The "${processName}" process is not running.`);
-            process.exit(1);
+            this.error(`The "${processName}" process is not running.`);
         }
     }
 
     protected abortErroredProcess(processName: string) {
         if (processManager.hasErrored(processName)) {
-            this.warn(`The "${processName}" process has errored.`);
-            process.exit(1);
+            this.error(`The "${processName}" process has errored.`);
         }
     }
 
     protected abortUnknownProcess(processName: string) {
         if (processManager.hasUnknownState(processName)) {
-            this.warn(`The "${processName}" process has entered an unknown state.`);
-            process.exit(1);
+            this.error(
+                `The "${processName}" process has entered an unknown state. (${processManager.status(processName)})`,
+            );
         }
     }
 
     protected abortMissingProcess(processName: string) {
         if (processManager.missing(processName)) {
-            this.warn(`The "${processName}" process does not exist.`);
-            process.exit(1);
+            this.error(`The "${processName}" process does not exist.`);
         }
     }
 

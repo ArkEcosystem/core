@@ -181,7 +181,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         const senderWallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
         const errors = [];
-        if (this.walletManager.canApply(transaction, errors)) {
+        if (this.walletManager.canApply(transaction.data, errors)) {
             senderWallet.applyTransactionToSender(transaction);
         } else {
             // Remove tx again from the pool
@@ -482,7 +482,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
 
             const senderWallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
             const errors = [];
-            if (senderWallet && senderWallet.canApply(transaction, errors)) {
+            if (senderWallet && senderWallet.canApply(transaction.data, errors)) {
                 senderWallet.applyTransactionToSender(transaction);
             } else {
                 logger.error(`BuildWallets from pool: ${JSON.stringify(errors)}`);

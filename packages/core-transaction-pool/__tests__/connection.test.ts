@@ -161,9 +161,10 @@ describe("Connection", () => {
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
             const highFeeTransaction = new Transaction(mockData.dummy3);
-            highFeeTransaction.fee = bignumify(1e9 * SATOSHI);
+            highFeeTransaction.data.fee = bignumify(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
-            highFeeTransaction.senderPublicKey = "000000000000000000000000000000000000000420000000000000000000000000";
+            highFeeTransaction.data.senderPublicKey =
+                "000000000000000000000000000000000000000420000000000000000000000000";
 
             const transactions = [
                 mockData.dummy1,
@@ -357,7 +358,9 @@ describe("Connection", () => {
             }
 
             for (const i of [0, 1]) {
-                const retrieved = connection.getTransactions(i, 1).map(serializedTx => new Transaction(serializedTx));
+                const retrieved = connection
+                    .getTransactions(i, 1, 0)
+                    .map(serializedTx => new Transaction(serializedTx));
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();
@@ -550,11 +553,11 @@ describe("Connection", () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.acceptChainedBlock(new Block(block2));
 
-            expect(connection.getTransactions(0, 10)).toEqual([]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([]);
         });
 
         it("should purge and block sender if canApply() failed for a transaction in the chained block", () => {
@@ -590,7 +593,7 @@ describe("Connection", () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
 
@@ -607,7 +610,7 @@ describe("Connection", () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
 
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
 
@@ -623,7 +626,7 @@ describe("Connection", () => {
         it("should not apply transaction to wallet if canApply() failed", async () => {
             const transaction0 = new Transaction(block2.transactions[0]);
             connection.addTransaction(transaction0);
-            expect(connection.getTransactions(0, 10)).toEqual([transaction0.serialized]);
+            expect(connection.getTransactions(0, 10, 0)).toEqual([transaction0.serialized]);
 
             connection.walletManager.reset();
             expect(connection.walletManager.allByAddress()).toEqual([]);
@@ -769,7 +772,7 @@ describe("Connection", () => {
                     connection.hasExceededMaxTransactions(sender);
                 }
                 connection.getTransaction(fakeTransactionId(i));
-                connection.getTransactions(0, i);
+                connection.getTransactions(0, i, 0);
             }
 
             for (let i = 0; i < testSize; i++) {
@@ -822,7 +825,7 @@ describe("Connection", () => {
                 .map(f => f.toString());
 
             // console.time(`time to get first ${nGet}`)
-            const topTransactionsSerialized = connection.getTransactions(0, nGet);
+            const topTransactionsSerialized = connection.getTransactions(0, nGet, 0);
             // console.timeEnd(`time to get first ${nGet}`)
 
             const topFeesReceived = topTransactionsSerialized.map(e => new Transaction(e).fee.toString());
