@@ -43,7 +43,7 @@ export class BlockCommand extends BaseCommand {
         }),
     };
 
-    public async run(): Promise<models.IBlock[]> {
+    public async run(): Promise<models.IBlockData[]> {
         const { flags } = this.makeOffline(BlockCommand);
 
         const genesisBlock = configManager.get("genesisBlock");
@@ -100,6 +100,6 @@ export class BlockCommand extends BaseCommand {
             writeFileSync("./blocks.json", JSON.stringify(blocks));
         }
 
-        return blocks as any;
+        return blocks;
     }
 }
