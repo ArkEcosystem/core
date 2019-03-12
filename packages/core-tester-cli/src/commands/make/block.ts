@@ -37,6 +37,10 @@ export class BlockCommand extends BaseCommand {
         write: flags.boolean({
             description: "write the blocks to the disk",
         }),
+        log: flags.boolean({
+            description: "log the data to the console",
+            default: true,
+        }),
     };
 
     public async run(): Promise<models.IBlock[]> {
