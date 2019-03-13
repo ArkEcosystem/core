@@ -127,8 +127,8 @@ const blockId = (ajv: Ajv) => {
                 const isFullSha256 = /^[0-9a-f]{64}$/i.test(data);
 
                 if (parentObject && parentObject.height) {
-                    const h = schema.previousBlock ? parentObject.height - 1 : parentObject.height;
-                    const constants = configManager.getMilestone(h);
+                    const height = schema.previousBlock ? parentObject.height - 1 : parentObject.height;
+                    const constants = configManager.getMilestone(height);
                     return constants.block.idFullSha256 ? isFullSha256 : isPartial;
                 }
 
