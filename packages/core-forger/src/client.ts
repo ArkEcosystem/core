@@ -168,6 +168,7 @@ export class Client {
      * @return {void}
      */
     public async __chooseHost(wait = 0) {
+        // TODO adapt to socket
         const host = sample(this.hosts);
 
         try {

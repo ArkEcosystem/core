@@ -3,23 +3,47 @@ import "./mocks/core-container";
 import "jest-extended";
 
 import delay from "delay";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Client } from "../../../packages/core-forger/src/client";
 import { sampleBlock } from "./__fixtures__/block";
+
+import { MockSocketManager } from "../core-p2p/__support__/mock-socket-server/manager";
 
 jest.setTimeout(30000);
 
 let client;
+let socketManager: MockSocketManager;
 
 beforeAll(async () => {
-    await delay(2000);
+    process.env.CORE_ENV = "test"; // important for socket server setup (testing), see socket-server/index.ts
+
+    socketManager = new MockSocketManager();
+    await socketManager.init();
+
     client = new Client({
-        port: 4000,
+        port: 4009,
         ip: "127.0.0.1",
     });
 });
 
+afterAll(() => {
+    client.socket.destroy();
+    socketManager.stopServer();
+});
+
+afterEach(async () => socketManager.resetAllMocks());
+
 describe("Client", () => {
+    const mockPeerStatus = {
+        success: true,
+        height: 1,
+        forgingAllowed: true,
+        currentSlot: 1,
+        header: {},
+    };
+
     /*describe("constructor", () => {
+        // TODO
         it("accepts 1 or more hosts as parameter", () => {
             expect(new Client(host).hosts).toEqual([host]);
 
@@ -32,6 +56,9 @@ describe("Client", () => {
     describe("broadcast", () => {
         describe("when the host is available", () => {
             it("should be truthy if broadcasts", async () => {
+                await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+                await socketManager.addMock("p2p.internal.storeBlock", {});
+
                 await client.__chooseHost(1000);
 
                 const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
@@ -45,11 +72,12 @@ describe("Client", () => {
             it("should be ok", async () => {
                 const expectedResponse = { foo: "bar" };
 
+                await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+                await socketManager.addMock("p2p.internal.getCurrentRound", { data: expectedResponse });
+
                 const response = await client.getRound();
 
-                expect(response.lastBlock).toBeObject();
-                expect(response.lastBlock.height).toBe(1);
-                expect(response.reward).toBe(0);
+                expect(response).toEqual(expectedResponse);
             });
         });
     });
@@ -57,10 +85,12 @@ describe("Client", () => {
     describe("getTransactions", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
-                await client.__chooseHost();
+                const expectedResponse = { transactions: [] };
+                await socketManager.addMock("p2p.internal.getUnconfirmedTransactions", { data: expectedResponse });
+
                 const response = await client.getTransactions();
 
-                expect(response.transactions).toBeArray();
+                expect(response).toEqual(expectedResponse);
             });
         });
     });
@@ -68,45 +98,36 @@ describe("Client", () => {
     describe("getNetworkState", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
-                await client.__chooseHost();
+                const expectedResponse = new NetworkState(NetworkStateStatus.Test);
+                await socketManager.addMock("p2p.internal.getNetworkState", { data: expectedResponse });
+
                 const response = await client.getNetworkState();
 
-                expect(response).toBeObject();
-                expect(response.nodeHeight).toBe(1);
-                expect(response.quorumDetails).toBeObject();
+                expect(response).toEqual(expectedResponse);
             });
         });
     });
 
     describe("syncCheck", () => {
         it("should induce network sync", async () => {
+            await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+            await socketManager.addMock("p2p.internal.syncBlockchain", {});
+
             const response = await client.syncCheck();
 
             expect(response).toBeUndefined();
-
-            // expect(axios.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
         });
     });
 
     describe("getUsernames", () => {
         it("should fetch usernames", async () => {
+            const expectedResponse = { foo: "bar" };
+            await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+            await socketManager.addMock("p2p.internal.getUsernames", { data: expectedResponse });
+
             const response = await client.getUsernames();
 
-            expect(response).toEqual({});
+            expect(response).toEqual(expectedResponse);
         });
     });
-    /*
-    describe("emitEvent", () => {
-        it("should emit events", async () => {
-            
-            await client.__chooseHost();
-            await client.emitEvent("foo", "bar");
-
-            /*expect(axios.post).toHaveBeenCalledWith(
-                `${host}/internal/utils/events`,
-                { event: "foo", body: "bar" },
-                expect.any(Object),
-            );*/
-    /*   });
-    });*/
 });

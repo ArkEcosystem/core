@@ -25,8 +25,11 @@ export class MockSocketManager {
     }
 
     public async addMock(endpoint, mockData, headers?) {
+        if (endpoint.split(".").length === 1) {
+            endpoint = `p2p.peer.${endpoint}`;
+        }
         return this.clientSocket.emit("mock.add", {
-            endpoint: `p2p.peer.${endpoint}`,
+            endpoint,
             value: {
                 data: mockData,
                 headers: headers || {
