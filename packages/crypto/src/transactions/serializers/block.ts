@@ -2,6 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { configManager } from "../../managers/config";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils";
+import { PreviousBlockIdFormatError } from "../../errors";
 import { Transaction } from "../types";
 
 class BlockSerializer {
@@ -41,11 +42,7 @@ class BlockSerializer {
 
         if (constants.block.idFullSha256) {
             if (block.previousBlock.length !== 64) {
-                throw new Error(
-                    `The config denotes that the block at height ${block.height - 1} ` +
-                        `must use full SHA256 block id, however the next block (at ${block.height}) ` +
-                        `contains previousBlock="${block.previousBlock}"`,
-                );
+                throw new PreviousBlockIdFormatError(block.height, block.previousBlock);
             }
             block.previousBlockHex = block.previousBlock;
         } else {
