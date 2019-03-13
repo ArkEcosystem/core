@@ -126,16 +126,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         }
     }
 
-    public enqueueSaveBlock(block: models.Block): any {
-        const queries = [this.blocksRepository.insert(block.data)];
-
-        if (block.transactions.length > 0) {
-            queries.push(this.transactionsRepository.insert(block.transactions));
-        }
-
-        this.enqueueQueries(queries);
-    }
-
     public async make(): Promise<Database.IDatabaseConnection> {
         if (this.db) {
             throw new Error("Database connection already initialised");
