@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
+import { ITransactionData, configManager, models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
 import uniq from "lodash/uniq";
@@ -178,9 +178,15 @@ export class ForgerManager {
 
         const previousBlock = {
             id: networkState.lastBlockId,
-            idHex: models.Block.toBytesHex(networkState.lastBlockId),
+            idHex: null,
             height: networkState.nodeHeight,
         };
+
+        if (configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
+            previousBlock.idHex = previousBlock.id;
+        } else {
+            previousBlock.idHex = models.Block.toBytesHex(previousBlock.id);
+        }
 
         const blockOptions = {
             previousBlock,

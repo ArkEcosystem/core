@@ -26,8 +26,14 @@ class BlockDeserializer {
 
         const { outlookTable } = configManager.config.exceptions;
         if (outlookTable && outlookTable[block.id]) {
-            block.id = outlookTable[block.id];
-            block.idHex = Block.toBytesHex(block.id);
+            const constants = configManager.getMilestone(block.height);
+            if (constants.block.idFullSha256) {
+                block.id = outlookTable[block.id];
+                block.idHex = block.id;
+            } else {
+                block.id = outlookTable[block.id];
+                block.idHex = Block.toBytesHex(block.id);
+            }
         }
 
         // FIXME: only a workaround
