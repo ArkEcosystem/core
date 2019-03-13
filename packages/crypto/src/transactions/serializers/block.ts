@@ -1,8 +1,8 @@
 import ByteBuffer from "bytebuffer";
+import { PreviousBlockIdFormatError } from "../../errors";
 import { configManager } from "../../managers/config";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils";
-import { PreviousBlockIdFormatError } from "../../errors";
 import { Transaction } from "../types";
 
 class BlockSerializer {

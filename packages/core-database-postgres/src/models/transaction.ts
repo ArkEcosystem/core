@@ -73,7 +73,13 @@ export class Transaction extends Model {
             },
             {
                 name: "serialized",
-                init: col => col.value,
+                supportedOperators: [Database.SearchOperator.OP_EQ],
+            },
+            {
+                name: "asset",
+                init: col => {
+                    return col.value;
+                },
                 supportedOperators: [Database.SearchOperator.OP_EQ],
             },
         ];
