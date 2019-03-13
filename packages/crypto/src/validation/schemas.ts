@@ -11,12 +11,6 @@ export const schemas = {
         pattern: "^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$",
     },
 
-    numericString: {
-        $id: "numericString",
-        type: "string",
-        pattern: "^[0-9]+$",
-    },
-
     alphanumeric: {
         $id: "alphanumeric",
         type: "string",
@@ -77,8 +71,8 @@ export const schemas = {
             idHex: { blockId: {} },
             version: { type: "integer", minimum: 0 },
             timestamp: { type: "integer", minimum: 0 },
-            previousBlock: { blockId: { allowNullWhenGenesis: true } },
-            previousBlockHex: { blockId: { allowNullWhenGenesis: true } },
+            previousBlock: { blockId: { allowNullWhenGenesis: true, isPreviousBlock: true } },
+            previousBlockHex: { blockId: { allowNullWhenGenesis: true, isPreviousBlock: true } },
             height: { type: "integer", minimum: 1 },
             numberOfTransactions: { type: "integer" },
             totalAmount: { bignumber: { minimum: 0, bypassGenesis: true, block: true } },

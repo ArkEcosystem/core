@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import * as Joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 const config = app.getConfig();
@@ -121,14 +122,14 @@ export const blocks: object = {
         ...pagination,
         ...{
             orderBy: Joi.string(),
-            id: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            id: blockId,
             version: Joi.number()
                 .integer()
                 .min(0),
             timestamp: Joi.number()
                 .integer()
                 .min(0),
-            previousBlock: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            previousBlock: blockId,
             height: Joi.number()
                 .integer()
                 .positive(),

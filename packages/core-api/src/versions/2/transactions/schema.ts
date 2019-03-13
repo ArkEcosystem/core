@@ -1,4 +1,5 @@
 import joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
@@ -10,7 +11,7 @@ export const index: object = {
                 .string()
                 .hex()
                 .length(64),
-            blockId: joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: joi
                 .number()
                 .integer()
@@ -96,7 +97,7 @@ export const search: object = {
             .string()
             .hex()
             .length(64),
-        blockId: joi.string().regex(/^[0-9]+$/, "numbers"),
+        blockId,
         type: joi
             .number()
             .integer()

@@ -10,7 +10,6 @@ export const blockEncode = blockRecord => {
 
 export const blockDecode = bufferData => {
     const blockData = Block.deserialize(bufferData.toString("hex"), true);
-    blockData.id = Block.getIdFromSerialized(bufferData);
 
     blockData.totalAmount = (blockData.totalAmount as Bignum).toFixed();
     blockData.totalFee = (blockData.totalFee as Bignum).toFixed();
