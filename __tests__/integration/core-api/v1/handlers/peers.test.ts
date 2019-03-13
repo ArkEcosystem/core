@@ -11,7 +11,6 @@ beforeAll(async () => {
     await setUp();
 
     const peerMock = new Peer(mockAddress, mockPort);
-    peerMock.setStatus("OK");
 
     const monitor = app.resolvePlugin("p2p");
     monitor.peers = {};
