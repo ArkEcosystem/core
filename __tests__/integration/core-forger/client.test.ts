@@ -5,7 +5,7 @@ import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 import nock from "nock";
 import { Client } from "../../../packages/core-forger/src/client";
-import { sampleBlock } from "./__fixtures__/block";
+import { sampleBlocks } from "./__fixtures__/blocks";
 
 jest.setTimeout(30000);
 
@@ -38,24 +38,26 @@ describe("Client", () => {
 
     describe("broadcast", () => {
         describe("when the host is available", () => {
-            it("should be truthy if broadcasts", async () => {
-                nock(host)
-                    .post("/internal/blocks")
-                    .reply(200, (_, requestBody) => {
-                        expect(requestBody.block).toMatchObject(
-                            expect.objectContaining({
-                                id: sampleBlock.data.id,
-                            }),
-                        );
+            for (const sampleBlock of sampleBlocks) {
+                it("should be truthy if broadcasts", async () => {
+                    nock(host)
+                        .post("/internal/blocks")
+                        .reply(200, (_, requestBody) => {
+                            expect(requestBody.block).toMatchObject(
+                                expect.objectContaining({
+                                    id: sampleBlock.data.id,
+                                }),
+                            );
 
-                        return requestBody;
-                    });
+                            return requestBody;
+                        });
 
-                await client.__chooseHost();
+                    await client.__chooseHost();
 
-                const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
-                expect(wasBroadcasted).toBeTruthy();
-            });
+                    const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
+                    expect(wasBroadcasted).toBeTruthy();
+                });
+            }
         });
     });
 
