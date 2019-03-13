@@ -255,7 +255,7 @@ export class Block implements IBlock {
             const invalidTransactions = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
-                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
+                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
             }
 
             if (this.transactions.length !== block.numberOfTransactions) {
