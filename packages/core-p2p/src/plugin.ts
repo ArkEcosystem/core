@@ -17,7 +17,9 @@ export const plugin: Container.PluginDescriptor = {
 
         config.init(options);
 
-        monitor.server = await startSocketServer(options);
+        if (!process.env.DISABLE_P2P_SERVER) {
+            monitor.server = await startSocketServer(options);
+        }
 
         await monitor.start(options);
 
@@ -28,7 +30,5 @@ export const plugin: Container.PluginDescriptor = {
 
         const p2p = container.resolvePlugin<Monitor>("p2p");
         p2p.dumpPeers();
-
-        // return p2p.server.stop();
     },
 };
