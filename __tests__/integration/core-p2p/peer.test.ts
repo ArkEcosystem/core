@@ -35,6 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    peerMock.socket.destroy();
     socketManager.stopServer();
 });
 

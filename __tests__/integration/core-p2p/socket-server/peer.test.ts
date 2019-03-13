@@ -7,10 +7,11 @@ import { monitor } from "../../../../packages/core-p2p/src/monitor";
 
 let socket;
 let emit;
+let server;
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test";
-    await startSocketServer({ port: 4000 });
+    server = await startSocketServer({ port: 4000 });
     await delay(3000);
     socket = socketCluster.create({
         port: 4000,
@@ -23,6 +24,10 @@ beforeAll(async () => {
         });
 
     jest.spyOn(monitor, "acceptNewPeer").mockImplementation(async () => {});
+});
+
+afterAll(() => {
+    socket.destroy();
 });
 
 describe("Peer socket endpoint", () => {

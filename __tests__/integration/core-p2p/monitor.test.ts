@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length  */
 import "./mocks/core-container";
 
-import { models, slots } from "@arkecosystem/crypto";
+import { slots } from "@arkecosystem/crypto";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
@@ -21,6 +21,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    peerMock.socket.destroy();
+    for (const peer of Object.values(monitor.peers)) {
+        peer.socket.destroy();
+    }
     socketManager.stopServer();
 });
 
@@ -52,25 +56,7 @@ describe("Monitor", () => {
         });
     });
 
-    describe("acceptNewPeer", () => {
-        /*it("should be ok", async () => {
-            axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [
-                200,
-                {
-                    header: {
-                        height: 1,
-                        id: genesisBlock.data.id,
-                    },
-                    success: true,
-                },
-                peerMock.headers,
-            ]);
-
-            await monitor.acceptNewPeer(peerMock);
-
-            expect(monitor.peers[peerMock.ip]).toBeObject();
-        });*/
-    });
+    describe.skip("acceptNewPeer", () => {});
 
     describe("getPeers", () => {
         it("should be ok", async () => {

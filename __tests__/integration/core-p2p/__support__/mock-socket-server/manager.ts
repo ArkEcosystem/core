@@ -41,6 +41,10 @@ export class MockSocketManager {
         });
     }
 
+    public async resetMock(endpoint) {
+        return this.clientSocket.emit("mock.reset", { endpoint: `p2p.peer.${endpoint}` });
+    }
+
     public async resetAllMocks() {
         return this.clientSocket.emit("mock.resetAll", {});
     }
