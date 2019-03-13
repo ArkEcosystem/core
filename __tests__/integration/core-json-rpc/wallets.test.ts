@@ -17,7 +17,7 @@ beforeAll(async () => {
     await setUp();
 
     peerMock = new Peer("1.0.0.99", 4002);
-    Object.assign(peerMock, peerMock.headers, { status: "OK" });
+    Object.assign(peerMock, peerMock.headers);
 
     const monitor = app.resolvePlugin("p2p");
     monitor.peers = {};
@@ -29,24 +29,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-    axiosMock.onGet(/.*\/api\/loader\/autoconfigure/).reply(() => [200, { network: {} }, peerMock.headers]);
-    axiosMock.onGet(/.*\/peer\/status/).reply(() => [200, { success: true, height: 5 }, peerMock.headers]);
-    axiosMock.onGet(/.*\/peer\/list/).reply(() => [
-        200,
-        {
-            success: true,
-            peers: [
-                {
-                    status: "OK",
-                    ip: peerMock.ip,
-                    port: 4002,
-                    height: 5,
-                    delay: 8,
-                },
-            ],
-        },
-        peerMock.headers,
-    ]);
     axiosMock.onPost(/.*:8080.*/).passThrough();
 });
 
