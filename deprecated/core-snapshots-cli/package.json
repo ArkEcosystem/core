@@ -29,7 +29,6 @@
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
         "debug": "node --inspect-brk ./dist/index.js",
         "dump": "yarn snapshot dump",
