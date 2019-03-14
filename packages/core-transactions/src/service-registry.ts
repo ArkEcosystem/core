@@ -1,5 +1,5 @@
-import { constants } from "@arkecosystem/crypto";
-import { InvalidTransactionTypeError, NotImplementedError, TransactionServiceAlreadyRegisteredError } from "./errors";
+import { constants, TransactionRegistry } from "@arkecosystem/crypto";
+import { InvalidTransactionTypeError, TransactionServiceAlreadyRegisteredError } from "./errors";
 import { transactionServices } from "./services";
 import { TransactionService } from "./services/transaction";
 
@@ -15,25 +15,43 @@ class TransactionServiceRegistry {
         });
     }
 
-    public get(type: constants.TransactionTypes): TransactionService {
-        if (!this.coreTransactionServices.has(type)) {
-            throw new InvalidTransactionTypeError(type);
+    public get(type: constants.TransactionTypes | number): TransactionService {
+        if (this.coreTransactionServices.has(type)) {
+            return this.coreTransactionServices.get(type);
         }
 
-        return this.coreTransactionServices.get(type);
+        if (this.customTransactionServices.has(type)) {
+            return this.customTransactionServices.get(type);
+        }
+
+        throw new InvalidTransactionTypeError(type);
     }
 
-    public registerCustomTransactionService(service: TransactionServiceConstructor): void {
-        throw new NotImplementedError();
+    public registerCustomTransactionService(constructor: TransactionServiceConstructor): void {
+        const service = new constructor();
+        const transactionConstructor = service.getConstructor();
+        const { type } = transactionConstructor;
+
+        if (this.customTransactionServices.has(type)) {
+            throw new TransactionServiceAlreadyRegisteredError(type);
+        }
+
+        TransactionRegistry.registerCustomType(transactionConstructor);
+
+        this.customTransactionServices.set(type, service);
     }
 
-    public deregisterCustomTransactionService(service: TransactionServiceConstructor): void {
-        throw new NotImplementedError();
+    public deregisterCustomTransactionService(type: number): void {
+        if (this.customTransactionServices.has(type)) {
+            TransactionRegistry.deregisterCustomType(type);
+            this.customTransactionServices.delete(type);
+        }
     }
 
     private registerCoreTransactionService(constructor: TransactionServiceConstructor) {
         const service = new constructor();
-        const type = service.getType();
+        const transactionConstructor = service.getConstructor();
+        const { type } = transactionConstructor;
 
         if (this.coreTransactionServices.has(type)) {
             throw new TransactionServiceAlreadyRegisteredError(type);

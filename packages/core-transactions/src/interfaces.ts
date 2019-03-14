@@ -1,8 +1,8 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { ITransactionData, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
 
 export interface ITransactionService {
-    getType(): constants.TransactionTypes | number;
+    getConstructor(): TransactionConstructor;
 
     canBeApplied(transaction: Transaction, wallet: Database.IWallet, walletManager?: Database.IWalletManager): boolean;
     applyToSender(transaction: Transaction, wallet: Database.IWallet): void;
