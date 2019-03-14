@@ -50,8 +50,7 @@
         "truncate": "yarn snapshot truncate",
         "truncate:mainnet": "yarn snapshot truncate --network mainnet",
         "truncate:devnet": "yarn snapshot truncate --network devnet",
-        "truncate:testnet": "yarn snapshot truncate --network testnet",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "truncate:testnet": "yarn snapshot truncate --network testnet"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.0",

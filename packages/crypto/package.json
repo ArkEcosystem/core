@@ -26,8 +26,7 @@
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
-        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js"
     },
     "dependencies": {
         "bcrypto": "^3.0.2",

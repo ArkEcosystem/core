@@ -37,7 +37,7 @@
         "publish:latest": "cross-env-shell ./scripts/publish/latest.sh",
         "upgrade": "cross-env-shell ./scripts/upgrade.sh",
         "version": "cross-env-shell ./scripts/version.sh",
-        "updates": "yarn lerna run updates",
+        "deps": "cross-env-shell ./scripts/deps.sh",
         "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"
     },
