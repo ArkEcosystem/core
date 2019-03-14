@@ -1,8 +1,8 @@
-import { logger } from "./logger";
 import { blockchain } from "./blockchain";
 import { config } from "./config";
-import { p2p } from "./p2p";
 import { database } from "./database";
+import { logger } from "./logger";
+import { p2p } from "./p2p";
 import { transactionPool } from "./transactionPool";
 
 export const container = {

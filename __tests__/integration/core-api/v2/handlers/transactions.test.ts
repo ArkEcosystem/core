@@ -1,5 +1,5 @@
-import "../../../../utils";
 import { constants } from "@arkecosystem/crypto";
+import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
