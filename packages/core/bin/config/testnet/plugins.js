@@ -45,7 +45,7 @@ module.exports = {
         whitelist: ["*"],
     },
     "@arkecosystem/core-webhooks": {
-        enabled: true,
+        enabled: process.env.CORE_WEBHOOKS_ENABLED,
         server: {
             host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
             port: process.env.CORE_WEBHOOKS_PORT || 4004,
