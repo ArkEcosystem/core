@@ -175,9 +175,13 @@ const address: object = Joi.string()
     .length(34);
 
 export const search: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
+    },
     payload: {
-        orderBy: Joi.string(),
         address,
         addresses: Joi.array()
             .unique()
