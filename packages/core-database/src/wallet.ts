@@ -1,3 +1,4 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import {
     Bignum,
     constants,
@@ -10,7 +11,7 @@ import {
 
 const { TransactionTypes } = constants;
 
-export class Wallet {
+export class Wallet implements Database.IWallet {
     public address: string;
     public publicKey: string | null;
     public secondPublicKey: string | null;

@@ -1,12 +1,10 @@
 import "jest-extended";
 
-import { SATOSHI, TransactionTypes } from "../../../../packages/crypto/src/constants";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { Wallet } from "../../../../packages/crypto/src/models/wallet";
-import { Bignum } from "../../../../packages/crypto/src/utils";
-
-import { generators } from "../../../utils";
+import { Bignum, configManager, constants } from "@arkecosystem/crypto";
+import { Wallet } from "../../../packages/core-database/src";
+import { generators } from "../../utils";
 const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
+const { SATOSHI, TransactionTypes } = constants;
 
 describe("Models - Wallet", () => {
     beforeEach(() => configManager.setFromPreset("devnet"));

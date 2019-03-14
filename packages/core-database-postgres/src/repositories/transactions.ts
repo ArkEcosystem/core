@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { models, slots } from "@arkecosystem/crypto";
+import { slots } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash/partition";
 import { Transaction } from "../models";
@@ -153,7 +153,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
             customOps.forEach(o => {
                 if (o.field === "ownerWallet") {
-                    const wallet = o.value as models.Wallet;
+                    const wallet = o.value as Database.IWallet;
                     if (hasNonCustomOps) {
                         selectQuery.and(
                             this.query.sender_public_key

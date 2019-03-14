@@ -1,10 +1,10 @@
 /* tslint:disable:max-line-length */
 import "./mocks/core-container";
 
+import { Wallet } from "@arkecosystem/core-database";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { bignumify } from "@arkecosystem/core-utils";
 import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
-import { Wallet } from "@arkecosystem/crypto/src/models";
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -81,7 +81,7 @@ describe("Connection", () => {
 
     describe("addTransaction", () => {
         beforeAll(() => {
-            const mockWallet = new models.Wallet(delegates[0].address);
+            const mockWallet = new Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "canApply").mockReturnValue(true);
         });
@@ -157,7 +157,7 @@ describe("Connection", () => {
 
     describe("addTransactions", () => {
         beforeAll(() => {
-            const mockWallet = new models.Wallet(delegates[0].address);
+            const mockWallet = new Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "canApply").mockReturnValue(true);
         });
@@ -198,7 +198,7 @@ describe("Connection", () => {
 
     describe("addTransactions with expiration", () => {
         beforeAll(() => {
-            const mockWallet = new models.Wallet(delegates[0].address);
+            const mockWallet = new Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "canApply").mockReturnValue(true);
         });
@@ -558,7 +558,7 @@ describe("Connection", () => {
             const transactionService = TransactionServiceRegistry.get(TransactionTypes.Transfer);
             jest.spyOn(transactionService, "canBeApplied").mockReturnValue(true);
 
-            mockWallet = new models.Wallet(block2.transactions[0].recipientId);
+            mockWallet = new Wallet(block2.transactions[0].recipientId);
             mockWallet.balance = new Bignum(1e12);
             jest.spyOn(connection.walletManager, "exists").mockReturnValue(true);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementation(publicKey => {
@@ -761,7 +761,7 @@ describe("Connection", () => {
 
     describe("stress", () => {
         beforeAll(() => {
-            const mockWallet = new models.Wallet(delegates[0].address);
+            const mockWallet = new Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "canApply").mockReturnValue(true);
         });
