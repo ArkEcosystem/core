@@ -1,5 +1,5 @@
 SELECT sender_public_key,
-       serialized
+       asset
 FROM transactions
 WHERE TYPE = 3
 ORDER BY timestamp DESC, sequence ASC

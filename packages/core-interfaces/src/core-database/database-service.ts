@@ -44,8 +44,6 @@ export interface IDatabaseService {
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
-    enqueueSaveBlock(block: models.Block): void;
-
     enqueueDeleteBlock(block: models.Block): void;
 
     enqueueDeleteRound(height: number): void;

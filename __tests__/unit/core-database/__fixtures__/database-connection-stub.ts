@@ -32,10 +32,6 @@ export class DatabaseConnectionStub implements Database.IDatabaseConnection {
 
     public enqueueDeleteRound(height: number): any {}
 
-    public enqueueSaveBlock(block: models.Block): any {
-        return null;
-    }
-
     public async make(): Promise<Database.IDatabaseConnection> {
         return this;
     }

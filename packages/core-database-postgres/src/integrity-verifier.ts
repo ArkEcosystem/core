@@ -1,4 +1,4 @@
-import { Bignum, Transaction } from "@arkecosystem/crypto";
+import { Bignum } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 
 import { app } from "@arkecosystem/core-container";
@@ -125,8 +125,7 @@ export class IntegrityVerifier {
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            const { data } = Transaction.fromBytes(transaction.serialized);
-            wallet.secondPublicKey = data.asset.signature.publicKey;
+            wallet.secondPublicKey = transaction.asset.signature.publicKey;
         }
     }
 
@@ -141,8 +140,7 @@ export class IntegrityVerifier {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
             if (!wallet.voted) {
-                const { data } = Transaction.fromBytes(transaction.serialized);
-                const vote = data.asset.votes[0];
+                const vote = transaction.asset.votes[0];
 
                 if (vote.startsWith("+")) {
                     wallet.vote = vote.slice(1);
@@ -168,8 +166,7 @@ export class IntegrityVerifier {
 
         transactions.forEach(transaction => {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            const { data } = Transaction.fromBytes(transaction.serialized);
-            wallet.username = data.asset.delegate.username;
+            wallet.username = transaction.asset.delegate.username;
             this.walletManager.reindex(wallet);
         });
 
@@ -206,8 +203,7 @@ export class IntegrityVerifier {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
 
             if (!wallet.multisignature) {
-                const { data } = Transaction.fromBytes(transaction.serialized);
-                wallet.multisignature = data.asset.multisignature;
+                wallet.multisignature = transaction.asset.multisignature;
             }
         }
     }

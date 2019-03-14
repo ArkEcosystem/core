@@ -1,7 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
+import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise from "pg-promise";
 import { IntegrityVerifier } from "./integrity-verifier";
@@ -126,16 +127,6 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         }
     }
 
-    public enqueueSaveBlock(block: models.Block): any {
-        const queries = [this.blocksRepository.insert(block.data)];
-
-        if (block.transactions.length > 0) {
-            queries.push(this.transactionsRepository.insert(block.transactions));
-        }
-
-        this.enqueueQueries(queries);
-    }
-
     public async make(): Promise<Database.IDatabaseConnection> {
         if (this.db) {
             throw new Error("Database connection already initialised");
@@ -194,15 +185,42 @@ export class PostgresConnection implements Database.IDatabaseConnection {
                 await this.query.none(migration);
             } else {
                 const row = await this.migrationsRepository.findByName(name);
-
                 if (row === null) {
                     this.logger.debug(`Migrating ${name}`);
-
                     await this.query.none(migration);
+
+                    if (name === "20190313000000-add-asset-column-to-transactions-table") {
+                        await this.migrateTransactionsTableToAssetColumn();
+                    }
 
                     await this.migrationsRepository.insert({ name });
                 }
             }
+        }
+    }
+
+    /**
+     * Migrate transactions table to asset column.
+     */
+    private async migrateTransactionsTableToAssetColumn() {
+        this.logger.warn(`Migrating transactions table. This may take a while.`);
+
+        const all = await this.db.manyOrNone("SELECT serialized FROM transactions WHERE type > 0");
+        for (const batch of chunk(all, 20000)) {
+            await this.db.task(task => {
+                const transactions = [];
+                batch.forEach((tx: { serialized: Buffer }) => {
+                    const transaction = Transaction.fromBytes(tx.serialized);
+                    if (transaction.data.asset) {
+                        const query =
+                            this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
+                            ` WHERE id = '${transaction.id}'`;
+                        transactions.push(task.none(query));
+                    }
+                });
+
+                return task.batch(transactions);
+            });
         }
     }
 

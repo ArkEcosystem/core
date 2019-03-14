@@ -93,13 +93,8 @@ class TransactionDeserializer {
         // Multi Signatures
         if (buf.remaining() && beginningMultiSignature()) {
             buf.skip(1);
-            transaction.signatures = [];
-
-            while (buf.remaining()) {
-                const multiSignatureLength = currentSignatureLength();
-                const multiSignature = buf.readBytes(multiSignatureLength).toString("hex");
-                transaction.signatures.push(multiSignature);
-            }
+            const multiSignature = buf.readBytes(buf.limit - buf.offset).toString("hex");
+            transaction.signatures = [multiSignature];
         }
     }
 

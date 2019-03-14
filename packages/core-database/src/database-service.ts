@@ -133,10 +133,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.connection.enqueueDeleteRound(height);
     }
 
-    public enqueueSaveBlock(block: models.Block) {
-        this.connection.enqueueSaveBlock(block);
-    }
-
     public async getActiveDelegates(height: number, delegates?: any[]) {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;

@@ -1,4 +1,4 @@
 SELECT sender_public_key,
-       serialized
+       asset
 FROM transactions
 WHERE TYPE = 1
