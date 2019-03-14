@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import SocketCluster from "socketcluster";
+import { SocketErrors } from "./constants";
 import { getHeaders } from "./utils/get-headers";
 
 /**
@@ -46,6 +47,11 @@ const startSocketServer = async config => {
         } catch (e) {
             const logger = app.resolvePlugin("logger");
             logger.error(e);
+
+            // return explicit error when data validation error
+            if (e.name === SocketErrors.Validation) {
+                return res(e);
+            }
             return res(new Error(`Socket call to ${req.endpoint} failed.`));
         }
     });

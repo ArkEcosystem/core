@@ -11,4 +11,5 @@ export enum SocketErrors {
     HeadersValidationFailed = "CoreHeadersValidationFailedError",
     ForgerNotAuthorized = "CoreForgerNotAuthorizedError",
     Unknown = "CoreUnknownError",
+    Validation = "CoreValidationError",
 }

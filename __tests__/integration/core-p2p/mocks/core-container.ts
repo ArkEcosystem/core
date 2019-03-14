@@ -67,6 +67,10 @@ jest.mock("@arkecosystem/core-container", () => {
                 if (name === "blockchain") {
                     return {
                         getLastBlock: jest.fn().mockReturnValue({ data: { height: 1 }, getHeader: () => ({}) }),
+                        pingBlock: jest.fn().mockReturnValue(true),
+                        getLastDownloadedBlock: jest.fn().mockReturnValue(null),
+                        pushPingBlock: jest.fn().mockReturnValue(null),
+                        handleIncomingBlock: jest.fn().mockReturnValue(null),
                     };
                 }
 

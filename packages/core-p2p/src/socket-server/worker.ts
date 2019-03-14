@@ -109,6 +109,11 @@ class Worker extends SCWorker {
         } catch (e) {
             // Log explicit error, return unknown error
             this.logError(e.message);
+
+            // return explicit error when data validation error
+            if (e.name === SocketErrors.Validation) {
+                return next(e);
+            }
             return next(createError(SocketErrors.Unknown, "Unknown error"));
         }
         next(); // Allow

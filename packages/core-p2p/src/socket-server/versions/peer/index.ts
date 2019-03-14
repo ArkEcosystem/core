@@ -2,6 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
 import { models, slots } from "@arkecosystem/crypto";
+import { validate } from "../../utils/validate";
+import { schema } from "./schema";
 
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
@@ -82,11 +84,9 @@ export const getStatus = () => {
 };
 
 export const postBlock = req => {
-    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    validate(schema.postBlock, req.data); // this will throw if validation failed
 
-    if (!req.data || !req.data.block) {
-        return { success: false };
-    }
+    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const block = req.data.block;
 
@@ -116,6 +116,8 @@ export const postBlock = req => {
 };
 
 export const postTransactions = async req => {
+    validate(schema.postTransactions, req.data); // this will throw if validation failed
+
     if (!transactionPool) {
         return {
             success: false,

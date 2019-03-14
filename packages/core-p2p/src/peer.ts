@@ -408,12 +408,17 @@ export class Peer implements P2P.IPeer {
         this.socketError = error.name;
 
         switch (error.name) {
+            case SocketErrors.Validation:
+                this.logger.error(`Socket data validation error (peer ${this.ip}) : ${error.message}`);
+                // don't suspend peer for validation error
+                break;
             case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
                 this.delay = -1;
                 guard.suspend(this);
                 break;
             default:
+                this.logger.error(`Socket error (peer ${this.ip}) : ${error.message}`);
                 guard.suspend(this);
         }
     }

@@ -3,7 +3,8 @@ import { Blockchain, EventEmitter } from "@arkecosystem/core-interfaces";
 
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-// import * as schema from "../schemas/utils";
+import { validate } from "../../../utils/validate";
+import * as schema from "../schemas/utils";
 
 export const getUsernames = async () => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -22,10 +23,7 @@ export const getUsernames = async () => {
 };
 
 export const emitEvent = req => {
+    validate(schema.emitEvent, req.data); // this will throw if validation failed
+
     emitter.emit(req.data.event, req.data.body);
-    /*,
-    options: {
-        validate: schema.emitEvent,
-    },
-    */
 };

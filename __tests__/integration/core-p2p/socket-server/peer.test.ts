@@ -4,6 +4,7 @@ import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
 import { monitor } from "../../../../packages/core-p2p/src/monitor";
+import genesisBlockJSON from "../../../utils/config/unitnet/genesisBlock.json";
 
 let socket;
 let emit;
@@ -55,6 +56,25 @@ describe("Peer socket endpoint", () => {
             });
             expect(status.data.success).toBeTrue();
             expect(status.data.height).toBe(1);
+        });
+
+        describe("postBlock", () => {
+            it("should postBlock successfully", async () => {
+                const status = await emit("p2p.peer.postBlock", {
+                    data: { block: genesisBlockJSON },
+                    headers,
+                });
+                expect(status.data.success).toBeTrue();
+            });
+
+            it("should throw validation error when sending wrong data", async () => {
+                await expect(
+                    emit("p2p.peer.postBlock", {
+                        data: {},
+                        headers,
+                    }),
+                ).rejects.toHaveProperty("name", "CoreValidationError");
+            });
         });
     });
 
