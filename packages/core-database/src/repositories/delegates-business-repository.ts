@@ -153,8 +153,8 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         });
     }
 
-    private applyOrder(params): string {
-        const assignOrder = (params, value) => (params.orderBy = value.join(":"));
+    private applyOrder(params): [Function|string, string] {
+        const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {
             return assignOrder(params, ["rate", "asc"]);
