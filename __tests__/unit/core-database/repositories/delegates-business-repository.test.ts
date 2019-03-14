@@ -2,8 +2,8 @@ import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto, models } from "@arkecosystem/crypto";
-import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { Bignum, constants, crypto } from "@arkecosystem/crypto";
+import { DelegatesBusinessRepository, Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
@@ -22,7 +22,7 @@ beforeEach(async () => {
     databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
 });
 
-function generateWallets(): models.Wallet[] {
+function generateWallets(): Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
         const address = crypto.getAddress(transaction.data.senderPublicKey);
 
@@ -35,7 +35,7 @@ function generateWallets(): models.Wallet[] {
             balance: new Bignum(100),
             voteBalance: new Bignum(200),
             rate: index + 1,
-        } as models.Wallet;
+        } as Wallet;
     });
 }
 

@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, crypto, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { configManager, constants, crypto, ITransactionData, Transaction } from "@arkecosystem/crypto";
 
 import {
     InsufficientBalanceError,
@@ -22,7 +22,7 @@ export abstract class TransactionService implements ITransactionService {
      */
     public canBeApplied(
         transaction: Transaction,
-        wallet: models.Wallet,
+        wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
         // NOTE: Checks if it can be applied based on sender wallet
@@ -63,7 +63,7 @@ export abstract class TransactionService implements ITransactionService {
         return true;
     }
 
-    public applyToSender(transaction: Transaction, wallet: models.Wallet): void {
+    public applyToSender(transaction: Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
@@ -74,7 +74,7 @@ export abstract class TransactionService implements ITransactionService {
         }
     }
 
-    public applyToRecipient(transaction: Transaction, wallet: models.Wallet): void {
+    public applyToRecipient(transaction: Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount);
@@ -82,7 +82,7 @@ export abstract class TransactionService implements ITransactionService {
         }
     }
 
-    public revertForSender(transaction: Transaction, wallet: models.Wallet): void {
+    public revertForSender(transaction: Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
@@ -93,7 +93,7 @@ export abstract class TransactionService implements ITransactionService {
         }
     }
 
-    public revertForRecipient(transaction: Transaction, wallet: models.Wallet): void {
+    public revertForRecipient(transaction: Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount);
@@ -101,8 +101,8 @@ export abstract class TransactionService implements ITransactionService {
         }
     }
 
-    public abstract apply(transaction: Transaction, wallet: models.Wallet): void;
-    public abstract revert(transaction: Transaction, wallet: models.Wallet): void;
+    public abstract apply(transaction: Transaction, wallet: Database.IWallet): void;
+    public abstract revert(transaction: Transaction, wallet: Database.IWallet): void;
 
     /**
      * Database Service

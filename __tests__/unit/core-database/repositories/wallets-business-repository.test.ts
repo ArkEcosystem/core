@@ -1,15 +1,13 @@
 import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
-import { Bignum, crypto, models } from "@arkecosystem/crypto";
+import { Bignum, crypto } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
-import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
-
-const { Wallet } = models;
 
 let genesisSenders;
 let repository;

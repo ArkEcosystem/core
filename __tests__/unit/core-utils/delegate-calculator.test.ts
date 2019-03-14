@@ -1,17 +1,18 @@
+import "jest-extended";
 import "./mocks/core-container-calculator";
 
-import { Bignum, models } from "@arkecosystem/crypto";
-import "jest-extended";
+import { Wallet } from "@arkecosystem/core-database";
+import { Bignum } from "@arkecosystem/crypto";
 import {
     calculateApproval,
-    calculateProductivity,
     calculateForgedTotal,
+    calculateProductivity,
 } from "../../../packages/core-utils/src/delegate-calculator";
 
-let delegate;
+let delegate: Wallet;
 
 beforeEach(() => {
-    delegate = new models.Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+    delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
     delegate.producedBlocks = 0;
     delegate.missedBlocks = 0;
 });

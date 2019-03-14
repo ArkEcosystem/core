@@ -1,31 +1,17 @@
-import { TransactionTypes } from "../constants";
-import { crypto } from "../crypto/crypto";
-import { IMultiSignatureAsset, ITransactionData } from "../transactions";
-import { Bignum, formatSatoshi } from "../utils";
-import { IBlockData } from "./block";
+import { Database } from "@arkecosystem/core-interfaces";
+import {
+    Bignum,
+    constants,
+    crypto,
+    formatSatoshi,
+    IMultiSignatureAsset,
+    ITransactionData,
+    models,
+} from "@arkecosystem/crypto";
 
-/**
- * TODO copy some parts to ArkDocs
- * @classdesc This class holds the wallet data, verifies it and applies the
- * transaction and blocks to it
- *
- * Wallet attributes that are stored on the db:
- *   - address
- *   - publicKey
- *   - secondPublicKey
- *   - balance
- *   - vote
- *   - username (name, if the wallet is a delegate)
- *   - voteBalance (number of votes if the wallet is a delegate)
- *   - producedBlocks
- *   - missedBlocks
- *
- * This other attributes are not stored on the db:
- *   - multisignature
- *   - lastBlock (last block applied or `null``)
- *   - dirty
- */
-export class Wallet {
+const { TransactionTypes } = constants;
+
+export class Wallet implements Database.IWallet {
     public address: string;
     public publicKey: string | null;
     public secondPublicKey: string | null;
@@ -64,7 +50,7 @@ export class Wallet {
     /**
      * Add block data to this wallet.
      */
-    public applyBlock(block: IBlockData): boolean {
+    public applyBlock(block: models.IBlockData): boolean {
         this.dirty = true;
 
         if (
@@ -87,7 +73,7 @@ export class Wallet {
     /**
      * Remove block data from this wallet.
      */
-    public revertBlock(block: IBlockData): boolean {
+    public revertBlock(block: models.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address

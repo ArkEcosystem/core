@@ -9,17 +9,17 @@ export class TimelockTransferTransactionService extends TransactionService {
 
     public canBeApplied(
         transaction: Transaction,
-        wallet: models.Wallet,
+        wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public revert(transaction: Transaction, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: Database.IWallet): void {
         return;
     }
 }

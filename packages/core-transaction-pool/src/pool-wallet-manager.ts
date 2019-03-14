@@ -1,10 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import { WalletManager } from "@arkecosystem/core-database";
+import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
 import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
-import { crypto, isException, models, Transaction } from "@arkecosystem/crypto";
-
-const { Wallet } = models;
+import { crypto, isException, Transaction } from "@arkecosystem/crypto";
 
 export class PoolWalletManager extends WalletManager {
     public databaseService = app.resolvePlugin<Database.IDatabaseService>("database");

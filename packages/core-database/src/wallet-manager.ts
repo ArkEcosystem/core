@@ -4,6 +4,7 @@ import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, formatSatoshi, isException, models, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { Wallet } from "./wallet";
 
 const { TransactionTypes } = constants;
 
@@ -12,9 +13,9 @@ export class WalletManager implements Database.IWalletManager {
     public config = app.getConfig();
 
     public networkId: number;
-    public byAddress: { [key: string]: models.Wallet };
-    public byPublicKey: { [key: string]: models.Wallet };
-    public byUsername: { [key: string]: models.Wallet };
+    public byAddress: { [key: string]: Wallet };
+    public byPublicKey: { [key: string]: Wallet };
+    public byUsername: { [key: string]: Wallet };
 
     /**
      * Create a new wallet manager instance.
@@ -25,14 +26,14 @@ export class WalletManager implements Database.IWalletManager {
         this.reset();
     }
 
-    public allByAddress(): models.Wallet[] {
+    public allByAddress(): Wallet[] {
         return Object.values(this.byAddress);
     }
 
     /**
      * Get all wallets by publicKey.
      */
-    public allByPublicKey(): models.Wallet[] {
+    public allByPublicKey(): Wallet[] {
         return Object.values(this.byPublicKey);
     }
 
@@ -40,16 +41,16 @@ export class WalletManager implements Database.IWalletManager {
      * Get all wallets by username.
      * @return {Array}
      */
-    public allByUsername(): models.Wallet[] {
+    public allByUsername(): Wallet[] {
         return Object.values(this.byUsername);
     }
 
     /**
      * Find a wallet by the given address.
      */
-    public findByAddress(address: string): models.Wallet {
+    public findByAddress(address: string): Wallet {
         if (!this.byAddress[address]) {
-            this.byAddress[address] = new models.Wallet(address);
+            this.byAddress[address] = new Wallet(address);
         }
 
         return this.byAddress[address];
@@ -72,7 +73,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {String} publicKey
      * @return {Wallet}
      */
-    public findByPublicKey(publicKey: string): models.Wallet {
+    public findByPublicKey(publicKey: string): Wallet {
         if (!this.byPublicKey[publicKey]) {
             const address = crypto.getAddress(publicKey, this.networkId);
 
@@ -89,7 +90,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {String} username
      * @return {Wallet}
      */
-    public findByUsername(username: string): models.Wallet {
+    public findByUsername(username: string): Wallet {
         return this.byUsername[username];
     }
 
@@ -160,7 +161,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Wallet} wallet
      * @return {void}
      */
-    public reindex(wallet: models.Wallet) {
+    public reindex(wallet: Wallet) {
         if (wallet.address) {
             this.byAddress[wallet.address] = wallet;
         }
@@ -295,7 +296,7 @@ export class WalletManager implements Database.IWalletManager {
             const generator = crypto.getAddress(generatorPublicKey, this.networkId);
 
             if (block.data.height === 1) {
-                delegate = new models.Wallet(generator);
+                delegate = new Wallet(generator);
                 delegate.publicKey = generatorPublicKey;
 
                 this.reindex(delegate);
