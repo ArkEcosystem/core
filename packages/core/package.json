@@ -20,10 +20,6 @@
         "ark": "./bin/run"
     },
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -33,7 +29,7 @@
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
         "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
         "copy": "cd ./src && cpy './config' '../dist/' --parents && cd ..",
         "debug:start": "node --inspect-brk yarn ark core:run",
         "debug:relay": "node --inspect-brk yarn ark relay:run",
