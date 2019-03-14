@@ -1,10 +1,8 @@
-<!-- Please don't delete this template -->
+<!-- Please don't delete this template and read our contribution guidelines at https://docs.ark.io/guidebook/contribution-guidelines/contributing.html -->
 
 ## Summary
 
-<!--
-Describe the big picture of your changes here to communicate to the maintainers why we should accept this pull request. If it fixes a bug or resolves a feature request, be sure to reference the issue with a keyword. https://help.github.com/en/articles/closing-issues-using-keywords
--->
+<!-- Describe the big picture of your changes here to communicate to the maintainers why we should accept this pull request. -->
 
 ## What kind of change does this PR introduce?
 
