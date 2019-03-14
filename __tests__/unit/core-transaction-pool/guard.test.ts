@@ -1,6 +1,5 @@
 import "./mocks/core-container";
 
-import { Container } from "@arkecosystem/core-interfaces";
 import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
@@ -15,7 +14,6 @@ import { state } from "./mocks/state";
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
 
-let container: Container.IContainer;
 let guard;
 let transactionPool;
 

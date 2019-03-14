@@ -1,10 +1,10 @@
 import "../mocks/";
 import { blockchain } from "../mocks/blockchain";
-import { logger } from "../mocks/logger";
 import { config } from "../mocks/config";
 import { database } from "../mocks/database";
+import { logger } from "../mocks/logger";
 
-import { models, configManager } from "@arkecosystem/crypto";
+import { configManager, models } from "@arkecosystem/crypto";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
 import * as handlers from "../../../../packages/core-blockchain/src/processor/handlers";
 import {
