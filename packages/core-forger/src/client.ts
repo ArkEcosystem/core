@@ -7,7 +7,6 @@ import socketCluster from "socketcluster-client";
 
 export class Client {
     public hosts: any[];
-    public socket;
 
     private host: any;
     private headers: any;
@@ -23,9 +22,19 @@ export class Client {
 
         const { port, ip } = this.hosts[0];
 
-        if (!port) {
-            throw new Error("Failed to determine the P2P communcation port.");
+        if (!port || !ip) {
+            throw new Error("Failed to determine the P2P communication port / ip.");
         }
+
+        this.hosts.forEach(
+            host =>
+                (host.socket = socketCluster.create({
+                    port: host.port,
+                    hostname: host.ip,
+                })),
+        );
+
+        this.host = this.hosts[0];
 
         this.headers = {
             version: app.getVersion(),
@@ -33,11 +42,6 @@ export class Client {
             nethash: app.getConfig().get("network.nethash"),
             "Content-Type": "application/json",
         };
-
-        this.socket = socketCluster.create({
-            port,
-            hostname: ip,
-        });
     }
 
     /**
@@ -49,7 +53,7 @@ export class Client {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
-            } transactions to ${this.host}`,
+            } transactions to ${this.host.ip}`,
         );
 
         let response;
@@ -67,7 +71,7 @@ export class Client {
     public async syncCheck() {
         await this.__chooseHost();
 
-        this.logger.debug(`Sending wake-up check to relay node ${this.host}`);
+        this.logger.debug(`Sending wake-up check to relay node ${this.host.ip}`);
 
         try {
             await this.emit("p2p.internal.syncBlockchain", {});
@@ -102,7 +106,9 @@ export class Client {
 
             return NetworkState.parse(response.data);
         } catch (e) {
-            this.logger.error(`Could not retrieve network state: ${this.host}/internal/network/state: ${e.message}`);
+            this.logger.error(
+                `Could not retrieve network state: ${this.host.ip} p2p.internal.getNetworkState : ${e.message}`,
+            );
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
@@ -168,26 +174,23 @@ export class Client {
      * @return {void}
      */
     public async __chooseHost(wait = 0) {
-        // TODO adapt to socket
         const host = sample(this.hosts);
 
-        try {
-            await this.emit("p2p.peer.getStatus", {});
-
-            this.host = host;
-        } catch (error) {
-            this.logger.debug(`${host} didn't respond to the forger. Trying another host`);
+        if (host.socket.getState() !== host.socket.OPEN) {
+            this.logger.debug(`${host.ip} socket is not open. Trying another host`);
 
             if (wait > 0) {
                 await delay(wait);
             }
 
             await this.__chooseHost(wait);
+        } else {
+            this.host = host;
         }
     }
 
     private async emit(event: string, data: any, timeout: number = 2000) {
-        const response: any = await socketEmit(this.socket, event, data, this.headers, timeout);
+        const response: any = await socketEmit(this.host.socket, event, data, this.headers, timeout);
         return response.data;
     }
 }
