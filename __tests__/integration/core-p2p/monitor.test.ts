@@ -79,7 +79,7 @@ describe("Monitor", () => {
             await socketManager.addMock("getStatus", mockStatus);
 
             const getPeersPeerMock = { ip: "1.1.1.1", port: 4000 };
-            await socketManager.addMock("getPeers", { peers: [getPeersPeerMock] });
+            await socketManager.addMock("getPeers", { success: true, peers: [getPeersPeerMock] });
 
             const mockAcceptNewPeer = jest.spyOn(monitor, "acceptNewPeer").mockImplementationOnce(async () => {});
 
