@@ -63,7 +63,7 @@ function splitPackages(packageNames) {
     var indexToSplit = Math.floor(integrationPackages.length / 2);
     return [
         integrationPackages.slice(0, indexToSplit),
-        integrationPackages.slice(indexToSplit + 1)
+        integrationPackages.slice(indexToSplit)
     ]
 }
 
