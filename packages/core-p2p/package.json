@@ -21,8 +21,7 @@
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
