@@ -1,5 +1,5 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
 import { SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionService } from "./transaction";
 
@@ -10,7 +10,7 @@ export class SecondSignatureTransactionService extends TransactionService {
 
     public canBeApplied(
         transaction: Transaction,
-        wallet: models.Wallet,
+        wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
         if (wallet.secondPublicKey) {
@@ -20,11 +20,11 @@ export class SecondSignatureTransactionService extends TransactionService {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: Database.IWallet): void {
         wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
     }
 
-    public revert(transaction: Transaction, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: Database.IWallet): void {
         wallet.secondPublicKey = null;
     }
 

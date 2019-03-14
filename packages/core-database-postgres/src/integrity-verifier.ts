@@ -1,4 +1,4 @@
-import { Bignum, models } from "@arkecosystem/crypto";
+import { Bignum } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 
 import { app } from "@arkecosystem/core-container";
@@ -182,7 +182,7 @@ export class IntegrityVerifier {
         // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
         const delegateWallets = this.walletManager
             .allByUsername()
-            .sort((a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance));
+            .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
 
         sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);

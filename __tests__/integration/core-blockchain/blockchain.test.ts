@@ -1,4 +1,5 @@
 /* tslint:disable:max-line-length */
+import { Wallet } from "@arkecosystem/core-database";
 import {
     Bignum,
     crypto,
@@ -19,7 +20,7 @@ import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block, Wallet } = models;
+const { Block } = models;
 
 let genesisBlock;
 let configManager;

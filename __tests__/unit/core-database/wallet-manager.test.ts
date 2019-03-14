@@ -5,10 +5,12 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
+import { Wallet } from "../../../packages/core-database/src";
 import { fixtures, generators } from "../../utils";
+
 import wallets from "./__fixtures__/wallets.json";
 
-const { Block, Wallet } = models;
+const { Block } = models;
 const { SATOSHI, TransactionTypes } = constants;
 
 const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;

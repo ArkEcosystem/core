@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
-import { Bignum, configManager, models } from "@arkecosystem/crypto";
+import { Bignum, configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
 
 export function handler(request, h) {
@@ -9,8 +9,8 @@ export function handler(request, h) {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const formatDelegates = (delegates: models.Wallet[], lastHeight: number) =>
-        delegates.map((delegate: models.Wallet, index: number) => {
+    const formatDelegates = (delegates: Database.IWallet[], lastHeight: number) =>
+        delegates.map((delegate: Database.IWallet, index: number) => {
             const filteredVoters = databaseService.walletManager
                 .allByPublicKey()
                 .filter(wallet => wallet.vote === delegate.publicKey && (wallet.balance as Bignum).gt(0.1 * 1e8));
