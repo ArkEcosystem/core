@@ -98,7 +98,7 @@ export abstract class Transaction {
             return true;
         }
 
-        if (data.type >= 4) {
+        if (data.type >= 4 && data.type <= 99) {
             return false;
         }
 
