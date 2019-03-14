@@ -55,7 +55,7 @@ describe("Peer", () => {
 
     describe("postTransactions", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("postTransactions", { success: true });
+            await socketManager.addMock("postTransactions", { success: true, transactionsIds: [] });
             const transactions = generators.generateTransfers(
                 "testnet",
                 delegates[1].passphrase,
@@ -98,7 +98,10 @@ describe("Peer", () => {
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 1,
-                header: {},
+                header: {
+                    height: 1,
+                    id: "123456",
+                },
             };
             await socketManager.addMock("getStatus", mockStatus);
             process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
@@ -122,7 +125,10 @@ describe("Peer", () => {
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 1,
-                header: {},
+                header: {
+                    height: 1,
+                    id: "123456",
+                },
             };
             await socketManager.addMock("getStatus", mockStatus);
 
@@ -142,7 +148,7 @@ describe("Peer", () => {
     describe("getPeers", () => {
         it("should return the list of peers", async () => {
             const peersMock = [{ ip: "1.1.1.1" }];
-            await socketManager.addMock("getPeers", { peers: peersMock });
+            await socketManager.addMock("getPeers", { success: true, peers: peersMock });
             const peers = await peerMock.getPeers();
             expect(peers).toEqual(peersMock);
         });

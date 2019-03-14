@@ -301,12 +301,6 @@ export class Peer implements P2P.IPeer {
             timeout: 10000,
         });
 
-        /*
-        // TODO adapt validateReply to sockets
-        if (!this.validateReply(response, endpoint)) {
-            throw new Error("Invalid reply to request for blocks");
-        }*/
-
         return response;
     }
 
@@ -378,8 +372,13 @@ export class Peer implements P2P.IPeer {
 
             this.delay = new Date().getTime() - timeBeforeSocketCall;
             this.__parseHeaders(response);
+
+            if (!this.validateReply(response.data, event)) {
+                throw new Error(`Response validation failed from peer ${this.ip} : ${JSON.stringify(response.data)}`);
+            }
         } catch (e) {
             this.handleSocketError(e);
+            return;
         }
 
         return response.data;

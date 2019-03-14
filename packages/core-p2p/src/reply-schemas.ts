@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const replySchemas: any = {
-    "/peer/blocks": Joi.object().keys({
+    "p2p.peer.getBlocks": Joi.object().keys({
         blocks: Joi.array()
             .items(
                 Joi.object().keys({
@@ -17,7 +17,7 @@ export const replySchemas: any = {
             )
             .required(),
     }),
-    "/peer/blocks/common?ids=": Joi.object()
+    "p2p.peer.getCommonBlocks": Joi.object()
         .keys({
             common: [
                 Joi.object()
@@ -39,7 +39,7 @@ export const replySchemas: any = {
                 .required(),
         })
         .required(),
-    "/peer/list": Joi.object()
+    "p2p.peer.getPeers": Joi.object()
         .keys({
             peers: Joi.array()
                 .items(
@@ -47,7 +47,6 @@ export const replySchemas: any = {
                         ip: Joi.string()
                             .ip({ cidr: "forbidden" })
                             .required(),
-                        status: [Joi.string(), Joi.number().integer()],
                     }),
                 )
                 .required(),
@@ -56,7 +55,7 @@ export const replySchemas: any = {
                 .required(),
         })
         .required(),
-    "/peer/status": Joi.object()
+    "p2p.peer.getStatus": Joi.object()
         .keys({
             header: Joi.object()
                 .keys({
@@ -73,6 +72,20 @@ export const replySchemas: any = {
             height: Joi.number()
                 .integer()
                 .min(1),
+            success: Joi.boolean()
+                .equal(true)
+                .required(),
+        })
+        .required(),
+    "p2p.peer.postBlock": Joi.object()
+        .keys({
+            success: Joi.boolean()
+                .equal(true)
+                .required(),
+        })
+        .required(),
+    "p2p.peer.postTransactions": Joi.object()
+        .keys({
             success: Joi.boolean()
                 .equal(true)
                 .required(),
