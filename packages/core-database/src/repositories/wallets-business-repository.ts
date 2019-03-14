@@ -24,6 +24,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
      * @return {Object}
      */
     public findAll(params: Database.IParameters = {}) {
+        this.applyOrder(params);
+
         const wallets = sortEntries(params, this.all(), ["rate", "asc"]);
 
         return {
@@ -39,6 +41,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
      * @return {Object}
      */
     public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
+        this.applyOrder(params);
+
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
 
         return {
@@ -65,6 +69,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
      * Find all wallets sorted by balance.
      */
     public top(params: Database.IParameters = {}) {
+        this.applyOrder(params);
+
         const wallets = sortEntries(params, this.all(), ["balance", "desc"]);
 
         return {
@@ -115,5 +121,21 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             rows: limitRows(wallets, params),
             count: wallets.length,
         };
+    }
+
+    private applyOrder(params): [string, string] {
+        const assignOrder = (params, value) => (params.orderBy = value);
+
+        if (!params.orderBy) {
+            return assignOrder(params, ["balance", "desc"]);
+        }
+
+        const orderByMapped = params.orderBy.split(":").map(p => p.toLowerCase());
+
+        if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
+            return assignOrder(params, ["balance", "desc"]);
+        }
+
+        return assignOrder(params, orderByMapped);
     }
 }
