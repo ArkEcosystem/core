@@ -13,13 +13,11 @@
     ],
     "scripts": {
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn copy && yarn compile",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
-        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix"
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",

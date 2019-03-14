@@ -29,8 +29,7 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-utils": "^2.2.1",
