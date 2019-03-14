@@ -3,7 +3,7 @@
 ## Summary
 
 <!--
-Describe the big picture of your changes here to communicate to the maintainers why we should accept this pull request. If it fixes a bug or resolves a feature request, be sure to reference that issue with a keyword. https://help.github.com/en/articles/closing-issues-using-keywords
+Describe the big picture of your changes here to communicate to the maintainers why we should accept this pull request. If it fixes a bug or resolves a feature request, be sure to reference the issue with a keyword. https://help.github.com/en/articles/closing-issues-using-keywords
 -->
 
 ## What kind of change does this PR introduce?
@@ -34,8 +34,8 @@ Describe the big picture of your changes here to communicate to the maintainers 
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] I have added necessary documentation _(if appropriate)_
 
-## Other information:
+## Other information
 
 <!--
-If this is a relatively large or complex change, kick off the discussion by explaining why you chose the solution you did and what alternatives you considered, etc...
+If this is a relatively large or complex change, kick off the discussion by explaining why you chose the solution you did and what alternatives you considered, etc.
 -->
