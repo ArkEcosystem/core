@@ -1,10 +1,10 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants, models, Transaction } from "@arkecosystem/crypto";
+import { TimelockTransferTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
 import { TransactionService } from "./transaction";
 
 export class TimelockTransferTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.TimelockTransfer;
+    public getConstructor(): TransactionConstructor {
+        return TimelockTransferTransaction;
     }
 
     public canBeApplied(

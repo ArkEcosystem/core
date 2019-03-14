@@ -1,7 +1,14 @@
 // tslint:disable:max-classes-per-file
 
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, crypto, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import {
+    configManager,
+    constants,
+    crypto,
+    ITransactionData,
+    Transaction,
+    TransactionConstructor,
+} from "@arkecosystem/crypto";
 
 import {
     InsufficientBalanceError,
@@ -15,7 +22,7 @@ import { ITransactionService } from "../interfaces";
 const { TransactionTypes } = constants;
 
 export abstract class TransactionService implements ITransactionService {
-    public abstract getType(): number;
+    public abstract getConstructor(): TransactionConstructor;
 
     /**
      * Wallet logic

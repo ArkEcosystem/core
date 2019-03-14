@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants, Transaction } from "@arkecosystem/crypto";
+import { MultiSignatureRegistrationTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
@@ -9,8 +9,8 @@ import {
 import { TransactionService } from "./transaction";
 
 export class MultiSignatureTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.MultiSignature;
+    public getConstructor(): TransactionConstructor {
+        return MultiSignatureRegistrationTransaction;
     }
 
     // TODO: AIP18
