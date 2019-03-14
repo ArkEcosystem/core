@@ -18,8 +18,7 @@
         "build": "yarn clean && yarn copy && yarn compile",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
-        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",

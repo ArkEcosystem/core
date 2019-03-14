@@ -18,8 +18,7 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
