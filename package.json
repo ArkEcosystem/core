@@ -9,7 +9,7 @@
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
-        "lint": "yarn lerna run lint",
+        "lint": "./node_modules/tslint/bin/tslint -c ./tslint.json './packages/**/*/src/**/*.ts' --fix",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\"",
         "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
