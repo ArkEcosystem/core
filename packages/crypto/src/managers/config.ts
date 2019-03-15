@@ -146,8 +146,11 @@ export class ConfigManager {
      * Build fees from config constants.
      */
     private buildFees(): void {
-        for (const type of Object.keys(TransactionTypes)) {
-            feeManager.set(TransactionTypes[type], this.getMilestone().fees.staticFees[camelCase(type)]);
+        for (const key of Object.keys(TransactionTypes)) {
+            const type = TransactionTypes[key];
+            if (typeof type === "number") {
+                feeManager.set(type, this.getMilestone().fees.staticFees[camelCase(key)]);
+            }
         }
     }
 }
