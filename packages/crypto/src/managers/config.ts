@@ -87,6 +87,7 @@ export class ConfigManager {
      */
     public setHeight(value: number): void {
         this.height = value;
+        this.buildFees();
     }
 
     /**
