@@ -183,8 +183,8 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
         const { type } = transaction;
         try {
-            const service = TransactionHandlerRegistry.get(type);
-            return service.canEnterTransactionPool(transaction, this);
+            const handler = TransactionHandlerRegistry.get(type);
+            return handler.canEnterTransactionPool(transaction, this);
         } catch (error) {
             if (error instanceof errors.InvalidTransactionTypeError) {
                 this.pushError(

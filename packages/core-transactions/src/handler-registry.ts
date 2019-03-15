@@ -1,7 +1,7 @@
 import { constants, TransactionRegistry } from "@arkecosystem/crypto";
 import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "./errors";
-import { transactionHandlers } from "./services";
-import { TransactionHandler } from "./services/transaction";
+import { transactionHandlers } from "./handlers";
+import { TransactionHandler } from "./handlers/transaction";
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 

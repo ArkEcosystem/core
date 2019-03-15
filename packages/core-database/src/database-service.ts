@@ -538,8 +538,8 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        const service = TransactionHandlerRegistry.get(transaction.type);
-        service.emitEvents(transaction, this.emitter);
+        const handler = TransactionHandlerRegistry.get(transaction.type);
+        handler.emitEvents(transaction, this.emitter);
     }
 
     private registerListeners() {
