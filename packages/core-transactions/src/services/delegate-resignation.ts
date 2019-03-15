@@ -1,8 +1,8 @@
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { DelegateResignationTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class DelegateResignationTransactionService extends TransactionService {
+export class DelegateResignationTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return DelegateResignationTransaction;
     }

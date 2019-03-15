@@ -7,11 +7,11 @@ import {
     TransactionConstructor,
 } from "@arkecosystem/crypto";
 import { WalletUsernameAlreadyRegisteredError, WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
 const { TransactionTypes } = constants;
 
-export class DelegateRegistrationTransactionService extends TransactionService {
+export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return DelegateRegistrationTransaction;
     }

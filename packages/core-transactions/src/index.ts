@@ -4,4 +4,4 @@ export * from "./services/transaction";
 export * from "./interfaces";
 
 export { errors };
-export { transactionServiceRegistry as TransactionServiceRegistry } from "./service-registry";
+export { transactionHandlerRegistry as TransactionHandlerRegistry } from "./service-registry";

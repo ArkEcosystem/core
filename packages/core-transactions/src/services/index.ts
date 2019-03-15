@@ -1,21 +1,21 @@
-import { DelegateRegistrationTransactionService } from "./delegate-registration";
-import { DelegateResignationTransactionService } from "./delegate-resignation";
-import { IpfsTransactionService } from "./ipfs";
-import { MultiPaymentTransactionService } from "./multi-payment";
-import { MultiSignatureTransactionService } from "./multi-signature";
-import { SecondSignatureTransactionService } from "./second-signature";
-import { TimelockTransferTransactionService } from "./timelock-transfer";
-import { TransferTransactionService } from "./transfer";
-import { VoteTransactionService } from "./vote";
+import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
+import { DelegateResignationTransactionHandler } from "./delegate-resignation";
+import { IpfsTransactionHandler } from "./ipfs";
+import { MultiPaymentTransactionHandler } from "./multi-payment";
+import { MultiSignatureTransactionHandler } from "./multi-signature";
+import { SecondSignatureTransactionHandler } from "./second-signature";
+import { TimelockTransferTransactionHandler } from "./timelock-transfer";
+import { TransferTransactionHandler } from "./transfer";
+import { VoteTransactionHandler } from "./vote";
 
-export const transactionServices = [
-    TransferTransactionService,
-    SecondSignatureTransactionService,
-    VoteTransactionService,
-    DelegateRegistrationTransactionService,
-    MultiSignatureTransactionService,
-    IpfsTransactionService,
-    TimelockTransferTransactionService,
-    MultiPaymentTransactionService,
-    DelegateResignationTransactionService,
+export const transactionHandlers = [
+    TransferTransactionHandler,
+    SecondSignatureTransactionHandler,
+    VoteTransactionHandler,
+    DelegateRegistrationTransactionHandler,
+    MultiSignatureTransactionHandler,
+    IpfsTransactionHandler,
+    TimelockTransferTransactionHandler,
+    MultiPaymentTransactionHandler,
+    DelegateResignationTransactionHandler,
 ];

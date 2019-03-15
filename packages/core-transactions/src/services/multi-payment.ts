@@ -1,8 +1,8 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { MultiPaymentTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class MultiPaymentTransactionService extends TransactionService {
+export class MultiPaymentTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return MultiPaymentTransaction;
     }

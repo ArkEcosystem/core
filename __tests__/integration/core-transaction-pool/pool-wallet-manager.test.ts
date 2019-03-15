@@ -1,5 +1,5 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import { generators } from "../../utils";
@@ -65,8 +65,8 @@ describe("applyPoolTransactionToSender", () => {
             const amount1 = 123 * 10 ** 8;
             const transfer = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1)[0];
 
-            const transactionService = TransactionServiceRegistry.get(transfer.type);
-            transactionService.applyToSender(transfer, delegateWallet);
+            const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
+            transactionHandler.applyToSender(transfer, delegateWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -87,8 +87,8 @@ describe("applyPoolTransactionToSender", () => {
             const fee = 10;
             const transfer = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee)[0];
 
-            const transactionService = TransactionServiceRegistry.get(transfer.type);
-            transactionService.applyToSender(transfer, delegateWallet);
+            const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
+            transactionHandler.applyToSender(transfer, delegateWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -123,7 +123,7 @@ describe("applyPoolTransactionToSender", () => {
 
             transfers.forEach(t => {
                 const transfer = generateTransfers("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
-                const transactionService = TransactionServiceRegistry.get(transfer.type);
+                const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
@@ -134,7 +134,7 @@ describe("applyPoolTransactionToSender", () => {
                 const errors = [];
                 if (poolWalletManager.canApply(transfer, errors)) {
                     const senderWallet = poolWalletManager.findByPublicKey(transfer.data.senderPublicKey);
-                    transactionService.applyToSender(transfer, senderWallet);
+                    transactionHandler.applyToSender(transfer, senderWallet);
 
                     expect(t.from).toBe(delegate);
                 } else {

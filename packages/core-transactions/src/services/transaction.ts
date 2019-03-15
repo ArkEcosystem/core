@@ -17,11 +17,11 @@ import {
     UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { ITransactionService } from "../interfaces";
+import { ITransactionHandler } from "../interfaces";
 
 const { TransactionTypes } = constants;
 
-export abstract class TransactionService implements ITransactionService {
+export abstract class TransactionHandler implements ITransactionHandler {
     public abstract getConstructor(): TransactionConstructor;
 
     /**

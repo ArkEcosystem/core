@@ -18,8 +18,8 @@ import {
     WalletNoUsernameError,
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
-import { TransactionServiceRegistry } from "../../../packages/core-transactions/src/index";
-import { TransactionService } from "../../../packages/core-transactions/src/services/transaction";
+import { TransactionHandlerRegistry } from "../../../packages/core-transactions/src/index";
+import { TransactionHandler } from "../../../packages/core-transactions/src/services/transaction";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
 
@@ -28,7 +28,7 @@ const { ARKTOSHI } = constants;
 let wallet: Wallet;
 let transaction: ITransactionData;
 let transactionWithSecondSignature: ITransactionData;
-let service: TransactionService;
+let service: TransactionHandler;
 let instance: any;
 
 beforeEach(() => {
@@ -67,7 +67,7 @@ beforeEach(() => {
 
 describe("General Tests", () => {
     beforeEach(() => {
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -205,7 +205,7 @@ describe("TransferTransaction", () => {
     beforeEach(() => {
         wallet = walletFixture;
         transaction = transactionFixture;
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -249,7 +249,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
         };
 
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -326,7 +326,7 @@ describe("DelegateRegistrationTransaction", () => {
             },
         };
 
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -406,7 +406,7 @@ describe("VoteTransaction", () => {
             },
         };
 
-        service = TransactionServiceRegistry.get(voteTransaction.type);
+        service = TransactionHandlerRegistry.get(voteTransaction.type);
         instance = Transaction.fromData(voteTransaction);
     });
 
@@ -590,7 +590,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             ],
         };
 
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -675,7 +675,7 @@ describe.skip("IpfsTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -701,7 +701,7 @@ describe.skip("TimelockTransferTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -763,7 +763,7 @@ describe.skip("MultiPaymentTransaction", () => {
 
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
@@ -789,7 +789,7 @@ describe.skip("DelegateResignationTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        service = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 

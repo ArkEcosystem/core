@@ -13,7 +13,7 @@ import {
     TransactionRegistry,
 } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { errors, TransactionService, TransactionServiceRegistry } from "../../../packages/core-transactions/src";
+import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
 
 const { transactionBaseSchema, extend } = schemas;
 const { TransactionTypes } = constants;
@@ -44,7 +44,7 @@ class TestTransaction extends Transaction {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class TestTransactionService extends TransactionService {
+class TestTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return TestTransaction;
     }
@@ -62,31 +62,31 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-    TransactionServiceRegistry.deregisterCustomTransactionService(TEST_TRANSACTION_TYPE);
+    TransactionHandlerRegistry.deregisterCustomTransactionHandler(TEST_TRANSACTION_TYPE);
 });
 
-describe("TransactionServiceRegistry", () => {
+describe("TransactionHandlerRegistry", () => {
     it("should register core transaction types", () => {
         expect(() => {
-            TransactionServiceRegistry.get(TransactionTypes.Transfer);
-            TransactionServiceRegistry.get(TransactionTypes.SecondSignature);
-            TransactionServiceRegistry.get(TransactionTypes.DelegateRegistration);
-            TransactionServiceRegistry.get(TransactionTypes.Vote);
-            TransactionServiceRegistry.get(TransactionTypes.MultiSignature);
+            TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            TransactionHandlerRegistry.get(TransactionTypes.SecondSignature);
+            TransactionHandlerRegistry.get(TransactionTypes.DelegateRegistration);
+            TransactionHandlerRegistry.get(TransactionTypes.Vote);
+            TransactionHandlerRegistry.get(TransactionTypes.MultiSignature);
         }).not.toThrow(errors.InvalidTransactionTypeError);
     });
 
     it("should register a custom type", () => {
         expect(() =>
-            TransactionServiceRegistry.registerCustomTransactionService(TestTransactionService),
+            TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler),
         ).not.toThrowError();
 
-        expect(TransactionServiceRegistry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionService);
+        expect(TransactionHandlerRegistry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
         expect(TransactionRegistry.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
 
     it("should be able to instantiate a custom transaction", () => {
-        TransactionServiceRegistry.registerCustomTransactionService(TestTransactionService);
+        TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler);
 
         const keys = crypto.getKeys("secret");
         const data: ITransactionData = {
@@ -108,11 +108,11 @@ describe("TransactionServiceRegistry", () => {
 
     it("should not be ok when registering the same type again", () => {
         expect(() =>
-            TransactionServiceRegistry.registerCustomTransactionService(TestTransactionService),
-        ).not.toThrowError(errors.TransactionServiceAlreadyRegisteredError);
+            TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler),
+        ).not.toThrowError(errors.TransactionHandlerAlreadyRegisteredError);
 
-        expect(() => TransactionServiceRegistry.registerCustomTransactionService(TestTransactionService)).toThrowError(
-            errors.TransactionServiceAlreadyRegisteredError,
+        expect(() => TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler)).toThrowError(
+            errors.TransactionHandlerAlreadyRegisteredError,
         );
     });
 });

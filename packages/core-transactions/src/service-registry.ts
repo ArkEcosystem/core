@@ -1,64 +1,64 @@
 import { constants, TransactionRegistry } from "@arkecosystem/crypto";
-import { InvalidTransactionTypeError, TransactionServiceAlreadyRegisteredError } from "./errors";
-import { transactionServices } from "./services";
-import { TransactionService } from "./services/transaction";
+import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "./errors";
+import { transactionHandlers } from "./services";
+import { TransactionHandler } from "./services/transaction";
 
-export type TransactionServiceConstructor = new () => TransactionService;
+export type TransactionHandlerConstructor = new () => TransactionHandler;
 
-class TransactionServiceRegistry {
-    private readonly coreTransactionServices = new Map<constants.TransactionTypes, TransactionService>();
-    private readonly customTransactionServices = new Map<number, TransactionService>();
+class TransactionHandlerRegistry {
+    private readonly coreTransactionHandlers = new Map<constants.TransactionTypes, TransactionHandler>();
+    private readonly customTransactionHandlers = new Map<number, TransactionHandler>();
 
     constructor() {
-        transactionServices.forEach((service: TransactionServiceConstructor) => {
-            this.registerCoreTransactionService(service);
+        transactionHandlers.forEach((service: TransactionHandlerConstructor) => {
+            this.registerCoreTransactionHandler(service);
         });
     }
 
-    public get(type: constants.TransactionTypes | number): TransactionService {
-        if (this.coreTransactionServices.has(type)) {
-            return this.coreTransactionServices.get(type);
+    public get(type: constants.TransactionTypes | number): TransactionHandler {
+        if (this.coreTransactionHandlers.has(type)) {
+            return this.coreTransactionHandlers.get(type);
         }
 
-        if (this.customTransactionServices.has(type)) {
-            return this.customTransactionServices.get(type);
+        if (this.customTransactionHandlers.has(type)) {
+            return this.customTransactionHandlers.get(type);
         }
 
         throw new InvalidTransactionTypeError(type);
     }
 
-    public registerCustomTransactionService(constructor: TransactionServiceConstructor): void {
+    public registerCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
         const service = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 
-        if (this.customTransactionServices.has(type)) {
-            throw new TransactionServiceAlreadyRegisteredError(type);
+        if (this.customTransactionHandlers.has(type)) {
+            throw new TransactionHandlerAlreadyRegisteredError(type);
         }
 
         TransactionRegistry.registerCustomType(transactionConstructor);
 
-        this.customTransactionServices.set(type, service);
+        this.customTransactionHandlers.set(type, service);
     }
 
-    public deregisterCustomTransactionService(type: number): void {
-        if (this.customTransactionServices.has(type)) {
+    public deregisterCustomTransactionHandler(type: number): void {
+        if (this.customTransactionHandlers.has(type)) {
             TransactionRegistry.deregisterCustomType(type);
-            this.customTransactionServices.delete(type);
+            this.customTransactionHandlers.delete(type);
         }
     }
 
-    private registerCoreTransactionService(constructor: TransactionServiceConstructor) {
+    private registerCoreTransactionHandler(constructor: TransactionHandlerConstructor) {
         const service = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 
-        if (this.coreTransactionServices.has(type)) {
-            throw new TransactionServiceAlreadyRegisteredError(type);
+        if (this.coreTransactionHandlers.has(type)) {
+            throw new TransactionHandlerAlreadyRegisteredError(type);
         }
 
-        this.coreTransactionServices.set(type, service);
+        this.coreTransactionHandlers.set(type, service);
     }
 }
 
-export const transactionServiceRegistry = new TransactionServiceRegistry();
+export const transactionHandlerRegistry = new TransactionHandlerRegistry();

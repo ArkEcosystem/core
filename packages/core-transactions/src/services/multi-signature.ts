@@ -6,9 +6,9 @@ import {
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
 } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class MultiSignatureTransactionService extends TransactionService {
+export class MultiSignatureTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return MultiSignatureRegistrationTransaction;
     }

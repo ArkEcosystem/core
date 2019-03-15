@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { errors, TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import {
     configManager,
     constants,
@@ -183,7 +183,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
 
         const { type } = transaction;
         try {
-            const service = TransactionServiceRegistry.get(type);
+            const service = TransactionHandlerRegistry.get(type);
             return service.canEnterTransactionPool(transaction, this);
         } catch (error) {
             if (error instanceof errors.InvalidTransactionTypeError) {

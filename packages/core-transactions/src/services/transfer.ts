@@ -7,9 +7,9 @@ import {
     TransferTransaction,
 } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class TransferTransactionService extends TransactionService {
+export class TransferTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return TransferTransaction;
     }

@@ -1,8 +1,8 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { IpfsTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class IpfsTransactionService extends TransactionService {
+export class IpfsTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return IpfsTransaction;
     }

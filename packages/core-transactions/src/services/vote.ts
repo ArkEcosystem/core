@@ -1,9 +1,9 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { ITransactionData, Transaction, TransactionConstructor, VoteTransaction } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError, VotedForNonDelegateError } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class VoteTransactionService extends TransactionService {
+export class VoteTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return VoteTransaction;
     }

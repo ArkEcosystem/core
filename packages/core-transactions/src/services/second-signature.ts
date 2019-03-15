@@ -6,9 +6,9 @@ import {
     TransactionConstructor,
 } from "@arkecosystem/crypto";
 import { SecondSignatureAlreadyRegisteredError } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class SecondSignatureTransactionService extends TransactionService {
+export class SecondSignatureTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return SecondSignatureRegistrationTransaction;
     }

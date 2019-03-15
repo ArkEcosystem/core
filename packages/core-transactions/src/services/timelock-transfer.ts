@@ -1,8 +1,8 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { TimelockTransferTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class TimelockTransferTransactionService extends TransactionService {
+export class TimelockTransferTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
         return TimelockTransferTransaction;
     }

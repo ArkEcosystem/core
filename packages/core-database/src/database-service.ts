@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -491,7 +491,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
-        const transactionService = TransactionServiceRegistry.get(transaction.type);
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -501,7 +501,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {
-            return transactionService.canBeApplied(transaction, sender) && !dbTransaction;
+            return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
         } catch {
             return false;
         }
@@ -538,7 +538,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        const service = TransactionServiceRegistry.get(transaction.type);
+        const service = TransactionHandlerRegistry.get(transaction.type);
         service.emitEvents(transaction, this.emitter);
     }
 
