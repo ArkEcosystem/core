@@ -1,7 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
-import { InvalidTransactionTypeError, TransactionServiceRegistry } from "@arkecosystem/core-transactions";
-import { configManager, constants, errors, ITransactionData, slots, Transaction } from "@arkecosystem/crypto";
+import { errors, TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import {
+    configManager,
+    constants,
+    errors as cryptoErrors,
+    ITransactionData,
+    slots,
+    Transaction,
+} from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -133,7 +140,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                         );
                     }
                 } catch (error) {
-                    if (error instanceof errors.TransactionSchemaError) {
+                    if (error instanceof cryptoErrors.TransactionSchemaError) {
                         this.pushError(transaction, "ERR_TRANSACTION_SCHEMA", error.message);
                     } else {
                         this.pushError(transaction, "ERR_UNKNOWN", error.message);
@@ -179,7 +186,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
             const service = TransactionServiceRegistry.get(type);
             return service.canEnterTransactionPool(transaction, this);
         } catch (error) {
-            if (error instanceof InvalidTransactionTypeError) {
+            if (error instanceof errors.InvalidTransactionTypeError) {
                 this.pushError(
                     transaction,
                     "ERR_UNSUPPORTED",
