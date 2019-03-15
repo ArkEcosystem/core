@@ -59,6 +59,11 @@ class TestTransactionHandler extends TransactionHandler {
 
 beforeAll(() => {
     configManager.setFromPreset("testnet");
+    configManager.milestone.data.fees.staticFees.test = 1234;
+});
+
+afterAll(() => {
+    delete configManager.milestone.data.fees.staticFees.test;
 });
 
 afterEach(() => {

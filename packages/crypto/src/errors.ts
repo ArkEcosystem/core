@@ -108,6 +108,12 @@ export class TransactionTypeInvalidRangeError extends CryptoError {
     }
 }
 
+export class MissingMilestoneFeeError extends CryptoError {
+    constructor(name: string) {
+        super(`Missing milestone fee for '${name}'.`);
+    }
+}
+
 export class MaximumPaymentCountExceededError extends CryptoError {
     constructor(given: number) {
         super(`Expected a maximum of 2258 payments, but got ${given}.`);
