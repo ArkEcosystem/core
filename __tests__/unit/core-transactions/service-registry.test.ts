@@ -67,21 +67,13 @@ afterEach(() => {
 
 describe("TransactionServiceRegistry", () => {
     it("should register core transaction types", () => {
-        expect(() => TransactionServiceRegistry.get(TransactionTypes.Transfer)).not.toThrowError(
-            errors.InvalidTransactionTypeError,
-        );
-        expect(() => TransactionServiceRegistry.get(TransactionTypes.SecondSignature)).not.toThrowError(
-            errors.InvalidTransactionTypeError,
-        );
-        expect(() => TransactionServiceRegistry.get(TransactionTypes.DelegateRegistration)).not.toThrowError(
-            errors.InvalidTransactionTypeError,
-        );
-        expect(() => TransactionServiceRegistry.get(TransactionTypes.Vote)).not.toThrowError(
-            errors.InvalidTransactionTypeError,
-        );
-        expect(() => TransactionServiceRegistry.get(TransactionTypes.MultiSignature)).not.toThrowError(
-            errors.InvalidTransactionTypeError,
-        );
+        expect(() => {
+            TransactionServiceRegistry.get(TransactionTypes.Transfer);
+            TransactionServiceRegistry.get(TransactionTypes.SecondSignature);
+            TransactionServiceRegistry.get(TransactionTypes.DelegateRegistration);
+            TransactionServiceRegistry.get(TransactionTypes.Vote);
+            TransactionServiceRegistry.get(TransactionTypes.MultiSignature);
+        }).not.toThrow(errors.InvalidTransactionTypeError);
     });
 
     it("should register a custom type", () => {
