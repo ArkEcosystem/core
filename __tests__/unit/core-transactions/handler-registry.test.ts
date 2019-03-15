@@ -1,7 +1,8 @@
 import "jest-extended";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import {
+    Bignum,
     configManager,
     constants,
     crypto,
@@ -12,6 +13,7 @@ import {
     TransactionConstructor,
     TransactionRegistry,
 } from "@arkecosystem/crypto";
+import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
 
@@ -26,20 +28,42 @@ class TestTransaction extends Transaction {
     public static getSchema(): schemas.TransactionSchema {
         return extend(transactionBaseSchema, {
             $id: "test",
-            required: ["recipientId", "amount"],
+            required: ["recipientId", "amount", "asset"],
             properties: {
                 type: { transactionType: TEST_TRANSACTION_TYPE },
                 recipientId: { $ref: "address" },
+                asset: {
+                    type: "object",
+                    required: ["test"],
+                    properties: {
+                        test: {
+                            type: "number",
+                        },
+                    },
+                },
             },
         });
     }
 
     public serialize(): ByteBuffer {
-        return new ByteBuffer();
+        const { data } = this;
+        const buffer = new ByteBuffer(24, true);
+        buffer.writeUint64(+data.amount);
+        buffer.writeUint32(data.expiration || 0);
+        buffer.append(bs58check.decode(data.recipientId));
+        buffer.writeInt32(data.asset.test);
+
+        return buffer;
     }
 
     public deserialize(buf: ByteBuffer): void {
-        return;
+        const { data } = this;
+        data.amount = new Bignum(buf.readUint64().toString());
+        data.expiration = buf.readUint32();
+        data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
+        data.asset = {
+            test: buf.readInt32(),
+        };
     }
 }
 
@@ -54,6 +78,10 @@ class TestTransactionHandler extends TransactionHandler {
     }
     public revert(transaction: Transaction, wallet: Database.IWallet): void {
         return;
+    }
+
+    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+        return true;
     }
 }
 
@@ -101,6 +129,9 @@ describe("TransactionHandlerRegistry", () => {
             fee: "10000000",
             amount: "200000000",
             recipientId: "APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq",
+            asset: {
+                test: 256,
+            },
         };
 
         data.signature = crypto.sign(data, keys);
@@ -109,6 +140,11 @@ describe("TransactionHandlerRegistry", () => {
         const transaction = Transaction.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);
         expect(transaction.verified).toBeTrue();
+
+        const bytes = Transaction.toBytes(transaction.data);
+        const deserialized = Transaction.fromBytes(bytes);
+        expect(deserialized.verified);
+        expect(deserialized.data.asset.test).toBe(256);
     });
 
     it("should not be ok when registering the same type again", () => {
