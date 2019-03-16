@@ -4,6 +4,8 @@ import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
+type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
+
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
     /**
      * Create a new delegate repository instance.
@@ -65,7 +67,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * @param  {Object} [params]
      * @param  {Number} [params.limit] - Limit the number of results
      * @param  {Number} [params.offset] - Skip some results
-     * @param  {Array}  [params.orderBy] - Order of the results
+     * @param  {String} [params.orderBy] - Order of the results
      * @param  {String} [params.address] - Search by address
      * @param  {String} [params.publicKey] - Search by publicKey
      * @param  {String} [params.username] - Search by username
@@ -153,8 +155,8 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         });
     }
 
-    private applyOrder(params): string {
-        const assignOrder = (params, value) => (params.orderBy = value.join(":"));
+    private applyOrder(params): [CallbackFunctionVariadicVoidReturn|string, string] {
+        const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {
             return assignOrder(params, ["rate", "asc"]);
