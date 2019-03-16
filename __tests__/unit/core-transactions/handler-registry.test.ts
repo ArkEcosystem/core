@@ -95,7 +95,7 @@ afterAll(() => {
 });
 
 afterEach(() => {
-    TransactionHandlerRegistry.deregisterCustomTransactionHandler(TEST_TRANSACTION_TYPE);
+    TransactionHandlerRegistry.deregisterCustomTransactionHandler(TestTransactionHandler);
 });
 
 describe("TransactionHandlerRegistry", () => {

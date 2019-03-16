@@ -12,9 +12,14 @@ export function calculateFee(satoshiPerByte: number, transaction: Transaction): 
         satoshiPerByte = 1;
     }
 
-    const addonBytes = localConfig.get("dynamicFees.addonBytes")[
-        camelCase(constants.TransactionTypes[transaction.type])
-    ];
+    let key;
+    if (transaction.type in constants.TransactionTypes) {
+        key = camelCase(constants.TransactionTypes[transaction.type]);
+    } else {
+        key = camelCase(transaction.constructor.name.replace("Transaction", ""));
+    }
+
+    const addonBytes = localConfig.get("dynamicFees.addonBytes")[key];
 
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2;

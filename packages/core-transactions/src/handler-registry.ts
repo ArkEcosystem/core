@@ -41,7 +41,11 @@ class TransactionHandlerRegistry {
         this.customTransactionHandlers.set(type, service);
     }
 
-    public deregisterCustomTransactionHandler(type: number): void {
+    public deregisterCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
+        const service = new constructor();
+        const transactionConstructor = service.getConstructor();
+        const { type } = transactionConstructor;
+
         if (this.customTransactionHandlers.has(type)) {
             TransactionRegistry.deregisterCustomType(type);
             this.customTransactionHandlers.delete(type);
