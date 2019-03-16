@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, constants, crypto, formatSatoshi, isException, models, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -391,7 +391,7 @@ export class WalletManager implements Database.IWalletManager {
         const { data } = transaction;
         const { type, recipientId, senderPublicKey } = data;
 
-        const transactionService = TransactionServiceRegistry.get(transaction.type);
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(senderPublicKey);
         const recipient = this.findByAddress(recipientId);
         const errors = [];
@@ -406,7 +406,7 @@ export class WalletManager implements Database.IWalletManager {
             this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
         } else {
             try {
-                transactionService.canBeApplied(transaction, sender, this);
+                transactionHandler.canBeApplied(transaction, sender, this);
             } catch (error) {
                 this.logger.error(
                     `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${error.message}`,
@@ -416,7 +416,7 @@ export class WalletManager implements Database.IWalletManager {
             }
         }
 
-        transactionService.applyToSender(transaction, sender);
+        transactionHandler.applyToSender(transaction, sender);
 
         if (type === TransactionTypes.DelegateRegistration) {
             this.reindex(sender);
@@ -424,7 +424,7 @@ export class WalletManager implements Database.IWalletManager {
 
         // TODO: make more generic
         if (recipient && type === TransactionTypes.Transfer) {
-            transactionService.applyToRecipient(transaction, recipient);
+            transactionHandler.applyToRecipient(transaction, recipient);
         }
 
         this._updateVoteBalances(sender, recipient, data);
@@ -484,11 +484,11 @@ export class WalletManager implements Database.IWalletManager {
      */
     public revertTransaction(transaction: Transaction) {
         const { type, data } = transaction;
-        const transactionService = TransactionServiceRegistry.get(transaction.type);
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
         const recipient = this.byAddress[data.recipientId];
 
-        transactionService.revertForSender(transaction, sender);
+        transactionHandler.revertForSender(transaction, sender);
 
         // removing the wallet from the delegates index
         if (type === TransactionTypes.DelegateRegistration) {
@@ -496,7 +496,7 @@ export class WalletManager implements Database.IWalletManager {
         }
 
         if (recipient && type === TransactionTypes.Transfer) {
-            transactionService.revertForRecipient(transaction, recipient);
+            transactionHandler.revertForRecipient(transaction, recipient);
         }
 
         // Revert vote balance updates

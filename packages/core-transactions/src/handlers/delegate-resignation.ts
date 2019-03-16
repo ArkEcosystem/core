@@ -1,10 +1,10 @@
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { constants, Transaction } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { DelegateResignationTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { TransactionHandler } from "./transaction";
 
-export class DelegateResignationTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.DelegateResignation;
+export class DelegateResignationTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return DelegateResignationTransaction;
     }
 
     public canBeApplied(

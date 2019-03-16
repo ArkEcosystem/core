@@ -24,7 +24,7 @@ export class NotImplementedError extends TransactionError {
     }
 }
 
-export class TransactionServiceAlreadyRegisteredError extends TransactionError {
+export class TransactionHandlerAlreadyRegisteredError extends TransactionError {
     constructor(type: number) {
         super(`Transaction service for type ${type} is already registered.`);
     }

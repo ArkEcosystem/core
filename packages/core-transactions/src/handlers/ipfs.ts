@@ -1,10 +1,10 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants, Transaction } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { IpfsTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { TransactionHandler } from "./transaction";
 
-export class IpfsTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.Ipfs;
+export class IpfsTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return IpfsTransaction;
     }
 
     public canBeApplied(

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, isException, Transaction } from "@arkecosystem/crypto";
 
 export class PoolWalletManager extends WalletManager {
@@ -63,8 +63,8 @@ export class PoolWalletManager extends WalletManager {
             );
         } else {
             try {
-                const transactionService = TransactionServiceRegistry.get(transaction.type);
-                transactionService.canBeApplied(transaction, sender, this.databaseService.walletManager);
+                const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
+                transactionHandler.canBeApplied(transaction, sender, this.databaseService.walletManager);
             } catch (error) {
                 const message = `[PoolWalletManager] Can't apply transaction ${transaction.id} from ${sender.address}`;
                 this.logger.error(`${message} due to ${JSON.stringify(error.message)}`);
@@ -82,7 +82,7 @@ export class PoolWalletManager extends WalletManager {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
 
-        const transactionService = TransactionServiceRegistry.get(transaction.type);
-        transactionService.revertForSender(transaction, sender);
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        transactionHandler.revertForSender(transaction, sender);
     }
 }

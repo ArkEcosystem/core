@@ -102,9 +102,15 @@ export class TransactionAlreadyRegisteredError extends CryptoError {
     }
 }
 
-export class TransactionSchemaAlreadyExistsError extends CryptoError {
+export class TransactionTypeInvalidRangeError extends CryptoError {
+    constructor(given: number) {
+        super(`Custom transaction type must be in the range 100-255 (${given}).`);
+    }
+}
+
+export class MissingMilestoneFeeError extends CryptoError {
     constructor(name: string) {
-        super(`Schema ${name} is already registered.`);
+        super(`Missing milestone fee for '${name}'.`);
     }
 }
 
@@ -130,8 +136,8 @@ export class PreviousBlockIdFormatError extends CryptoError {
     constructor(thisBlockHeight: number, previousBlockId: string) {
         super(
             `The config denotes that the block at height ${thisBlockHeight - 1} ` +
-            `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
-            `contains previous block id "${previousBlockId}"`,
+                `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
+                `contains previous block id "${previousBlockId}"`,
         );
     }
 }

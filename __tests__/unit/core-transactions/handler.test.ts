@@ -18,8 +18,8 @@ import {
     WalletNoUsernameError,
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
-import { TransactionServiceRegistry } from "../../../packages/core-transactions/src/index";
-import { TransactionService } from "../../../packages/core-transactions/src/services/transaction";
+import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
+import { TransactionHandlerRegistry } from "../../../packages/core-transactions/src/index";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
 
@@ -28,7 +28,7 @@ const { ARKTOSHI } = constants;
 let wallet: Wallet;
 let transaction: ITransactionData;
 let transactionWithSecondSignature: ITransactionData;
-let service: TransactionService;
+let handler: TransactionHandler;
 let instance: any;
 
 beforeEach(() => {
@@ -67,48 +67,48 @@ beforeEach(() => {
 
 describe("General Tests", () => {
     beforeEach(() => {
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canBeApplied", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be true if the transaction has a second signature but wallet does not, when ignoreInvalidSecondSignatureField=true", () => {
             configManager.getMilestone().ignoreInvalidSecondSignatureField = true;
             instance = Transaction.fromData(transactionWithSecondSignature);
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false if wallet publicKey does not match tx senderPublicKey", () => {
             instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
         });
 
         it("should be false if the transaction has a second signature but wallet does not", () => {
             delete configManager.getMilestone().ignoreInvalidSecondSignatureField;
             instance = Transaction.fromData(transactionWithSecondSignature);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(UnexpectedSecondSignatureError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(UnexpectedSecondSignatureError);
         });
 
         it("should be false if the wallet has a second public key but the transaction second signature does not match", () => {
             wallet.secondPublicKey = "invalid-public-key";
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InvalidSecondSignatureError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InvalidSecondSignatureError);
         });
 
         it("should be false if wallet has not enough balance", () => {
             // 1 arktoshi short
             wallet.balance = new Bignum(transaction.amount).plus(transaction.fee).minus(1);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
 
         it("should be true even with publicKey case mismatch", () => {
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             wallet.publicKey = wallet.publicKey.toLowerCase();
             instance = Transaction.fromData(transaction);
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
     });
 
@@ -116,7 +116,7 @@ describe("General Tests", () => {
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
             wallet.balance = new Bignum(initialBalance);
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee));
         });
 
@@ -125,7 +125,7 @@ describe("General Tests", () => {
             wallet.balance = new Bignum(initialBalance);
             instance.data.senderPublicKey = "a".repeat(66);
 
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance));
         });
 
@@ -137,7 +137,7 @@ describe("General Tests", () => {
             const instance = Transaction.fromData(transaction);
             wallet.publicKey = wallet.publicKey.toLowerCase();
 
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount).minus(transaction.fee));
         });
     });
@@ -147,7 +147,7 @@ describe("General Tests", () => {
             const initialBalance = 1000 * ARKTOSHI;
             wallet.balance = new Bignum(initialBalance);
 
-            service.revertForSender(instance, wallet);
+            handler.revertForSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance).plus(transaction.amount).plus(transaction.fee));
         });
 
@@ -156,7 +156,7 @@ describe("General Tests", () => {
             wallet.balance = new Bignum(initialBalance);
             transaction.senderPublicKey = "a".repeat(66);
 
-            service.revertForSender(instance, wallet);
+            handler.revertForSender(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance));
         });
     });
@@ -166,7 +166,7 @@ describe("General Tests", () => {
             const initialBalance = 1000 * ARKTOSHI;
             wallet.balance = new Bignum(initialBalance);
 
-            service.applyToRecipient(instance, wallet);
+            handler.applyToRecipient(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance).plus(transaction.amount));
         });
 
@@ -175,7 +175,7 @@ describe("General Tests", () => {
             wallet.balance = new Bignum(initialBalance);
             transaction.recipientId = "invalid-recipientId";
 
-            service.applyToRecipient(instance, wallet);
+            handler.applyToRecipient(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance));
         });
     });
@@ -185,7 +185,7 @@ describe("General Tests", () => {
             const initialBalance = 1000 * ARKTOSHI;
             wallet.balance = new Bignum(initialBalance);
 
-            service.revertForRecipient(instance, wallet);
+            handler.revertForRecipient(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance).minus(transaction.amount));
         });
 
@@ -195,7 +195,7 @@ describe("General Tests", () => {
 
             transaction.recipientId = "invalid-recipientId";
 
-            service.revertForRecipient(instance, wallet);
+            handler.revertForRecipient(instance, wallet);
             expect(wallet.balance).toEqual(new Bignum(initialBalance));
         });
     });
@@ -205,18 +205,18 @@ describe("TransferTransaction", () => {
     beforeEach(() => {
         wallet = walletFixture;
         transaction = transactionFixture;
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false", () => {
             instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
         });
     });
 });
@@ -249,55 +249,55 @@ describe("SecondSignatureRegistrationTransaction", () => {
             id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
         };
 
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false if wallet already has a second signature", () => {
             wallet.secondPublicKey = "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8";
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(SecondSignatureAlreadyRegisteredError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(SecondSignatureAlreadyRegisteredError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.balance = Bignum.ZERO;
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 
     describe("apply", () => {
         it("should apply second signature registration", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
 
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
         });
 
         it("should be invalid to apply a second signature registration twice", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
 
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(SecondSignatureAlreadyRegisteredError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(SecondSignatureAlreadyRegisteredError);
         });
     });
 
     describe("revert", () => {
         it("should be ok", () => {
             expect(wallet.secondPublicKey).toBeNull();
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
 
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
 
-            service.revertForSender(instance, wallet);
+            handler.revertForSender(instance, wallet);
             expect(wallet.secondPublicKey).toBeNull();
         });
     });
@@ -326,39 +326,39 @@ describe("DelegateRegistrationTransaction", () => {
             },
         };
 
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false if wallet already registered a username", () => {
             wallet.username = "dummy";
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(WalletUsernameNotEmptyError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(WalletUsernameNotEmptyError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.username = "";
             wallet.balance = Bignum.ZERO;
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 
     describe("apply", () => {
         it("should set username", () => {
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
             expect(wallet.username).toBe("dummy");
         });
     });
 
     describe("revert", () => {
         it("should unset username", () => {
-            service.revertForSender(instance, wallet);
+            handler.revertForSender(instance, wallet);
             expect(wallet.username).toBeNull();
         });
     });
@@ -406,40 +406,40 @@ describe("VoteTransaction", () => {
             },
         };
 
-        service = TransactionServiceRegistry.get(voteTransaction.type);
+        handler = TransactionHandlerRegistry.get(voteTransaction.type);
         instance = Transaction.fromData(voteTransaction);
     });
 
     describe("canApply", () => {
         it("should be true if the vote is valid and the wallet has not voted", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be true if the unvote is valid and the wallet has voted", () => {
             wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
             instance = Transaction.fromData(unvoteTransaction);
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false if wallet has already voted", () => {
             wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(AlreadyVotedError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(AlreadyVotedError);
         });
 
         it("should be false if the asset public key differs from the currently voted one", () => {
             wallet.vote = "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
             instance = Transaction.fromData(unvoteTransaction);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(UnvoteMismatchError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(UnvoteMismatchError);
         });
 
         it("should be false if unvoting a non-voted wallet", () => {
             instance = Transaction.fromData(unvoteTransaction);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(NoVoteError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(NoVoteError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.balance = Bignum.ZERO;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 
@@ -448,7 +448,7 @@ describe("VoteTransaction", () => {
             it("should be ok", () => {
                 expect(wallet.vote).toBeNull();
 
-                service.applyToSender(instance, wallet);
+                handler.applyToSender(instance, wallet);
                 expect(wallet.vote).not.toBeNull();
             });
 
@@ -457,7 +457,7 @@ describe("VoteTransaction", () => {
 
                 expect(wallet.vote).not.toBeNull();
 
-                service.applyToSender(instance, wallet);
+                handler.applyToSender(instance, wallet);
 
                 expect(wallet.vote).not.toBeNull();
             });
@@ -470,7 +470,7 @@ describe("VoteTransaction", () => {
                 expect(wallet.vote).not.toBeNull();
 
                 instance = Transaction.fromData(unvoteTransaction);
-                service.applyToSender(instance, wallet);
+                handler.applyToSender(instance, wallet);
 
                 expect(wallet.vote).toBeNull();
             });
@@ -484,7 +484,7 @@ describe("VoteTransaction", () => {
 
                 expect(wallet.vote).not.toBeNull();
 
-                service.revertForSender(instance, wallet);
+                handler.revertForSender(instance, wallet);
 
                 expect(wallet.vote).toBeNull();
             });
@@ -495,7 +495,7 @@ describe("VoteTransaction", () => {
                 expect(wallet.vote).toBeNull();
 
                 instance = Transaction.fromData(unvoteTransaction);
-                service.revertForSender(instance, wallet);
+                handler.revertForSender(instance, wallet);
 
                 expect(wallet.vote).toBe("02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af");
             });
@@ -590,35 +590,35 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             ],
         };
 
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
             delete wallet.multisignature;
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false if the wallet already has multisignatures", () => {
             wallet.verifySignatures = jest.fn(() => true);
             wallet.multisignature = multisignatureTest;
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(MultiSignatureAlreadyRegisteredError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(MultiSignatureAlreadyRegisteredError);
         });
 
         it("should be false if failure to verify signatures", () => {
             wallet.verifySignatures = jest.fn(() => false);
             delete wallet.multisignature;
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InvalidMultiSignatureError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InvalidMultiSignatureError);
         });
 
         it("should be false if failure to verify signatures in asset", () => {
             wallet.verifySignatures = jest.fn(() => false);
             delete wallet.multisignature;
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InvalidMultiSignatureError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InvalidMultiSignatureError);
         });
 
         it("should be false if the number of keys is less than minimum", () => {
@@ -628,7 +628,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             crypto.verifySecondSignature = jest.fn(() => true);
 
             instance.data.asset.multisignature.keysgroup.splice(0, 5);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(MultiSignatureMinimumKeysError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(MultiSignatureMinimumKeysError);
         });
 
         it("should be false if the number of keys does not equal the signature count", () => {
@@ -638,14 +638,14 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             crypto.verifySecondSignature = jest.fn(() => true);
 
             instance.data.signatures.splice(0, 5);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(MultiSignatureKeyCountMismatchError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(MultiSignatureKeyCountMismatchError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             delete wallet.multisignature;
             wallet.balance = Bignum.ZERO;
 
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 
@@ -655,7 +655,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
 
             expect(wallet.multisignature).toBeNull();
 
-            service.applyToSender(instance, wallet);
+            handler.applyToSender(instance, wallet);
 
             expect(wallet.multisignature).toEqual(transaction.asset.multisignature);
         });
@@ -663,7 +663,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", () => {
-            service.revertForSender(instance, wallet);
+            handler.revertForSender(instance, wallet);
 
             expect(wallet.multisignature).toBeNull();
         });
@@ -675,23 +675,23 @@ describe.skip("IpfsTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false", () => {
             instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.balance = Bignum.ZERO;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 });
@@ -701,23 +701,23 @@ describe.skip("TimelockTransferTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false", () => {
             instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(SenderWalletMismatchError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.balance = Bignum.ZERO;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 });
@@ -763,23 +763,23 @@ describe.skip("MultiPaymentTransaction", () => {
 
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be true", () => {
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.balance = Bignum.ZERO;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
 
         it("should be false if wallet has insufficient funds send all payouts", () => {
             wallet.balance = Bignum.ZERO;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 });
@@ -789,24 +789,24 @@ describe.skip("DelegateResignationTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = new Bignum(transaction.amount).plus(transaction.fee);
-        service = TransactionServiceRegistry.get(transaction.type);
+        handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transaction.fromData(transaction);
     });
 
     describe("canApply", () => {
         it("should be truth", () => {
             wallet.username = "dummy";
-            expect(service.canBeApplied(instance, wallet)).toBeTrue();
+            expect(handler.canBeApplied(instance, wallet)).toBeTrue();
         });
 
         it.skip("should be false if wallet has no registered username", () => {
             wallet.username = null;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(WalletNoUsernameError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(WalletNoUsernameError);
         });
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.balance = Bignum.ZERO;
-            expect(() => service.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
+            expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
 });

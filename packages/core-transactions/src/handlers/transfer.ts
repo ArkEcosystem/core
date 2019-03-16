@@ -1,11 +1,17 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import {
+    configManager,
+    ITransactionData,
+    Transaction,
+    TransactionConstructor,
+    TransferTransaction,
+} from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class TransferTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.Transfer;
+export class TransferTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return TransferTransaction;
     }
 
     public canBeApplied(
