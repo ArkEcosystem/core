@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, ITransactionData, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
 import "jest-extended";
@@ -151,8 +151,8 @@ describe("Transaction Guard", () => {
             expect(guard.errors).toEqual({});
 
             // simulate forged transaction
-            const transactionService = TransactionServiceRegistry.get(transfers[0].type);
-            transactionService.applyToRecipient(transfers[0], newWallet);
+            const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
+            transactionHandler.applyToRecipient(transfers[0], newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -192,8 +192,8 @@ describe("Transaction Guard", () => {
             await guard.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionService = TransactionServiceRegistry.get(transfers[0].type);
-            transactionService.applyToRecipient(transfers[0], newWallet);
+            const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
+            transactionHandler.applyToRecipient(transfers[0], newWallet);
 
             expect(guard.errors).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -230,8 +230,8 @@ describe("Transaction Guard", () => {
             await guard.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionService = TransactionServiceRegistry.get(transfers1[0].type);
-            transactionService.applyToRecipient(transfers1[0], newWallet);
+            const transactionHandler = TransactionHandlerRegistry.get(transfers1[0].type);
+            transactionHandler.applyToRecipient(transfers1[0], newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -242,7 +242,7 @@ describe("Transaction Guard", () => {
             await guard.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            transactionService.applyToRecipient(transfers2[0], delegateWallet);
+            transactionHandler.applyToRecipient(transfers2[0], delegateWallet);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 

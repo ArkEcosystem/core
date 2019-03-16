@@ -1,10 +1,10 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants, Transaction } from "@arkecosystem/crypto";
-import { TransactionService } from "./transaction";
+import { MultiPaymentTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { TransactionHandler } from "./transaction";
 
-export class MultiPaymentTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.MultiPayment;
+export class MultiPaymentTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return MultiPaymentTransaction;
     }
 
     public canBeApplied(

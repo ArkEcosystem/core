@@ -1,13 +1,19 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import {
+    constants,
+    DelegateRegistrationTransaction,
+    ITransactionData,
+    Transaction,
+    TransactionConstructor,
+} from "@arkecosystem/crypto";
 import { WalletUsernameAlreadyRegisteredError, WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
 const { TransactionTypes } = constants;
 
-export class DelegateRegistrationTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.DelegateRegistration;
+export class DelegateRegistrationTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return DelegateRegistrationTransaction;
     }
 
     public canBeApplied(

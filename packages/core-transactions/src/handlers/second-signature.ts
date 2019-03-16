@@ -1,11 +1,16 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import { constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import {
+    ITransactionData,
+    SecondSignatureRegistrationTransaction,
+    Transaction,
+    TransactionConstructor,
+} from "@arkecosystem/crypto";
 import { SecondSignatureAlreadyRegisteredError } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class SecondSignatureTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.SecondSignature;
+export class SecondSignatureTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return SecondSignatureRegistrationTransaction;
     }
 
     public canBeApplied(
