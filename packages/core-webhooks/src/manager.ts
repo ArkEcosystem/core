@@ -12,9 +12,9 @@ export class WebhookManager {
     public async setUp() {
         for (const event of this.blockchain.getEvents()) {
             this.emitter.on(event, async payload => {
-                const webhooks = await database.findByEvent(event);
+                const { rows } = await database.findByEvent(event);
 
-                for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
+                for (const webhook of this.getMatchingWebhooks(rows, payload)) {
                     try {
                         const response = await httpie.post(webhook.target, {
                             body: {
