@@ -371,7 +371,6 @@ describe("Delegate Repository", () => {
                 publicKey: "test",
                 voteBalance: new Bignum(10000 * constants.SATOSHI),
                 producedBlocks: 1000,
-                missedBlocks: 500,
             };
             const height = 1;
 

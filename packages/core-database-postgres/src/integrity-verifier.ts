@@ -179,7 +179,6 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        // NOTE: This is unreliable but the number of missed blocks is NOT used for the consensus, only for the public API.
         const delegateWallets = this.walletManager
             .allByUsername()
             .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));

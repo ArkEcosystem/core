@@ -42,7 +42,6 @@ export const types = `
     balance: Float
     voteBalance: Float
     producedBlocks: Float
-    missedBlocks: Float
     transactions(limit: Limit, offset: Offset, orderBy: OrderByInput): [Transaction]
     blocks(limit: Limit, offset: Offset, orderBy: OrderByInput): [Block]
   }

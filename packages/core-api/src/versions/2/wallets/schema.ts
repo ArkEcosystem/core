@@ -27,9 +27,6 @@ export const index: object = {
             producedBlocks: Joi.number()
                 .integer()
                 .min(0),
-            missedBlocks: Joi.number()
-                .integer()
-                .min(0),
         },
     },
 };
@@ -199,9 +196,6 @@ export const search: object = {
             .length(66),
         username: Joi.string(),
         producedBlocks: Joi.number()
-            .integer()
-            .min(0),
-        missedBlocks: Joi.number()
             .integer()
             .min(0),
         balance: Joi.object().keys({

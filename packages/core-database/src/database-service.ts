@@ -415,12 +415,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                 if (producedBlocks.length === 0) {
-                    wallet.missedBlocks++;
-                    this.logger.debug(
-                        `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
-                            wallet.missedBlocks
-                        }`,
-                    );
+                    this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
                     wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,

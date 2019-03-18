@@ -54,7 +54,6 @@ async function calculateRanks() {
 
     sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
         const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
-        wallet.missedBlocks = +delegate.missedBlocks;
         (wallet as any).rate = i + 1;
 
         databaseService.walletManager.reindex(wallet);

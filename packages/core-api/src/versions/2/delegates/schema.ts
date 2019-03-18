@@ -62,9 +62,6 @@ export const index: object = {
             producedBlocks: Joi.number()
                 .integer()
                 .min(0),
-            missedBlocks: Joi.number()
-                .integer()
-                .min(0),
         },
     },
 };
@@ -107,9 +104,7 @@ export const search: object = {
         forgedFees: schemaIntegerBetween,
         forgedRewards: schemaIntegerBetween,
         forgedTotal: schemaIntegerBetween,
-        missedBlocks: schemaIntegerBetween,
         producedBlocks: schemaIntegerBetween,
-        productivity: schemaPercentage,
         voteBalance: schemaIntegerBetween,
     },
 };
@@ -185,9 +180,6 @@ export const voters: object = {
                 .integer()
                 .min(0),
             producedBlocks: Joi.number()
-                .integer()
-                .min(0),
-            missedBlocks: Joi.number()
                 .integer()
                 .min(0),
         },
