@@ -186,7 +186,7 @@ class Worker extends SCWorker {
         }
         this.peersMsgTimestamps[peerIp] = this.peersMsgTimestamps[peerIp].slice(tsLength - this.rateLimit);
 
-        return this.peersMsgTimestamps[peerIp][this.rateLimit] - this.peersMsgTimestamps[peerIp][0] > 1000;
+        return this.peersMsgTimestamps[peerIp][this.rateLimit - 1] - this.peersMsgTimestamps[peerIp][0] > 1000;
     }
 
     private banPeer(peerIp) {
