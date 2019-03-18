@@ -155,7 +155,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         });
     }
 
-    private applyOrder(params): [CallbackFunctionVariadicVoidReturn|string, string] {
+    private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
         const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {
