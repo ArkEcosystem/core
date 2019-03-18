@@ -145,19 +145,6 @@ export const postTransactions = async req => {
         success: true,
         transactionIds: result.accept,
     };
-    /*options: {
-        cors: {
-            additionalHeaders: ["nethash", "port", "version"],
-        },
-        validate: {
-            payload: {
-                transactions: Joi.transactionArray()
-                    .min(1)
-                    .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
-                    .options({ stripUnknown: true }),
-            },
-        },
-    },*/
 };
 
 export const getBlocks = async req => {
