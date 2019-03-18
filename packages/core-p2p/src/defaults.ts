@@ -56,16 +56,13 @@ export const defaults = {
      */
     ntp: ["pool.ntp.org", "time.google.com"],
     /**
-     * @see https://github.com/wraithgar/hapi-rate-limit
+     * Rate limit config, used in socket-server worker / master
      */
     rateLimit: {
         enabled: true,
-        pathLimit: false,
-        userLimit: 20,
-        userCache: {
-            expiresIn: 1000,
-        },
+        socketLimit: 20, // max number of messages per second per socket connection
         ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
+        banDurationMs: 10 * 60 * 1000, // 10min ban for peer exceeding rate limit
     },
     /**
      * Whether or not we enable the remote API (Caution!)

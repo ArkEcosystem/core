@@ -3,17 +3,37 @@ import { SocketErrors } from "./constants";
 import { validateHeaders } from "./utils/validate-headers";
 
 class Worker extends SCWorker {
+    private bannedPeers = {};
+    private peersMsgTimestamps = {};
+    private rateLimit = null; // will be then initialized from config
+    private banDurationMs = null; // will be then initialized from config
+    private ipWhitelist = []; // will be then initialized from config
+
     public run() {
         this.logInfo(`Socket worker started, PID: ${process.pid}`);
 
         const scServer = (this as any).scServer;
         const self = this;
 
+        this.initRateLimit();
+
         scServer.on("connection", socket => {
             self.registerEndpoints(socket);
         });
 
-        scServer.addMiddleware(scServer.MIDDLEWARE_EMIT, (req, next) => this.middleware(req, next));
+        scServer.addMiddleware(scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) => this.middlewareHandshake(req, next));
+        scServer.addMiddleware(scServer.MIDDLEWARE_EMIT, (req, next) => this.middlewareEmit(req, next));
+    }
+
+    public async initRateLimit() {
+        const config: any = await this.sendToMasterAsync({
+            endpoint: "p2p.init.getConfig",
+        });
+        if (config.rateLimit && config.rateLimit.enabled) {
+            this.rateLimit = config.rateLimit.socketLimit;
+            this.banDurationMs = config.rateLimit.banDurationMs;
+            this.ipWhitelist = config.rateLimit.ipWhitelist;
+        }
     }
 
     public async registerEndpoints(socket) {
@@ -36,12 +56,27 @@ class Worker extends SCWorker {
         }
     }
 
-    public async middleware(req, next) {
+    public async middlewareHandshake(req, next) {
+        if (this.isBanned(req.ip)) {
+            return next(new Error("Banned because exceeded rate limit"));
+        }
+        next();
+    }
+
+    public async middlewareEmit(req, next) {
         const createError = (name, message) => {
             const err = new Error(message);
             err.name = name;
             return err;
         };
+
+        if (!this.isRateLimitOk(req.socket.remoteAddress)) {
+            this.banPeer(req.socket.remoteAddress);
+            next(createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
+            this.logError(`Rate limit exceeded from ${req.socket.remoteAddress} : banning and disconnecting socket.`);
+            req.socket.disconnect(4429, "Rate limit exceeded");
+            return;
+        }
 
         // only allow requests with data and headers specified
         // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
@@ -136,6 +171,38 @@ class Worker extends SCWorker {
         } catch (e) {
             return res(e);
         }
+    }
+
+    private isRateLimitOk(peerIp) {
+        if (!this.rateLimit || !this.banDurationMs || this.ipWhitelist.includes(peerIp)) {
+            return true;
+        }
+
+        this.peersMsgTimestamps[peerIp] = this.peersMsgTimestamps[peerIp] || [];
+        this.peersMsgTimestamps[peerIp].push(new Date().getTime());
+        const tsLength = this.peersMsgTimestamps[peerIp].length;
+        if (tsLength < this.rateLimit) {
+            return true;
+        }
+        this.peersMsgTimestamps[peerIp] = this.peersMsgTimestamps[peerIp].slice(tsLength - this.rateLimit);
+
+        return this.peersMsgTimestamps[peerIp][this.rateLimit] - this.peersMsgTimestamps[peerIp][0] > 1000;
+    }
+
+    private banPeer(peerIp) {
+        this.bannedPeers[peerIp] = new Date().getTime();
+    }
+
+    private isBanned(peerIp) {
+        if (!this.rateLimit || !this.banDurationMs) {
+            return false;
+        }
+
+        if (this.bannedPeers[peerIp] && new Date().getTime() - this.bannedPeers[peerIp] > this.banDurationMs) {
+            delete this.bannedPeers[peerIp];
+        }
+
+        return !!this.bannedPeers[peerIp];
     }
 
     private async logInfo(message) {

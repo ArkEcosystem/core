@@ -29,6 +29,11 @@ const startSocketServer = async config => {
     });
 
     server.on("workerMessage", async (workerId, req, res) => {
+        // special endpoint for worker init, when need to get plugin config
+        if (req.endpoint === "p2p.init.getConfig") {
+            return res(null, config);
+        }
+
         const handlers = {
             peer: peerHandlers,
             internal: internalHandlers,
