@@ -75,6 +75,20 @@ export class NSect {
             assert.notStrictEqual(indexOfHighestMatching, -1);
             assert(indexOfHighestMatching < indexesToProbe.length - 1);
 
+            if (indexesToProbe[indexOfHighestMatching] + 1 === indexesToProbe[indexOfHighestMatching + 1]) {
+                // In a narrow range, it may happen that:
+                // highestMatching = 1100
+                // indexesToProbe[0] = 1099, is a match
+                // indexesToProbe[1] = 1100, is a match
+                // indexesToProbe[2] = 1101, is not a match
+                // indexesToProbe[3] = 1103, is not a match
+                // indexOfHighestMatching = 1
+                // Then we know highestMatching is the definitive result because the probe
+                // declared that the data at index 1100 matches and the data at index 1101
+                // does not match.
+                break;
+            }
+
             low = highestMatching + 1;
             high = indexesToProbe[indexOfHighestMatching + 1] - 1;
         }
