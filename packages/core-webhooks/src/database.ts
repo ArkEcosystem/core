@@ -34,10 +34,12 @@ class Database {
     }
 
     public findByEvent(event) {
-        return this.database
-            .get("webhooks")
-            .find({ event })
-            .value();
+        return (
+            this.database
+                .get("webhooks")
+                .find({ event })
+                .value() || []
+        );
     }
 
     public create(data) {

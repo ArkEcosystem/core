@@ -4,7 +4,7 @@ import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
 
-class WebhookManager {
+export class WebhookManager {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private readonly blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -68,5 +68,3 @@ class WebhookManager {
         return matches;
     }
 }
-
-export const webhookManager = new WebhookManager();
