@@ -121,11 +121,9 @@ class Helpers {
         expect(delegate.votes).toBeNumber();
         expect(delegate.rank).toBeNumber();
         expect(delegate.blocks).toBeObject();
-        expect(delegate.blocks.missed).toBeNumber();
         expect(delegate.blocks.produced).toBeNumber();
         expect(delegate.production).toBeObject();
         expect(delegate.production.approval).toBeNumber();
-        expect(delegate.production.productivity).toBeNumber();
         expect(delegate.forged.fees).toBeNumber();
         expect(delegate.forged.rewards).toBeNumber();
         expect(delegate.forged.total).toBeNumber();

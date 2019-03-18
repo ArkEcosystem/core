@@ -24,7 +24,6 @@ export class Wallet implements Database.IWallet {
     public multisignature?: IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
-    public missedBlocks: number;
     public forgedFees: Bignum;
     public forgedRewards: Bignum;
     public rate?: number;
@@ -42,7 +41,6 @@ export class Wallet implements Database.IWallet {
         this.multisignature = null;
         this.dirty = true;
         this.producedBlocks = 0;
-        this.missedBlocks = 0;
         this.forgedFees = Bignum.ZERO;
         this.forgedRewards = Bignum.ZERO;
     }

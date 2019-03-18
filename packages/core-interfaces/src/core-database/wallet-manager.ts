@@ -14,7 +14,6 @@ export interface IWallet {
     multisignature?: IMultiSignatureAsset;
     dirty: boolean;
     producedBlocks: number;
-    missedBlocks: number;
     forgedFees: Bignum;
     forgedRewards: Bignum;
     rate?: number;
