@@ -12,13 +12,9 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:stable": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
-        "build": "yarn clean && tsc",
+        "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist"
     },
