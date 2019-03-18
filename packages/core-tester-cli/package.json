@@ -18,10 +18,6 @@
     },
     "scripts": {
         "tester": "./bin/run",
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
