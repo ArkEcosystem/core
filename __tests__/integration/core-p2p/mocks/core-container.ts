@@ -55,6 +55,7 @@ jest.mock("@arkecosystem/core-container", () => {
 
                             return delegates;
                         },
+                        getForgedTransactionsIds: jest.fn().mockReturnValue([]),
                     };
                 }
 
@@ -80,12 +81,38 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
+                if (name === "transactionPool") {
+                    return {
+                        transactionExists: jest.fn().mockReturnValue(false),
+                        isSenderBlocked: jest.fn().mockReturnValue(false),
+                        hasExceededMaxTransactions: jest.fn().mockReturnValue(false),
+                        addTransactions: jest.fn().mockReturnValue({ added: ["111"], notAdded: [] }),
+                        walletManager: {
+                            canApply: jest.fn().mockReturnValue(true),
+                        },
+                        options: {
+                            maxTransactionBytes: 10e6,
+                        },
+                    };
+                }
+
+                return {};
+            },
+            resolveOptions: name => {
+                if (name === "transactionPool") {
+                    return {
+                        maxTransactionsPerRequest: 30,
+                    };
+                }
+
                 return {};
             },
             resolve: name => {
                 if (name === "state") {
                     return {
                         getLastBlock: () => genesisBlock,
+                        cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
+                        removeCachedTransactionIds: jest.fn().mockReturnValue(null),
                     };
                 }
 
