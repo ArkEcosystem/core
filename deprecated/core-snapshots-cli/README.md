@@ -1,7 +1,7 @@
 # Ark Core - Snapshots CLI
 
 <p align="center">
-    <img src="../../banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ArkEcosystem/core/master/banner.png?sanitize=true" />
 </p>
 
 ## Deprecated

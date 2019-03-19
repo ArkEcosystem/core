@@ -1,7 +1,7 @@
 # Ark Core - JSON-RPC
 
 <p align="center">
-    <img src="../../banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ArkEcosystem/core/master/banner.png?sanitize=true" />
 </p>
 
 ## Documentation
@@ -14,9 +14,7 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
--   [Brian Faust](https://github.com/faustbrian)
--   [François-Xavier Thoorens](https://github.com/fix)
--   [All Contributors](../../../../contributors)
+This project exists thanks to all the people who [contribute](../../../../contributors).
 
 ## License
 
