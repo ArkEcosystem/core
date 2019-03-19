@@ -20,7 +20,7 @@
         "tester": "./bin/run",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
-        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
@@ -43,7 +43,6 @@
         "pokemon": "^1.2.3"
     },
     "devDependencies": {
-        "@oclif/dev-cli": "^1.21.3",
         "@types/bip39": "^2.4.2",
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.6",

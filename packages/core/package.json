@@ -21,7 +21,7 @@
     },
     "scripts": {
         "prepublishOnly": "yarn build",
-        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile && yarn copy",
@@ -89,7 +89,6 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
-        "@oclif/dev-cli": "^1.21.3",
         "@types/bip38": "^2.0.1",
         "@types/bip39": "^2.4.2",
         "@types/cli-progress": "^1.8.0",
