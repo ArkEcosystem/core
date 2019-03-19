@@ -6,6 +6,7 @@ import { ensureDirSync, existsSync } from "fs-extra";
 import latestVersion from "latest-version";
 import { join } from "path";
 import semver from "semver";
+
 import { configManager } from "./config";
 
 async function getLatestVersion(name: string, channel: string): Promise<string> {

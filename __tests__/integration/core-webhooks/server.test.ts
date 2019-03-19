@@ -35,6 +35,7 @@ function createWebhook(data = null) {
 describe("API 2.0 - Webhooks", () => {
     it("should GET all the webhooks", async () => {
         const response = await utils.request("GET", "webhooks");
+
         utils.expectSuccessful(response);
         utils.expectCollection(response);
     });
