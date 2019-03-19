@@ -21,10 +21,10 @@ const rateLimit = {
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test";
-    server = await startSocketServer({ port: 4009, rateLimit });
+    server = await startSocketServer({ port: 4007, rateLimit });
     await delay(3000);
     socket = socketCluster.create({
-        port: 4009,
+        port: 4007,
         hostname: "127.0.0.1",
     });
 
