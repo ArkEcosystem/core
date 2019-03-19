@@ -4,31 +4,9 @@
     <img src="./banner.png?sanitize=true" />
 </p>
 
-## Installation
+## Documentation
 
-```bash
-yarn add @arkecosystem/crypto
-```
-
-If you want to use the CDN version:
-
-```html
-<script src="https://unpkg.com/@arkecosystem/crypto/dist/index.umd.js"></script>
-```
-
-## Usage
-
-Import the library in node.js:
-
-```
-import ArkEcosystemCrypto from @arkecosystem/crypto
-```
-
-Use the library:
-
-```
-const constants = ArkEcosystemCrypto.constants
-```
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/sdk/cryptography/usage.html).
 
 ## Security
 
@@ -36,13 +14,7 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
--   [Alex Barnsley](https://github.com/alexbarnsley)
--   [Brian Faust](https://github.com/faustbrian)
--   [François-Xavier Thoorens](https://github.com/fix)
--   [Joshua Noack](https://github.com/supaiku0)
--   [Juan A. Martín](https://github.com/j-a-m-l)
--   [Lúcio Rubens](https://github.com/luciorubeens)
--   [All Contributors](../../../../contributors)
+This project exists thanks to all the people who [contribute](../../../../contributors).
 
 ## License
 
