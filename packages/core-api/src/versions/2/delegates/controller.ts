@@ -57,15 +57,4 @@ export class DelegatesController extends Controller {
             return Boom.badImplementation(error);
         }
     }
-
-    public async voterBalances(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        try {
-            // @ts-ignore
-            const data = await request.server.methods.v2.delegates.voterBalances(request);
-
-            return super.respondWithCache(data, h);
-        } catch (error) {
-            return Boom.badImplementation(error);
-        }
-    }
 }
