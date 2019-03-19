@@ -11,20 +11,16 @@ export class PinoLogger extends AbstractLogger {
     public logger: pino.Logger;
     public silent: boolean = false;
 
-    constructor(readonly options) {
-        super(options);
-    }
-
     public make() {
         this.logger = pino(
             {
                 base: null,
                 safe: true,
-                level: this.options.level,
+                level: this.options.levels.console,
             },
             multistream([
-                { level: this.options.level, stream: this.getConsoleStream() },
-                { level: "trace", stream: this.getFileStream() },
+                { level: this.options.levels.console, stream: this.getConsoleStream() },
+                { level: this.options.levels.file, stream: this.getFileStream() },
             ]),
         );
 
