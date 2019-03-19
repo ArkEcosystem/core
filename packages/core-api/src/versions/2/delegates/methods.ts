@@ -58,27 +58,10 @@ const voters = async request => {
 
     const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, {
         ...request.query,
-        ...paginate(request)
+        ...paginate(request),
     });
 
     return toPagination(request, wallets, "wallet");
-};
-
-const voterBalances = async request => {
-    const delegate = await databaseService.delegates.findById(request.params.id);
-
-    if (!delegate) {
-        return Boom.notFound("Delegate not found");
-    }
-
-    const wallets = await databaseService.wallets.all().filter(wallet => wallet.vote === delegate.publicKey);
-
-    const data = {};
-    orderBy(wallets, ["balance"], ["desc"]).forEach(wallet => {
-        data[wallet.address] = +wallet.balance.toFixed();
-    });
-
-    return { data };
 };
 
 export function registerMethods(server) {
@@ -100,6 +83,5 @@ export function registerMethods(server) {
         .method("v2.delegates.voters", voters, 8, request => ({
             ...{ id: request.params.id },
             ...paginate(request),
-        }))
-        .method("v2.delegates.voterBalances", voterBalances, 8, request => ({ id: request.params.id }));
+        }));
 }

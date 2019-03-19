@@ -43,15 +43,6 @@ export function registerRoutes(server: Hapi.Server): void {
     });
 
     server.route({
-        method: "GET",
-        path: "/delegates/{id}/voters/balances",
-        handler: controller.voterBalances,
-        options: {
-            validate: Schema.voterBalances,
-        },
-    });
-
-    server.route({
         method: "POST",
         path: "/delegates/search",
         handler: controller.search,
