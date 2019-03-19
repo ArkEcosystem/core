@@ -12,24 +12,11 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.2.1"
@@ -39,8 +26,5 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

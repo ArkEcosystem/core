@@ -1,7 +1,7 @@
-import { Bignum, models } from "@arkecosystem/crypto";
+import { Bignum, models, Transaction } from "@arkecosystem/crypto";
 import msgpack from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
-const { Block, Transaction } = models;
+const { Block } = models;
 
 export const blockEncode = blockRecord => {
     const data = camelizeKeys(blockRecord);
@@ -10,7 +10,6 @@ export const blockEncode = blockRecord => {
 
 export const blockDecode = bufferData => {
     const blockData = Block.deserialize(bufferData.toString("hex"), true);
-    blockData.id = Block.getIdFromSerialized(bufferData);
 
     blockData.totalAmount = (blockData.totalAmount as Bignum).toFixed();
     blockData.totalFee = (blockData.totalFee as Bignum).toFixed();
@@ -24,8 +23,7 @@ export const transactionEncode = transaction =>
 
 export const transactionDecode = bufferData => {
     const [id, blockId, sequence, serialized] = msgpack.decode(bufferData);
-    let transaction: any = {};
-    transaction = Transaction.deserialize(serialized.toString("hex"));
+    let transaction: any = Transaction.fromBytes(serialized).data;
 
     transaction.id = id;
     transaction.block_id = blockId;

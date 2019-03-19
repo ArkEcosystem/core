@@ -1,15 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto as arkCrypto, models } from "@arkecosystem/crypto";
+import { Bignum, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
-import crypto from "crypto";
 import cloneDeep from "lodash/cloneDeep";
-import pluralize from "pluralize";
+
 import { WalletManager } from "./wallet-manager";
 
-const { Block, Transaction } = models;
-const { TransactionTypes } = constants;
+const { Block } = models;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IDatabaseConnection;
@@ -20,12 +19,13 @@ export class DatabaseService implements Database.IDatabaseService {
     public options: any;
     public wallets: Database.IWalletsBusinessRepository;
     public delegates: Database.IDelegatesBusinessRepository;
+    public blocksBusinessRepository: Database.IBlocksBusinessRepository;
+    public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: any[] = null;
     public cache: Map<any, any> = new Map();
-    private spvFinished: boolean;
 
     constructor(
         options: any,
@@ -33,12 +33,16 @@ export class DatabaseService implements Database.IDatabaseService {
         walletManager: Database.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
         delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
+        transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
+        blocksBusinessRepository: Database.IBlocksBusinessRepository,
     ) {
         this.connection = connection;
         this.walletManager = walletManager;
         this.options = options;
         this.wallets = walletsBusinessRepository;
         this.delegates = delegatesBusinessRepository;
+        this.blocksBusinessRepository = blocksBusinessRepository;
+        this.transactionsBusinessRepository = transactionsBusinessRepository;
 
         this.registerListeners();
     }
@@ -72,11 +76,10 @@ export class DatabaseService implements Database.IDatabaseService {
                 this.forgingDelegates.length === 0 ||
                 (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
             ) {
-                this.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
+                this.logger.info(`Starting Round ${round.toLocaleString()}`);
 
                 try {
                     this.updateDelegateStats(this.forgingDelegates);
-                    await this.saveWallets(false); // save only modified wallets during the last round
                     const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight); // get active delegate list from in-memory wallet manager
                     await this.saveRound(delegates); // save next round delegate list non-blocking
                     this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
@@ -91,22 +94,22 @@ export class DatabaseService implements Database.IDatabaseService {
             } else {
                 this.logger.warn(
                     // tslint:disable-next-line:max-line-length
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
+                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }
         }
     }
 
-    public async buildWallets(height: number): Promise<boolean> {
+    public async buildWallets(): Promise<boolean> {
         this.walletManager.reset();
 
         try {
-            const success = await this.connection.buildWallets(height);
-            this.spvFinished = true;
-            return success;
+            const result = await this.connection.buildWallets();
+            return result;
         } catch (e) {
             this.logger.error(e.stack);
         }
+
         return false;
     }
 
@@ -130,10 +133,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.connection.enqueueDeleteRound(height);
     }
 
-    public enqueueSaveBlock(block: models.Block) {
-        this.connection.enqueueSaveBlock(block);
-    }
-
     public async getActiveDelegates(height: number, delegates?: any[]) {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
@@ -148,10 +147,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         const seedSource = round.toString();
-        let currentSeed = crypto
-            .createHash("sha256")
-            .update(seedSource, "utf8")
-            .digest();
+        let currentSeed = HashAlgorithms.sha256(seedSource);
 
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -160,10 +156,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 delegates[newIndex] = delegates[i];
                 delegates[i] = b;
             }
-            currentSeed = crypto
-                .createHash("sha256")
-                .update(currentSeed)
-                .digest();
+            currentSeed = HashAlgorithms.sha256(currentSeed);
         }
 
         this.forgingDelegates = delegates.map(delegate => {
@@ -184,7 +177,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized));
 
         return new Block(block);
     }
@@ -306,7 +299,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
 
         return new Block(block);
     }
@@ -361,7 +354,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const data = Transaction.deserialize(tx.serialized.toString("hex"));
+            const { data } = Transaction.fromBytes(tx.serialized);
             data.blockId = tx.blockId;
             return data;
         });
@@ -386,7 +379,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
+            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
             const delegates = await this.calcPreviousActiveDelegates(round);
             this.forgingDelegates = await this.getActiveDelegates(height, delegates);
@@ -407,25 +400,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("round.created", activeDelegates);
     }
 
-    public async saveWallets(force: boolean) {
-        const wallets = this.walletManager
-            .allByPublicKey()
-            .filter(wallet => wallet.publicKey && (force || wallet.dirty));
-
-        // Remove dirty flags first to not save all dirty wallets in the exit handler
-        // when called during a force insert right after SPV.
-        this.walletManager.clear();
-
-        await this.connection.saveWallets(wallets, force);
-
-        this.logger.info(`${wallets.length} modified ${pluralize("wallet", wallets.length)} committed to database`);
-
-        this.emitter.emit("wallet.saved", wallets.length);
-
-        // NOTE: commented out as more use cases to be taken care of
-        // this.walletManager.purgeEmptyNonDelegates()
-    }
-
     public updateDelegateStats(delegates: any[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
             return;
@@ -441,12 +415,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                 if (producedBlocks.length === 0) {
-                    wallet.missedBlocks++;
-                    this.logger.debug(
-                        `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
-                            wallet.missedBlocks
-                        }`,
-                    );
+                    this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
                     wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,
@@ -513,10 +482,11 @@ export class DatabaseService implements Database.IDatabaseService {
         };
     }
 
-    public async verifyTransaction(transaction: models.Transaction) {
-        const senderId = arkCrypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
+    public async verifyTransaction(transaction: Transaction): Promise<boolean> {
+        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -525,7 +495,11 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
-        return sender.canApply(transaction.data, []) && !dbTransaction;
+        try {
+            return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
+        } catch {
+            return false;
+        }
     }
 
     private async calcPreviousActiveDelegates(round: number) {
@@ -556,25 +530,11 @@ export class DatabaseService implements Database.IDatabaseService {
         return tempWalletManager.loadActiveDelegateList(maxDelegates, height);
     }
 
-    private emitTransactionEvents(transaction) {
+    private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
-            this.emitter.emit("delegate.registered", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.DelegateResignation) {
-            this.emitter.emit("delegate.resigned", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.asset.votes[0];
-
-            this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
-                delegate: vote,
-                transaction: transaction.data,
-            });
-        }
+        const handler = TransactionHandlerRegistry.get(transaction.type);
+        handler.emitEvents(transaction, this.emitter);
     }
 
     private registerListeners() {
@@ -597,13 +557,6 @@ export class DatabaseService implements Database.IDatabaseService {
                 }
             } catch (err) {
                 this.logger.error(err);
-            }
-        });
-
-        this.emitter.once("shutdown", async () => {
-            if (!this.spvFinished) {
-                // Prevent dirty wallets to be saved when SPV didn't finish
-                this.walletManager.clear();
             }
         });
     }

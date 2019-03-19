@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models, slots } from "@arkecosystem/crypto";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { configManager, ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
 import isEmpty from "lodash/isEmpty";
 import uniq from "lodash/uniq";
@@ -9,7 +9,7 @@ import pluralize from "pluralize";
 
 import { Client } from "./client";
 
-const { Delegate, Transaction } = models;
+const { Delegate } = models;
 
 export class ForgerManager {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -128,9 +128,16 @@ export class ForgerManager {
             }
 
             const networkState = await this.client.getNetworkState();
+            if (networkState.nodeHeight !== round.lastBlock.height) {
+                this.logger.warn(
+                    `The NetworkState height (${networkState.nodeHeight}) and round height (${
+                        round.lastBlock.height
+                    }) are out of sync. This indicates delayed blocks on the network.`,
+                );
+            }
 
             if (this.__parseNetworkState(networkState, delegate)) {
-                await this.__forgeNewBlock(delegate, round);
+                await this.__forgeNewBlock(delegate, round, networkState);
             }
 
             await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
@@ -147,7 +154,7 @@ export class ForgerManager {
             }
 
             // README: The Blockchain is ready but an action still failed.
-            this.logger.error(`Forging failed: ${error.message} :bangbang:`);
+            this.logger.error(`Forging failed: ${error.message}`);
 
             if (!isEmpty(round)) {
                 this.logger.info(
@@ -165,22 +172,24 @@ export class ForgerManager {
 
     /**
      * Creates new block by the delegate and sends it to relay node for verification and broadcast
-     * @param {Object} delegate
-     * @param {Object} round
      */
-    public async __forgeNewBlock(delegate, round) {
-        // TODO: Disabled for now as this could cause a delay in forging that
-        // results in missing a block which we want to avoid.
-        //
-        // We should either use a very radical timeout like 500ms or look
-        // into another solution for broadcasting this specific event.
-        //
-        // this.client.emitEvent('forger.started', delegate.publicKey)
-
+    public async __forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
         const transactions = await this.__getTransactionsForForging();
 
+        const previousBlock = {
+            id: networkState.lastBlockId,
+            idHex: null,
+            height: networkState.nodeHeight,
+        };
+
+        if (configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
+            previousBlock.idHex = previousBlock.id;
+        } else {
+            previousBlock.idHex = models.Block.toBytesHex(previousBlock.id);
+        }
+
         const blockOptions = {
-            previousBlock: round.lastBlock,
+            previousBlock,
             timestamp: round.timestamp,
             reward: round.reward,
         };
@@ -188,22 +197,22 @@ export class ForgerManager {
         const block = await delegate.forge(transactions, blockOptions);
 
         const username = this.usernames[delegate.publicKey];
-        this.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`);
+        this.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey})`);
 
         await this.client.broadcast(block.toJson());
 
         this.client.emitEvent("block.forged", block.data);
-        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction.data));
+        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction));
     }
 
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async __getTransactionsForForging() {
+    public async __getTransactionsForForging(): Promise<ITransactionData[]> {
         const response = await this.client.getTransactions();
 
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => new Transaction(serializedTx))
+            ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
             : [];
 
         if (isEmpty(response)) {
@@ -212,7 +221,7 @@ export class ForgerManager {
             this.logger.debug(
                 `Received ${pluralize("transaction", transactions.length, true)} from the pool containing ${
                     response.poolSize
-                } :money_with_wings:`,
+                }`,
             );
         }
 

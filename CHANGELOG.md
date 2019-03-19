@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.0] - YYYY-MM-DD
+
+### Breaking Changes
+
+-   Removed the `wallets` table from the database ([#2209])
+    -   **Core 2.0 has been fully reliant on in-memory wallets since the 2.0 release. This only removes the dumping of wallets into the database as it is wasted space and doesn't serve any purpose.**
+    -   **If you have applications that rely on the database you should migrate them as soon as possible to using the API as only that data is provided in real-time.**
+-   Replace SQLite3 with lowdb in `core-webhooks` ([#2124])
+    -   **This significantly reduces the size of the package and it's dependencies.**
+-   Replaced `core-logger-winston` with `core-logger-pino` ([#2134])
+    -   **This significantly improves performance of logging when it occurs a lot in situation like syncing.**
+-   Rewrote `core-tester-cli` from scratch ([#2133])
+-   Merged `core-debugger-cli` into `core-tester-cli` and deprecated it ([#2133])
+
+### Added
+
+-   Implement AIP29 ([#2122])
+-   Search delegates by their username in `core-api` ([#2143])
+-   Implemented the `ark reinstall` command in `core` ([#2192])
+-   Added the `--force` flag to the `ark update` command in `core` ([#2190])
+-   Added more parameters for delegate searches in `core-api` ([#2184])
+-   Add the `/v2/delegates/active` endpoint to `core-api` ([#2205])
+-   Added restart flags to the `ark update` command in `core` ([#2218])
+-   Added the `make:block` command to `core-tester-cli` to create blocks ([#2221])
+
+### Fixed
+
+-   Properly sort peers by their version ([#2229])
+
+### Changed
+
+-   Increased the vendor field length to 255 bytes ([#2159])
+-   Replaced `micromatch` with `nanomatch` to improve performance ([#2165])
+-   Replaced `axios` with `got` to resolve known timeout issues with `axios` ([#2203])
+-   Switch block id to full SHA256 ([#2156])
+
+### Removed
+
+-   Removed dead fast rebuild code that hasn't been used since 2.0 release ([#2210])
+
 ## [2.2.0] - 2019-03-11
 
 ### Added
@@ -330,14 +370,33 @@ Closed security vulnerabilities:
 [#2108]: https://github.com/ArkEcosystem/core/pull/2108
 [#2119]: https://github.com/ArkEcosystem/core/pull/2119
 [#2121]: https://github.com/ArkEcosystem/core/pull/2121
+[#2122]: https://github.com/ArkEcosystem/core/pull/2122
 [#2123]: https://github.com/ArkEcosystem/core/pull/2123
+[#2124]: https://github.com/ArkEcosystem/core/pull/2124
 [#2125]: https://github.com/ArkEcosystem/core/pull/2125
+[#2133]: https://github.com/ArkEcosystem/core/pull/2133
+[#2133]: https://github.com/ArkEcosystem/core/pull/2133
+[#2134]: https://github.com/ArkEcosystem/core/pull/2134
 [#2135]: https://github.com/ArkEcosystem/core/pull/2135
 [#2137]: https://github.com/ArkEcosystem/core/pull/2137
 [#2139]: https://github.com/ArkEcosystem/core/pull/2139
 [#2142]: https://github.com/ArkEcosystem/core/pull/2142
+[#2143]: https://github.com/ArkEcosystem/core/pull/2143
 [#2144]: https://github.com/ArkEcosystem/core/pull/2144
 [#2149]: https://github.com/ArkEcosystem/core/pull/2149
 [#2152]: https://github.com/ArkEcosystem/core/pull/2152
+[#2156]: https://github.com/ArkEcosystem/core/pull/2156
+[#2159]: https://github.com/ArkEcosystem/core/pull/2159
+[#2165]: https://github.com/ArkEcosystem/core/pull/2165
+[#2184]: https://github.com/ArkEcosystem/core/pull/2184
+[#2190]: https://github.com/ArkEcosystem/core/pull/2190
+[#2192]: https://github.com/ArkEcosystem/core/pull/2192
+[#2203]: https://github.com/ArkEcosystem/core/pull/2203
+[#2205]: https://github.com/ArkEcosystem/core/pull/2205
 [#2207]: https://github.com/ArkEcosystem/core/pull/2207
+[#2209]: https://github.com/ArkEcosystem/core/pull/2209
+[#2210]: https://github.com/ArkEcosystem/core/pull/2210
 [#2217]: https://github.com/ArkEcosystem/core/pull/2217
+[#2218]: https://github.com/ArkEcosystem/core/pull/2218
+[#2221]: https://github.com/ArkEcosystem/core/pull/2221
+[#2229]: https://github.com/ArkEcosystem/core/pull/2229

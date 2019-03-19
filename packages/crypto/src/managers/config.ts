@@ -2,10 +2,10 @@ import deepmerge from "deepmerge";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import set from "lodash/set";
-import { feeManager } from "./fee";
 
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";
+import { feeManager } from "./fee";
 
 interface IMilestone {
     index: number;
@@ -87,6 +87,7 @@ export class ConfigManager {
      */
     public setHeight(value: number): void {
         this.height = value;
+        this.buildFees();
     }
 
     /**
@@ -146,8 +147,11 @@ export class ConfigManager {
      * Build fees from config constants.
      */
     private buildFees(): void {
-        for (const type of Object.keys(TransactionTypes)) {
-            feeManager.set(TransactionTypes[type], this.getMilestone().fees.staticFees[camelCase(type)]);
+        for (const key of Object.keys(TransactionTypes)) {
+            const type = TransactionTypes[key];
+            if (typeof type === "number") {
+                feeManager.set(type, this.getMilestone().fees.staticFees[camelCase(key)]);
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
-import { configManager } from "@arkecosystem/crypto";
+import { Bignum, configManager } from "@arkecosystem/crypto";
 import sumBy from "lodash/sumBy";
 
 export function handler(request, h) {
@@ -9,11 +9,11 @@ export function handler(request, h) {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const formatDelegates = (delegates, lastHeight) =>
-        delegates.map((delegate, index) => {
+    const formatDelegates = (delegates: Database.IWallet[], lastHeight: number) =>
+        delegates.map((delegate: Database.IWallet, index: number) => {
             const filteredVoters = databaseService.walletManager
                 .allByPublicKey()
-                .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance.toNumber() > 0.1 * 1e8);
+                .filter(wallet => wallet.vote === delegate.publicKey && (wallet.balance as Bignum).gt(0.1 * 1e8));
 
             const approval = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
                 undefined,
@@ -59,9 +59,11 @@ export function handler(request, h) {
     const active = allByUsername.slice(0, constants.activeDelegates);
     const standby = allByUsername.slice(constants.activeDelegates + 1, delegateRows);
 
-    const voters = databaseService.walletManager.allByPublicKey().filter(wallet => wallet.vote && wallet.balance.toNumber() > 0.1 * 1e8);
+    const voters = databaseService.walletManager
+        .allByPublicKey()
+        .filter(wallet => wallet.vote && (wallet.balance as Bignum).gt(0.1 * 1e8));
 
-    const totalVotes = sumBy(voters, (wallet: any) => +wallet.balance.toFixed());
+    const totalVotes = sumBy(voters, wallet => +wallet.balance.toFixed());
     const percentage = (totalVotes * 100) / supply;
 
     const client = configManager.get("client");

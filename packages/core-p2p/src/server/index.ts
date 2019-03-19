@@ -73,6 +73,10 @@ const startServer = async config => {
         },
     });
 
+    await server.register({
+        plugin: plugins.hapiAjv,
+    });
+
     // await server.register({
     //   plugin: require('./plugins/transaction-pool-ready'),
     //   options: {

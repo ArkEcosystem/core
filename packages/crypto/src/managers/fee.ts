@@ -1,20 +1,20 @@
 import { TransactionTypes } from "../constants";
-import { ITransactionData } from "../models";
+import { ITransactionData } from "../transactions";
 
 export class FeeManager {
-    public fees: { [key in TransactionTypes]?: number } = {};
+    public fees: { [key: number]: number } = {};
 
     /**
      * Set fee value based on type.
      */
-    public set(type: TransactionTypes, value: number) {
+    public set(type: TransactionTypes | number, value: number) {
         this.fees[type] = value;
     }
 
     /**
      * Get fee value based on type.
      */
-    public get(type: TransactionTypes): number {
+    public get(type: TransactionTypes | number): number {
         return this.fees[type];
     }
 

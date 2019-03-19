@@ -8,7 +8,7 @@ export const plugin: Container.PluginDescriptor = {
     alias: "api",
     async register(container: Container.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Public API is disabled :grey_exclamation:");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Public API is disabled");
 
             return false;
         }

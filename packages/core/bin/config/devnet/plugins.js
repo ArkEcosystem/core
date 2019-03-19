@@ -1,19 +1,6 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
-    "@arkecosystem/core-logger-winston": {
-        transports: {
-            console: {
-                options: {
-                    level: process.env.CORE_LOG_LEVEL || "debug",
-                },
-            },
-            dailyRotate: {
-                options: {
-                    level: process.env.CORE_LOG_LEVEL || "debug",
-                },
-            },
-        },
-    },
+    "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -50,9 +37,7 @@ module.exports = {
         minimumNetworkReach: 5,
         coldStart: 5,
     },
-    "@arkecosystem/core-blockchain": {
-        fastRebuild: false,
-    },
+    "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",
@@ -62,7 +47,6 @@ module.exports = {
     "@arkecosystem/core-webhooks": {
         enabled: process.env.CORE_WEBHOOKS_ENABLED,
         server: {
-            enabled: process.env.CORE_WEBHOOKS_API_ENABLED,
             host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
             port: process.env.CORE_WEBHOOKS_PORT || 4004,
             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],

@@ -13,24 +13,12 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
@@ -41,10 +29,9 @@
         "@arkecosystem/crypto": "^2.2.1",
         "@arkecosystem/utils": "^0.2.4",
         "@faustbrian/hapi-version": "^0.2.11",
-        "ajv": "^6.9.1",
+        "ajv": "^6.10.0",
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
-        "dayjs-ext": "^2.2.0",
         "delay": "^4.1.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
         "hapi-rate-limit": "^3.1.1",
@@ -52,25 +39,23 @@
         "joi": "^14.3.1",
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
-        "lodash.snakecase": "^4.1.1"
+        "lodash.snakecase": "^4.1.1",
+        "semver": "^5.6.0"
     },
     "devDependencies": {
         "@arkecosystem/core-test-utils": "^2.2.1",
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
-        "@types/joi": "^14.3.1",
-        "@types/lodash.orderby": "^4.6.4",
-        "@types/lodash.partition": "^4.6.4",
-        "@types/lodash.snakecase": "^4.1.4",
-        "axios": "^0.18.0"
+        "@types/joi": "^14.3.2",
+        "@types/lodash.orderby": "^4.6.6",
+        "@types/lodash.partition": "^4.6.6",
+        "@types/lodash.snakecase": "^4.1.6",
+        "@types/semver": "^5.5.0"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

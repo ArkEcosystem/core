@@ -28,6 +28,7 @@ export function buildFilterQuery(parameters, filters) {
             }
 
             if (parameters[elem].hasOwnProperty("from") || parameters[elem].hasOwnProperty("to")) {
+                // 'where' is declared to be an array, yet 'elem' is a string. Why are we using a string as a numerical index?
                 where[elem] = {};
 
                 if (parameters[elem].hasOwnProperty("from")) {

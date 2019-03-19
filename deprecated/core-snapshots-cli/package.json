@@ -17,20 +17,13 @@
     },
     "scripts": {
         "snapshot": "./bin/run",
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
         "debug": "node --inspect-brk ./dist/index.js",
         "dump": "yarn snapshot dump",
         "dump:mainnet": "yarn snapshot dump --network mainnet",
@@ -51,13 +44,12 @@
         "truncate": "yarn snapshot truncate",
         "truncate:mainnet": "yarn snapshot truncate --network mainnet",
         "truncate:devnet": "yarn snapshot truncate --network devnet",
-        "truncate:testnet": "yarn snapshot truncate --network testnet",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "truncate:testnet": "yarn snapshot truncate --network testnet"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.0-beta.7",
-        "@arkecosystem/core-interfaces": "^2.2.0-beta.7",
-        "@arkecosystem/core-snapshots": "^2.2.0-beta.7",
+        "@arkecosystem/core-container": "^2.2.0",
+        "@arkecosystem/core-interfaces": "^2.2.0",
+        "@arkecosystem/core-snapshots": "^2.2.0",
         "@oclif/command": "^1.5.10",
         "@oclif/config": "^1.12.6",
         "@oclif/plugin-help": "^2.1.6",
@@ -74,9 +66,6 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     },
     "oclif": {
         "commands": "./dist/commands",

@@ -1,4 +1,4 @@
-import { models } from "@arkecosystem/crypto";
+import { Transaction } from "@arkecosystem/crypto";
 import { client } from "../client";
 import { storage } from "../storage";
 import { first, last } from "../utils";
@@ -22,10 +22,10 @@ export class Transactions extends Index {
 
             if (rows.length) {
                 rows = rows.map(row => {
-                    const transaction: any = new models.Transaction(row.serialized.toString("hex"));
-                    transaction.blockId = row.blockId;
+                    const { data } = Transaction.fromBytes(row.serialized);
+                    data.blockId = row.blockId;
 
-                    return transaction;
+                    return data;
                 });
 
                 const timestamps = rows.map(row => row.data.timestamp);

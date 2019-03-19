@@ -3,13 +3,15 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import fs from "fs-extra";
 
 export const getPath = (table, folder, codec) => {
-    const filename = `${table}.${codec}`;
-    return this.getFilePath(filename, folder);
+    return this.getFilePath(`${table}.${codec}`, folder);
 };
 
 export const writeMetaFile = snapshotInfo => {
-    const path = `${process.env.CORE_PATH_DATA}/snapshots/${snapshotInfo.folder}/meta.json`;
-    fs.writeFileSync(path, JSON.stringify(snapshotInfo), "utf8");
+    fs.writeFileSync(
+        `${process.env.CORE_PATH_DATA}/snapshots/${snapshotInfo.folder}/meta.json`,
+        JSON.stringify(snapshotInfo),
+        "utf8",
+    );
 };
 
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
@@ -33,7 +35,7 @@ export const copySnapshot = (sourceFolder, destFolder, codec) => {
     fs.ensureFileSync(paths.dest.transactions);
 
     if (!fs.existsSync(paths.source.blocks) || !fs.existsSync(paths.source.transactions)) {
-        app.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist :bomb:`);
+        app.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist`);
     }
 
     fs.copyFileSync(paths.source.blocks, paths.dest.blocks);
@@ -73,7 +75,7 @@ export const getSnapshotInfo = folder => {
 export const readMetaJSON = folder => {
     const metaFileInfo = this.getFilePath("meta.json", folder);
     if (!fs.existsSync(metaFileInfo)) {
-        app.forceExit("Meta file meta.json not found. Exiting :bomb:");
+        app.forceExit("Meta file meta.json not found. Exiting");
     }
 
     return fs.readJSONSync(metaFileInfo);

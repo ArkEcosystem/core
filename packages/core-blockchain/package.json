@@ -14,24 +14,12 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
@@ -39,13 +27,13 @@
         "@arkecosystem/core-utils": "^2.2.1",
         "@arkecosystem/crypto": "^2.2.1",
         "async": "^2.6.2",
-        "awilix": "^4.2.0",
+        "awilix": "^4.2.1",
         "delay": "^4.1.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
-        "xstate": "^4.3.1"
+        "xstate": "^4.3.3"
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.2.1",
@@ -53,17 +41,12 @@
         "@types/async": "^2.4.0",
         "@types/lodash.get": "^4.4.4",
         "@types/pluralize": "^0.0.29",
-        "@types/pretty-ms": "^4.0.0",
-        "axios": "^0.18.0",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/pretty-ms": "^4.0.0"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

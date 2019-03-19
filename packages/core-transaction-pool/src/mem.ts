@@ -1,4 +1,4 @@
-import { slots } from "@arkecosystem/crypto";
+import { Bignum, slots, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 
@@ -96,7 +96,7 @@ export class Mem {
      *                                                not need to schedule the transaction
      *                                                that is being added for saving to disk
      */
-    public add(memPoolTransaction, maxTransactionAge, thisIsDBLoad = false) {
+    public add(memPoolTransaction: MemPoolTransaction, maxTransactionAge: number, thisIsDBLoad?: boolean) {
         const transaction = memPoolTransaction.transaction;
 
         assert.strictEqual(this.byId[transaction.id], undefined);
@@ -118,7 +118,7 @@ export class Mem {
 
         this.byId[transaction.id] = memPoolTransaction;
 
-        const sender = transaction.senderPublicKey;
+        const sender = transaction.data.senderPublicKey;
         const type = transaction.type;
 
         if (this.bySender[sender] === undefined) {
@@ -156,17 +156,15 @@ export class Mem {
 
     /**
      * Remove a transaction.
-     * @param {String} id              id of the transaction to remove
-     * @param {String} senderPublicKey public key of the sender, could be undefined
      */
-    public remove(id, senderPublicKey) {
+    public remove(id: string, senderPublicKey?: string) {
         if (this.byId[id] === undefined) {
             // Not found, not in pool
             return;
         }
 
         if (senderPublicKey === undefined) {
-            senderPublicKey = this.byId[id].transaction.senderPublicKey;
+            senderPublicKey = this.byId[id].transaction.data.senderPublicKey;
         }
 
         const memPoolTransaction = this.byId[id];
@@ -207,18 +205,15 @@ export class Mem {
 
     /**
      * Get the number of transactions.
-     * @return Number
      */
-    public getSize() {
+    public getSize(): number {
         return this.all.length;
     }
 
     /**
      * Get all transactions from a given sender.
-     * @param {String} senderPublicKey public key of the sender
-     * @return {Set of MemPoolTransaction} all transactions for the given sender, could be empty Set
      */
-    public getBySender(senderPublicKey) {
+    public getBySender(senderPublicKey: string): Set<MemPoolTransaction> {
         const memPoolTransactions = this.bySender[senderPublicKey];
         if (memPoolTransactions !== undefined) {
             return memPoolTransactions;
@@ -241,10 +236,8 @@ export class Mem {
 
     /**
      * Get a transaction, given its id.
-     * @param {String} id transaction id
-     * @return {Transaction|undefined}
      */
-    public getTransactionById(id) {
+    public getTransactionById(id: string): Transaction | undefined {
         if (this.byId[id] === undefined) {
             return undefined;
         }
@@ -255,15 +248,16 @@ export class Mem {
      * Get an array of all transactions ordered by fee.
      * Transactions are ordered by fee (highest fee first) or by
      * insertion time, if fees equal (earliest transaction first).
-     * @return {Array of MemPoolTransaction} transactions
      */
-    public getTransactionsOrderedByFee() {
+    public getTransactionsOrderedByFee(): MemPoolTransaction[] {
         if (!this.allIsSorted) {
             this.all.sort((a, b) => {
-                if (a.transaction.fee.isGreaterThan(b.transaction.fee)) {
+                const feeA = a.transaction.data.fee as Bignum;
+                const feeB = b.transaction.data.fee as Bignum;
+                if (feeA.isGreaterThan(feeB)) {
                     return -1;
                 }
-                if (a.transaction.fee.isLessThan(b.transaction.fee)) {
+                if (feeA.isLessThan(feeB)) {
                     return 1;
                 }
                 return a.sequence - b.sequence;
@@ -276,19 +270,15 @@ export class Mem {
 
     /**
      * Check if a transaction with a given id exists.
-     * @param {String} id transaction id
-     * @return {Boolean} true if exists
      */
-    public transactionExists(id) {
+    public transactionExists(id: string): boolean {
         return this.byId[id] !== undefined;
     }
 
     /**
      * Get the expired transactions.
-     * @param {Number} maxTransactionAge maximum age of a transaction in seconds
-     * @return {Array of Transaction} expired transactions
      */
-    public getExpired(maxTransactionAge) {
+    public getExpired(maxTransactionAge: number): Transaction[] {
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge));
             this.byExpirationIsSorted = true;
@@ -317,6 +307,7 @@ export class Mem {
         this.allIsSorted = true;
         this.byId = {};
         this.bySender = {};
+        this.byType = {};
         this.byExpiration = [];
         this.byExpirationIsSorted = true;
         this.dirty.added.clear();
@@ -326,9 +317,8 @@ export class Mem {
     /**
      * Get the number of dirty transactions (added or removed, but those additions or
      * removals have not been applied to the persistent storage).
-     * @return {Number} number of dirty transactions
      */
-    public getNumberOfDirty() {
+    public getNumberOfDirty(): number {
         return this.dirty.added.size + this.dirty.removed.size;
     }
 
@@ -336,10 +326,9 @@ export class Mem {
      * Get the dirty transactions that were added and forget they are dirty.
      * In other words, get the transactions that were added since the last
      * call to this method (or to the flush() method).
-     * @return {Array of MemPoolTransaction}
      */
-    public getDirtyAddedAndForget() {
-        const added = [];
+    public getDirtyAddedAndForget(): MemPoolTransaction[] {
+        const added: MemPoolTransaction[] = [];
         this.dirty.added.forEach(id => added.push(this.byId[id]));
         this.dirty.added.clear();
         return added;
@@ -349,9 +338,8 @@ export class Mem {
      * Get the ids of dirty transactions that were removed and forget them completely.
      * In other words, get the transactions that were removed since the last
      * call to this method (or to the flush() method).
-     * @return {Array of String} transaction ids
      */
-    public getDirtyRemovedAndForget() {
+    public getDirtyRemovedAndForget(): string[] {
         const removed = Array.from(this.dirty.removed);
         this.dirty.removed.clear();
         return removed;

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import axios from "axios";
-import dayjs from "dayjs-ext";
+import { httpie } from "@arkecosystem/core-utils";
+import { dato, Dato } from "@faustbrian/dato";
 import Joi from "joi";
 import util from "util";
 import { config as localConfig } from "./config";
@@ -32,7 +32,7 @@ export class Peer implements P2P.IPeer {
 
     public state: any;
     public url: string;
-    public lastPinged: dayjs.Dayjs | null;
+    public lastPinged: Dato | null;
     public verification: PeerVerificationResult | null;
 
     private config: any;
@@ -161,7 +161,7 @@ export class Peer implements P2P.IPeer {
 
             this.__parseHeaders(response);
 
-            const { blocks } = response.data;
+            const { blocks } = response.body;
             const size = blocks.length;
 
             if (size === 100 || size === 400) {
@@ -216,7 +216,7 @@ export class Peer implements P2P.IPeer {
             }
         }
 
-        this.lastPinged = dayjs();
+        this.lastPinged = dato();
         this.state = body;
         return body;
     }
@@ -226,7 +226,7 @@ export class Peer implements P2P.IPeer {
      * @return {Boolean}
      */
     public recentlyPinged() {
-        return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
+        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
     }
 
     /**
@@ -296,25 +296,25 @@ export class Peer implements P2P.IPeer {
         const temp = new Date().getTime();
 
         try {
-            const response = await axios.get(`${this.url}${endpoint}`, {
+            const response = await httpie.get(`${this.url}${endpoint}`, {
                 headers: this.headers,
                 timeout: timeout || this.config.get("peers.globalTimeout"),
             });
 
             this.__parseHeaders(response);
 
-            if (!this.validateReply(response.data, endpoint)) {
+            if (!this.validateReply(response.body, endpoint)) {
                 return;
             }
 
             this.delay = new Date().getTime() - temp;
 
-            if (!response.data) {
+            if (!response.body) {
                 this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
                 return;
             }
 
-            return response.data;
+            return response.body;
         } catch (error) {
             this.delay = -1;
 
@@ -335,11 +335,11 @@ export class Peer implements P2P.IPeer {
      */
     public async __post(endpoint, body, headers) {
         try {
-            const response = await axios.post(`${this.url}${endpoint}`, body, headers);
+            const response = await httpie.post(`${this.url}${endpoint}`, { body, headers });
 
             this.__parseHeaders(response);
 
-            return response.data;
+            return response.body;
         } catch (error) {
             this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
 
@@ -377,13 +377,13 @@ export class Peer implements P2P.IPeer {
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
         const endpoint = "/peer/blocks";
-        const response = await axios.get(`${this.url}${endpoint}`, {
-            params: { lastBlockHeight: afterBlockHeight },
+        const response = await httpie.get(`${this.url}${endpoint}`, {
+            query: { lastBlockHeight: afterBlockHeight },
             headers: this.headers,
             timeout: 10000,
         });
 
-        if (!this.validateReply(response.data, endpoint)) {
+        if (!this.validateReply(response.body, endpoint)) {
             throw new Error("Invalid reply to request for blocks");
         }
 

@@ -1,10 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto, formatSatoshi, isException, models } from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, formatSatoshi, isException, models, Transaction } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { Wallet } from "./wallet";
 
-const { Wallet } = models;
 const { TransactionTypes } = constants;
 
 export class WalletManager implements Database.IWalletManager {
@@ -12,9 +13,9 @@ export class WalletManager implements Database.IWalletManager {
     public config = app.getConfig();
 
     public networkId: number;
-    public byAddress: { [key: string]: any };
-    public byPublicKey: { [key: string]: any };
-    public byUsername: { [key: string]: any };
+    public byAddress: { [key: string]: Wallet };
+    public byPublicKey: { [key: string]: Wallet };
+    public byUsername: { [key: string]: Wallet };
 
     /**
      * Create a new wallet manager instance.
@@ -25,14 +26,14 @@ export class WalletManager implements Database.IWalletManager {
         this.reset();
     }
 
-    public allByAddress(): models.Wallet[] {
+    public allByAddress(): Wallet[] {
         return Object.values(this.byAddress);
     }
 
     /**
      * Get all wallets by publicKey.
      */
-    public allByPublicKey(): models.Wallet[] {
+    public allByPublicKey(): Wallet[] {
         return Object.values(this.byPublicKey);
     }
 
@@ -40,14 +41,14 @@ export class WalletManager implements Database.IWalletManager {
      * Get all wallets by username.
      * @return {Array}
      */
-    public allByUsername(): models.Wallet[] {
+    public allByUsername(): Wallet[] {
         return Object.values(this.byUsername);
     }
 
     /**
      * Find a wallet by the given address.
      */
-    public findByAddress(address: string): models.Wallet {
+    public findByAddress(address: string): Wallet {
         if (!this.byAddress[address]) {
             this.byAddress[address] = new Wallet(address);
         }
@@ -72,7 +73,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {String} publicKey
      * @return {Wallet}
      */
-    public findByPublicKey(publicKey: string): models.Wallet {
+    public findByPublicKey(publicKey: string): Wallet {
         if (!this.byPublicKey[publicKey]) {
             const address = crypto.getAddress(publicKey, this.networkId);
 
@@ -89,7 +90,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {String} username
      * @return {Wallet}
      */
-    public findByUsername(username: string): models.Wallet {
+    public findByUsername(username: string): Wallet {
         return this.byUsername[username];
     }
 
@@ -160,7 +161,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Wallet} wallet
      * @return {void}
      */
-    public reindex(wallet: models.Wallet) {
+    public reindex(wallet: Wallet) {
         if (wallet.address) {
             this.byAddress[wallet.address] = wallet;
         }
@@ -256,7 +257,7 @@ export class WalletManager implements Database.IWalletManager {
 
     /**
      * Build vote balances of all delegates.
-     * NOTE: Only called during SPV.
+     * NOTE: Only called during integrity verification on boot.
      * @return {void}
      */
     public buildVoteBalances() {
@@ -303,7 +304,7 @@ export class WalletManager implements Database.IWalletManager {
                 this.logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
 
                 if (this.byAddress[generator]) {
-                    this.logger.info("This look like a bug, please report :bug:");
+                    this.logger.info("This look like a bug, please report");
                 }
 
                 throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`);
@@ -351,9 +352,7 @@ export class WalletManager implements Database.IWalletManager {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
-            app.forceExit(
-                `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'. :skull:`,
-            );
+            app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
 
         const revertedTransactions = [];
@@ -387,59 +386,48 @@ export class WalletManager implements Database.IWalletManager {
 
     /**
      * Apply the given transaction to a delegate.
-     * @param  {Transaction} transaction
-     * @return {Transaction}
      */
-    public applyTransaction(transaction: models.Transaction) {
+    public applyTransaction(transaction: Transaction) {
         const { data } = transaction;
-        const { type, asset, recipientId, senderPublicKey } = data;
+        const { type, recipientId, senderPublicKey } = data;
 
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(senderPublicKey);
         const recipient = this.findByAddress(recipientId);
         const errors = [];
 
-        // specific verifications / adjustments depending on transaction type
-        if (type === TransactionTypes.DelegateRegistration && this.byUsername[asset.delegate.username.toLowerCase()]) {
-            this.logger.error(
-                `Can't apply transaction ${
-                    data.id
-                }: delegate name '${asset.delegate.username.toLowerCase()}' already taken.`,
-            );
-            throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`);
-
-            // NOTE: We use the vote public key, because vote transactions
-            // have the same sender and recipient
-        } else if (type === TransactionTypes.Vote && !this.isDelegate(asset.votes[0].slice(1))) {
-            this.logger.error(`Can't apply vote transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
-            throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`);
-        } else if (type === TransactionTypes.SecondSignature) {
+        // TODO: can/should be removed?
+        if (type === TransactionTypes.SecondSignature) {
             data.recipientId = "";
         }
 
         // handle exceptions / verify that we can apply the transaction to the sender
         if (isException(data)) {
             this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
-        } else if (!sender.canApply(data, errors)) {
-            this.logger.error(
-                `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${JSON.stringify(errors)}`,
-            );
-            this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
-            throw new Error(`Can't apply transaction ${data.id}`);
+        } else {
+            try {
+                transactionHandler.canBeApplied(transaction, sender, this);
+            } catch (error) {
+                this.logger.error(
+                    `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${error.message}`,
+                );
+                this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
+                throw new Error(`Can't apply transaction ${data.id}`);
+            }
         }
 
-        sender.applyTransactionToSender(data);
+        transactionHandler.applyToSender(transaction, sender);
 
         if (type === TransactionTypes.DelegateRegistration) {
             this.reindex(sender);
         }
 
+        // TODO: make more generic
         if (recipient && type === TransactionTypes.Transfer) {
-            recipient.applyTransactionToRecipient(data);
+            transactionHandler.applyToRecipient(transaction, recipient);
         }
 
         this._updateVoteBalances(sender, recipient, data);
-
-        return transaction;
     }
 
     /**
@@ -493,15 +481,14 @@ export class WalletManager implements Database.IWalletManager {
 
     /**
      * Remove the given transaction from a delegate.
-     * @param  {Transaction} transaction
-     * @return {Transaction}
      */
-    public revertTransaction(transaction: models.Transaction) {
+    public revertTransaction(transaction: Transaction) {
         const { type, data } = transaction;
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
         const recipient = this.byAddress[data.recipientId];
 
-        sender.revertTransactionForSender(data);
+        transactionHandler.revertForSender(transaction, sender);
 
         // removing the wallet from the delegates index
         if (type === TransactionTypes.DelegateRegistration) {
@@ -509,13 +496,11 @@ export class WalletManager implements Database.IWalletManager {
         }
 
         if (recipient && type === TransactionTypes.Transfer) {
-            recipient.revertTransactionForRecipient(data);
+            transactionHandler.revertForRecipient(transaction, recipient);
         }
 
         // Revert vote balance updates
         this._updateVoteBalances(sender, recipient, data, true);
-
-        return data;
     }
 
     /**

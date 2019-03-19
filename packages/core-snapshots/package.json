@@ -12,24 +12,12 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn copy && yarn compile",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
-        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
@@ -43,16 +31,16 @@
         "fs-extra": "^7.0.1",
         "lodash.pick": "^4.4.0",
         "msgpack-lite": "^0.1.26",
-        "pg-promise": "^8.5.5",
+        "pg-promise": "^8.6.3",
         "pg-query-stream": "^2.0.0",
         "pluralize": "^7.0.0",
         "xcase": "^2.0.1"
     },
     "devDependencies": {
-        "@types/bluebird": "^3.5.25",
+        "@types/bluebird": "^3.5.26",
         "@types/create-hash": "^1.2.0",
         "@types/fs-extra": "^5.0.5",
-        "@types/lodash.pick": "^4.4.4",
+        "@types/lodash.pick": "^4.4.6",
         "@types/msgpack-lite": "^0.1.6",
         "@types/pg-query-stream": "^1.0.2",
         "@types/pluralize": "^0.0.29"
@@ -62,8 +50,5 @@
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

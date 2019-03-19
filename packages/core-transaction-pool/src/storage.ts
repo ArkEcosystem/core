@@ -1,9 +1,7 @@
-import { models } from "@arkecosystem/crypto";
+import { Transaction } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import fs from "fs-extra";
 import { MemPoolTransaction } from "./mem-pool-transaction";
-
-const { Transaction } = models;
 
 /**
  * A permanent storage (on-disk), supporting some basic functionalities required
@@ -15,9 +13,8 @@ export class Storage {
 
     /**
      * Construct the storage.
-     * @param {String} file
      */
-    constructor(file) {
+    constructor(file: string) {
         this.table = "pool";
 
         fs.ensureFileSync(file);
@@ -44,7 +41,6 @@ export class Storage {
 
     /**
      * Add a bunch of new entries to the storage.
-     * @param {Array of MemPoolTransaction} data new entries to be added
      */
     public bulkAdd(data: MemPoolTransaction[]) {
         if (data.length === 0) {
@@ -62,7 +58,7 @@ export class Storage {
                 insertStatement.run({
                     sequence: d.sequence,
                     id: d.transaction.id,
-                    serialized: Buffer.from(d.transaction.serialized, "hex"),
+                    serialized: d.transaction.serialized,
                 }),
             );
 
@@ -76,7 +72,6 @@ export class Storage {
 
     /**
      * Remove a bunch of entries, given their ids.
-     * @param {Array of String} ids ids of the elements to be removed
      */
     public bulkRemoveById(ids: string[]) {
         if (ids.length === 0) {
@@ -94,13 +89,12 @@ export class Storage {
 
     /**
      * Load all entries.
-     * @return {Array of MemPoolTransaction}
      */
     public loadAll(): MemPoolTransaction[] {
         const rows = this.db.prepare(`SELECT sequence, lower(HEX(serialized)) AS serialized FROM ${this.table};`).all();
 
         return rows
-            .map(r => ({ tx: new Transaction(r.serialized), ...r }))
+            .map(r => ({ tx: Transaction.fromHex(r.serialized), ...r }))
             .filter(r => r.tx.verified)
             .map(r => new MemPoolTransaction(r.tx, r.sequence));
     }

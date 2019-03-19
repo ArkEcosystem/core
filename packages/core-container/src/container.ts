@@ -247,7 +247,7 @@ export class Container implements container.IContainer {
             const logger = this.resolvePlugin<Logger.ILogger>("logger");
             if (logger) {
                 logger.suppressConsoleOutput(this.silentShutdown);
-                logger.info("Core is trying to gracefully shut down to avoid data corruption :pizza:");
+                logger.info("Core is trying to gracefully shut down to avoid data corruption");
             }
 
             try {
@@ -265,9 +265,6 @@ export class Container implements container.IContainer {
 
                     // Wait for event to be emitted and give time to finish
                     await delay(1000);
-
-                    // Save dirty wallets
-                    await database.saveWallets(false);
                 }
             } catch (error) {
                 // tslint:disable-next-line:no-console

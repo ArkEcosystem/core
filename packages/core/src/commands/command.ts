@@ -1,7 +1,7 @@
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
-import envPaths from "env-paths";
+import envPaths, { Paths } from "env-paths";
 import { existsSync, readdirSync } from "fs";
 import Listr from "listr";
 import { join, resolve } from "path";
@@ -130,8 +130,8 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async getPaths(flags: CommandFlags): Promise<envPaths.Paths> {
-        let paths: envPaths.Paths = this.getEnvPaths(flags);
+    protected async getPaths(flags: CommandFlags): Promise<Paths> {
+        let paths: Paths = this.getEnvPaths(flags);
 
         for (const [key, value] of Object.entries(paths)) {
             paths[key] = `${value}/${flags.network}`;
@@ -298,19 +298,26 @@ export abstract class BaseCommand extends Command {
         return this.getNetworks().map(network => ({ title: network, value: network }));
     }
 
-    protected async restartProcess(processName: string) {
+    protected async restartRunningProcessPrompt(processName: string, showPrompt: boolean = true) {
         if (processManager.isRunning(processName)) {
-            await confirm(`Would you like to restart the ${processName} process?`, () => {
-                try {
-                    cli.action.start(`Restarting ${processName}`);
+            if (showPrompt) {
+                await confirm(`Would you like to restart the ${processName} process?`, () => {
+                    this.restartProcess(processName);
+                });
+            } else {
+                this.restartProcess(processName);
+            }
+        }
+    }
 
-                    processManager.restart(processName);
-                } catch (error) {
-                    error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
-                } finally {
-                    cli.action.stop();
-                }
-            });
+    protected restartProcess(processName: string): void {
+        try {
+            cli.action.start(`Restarting ${processName}`);
+            processManager.restart(processName);
+        } catch (error) {
+            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
+        } finally {
+            cli.action.stop();
         }
     }
 
@@ -346,7 +353,7 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    private getEnvPaths(flags: CommandFlags): envPaths.Paths {
+    private getEnvPaths(flags: CommandFlags): Paths {
         return envPaths(flags.token, { suffix: "core" });
     }
 }
