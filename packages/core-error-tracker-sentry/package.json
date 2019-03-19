@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-sentry",
     "description": "Sentry error tracker integration for Ark Core.",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -26,7 +26,7 @@
         "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.1",
+        "@arkecosystem/core-container": "^2.2.2",
         "@sentry/node": "^4.5.4"
     },
     "publishConfig": {
