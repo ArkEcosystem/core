@@ -20,6 +20,7 @@ export const syncWithNetwork = {
             on: {
                 DOWNLOADED: "syncing",
                 NOBLOCK: "syncing",
+                PROCESSFINISHED: "downloadFinished",
             },
         },
         downloadFinished: {
