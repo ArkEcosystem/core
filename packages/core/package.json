@@ -89,6 +89,7 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
+        "@oclif/dev-cli": "^1.21.3",
         "@types/bip38": "^2.0.1",
         "@types/bip39": "^2.4.2",
         "@types/cli-progress": "^1.8.0",
