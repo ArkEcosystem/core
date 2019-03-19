@@ -107,6 +107,12 @@ export class Blockchain implements blockchain.IBlockchain {
                     nextState.value,
                 )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
             );
+        } else {
+            logger.debug(
+                `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
+                    nextState.value,
+                )}`,
+            );
         }
 
         this.state.blockchain = nextState;
