@@ -32,6 +32,4 @@ export async function tearDown() {
 
     const { plugin } = require("../../../../packages/core-json-rpc/src");
     await plugin.deregister(app, options);
-
-    await app.tearDown();
 }
