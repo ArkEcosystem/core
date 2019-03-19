@@ -2,10 +2,10 @@ import "./mocks/core-container";
 
 import "jest-extended";
 
-import delay from "delay";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import delay from "delay";
 import { Client } from "../../../packages/core-forger/src/client";
-import { sampleBlock } from "./__fixtures__/block";
+import { sampleBlocks } from "./__fixtures__/block";
 
 import { MockSocketManager } from "../core-p2p/__support__/mock-socket-server/manager";
 
@@ -63,7 +63,7 @@ describe("Client", () => {
 
                 await client.__chooseHost(1000);
 
-                const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
+                const wasBroadcasted = await client.broadcast(sampleBlocks[0].toJson());
                 expect(wasBroadcasted).toBeTruthy();
             });
         });

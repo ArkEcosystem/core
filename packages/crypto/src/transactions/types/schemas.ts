@@ -1,7 +1,7 @@
 import deepmerge = require("deepmerge");
 import { TransactionTypes } from "../../constants";
 
-const extend = (parent, properties): TransactionSchema => {
+export const extend = (parent, properties): TransactionSchema => {
     return deepmerge(parent, properties);
 };
 
@@ -20,7 +20,7 @@ export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
     return strict;
 };
 
-const transactionBaseSchema = {
+export const transactionBaseSchema = {
     $id: null,
     type: "object",
     required: ["type", "senderPublicKey", "fee", "timestamp"],

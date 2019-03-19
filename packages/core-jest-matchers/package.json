@@ -13,19 +13,11 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
@@ -42,12 +34,6 @@
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.isequal": "^4.5.5",
         "@types/lodash.sortby": "^4.7.6"
-    },
-    "devDependencies": {
-        "@types/bip39": "^2.4.1",
-        "@types/lodash.get": "^4.4.4",
-        "@types/lodash.isequal": "^4.5.3",
-        "@types/lodash.sortby": "^4.7.4"
     },
     "publishConfig": {
         "access": "public"

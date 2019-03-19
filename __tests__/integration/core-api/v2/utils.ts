@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
+import { httpie } from "@arkecosystem/core-utils";
 import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
-import axios from "axios";
 import "jest-extended";
 import { ApiHelpers } from "../../../utils/helpers/api";
 
@@ -121,11 +121,9 @@ class Helpers {
         expect(delegate.votes).toBeNumber();
         expect(delegate.rank).toBeNumber();
         expect(delegate.blocks).toBeObject();
-        expect(delegate.blocks.missed).toBeNumber();
         expect(delegate.blocks.produced).toBeNumber();
         expect(delegate.production).toBeObject();
         expect(delegate.production.approval).toBeNumber();
-        expect(delegate.production.productivity).toBeNumber();
         expect(delegate.forged.fees).toBeNumber();
         expect(delegate.forged.rewards).toBeNumber();
         expect(delegate.forged.total).toBeNumber();
@@ -155,15 +153,12 @@ class Helpers {
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .getStruct();
 
-        await axios.post(
-            "http://127.0.0.1:4003/api/v2/transactions",
-            {
+        await httpie.post("http://127.0.0.1:4003/api/v2/transactions", {
+            body: {
                 transactions: [transaction],
             },
-            {
-                headers: { "Content-Type": "application/json" },
-            },
-        );
+            headers: { "Content-Type": "application/json" },
+        });
 
         return transaction;
     }

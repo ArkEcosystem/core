@@ -1,4 +1,4 @@
-import { ensureFileSync, existsSync } from "fs-extra";
+import { ensureFileSync, existsSync, removeSync } from "fs-extra";
 import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import uuidv4 from "uuid/v4";
@@ -6,7 +6,7 @@ import uuidv4 from "uuid/v4";
 class Database {
     private database: lowdb.LowdbSync<any>;
 
-    public make() {
+    public make(): void {
         const adapterFile: string = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
 
         if (!existsSync(adapterFile)) {
@@ -34,10 +34,12 @@ class Database {
     }
 
     public findByEvent(event) {
-        return this.database
+        const rows = this.database
             .get("webhooks")
-            .find({ event })
+            .filter({ event })
             .value();
+
+        return { rows, count: rows.length };
     }
 
     public create(data) {
@@ -68,6 +70,12 @@ class Database {
         } catch (error) {
             return false;
         }
+    }
+
+    public reset(): void {
+        removeSync(`${process.env.CORE_PATH_CACHE}/webhooks.json`);
+
+        this.make();
     }
 }
 

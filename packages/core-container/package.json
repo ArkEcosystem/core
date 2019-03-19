@@ -12,30 +12,22 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.2.1",
         "@arkecosystem/crypto": "^2.2.1",
         "awilix": "^4.2.1",
-        "axios": "^0.18.0",
         "delay": "^4.1.0",
         "env-paths": "^2.1.0",
         "envfile": "^3.0.0",
         "expand-home-dir": "^0.0.3",
         "fs-extra": "^7.0.1",
+        "got": "^9.6.0",
         "hoek": "^6.1.2",
         "joi": "^14.3.1",
         "lodash.get": "^4.4.2",
@@ -51,7 +43,6 @@
         "@types/lodash.isstring": "^4.0.6",
         "@types/lodash.set": "^4.3.6",
         "@types/semver": "^5.5.0",
-        "axios-mock-adapter": "^1.16.0",
         "jest-mock-process": "^1.1.0"
     },
     "publishConfig": {

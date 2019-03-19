@@ -22,12 +22,18 @@ class BlockDeserializer {
         }
 
         block.idHex = Block.getIdHex(block);
-        block.id = new Bignum(block.idHex, 16).toFixed();
+        block.id = Block.getId(block);
 
         const { outlookTable } = configManager.config.exceptions;
         if (outlookTable && outlookTable[block.id]) {
-            block.id = outlookTable[block.id];
-            block.idHex = Block.toBytesHex(block.id);
+            const constants = configManager.getMilestone(block.height);
+            if (constants.block.idFullSha256) {
+                block.id = outlookTable[block.id];
+                block.idHex = block.id;
+            } else {
+                block.id = outlookTable[block.id];
+                block.idHex = Block.toBytesHex(block.id);
+            }
         }
 
         // FIXME: only a workaround
@@ -38,8 +44,17 @@ class BlockDeserializer {
         block.version = buf.readUint32();
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
-        block.previousBlockHex = buf.readBytes(8).toString("hex");
-        block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
+
+        const constants = configManager.getMilestone(block.height - 1);
+
+        if (constants.block.idFullSha256) {
+            block.previousBlockHex = buf.readBytes(32).toString("hex");
+            block.previousBlock = block.previousBlockHex;
+        } else {
+            block.previousBlockHex = buf.readBytes(8).toString("hex");
+            block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
+        }
+
         block.numberOfTransactions = buf.readUint32();
         block.totalAmount = new Bignum(buf.readUint64().toString());
         block.totalFee = new Bignum(buf.readUint64().toString());

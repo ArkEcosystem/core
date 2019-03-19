@@ -30,7 +30,7 @@ export abstract class Transaction {
         try {
             const transaction = TransactionDeserializer.deserialize(serialized);
             const { value, error } = this.validateSchema(transaction.data, true);
-            if (error !== null) {
+            if (error !== null && !isException(value)) {
                 throw new TransactionSchemaError(error);
             }
 
@@ -47,7 +47,7 @@ export abstract class Transaction {
 
     public static fromData(data: ITransactionData, strict: boolean = true): Transaction {
         const { value, error } = this.validateSchema(data, strict);
-        if (error !== null) {
+        if (error !== null && !isException(value)) {
             throw new TransactionSchemaError(error);
         }
 
@@ -98,7 +98,7 @@ export abstract class Transaction {
             return true;
         }
 
-        if (data.type >= 4) {
+        if (data.type >= 4 && data.type <= 99) {
             return false;
         }
 

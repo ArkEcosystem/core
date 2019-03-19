@@ -10,7 +10,12 @@ let message;
 beforeAll(() => {
     process.env.CORE_PATH_LOG = tmpdir();
 
-    const driver = new PinoLogger({ level: "trace" });
+    const driver = new PinoLogger({
+        levels: {
+            console: "trace",
+            file: "trace",
+        },
+    });
 
     logger = driver.make();
 

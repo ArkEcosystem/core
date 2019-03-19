@@ -1,14 +1,14 @@
-import { models } from "@arkecosystem/crypto";
+import { IWallet } from "../wallet-manager";
 import { IParameters } from "./parameters";
 
 export interface IDelegatesBusinessRepository {
-    getLocalDelegates(): models.Wallet[];
+    getLocalDelegates(): IWallet[];
 
-    findAll(params?: IParameters): { count: number; rows: models.Wallet[] };
+    findAll(params?: IParameters): { count: number; rows: IWallet[] };
 
-    search<T extends IParameters>(params: T): { count: number; rows: models.Wallet[] };
+    search<T extends IParameters>(params: T): { count: number; rows: IWallet[] };
 
-    findById(id: string): models.Wallet;
+    findById(id: string): IWallet;
 
-    getActiveAtHeight(height: number): Promise<models.Wallet[]>;
+    getActiveAtHeight(height: number): Promise<IWallet[]>;
 }

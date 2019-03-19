@@ -1,5 +1,13 @@
+import camelCase from "lodash/camelCase";
 import { TransactionTypes } from "../constants";
-import { NotImplementedError, TransactionAlreadyRegisteredError, UnkownTransactionError } from "../errors";
+import {
+    MissingMilestoneFeeError,
+    TransactionAlreadyRegisteredError,
+    TransactionTypeInvalidRangeError,
+    UnkownTransactionError,
+} from "../errors";
+import { configManager } from "../managers";
+import { feeManager } from "../managers/fee";
 import { AjvWrapper } from "../validation";
 import { ITransactionData } from "./interfaces";
 import {
@@ -15,7 +23,7 @@ import {
     VoteTransaction,
 } from "./types";
 
-type TransactionConstructor = typeof Transaction;
+export type TransactionConstructor = typeof Transaction;
 
 class TransactionRegistry {
     private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
@@ -40,20 +48,56 @@ class TransactionRegistry {
         return instance;
     }
 
-    public get(type: TransactionTypes): TransactionConstructor {
+    public get(type: TransactionTypes | number): TransactionConstructor {
         if (this.coreTypes.has(type)) {
             return this.coreTypes.get(type);
+        }
+
+        if (this.customTypes.has(type)) {
+            return this.customTypes.get(type);
         }
 
         throw new UnkownTransactionError(type);
     }
 
     public registerCustomType(constructor: TransactionConstructor): void {
-        throw new NotImplementedError();
+        const { type } = constructor;
+        if (this.customTypes.has(type)) {
+            throw new TransactionAlreadyRegisteredError(constructor.name);
+        }
+
+        if (type < 100) {
+            throw new TransactionTypeInvalidRangeError(type);
+        }
+
+        this.customTypes.set(type, constructor);
+        this.updateSchemas(constructor);
+        this.updateStaticFees();
     }
 
-    public deregisterCustomType(constructor: TransactionConstructor): void {
-        throw new NotImplementedError();
+    public deregisterCustomType(type: number): void {
+        if (this.customTypes.has(type)) {
+            const schema = this.customTypes.get(type);
+            this.updateSchemas(schema, true);
+            this.customTypes.delete(type);
+        }
+    }
+
+    public updateStaticFees(height?: number): void {
+        const customConstructors = Array.from(this.customTypes.values());
+        const milestone = configManager.getMilestone(height);
+        const { staticFees } = milestone.fees;
+        for (const constructor of customConstructors) {
+            const { type, name } = constructor;
+            if (milestone.fees && milestone.fees.staticFees) {
+                const value = staticFees[camelCase(name.replace("Transaction", ""))];
+                if (!value) {
+                    throw new MissingMilestoneFeeError(name);
+                }
+
+                feeManager.set(type, value);
+            }
+        }
     }
 
     private registerCoreType(constructor: TransactionConstructor) {
@@ -66,8 +110,8 @@ class TransactionRegistry {
         this.updateSchemas(constructor);
     }
 
-    private updateSchemas(transaction: TransactionConstructor) {
-        AjvWrapper.extendTransaction(transaction.getSchema());
+    private updateSchemas(transaction: TransactionConstructor, remove?: boolean) {
+        AjvWrapper.extendTransaction(transaction.getSchema(), remove);
     }
 }
 

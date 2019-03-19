@@ -1,4 +1,6 @@
 import ByteBuffer from "bytebuffer";
+import { PreviousBlockIdFormatError } from "../../errors";
+import { configManager } from "../../managers/config";
 import { Block, IBlockData } from "../../models/block";
 import { Bignum } from "../../utils";
 import { Transaction } from "../types";
@@ -36,7 +38,16 @@ class BlockSerializer {
     }
 
     private serializeHeader(block: IBlockData, buffer: ByteBuffer): any {
-        block.previousBlockHex = Block.toBytesHex(block.previousBlock);
+        const constants = configManager.getMilestone(block.height - 1);
+
+        if (constants.block.idFullSha256) {
+            if (block.previousBlock.length !== 64) {
+                throw new PreviousBlockIdFormatError(block.height, block.previousBlock);
+            }
+            block.previousBlockHex = block.previousBlock;
+        } else {
+            block.previousBlockHex = Block.toBytesHex(block.previousBlock);
+        }
 
         buffer.writeUint32(block.version);
         buffer.writeUint32(block.timestamp);

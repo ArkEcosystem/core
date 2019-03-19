@@ -29,7 +29,5 @@ export interface IDatabaseConnection {
 
     enqueueDeleteRound(height: number);
 
-    enqueueSaveBlock(block: models.Block);
-
     commitQueuedQueries();
 }

@@ -18,7 +18,6 @@
             "rank": 4,
             "blocks": {
                 "produced": 1551,
-                "missed": 180,
                 "last": {
                     "id": "3658545612136752676",
                     "timestamp": {
@@ -29,8 +28,7 @@
                 }
             },
             "production": {
-                "approval": 0.05,
-                "productivity": 89.6
+                "approval": 0.05
             },
             "forged": {
                 "fees": 5060000000,
@@ -45,12 +43,10 @@
             "votes": 4500000000000,
             "rank": 5,
             "blocks": {
-                "produced": 14572,
-                "missed": 772
+                "produced": 14572
             },
             "production": {
-                "approval": 0.04,
-                "productivity": 94.97
+                "approval": 0.04
             },
             "forged": {
                 "fees": 29670020960,
@@ -65,12 +61,10 @@
             "votes": 4013860773791,
             "rank": 6,
             "blocks": {
-                "produced": 2650,
-                "missed": 950
+                "produced": 2650
             },
             "production": {
-                "approval": 0.03,
-                "productivity": 73.61
+                "approval": 0.03
             },
             "forged": {
                 "fees": 3000000000,

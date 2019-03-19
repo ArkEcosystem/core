@@ -6,7 +6,7 @@ import {
     Logger,
     TransactionPool as transactionPool,
 } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 
 import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
@@ -190,8 +190,8 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         // TODO: rework error handling
         const errors = [];
         if (this.walletManager.canApply(transaction, errors)) {
-            const transactionService = TransactionServiceRegistry.get(transaction.type);
-            transactionService.applyToSender(transaction, senderWallet);
+            const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
+            transactionHandler.applyToSender(transaction, senderWallet);
         } else {
             // Remove tx again from the pool
             this.mem.remove(transaction.id);
@@ -385,7 +385,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             const { data } = transaction;
             const exists = this.transactionExists(data.id);
             const senderPublicKey = data.senderPublicKey;
-            const transactionService = TransactionServiceRegistry.get(transaction.type);
+            const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
             const senderWallet = this.walletManager.exists(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
@@ -396,7 +396,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                 : false;
 
             if (recipientWallet) {
-                transactionService.applyToRecipient(transaction, recipientWallet);
+                transactionHandler.applyToRecipient(transaction, recipientWallet);
             }
 
             if (exists) {
@@ -404,7 +404,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             } else if (senderWallet) {
                 // TODO: rework error handling
                 try {
-                    transactionService.canBeApplied(transaction, senderWallet);
+                    transactionHandler.canBeApplied(transaction, senderWallet);
                 } catch (error) {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
@@ -417,7 +417,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                     return;
                 }
 
-                transactionService.applyToSender(transaction, senderWallet);
+                transactionHandler.applyToSender(transaction, senderWallet);
             }
 
             if (
@@ -457,13 +457,13 @@ export class TransactionPool implements transactionPool.ITransactionPool {
                 return;
             }
 
-            const transactionService = TransactionServiceRegistry.get(transaction.type);
+            const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
             const senderWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
             // TODO: rework error handling
             try {
-                transactionService.canBeApplied(transaction, senderWallet);
-                transactionService.applyToSender(transaction, senderWallet);
+                transactionHandler.canBeApplied(transaction, senderWallet);
+                transactionHandler.applyToSender(transaction, senderWallet);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
                 this.purgeByPublicKey(transaction.data.senderPublicKey);

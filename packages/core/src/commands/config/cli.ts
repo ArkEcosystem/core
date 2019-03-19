@@ -13,7 +13,7 @@ export class CommandLineInterfaceCommand extends BaseCommand {
 $ ark config:cli --token=mine
 `,
         `Switch the npm registry channel
-$ ark config:cli --channel=mine
+$ ark config:cli --channel=next
 `,
     ];
 
@@ -23,7 +23,7 @@ $ ark config:cli --channel=mine
         }),
         channel: flags.string({
             description: "the name of the channel that should be used",
-            options: ["alpha", "beta", "rc", "latest"],
+            options: ["alpha", "beta", "rc", "next", "latest"],
         }),
     };
 

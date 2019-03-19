@@ -29,6 +29,7 @@ export async function startServer(options) {
         });
     }
 
+    // @ts-ignore
     registerMethods(server);
 
     server.route({

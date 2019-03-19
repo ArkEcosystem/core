@@ -1,22 +1,22 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants, models, Transaction } from "@arkecosystem/crypto";
+import { MultiSignatureRegistrationTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
 } from "../errors";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class MultiSignatureTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.MultiSignature;
+export class MultiSignatureTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return MultiSignatureRegistrationTransaction;
     }
 
     // TODO: AIP18
     public canBeApplied(
         transaction: Transaction,
-        wallet: models.Wallet,
+        wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
         const { data } = transaction;
@@ -40,11 +40,11 @@ export class MultiSignatureTransactionService extends TransactionService {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: Database.IWallet): void {
         wallet.multisignature = transaction.data.asset.multisignature;
     }
 
-    public revert(transaction: Transaction, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: Database.IWallet): void {
         wallet.multisignature = null;
     }
 }

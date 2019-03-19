@@ -7,7 +7,6 @@ import { registerWithContainer, setUpContainer } from "../../../utils/helpers/co
 import { delegates } from "../../../utils/fixtures";
 import { generateRound } from "./utils/generate-round";
 
-import { models } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 
 const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
@@ -52,12 +51,11 @@ async function calculateRanks() {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     const delegateWallets = Object.values(databaseService.walletManager.allByUsername()).sort(
-        (a: models.Wallet, b: models.Wallet) => b.voteBalance.comparedTo(a.voteBalance),
+        (a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance),
     );
 
     sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
         const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
-        wallet.missedBlocks = +delegate.missedBlocks;
         (wallet as any).rate = i + 1;
 
         databaseService.walletManager.reindex(wallet);

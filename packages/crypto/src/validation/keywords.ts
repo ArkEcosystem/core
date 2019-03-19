@@ -121,7 +121,18 @@ const blockId = (ajv: Ajv) => {
                     return false;
                 }
 
-                return /^[0123456789A-Fa-f]+$/.test(data);
+                // Partial SHA256 block id (old/legacy), before the switch to full SHA256.
+                // 8 byte integer either decimal without leading zeros or hex with leading zeros.
+                const isPartial = /^[0-9]{1,20}$/.test(data) || /^[0-9a-f]{16}$/i.test(data);
+                const isFullSha256 = /^[0-9a-f]{64}$/i.test(data);
+
+                if (parentObject && parentObject.height) {
+                    const height = schema.isPreviousBlock ? parentObject.height - 1 : parentObject.height;
+                    const constants = configManager.getMilestone(height);
+                    return constants.block.idFullSha256 ? isFullSha256 : isPartial;
+                }
+
+                return isPartial || isFullSha256;
             };
         },
         errors: false,
@@ -129,6 +140,7 @@ const blockId = (ajv: Ajv) => {
             type: "object",
             properties: {
                 allowNullWhenGenesis: { type: "boolean" },
+                isPreviousBlock: { type: "boolean" },
             },
             additionalItems: false,
         },

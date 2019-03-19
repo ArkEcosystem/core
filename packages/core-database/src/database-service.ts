@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import { TransactionServiceRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -131,10 +131,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public enqueueDeleteRound(height: number) {
         this.connection.enqueueDeleteRound(height);
-    }
-
-    public enqueueSaveBlock(block: models.Block) {
-        this.connection.enqueueSaveBlock(block);
     }
 
     public async getActiveDelegates(height: number, delegates?: any[]) {
@@ -419,12 +415,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                 if (producedBlocks.length === 0) {
-                    wallet.missedBlocks++;
-                    this.logger.debug(
-                        `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
-                            wallet.missedBlocks
-                        }`,
-                    );
+                    this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
                     wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,
@@ -495,7 +486,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
-        const transactionService = TransactionServiceRegistry.get(transaction.type);
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -505,7 +496,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {
-            return transactionService.canBeApplied(transaction, sender) && !dbTransaction;
+            return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
         } catch {
             return false;
         }
@@ -542,8 +533,8 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Transaction) {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        const service = TransactionServiceRegistry.get(transaction.type);
-        service.emitEvents(transaction, this.emitter);
+        const handler = TransactionHandlerRegistry.get(transaction.type);
+        handler.emitEvents(transaction, this.emitter);
     }
 
     private registerListeners() {

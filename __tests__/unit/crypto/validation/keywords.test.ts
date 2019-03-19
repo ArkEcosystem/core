@@ -67,11 +67,18 @@ describe("keyword blockId", () => {
         const schema = { blockId: {} };
         const validate = ajv.compile(schema);
 
-        expect(validate("15654541800058894516")).toBeTrue();
+        expect(validate("1")).toBeTrue();
         expect(validate("1234")).toBeTrue();
         expect(validate("15654541800058894516")).toBeTrue();
-        expect(validate("AFFE")).toBeTrue();
-        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4")).toBeTrue();
+        expect(validate("156545418000588945160")).toBeFalse();
+
+        expect(validate("e3b0c44298fc1c14")).toBeTrue();
+        expect(validate("e3b0c44298fc1c1")).toBeFalse();
+        expect(validate("e3b0c44298fc1c140")).toBeFalse();
+
+        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb40")).toBeTrue();
+        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4")).toBeFalse();
+        expect(validate("94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb400")).toBeFalse();
     });
 
     it("should not be ok", () => {

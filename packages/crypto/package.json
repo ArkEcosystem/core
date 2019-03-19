@@ -19,19 +19,12 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && tsc",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js"
     },
     "dependencies": {
         "bcrypto": "^3.0.2",

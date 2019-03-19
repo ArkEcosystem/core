@@ -1,16 +1,22 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import { configManager, constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import {
+    configManager,
+    ITransactionData,
+    Transaction,
+    TransactionConstructor,
+    TransferTransaction,
+} from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
-import { TransactionService } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
-export class TransferTransactionService extends TransactionService {
-    public getType(): number {
-        return constants.TransactionTypes.Transfer;
+export class TransferTransactionHandler extends TransactionHandler {
+    public getConstructor(): TransactionConstructor {
+        return TransferTransaction;
     }
 
     public canBeApplied(
         transaction: Transaction,
-        wallet: models.Wallet,
+        wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
         return super.canBeApplied(transaction, wallet, walletManager);
@@ -20,11 +26,11 @@ export class TransferTransactionService extends TransactionService {
         return true;
     }
 
-    public apply(transaction: Transaction, wallet: models.Wallet): void {
+    public apply(transaction: Transaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public revert(transaction: Transaction, wallet: models.Wallet): void {
+    public revert(transaction: Transaction, wallet: Database.IWallet): void {
         return;
     }
 

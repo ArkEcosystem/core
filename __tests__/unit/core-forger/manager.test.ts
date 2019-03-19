@@ -68,7 +68,10 @@ describe("Forger Manager", () => {
                 reward: 2 * 1e8,
             };
 
-            await forgeManager.__forgeNewBlock(del, round);
+            await forgeManager.__forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
 
             expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
                 expect.objectContaining({

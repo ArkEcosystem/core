@@ -107,6 +107,12 @@ export class Blockchain implements blockchain.IBlockchain {
                     nextState.value,
                 )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
             );
+        } else {
+            logger.debug(
+                `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
+                    nextState.value,
+                )}`,
+            );
         }
 
         this.state.blockchain = nextState;
@@ -416,7 +422,7 @@ export class Blockchain implements blockchain.IBlockchain {
         if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
             // broadcast only current block
             const blocktime = config.getMilestone(block.data.height).blocktime;
-            if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
+            if (this.state.started && slots.getSlotNumber() * blocktime <= block.data.timestamp) {
                 this.p2p.broadcastBlock(block);
             }
         }

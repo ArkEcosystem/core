@@ -18,10 +18,6 @@
     },
     "scripts": {
         "tester": "./bin/run",
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "prepack": "oclif-dev manifest && npm shrinkwrap",
@@ -29,10 +25,7 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-utils": "^2.2.1",
@@ -41,7 +34,6 @@
         "@oclif/config": "^1.12.9",
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
-        "axios": "^0.18.0",
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
         "delay": "^4.1.0",
@@ -55,8 +47,7 @@
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.6",
         "@types/pino": "^5.8.5",
-        "@types/pluralize": "^0.0.29",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
         "access": "public"

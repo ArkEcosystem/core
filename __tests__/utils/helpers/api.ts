@@ -7,7 +7,7 @@ export class ApiHelpers {
             .map(([key, val]) => `${key}=${val}`)
             .join("&");
 
-        // Injecting the request into Hapi server instead of using axios
+        // Injecting the request into Hapi server
         const injectOptions = {
             method,
             url: ["GET", "DELETE"].includes(method) ? `${url}?${getParams}` : url,

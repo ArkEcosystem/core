@@ -15,19 +15,12 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.2.1",
@@ -38,7 +31,6 @@
         "@arkecosystem/crypto": "^2.2.1",
         "@faustbrian/dato": "^0.2.0",
         "ajv": "^6.10.0",
-        "axios": "^0.18.0",
         "boom": "^7.3.0",
         "delay": "^4.1.0",
         "hapi-rate-limit": "^3.1.1",
@@ -81,8 +73,7 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
-        "@types/semver": "^5.5.0",
-        "axios-mock-adapter": "^1.16.0"
+        "@types/semver": "^5.5.0"
     },
     "publishConfig": {
         "access": "public"

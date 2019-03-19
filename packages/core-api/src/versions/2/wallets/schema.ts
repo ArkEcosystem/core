@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
@@ -26,9 +27,6 @@ export const index: object = {
             producedBlocks: Joi.number()
                 .integer()
                 .min(0),
-            missedBlocks: Joi.number()
-                .integer()
-                .min(0),
         },
     },
 };
@@ -50,7 +48,7 @@ export const transactions: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
@@ -94,7 +92,7 @@ export const transactionsSent: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
@@ -132,7 +130,7 @@ export const transactionsReceived: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
@@ -174,9 +172,13 @@ const address: object = Joi.string()
     .length(34);
 
 export const search: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
+    },
     payload: {
-        orderBy: Joi.string(),
         address,
         addresses: Joi.array()
             .unique()
@@ -194,9 +196,6 @@ export const search: object = {
             .length(66),
         username: Joi.string(),
         producedBlocks: Joi.number()
-            .integer()
-            .min(0),
-        missedBlocks: Joi.number()
             .integer()
             .min(0),
         balance: Joi.object().keys({

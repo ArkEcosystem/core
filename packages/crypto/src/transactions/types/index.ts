@@ -8,3 +8,6 @@ export * from "./ipfs";
 export * from "./timelock-transfer";
 export * from "./multi-payment";
 export * from "./delegate-resignation";
+
+import * as schemas from "./schemas";
+export { schemas };

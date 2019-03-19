@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
-import delay from "delay";
 
 jest.setTimeout(60000);
 
@@ -29,6 +28,8 @@ export async function setUp() {
 }
 
 export async function tearDown() {
+    await app.tearDown();
+
     const { plugin } = require("../../../../packages/core-json-rpc/src");
     await plugin.deregister(app, options);
 

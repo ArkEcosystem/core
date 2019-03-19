@@ -108,6 +108,20 @@ describe("N-section (8-ary search)", () => {
         expect(numberOfProbeCalls).toBe(3);
     });
 
+    it("search in a narrow range", async () => {
+        numberOfProbeCalls = 0;
+        searchCondition = element => element <= 4000;
+        expect(data[await nSect.find(398, 402)]).toBe(4000);
+        expect(numberOfProbeCalls).toBe(1);
+    });
+
+    it("search in a range with length 9", async () => {
+        numberOfProbeCalls = 0;
+        searchCondition = element => element <= 4000;
+        expect(data[await nSect.find(398, 407)]).toBe(4000);
+        expect(numberOfProbeCalls).toBe(1);
+    });
+
     it("nonexistent", async () => {
         numberOfProbeCalls = 0;
         searchCondition = element => false;

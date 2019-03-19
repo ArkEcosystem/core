@@ -26,6 +26,7 @@ export const init: Hook<"init"> = async function({ id, config }) {
             alpha: "develop",
             beta: "develop",
             rc: "develop",
+            next: "develop",
             latest: "master",
         }[state.channel];
 

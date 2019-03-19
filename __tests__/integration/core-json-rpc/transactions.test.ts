@@ -1,46 +1,49 @@
-import "jest-extended";
-
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p/dist/peer";
 import { crypto } from "@arkecosystem/crypto";
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
+import "jest-extended";
+import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
-
-const axiosMock = new MockAdapter(axios);
 
 jest.mock("is-reachable", () => jest.fn(async peer => true));
 
 let peerMock;
+let mockHost;
 
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4002);
-    Object.assign(peerMock, peerMock.headers);
+    peerMock = new Peer("1.0.0.99", 4000);
+    Object.assign(peerMock, peerMock.headers, { status: "OK" });
 
     const monitor = app.resolvePlugin("p2p");
     monitor.peers = {};
     monitor.peers[peerMock.ip] = peerMock;
+
+    nock("http://localhost", { allowUnmocked: true });
+
+    mockHost = nock("http://localhost:4003");
 });
 
 afterAll(async () => {
+    nock.cleanAll();
     await tearDown();
 });
-
 beforeEach(async () => {
-    axiosMock.onPost(/.*:8080.*/).passThrough();
+    nock(peerMock.url)
+        .get("/peer/status")
+        .reply(200, { success: true, height: 1 }, peerMock.headers);
 });
 
 afterEach(async () => {
-    axiosMock.reset(); // important: resets any existing mocking behavior
+    nock.cleanAll();
 });
 
 describe("Transactions", () => {
     describe("POST transactions.info", () => {
         it("should get the transaction for the given ID", async () => {
-            axiosMock.onGet(/.*\/api\/transactions/).reply(() => [
+            mockHost.get("/api/transactions/e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8").reply(
                 200,
                 {
                     data: {
@@ -48,13 +51,13 @@ describe("Transactions", () => {
                     },
                 },
                 peerMock.headers,
-            ]);
+            );
 
             const response = await sendRequest("transactions.info", {
                 id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
             });
 
-            expect(response.data.result.id).toBe("e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8");
+            expect(response.body.result.id).toBe("e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8");
         });
 
         it("should fail to get the transaction for the given ID", async () => {
@@ -62,8 +65,8 @@ describe("Transactions", () => {
                 id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
             });
 
-            expect(response.data.error.code).toBe(404);
-            expect(response.data.error.message).toBe(
+            expect(response.body.error.code).toBe(404);
+            expect(response.body.error.message).toBe(
                 "Transaction e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8 could not be found.",
             );
         });
@@ -77,8 +80,8 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            expect(response.data.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
-            expect(crypto.verify(response.data.result)).toBeTrue();
+            expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
+            expect(crypto.verify(response.body.result)).toBeTrue();
         });
     });
 
@@ -90,13 +93,13 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            axiosMock.onPost(/.*\/api\/transactions/).reply(() => [200, { success: true }, peerMock.headers]);
+            mockHost.post("/api/transactions").reply(200, { success: true }, peerMock.headers);
 
             const response = await sendRequest("transactions.broadcast", {
-                id: transaction.data.result.id,
+                id: transaction.body.result.id,
             });
 
-            expect(crypto.verify(response.data.result)).toBeTrue();
+            expect(crypto.verify(response.body.result)).toBeTrue();
         });
 
         it("should fail to broadcast the transaction", async () => {
@@ -104,8 +107,8 @@ describe("Transactions", () => {
                 id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
             });
 
-            expect(response.data.error.code).toBe(404);
-            expect(response.data.error.message).toBe(
+            expect(response.body.error.code).toBe(404);
+            expect(response.body.error.message).toBe(
                 "Transaction e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8 could not be found.",
             );
         });
@@ -128,8 +131,8 @@ describe("Transactions", () => {
                 recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
             });
 
-            expect(response.data.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
-            expect(crypto.verify(response.data.result)).toBeTrue();
+            expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
+            expect(crypto.verify(response.body.result)).toBeTrue();
         });
 
         it("should fail to create a new transaction", async () => {
@@ -140,8 +143,8 @@ describe("Transactions", () => {
                 recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
             });
 
-            expect(response.data.error.code).toBe(404);
-            expect(response.data.error.message).toBe("User 123456789 could not be found.");
+            expect(response.body.error.code).toBe(404);
+            expect(response.body.error.message).toBe("User 123456789 could not be found.");
         });
     });
 });

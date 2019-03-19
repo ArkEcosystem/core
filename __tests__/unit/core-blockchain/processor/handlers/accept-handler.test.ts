@@ -10,7 +10,6 @@ import { BlockProcessorResult } from "../../../../../packages/core-blockchain/sr
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block } = models;
-let app;
 
 beforeAll(async () => {
     // mock apply / saveBlock - we dont want to actually do anything to the db

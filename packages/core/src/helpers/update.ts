@@ -39,7 +39,7 @@ export async function installFromChannel(pkg, channel) {
 }
 
 export function getRegistryChannel(config: IConfig): string {
-    const channels: string[] = ["alpha", "beta", "rc"];
+    const channels: string[] = ["alpha", "beta", "rc", "next"];
 
     let channel: string = "latest";
     for (const item of channels) {

@@ -1,15 +1,13 @@
 import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
-import { Bignum, crypto, models } from "@arkecosystem/crypto";
+import { Bignum, crypto } from "@arkecosystem/crypto";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
-import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
-
-const { Wallet } = models;
 
 let genesisSenders;
 let repository;
@@ -30,8 +28,9 @@ beforeEach(async () => {
 });
 
 function generateWallets() {
-    return genesisSenders.map(senderPublicKey => ({
+    return genesisSenders.map((senderPublicKey, index) => ({
         address: crypto.getAddress(senderPublicKey),
+        balance: new Bignum(index),
     }));
 }
 
@@ -52,8 +51,8 @@ function generateFullWallets() {
             secondPublicKey: `secondPublicKey-${address}`,
             vote: `vote-${address}`,
             username: `username-${address}`,
-            balance: 100,
-            voteBalance: 200,
+            balance: new Bignum(100),
+            voteBalance: new Bignum(200),
         };
     });
 }
@@ -347,9 +346,9 @@ describe("Wallet Repository", () => {
             const wallets = generateFullWallets();
             wallets.forEach((wallet, i) => {
                 if (i < 13) {
-                    wallet.balance = 53;
+                    wallet.balance = new Bignum(53);
                 } else if (i < 36) {
-                    wallet.balance = 99;
+                    wallet.balance = new Bignum(99);
                 }
             });
             walletManager.index(wallets);
@@ -370,9 +369,9 @@ describe("Wallet Repository", () => {
             const wallets = generateFullWallets();
             wallets.forEach((wallet, i) => {
                 if (i < 17) {
-                    wallet.voteBalance = 12;
+                    wallet.voteBalance = new Bignum(12);
                 } else if (i < 29) {
-                    wallet.voteBalance = 17;
+                    wallet.voteBalance = new Bignum(17);
                 }
             });
             walletManager.index(wallets);

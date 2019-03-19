@@ -32,5 +32,11 @@
     {
         "height": 100000,
         "vendorFieldLength": 255
+    },
+    {
+        "height": 1000000000,
+        "block": {
+            "idFullSha256": true
+        }
     }
 ]

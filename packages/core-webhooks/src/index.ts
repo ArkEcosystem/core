@@ -1,7 +1,7 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { database } from "./database";
 import { defaults } from "./defaults";
-import { webhookManager } from "./manager";
+import { WebhookManager } from "./manager";
 import { startServer } from "./server";
 
 export const plugin: Container.PluginDescriptor = {
@@ -16,7 +16,8 @@ export const plugin: Container.PluginDescriptor = {
 
         database.make();
 
-        await webhookManager.setUp();
+        const manager = new WebhookManager();
+        await manager.setUp();
 
         return startServer(options.server);
     },

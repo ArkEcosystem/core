@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
-import axios from "axios";
+import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
 
-class WebhookManager {
+export class WebhookManager {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private readonly blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -12,23 +12,20 @@ class WebhookManager {
     public async setUp() {
         for (const event of this.blockchain.getEvents()) {
             this.emitter.on(event, async payload => {
-                const webhooks = await database.findByEvent(event);
+                const { rows } = await database.findByEvent(event);
 
-                for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
+                for (const webhook of this.getMatchingWebhooks(rows, payload)) {
                     try {
-                        const response = await axios.post(
-                            webhook.target,
-                            {
+                        const response = await httpie.post(webhook.target, {
+                            body: {
                                 timestamp: +new Date(),
                                 data: payload,
                                 event: webhook.event,
                             },
-                            {
-                                headers: {
-                                    Authorization: webhook.token,
-                                },
+                            headers: {
+                                Authorization: webhook.token,
                             },
-                        );
+                        });
 
                         this.logger.debug(
                             `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${
@@ -71,5 +68,3 @@ class WebhookManager {
         return matches;
     }
 }
-
-export const webhookManager = new WebhookManager();

@@ -112,6 +112,7 @@ describe("Blockchain", () => {
 
         it("should process a new chained block", async () => {
             const mockCallback = jest.fn(() => true);
+            blockchain.state.blockchain = {};
 
             await blockchain.processBlock(new Block(blocks2to100[2]), mockCallback);
             await delay(200);
@@ -131,6 +132,8 @@ describe("Blockchain", () => {
         });
 
         it("should broadcast a block if (slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+            blockchain.state.started = true;
+
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
             lastBlock.data.timestamp = slots.getSlotNumber() * 8000;

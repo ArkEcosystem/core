@@ -25,11 +25,6 @@ interface IAcceptNewPeerOptions {
     lessVerbose?: boolean;
 }
 
-interface IAcceptNewPeerOptions {
-    seed?: boolean;
-    lessVerbose?: boolean;
-}
-
 export class Monitor implements P2P.IMonitor {
     public peers: { [ip: string]: any };
     public server: any;
@@ -201,7 +196,7 @@ export class Monitor implements P2P.IMonitor {
         } catch (error) {
             this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
 
-            console.log(error);
+            console.log(error); // TODO remove
             this.guard.suspend(newPeer);
         } finally {
             delete this.pendingPeers[peer.ip];

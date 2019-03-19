@@ -47,6 +47,7 @@ export const replySchemas: any = {
                         ip: Joi.string()
                             .ip({ cidr: "forbidden" })
                             .required(),
+                        status: [Joi.string(), Joi.number().integer()],
                     }),
                 )
                 .required(),

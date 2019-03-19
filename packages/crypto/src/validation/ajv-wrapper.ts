@@ -1,7 +1,6 @@
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { TransactionSchemaAlreadyExistsError } from "../errors";
 import { ISchemaValidationResult } from "../transactions/interfaces";
 import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
 import { formats } from "./formats";
@@ -37,15 +36,18 @@ class AjvWrapper {
         return { value: data, error };
     }
 
-    public extendTransaction(schema: TransactionSchema) {
-        if (this.transactionSchemas.has(schema.$id)) {
-            throw new TransactionSchemaAlreadyExistsError(schema.$id);
+    public extendTransaction(schema: TransactionSchema, remove?: boolean) {
+        if (remove) {
+            this.transactionSchemas.delete(schema.$id);
+            this.ajv.removeSchema(schema.$id);
+            this.ajv.removeSchema(`${schema.$id}Signed`);
+            this.ajv.removeSchema(`${schema.$id}Strict`);
+        } else {
+            this.transactionSchemas.add(schema.$id);
+            this.ajv.addSchema(schema);
+            this.ajv.addSchema(signedSchema(schema));
+            this.ajv.addSchema(strictSchema(schema));
         }
-
-        this.transactionSchemas.add(schema.$id);
-        this.ajv.addSchema(schema);
-        this.ajv.addSchema(signedSchema(schema));
-        this.ajv.addSchema(strictSchema(schema));
 
         this.updateTransactionArray();
     }

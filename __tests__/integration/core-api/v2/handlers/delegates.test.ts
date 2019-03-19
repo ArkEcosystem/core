@@ -18,8 +18,6 @@ const delegate = {
     forgedRewards: 50,
     forgedTotal: 100,
     producedBlocks: 75,
-    missedBlocks: 25,
-    productivity: 75,
     voteBalance: 100000,
 };
 
@@ -36,7 +34,6 @@ beforeAll(async () => {
     wallet.forgedFees = new Bignum(delegate.forgedFees);
     wallet.forgedRewards = new Bignum(delegate.forgedRewards);
     wallet.producedBlocks = 75;
-    wallet.missedBlocks = 25;
     wallet.voteBalance = new Bignum(delegate.voteBalance);
     wm.reindex(wallet);
 });
@@ -99,22 +96,6 @@ describe("API 2.0 - Delegates", () => {
 
                     response.data.data.forEach(utils.expectDelegate);
                     expect(response.data.data.sort((a, b) => a.rank > b.rank)).toEqual(response.data.data);
-                });
-            },
-        );
-
-        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
-            "using the %s header",
-            (header, request) => {
-                it("should GET all the delegates ordered by descending productivity", async () => {
-                    const response = await utils[request]("GET", "delegates", { orderBy: "productivity:desc" });
-                    expect(response).toBeSuccessfulResponse();
-                    expect(response.data.data).toBeArray();
-
-                    response.data.data.forEach(utils.expectDelegate);
-                    expect(
-                        response.data.data.sort((a, b) => a.production.productivity > b.production.productivity),
-                    ).toEqual(response.data.data);
                 });
             },
         );
@@ -459,80 +440,6 @@ describe("API 2.0 - Delegates", () => {
                         utils.expectDelegate(elem);
                         expect(elem.blocks.produced).toBeGreaterThanOrEqual(0);
                         expect(elem.blocks.produced).toBeLessThanOrEqual(delegate.producedBlocks);
-                    }
-                });
-
-                it("should POST a search for delegates with the exact specified missed blocks", async () => {
-                    const response = await utils[request]("POST", "delegates/search", {
-                        missedBlocks: {
-                            from: delegate.missedBlocks,
-                            to: delegate.missedBlocks,
-                        },
-                    });
-
-                    expect(response).toBeSuccessfulResponse();
-                    expect(response.data.data).toBeArray();
-                    expect(response.data.data).toHaveLength(1);
-
-                    for (const elem of response.data.data) {
-                        utils.expectDelegate(elem);
-                        expect(elem.blocks.missed).toEqual(delegate.missedBlocks);
-                    }
-                });
-
-                it("should POST a search for delegates with the specified missed blocks range", async () => {
-                    const response = await utils[request]("POST", "delegates/search", {
-                        missedBlocks: {
-                            from: 0,
-                            to: delegate.missedBlocks,
-                        },
-                    });
-
-                    expect(response).toBeSuccessfulResponse();
-                    expect(response.data.data).toBeArray();
-                    expect(response.data.data).toHaveLength(51);
-
-                    for (const elem of response.data.data) {
-                        utils.expectDelegate(elem);
-                        expect(elem.blocks.missed).toBeGreaterThanOrEqual(0);
-                        expect(elem.blocks.missed).toBeLessThanOrEqual(delegate.missedBlocks);
-                    }
-                });
-
-                it("should POST a search for delegates with the exact specified productivity", async () => {
-                    const response = await utils[request]("POST", "delegates/search", {
-                        productivity: {
-                            from: delegate.productivity,
-                            to: delegate.productivity,
-                        },
-                    });
-
-                    expect(response).toBeSuccessfulResponse();
-                    expect(response.data.data).toBeArray();
-                    expect(response.data.data).toHaveLength(1);
-
-                    for (const elem of response.data.data) {
-                        utils.expectDelegate(elem);
-                        expect(elem.production.productivity).toEqual(delegate.productivity);
-                    }
-                });
-
-                it("should POST a search for delegates with the specified productivity range", async () => {
-                    const response = await utils[request]("POST", "delegates/search", {
-                        productivity: {
-                            from: 0,
-                            to: delegate.productivity,
-                        },
-                    });
-
-                    expect(response).toBeSuccessfulResponse();
-                    expect(response.data.data).toBeArray();
-                    expect(response.data.data).toHaveLength(51);
-
-                    for (const elem of response.data.data) {
-                        utils.expectDelegate(elem);
-                        expect(elem.production.productivity).toBeGreaterThanOrEqual(0);
-                        expect(elem.production.productivity).toBeLessThanOrEqual(delegate.productivity);
                     }
                 });
 
