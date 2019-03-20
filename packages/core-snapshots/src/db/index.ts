@@ -54,8 +54,8 @@ class Database {
     }
 
     public async truncateChain() {
-        const tables = ["wallets", "rounds", "transactions", "blocks"];
-        logger.info("Truncating tables: wallets, rounds, transactions, blocks");
+        const tables = ["rounds", "transactions", "blocks"];
+        logger.info("Truncating tables: rounds, transactions, blocks");
         try {
             for (const table of tables) {
                 await this.db.none(queries.truncate(table));
@@ -77,7 +77,6 @@ class Database {
         try {
             if (lastRemainingBlock) {
                 await Promise.all([
-                    this.db.none(queries.truncate("wallets")),
                     this.db.none(queries.transactions.deleteFromTimestamp, {
                         timestamp: lastRemainingBlock.timestamp,
                     }),
