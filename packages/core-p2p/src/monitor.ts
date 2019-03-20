@@ -195,8 +195,6 @@ export class Monitor implements P2P.IMonitor {
             this.emitter.emit("peer.added", newPeer);
         } catch (error) {
             this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
-
-            console.log(error); // TODO remove
             this.guard.suspend(newPeer);
         } finally {
             delete this.pendingPeers[peer.ip];

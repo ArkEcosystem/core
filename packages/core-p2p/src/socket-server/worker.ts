@@ -79,8 +79,6 @@ class Worker extends SCWorker {
         }
 
         // only allow requests with data and headers specified
-        // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
-        this.logError(`Received message from ${req.socket.remoteAddress} : ${JSON.stringify(req.data, null, 2)}`);
         if (!req.data || !req.data.headers) {
             return next(createError(SocketErrors.HeadersRequired, "Request data and data.headers is mandatory"));
         }
@@ -165,8 +163,6 @@ class Worker extends SCWorker {
         try {
             const masterResponse = await this.sendToMasterAsync(data);
 
-            // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
-            this.logError(`Sending response: ${JSON.stringify(masterResponse, null, 2)}`);
             return res(null, masterResponse);
         } catch (e) {
             return res(e);

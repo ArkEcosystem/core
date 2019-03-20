@@ -369,9 +369,6 @@ export class Peer implements P2P.IPeer {
 
             this.updateHeaders();
 
-            // TODO we log into error right now to have it in separate log, this needs to be deleted after dev
-            this.logger.error(`[peer] Sending ${event} message to ${this.ip}`);
-
             response = await socketEmit(this.socket, event, data, this.headers, timeout);
 
             this.delay = new Date().getTime() - timeBeforeSocketCall;
