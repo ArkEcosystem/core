@@ -80,16 +80,12 @@ export const replySchemas: any = {
         .required(),
     "p2p.peer.postBlock": Joi.object()
         .keys({
-            success: Joi.boolean()
-                .equal(true)
-                .required(),
+            success: Joi.boolean().required(),
         })
         .required(),
     "p2p.peer.postTransactions": Joi.object()
         .keys({
-            success: Joi.boolean()
-                .equal(true)
-                .required(),
+            success: Joi.boolean().required(),
         })
         .required(),
 };
