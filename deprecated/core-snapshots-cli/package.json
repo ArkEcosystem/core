@@ -18,7 +18,7 @@
     "scripts": {
         "snapshot": "./bin/run",
         "prepublishOnly": "yarn build",
-        "prepack": "oclif-dev manifest && npm shrinkwrap",
+        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",

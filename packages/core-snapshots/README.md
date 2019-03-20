@@ -1,7 +1,7 @@
 # Ark Core - Snapshots
 
 <p align="center">
-    <img src="../../banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ArkEcosystem/core/master/banner.png?sanitize=true" />
 </p>
 
 ## Documentation
@@ -14,9 +14,7 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
--   [Joshua Noack](https://github.com/supaiku0)
--   [Kristjan Košič](https://github.com/kristjank)
--   [All Contributors](../../../../contributors)
+This project exists thanks to all the people who [contribute](../../../../contributors).
 
 ## License
 

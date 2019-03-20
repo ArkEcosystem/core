@@ -1,12 +1,15 @@
 # Ark Core - GraphQL
 
 <p align="center">
-    <img src="../../banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ArkEcosystem/core/master/banner.png?sanitize=true" />
 </p>
+
+## Deprecated
+Note that this plugin is deprecated and should no longer be used.
 
 ## Documentation
 
-You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-graphql.html).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/deprecated/core-graphql.html).
 
 ## Security
 
