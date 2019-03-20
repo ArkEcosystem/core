@@ -17,7 +17,7 @@ const startSocketServer = async config => {
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
     const server = new SocketCluster({
-        workers: 1,
+        workers: config.workers || 1,
         brokers: 1,
         port: config.port,
         appName: "core-p2p",
