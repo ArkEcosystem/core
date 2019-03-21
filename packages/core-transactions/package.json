@@ -20,7 +20,8 @@
     },
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.2.1",
-        "@arkecosystem/crypto": "^2.2.1"
+        "@arkecosystem/crypto": "^2.2.1",
+        "bs58check": "^2.1.2"
     },
     "publishConfig": {
         "access": "public"
