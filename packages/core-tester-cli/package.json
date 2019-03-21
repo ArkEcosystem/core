@@ -37,8 +37,6 @@
         "bip39": "^2.5.0",
         "clipboardy": "^1.2.3",
         "delay": "^4.1.0",
-        "pino": "^5.11.1",
-        "pino-pretty": "^2.5.0",
         "pluralize": "^7.0.0",
         "pokemon": "^1.2.3"
     },
