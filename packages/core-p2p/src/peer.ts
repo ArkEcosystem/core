@@ -75,7 +75,11 @@ export class Peer implements P2P.IPeer {
             hostname: ip,
         });
         this.socket.on("error", err => {
-            this.logger.debug(`Error catched: "${err}"`);
+            if (guard.isSuspended(this)) {
+                return; // ignore socket errors if peer is already suspended
+            }
+
+            this.logger.debug(`Socket error for peer ${this.ip} : "${err}"`);
             guard.suspend(this);
         });
         this.socketError = null;
