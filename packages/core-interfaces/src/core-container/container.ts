@@ -5,14 +5,20 @@ export interface PluginDescriptor {
     pkg: any;
     defaults?: any;
     extends?: string;
-    register(container: IContainer, options?: any): Promise<any>;
+    register(container: IContainer, options?: IPluginOptions): Promise<any>;
     deregister?(container: IContainer, options?: any): Promise<void>;
+}
+
+type PluginOptionValue = string | number | boolean | object;
+
+export interface IPluginOptions {
+    [key: string]: PluginOptionValue | PluginOptionValue[];
 }
 
 export interface PluginConfig<T> {
     name: string;
     version: string;
-    options: { [key: string]: any };
+    options: IPluginOptions;
     plugin: T;
 }
 
