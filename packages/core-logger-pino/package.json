@@ -22,6 +22,8 @@
         "@arkecosystem/core-interfaces": "^2.2.1",
         "@arkecosystem/core-logger": "^2.2.1",
         "lodash.isempty": "^4.4.0",
+        "pino": "^5.11.1",
+        "pino-pretty": "^2.5.0",
         "pino-multi-stream": "^4.0.2",
         "rotating-file-stream": "^1.4.0"
     },

@@ -71,7 +71,7 @@ export class PinoLogger extends AbstractLogger {
         return getPrettyStream(
             {
                 levelFirst: false,
-                translateTime: true,
+                translateTime: "yyyy-mm-dd HH:MM:ss.l",
                 colorize: true,
             },
             PinoPretty,
@@ -80,20 +80,12 @@ export class PinoLogger extends AbstractLogger {
     }
 
     private getFileStream() {
-        const withLeadingZero = (num: number) => (num > 9 ? "" : "0") + num;
-
-        const createFileName = (time: Date) => {
+        const createFileName = (time: Date, index: number) => {
             if (!time) {
                 return new Date().toISOString().slice(0, 10) + ".log";
             }
 
-            console.log(time.getMonth());
-
-            const year = withLeadingZero(time.getFullYear());
-            const month = withLeadingZero(time.getMonth());
-            const day = withLeadingZero(time.getDate());
-
-            return `${year}-${month}-${day}.log`;
+            return `${time.toISOString().slice(0, 10)}.${index}.log.gz`;
         };
 
         return rfs(createFileName, {
@@ -101,6 +93,7 @@ export class PinoLogger extends AbstractLogger {
             interval: "1d",
             maxSize: "100M",
             maxFiles: 10,
+            compress: "gzip",
         });
     }
 }
