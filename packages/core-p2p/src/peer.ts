@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato, Dato } from "@faustbrian/dato";
-import Joi from "joi";
+import AJV from "ajv";
 import socketCluster from "socketcluster-client";
 import util from "util";
 import { config as localConfig } from "./config";
@@ -307,42 +307,21 @@ export class Peer implements P2P.IPeer {
     /**
      * Validate a reply from the peer according to a predefined JSON schema rules.
      * @param {Object} reply peer's reply
-     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. p2p.peer.getStatus
      * @return {Boolean} true if validated successfully
      */
     private validateReply(reply: any, endpoint: string): boolean {
-        let schema = replySchemas[endpoint];
+        const schema = replySchemas[endpoint];
         if (schema === undefined) {
-            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
-            let len = 0;
-            const definedEndpoints = Object.keys(replySchemas);
-            for (const d of definedEndpoints) {
-                if (endpoint.startsWith(d) && len < d.length) {
-                    schema = replySchemas[d];
-                    len = d.length;
-                }
-            }
-
-            if (schema === undefined) {
-                this.logger.error(
-                    `Can't validate reply from "${endpoint}": none of the predefined ` +
-                        `schemas matches: ` +
-                        JSON.stringify(definedEndpoints),
-                );
-                return false;
-            }
+            this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined ` + `schemas matches.`);
+            return false;
         }
 
-        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+        const ajv = new AJV();
+        const errors = ajv.validate(schema, reply) ? null : ajv.errorsText();
 
-        if (result.error) {
-            let errorMessage = result.error.message;
-            if (result.error.details && result.error.details.length > 0) {
-                const context = result.error.details[0].context;
-                errorMessage += ` - ${context.key}: ${context.value}`;
-            }
-
-            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errorMessage}`);
+        if (errors) {
+            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errors}`);
             return false;
         }
 
