@@ -330,12 +330,12 @@ export class Peer implements P2P.IPeer {
      * Perform POST request.
      * @param  {String} endpoint
      * @param  {Object} body
-     * @param  {Object} headers
+     * @param  {Object} opts
      * @return {(Object|undefined)}
      */
-    public async __post(endpoint, body, headers) {
+    public async __post(endpoint, body, opts) {
         try {
-            const response = await httpie.post(`${this.url}${endpoint}`, { body, headers });
+            const response = await httpie.post(`${this.url}${endpoint}`, { body, ...opts });
 
             this.__parseHeaders(response);
 
