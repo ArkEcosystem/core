@@ -231,14 +231,6 @@ export class Peer implements P2P.IPeer {
             return [];
         }
 
-        if (!body) {
-            return [];
-        }
-
-        if (!body) {
-            return [];
-        }
-
         const blacklisted = {};
         localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
         return body.peers.filter(peer => !blacklisted[peer.ip]);
