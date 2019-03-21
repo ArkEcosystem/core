@@ -13,12 +13,11 @@ class Worker extends SCWorker {
         this.logInfo(`Socket worker started, PID: ${process.pid}`);
 
         const scServer = (this as any).scServer;
-        const self = this;
 
         this.initRateLimit();
 
         scServer.on("connection", socket => {
-            self.registerEndpoints(socket);
+            this.registerEndpoints(socket);
         });
 
         scServer.addMiddleware(scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) => this.middlewareHandshake(req, next));
@@ -37,21 +36,19 @@ class Worker extends SCWorker {
     }
 
     public async registerEndpoints(socket) {
-        const self = this;
-
         const handlers: any = await this.sendToMasterAsync({
             endpoint: "p2p.utils.getHandlers",
         });
 
         for (const name of handlers.data.peer) {
             socket.on(`p2p.peer.${name}`, async (data, res) =>
-                self.forwardToMaster(Object.assign(data, { endpoint: `p2p.peer.${name}` }), res),
+                this.forwardToMaster(Object.assign(data, { endpoint: `p2p.peer.${name}` }), res),
             );
         }
 
         for (const name of handlers.data.internal) {
             socket.on(`p2p.internal.${name}`, async (data, res) =>
-                self.forwardToMaster(Object.assign(data, { endpoint: `p2p.internal.${name}` }), res),
+                this.forwardToMaster(Object.assign(data, { endpoint: `p2p.internal.${name}` }), res),
             );
         }
     }
@@ -153,9 +150,8 @@ class Worker extends SCWorker {
     }
 
     public async sendToMasterAsync(data) {
-        const self: any = this;
         return new Promise((resolve, reject) => {
-            self.sendToMaster(data, (err, val) => (err ? reject(err) : resolve(val)));
+            (this as any).sendToMaster(data, (err, val) => (err ? reject(err) : resolve(val)));
         });
     }
 
