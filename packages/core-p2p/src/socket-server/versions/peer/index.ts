@@ -37,16 +37,6 @@ export const getPeers = () => {
     };
 };
 
-export const getHeight = () => {
-    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
-
-    return {
-        success: true,
-        height: lastBlock.data.height,
-        id: lastBlock.data.id,
-    };
-};
-
 export const getCommonBlocks = async req => {
     if (!req.data.ids) {
         return {
@@ -65,10 +55,6 @@ export const getCommonBlocks = async req => {
         common: commonBlocks.length ? commonBlocks[0] : null,
         lastBlockHeight: blockchain.getLastBlock().data.height,
     };
-};
-
-export const getTransactions = () => {
-    return { success: true, transactions: [] };
 };
 
 export const getStatus = () => {
