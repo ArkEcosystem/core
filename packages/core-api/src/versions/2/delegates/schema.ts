@@ -185,9 +185,3 @@ export const voters: object = {
         },
     },
 };
-
-export const voterBalances: object = {
-    params: {
-        id: schemaIdentifier,
-    },
-};
