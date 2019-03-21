@@ -212,47 +212,38 @@ export class Monitor implements P2P.IMonitor {
     /**
      * Clear peers which aren't responding.
      * @param {Boolean} fast
-     * @param {Boolean} tracker
-     * @param {Boolean} forcePing
      */
-    public async cleanPeers(fast = false, forcePing = false) {
+    public async cleanPeers(fast = false) {
         const keys = Object.keys(this.peers);
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
-        const max = keys.length;
+        const maxDelay = fast ? 1500 : localConfig.get("globalTimeout") || 1500;
+        const peersCount = keys.length;
 
-        this.logger.info(`Checking ${max} peers`);
-        const peerErrors = {};
+        this.logger.info(`Checking ${peersCount} peers`);
         await Promise.all(
             keys.map(async ip => {
                 const peer = this.getPeer(ip);
-                try {
-                    await peer.ping(pingDelay, forcePing);
-                } catch (error) {
-                    unresponsivePeers++;
 
-                    if (peerErrors[error]) {
-                        peerErrors[error].push(peer);
-                    } else {
-                        peerErrors[error] = [peer];
-                    }
+                if (
+                    peer.socket.getState() !== peer.socket.OPEN ||
+                    peer.delay === -1 || // means last socket message timed out
+                    peer.delay > maxDelay
+                ) {
+                    unresponsivePeers++;
 
                     this.emitter.emit("peer.removed", peer);
 
                     this.removePeer(peer);
-
-                    return null;
                 }
             }),
         );
 
-        Object.keys(peerErrors).forEach((key: any) => {
-            const peerCount = peerErrors[key].length;
-            this.logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
-        });
+        if (unresponsivePeers) {
+            this.logger.debug(`Removed ${unresponsivePeers} unresponsive ${pluralize("peer", unresponsivePeers)}`);
+        }
 
         if (this.initializing) {
-            this.logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
+            this.logger.info(`${peersCount - unresponsivePeers} of ${peersCount} peers on the network are responsive`);
             this.logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
             this.logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`);
         }
@@ -383,7 +374,7 @@ export class Monitor implements P2P.IMonitor {
 
     public async getNetworkState(): Promise<NetworkState> {
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true, true);
+            await this.cleanPeers(true);
         }
 
         return NetworkState.analyze(this);
@@ -512,7 +503,7 @@ export class Monitor implements P2P.IMonitor {
      */
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true, true);
+            await this.cleanPeers(true);
             await this.guard.resetSuspendedPeers();
         }
 
