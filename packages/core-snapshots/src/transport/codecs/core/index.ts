@@ -32,6 +32,7 @@ export const transactionDecode = bufferData => {
     transaction.fee = transaction.fee.toFixed();
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null;
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : null;
+    transaction.asset = transaction.asset ? transaction.asset : null;
     transaction = decamelizeKeys(transaction);
 
     transaction.serialized = serialized;

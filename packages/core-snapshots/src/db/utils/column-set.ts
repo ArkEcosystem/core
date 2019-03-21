@@ -30,5 +30,6 @@ export const columns = {
         "amount",
         "fee",
         "serialized",
+        "asset",
     ],
 };
