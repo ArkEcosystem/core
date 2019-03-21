@@ -26,13 +26,17 @@ export class Client {
             throw new Error("Failed to determine the P2P communication port / ip.");
         }
 
-        this.hosts.forEach(
-            host =>
-                (host.socket = socketCluster.create({
-                    port: host.port,
-                    hostname: host.ip,
-                })),
-        );
+        this.hosts.forEach(host => {
+            host.socket = socketCluster.create({
+                port: host.port,
+                hostname: host.ip,
+            });
+
+            host.socket.on("error", err => {
+                // don't do anything but we need this error handler so that socket errors don't crash the app
+                // (typically we catch here socket disconnection errors)
+            });
+        });
 
         this.host = this.hosts[0];
 
