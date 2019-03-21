@@ -108,7 +108,13 @@ export class Guard {
         delete this.suspensions[peer.ip];
         delete peer.nextSuspensionReminder;
 
-        await this.monitor.acceptNewPeer(peer);
+        if (peer.socket.getState() !== peer.socket.OPEN) {
+            // if after suspension peer socket is not open, we just "destroy" the socket connection
+            // and we don't try to "accept" the peer again, so it will be definitively removed as there will be no reference to it
+            peer.socket.destroy();
+        } else {
+            await this.monitor.acceptNewPeer(peer);
+        }
     }
 
     /**
