@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-logger-pino",
     "description": "Pino integration for Ark Core",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -19,8 +19,8 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.2.1",
-        "@arkecosystem/core-logger": "^2.2.1",
+        "@arkecosystem/core-interfaces": "^2.2.2",
+        "@arkecosystem/core-logger": "^2.2.2",
         "lodash.isempty": "^4.4.0",
         "pino": "^5.11.1",
         "pino-pretty": "^2.5.0",

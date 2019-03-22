@@ -47,6 +47,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Removed dead fast rebuild code that hasn't been used since 2.0 release ([#2210])
 
+## [2.2.2] - 2019-03-19
+
+### Removed
+
+-   Remove `/api/v2/delegates/{id}/voters/balances` endpoint ([#2265])
+
 ## [2.2.0] - 2019-03-11
 
 ### Added
