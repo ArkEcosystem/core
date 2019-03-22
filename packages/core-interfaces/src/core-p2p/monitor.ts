@@ -31,8 +31,10 @@ export interface IMonitor {
     /**
      * Clear peers which aren't responding.
      * @param {Boolean} fast
+     * @param {Boolean} tracker
+     * @param {Boolean} forcePing
      */
-    cleanPeers(fast?: boolean): Promise<void>;
+    cleanPeers(fast?: boolean, forcePing?: boolean): Promise<void>;
 
     /**
      * Suspend an existing peer.
