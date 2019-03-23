@@ -24,10 +24,16 @@
         "lodash.isempty": "^4.4.0",
         "pino": "^5.11.1",
         "pino-pretty": "^2.5.0",
-        "pino-multi-stream": "^4.0.2",
+        "pump": "^3.0.0",
+        "split2": "^3.1.1",
+        "readable-stream": "^3.2.0",
         "rotating-file-stream": "^1.4.0"
     },
     "devDependencies": {
+        "@types/pino": "^5.8.6",
+        "@types/pump": "^1.0.1",
+        "@types/split2": "^2.1.6",
+        "@types/readable-stream": "^2.3.1",
         "@types/capture-console": "^1.0.0",
         "@types/lodash.isempty": "^4.4.6",
         "capture-console": "^1.0.1"
