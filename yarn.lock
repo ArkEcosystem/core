@@ -2353,10 +2353,10 @@
     "@types/node" "*"
     "@types/pg-types" "*"
 
-"@types/pino@^5.8.5":
-  version "5.8.5"
-  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.8.5.tgz#b019db3119c0178d3a0df0d19e1716973d18b5fa"
-  integrity sha512-fQR+mtA5xFqC58uVItdz7n0Cfon0z8sXrY6+arxgD/PbbytWunWeB99Oq3Z15J7Z+6z0aj7MsziEkGONxuLkxQ==
+"@types/pino@^5.8.6":
+  version "5.8.6"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.8.6.tgz#b356ac7bb607d9c489821752b47475bbcfd698b9"
+  integrity sha512-3hKjgaAXi8FALboVw1LC+3wiQN+bLZ/byzVgRI65XZxdVLSgjIl3kMVh2etKEdQ96qUgMd6bhNtzrUwh1e1x9g==
   dependencies:
     "@types/node" "*"
     "@types/sonic-boom" "*"
@@ -2391,10 +2391,25 @@
   resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-1.2.0.tgz#891e73f735ad5e82e8adae3a99424128e105fb62"
   integrity sha512-7JXpT2rSd4hqd2oBWU1wfEW6x6gX+qPH+gLzGEx+My3wcb67K9Rc02xNQRVn67phusmXm5Yqn4oTP2OW1G5zdQ==
 
+"@types/pump@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/pump/-/pump-1.0.1.tgz#ae8157cefef04d1a4d24c1cc91d403c2f5da5cd0"
+  integrity sha1-roFXzv7wTRpNJMHMkdQDwvXaXNA=
+  dependencies:
+    "@types/node" "*"
+
 "@types/random-seed@^0.3.3":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@types/random-seed/-/random-seed-0.3.3.tgz#7741f7b0a4513198a9396ce4ad25832f799a6727"
   integrity sha512-kHsCbIRHNXJo6EN5W8EA5b4i1hdT6jaZke5crBPLUcLqaLdZ0QBq8QVMbafHzhjFF83Cl9qlee2dChD18d/kPg==
+
+"@types/readable-stream@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@types/readable-stream/-/readable-stream-2.3.1.tgz#59d458b51c84c585caea06e296e2225057c9ea8e"
+  integrity sha512-Dp6t95yGEOm2y669mQrSl0kUg+oL+bJEiCWMyDv0Yq+FcVvjzNRLTAqJks2LDBYYrazZXNI7lZXq3lp7MOvt4A==
+  dependencies:
+    "@types/node" "*"
+    safe-buffer "*"
 
 "@types/request-promise@^4.1.42":
   version "4.1.42"
@@ -2455,6 +2470,13 @@
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/@types/sonic-boom/-/sonic-boom-0.6.2.tgz#5f6c7bf6b4a0994f9339d778da6a7adcc3d37080"
   integrity sha512-vP9Sn1tuz/BTh8L1o776Cbzr+WH4dZGmRXOjQ5L+IVQx40hUmvOS2wfIkqUsID1vL62tThWdlXWIqijwewu3mw==
+  dependencies:
+    "@types/node" "*"
+
+"@types/split2@^2.1.6":
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/@types/split2/-/split2-2.1.6.tgz#b095c9e064853824b22c67993d99b066777402b1"
+  integrity sha512-ddaFSOMuy2Rp97l6q/LEteQygvTQJuEZ+SRhxFKR0uXGsdbFDqX/QF2xoGcOqLQ8XV91v01SnAv2vpgihNgW/Q==
   dependencies:
     "@types/node" "*"
 
@@ -10489,13 +10511,6 @@ pinkie@^2.0.0:
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
   integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
 
-pino-multi-stream@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/pino-multi-stream/-/pino-multi-stream-4.0.2.tgz#1996716dc5938e4de58f044469c549dbb3d7008b"
-  integrity sha512-QQajDnc0dv5p/iOgPiDoYwI5EKnnBNxK1NCsdD6IlM14ddmIt5kaGqk+73qjvCc2usSELSNa95D2qXGLehl6YQ==
-  dependencies:
-    pino "^5.11.1"
-
 pino-pretty@^2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-2.5.0.tgz#fade5b6d2acbdbf2c7e77adf220e7b7d89d04437"
@@ -11136,7 +11151,7 @@ readable-stream@1.1.x:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-readable-stream@3, readable-stream@^3.0.0, readable-stream@^3.0.6:
+readable-stream@3, readable-stream@^3.0.0, readable-stream@^3.0.6, readable-stream@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.2.0.tgz#de17f229864c120a9f56945756e4f32c4045245d"
   integrity sha512-RV20kLjdmpZuTF1INEb9IA3L68Nmi+Ri7ppZqo78wj//Pn62fCoJyV9zalccNzDD/OuJpMG4f+pfMl8+L6QdGw==
@@ -11539,7 +11554,7 @@ rxjs@^6.3.3, rxjs@^6.4.0:
   dependencies:
     tslib "^1.9.0"
 
-safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@^5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
+safe-buffer@*, safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@^5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
   integrity sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==
@@ -12200,6 +12215,13 @@ split2@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/split2/-/split2-3.1.0.tgz#064bbfac70cdb66f77827870d42f159a8b442201"
   integrity sha512-ePE1otNQVMnBRyqf3INbZvZwBPGsdBDThgrOWZ6z8zXGNVQNVCSEoOO9aBMTzDN1mXoNSZJ2kHSFH7AA5SPWww==
+  dependencies:
+    readable-stream "^3.0.0"
+
+split2@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/split2/-/split2-3.1.1.tgz#c51f18f3e06a8c4469aaab487687d8d956160bb6"
+  integrity sha512-emNzr1s7ruq4N+1993yht631/JH+jaj0NYBosuKmLcq+JkGQ9MmTw1RB1fGaTCzUuseRIClrlSLHRNYGwWQ58Q==
   dependencies:
     readable-stream "^3.0.0"
 

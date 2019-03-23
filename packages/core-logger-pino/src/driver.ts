@@ -1,28 +1,39 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
+import { WriteStream } from "fs";
 import isEmpty from "lodash/isEmpty";
-import pino from "pino";
-import { multistream } from "pino-multi-stream";
+import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
-import { getPrettyStream } from "pino/lib/tools";
+import pump from "pump";
+import { Transform } from "readable-stream";
 import rfs from "rotating-file-stream";
+import split from "split2";
+import { PassThrough } from "stream";
 import { inspect } from "util";
 
 export class PinoLogger extends AbstractLogger {
     public logger: pino.Logger;
     public silent: boolean = false;
 
+    private fileStream: WriteStream;
+
     public make() {
+        const stream = new PassThrough();
         this.logger = pino(
             {
                 base: null,
                 safe: true,
-                level: this.options.levels.console,
+                level: "trace",
             },
-            multistream([
-                { level: this.options.levels.console, stream: this.getConsoleStream() },
-                { level: this.options.levels.file, stream: this.getFileStream() },
-            ]),
+            stream,
         );
+
+        this.fileStream = this.getFileStream();
+
+        const consoleTransport = this.createPrettyTransport(this.options.levels.console, { colorize: true });
+        const fileTransport = this.createPrettyTransport(this.options.levels.file, { colorize: false });
+
+        pump(stream, split(), consoleTransport, process.stdout);
+        pump(stream, split(), fileTransport, this.fileStream);
 
         return this;
     }
@@ -67,19 +78,37 @@ export class PinoLogger extends AbstractLogger {
         this.logger[method](message);
     }
 
-    private getConsoleStream() {
-        return getPrettyStream(
-            {
+    private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
+        const pinoPretty = PinoPretty({
+            ...{
                 levelFirst: false,
                 translateTime: "yyyy-mm-dd HH:MM:ss.l",
-                colorize: true,
             },
-            PinoPretty,
-            process.stdout,
-        );
+            ...prettyOptions,
+        });
+
+        const levelValue = this.logger.levels.values[level];
+
+        return new Transform({
+            transform(chunk, enc, cb) {
+                try {
+                    const json = JSON.parse(chunk);
+                    if (json.level >= levelValue) {
+                        const line = pinoPretty(json);
+                        if (line !== undefined) {
+                            return cb(null, line);
+                        }
+                    }
+                } catch (ex) {
+                    //
+                }
+
+                return cb();
+            },
+        });
     }
 
-    private getFileStream() {
+    private getFileStream(): WriteStream {
         const createFileName = (time: Date, index: number) => {
             if (!time) {
                 return new Date().toISOString().slice(0, 10) + ".log";
