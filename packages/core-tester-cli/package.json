@@ -46,7 +46,6 @@
         "@types/bip39": "^2.4.2",
         "@types/clipboardy": "^1.1.0",
         "@types/lodash.fill": "^3.4.6",
-        "@types/pino": "^5.8.5",
         "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
