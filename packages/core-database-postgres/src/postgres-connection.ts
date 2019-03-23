@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { models, Transaction } from "@arkecosystem/crypto";
+import { configManager, models, Transaction } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise from "pg-promise";
@@ -206,15 +206,24 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         this.logger.warn(`Migrating transactions table. This may take a while.`);
 
         const all = await this.db.manyOrNone("SELECT serialized FROM transactions WHERE type > 0");
+        const { transactionIdFixTable } = configManager.get("exceptions");
+
         for (const batch of chunk(all, 20000)) {
             await this.db.task(task => {
                 const transactions = [];
                 batch.forEach((tx: { serialized: Buffer }) => {
                     const transaction = Transaction.fromBytes(tx.serialized);
                     if (transaction.data.asset) {
+                        let transactionId = transaction.id;
+
+                        // If the transaction is a broken v1 transaction use the broken id for the query.
+                        if (transactionIdFixTable && transactionIdFixTable[transactionId]) {
+                            transactionId = transactionIdFixTable[transactionId];
+                        }
+
                         const query =
                             this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
-                            ` WHERE id = '${transaction.id}'`;
+                            ` WHERE id = '${transactionId}'`;
                         transactions.push(task.none(query));
                     }
                 });

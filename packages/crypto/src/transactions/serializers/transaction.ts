@@ -10,8 +10,6 @@ import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
 import { Transaction } from "../types";
 
-const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
-
 export interface ISerializeOptions {
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
@@ -119,7 +117,9 @@ export class TransactionSerializer {
 
         // Apply fix for broken type 1 and 4 transactions, which were
         // erroneously calculated with a recipient id.
-        const isBrokenTransaction = Object.values(transactionIdFixTable).includes(transaction.id);
+        const { transactionIdFixTable } = configManager.get("exceptions");
+        const isBrokenTransaction =
+            transactionIdFixTable && Object.values(transactionIdFixTable).includes(transaction.id);
         const correctType = transaction.type !== 1 && transaction.type !== 4;
         if (transaction.recipientId && (isBrokenTransaction || correctType)) {
             const recipientId =
