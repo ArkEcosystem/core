@@ -22,15 +22,15 @@ export class PinoLogger extends AbstractLogger {
             {
                 base: null,
                 safe: true,
-                level: this.options.levels.console,
+                level: "trace",
             },
             stream,
         );
 
         this.fileStream = this.getFileStream();
 
-        const consoleTransport = this.createPrettyTransport({ colorize: true });
-        const fileTransport = this.createPrettyTransport({ colorize: false });
+        const consoleTransport = this.createPrettyTransport(this.options.levels.console, { colorize: true });
+        const fileTransport = this.createPrettyTransport(this.options.levels.file, { colorize: false });
 
         pump(stream, split(), consoleTransport, process.stdout);
         pump(stream, split(), fileTransport, this.fileStream);
@@ -78,7 +78,7 @@ export class PinoLogger extends AbstractLogger {
         this.logger[method](message);
     }
 
-    private createPrettyTransport(prettyOptions?: PrettyOptions): Transform {
+    private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
         const pinoPretty = PinoPretty({
             ...{
                 levelFirst: false,
@@ -87,13 +87,23 @@ export class PinoLogger extends AbstractLogger {
             ...prettyOptions,
         });
 
+        const levelValue = this.logger.levels.values[level];
+
         return new Transform({
             transform(chunk, enc, cb) {
-                const line = pinoPretty(chunk.toString());
-                if (line === undefined) {
-                    return cb();
+                try {
+                    const json = JSON.parse(chunk);
+                    if (json.level >= levelValue) {
+                        const line = pinoPretty(json);
+                        if (line !== undefined) {
+                            return cb(null, line);
+                        }
+                    }
+                } catch (ex) {
+                    //
                 }
-                cb(null, line);
+
+                return cb();
             },
         });
     }
