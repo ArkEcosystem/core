@@ -73,7 +73,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async getFeeStatistics() {
-        const opts = app.resolveOptions("transactionPool");
+        const opts = app.resolveOptions("transaction-pool");
         return await this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
             opts.dynamicFees.minFeeBroadcast,
         );

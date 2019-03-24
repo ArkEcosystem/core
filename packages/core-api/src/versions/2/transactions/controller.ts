@@ -8,7 +8,7 @@ import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transactio
 import { constants } from "@arkecosystem/crypto";
 
 export class TransactionsController extends Controller {
-    private transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
+    private transactionPool = app.resolvePlugin<TransactionPool>("transaction-pool");
 
     public constructor() {
         super();
