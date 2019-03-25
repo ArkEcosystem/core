@@ -1,9 +1,6 @@
 import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
-import { execSync } from "child_process";
 import delay from "delay";
-import { existsSync } from "fs";
-import { join } from "path";
 import semver from "semver";
 import { configManager } from "./config";
 import { Environment } from "./environment";
