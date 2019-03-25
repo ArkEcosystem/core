@@ -3,7 +3,7 @@ import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
 import isReachable from "is-reachable";
-import sample from "lodash/sample";
+import sample from "lodash.sample";
 
 class Network {
     private peers: any;

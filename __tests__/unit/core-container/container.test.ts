@@ -64,10 +64,6 @@ describe("Container", () => {
         expect(app.has("fake")).toBeTrue();
     });
 
-    it("should get the hashid", () => {
-        expect(app.getHashid()).toBeString();
-    });
-
     it("should get the version", () => {
         expect(app.getVersion()).toBe("2.0.0");
     });

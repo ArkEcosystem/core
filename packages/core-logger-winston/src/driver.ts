@@ -1,15 +1,11 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import "colors";
-import isEmpty from "lodash/isEmpty";
+import isEmpty from "lodash.isempty";
 import { inspect } from "util";
 import * as winston from "winston";
 
 export class WinstonLogger extends AbstractLogger {
     public logger: any;
-
-    constructor(readonly options) {
-        super(options);
-    }
 
     /**
      * Make the logger instance.

@@ -1,6 +1,6 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { WriteStream } from "fs";
-import isEmpty from "lodash/isEmpty";
+import isEmpty from "lodash.isempty";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";

@@ -6,10 +6,10 @@ import { slots } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import fs from "fs";
-import groupBy from "lodash/groupBy";
-import sample from "lodash/sample";
-import shuffle from "lodash/shuffle";
-import take from "lodash/take";
+import groupBy from "lodash.groupby";
+import sample from "lodash.sample";
+import shuffle from "lodash.shuffle";
+import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 
@@ -78,12 +78,6 @@ export class Monitor implements P2P.IMonitor {
 
             for (const [version, peers] of Object.entries(groupBy(this.peers, "version"))) {
                 this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
-            }
-
-            if (this.appConfig.get("network.name") !== "mainnet") {
-                for (const [hashid, peers] of Object.entries(groupBy(this.peers, "hashid"))) {
-                    this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} on commit ${hashid}.`);
-                }
             }
         }
 
