@@ -7,10 +7,6 @@ import * as winston from "winston";
 export class WinstonLogger extends AbstractLogger {
     public logger: any;
 
-    constructor(readonly options) {
-        super(options);
-    }
-
     /**
      * Make the logger instance.
      */
