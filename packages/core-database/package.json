@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database",
     "description": "Database Interface for Ark Core",
-    "version": "2.3.0-next.0",
+    "version": "2.3.0-next.1",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -22,11 +22,11 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.0",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.0",
-        "@arkecosystem/core-transactions": "^2.3.0-next.0",
-        "@arkecosystem/core-utils": "^2.3.0-next.0",
-        "@arkecosystem/crypto": "^2.3.0-next.0",
+        "@arkecosystem/core-container": "^2.3.0-next.1",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.1",
+        "@arkecosystem/core-transactions": "^2.3.0-next.1",
+        "@arkecosystem/core-utils": "^2.3.0-next.1",
+        "@arkecosystem/crypto": "^2.3.0-next.1",
         "@arkecosystem/utils": "^0.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",
