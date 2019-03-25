@@ -169,7 +169,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getBlock(id: string) {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block = await this.connection.blocksRepository.findById(id);
+        const block: models.IBlockData = await this.connection.blocksRepository.findById(id);
 
         if (!block) {
             return null;
@@ -177,7 +177,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized));
+        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
 
         return new Block(block);
     }
@@ -353,11 +353,10 @@ export class DatabaseService implements Database.IDatabaseService {
         const ids = blocks.map(block => block.id);
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
-        transactions = transactions.map(tx => {
-            const { data } = Transaction.fromBytes(tx.serialized);
-            data.blockId = tx.blockId;
-            return data;
-        });
+        transactions = transactions.map(({ serialized, blockId }) => ({
+            ...Transaction.fromBytes(serialized).data,
+            blockId,
+        }));
 
         for (const block of blocks) {
             if (block.numberOfTransactions > 0) {
