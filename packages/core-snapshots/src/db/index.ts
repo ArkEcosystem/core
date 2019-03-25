@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { migrations, plugin, PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
-import promise from "bluebird";
 
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
@@ -12,37 +11,14 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 class Database {
     public db: any;
     public pgp: any;
-    public isSharedConnection: boolean;
     public blocksColumnSet: any;
     public transactionsColumnSet: any;
 
     public async make(connection: PostgresConnection) {
-        if (connection) {
-            this.db = connection.db;
-            this.pgp = (connection as any).pgp;
-            this.__createColumnSets();
-            this.isSharedConnection = true;
-            logger.info("Snapshots: reusing core-database-postgres connection from running core");
-            return this;
-        }
-
-        try {
-            const pgp = require("pg-promise")({ promiseLib: promise });
-            this.pgp = pgp;
-
-            const options: any = plugin.defaults.connection;
-            options.idleTimeoutMillis = 100;
-
-            this.db = pgp(options);
-            this.__createColumnSets();
-            await this.__runMigrations();
-            logger.info("Snapshots: Database connected");
-            this.isSharedConnection = false;
-            return this;
-        } catch (error) {
-            app.forceExit("Error while connecting to postgres", error);
-            return null;
-        }
+        this.db = connection.db;
+        this.pgp = (connection as any).pgp;
+        this.__createColumnSets();
+        return this;
     }
 
     public async getLastBlock() {
@@ -132,7 +108,7 @@ class Database {
     }
 
     public close() {
-        if (!this.isSharedConnection) {
+        if (!app.has("blockchain")) {
             logger.debug("Closing snapshots-cli database connection");
             this.db.$pool.end();
             this.pgp.end();
@@ -144,12 +120,6 @@ class Database {
             table: "blocks",
         });
         this.transactionsColumnSet = new this.pgp.helpers.ColumnSet(columns.transactions, { table: "transactions" });
-    }
-
-    public async __runMigrations() {
-        for (const migration of migrations) {
-            await this.db.none(migration);
-        }
     }
 }
 
