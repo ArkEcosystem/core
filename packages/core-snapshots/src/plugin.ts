@@ -16,6 +16,6 @@ export const plugin: Container.PluginDescriptor = {
 
         const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
         const connection = databaseService.connection as PostgresConnection;
-        return await manager.make(connection);
+        return manager.make(connection);
     },
 };
