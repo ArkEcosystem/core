@@ -28,14 +28,6 @@ export class RollbackCommand extends BaseCommand {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
-        if (flags.height === -1) {
-            logger.warn("Rollback height is not specified. Rolling back to last completed round.");
-        }
-
-        logger.info(`Starting the process of blockchain rollback to block height of ${flags.height.toLocaleString()}`);
-
         if (flags.height) {
             await app.resolvePlugin<SnapshotManager>("snapshots").rollbackByHeight(flags.height);
         } else if (flags.number) {
