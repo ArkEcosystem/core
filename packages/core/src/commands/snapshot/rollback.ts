@@ -12,8 +12,10 @@ export class RollbackCommand extends BaseCommand {
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,
         height: flags.integer({
-            description: "block network height number to rollback",
-            default: -1,
+            description: "the height after the roll back",
+        }),
+        number: flags.integer({
+            description: "the number of blocks to roll back",
         }),
     };
 
@@ -26,14 +28,12 @@ export class RollbackCommand extends BaseCommand {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
-        if (flags.height === -1) {
-            logger.warn("Rollback height is not specified. Rolling back to last completed round.");
+        if (flags.height) {
+            await app.resolvePlugin<SnapshotManager>("snapshots").rollbackByHeight(flags.height);
+        } else if (flags.number) {
+            await app.resolvePlugin<SnapshotManager>("snapshots").rollbackByNumber(flags.number);
+        } else {
+            this.error("Please specify either a height or number of blocks to roll back.");
         }
-
-        logger.info(`Starting the process of blockchain rollback to block height of ${flags.height.toLocaleString()}`);
-
-        await app.resolvePlugin<SnapshotManager>("snapshots").rollbackChain(flags.height);
     }
 }

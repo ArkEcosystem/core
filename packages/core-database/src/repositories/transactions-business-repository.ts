@@ -195,6 +195,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             };
         }
 
+        if (!searchParameters.orderBy.length) {
+            // default order-by
+            searchParameters.orderBy.push({
+                field: "timestamp",
+                direction: "desc",
+            });
+        }
+
         searchParameters.orderBy.push({
             field: "sequence",
             direction: sequenceOrder,
