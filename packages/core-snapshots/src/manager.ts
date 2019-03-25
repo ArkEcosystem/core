@@ -33,7 +33,6 @@ export class SnapshotManager {
             blocks: await exportTable("blocks", params),
             transactions: await exportTable("transactions", params),
             folder: params.meta.folder,
-            codec: options.codec,
             skipCompression: params.meta.skipCompression,
         };
 
@@ -120,7 +119,7 @@ export class SnapshotManager {
 
     /**
      * Inits the process and creates json with needed paramaters for functions
-     * @param  {JSONObject} from commander or util function {blocks, codec, truncate, signatureVerify, skipRestartRound, start, end}
+     * @param  {JSONObject} from commander or util function {blocks, truncate, signatureVerify, skipRestartRound, start, end}
      * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
      */
     public async __init(options, exportAction = false) {
@@ -128,7 +127,6 @@ export class SnapshotManager {
             "truncate",
             "signatureVerify",
             "blocks",
-            "codec",
             "skipRestartRound",
             "start",
             "end",
@@ -137,7 +135,6 @@ export class SnapshotManager {
 
         const lastBlock = await this.database.getLastBlock();
         params.lastBlock = lastBlock;
-        params.codec = params.codec || this.options.codec;
         params.chunkSize = this.options.chunkSize || 50000;
 
         if (exportAction) {
@@ -155,7 +152,7 @@ export class SnapshotManager {
                 const sourceSnapshotParams = utils.readMetaJSON(params.blocks);
                 params.meta.skipCompression = sourceSnapshotParams.skipCompression;
                 params.meta.startHeight = sourceSnapshotParams.blocks.startHeight;
-                utils.copySnapshot(options.blocks, params.meta.folder, params.codec);
+                utils.copySnapshot(options.blocks, params.meta.folder);
             }
         } else {
             params.meta = utils.getSnapshotInfo(options.blocks);
