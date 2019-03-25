@@ -37,7 +37,7 @@ function decodeTransaction(buffer) {
 }
 
 export class Codec {
-    get blocks() {
+    static get blocks() {
         const codec = createCodec();
         codec.addExtPacker(0x3f, Object, encodeBlock);
         codec.addExtUnpacker(0x3f, decodeBlock);
@@ -45,7 +45,7 @@ export class Codec {
         return codec;
     }
 
-    get transactions() {
+    static get transactions() {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, encodeTransaction);
         codec.addExtUnpacker(0x4f, decodeTransaction);
