@@ -3,7 +3,7 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
-import pick from "lodash/pick";
+import pick from "lodash.pick";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 import { database } from "./db";

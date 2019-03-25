@@ -3,8 +3,8 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { configManager, ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
 import delay from "delay";
-import isEmpty from "lodash/isEmpty";
-import uniq from "lodash/uniq";
+import isEmpty from "lodash.isempty";
+import uniq from "lodash.uniq";
 import pluralize from "pluralize";
 
 import { Client } from "./client";

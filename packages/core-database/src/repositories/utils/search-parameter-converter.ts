@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import snakeCase from "lodash/snakeCase";
+import snakeCase from "lodash.snakecase";
 
 export class SearchParameterConverter implements Database.ISearchParameterConverter {
     constructor(private databaseModel: Database.IDatabaseModel) {}

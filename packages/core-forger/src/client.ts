@@ -3,7 +3,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { httpie } from "@arkecosystem/core-utils";
 import delay from "delay";
-import sample from "lodash/sample";
+import sample from "lodash.sample";
 import { URL } from "url";
 
 export class Client {
