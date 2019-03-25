@@ -98,7 +98,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:11.0.0-browsers"
+                    "image": "circleci/node:11-browsers"
                 },
                 {
                     "image": "postgres:alpine",

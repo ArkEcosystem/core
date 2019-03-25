@@ -91,7 +91,7 @@ jobs:
       CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
-      - image: 'circleci/node:11.0.0-browsers'
+      - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -390,7 +390,7 @@ jobs:
       CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
-      - image: 'circleci/node:11.0.0-browsers'
+      - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -500,7 +500,7 @@ jobs:
       CORE_DB_DATABASE: core_unitnet
       CORE_DB_USERNAME: core
     docker:
-      - image: 'circleci/node:11.0.0-browsers'
+      - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
