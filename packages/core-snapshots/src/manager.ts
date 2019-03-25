@@ -79,7 +79,7 @@ export class SnapshotManager {
         this.database.close();
     }
 
-    public async rollbackChain(height) {
+    public async rollbackByHeight(height) {
         const lastBlock = await this.database.getLastBlock();
         const config = app.getConfig();
         const maxDelegates = config.getMilestone(lastBlock.height).activeDelegates;
@@ -109,6 +109,12 @@ export class SnapshotManager {
         );
 
         this.database.close();
+    }
+
+    public async rollbackByNumber(amount: number) {
+        const lastBlock = await this.database.getLastBlock();
+
+        return this.rollbackByHeight(lastBlock.height - amount);
     }
 
     /**
