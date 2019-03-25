@@ -22,7 +22,6 @@
         "@arkecosystem/crypto": "^2.3.0-next.0",
         "@faustbrian/dato": "^0.2.0",
         "cli-table3": "^0.5.1",
-        "dayjs-ext": "^2.2.0",
         "fast-json-parse": "^1.0.3",
         "got": "^9.6.0"
     },
