@@ -77,12 +77,6 @@ export interface IContainer {
     exit(exitCode: number, message: string, error?: Error): void;
 
     /**
-     * Get the application git commit hash.
-     * @throws {String}
-     */
-    getHashid(): string;
-
-    /**
      * Get the application version.
      * @throws {String}
      */

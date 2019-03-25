@@ -16,7 +16,6 @@ export class Container implements container.IContainer {
      * May be used by CLI programs to suppress the shutdown messages.
      */
     public silentShutdown = false;
-    public hashid: string;
     public plugins: any;
     public shuttingDown: boolean;
     public version: string;
@@ -24,28 +23,6 @@ export class Container implements container.IContainer {
     public variables: any;
     public config: any;
     private container = createContainer();
-
-    /**
-     * Create a new container instance.
-     * @constructor
-     */
-    constructor() {
-        this.hashid = "unknown";
-
-        /**
-         * The git commit hash of the repository. Used during development to
-         * easily idenfity nodes based on their commit hash and version.
-         */
-        try {
-            if (existsSync(join(__dirname, "../../..", ".git"))) {
-                this.hashid = execSync("git rev-parse --short=8 HEAD")
-                    .toString()
-                    .trim();
-            }
-        } catch (e) {
-            this.hashid = "unknown";
-        }
-    }
 
     /**
      * Set up the app.
@@ -198,14 +175,6 @@ export class Container implements container.IContainer {
         }
 
         process.exit(exitCode);
-    }
-
-    /**
-     * Get the application git commit hash.
-     * @throws {String}
-     */
-    public getHashid() {
-        return this.hashid;
     }
 
     /**
