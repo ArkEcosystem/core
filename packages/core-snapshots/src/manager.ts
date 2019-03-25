@@ -79,36 +79,43 @@ export class SnapshotManager {
         this.database.close();
     }
 
-    public async rollbackChain(height) {
-        const lastBlock = await this.database.getLastBlock();
-        const config = app.getConfig();
-        const maxDelegates = config.getMilestone(lastBlock.height).activeDelegates;
+    public async rollbackByHeight(height) {
+        if (!height || height <= 0) {
+            app.forceExit(`Rollback height ${height.toLocaleString()} is invalid.`);
+        }
 
-        const rollBackHeight = height === -1 ? lastBlock.height : height;
-        if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
+        const currentHeight = (await this.database.getLastBlock()).height;
+        const { activeDelegates } = app.getConfig().getMilestone(currentHeight);
+
+        if (height >= currentHeight) {
             app.forceExit(
-                `Specified rollback block height: ${rollBackHeight.toLocaleString()} is not valid. Current database height: ${lastBlock.height.toLocaleString()}. Exiting.`,
+                `Rollback height ${height.toLocaleString()} is greater than the current height ${currentHeight.toLocaleString()}.`,
             );
         }
 
-        if (height) {
-            const rollBackBlock = await this.database.getBlockByHeight(rollBackHeight);
-            const qTransactionBackup = await this.database.getTransactionsBackupQuery(rollBackBlock.timestamp);
-            await backupTransactionsToJSON(
-                `rollbackTransactionBackup.${+height + 1}.${lastBlock.height}.json`,
-                qTransactionBackup,
-                this.database,
-            );
-        }
+        const rollbackBlock = await this.database.getBlockByHeight(height);
+        const queryTransactionBackup = await this.database.getTransactionsBackupQuery(rollbackBlock.timestamp);
 
-        const newLastBlock = await this.database.rollbackChain(rollBackHeight);
+        await backupTransactionsToJSON(
+            `rollbackTransactionBackup.${+height + 1}.${currentHeight}.json`,
+            queryTransactionBackup,
+            this.database,
+        );
+
+        const newLastBlock = await this.database.rollbackChain(height);
         logger.info(
             `Rolling back chain to last finished round ${(
-                newLastBlock.height / maxDelegates
+                newLastBlock.height / activeDelegates
             ).toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
         );
 
         this.database.close();
+    }
+
+    public async rollbackByNumber(amount: number) {
+        const { height } = await this.database.getLastBlock();
+
+        return this.rollbackByHeight(height - amount);
     }
 
     /**
