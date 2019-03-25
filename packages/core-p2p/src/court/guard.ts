@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { dato, Dato } from "@faustbrian/dato";
-import head from "lodash/head";
-import sumBy from "lodash/sumBy";
+import head from "lodash.head";
+import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 

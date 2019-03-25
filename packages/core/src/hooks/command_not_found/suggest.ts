@@ -3,7 +3,7 @@
 import { Hook } from "@oclif/config";
 import Chalk from "chalk";
 import * as Levenshtein from "fast-levenshtein";
-import minBy from "lodash/minBy";
+import minBy from "lodash.minby";
 import { confirm } from "../../helpers/prompts";
 
 function closest(commandIDs: string[], cmd: string) {

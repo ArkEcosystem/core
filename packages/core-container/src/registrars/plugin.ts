@@ -1,6 +1,6 @@
 import { asValue } from "awilix";
 import Hoek from "hoek";
-import isString from "lodash/isString";
+import isString from "lodash.isstring";
 import semver from "semver";
 
 export class PluginRegistrar {

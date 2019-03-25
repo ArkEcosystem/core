@@ -1,5 +1,5 @@
-import get from "lodash/get";
-import isEqual from "lodash/isEqual";
+import get from "lodash.get";
+import isEqual from "lodash.isequal";
 
 export {};
 

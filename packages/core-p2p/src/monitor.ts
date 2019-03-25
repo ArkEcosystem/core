@@ -6,10 +6,10 @@ import { slots } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import fs from "fs";
-import groupBy from "lodash/groupBy";
-import sample from "lodash/sample";
-import shuffle from "lodash/shuffle";
-import take from "lodash/take";
+import groupBy from "lodash.groupby";
+import sample from "lodash.sample";
+import shuffle from "lodash.shuffle";
+import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 

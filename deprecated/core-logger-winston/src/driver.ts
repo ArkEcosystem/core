@@ -1,6 +1,6 @@
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import "colors";
-import isEmpty from "lodash/isEmpty";
+import isEmpty from "lodash.isempty";
 import { inspect } from "util";
 import * as winston from "winston";
 
