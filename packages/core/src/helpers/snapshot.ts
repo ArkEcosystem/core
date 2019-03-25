@@ -12,6 +12,7 @@ export async function setUpLite(options): Promise<Container.IContainer> {
             "@arkecosystem/core-logger",
             "@arkecosystem/core-logger-pino",
             "@arkecosystem/core-event-emitter",
+            "@arkecosystem/core-database-postgres",
             "@arkecosystem/core-snapshots",
         ],
     });

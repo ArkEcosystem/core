@@ -3,12 +3,10 @@
 import pick from "lodash.pick";
 import msgpack from "msgpack-lite";
 
-import { blocks } from "../../../fixtures/blocks";
-import { transactions } from "../../../fixtures/transactions";
+import { blocks } from "../fixtures/blocks";
+import { transactions } from "../fixtures/transactions";
 
-import { CoreCodec } from "../../../../../../packages/core-snapshots/src/transport/codecs/core-codec";
-
-const codec = new CoreCodec();
+import { Codec } from "../../../../packages/core-snapshots/src/transport/codec";
 
 beforeAll(async () => {
     transactions.forEach((transaction: any) => {
@@ -19,8 +17,8 @@ beforeAll(async () => {
 describe("Ark codec testing", () => {
     test("Encode/Decode single block", () => {
         console.time("singleblock");
-        const encoded = msgpack.encode(blocks[1], { codec: codec.blocks });
-        const decoded = msgpack.decode(encoded, { codec: codec.blocks });
+        const encoded = msgpack.encode(blocks[1], { codec: Codec.blocks });
+        const decoded = msgpack.decode(encoded, { codec: Codec.blocks });
 
         // removing helper property
         delete decoded.previous_block_hex;
@@ -38,8 +36,8 @@ describe("Ark codec testing", () => {
                 continue;
             }
 
-            const encoded = msgpack.encode(block, { codec: codec.blocks });
-            const decoded = msgpack.decode(encoded, { codec: codec.blocks });
+            const encoded = msgpack.encode(block, { codec: Codec.blocks });
+            const decoded = msgpack.decode(encoded, { codec: Codec.blocks });
 
             // removing helper property
             delete decoded.previous_block_hex;
@@ -69,9 +67,9 @@ describe("Ark codec testing", () => {
         for (let i = 0; i < 100; i++) {
             for (const transaction of transferTransactions) {
                 const encoded = msgpack.encode(transaction, {
-                    codec: codec.transactions,
+                    codec: Codec.transactions,
                 });
-                const decoded = msgpack.decode(encoded, { codec: codec.transactions });
+                const decoded = msgpack.decode(encoded, { codec: Codec.transactions });
 
                 const source = pick(transaction, properties);
                 const dest = pick(decoded, properties);
@@ -98,8 +96,8 @@ describe("Ark codec testing", () => {
 
         const otherTransactions = transactions.filter(trx => trx.type > 0);
         for (const transaction of otherTransactions) {
-            const encoded = msgpack.encode(transaction, { codec: codec.transactions });
-            const decoded = msgpack.decode(encoded, { codec: codec.transactions });
+            const encoded = msgpack.encode(transaction, { codec: Codec.transactions });
+            const decoded = msgpack.decode(encoded, { codec: Codec.transactions });
 
             const source = pick(transaction, properties);
             const dest = pick(decoded, properties);
