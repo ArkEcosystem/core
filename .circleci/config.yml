@@ -45,7 +45,6 @@ jobs:
             - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -128,7 +127,6 @@ jobs:
             - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -211,7 +209,6 @@ jobs:
             - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -319,7 +316,6 @@ jobs:
             - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -421,7 +417,6 @@ jobs:
             - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -529,7 +524,6 @@ jobs:
             - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
             - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
