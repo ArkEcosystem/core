@@ -42,7 +42,10 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -52,6 +55,7 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -122,7 +126,10 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -132,6 +139,7 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -202,7 +210,10 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -212,6 +223,7 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -307,7 +319,10 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -317,6 +332,7 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -406,7 +422,10 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -416,6 +435,7 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -511,7 +531,10 @@ jobs:
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
@@ -521,6 +544,7 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
