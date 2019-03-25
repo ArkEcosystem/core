@@ -9,7 +9,7 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import * as utils from "../utils";
-import { codec } from "./codec";
+import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -27,7 +27,7 @@ export const exportTable = async (table, options) => {
     );
     try {
         const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: "a" } : {});
-        const encodeStream = msgpack.createEncodeStream({ codec: codec[table] });
+        const encodeStream = msgpack.createEncodeStream({ codec: Codec[table] });
         const qs = new QueryStream(options.queries[table]);
 
         const data = await options.database.db.stream(qs, s => {
@@ -58,7 +58,7 @@ export const exportTable = async (table, options) => {
 export const importTable = async (table, options) => {
     const sourceFile = utils.getPath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
-    const decodeStream = msgpack.createDecodeStream({ codec: codec[table] });
+    const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
     logger.info(
         `Starting to import table ${table} from ${sourceFile}, skipCompression: ${options.meta.skipCompression}`,
     );
@@ -108,7 +108,7 @@ export const importTable = async (table, options) => {
 export const verifyTable = async (table, options) => {
     const sourceFile = utils.getPath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
-    const decodeStream = msgpack.createDecodeStream({ codec: codec[table] });
+    const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
     const readStream = options.meta.skipCompression
         ? fs.createReadStream(sourceFile).pipe(decodeStream)
         : fs
