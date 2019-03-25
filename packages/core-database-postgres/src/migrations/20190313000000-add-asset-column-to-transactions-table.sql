@@ -1,1 +1,2 @@
-ALTER TABLE transactions ADD COLUMN IF NOT EXISTS asset JSONB;
+ALTER TABLE transactions DROP COLUMN IF EXISTS asset;
+ALTER TABLE transactions ADD COLUMN asset JSONB;
