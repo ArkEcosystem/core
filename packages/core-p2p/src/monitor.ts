@@ -79,12 +79,6 @@ export class Monitor implements P2P.IMonitor {
             for (const [version, peers] of Object.entries(groupBy(this.peers, "version"))) {
                 this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
             }
-
-            if (this.appConfig.get("network.name") !== "mainnet") {
-                for (const [hashid, peers] of Object.entries(groupBy(this.peers, "hashid"))) {
-                    this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} on commit ${hashid}.`);
-                }
-            }
         }
 
         this.initializing = false;

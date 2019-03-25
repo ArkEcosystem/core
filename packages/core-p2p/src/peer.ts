@@ -11,7 +11,6 @@ import { replySchemas } from "./reply-schemas";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: any;
-    public hashid: string;
     public nethash: any;
     public version: any;
     public os: any;
@@ -26,7 +25,6 @@ export class Peer implements P2P.IPeer {
         nethash: number;
         height: number | null;
         "Content-Type": "application/json";
-        hashid?: string;
         status?: any;
     };
 
@@ -61,10 +59,6 @@ export class Peer implements P2P.IPeer {
             height: null,
             "Content-Type": "application/json",
         };
-
-        if (this.config.get("network.name") !== "mainnet") {
-            this.headers.hashid = app.getHashid();
-        }
     }
 
     /**
@@ -92,7 +86,7 @@ export class Peer implements P2P.IPeer {
      * @return {Object}
      */
     public toBroadcastInfo() {
-        const data = {
+        return {
             ip: this.ip,
             port: +this.port,
             nethash: this.nethash,
@@ -102,12 +96,6 @@ export class Peer implements P2P.IPeer {
             height: this.state.height,
             delay: this.delay,
         };
-
-        if (this.config.get("network.name") !== "mainnet") {
-            (data as any).hashid = this.hashid || "unknown";
-        }
-
-        return data;
     }
 
     /**
@@ -355,7 +343,7 @@ export class Peer implements P2P.IPeer {
      * @return {Object}
      */
     public __parseHeaders(response) {
-        ["nethash", "os", "version", "hashid"].forEach(key => {
+        ["nethash", "os", "version"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });
 

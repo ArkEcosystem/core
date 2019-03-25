@@ -1,6 +1,6 @@
 {
-    "name": "@arkecosystem/core-utils",
-    "description": "Utilities for Ark Core",
+    "name": "@arkecosystem/core-error-tracker-airbrake",
+    "description": "Airbrake error tracker integration for Ark Core.",
     "version": "2.3.0-next.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
@@ -19,11 +19,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.0-next.0",
-        "@arkecosystem/crypto": "^2.3.0-next.0",
-        "@faustbrian/dato": "^0.2.0",
-        "cli-table3": "^0.5.1",
-        "fast-json-parse": "^1.0.3",
-        "got": "^9.6.0"
+        "airbrake-js": "^1.6.6"
     },
     "publishConfig": {
         "access": "public"
