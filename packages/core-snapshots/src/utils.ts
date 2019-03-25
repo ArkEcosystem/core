@@ -2,8 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import fs from "fs-extra";
 
-export const getPath = (table, folder, codec) => {
-    return this.getFilePath(`${table}.${codec}`, folder);
+export const getPath = (table, folder) => {
+    return this.getFilePath(`${table}`, folder);
 };
 
 export const writeMetaFile = snapshotInfo => {
@@ -16,18 +16,18 @@ export const writeMetaFile = snapshotInfo => {
 
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
-export const copySnapshot = (sourceFolder, destFolder, codec) => {
+export const copySnapshot = (sourceFolder, destFolder) => {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
     logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
 
     const paths = {
         source: {
-            blocks: this.getPath("blocks", sourceFolder, codec),
-            transactions: this.getPath("transactions", sourceFolder, codec),
+            blocks: this.getPath("blocks", sourceFolder),
+            transactions: this.getPath("transactions", sourceFolder),
         },
         dest: {
-            blocks: this.getPath("blocks", destFolder, codec),
-            transactions: this.getPath("transactions", destFolder, codec),
+            blocks: this.getPath("blocks", destFolder),
+            transactions: this.getPath("transactions", destFolder),
         },
     };
 
@@ -85,7 +85,6 @@ export const setSnapshotInfo = (options, lastBlock) => {
     const meta = {
         startHeight: options.start !== -1 ? options.start : 1,
         endHeight: options.end !== -1 ? options.end : lastBlock.height,
-        codec: options.codec,
         skipCompression: options.skipCompression || false,
         folder: "",
     };
