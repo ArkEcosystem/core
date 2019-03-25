@@ -39,7 +39,7 @@ class Codec {
     private decodeTransaction(buffer) {
         const [id, blockId, sequence, serialized] = decode(buffer);
 
-        const transaction: any = Transaction.fromBytes(serialized);
+        const transaction: any = Transaction.fromBytes(serialized).data;
         transaction.id = id;
         transaction.block_id = blockId;
         transaction.sequence = sequence;
