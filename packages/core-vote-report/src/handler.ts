@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { Bignum, configManager } from "@arkecosystem/crypto";
-import sumBy from "lodash/sumBy";
+import sumBy from "lodash.sumby";
 
 export function handler(request, h) {
     const config = app.getConfig();

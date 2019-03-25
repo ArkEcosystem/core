@@ -1,5 +1,5 @@
-import get from "lodash/get";
-import set from "lodash/set";
+import get from "lodash.get";
+import set from "lodash.set";
 
 export class Config {
     private config: any;

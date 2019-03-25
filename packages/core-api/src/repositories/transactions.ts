@@ -1,7 +1,7 @@
 import { constants, slots } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
-import partition from "lodash/partition";
-import snakeCase from "lodash/snakeCase";
+import partition from "lodash.partition";
+import snakeCase from "lodash.snakecase";
 import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";

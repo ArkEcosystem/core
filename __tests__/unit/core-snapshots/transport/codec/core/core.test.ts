@@ -1,6 +1,6 @@
 /* tslint:disable:no-console */
 
-import pick from "lodash/pick";
+import pick from "lodash.pick";
 import msgpack from "msgpack-lite";
 
 import { blocks } from "../../../fixtures/blocks";

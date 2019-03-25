@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import snakeCase from "lodash/snakeCase";
+import snakeCase from "lodash.snakecase";
 import { IRepository } from "../interfaces";
 
 // TODO: Deprecate this with v1
