@@ -117,6 +117,10 @@ describe("Transactions Business Repository", () => {
                     ],
                     orderBy: [
                         {
+                            field: "timestamp",
+                            direction: "desc",
+                        },
+                        {
                             field: "sequence",
                             direction: "asc",
                         },
