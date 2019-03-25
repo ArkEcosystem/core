@@ -80,8 +80,8 @@ export class SnapshotManager {
     }
 
     public async rollbackByHeight(height) {
-        if (!height) {
-            app.forceExit(`Specified rollback block height: ${height.toLocaleString()} is not valid.`);
+        if (!height || height <= 0) {
+            app.forceExit(`Rollback height ${height.toLocaleString()} is invalid.`);
         }
 
         const currentHeight = (await this.database.getLastBlock()).height;
