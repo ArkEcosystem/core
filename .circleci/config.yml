@@ -52,6 +52,8 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -132,6 +134,8 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -212,6 +216,8 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -317,6 +323,8 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -416,6 +424,8 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
@@ -521,6 +531,8 @@ jobs:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
             - ./packages/core-tester-cli/node_modules
