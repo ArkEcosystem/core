@@ -177,7 +177,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized));
+        block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id));
 
         return new Block(block);
     }
@@ -299,7 +299,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.fromBytes(serialized).data);
+        block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
         return new Block(block);
     }
@@ -354,7 +354,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const { data } = Transaction.fromBytes(tx.serialized);
+            const { data } = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;
         });
