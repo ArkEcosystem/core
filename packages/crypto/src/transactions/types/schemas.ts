@@ -35,6 +35,7 @@ export const transactionBaseSchema = {
         senderPublicKey: { $ref: "publicKey" },
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
+        signSignature: { $ref: "alphanumeric" },
     },
 };
 
