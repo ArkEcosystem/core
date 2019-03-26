@@ -8,7 +8,7 @@ import { schema } from "./schema";
 
 const { Block } = models;
 
-const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
+const transactionPool = app.resolvePlugin<TransactionPool>("transaction-pool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**

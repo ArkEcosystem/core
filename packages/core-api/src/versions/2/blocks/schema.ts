@@ -44,7 +44,7 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: Joi.string().regex(/^[0-9]+$/, "numbers"),
+        id: blockId,
     },
 };
 

@@ -13,7 +13,7 @@ export const plugin: Container.PluginDescriptor = {
 
         const walletManager = new WalletManager();
 
-        const databaseManager = container.resolvePlugin<DatabaseManager>("databaseManager");
+        const databaseManager = container.resolvePlugin<DatabaseManager>("database-manager");
 
         const connection = await databaseManager.makeConnection(new PostgresConnection(options, walletManager));
 

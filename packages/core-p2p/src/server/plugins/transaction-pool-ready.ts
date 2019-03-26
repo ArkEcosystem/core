@@ -16,7 +16,7 @@ const register = async (server, options) => {
                 return h.continue;
             }
 
-            if (!app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool")) {
+            if (!app.resolvePlugin<TransactionPool.ITransactionPool>("transaction-pool")) {
                 return Boom.serverUnavailable("Transaction Pool not ready");
             }
 
