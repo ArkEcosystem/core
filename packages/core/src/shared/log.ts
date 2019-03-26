@@ -4,6 +4,7 @@ import nsfw from "nsfw";
 import readLastLines from "read-last-lines";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../process-manager";
+import { CommandFlags } from "../types";
 
 interface FileEvent {
     action: number;
@@ -23,20 +24,14 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
         const file = flags.error ? pm2_env.pm_err_log_path : pm2_env.pm_out_log_path;
 
-        this.log(
-            `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
-        );
-
-        this.log(await readLastLines.read(file, flags.lines));
+        await this.logLines(file, processName, flags);
 
         const watcher = await nsfw(
             file,
             async (events: FileEvent[]) => {
                 for (const event of events) {
                     if (event.action === nsfw.actions.MODIFIED) {
-                        clear(); // TODO: this flushes the terminal at the moment which looks a bit awkward
-
-                        this.log(await readLastLines.read(`${event.directory}/${event.file}`, flags.line));
+                        await this.logLines(`${event.directory}/${event.file}`, processName, flags);
                     }
                 }
             },
@@ -51,4 +46,14 @@ export abstract class AbstractLogCommand extends BaseCommand {
     public abstract getClass();
 
     public abstract getSuffix(): string;
+
+    private async logLines(file: string, processName: string, flags: CommandFlags): Promise<void> {
+        clear(); // TODO: this flushes the terminal at the moment which looks a bit awkward
+
+        this.log(
+            `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
+        );
+
+        this.log(await readLastLines.read(file, flags.lines));
+    }
 }
