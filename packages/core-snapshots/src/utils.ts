@@ -1,18 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import fs from "fs-extra";
+import { copyFileSync, ensureFileSync, existsSync, readJSONSync, writeFileSync } from "fs-extra";
 
-export const getPath = (table, folder) => {
-    return this.getFilePath(`${table}`, folder);
-};
-
-export const writeMetaFile = snapshotInfo => {
-    fs.writeFileSync(
+export const writeMetaFile = snapshotInfo =>
+    writeFileSync(
         `${process.env.CORE_PATH_DATA}/snapshots/${snapshotInfo.folder}/meta.json`,
         JSON.stringify(snapshotInfo),
         "utf8",
     );
-};
 
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
@@ -22,24 +17,24 @@ export const copySnapshot = (sourceFolder, destFolder) => {
 
     const paths = {
         source: {
-            blocks: this.getPath("blocks", sourceFolder),
-            transactions: this.getPath("transactions", sourceFolder),
+            blocks: this.getFilePath("blocks", sourceFolder),
+            transactions: this.getFilePath("transactions", sourceFolder),
         },
         dest: {
-            blocks: this.getPath("blocks", destFolder),
-            transactions: this.getPath("transactions", destFolder),
+            blocks: this.getFilePath("blocks", destFolder),
+            transactions: this.getFilePath("transactions", destFolder),
         },
     };
 
-    fs.ensureFileSync(paths.dest.blocks);
-    fs.ensureFileSync(paths.dest.transactions);
+    ensureFileSync(paths.dest.blocks);
+    ensureFileSync(paths.dest.transactions);
 
-    if (!fs.existsSync(paths.source.blocks) || !fs.existsSync(paths.source.transactions)) {
+    if (!existsSync(paths.source.blocks) || !existsSync(paths.source.transactions)) {
         app.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist`);
     }
 
-    fs.copyFileSync(paths.source.blocks, paths.dest.blocks);
-    fs.copyFileSync(paths.source.transactions, paths.dest.transactions);
+    copyFileSync(paths.source.blocks, paths.dest.blocks);
+    copyFileSync(paths.source.transactions, paths.dest.transactions);
 };
 
 export const calcRecordCount = (table, currentCount, sourceFolder) => {
@@ -74,11 +69,12 @@ export const getSnapshotInfo = folder => {
 
 export const readMetaJSON = folder => {
     const metaFileInfo = this.getFilePath("meta.json", folder);
-    if (!fs.existsSync(metaFileInfo)) {
+
+    if (!existsSync(metaFileInfo)) {
         app.forceExit("Meta file meta.json not found. Exiting");
     }
 
-    return fs.readJSONSync(metaFileInfo);
+    return readJSONSync(metaFileInfo);
 };
 
 export const setSnapshotInfo = (options, lastBlock) => {

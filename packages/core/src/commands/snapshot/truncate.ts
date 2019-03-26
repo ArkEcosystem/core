@@ -15,6 +15,6 @@ export class TruncateCommand extends BaseCommand {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").truncateChain();
+        await app.resolvePlugin<SnapshotManager>("snapshots").truncate();
     }
 }

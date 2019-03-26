@@ -13,10 +13,7 @@ export class VerifyCommand extends BaseCommand {
         blocks: flags.string({
             description: "blocks to verify, corelates to folder name",
         }),
-        codec: flags.string({
-            description: "codec name, default is msg-lite binary",
-        }),
-        signatureVerify: flags.boolean({
+        verifySignatures: flags.boolean({
             description: "signature verification",
         }),
     };
@@ -30,6 +27,6 @@ export class VerifyCommand extends BaseCommand {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").verifyData(flags);
+        await app.resolvePlugin<SnapshotManager>("snapshots").verify(flags);
     }
 }

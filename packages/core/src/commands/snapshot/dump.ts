@@ -21,9 +21,6 @@ export class DumpCommand extends BaseCommand {
             description: "end network height to export",
             default: -1,
         }),
-        codec: flags.string({
-            description: "codec name, default is msg-lite binary",
-        }),
     };
 
     public async run(): Promise<void> {
@@ -35,6 +32,6 @@ export class DumpCommand extends BaseCommand {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").exportData(flags);
+        await app.resolvePlugin<SnapshotManager>("snapshots").dump(flags);
     }
 }
