@@ -16,16 +16,25 @@ function decodeBlock(buffer) {
 }
 
 function encodeTransaction(transaction) {
-    return encode([transaction.id, transaction.block_id, transaction.sequence, transaction.serialized]);
+    transaction.blockId = transaction.block_id || transaction.blockId;
+
+    return encode([
+        transaction.id,
+        transaction.blockId,
+        transaction.sequence,
+        transaction.timestamp,
+        transaction.serialized,
+    ]);
 }
 
 function decodeTransaction(buffer) {
-    const [id, blockId, sequence, serialized] = decode(buffer);
+    const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transaction.fromBytes(serialized).data;
     transaction.id = id;
     transaction.block_id = blockId;
     transaction.sequence = sequence;
+    transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null;
@@ -33,7 +42,9 @@ function decodeTransaction(buffer) {
     transaction.asset = transaction.asset ? transaction.asset : null;
     transaction.serialized = serialized;
 
-    return decamelizeKeys(transaction);
+    const decamelized = decamelizeKeys(transaction);
+    decamelized.serialized = serialized; // FIXME: decamelizeKeys mutilates Buffers
+    return decamelized;
 }
 
 export class Codec {
