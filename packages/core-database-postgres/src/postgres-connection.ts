@@ -161,7 +161,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             if (block.transactions.length > 0) {
                 queries.push(
                     this.transactionsRepository.insert(
-                        block.transactions.map(tx => ({ ...tx.data, serialized: tx.serialized })),
+                        block.transactions.map(tx => ({
+                            ...tx.data,
+                            timestamp: tx.timestamp,
+                            serialized: tx.serialized,
+                        })),
                     ),
                 );
             }
