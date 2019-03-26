@@ -146,6 +146,17 @@ describe("Models - Transaction", () => {
         });
     });
 
+    describe("fromBytesUnsafe", () => {
+        it("should be ok", () => {
+            const bytes = Transaction.toBytes(transactionData);
+            const id = transactionData.id;
+
+            const transaction = Transaction.fromBytesUnsafe(bytes, id);
+            expect(transaction).toBeInstanceOf(Transaction);
+            expect(transaction.toJson()).toEqual(transactionDataFixture);
+        });
+    });
+
     describe("fromData", () => {
         it("should match transaction id", () => {
             [0, 1, 2, 3]

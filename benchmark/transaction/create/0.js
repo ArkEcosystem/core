@@ -17,3 +17,7 @@ exports['fromHex'] = () => {
 exports['fromBytes'] = () => {
     return Transaction.fromBytes(serializedBytes);
 };
+
+exports['fromBytesUnsafe'] = () => {
+    return Transaction.fromBytesUnsafe(serializedBytes, data.id);
+};
