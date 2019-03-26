@@ -3,7 +3,7 @@ import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 
 export abstract class Repository {
     public databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    public transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+    public transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transaction-pool");
     public cache = this.databaseService.cache;
     public model = this.getModel();
     public query = this.model.query();

@@ -29,7 +29,7 @@ beforeAll(async () => {
 
     TransactionGuard = require("../../../packages/core-transaction-pool/src").TransactionGuard;
 
-    transactionPool = container.resolvePlugin("transactionPool");
+    transactionPool = container.resolvePlugin("transaction-pool");
     blockchain = container.resolvePlugin("blockchain");
     localConfig.init(transactionPool.options);
 });

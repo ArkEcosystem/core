@@ -7,7 +7,7 @@ import { transactionPoolManager } from "./manager";
 export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
-    alias: "transactionPool",
+    alias: "transaction-pool",
     async register(container: Container.IContainer, options) {
         config.init(options);
 

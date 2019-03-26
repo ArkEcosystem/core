@@ -44,7 +44,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {TransactionPool}
      */
     get transactionPool() {
-        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+        return app.resolvePlugin<TransactionPool.ITransactionPool>("transaction-pool");
     }
 
     /**
