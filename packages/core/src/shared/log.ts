@@ -1,7 +1,15 @@
+import clear from "clear";
 import cli from "cli-ux";
-import { Tail } from "tail";
+import nsfw from "nsfw";
+import readLastLines from "read-last-lines";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../process-manager";
+
+interface FileEvent {
+    action: number;
+    directory: string;
+    file: string;
+}
 
 export abstract class AbstractLogCommand extends BaseCommand {
     public async run(): Promise<void> {
@@ -15,19 +23,29 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
         const file = flags.error ? pm2_env.pm_err_log_path : pm2_env.pm_out_log_path;
 
-        const log = new Tail(file);
+        this.log(
+            `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
+        );
 
-        cli.action.start(`Waiting for ${file}`);
+        this.log(await readLastLines.read(file, flags.lines));
 
-        log.on("line", data => {
-            console.log(data);
+        const watcher = await nsfw(
+            file,
+            async (events: FileEvent[]) => {
+                for (const event of events) {
+                    if (event.action === nsfw.actions.MODIFIED) {
+                        clear(); // TODO: this flushes the terminal at the moment which looks a bit awkward
 
-            if (cli.action.running) {
-                cli.action.stop();
-            }
-        });
+                        this.log(await readLastLines.read(`${event.directory}/${event.file}`, flags.line));
+                    }
+                }
+            },
+            {
+                debounceMS: 250,
+            },
+        );
 
-        log.on("error", error => console.error("ERROR: ", error));
+        await watcher.start();
     }
 
     public abstract getClass();
