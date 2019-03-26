@@ -55,8 +55,8 @@ describe("API 2.0 - Blocks", () => {
                     expect(response).toBePaginated();
                     expect(response.data.data).toBeArray();
 
-                    const block = response.data.data[0];
-                    utils.expectBlock(block);
+                    response.data.data.forEach(utils.expectBlock);
+                    expect(response.data.data.sort((a, b) => a.height > b.height)).toEqual(response.data.data);
                 });
             },
         );
