@@ -1,7 +1,6 @@
 const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
-const chunk = require("lodash.chunk");
 
 const config = require("./configTemplate.json");
 
@@ -20,11 +19,10 @@ fs.readdir("./packages", (_, packages) => {
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules");
 
-        
         // copy base unit jobs (unit tests) to adapt for integration tests
         const jobs = [
             jason(unitJob),
-            jason(unitJob), 
+            jason(unitJob),
         ];
 
         jobs.forEach((job, index) => {
@@ -59,7 +57,7 @@ function splitPackages(packageNames) {
     const integrationPackages = packageNames.sort()
         .map(pkg => path.basename(pkg))
         .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/integration/${pkg}`)))
-    
+
     var indexToSplit = Math.floor(integrationPackages.length / 2);
     return [
         integrationPackages.slice(0, indexToSplit),
@@ -74,12 +72,11 @@ function getIntegrationSteps(packages) {
     steps.push(...packages
         .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/integration/${pkg}`)))
         .map(pkg => ({
-                run: {
-                    name: `${pkg} - integration`,
-                    command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /integration/${pkg}/ --coverageDirectory .coverage/integration/${pkg}`,
-                },
-            })
-        )
+            run: {
+                name: `${pkg} - integration`,
+                command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /integration/${pkg}/ --coverageDirectory .coverage/integration/${pkg}`,
+            },
+        }))
     );
 
     return steps;
