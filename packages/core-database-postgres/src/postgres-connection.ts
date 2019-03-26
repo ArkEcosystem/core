@@ -209,14 +209,14 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     private async migrateTransactionsTableToAssetColumn() {
         this.logger.warn(`Migrating transactions table. This may take a while.`);
 
-        const all = await this.db.manyOrNone("SELECT serialized FROM transactions WHERE type > 0");
+        const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
         const { transactionIdFixTable } = configManager.get("exceptions");
 
         for (const batch of chunk(all, 20000)) {
             await this.db.task(task => {
                 const transactions = [];
-                batch.forEach((tx: { serialized: Buffer }) => {
-                    const transaction = Transaction.fromBytes(tx.serialized);
+                batch.forEach((tx: { serialized: Buffer; id: string }) => {
+                    const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
                     if (transaction.data.asset) {
                         let transactionId = transaction.id;
 

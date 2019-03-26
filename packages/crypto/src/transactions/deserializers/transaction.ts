@@ -30,7 +30,6 @@ class TransactionDeserializer {
                 throw new TransactionVersionError(data.version);
         }
 
-        data.id = crypto.getId(data);
         instance.serialized = buffer.flip().toBuffer();
 
         return instance;
