@@ -48,7 +48,7 @@ export abstract class AbstractLogCommand extends BaseCommand {
     public abstract getSuffix(): string;
 
     private async logLines(file: string, processName: string, flags: CommandFlags): Promise<void> {
-        clear(); // TODO: this flushes the terminal at the moment which looks a bit awkward
+        clear();
 
         this.log(
             `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
