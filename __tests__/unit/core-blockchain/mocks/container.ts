@@ -47,7 +47,7 @@ export const container = {
                 return p2p;
             }
 
-            if (name === "transactionPool") {
+            if (name === "transaction-pool") {
                 return transactionPool;
             }
 

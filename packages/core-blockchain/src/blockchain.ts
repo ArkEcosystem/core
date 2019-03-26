@@ -44,7 +44,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {TransactionPool}
      */
     get transactionPool() {
-        return app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+        return app.resolvePlugin<TransactionPool.ITransactionPool>("transaction-pool");
     }
 
     /**
@@ -66,7 +66,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Object} options
      * @return {void}
      */
-    constructor(options) {
+    constructor(options: { networkStart?: boolean }) {
         // flag to force a network start
         this.state.networkStart = !!options.networkStart;
 

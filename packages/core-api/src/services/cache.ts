@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { HashAlgorithms } from "@arkecosystem/crypto";
-import Hapi from "hapi";
+import Hapi, { ServerMethod } from "hapi";
 
 export class ServerCache {
     public static make(server: Hapi.Server): ServerCache {
@@ -9,7 +9,7 @@ export class ServerCache {
 
     private constructor(readonly server: Hapi.Server) {}
 
-    public method(name: string, method: any, expiresIn: number, argsCallback?: any): this {
+    public method(name: string, method: ServerMethod, expiresIn: number, argsCallback?: any): this {
         let options = {};
 
         // @ts-ignore

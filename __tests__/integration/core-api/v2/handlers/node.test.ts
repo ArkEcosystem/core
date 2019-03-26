@@ -63,15 +63,15 @@ describe("API 2.0 - Loader", () => {
                     expect(response.data.data.explorer).toBeString();
                     expect(response.data.data.version).toBeNumber();
 
-                    const dynamicFees = app.resolveOptions("transactionPool").dynamicFees;
+                    const dynamicFees = app.resolveOptions("transaction-pool").dynamicFees;
                     expect(response.data.data.transactionPool.dynamicFees).toEqual(dynamicFees);
 
-                    app.resolveOptions("transactionPool").dynamicFees.enabled = false;
+                    app.resolveOptions("transaction-pool").dynamicFees.enabled = false;
 
                     response = await utils[request]("GET", "node/configuration");
                     expect(response.data.data.transactionPool.dynamicFees).toEqual({ enabled: false });
 
-                    app.resolveOptions("transactionPool").dynamicFees.enabled = true;
+                    app.resolveOptions("transaction-pool").dynamicFees.enabled = true;
                 });
             },
         );

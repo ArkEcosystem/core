@@ -9,7 +9,7 @@ export const plugin: Container.PluginDescriptor = {
     alias: "logger",
     extends: "@arkecosystem/core-logger",
     async register(container: Container.IContainer, options) {
-        const logManager: LogManager = container.resolvePlugin("logManager");
+        const logManager: LogManager = container.resolvePlugin("log-manager");
         await logManager.makeDriver(new PinoLogger(options));
 
         const driver = logManager.driver();

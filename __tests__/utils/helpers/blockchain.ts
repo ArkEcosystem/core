@@ -12,6 +12,6 @@ export const resetBlockchain = async () => {
         await blockchain.removeBlocks(height - 1);
     }
 
-    const transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transactionPool");
+    const transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transaction-pool");
     transactionPool.flush();
 };
