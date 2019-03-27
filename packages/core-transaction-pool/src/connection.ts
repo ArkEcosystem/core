@@ -142,7 +142,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         }
 
         if (notAdded.length > 0) {
-            this.emitter.emit("transaction.pool.not-added", notAdded);
+            this.emitter.emit("transaction.pool.rejected", notAdded);
         }
 
         return { added, notAdded };

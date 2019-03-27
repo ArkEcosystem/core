@@ -319,7 +319,7 @@ describe("Blockchain", () => {
                 "transaction.forged",
                 "transaction.reverted",
                 "transaction.pool.added",
-                "transaction.pool.not-added",
+                "transaction.pool.rejected",
                 "transaction.pool.removed",
                 "wallet.saved",
                 "wallet.created.cold",
