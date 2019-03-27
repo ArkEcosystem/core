@@ -69,7 +69,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findAllLegacy(parameters: any = {}): Promise<any> {
         const selectQuery = this.query
-            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query);
 
         if (parameters.senderId) {
@@ -115,7 +115,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findAllByWallet(wallet, parameters: any = {}): Promise<any> {
         const selectQuery = this.query
-            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query);
 
         const applyConditions = queries => {
@@ -202,7 +202,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findById(id): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.equals(id));
 
@@ -219,7 +219,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findByTypeAndId(type, id): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.equals(id).and(this.query.type.equals(type)));
 
@@ -235,7 +235,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findByIds(ids): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.in(ids));
 
@@ -248,7 +248,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findWithVendorField(): Promise<any> {
         const query = this.query
-            .select(this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.vendor_field_hex.isNotNull());
 
