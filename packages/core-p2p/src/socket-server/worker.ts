@@ -2,7 +2,7 @@ import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "./constants";
 import { validateHeaders } from "./utils/validate-headers";
 
-class Worker extends SCWorker {
+export class Worker extends SCWorker {
     private bannedPeers = {};
     private peersMsgTimestamps = {};
     private rateLimit = null; // will be then initialized from config

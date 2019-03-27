@@ -1,7 +1,8 @@
 import { configManager } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../utils/fixtures";
-import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
+import { blockchain } from "./blockchain";
+import { database } from "./database";
+import { eventEmitter } from "./event-emitter";
 
 configManager.setFromPreset("unitnet");
 
@@ -20,6 +21,11 @@ jest.mock("@arkecosystem/core-container", () => {
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
+                        blocktime: 8,
+                        reward: 0,
+                        block: {
+                            maxTransactions: 200,
+                        },
                     }),
                 };
             },
@@ -37,37 +43,15 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 if (name === "database") {
-                    return {
-                        getBlocksByHeight: heights => {
-                            if (heights[0] === 1) {
-                                return [genesisBlock.data];
-                            }
-
-                            return [];
-                        },
-                        getActiveDelegates: height => {
-                            return delegates;
-                        },
-                        loadActiveDelegateList: (count, height) => {
-                            if (height === 2) {
-                                return [blocks2to100[1]];
-                            }
-
-                            return delegates;
-                        },
-                    };
+                    return database;
                 }
 
                 if (name === "event-emitter") {
-                    return {
-                        emit: jest.fn(),
-                    };
+                    return eventEmitter;
                 }
 
                 if (name === "blockchain") {
-                    return {
-                        getLastBlock: jest.fn().mockReturnValue({ data: { height: 1 }, getHeader: () => ({}) }),
-                    };
+                    return blockchain;
                 }
 
                 if (name === "p2p") {
@@ -83,6 +67,13 @@ jest.mock("@arkecosystem/core-container", () => {
                     return {
                         getLastBlock: () => genesisBlock,
                     };
+                }
+
+                return {};
+            },
+            resolveOptions: name => {
+                if (name === "transactionPool") {
+                    return null;
                 }
 
                 return {};
