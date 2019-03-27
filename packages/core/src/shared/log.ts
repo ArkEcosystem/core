@@ -24,7 +24,13 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
         const file = flags.error ? pm2_env.pm_err_log_path : pm2_env.pm_out_log_path;
 
-        await this.logLines(file, processName, flags);
+        clear();
+
+        this.log(
+            `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
+        );
+
+        await this.readLines(file, flags.lines);
 
         const watcher = await nsfw(
             file,
@@ -46,16 +52,6 @@ export abstract class AbstractLogCommand extends BaseCommand {
     public abstract getClass();
 
     public abstract getSuffix(): string;
-
-    private async logLines(file: string, processName: string, flags: CommandFlags): Promise<void> {
-        clear();
-
-        this.log(
-            `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
-        );
-
-        await this.readLines(file, flags.lines);
-    }
 
     private async readLines(file: string, lines: number): Promise<void> {
         this.log((await readLastLines.read(file, lines)).trim());
