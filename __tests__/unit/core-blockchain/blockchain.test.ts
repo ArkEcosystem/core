@@ -304,6 +304,7 @@ describe("Blockchain", () => {
                 "block.forged",
                 "block.reverted",
                 "block.received",
+                "block.disregarded",
                 "delegate.registered",
                 "delegate.resigned",
                 "forger.failed",
