@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, configManager, models, Transaction } from "@arkecosystem/crypto";
+import { configManager, models, Transaction } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise from "pg-promise";
@@ -211,47 +211,48 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         // after restoring a snapshot without assets even though the database has already been migrated.
         let runMigration = row === null;
         if (!runMigration) {
-            const { noAssetCount } = await this.db.one(
-                `SELECT COUNT(id) as "noAssetCount" FROM transactions WHERE type > 0 AND asset IS NULL`,
+            const { exists } = await this.db.one(
+                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL)`,
             );
-            if (new Bignum(noAssetCount).isGreaterThan(0)) {
+            if (exists) {
                 await this.db.none(`DELETE FROM migrations WHERE name = '${migrationName}'`);
                 runMigration = true;
             }
         }
 
-        if (runMigration) {
-            this.logger.warn(`Migrating transactions table. This may take a while.`);
-
-            const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
-            const { transactionIdFixTable } = configManager.get("exceptions");
-
-            for (const batch of chunk(all, 20000)) {
-                await this.db.task(task => {
-                    const transactions = [];
-                    batch.forEach((tx: { serialized: Buffer; id: string }) => {
-                        const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
-                        if (transaction.data.asset) {
-                            let transactionId = transaction.id;
-
-                            // If the transaction is a broken v1 transaction use the broken id for the query.
-                            if (transactionIdFixTable && transactionIdFixTable[transactionId]) {
-                                transactionId = transactionIdFixTable[transactionId];
-                            }
-
-                            const query =
-                                this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
-                                ` WHERE id = '${transactionId}'`;
-                            transactions.push(task.none(query));
-                        }
-                    });
-
-                    return task.batch(transactions);
-                });
-            }
-
-            await this.migrationsRepository.insert({ name: migrationName });
+        if (!runMigration) {
+            return;
         }
+        this.logger.warn(`Migrating transactions table. This may take a while.`);
+
+        const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
+        const { transactionIdFixTable } = configManager.get("exceptions");
+
+        for (const batch of chunk(all, 20000)) {
+            await this.db.task(task => {
+                const transactions = [];
+                batch.forEach((tx: { serialized: Buffer; id: string }) => {
+                    const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
+                    if (transaction.data.asset) {
+                        let transactionId = transaction.id;
+
+                        // If the transaction is a broken v1 transaction use the broken id for the query.
+                        if (transactionIdFixTable && transactionIdFixTable[transactionId]) {
+                            transactionId = transactionIdFixTable[transactionId];
+                        }
+
+                        const query =
+                            this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
+                            ` WHERE id = '${transactionId}'`;
+                        transactions.push(task.none(query));
+                    }
+                });
+
+                return task.batch(transactions);
+            });
+        }
+
+        await this.migrationsRepository.insert({ name: migrationName });
     }
 
     /**
