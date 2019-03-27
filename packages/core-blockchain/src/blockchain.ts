@@ -262,6 +262,8 @@ export class Blockchain implements blockchain.IBlockchain {
         } else {
             logger.info(`Block disregarded because blockchain is not ready`);
         }
+
+        emitter.emit("block.received", block);
     }
 
     /**
@@ -539,6 +541,7 @@ export class Blockchain implements blockchain.IBlockchain {
             "block.applied",
             "block.forged",
             "block.reverted",
+            "block.received",
             "delegate.registered",
             "delegate.resigned",
             "forger.failed",
@@ -552,6 +555,9 @@ export class Blockchain implements blockchain.IBlockchain {
             "transaction.expired",
             "transaction.forged",
             "transaction.reverted",
+            "transaction.pool.added",
+            "transaction.pool.not-added",
+            "transaction.pool.removed",
             "wallet.saved",
             "wallet.created.cold",
         ];

@@ -137,6 +137,14 @@ export class TransactionPool implements transactionPool.ITransactionPool {
             }
         }
 
+        if (added.length > 0) {
+            this.emitter.emit("transaction.pool.added", added);
+        }
+
+        if (notAdded.length > 0) {
+            this.emitter.emit("transaction.pool.not-added", notAdded);
+        }
+
         return { added, notAdded };
     }
 
@@ -216,6 +224,8 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         this.mem.remove(id, senderPublicKey);
 
         this.__syncToPersistentStorageIfNecessary();
+
+        this.emitter.emit("transaction.pool.removed", id);
     }
 
     /**
