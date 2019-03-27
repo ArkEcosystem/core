@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-api",
     "description": "Public API for Ark Core",
-    "version": "2.3.0-next.1",
+    "version": "2.3.0-next.2",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -21,12 +21,12 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.1",
-        "@arkecosystem/core-http-utils": "^2.3.0-next.1",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.1",
-        "@arkecosystem/core-transaction-pool": "^2.3.0-next.1",
-        "@arkecosystem/core-utils": "^2.3.0-next.1",
-        "@arkecosystem/crypto": "^2.3.0-next.1",
+        "@arkecosystem/core-container": "^2.3.0-next.2",
+        "@arkecosystem/core-http-utils": "^2.3.0-next.2",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.2",
+        "@arkecosystem/core-transaction-pool": "^2.3.0-next.2",
+        "@arkecosystem/core-utils": "^2.3.0-next.2",
+        "@arkecosystem/crypto": "^2.3.0-next.2",
         "@arkecosystem/utils": "^0.3.0",
         "@faustbrian/dato": "^0.2.0",
         "@faustbrian/hapi-version": "^0.2.11",
