@@ -36,6 +36,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             return result;
         } catch (error) {
             this.logger.error(error.stack);
+            app.forceExit("Failed to build wallets. This indicates a problem with the database.");
         }
 
         return false;
@@ -187,16 +188,13 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
+            } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
+                await this.migrateTransactionsTableToAssetColumn(name);
             } else {
                 const row = await this.migrationsRepository.findByName(name);
                 if (row === null) {
                     this.logger.debug(`Migrating ${name}`);
                     await this.query.none(migration);
-
-                    if (name === "20190313000000-add-asset-column-to-transactions-table") {
-                        await this.migrateTransactionsTableToAssetColumn();
-                    }
-
                     await this.migrationsRepository.insert({ name });
                 }
             }
@@ -206,7 +204,25 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     /**
      * Migrate transactions table to asset column.
      */
-    private async migrateTransactionsTableToAssetColumn() {
+    private async migrateTransactionsTableToAssetColumn(name: string) {
+        const row = await this.migrationsRepository.findByName(name);
+
+        // Also run migration if the asset column is present, but missing values. E.g.
+        // after restoring a snapshot without assets even though the database has already been migrated.
+        let runMigration = row === null;
+        if (!runMigration) {
+            const { missingAsset } = await this.db.one(
+                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
+            );
+            if (missingAsset) {
+                await this.db.none(`DELETE FROM migrations WHERE name = '${name}'`);
+                runMigration = true;
+            }
+        }
+
+        if (!runMigration) {
+            return;
+        }
         this.logger.warn(`Migrating transactions table. This may take a while.`);
 
         const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
@@ -235,6 +251,8 @@ export class PostgresConnection implements Database.IDatabaseConnection {
                 return task.batch(transactions);
             });
         }
+
+        await this.migrationsRepository.insert({ name });
     }
 
     /**

@@ -164,7 +164,6 @@ export class Container implements container.IContainer {
         this.shuttingDown = true;
 
         const logger = this.resolvePlugin<Logger.ILogger>("logger");
-        logger.error(":boom: Container force shutdown :boom:");
         logger.error(message);
 
         if (error) {
