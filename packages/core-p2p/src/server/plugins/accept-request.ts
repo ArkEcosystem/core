@@ -41,7 +41,9 @@ const register = async (server, options) => {
                 });
 
                 try {
-                    await monitor.acceptNewPeer(peer);
+                    if (!(await monitor.acceptNewPeer(peer))) {
+                        return Boom.forbidden();
+                    }
                 } catch (error) {
                     return Boom.badImplementation(error.message);
                 }
