@@ -211,10 +211,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         // after restoring a snapshot without assets even though the database has already been migrated.
         let runMigration = row === null;
         if (!runMigration) {
-            const { exists } = await this.db.one(
-                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL)`,
+            const { missingAsset } = await this.db.one(
+                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
             );
-            if (exists) {
+            if (missingAsset) {
                 await this.db.none(`DELETE FROM migrations WHERE name = '${migrationName}'`);
                 runMigration = true;
             }
