@@ -392,6 +392,7 @@ export class Monitor implements P2P.IMonitor {
         this.logger.info(`Refreshing ${this.getPeers().length} peers after fork.`);
 
         // Reset all peers, except peers banned because of causing a fork.
+        await this.cleanPeers(false, true);
         await this.guard.resetSuspendedPeers();
 
         // Ban peer who caused the fork
@@ -506,7 +507,7 @@ export class Monitor implements P2P.IMonitor {
      */
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.__isColdStartActive()) {
-            await this.cleanPeers(true, true);
+            await this.cleanPeers(false, true);
             await this.guard.resetSuspendedPeers();
         }
 
@@ -518,6 +519,11 @@ export class Monitor implements P2P.IMonitor {
             .filter(peer => peer.verification !== null);
 
         const allPeers = [...peers, ...suspendedPeers];
+        if (!allPeers.length) {
+            this.logger.info("No peers available.");
+            return { forked: false };
+        }
+
         const forkedPeers = allPeers.filter(peer => peer.verification.forked);
         const majorityOnOurChain = forkedPeers.length / allPeers.length < 0.5;
 

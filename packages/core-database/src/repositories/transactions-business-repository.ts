@@ -59,7 +59,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findById(id: string) {
-        return this.databaseServiceProvider().connection.transactionsRepository.findById(id);
+        const rows = await this.databaseServiceProvider().connection.transactionsRepository.findById(id);
+        return (await this.mapBlocksToTransactions(rows))[0];
     }
 
     public async findByTypeAndId(type: any, id: string) {
