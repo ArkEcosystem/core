@@ -259,11 +259,13 @@ export class Blockchain implements blockchain.IBlockchain {
         if (this.state.started) {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
+    
+            emitter.emit("block.received", block);
         } else {
             logger.info(`Block disregarded because blockchain is not ready`);
+            
+            emitter.emit("block.disregarded", block);
         }
-
-        emitter.emit("block.received", block);
     }
 
     /**
@@ -542,6 +544,7 @@ export class Blockchain implements blockchain.IBlockchain {
             "block.forged",
             "block.reverted",
             "block.received",
+            "block.disregarded",
             "delegate.registered",
             "delegate.resigned",
             "forger.failed",
