@@ -154,7 +154,7 @@ export const getBlocks = async req => {
             reqBlockHeight,
         )
             ? reqBlockHeight
-            : blocks[0].data.height
+            : blocks[0].height
         ).toLocaleString()}`,
     );
 
