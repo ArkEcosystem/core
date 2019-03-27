@@ -204,8 +204,8 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     /**
      * Migrate transactions table to asset column.
      */
-    private async migrateTransactionsTableToAssetColumn(migrationName: string) {
-        const row = await this.migrationsRepository.findByName(migrationName);
+    private async migrateTransactionsTableToAssetColumn(name: string) {
+        const row = await this.migrationsRepository.findByName(name);
 
         // Also run migration if the asset column is present, but missing values. E.g.
         // after restoring a snapshot without assets even though the database has already been migrated.
@@ -215,7 +215,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
                 `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
             );
             if (missingAsset) {
-                await this.db.none(`DELETE FROM migrations WHERE name = '${migrationName}'`);
+                await this.db.none(`DELETE FROM migrations WHERE name = '${name}'`);
                 runMigration = true;
             }
         }
@@ -252,7 +252,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             });
         }
 
-        await this.migrationsRepository.insert({ name: migrationName });
+        await this.migrationsRepository.insert({ name });
     }
 
     /**
