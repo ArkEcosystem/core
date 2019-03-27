@@ -12,7 +12,7 @@ class Worker extends SCWorker {
     public run() {
         this.logInfo(`Socket worker started, PID: ${process.pid}`);
 
-        const scServer = (this as any).scServer;
+        const scServer = this.scServer;
 
         this.initRateLimit();
 
@@ -151,7 +151,7 @@ class Worker extends SCWorker {
 
     public async sendToMasterAsync(data) {
         return new Promise((resolve, reject) => {
-            (this as any).sendToMaster(data, (err, val) => (err ? reject(err) : resolve(val)));
+            this.sendToMaster(data, (err, val) => (err ? reject(err) : resolve(val)));
         });
     }
 

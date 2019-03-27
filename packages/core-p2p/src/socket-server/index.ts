@@ -28,7 +28,8 @@ const startSocketServer = async config => {
         rebootWorkerOnCrash: true,
     });
 
-    server.on("workerMessage", async (workerId, req, res) => {
+    // socketcluster types do not allow on("workerMessage") so casting as any
+    (server as any).on("workerMessage", async (workerId, req, res) => {
         // special endpoint for worker init, when need to get plugin config
         if (req.endpoint === "p2p.init.getConfig") {
             return res(null, config);

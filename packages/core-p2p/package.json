@@ -73,7 +73,10 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
-        "@types/semver": "^5.5.0"
+        "@types/semver": "^5.5.0",
+        "@types/socketcluster": "^14.0.2",
+        "@types/socketcluster-client": "^13.0.2",
+        "@types/scc-broker-client": "^6.1.0"
     },
     "publishConfig": {
         "access": "public"
