@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";

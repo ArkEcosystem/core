@@ -5,10 +5,10 @@ import { Transaction } from "@arkecosystem/crypto";
 
 export function transformTransaction(model) {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    const database = blockchain.database as Database.IDatabaseService;
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     const { data } = Transaction.fromBytesUnsafe(model.serialized, model.id);
-    const sender = database.walletManager.findByPublicKey(data.senderPublicKey).address;
+    const sender = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock = blockchain.getLastBlock();
 
