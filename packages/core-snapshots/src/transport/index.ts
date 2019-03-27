@@ -16,7 +16,7 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 export const exportTable = async (table, options) => {
-    const snapFileName = utils.getPath(table, options.meta.folder);
+    const snapFileName = utils.getFilePath(table, options.meta.folder);
     const gzip = zlib.createGzip();
     await fs.ensureFile(snapFileName);
 
@@ -56,7 +56,7 @@ export const exportTable = async (table, options) => {
 };
 
 export const importTable = async (table, options) => {
-    const sourceFile = utils.getPath(table, options.meta.folder);
+    const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
     const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
     logger.info(
@@ -86,9 +86,11 @@ export const importTable = async (table, options) => {
     // @ts-ignore
     for await (const record of readStream) {
         counter++;
-        if (!verifyData(table, record, prevData, options.signatureVerification)) {
+
+        if (!verifyData(table, record, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`);
         }
+
         if (canImportRecord(table, record, options.lastBlock)) {
             values.push(record);
         }
@@ -102,11 +104,12 @@ export const importTable = async (table, options) => {
     if (values.length > 0) {
         await saveData(values);
     }
+
     emitter.emit("complete");
 };
 
 export const verifyTable = async (table, options) => {
-    const sourceFile = utils.getPath(table, options.meta.folder);
+    const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
     const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
     const readStream = options.meta.skipCompression
@@ -120,7 +123,7 @@ export const verifyTable = async (table, options) => {
     let prevData = null;
 
     decodeStream.on("data", data => {
-        if (!verifyData(table, data, prevData, options.signatureVerification)) {
+        if (!verifyData(table, data, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`);
         }
         prevData = data;

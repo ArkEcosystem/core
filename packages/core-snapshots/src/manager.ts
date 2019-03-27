@@ -21,8 +21,8 @@ export class SnapshotManager {
         return this;
     }
 
-    public async exportData(options) {
-        const params = await this.__init(options, true);
+    public async dump(options) {
+        const params = await this.init(options, true);
 
         if (params.skipExportWhenNoChange) {
             logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`);
@@ -37,25 +37,28 @@ export class SnapshotManager {
         };
 
         this.database.close();
+
         utils.writeMetaFile(metaInfo);
     }
 
-    public async importData(options) {
-        const params = await this.__init(options);
+    public async import(options) {
+        const params = await this.init(options);
 
         if (params.truncate) {
-            params.lastBlock = await this.database.truncateChain();
+            params.lastBlock = await this.database.truncate();
         }
 
         await importTable("blocks", params);
         await importTable("transactions", params);
 
         const lastBlock = await this.database.getLastBlock();
+
         logger.info(
             `Import from folder ${
                 params.meta.folder
             } completed. Last block in database: ${lastBlock.height.toLocaleString()}`,
         );
+
         if (!params.skipRestartRound) {
             const newLastBlock = await this.database.rollbackChain(lastBlock.height);
             logger.info(
@@ -66,19 +69,19 @@ export class SnapshotManager {
         this.database.close();
     }
 
-    public async verifyData(options) {
-        const params = await this.__init(options);
+    public async verify(options) {
+        const params = await this.init(options);
 
         await Promise.all([verifyTable("blocks", params), verifyTable("transactions", params)]);
     }
 
-    public async truncateChain() {
-        await this.database.truncateChain();
+    public async truncate() {
+        await this.database.truncate();
 
         this.database.close();
     }
 
-    public async rollbackByHeight(height) {
+    public async rollbackByHeight(height: number) {
         if (!height || height <= 0) {
             app.forceExit(`Rollback height ${height.toLocaleString()} is invalid.`);
         }
@@ -117,16 +120,11 @@ export class SnapshotManager {
         return this.rollbackByHeight(height - amount);
     }
 
-    /**
-     * Inits the process and creates json with needed paramaters for functions
-     * @param  {JSONObject} from commander or util function {blocks, truncate, signatureVerify, skipRestartRound, start, end}
-     * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
-     */
-    public async __init(options, exportAction = false) {
+    private async init(options, exportAction: boolean = false) {
         const params: any = pick(options, [
             "truncate",
-            "signatureVerify",
             "blocks",
+            "verifySignatures",
             "skipRestartRound",
             "start",
             "end",
@@ -141,6 +139,7 @@ export class SnapshotManager {
             if (!lastBlock) {
                 app.forceExit("Database is empty. Export not possible.");
             }
+
             params.meta = utils.setSnapshotInfo(params, lastBlock);
             params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight);
 
@@ -149,6 +148,7 @@ export class SnapshotManager {
                     params.skipExportWhenNoChange = true;
                     return params;
                 }
+
                 const sourceSnapshotParams = utils.readMetaJSON(params.blocks);
                 params.meta.skipCompression = sourceSnapshotParams.skipCompression;
                 params.meta.startHeight = sourceSnapshotParams.blocks.startHeight;
@@ -157,13 +157,14 @@ export class SnapshotManager {
         } else {
             params.meta = utils.getSnapshotInfo(options.blocks);
         }
+
         if (options.trace) {
-            // tslint:disable-next-line:no-console
-            console.info(params.meta);
-            // tslint:disable-next-line:no-console
-            console.info(params.queries);
+            logger.info(params.meta);
+            logger.info(params.queries);
         }
+
         params.database = this.database;
+
         return params;
     }
 }
