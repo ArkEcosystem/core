@@ -9,7 +9,7 @@ export class Block extends Model {
         this.columnsDescriptor = [
             {
                 name: "id",
-                supportedOperators: [Database.SearchOperator.OP_EQ],
+                supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
             },
             {
                 name: "version",
@@ -29,6 +29,7 @@ export class Block extends Model {
                 name: "height",
                 supportedOperators: [
                     Database.SearchOperator.OP_EQ,
+                    Database.SearchOperator.OP_IN,
                     Database.SearchOperator.OP_LTE,
                     Database.SearchOperator.OP_GTE,
                 ],
@@ -68,7 +69,7 @@ export class Block extends Model {
             {
                 name: "generator_public_key",
                 prop: "generatorPublicKey",
-                supportedOperators: [Database.SearchOperator.OP_EQ],
+                supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
             },
             {
                 name: "block_signature",

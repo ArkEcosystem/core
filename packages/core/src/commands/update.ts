@@ -47,12 +47,9 @@ export class UpdateCommand extends BaseCommand {
         }
 
         try {
-            const currentVersion = state.currentVersion;
-            const newVersion = state.updateVersion;
-
             this.warn(
-                `${state.name} update available from ${Chalk.greenBright(currentVersion)} to ${Chalk.greenBright(
-                    newVersion,
+                `${state.name} update available from ${Chalk.greenBright(state.currentVersion)} to ${Chalk.greenBright(
+                    state.updateVersion,
                 )}.`,
             );
 
