@@ -24,9 +24,7 @@ export abstract class AbstractLogCommand extends BaseCommand {
 
         this.log((await readLastLines.read(file, flags.lines)).trim());
 
-        const log = new Tail(file, {
-            useFsEvents: false,
-        });
+        const log = new Tail(file);
 
         log.on("line", this.log);
 
