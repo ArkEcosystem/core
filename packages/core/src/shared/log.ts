@@ -31,7 +31,7 @@ export abstract class AbstractLogCommand extends BaseCommand {
             async (events: FileEvent[]) => {
                 for (const event of events) {
                     if (event.action === nsfw.actions.MODIFIED) {
-                        await this.logLines(`${event.directory}/${event.file}`, processName, flags);
+                        await this.readLines(`${event.directory}/${event.file}`, 1);
                     }
                 }
             },
@@ -54,6 +54,10 @@ export abstract class AbstractLogCommand extends BaseCommand {
             `Tailing last ${flags.lines} lines for [${processName}] process (change the value with --lines option)`,
         );
 
-        this.log(await readLastLines.read(file, flags.lines));
+        await this.readLines(file, flags.lines);
+    }
+
+    private async readLines(file: string, lines: number): Promise<void> {
+        this.log((await readLastLines.read(file, lines)).trim());
     }
 }
