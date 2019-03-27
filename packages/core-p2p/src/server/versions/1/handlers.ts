@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { models, slots } from "@arkecosystem/crypto";
+import { AjvWrapper, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
 import { schema } from "./schema";
@@ -78,10 +78,7 @@ export const getCommonBlocks = {
 
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-        const ids = request.query.ids
-            .split(",")
-            .slice(0, 9)
-            .filter(id => id.match(/^\d+$/));
+        const ids = request.query.ids.split(",").filter(id => AjvWrapper.instance().validate({ blockId: {} }, id));
 
         try {
             const commonBlocks = await blockchain.database.getCommonBlocks(ids);
