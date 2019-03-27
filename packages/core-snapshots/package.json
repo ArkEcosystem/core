@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-snapshots",
     "description": "Provides live local streamed snapshots functionality for ARK Core",
-    "version": "2.3.0-next.1",
+    "version": "2.3.0-next.2",
     "contributors": [
         "Kristjan Košič <chris@ark.io>"
     ],
@@ -20,10 +20,10 @@
         "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.1",
-        "@arkecosystem/core-database-postgres": "^2.3.0-next.1",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.1",
-        "@arkecosystem/crypto": "^2.3.0-next.1",
+        "@arkecosystem/core-container": "^2.3.0-next.2",
+        "@arkecosystem/core-database-postgres": "^2.3.0-next.2",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.2",
+        "@arkecosystem/crypto": "^2.3.0-next.2",
         "JSONStream": "^1.3.5",
         "cpy-cli": "^2.0.0",
         "create-hash": "^1.2.0",
