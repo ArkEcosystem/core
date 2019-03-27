@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { configManager, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, configManager, models, Transaction } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise from "pg-promise";
@@ -36,6 +36,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             return result;
         } catch (error) {
             this.logger.error(error.stack);
+            app.forceExit("Failed to build wallets. This indicates a problem with the database.");
         }
 
         return false;
@@ -187,16 +188,13 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
+            } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
+                await this.migrateTransactionsTableToAssetColumn(name);
             } else {
                 const row = await this.migrationsRepository.findByName(name);
                 if (row === null) {
                     this.logger.debug(`Migrating ${name}`);
                     await this.query.none(migration);
-
-                    if (name === "20190313000000-add-asset-column-to-transactions-table") {
-                        await this.migrateTransactionsTableToAssetColumn();
-                    }
-
                     await this.migrationsRepository.insert({ name });
                 }
             }
@@ -206,34 +204,53 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     /**
      * Migrate transactions table to asset column.
      */
-    private async migrateTransactionsTableToAssetColumn() {
-        this.logger.warn(`Migrating transactions table. This may take a while.`);
+    private async migrateTransactionsTableToAssetColumn(migrationName: string) {
+        const row = await this.migrationsRepository.findByName(migrationName);
 
-        const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
-        const { transactionIdFixTable } = configManager.get("exceptions");
+        // Also run migration if the asset column is present, but missing values. E.g.
+        // after restoring a snapshot without assets even though the database has already been migrated.
+        let runMigration = row === null;
+        if (!runMigration) {
+            const { noAssetCount } = await this.db.one(
+                `SELECT COUNT(id) as "noAssetCount" FROM transactions WHERE type > 0 AND asset IS NULL`,
+            );
+            if (new Bignum(noAssetCount).isGreaterThan(0)) {
+                await this.db.none(`DELETE FROM migrations WHERE name = '${migrationName}'`);
+                runMigration = true;
+            }
+        }
 
-        for (const batch of chunk(all, 20000)) {
-            await this.db.task(task => {
-                const transactions = [];
-                batch.forEach((tx: { serialized: Buffer; id: string }) => {
-                    const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
-                    if (transaction.data.asset) {
-                        let transactionId = transaction.id;
+        if (runMigration) {
+            this.logger.warn(`Migrating transactions table. This may take a while.`);
 
-                        // If the transaction is a broken v1 transaction use the broken id for the query.
-                        if (transactionIdFixTable && transactionIdFixTable[transactionId]) {
-                            transactionId = transactionIdFixTable[transactionId];
+            const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
+            const { transactionIdFixTable } = configManager.get("exceptions");
+
+            for (const batch of chunk(all, 20000)) {
+                await this.db.task(task => {
+                    const transactions = [];
+                    batch.forEach((tx: { serialized: Buffer; id: string }) => {
+                        const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
+                        if (transaction.data.asset) {
+                            let transactionId = transaction.id;
+
+                            // If the transaction is a broken v1 transaction use the broken id for the query.
+                            if (transactionIdFixTable && transactionIdFixTable[transactionId]) {
+                                transactionId = transactionIdFixTable[transactionId];
+                            }
+
+                            const query =
+                                this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
+                                ` WHERE id = '${transactionId}'`;
+                            transactions.push(task.none(query));
                         }
+                    });
 
-                        const query =
-                            this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
-                            ` WHERE id = '${transactionId}'`;
-                        transactions.push(task.none(query));
-                    }
+                    return task.batch(transactions);
                 });
+            }
 
-                return task.batch(transactions);
-            });
+            await this.migrationsRepository.insert({ name: migrationName });
         }
     }
 
