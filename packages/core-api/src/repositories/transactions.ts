@@ -115,7 +115,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async findAllByWallet(wallet, parameters: any = {}): Promise<any> {
         const selectQuery = this.query
-            .select(this.query.id, this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
+            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query);
 
         const applyConditions = queries => {
