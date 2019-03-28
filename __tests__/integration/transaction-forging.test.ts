@@ -7,7 +7,7 @@ import { generators } from "../utils";
 import { secrets } from "../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../utils/helpers/container";
 
-jest.setTimeout(30000);
+jest.setTimeout(1200000);
 
 let app;
 beforeEach(async () => {
