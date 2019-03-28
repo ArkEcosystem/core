@@ -41,10 +41,10 @@ afterEach(async () => {
 });
 
 describe("Transaction Forging", () => {
-    it.skip("should broadcast a transfer, accept it and forge it", async () => {
+    it("should broadcast a transfer, accept it and forge it", async () => {
         // Sign
         const transactions = generators
-            .generateTransfers("testnet", secrets[0], Address.fromPassphrase(secrets[0]), 2 * 1e8, 1, false, 0.1 * 1e8)
+            .generateTransfers("testnet", secrets[0], Address.fromPassphrase(secrets[0]), 2 * 1e8, 1, false, 10000000)
             .map(transaction => transaction.toJson());
 
         // Broadcast
@@ -65,7 +65,7 @@ describe("Transaction Forging", () => {
         expect(responseVerify.body.data.id).toBe(transactions[0].id);
     });
 
-    it.skip("should broadcast a second signature registration, accept it and forge it", async () => {
+    it("should broadcast a second signature registration, accept it and forge it", async () => {
         // Sign
         const transactions = generators
             .generateSecondSignature("testnet", secrets[0], 1, false, 5 * 1e8)
@@ -101,7 +101,7 @@ describe("Transaction Forging", () => {
                         30 * 1e8,
                         1,
                         false,
-                        0.1 * 1e8,
+                        10000000,
                     )
                     .map(transaction => transaction.toJson()),
             },
@@ -132,7 +132,7 @@ describe("Transaction Forging", () => {
         const responseVerify = await httpie.get(`http://localhost:4003/api/v2/transactions/${transactions[0].id}`);
         expect(responseVerify.body.data.id).toBe(transactions[0].id);
     });
-    it.skip("should broadcast a vote registration, accept it and forge it", async () => {
+    it("should broadcast a vote registration, accept it and forge it", async () => {
         // Make a new wallet
         await httpie.post("http://localhost:4003/api/v2/transactions", {
             body: {
@@ -144,7 +144,7 @@ describe("Transaction Forging", () => {
                         10 * 1e8,
                         1,
                         false,
-                        0.1 * 1e8,
+                        10000000,
                     )
                     .map(transaction => transaction.toJson()),
             },
