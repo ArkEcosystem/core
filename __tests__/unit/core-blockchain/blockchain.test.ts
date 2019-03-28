@@ -303,6 +303,8 @@ describe("Blockchain", () => {
                 "block.applied",
                 "block.forged",
                 "block.reverted",
+                "block.received",
+                "block.disregarded",
                 "delegate.registered",
                 "delegate.resigned",
                 "forger.failed",
@@ -316,6 +318,9 @@ describe("Blockchain", () => {
                 "transaction.expired",
                 "transaction.forged",
                 "transaction.reverted",
+                "transaction.pool.added",
+                "transaction.pool.rejected",
+                "transaction.pool.removed",
                 "wallet.saved",
                 "wallet.created.cold",
             ]);
