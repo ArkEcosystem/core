@@ -12,17 +12,28 @@ fs.readdir("./packages", (_, packages) => {
     // test split
     const packagesChunks = splitPackages(packages);
 
-    for (const [name, unitJob] of Object.entries(config.jobs)) {
+    const fixedJobs = [
+        "test-node10-unit",
+        "test-node11-unit",
+        "test-node10-functional",
+        "test-node11-functional",
+    ]
+
+    for (const [name, job] of Object.entries(config.jobs)) {
+        if (fixedJobs.includes(name)) {
+            continue;
+        }
+
         // save cache
-        const saveCacheStep = unitJob.steps.find(step => typeof step === "object" && step.save_cache);
+        const saveCacheStep = job.steps.find(step => typeof step === "object" && step.save_cache);
         saveCacheStep.save_cache.paths = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules");
 
         // copy base unit jobs (unit tests) to adapt for integration tests
         const jobs = [
-            jason(unitJob),
-            jason(unitJob),
+            jason(job),
+            jason(job),
         ];
 
         jobs.forEach((job, index) => {
@@ -32,9 +43,9 @@ fs.readdir("./packages", (_, packages) => {
 
             const steps = getIntegrationSteps(packagesChunks[index]);
 
-            const stepLog = job.steps[10];
-            const stepLint = job.steps[11];
-            const stepCoverage = job.steps[12];
+            const stepLog = job.steps[9];
+            const stepLint = job.steps[10];
+            const stepCoverage = job.steps[11];
 
             for (i = 0; i < steps.length; i++) {
                 job.steps[testStepIndex + i] = steps[i];
@@ -48,6 +59,8 @@ fs.readdir("./packages", (_, packages) => {
             config.workflows.build_and_test.jobs.push(name.slice(0, -1) + (index + 1));
         });
     }
+
+    config.workflows.build_and_test.jobs = fixedJobs.concat(config.workflows.build_and_test.jobs)
 
     fs.writeFileSync(".circleci/config.yml", yaml.safeDump(config));
 });
