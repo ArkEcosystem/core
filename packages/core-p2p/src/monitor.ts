@@ -175,7 +175,7 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (this.getPeer(peer.ip)) {
-            return false;
+            return true;
         }
 
         try {
