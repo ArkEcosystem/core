@@ -17,9 +17,6 @@
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist"
     },
-    "dependencies": {
-        "eventemitter3": "^3.1.0"
-    },
     "publishConfig": {
         "access": "public"
     },

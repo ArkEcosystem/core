@@ -1,5 +1,5 @@
-import EventEmitter from "eventemitter3";
 import { plugin } from "../../../packages/core-event-emitter/src";
+import { EventEmitter } from "../../../packages/core-event-emitter/src/emitter";
 
 const emitter = plugin.register();
 
