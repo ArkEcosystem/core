@@ -34,7 +34,39 @@ jobs:
           command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
-          paths: []
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -87,7 +119,39 @@ jobs:
           command: yarn setup
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
-          paths: []
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -140,7 +204,39 @@ jobs:
           command: yarn setup
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
-          paths: []
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -193,7 +289,39 @@ jobs:
           command: yarn setup
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
-          paths: []
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database

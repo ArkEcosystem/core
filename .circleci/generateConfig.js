@@ -4,6 +4,13 @@ const path = require("path");
 
 const config = require("./configTemplate.json");
 
+const fixedJobs = [
+    "test-node10-unit",
+    "test-node11-unit",
+    "test-node10-functional",
+    "test-node11-functional",
+]
+
 function jason(value) {
     return JSON.parse(JSON.stringify(value));
 }
@@ -12,23 +19,16 @@ fs.readdir("./packages", (_, packages) => {
     // test split
     const packagesChunks = splitPackages(packages);
 
-    const fixedJobs = [
-        "test-node10-unit",
-        "test-node11-unit",
-        "test-node10-functional",
-        "test-node11-functional",
-    ]
-
     for (const [name, job] of Object.entries(config.jobs)) {
-        if (fixedJobs.includes(name)) {
-            continue;
-        }
-
         // save cache
         const saveCacheStep = job.steps.find(step => typeof step === "object" && step.save_cache);
         saveCacheStep.save_cache.paths = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules");
+
+        if (fixedJobs.includes(name)) {
+            continue;
+        }
 
         // copy base unit jobs (unit tests) to adapt for integration tests
         const jobs = [
