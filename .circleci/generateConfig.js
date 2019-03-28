@@ -28,13 +28,13 @@ fs.readdir("./packages", (_, packages) => {
         jobs.forEach((job, index) => {
             const testStepIndex = job.steps.findIndex(
                 step => typeof step === "object" && step.run && step.run.name === "Unit tests",
-            );
+            ) + 1;
 
             const steps = getIntegrationSteps(packagesChunks[index]);
 
-            const stepLog = job.steps[9];
-            const stepLint = job.steps[10];
-            const stepCoverage = job.steps[11];
+            const stepLog = job.steps[10];
+            const stepLint = job.steps[11];
+            const stepCoverage = job.steps[12];
 
             for (i = 0; i < steps.length; i++) {
                 job.steps[testStepIndex + i] = steps[i];

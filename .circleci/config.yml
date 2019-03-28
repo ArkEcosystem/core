@@ -256,6 +256,11 @@ jobs:
             cd ~/core && yarn test:functional:coverage --coverageDirectory
             .coverage/functional/ --maxWorkers=2
       - run:
+          name: Unit tests
+          command: >-
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
+      - run:
           name: core-api - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -286,17 +291,15 @@ jobs:
             test:coverage /integration/core-json-rpc/ --coverageDirectory
             .coverage/integration/core-json-rpc
       - run:
-          name: Unit tests
-          command: >-
-            cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/ --maxWorkers=2
-      - run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node10-2:
     working_directory: ~/core
     environment:
@@ -373,6 +376,11 @@ jobs:
             cd ~/core && yarn test:functional:coverage --coverageDirectory
             .coverage/functional/ --maxWorkers=2
       - run:
+          name: Unit tests
+          command: >-
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
+      - run:
           name: core-tester-cli - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -397,17 +405,15 @@ jobs:
             test:coverage /integration/core-webhooks/ --coverageDirectory
             .coverage/integration/core-webhooks
       - run:
-          name: Unit tests
-          command: >-
-            cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/ --maxWorkers=2
-      - run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node11-1:
     working_directory: ~/core
     environment:
@@ -484,6 +490,11 @@ jobs:
             cd ~/core && yarn test:functional:coverage --coverageDirectory
             .coverage/functional/ --maxWorkers=2
       - run:
+          name: Unit tests
+          command: >-
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
+      - run:
           name: core-api - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -514,17 +525,15 @@ jobs:
             test:coverage /integration/core-json-rpc/ --coverageDirectory
             .coverage/integration/core-json-rpc
       - run:
-          name: Unit tests
-          command: >-
-            cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/ --maxWorkers=2
-      - run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
   test-node11-2:
     working_directory: ~/core
     environment:
@@ -601,6 +610,11 @@ jobs:
             cd ~/core && yarn test:functional:coverage --coverageDirectory
             .coverage/functional/ --maxWorkers=2
       - run:
+          name: Unit tests
+          command: >-
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
+      - run:
           name: core-tester-cli - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -625,17 +639,15 @@ jobs:
             test:coverage /integration/core-webhooks/ --coverageDirectory
             .coverage/integration/core-webhooks
       - run:
-          name: Unit tests
-          command: >-
-            cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/ --maxWorkers=2
-      - run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
       - run:
           name: Lint
           command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
 workflows:
   version: 2
   build_and_test:
