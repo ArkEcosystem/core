@@ -33,10 +33,10 @@ export abstract class Transaction {
      * NOTE: Only use this internally when it is safe to assume the buffer has already been
      * verified.
      */
-    public static fromBytesUnsafe(buffer: Buffer, id: string): Transaction {
+    public static fromBytesUnsafe(buffer: Buffer, id?: string): Transaction {
         try {
             const transaction = TransactionDeserializer.deserialize(buffer);
-            transaction.data.id = id;
+            transaction.data.id = id || crypto.getId(transaction.data);
             transaction.isVerified = true;
 
             return transaction;

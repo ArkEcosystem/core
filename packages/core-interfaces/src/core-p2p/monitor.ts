@@ -20,7 +20,7 @@ export interface IMonitor {
      * @param  {IPeer} peer
      * @throws {Error} If invalid peer
      */
-    acceptNewPeer(peer: any): Promise<void>;
+    acceptNewPeer(peer: any): Promise<boolean>;
 
     /**
      * Remove peer from monitor.

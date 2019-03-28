@@ -128,14 +128,14 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Peer} peer
      * @throws {Error} If invalid peer
      */
-    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}) {
+    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}): Promise<boolean> {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             this.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
-            return;
+            return false;
         }
 
         if (!isValidPeer(peer) || this.guard.isSuspended(peer) || this.pendingPeers[peer.ip]) {
-            return;
+            return false;
         }
 
         const newPeer = new Peer(peer.ip, peer.port);
@@ -144,7 +144,8 @@ export class Monitor implements P2P.IMonitor {
         if (this.guard.isBlacklisted(peer)) {
             this.logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`);
 
-            return this.guard.suspend(newPeer);
+            this.guard.suspend(newPeer);
+            return false;
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
@@ -158,7 +159,8 @@ export class Monitor implements P2P.IMonitor {
                 }`,
             );
 
-            return this.guard.suspend(newPeer);
+            this.guard.suspend(newPeer);
+            return false;
         }
 
         if (!this.guard.isValidNetwork(peer) && !options.seed) {
@@ -168,11 +170,12 @@ export class Monitor implements P2P.IMonitor {
                 )} - Received: ${peer.nethash}`,
             );
 
-            return this.guard.suspend(newPeer);
+            this.guard.suspend(newPeer);
+            return false;
         }
 
         if (this.getPeer(peer.ip)) {
-            return;
+            return false;
         }
 
         try {
@@ -190,9 +193,12 @@ export class Monitor implements P2P.IMonitor {
         } catch (error) {
             this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
             this.guard.suspend(newPeer);
+            return false;
         } finally {
             delete this.pendingPeers[peer.ip];
         }
+
+        return true;
     }
 
     /**

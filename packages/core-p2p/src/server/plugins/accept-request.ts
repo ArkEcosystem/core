@@ -1,6 +1,6 @@
 import Boom from "boom";
 import { monitor } from "../../monitor";
-import { isWhitelisted } from "../../utils";
+import { isLocalHost, isWhitelisted } from "../../utils";
 
 /**
  * The register method used by hapi.js.
@@ -41,7 +41,12 @@ const register = async (server, options) => {
                 });
 
                 try {
-                    await monitor.acceptNewPeer(peer);
+                    if (!isLocalHost(peer.ip)) {
+                        const accepted = await monitor.acceptNewPeer(peer);
+                        if (!accepted && request.method === "post") {
+                            return Boom.forbidden();
+                        }
+                    }
                 } catch (error) {
                     return Boom.badImplementation(error.message);
                 }
