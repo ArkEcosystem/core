@@ -211,4 +211,16 @@ describe("Monitor", () => {
             expect(blocks.length).toBe(2);
         });
     });
+
+    describe("getNetworkHeight", () => {
+        it("should return correct network height", () => {
+            monitor.peers = {
+                "1.1.1.1": { state: { height: 1 } },
+                "1.1.1.2": { state: { height: 7 } },
+                "1.1.1.3": { state: { height: 10 } },
+            };
+
+            expect(monitor.getNetworkHeight()).toBe(7);
+        });
+    });
 });
