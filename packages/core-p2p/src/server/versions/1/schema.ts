@@ -1,3 +1,5 @@
+import { app } from "@arkecosystem/core-container";
+
 /**
  * @type {Object}
  */
@@ -46,7 +48,11 @@ export const schema = {
         required: ["transactions"],
         additionalProperties: false,
         properties: {
-            transactions: { $ref: "transactions", minItems: 1, maxItems: 40 }, // TODO: use config
+            transactions: {
+                $ref: "transactions",
+                minItems: 1,
+                maxItems: app.resolveOptions("transaction-pool").maxTransactionsPerRequest,
+            },
         },
     },
     getTransactions: {
