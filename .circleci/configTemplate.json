@@ -244,7 +244,7 @@
                 {
                     "run": {
                         "name": "Functional tests",
-                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/ --maxWorkers=2"
+                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/"
                     }
                 },
                 {
@@ -333,7 +333,7 @@
                 {
                     "run": {
                         "name": "Functional tests",
-                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/ --maxWorkers=2"
+                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/"
                     }
                 },
                 {
