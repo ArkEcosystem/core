@@ -1,4 +1,4 @@
-import EventEmitter from "eventemitter3";
+import { EventEmitter } from "./emitter";
 
 export const plugin = {
     pkg: require("../package.json"),
