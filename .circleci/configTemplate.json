@@ -65,6 +65,12 @@
                 },
                 {
                     "run": {
+                        "name": "Functional tests",
+                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/ --maxWorkers=2"
+                    }
+                },
+                {
+                    "run": {
                         "name": "Unit tests",
                         "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2"
                     }
@@ -150,6 +156,12 @@
                     "run": {
                         "name": "Create .core/database directory",
                         "command": "mkdir -p $HOME/.core/database"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Functional tests",
+                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/ --maxWorkers=2"
                     }
                 },
                 {

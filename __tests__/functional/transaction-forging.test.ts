@@ -10,7 +10,7 @@ import { setUpContainer } from "../utils/helpers/container";
 jest.setTimeout(1200000);
 
 let app;
-beforeEach(async () => {
+beforeAll(async () => {
     app = await setUpContainer({
         include: [
             "@arkecosystem/core-event-emitter",
@@ -36,7 +36,7 @@ beforeEach(async () => {
     );
 });
 
-afterEach(async () => {
+afterAll(async () => {
     await app.tearDown();
 });
 
@@ -64,31 +64,6 @@ describe("Transaction Forging", () => {
         const responseVerify = await httpie.get(`http://localhost:4003/api/v2/transactions/${transactions[0].id}`);
         expect(responseVerify.body.data.id).toBe(transactions[0].id);
     });
-
-    it("should broadcast a second signature registration, accept it and forge it", async () => {
-        // Sign
-        const transactions = generators
-            .generateSecondSignature("testnet", secrets[0], 1, false, 5 * 1e8)
-            .map(transaction => transaction.toJson());
-
-        // Broadcast
-        const responseBroadcast = await httpie.post("http://localhost:4003/api/v2/transactions", {
-            body: {
-                transactions,
-            },
-        });
-
-        expect(responseBroadcast.body.data.accept).toContain(transactions[0].id);
-        expect(responseBroadcast.body.data.broadcast).toContain(transactions[0].id);
-
-        // Wait 1 block
-        await delay(8000);
-
-        // Verify
-        const responseVerify = await httpie.get(`http://localhost:4003/api/v2/transactions/${transactions[0].id}`);
-        expect(responseVerify.body.data.id).toBe(transactions[0].id);
-    });
-
     it("should broadcast a delegate registration, accept it and forge it", async () => {
         // Make a new wallet
         await httpie.post("http://localhost:4003/api/v2/transactions", {
@@ -156,6 +131,30 @@ describe("Transaction Forging", () => {
         // Sign
         const transactions = generators
             .generateVote("testnet", "secret", PublicKey.fromPassphrase(secrets[0]), 1, false, 1 * 1e8)
+            .map(transaction => transaction.toJson());
+
+        // Broadcast
+        const responseBroadcast = await httpie.post("http://localhost:4003/api/v2/transactions", {
+            body: {
+                transactions,
+            },
+        });
+
+        expect(responseBroadcast.body.data.accept).toContain(transactions[0].id);
+        expect(responseBroadcast.body.data.broadcast).toContain(transactions[0].id);
+
+        // Wait 1 block
+        await delay(8000);
+
+        // Verify
+        const responseVerify = await httpie.get(`http://localhost:4003/api/v2/transactions/${transactions[0].id}`);
+        expect(responseVerify.body.data.id).toBe(transactions[0].id);
+    });
+
+    it("should broadcast a second signature registration, accept it and forge it", async () => {
+        // Sign
+        const transactions = generators
+            .generateSecondSignature("testnet", secrets[0], 1, false, 5 * 1e8)
             .map(transaction => transaction.toJson());
 
         // Broadcast
