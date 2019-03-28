@@ -81,7 +81,7 @@
         "latest-version": "^4.0.0",
         "listr": "^0.14.3",
         "lodash.minby": "^4.6.0",
-        "nsfw": "^1.2.2",
+        "nodejs-tail": "^1.1.0",
         "ora": "^3.2.0",
         "pretty-bytes": "^5.1.0",
         "pretty-ms": "^4.0.0",
