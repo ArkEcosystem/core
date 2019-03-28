@@ -181,15 +181,14 @@ export class PostgresConnection implements Database.IDatabaseConnection {
      * Run all migrations.
      * @return {void}
      */
-
-    private async runMigrations() {
+    private async runMigrations(): Promise<void> {
         for (const migration of migrations) {
             const { name } = path.parse(migration.file);
 
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
             } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
-                await this.migrateTransactionsTableToAssetColumn(name);
+                await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
                 const row = await this.migrationsRepository.findByName(name);
                 if (row === null) {
@@ -204,7 +203,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
     /**
      * Migrate transactions table to asset column.
      */
-    private async migrateTransactionsTableToAssetColumn(name: string) {
+    private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
         const row = await this.migrationsRepository.findByName(name);
 
         // Also run migration if the asset column is present, but missing values. E.g.
@@ -224,6 +223,8 @@ export class PostgresConnection implements Database.IDatabaseConnection {
             return;
         }
         this.logger.warn(`Migrating transactions table. This may take a while.`);
+
+        await this.query.none(migration);
 
         const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
         const { transactionIdFixTable } = configManager.get("exceptions");
