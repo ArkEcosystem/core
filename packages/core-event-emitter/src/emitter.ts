@@ -3,8 +3,8 @@ import { EventEmitter as NativeEmitter } from "events";
 export class EventEmitter {
     private readonly emitter: NativeEmitter = new NativeEmitter();
 
-    public emit(event: string | symbol, args: any[]): void {
-        this.emitter.emit(event, args);
+    public emit(event: string | symbol, args: any[]): boolean {
+        return this.emitter.emit(event, args);
     }
 
     public on(event: string | symbol, listener: (args: any[]) => void): void {
