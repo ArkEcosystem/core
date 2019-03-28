@@ -101,7 +101,7 @@ export class TransactionsController extends Controller {
                 return Boom.notFound("Transaction not found");
             }
 
-            const data = { serialized: transaction.serialized.toString("hex") };
+            const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
             return super.respondWithResource(request, data, "transaction");
         } catch (error) {
