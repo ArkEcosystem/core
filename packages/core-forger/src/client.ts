@@ -114,7 +114,7 @@ export class Client {
     /**
      * Chose a responsive host.
      */
-    private async selectHost(): Promise<void> {
+    public async selectHost(): Promise<void> {
         const host = sample(this.hosts);
         try {
             await this.get(`${host}/peer/status`);

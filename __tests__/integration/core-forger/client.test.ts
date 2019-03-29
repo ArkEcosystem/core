@@ -52,7 +52,7 @@ describe("Client", () => {
                             return requestBody;
                         });
 
-                    await client.__chooseHost();
+                    await client.selectHost();
 
                     const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
                     expect(wasBroadcasted).toBeTruthy();
@@ -84,7 +84,7 @@ describe("Client", () => {
                     .get("/internal/transactions/forging")
                     .reply(200, { data: expectedResponse });
 
-                await client.__chooseHost();
+                await client.selectHost();
                 const response = await client.getTransactions();
 
                 expect(response).toEqual(expectedResponse);
@@ -100,7 +100,7 @@ describe("Client", () => {
                     .get("/internal/network/state")
                     .reply(200, { data: expectedResponse });
 
-                await client.__chooseHost();
+                await client.selectHost();
                 const response = await client.getNetworkState();
 
                 expect(response).toEqual(expectedResponse);
@@ -115,6 +115,7 @@ describe("Client", () => {
                 .get("/internal/blockchain/sync")
                 .reply(200);
 
+            await client.selectHost();
             await client.syncCheck();
 
             expect(httpie.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
@@ -131,7 +132,7 @@ describe("Client", () => {
                     return [200];
                 });
 
-            await client.__chooseHost();
+            await client.selectHost();
             await client.emitEvent("foo", "bar");
 
             expect(httpie.post).toHaveBeenCalledWith(`${host}/internal/utils/events`, {
@@ -139,7 +140,7 @@ describe("Client", () => {
                 headers: {
                     "Content-Type": "application/json",
                     nethash: {},
-                    port: "4000",
+                    port: 4000,
                     version: "2.3.0",
                     "x-auth": "forger",
                 },
