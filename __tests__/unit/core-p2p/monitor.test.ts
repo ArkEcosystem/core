@@ -56,21 +56,13 @@ describe("Monitor", () => {
             // undefined:undefined because of peer default jest mock
         });
 
-        it.skip("should suspend the peer - blacklisted", async () => {
-            // TODO
-        });
+        test.todo("should suspend the peer - blacklisted");
 
-        it.skip("should suspend the peer - isValidVersion false", async () => {
-            // TODO
-        });
+        test.todo("should suspend the peer - isValidVersion false");
 
-        it.skip("should suspend the peer - isValidNetwork false", async () => {
-            // TODO
-        });
+        test.todo("should suspend the peer - isValidNetwork false");
 
-        it.skip("should not accept the peer - ping failed", async () => {
-            // TODO
-        });
+        test.todo("should not accept the peer - ping failed");
     });
 
     describe("removePeer", () => {
@@ -213,7 +205,7 @@ describe("Monitor", () => {
 
             expect(monitor.getPBFTForgingStatus()).toBe(2 / 3);
         });
-        // TODO needs more test cases
+        test.todo("more cases need to be covered, see pbft calculation");
     });
 
     describe("getNetworkState", () => {
@@ -326,7 +318,7 @@ describe("Monitor", () => {
 
             expect(await monitor.checkNetworkHealth()).toEqual({ forked: false });
         });
-        // TODO needs to cover other cases
+        test.todo("more cases need to be covered, see checkNetworkHealth implementation");
     });
 
     describe("dumpPeers", () => {
