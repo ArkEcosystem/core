@@ -10,6 +10,8 @@ export interface IBlocksBusinessRepository {
 
     findByHeight(height: number): Promise<any>;
 
+    findByIdOrHeight(idOrHeight): Promise<any>;
+
     findAllByGenerator(generatorPublicKey: string, paginate: SearchPaginate);
 
     findLastByPublicKey(generatorPublicKey: string): Promise<any>;
