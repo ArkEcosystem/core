@@ -15,13 +15,27 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.oneOrNone(sql.findById, { id });
     }
 
+    /**
+     * Find many blocks by their IDs.
+     * @param {String[]} ids
+     */
     public async findByIds(ids: string[]) {
-        const query = this.query
-            .select()
-            .from(this.query)
-            .where(this.query.id.in(ids))
-            .group(this.query.id);
-        return await this.findMany(query);
+        return this.findMany(
+            this.query
+                .select()
+                .from(this.query)
+                .where(this.query.id.in(ids))
+                .group(this.query.id),
+        );
+    }
+
+    /**
+     * Get a block at the given height.
+     * @param  {Number} height the height of the blocks to retrieve
+     * @return {Promise}
+     */
+    public async findByHeight(height: number) {
+        return this.db.oneOrNone(sql.findByHeight, { height });
     }
 
     /**
@@ -29,7 +43,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
      * @param  {Array} heights the heights of the blocks to retrieve
      * @return {Promise}
      */
-    public async findByHeight(heights) {
+    public async findByHeights(heights) {
         return this.db.manyOrNone(sql.findByHeight, { heights });
     }
 
@@ -136,7 +150,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             }
         }
 
-        return await this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
+        return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
     }
 
     public async search(params: Database.SearchParameters) {
@@ -159,6 +173,6 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             }
         }
 
-        return await this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
+        return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
     }
 }
