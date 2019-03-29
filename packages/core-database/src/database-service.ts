@@ -169,6 +169,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         this.forgingDelegates = delegates.map(delegate => {
             delegate.round = +delegate.round;
+            delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
         });
 
