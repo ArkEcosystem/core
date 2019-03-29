@@ -34,6 +34,21 @@ describe("Blocks Business Repository", () => {
         });
     });
 
+    describe("findByHeight", () => {
+        it("should invoke findByHeight on db repository", async () => {
+            databaseService.connection.blocksRepository = {
+                findByHeight: async id => id,
+            } as Database.IBlocksRepository;
+            jest.spyOn(databaseService.connection.blocksRepository, "findByHeight").mockImplementation(
+                async () => true,
+            );
+
+            await blocksBusinessRepository.findByHeight(1);
+
+            expect(databaseService.connection.blocksRepository.findByHeight).toHaveBeenCalledWith(1);
+        });
+    });
+
     describe("findById", () => {
         it("should invoke findById on db repository", async () => {
             databaseService.connection.blocksRepository = {
@@ -121,30 +136,6 @@ describe("Blocks Business Repository", () => {
                             field: "generatorPublicKey",
                             operator: expect.anything(),
                             value: "pubKey",
-                        },
-                    ],
-                }),
-            );
-        });
-    });
-
-    describe("findByHeight", () => {
-        it("should search by height", async () => {
-            databaseService.connection.blocksRepository = {
-                findAll: async params => params,
-                getModel: () => new MockDatabaseModel(),
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => true);
-
-            await blocksBusinessRepository.findByHeight(1);
-
-            expect(databaseService.connection.blocksRepository.findAll).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "height",
-                            operator: expect.anything(),
-                            value: 1,
                         },
                     ],
                 }),
