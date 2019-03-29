@@ -5,7 +5,7 @@ import { utils } from "../utils";
 
 import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
-import { generateTransfers } from "../../../../utils/generators/transactions/transfer";
+import { generateTransfer } from "../../../../utils/generators/transactions";
 import { generateWallets } from "../../../../utils/generators/wallets";
 
 const transferFee = 10000000;
@@ -506,7 +506,7 @@ describe("API 2.0 - Transactions", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
             (header, request) => {
-                const transactions = generateTransfers(
+                const transactions = generateTransfer(
                     "testnet",
                     delegates[0].secret,
                     delegates[1].address,
@@ -534,7 +534,7 @@ describe("API 2.0 - Transactions", () => {
         );
 
         it("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "testnet",
                 delegates[0].secret,
                 delegates[1].address,
@@ -564,7 +564,7 @@ describe("API 2.0 - Transactions", () => {
             const amountPlusFee = Math.floor(sender.balance / txNumber);
             const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee;
 
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "testnet",
                 sender.secret,
                 receivers[0].address,
@@ -572,7 +572,7 @@ describe("API 2.0 - Transactions", () => {
                 txNumber - 1,
                 true,
             );
-            const lastTransaction = generateTransfers(
+            const lastTransaction = generateTransfer(
                 "testnet",
                 sender.secret,
                 receivers[1].address,
@@ -605,7 +605,7 @@ describe("API 2.0 - Transactions", () => {
                 const amountPlusFee = Math.floor(sender.balance / txNumber);
                 const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
-                const transactions = generateTransfers(
+                const transactions = generateTransfer(
                     "testnet",
                     sender.secret,
                     receivers[0].address,
@@ -613,7 +613,7 @@ describe("API 2.0 - Transactions", () => {
                     txNumber - 1,
                     true,
                 );
-                const lastTransaction = generateTransfers(
+                const lastTransaction = generateTransfer(
                     "testnet",
                     sender.secret,
                     receivers[1].address,

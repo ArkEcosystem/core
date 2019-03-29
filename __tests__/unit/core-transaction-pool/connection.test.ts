@@ -19,7 +19,7 @@ import { database as databaseService } from "./mocks/database";
 
 const { SATOSHI, TransactionTypes } = constants;
 const { Block } = models;
-const { generateTransfers } = generators;
+const { generateTransfer } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 const maxTransactionAge = 4036608000;
 
@@ -864,21 +864,9 @@ describe("Connection", () => {
 
     describe("purgeSendersWithInvalidTransactions", () => {
         it("should purge transactions from sender when invalid", async () => {
-            const transfersA = generateTransfers(
-                "unitnet",
-                delegatesSecrets[0],
-                mockData.dummy1.data.recipientId,
-                1,
-                5,
-            );
+            const transfersA = generateTransfer("unitnet", delegatesSecrets[0], mockData.dummy1.data.recipientId, 1, 5);
 
-            const transfersB = generateTransfers(
-                "unitnet",
-                delegatesSecrets[1],
-                mockData.dummy1.data.recipientId,
-                1,
-                1,
-            );
+            const transfersB = generateTransfer("unitnet", delegatesSecrets[1], mockData.dummy1.data.recipientId, 1, 1);
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
@@ -907,7 +895,7 @@ describe("Connection", () => {
             const revertTransactionForSender = jest
                 .spyOn(connection.walletManager, "revertTransactionForSender")
                 .mockReturnValue();
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "unitnet",
                 delegatesSecrets[0],
                 mockData.dummy1.data.recipientId,

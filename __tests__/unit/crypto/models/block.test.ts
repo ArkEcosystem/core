@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { generators } from "../../../utils";
-const { generateTransfers } = generators;
+const { generateTransfer } = generators;
 
 import ByteBuffer from "bytebuffer";
 import { configManager, NetworkName } from "../../../../packages/crypto/src";
@@ -91,7 +91,7 @@ describe("Models - Block", () => {
                 },
                 reward: new Bignum(0),
             };
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "devnet",
                 "super cool passphrase",
                 "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
@@ -119,7 +119,7 @@ describe("Models - Block", () => {
                 },
                 reward: new Bignum(0),
             };
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "devnet",
                 "super cool passphrase",
                 "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",

@@ -17,7 +17,7 @@ import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json
 
 const { Block } = models;
 const { delegates } = fixtures;
-const { generateTransfers } = generators;
+const { generateTransfer } = generators;
 
 let blockProcessor: BlockProcessor;
 
@@ -75,7 +75,7 @@ describe("Block processor", () => {
         describe("should not accept replay transactions", () => {
             let block;
             beforeEach(() => {
-                const transfers = generateTransfers(
+                const transfers = generateTransfer(
                     "unitnet",
                     delegates[0].passphrase,
                     delegates[1].address,

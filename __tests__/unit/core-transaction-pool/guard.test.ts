@@ -12,7 +12,7 @@ import { delegates, wallets } from "../../utils/fixtures/unitnet";
 import { database } from "./mocks/database";
 import { state } from "./mocks/state";
 
-const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
+const { generateDelegateRegistration, generateSecondSignature, generateTransfer, generateVote } = generators;
 
 let guard;
 let transactionPool;
@@ -33,14 +33,14 @@ beforeEach(async () => {
 describe("Transaction Guard", () => {
     describe("__cacheTransactions", () => {
         it("should add transactions to cache", () => {
-            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
+            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
             jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
 
             expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
         });
 
         it("should not add a transaction already in cache and add it as an error", () => {
-            const transactions = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
+            const transactions = generateTransfer("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
             jest.spyOn(state, "cacheTransactions")
                 .mockReturnValueOnce({ added: transactions, notAdded: [] })
                 .mockReturnValueOnce({ added: [], notAdded: [transactions[0]] });
@@ -60,7 +60,7 @@ describe("Transaction Guard", () => {
 
     describe("getBroadcastTransactions", () => {
         it("should return broadcast transaction", async () => {
-            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
+            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
             jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
 
             for (const tx of transactions) {
@@ -110,7 +110,7 @@ describe("Transaction Guard", () => {
         });
 
         it("should reject transactions that are too large", () => {
-            const tx = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 1, 3)[0];
+            const tx = generateTransfer("unitnet", wallets[11].passphrase, wallets[12].address, 1, 3)[0];
             tx.data.signatures = [""];
             for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
                 tx.data.signatures += "1";
@@ -227,7 +227,7 @@ describe("Transaction Guard", () => {
         });
 
         it("should not accept transaction if pool hasExceededMaxTransactions and add it to excess", () => {
-            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
+            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
 
             jest.spyOn(guard.pool, "hasExceededMaxTransactions").mockImplementationOnce(tx => true);
 
@@ -239,7 +239,7 @@ describe("Transaction Guard", () => {
         });
 
         it("should push a ERR_UNKNOWN error if something threw in validated transaction block", () => {
-            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
+            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
 
             // use guard.accept.set() call to introduce a throw
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementationOnce(() => {
@@ -261,7 +261,7 @@ describe("Transaction Guard", () => {
 
     describe("__validateTransaction", () => {
         it("should not validate when recipient is not on the same network", async () => {
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "unitnet",
                 wallets[10].passphrase,
                 "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
@@ -357,7 +357,7 @@ describe("Transaction Guard", () => {
 
     describe("__removeForgedTransactions", () => {
         it("should remove forged transactions", async () => {
-            const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
+            const transfers = generateTransfer("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
             transfers.forEach(tx => {
                 guard.accept.set(tx.id, tx);
@@ -379,7 +379,7 @@ describe("Transaction Guard", () => {
 
     describe("__addTransactionsToPool", () => {
         it("should add transactions to the pool", () => {
-            const transfers = generateTransfers("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
+            const transfers = generateTransfer("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
 
             transfers.forEach(tx => {
                 guard.accept.set(tx.id, tx);
@@ -397,9 +397,9 @@ describe("Transaction Guard", () => {
         });
 
         it("should delete from accept and broadcast transactions that were not added to the pool", () => {
-            const added = generateTransfers("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
+            const added = generateTransfer("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
             const notAddedError = { type: "ERR_TEST", message: "" };
-            const notAdded = generateTransfers("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
+            const notAdded = generateTransfer("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
                 transaction: tx,
                 ...notAddedError,
             }));
@@ -424,9 +424,9 @@ describe("Transaction Guard", () => {
         });
 
         it("should delete from accept but keep in broadcast transactions that were not added to the pool because of ERR_POOL_FULL", () => {
-            const added = generateTransfers("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
+            const added = generateTransfer("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
             const notAddedError = { type: "ERR_POOL_FULL", message: "" };
-            const notAdded = generateTransfers("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
+            const notAdded = generateTransfer("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
                 transaction: tx,
                 ...notAddedError,
             }));
