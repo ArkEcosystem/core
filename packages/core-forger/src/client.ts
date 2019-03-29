@@ -3,7 +3,6 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState } from "@arkecosystem/core-p2p";
 import { httpie } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
-import sample from "lodash.sample";
 import { URL } from "url";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
@@ -115,12 +114,20 @@ export class Client {
      * Chose a responsive host.
      */
     public async selectHost(): Promise<void> {
-        const host = sample(this.hosts);
-        try {
-            await this.get(`${host}/peer/status`);
-            this.host = host;
-        } catch (error) {
-            throw new HostNoResponseError(host);
+        let queriedHosts = 0;
+        for (const host of this.hosts) {
+            try {
+                await this.get(`${host}/peer/status`);
+                this.host = host;
+            } catch (error) {
+                if (queriedHosts === this.hosts.length - 1) {
+                    throw new HostNoResponseError(host);
+                } else {
+                    this.logger.warn(`Failed to get response from ${host}. Trying another host.`);
+                }
+            } finally {
+                queriedHosts++;
+            }
         }
     }
 
