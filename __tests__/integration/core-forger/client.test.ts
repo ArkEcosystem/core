@@ -121,20 +121,6 @@ describe("Client", () => {
         });
     });
 
-    describe("getUsernames", () => {
-        it("should fetch usernames", async () => {
-            jest.spyOn(httpie, "get");
-            const expectedResponse = { foo: "bar" };
-            nock(host)
-                .get("/internal/utils/usernames")
-                .reply(200, { data: expectedResponse });
-
-            const response = await client.getUsernames();
-
-            expect(response).toEqual(expectedResponse);
-        });
-    });
-
     describe("emitEvent", () => {
         it("should emit events", async () => {
             jest.spyOn(httpie, "post");
