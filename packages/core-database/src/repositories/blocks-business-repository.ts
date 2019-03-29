@@ -19,7 +19,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findByHeight(height: number) {
-        return this.findAll({ height });
+        return this.databaseServiceProvider().connection.blocksRepository.findByHeight(height);
     }
 
     public async findById(id: string) {
@@ -28,9 +28,9 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
 
     public async findByIdOrHeight(idOrHeight) {
         try {
-            const { rows } = await this.findByHeight(idOrHeight);
+            const block = await this.findByHeight(idOrHeight);
 
-            return rows[0];
+            return block;
         } catch (error) {
             return this.findById(idOrHeight);
         }
