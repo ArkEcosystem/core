@@ -1,8 +1,9 @@
 import { configManager } from "@arkecosystem/crypto";
-import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
 import { blockchain } from "./blockchain";
 import { database } from "./database";
 import { eventEmitter } from "./event-emitter";
+import { logger } from "./logger";
+import { state } from "./state";
 
 configManager.setFromPreset("unitnet");
 
@@ -15,6 +16,8 @@ jest.mock("@arkecosystem/core-container", () => {
                         switch (key) {
                             case "network.nethash":
                                 return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
+                            case "peers.list":
+                                return [{ ip: "0.0.0.0", port: 4000 }];
                         }
 
                         return null;
@@ -34,12 +37,7 @@ jest.mock("@arkecosystem/core-container", () => {
             has: () => true,
             resolvePlugin: name => {
                 if (name === "logger") {
-                    return {
-                        info: console.log,
-                        warn: console.log,
-                        error: console.error,
-                        debug: console.log,
-                    };
+                    return logger;
                 }
 
                 if (name === "database") {
@@ -64,9 +62,7 @@ jest.mock("@arkecosystem/core-container", () => {
             },
             resolve: name => {
                 if (name === "state") {
-                    return {
-                        getLastBlock: () => genesisBlock,
-                    };
+                    return state;
                 }
 
                 return {};

@@ -8,6 +8,7 @@ export const blockchain = {
     getUnconfirmedTransactions: jest.fn().mockReturnValue([]),
     pingBlock: jest.fn().mockReturnValue(false),
     pushPingBlock: jest.fn(),
+    getBlockPing: jest.fn(),
 
     database,
 };
