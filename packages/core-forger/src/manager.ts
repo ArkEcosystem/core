@@ -1,25 +1,28 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { configManager, ITransactionData, models, slots, Transaction } from "@arkecosystem/crypto";
-import delay from "delay";
+import { configManager, ITransactionData, models, networks, slots, Transaction } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
 import pluralize from "pluralize";
 
 import { Client } from "./client";
+import { HostNoResponseError } from "./errors";
 
 const { Delegate } = models;
 
 export class ForgerManager {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
     private config = app.getConfig();
-    private secrets: any;
-    private network: any;
-    private client: any;
-    private delegates: any;
-    private usernames: any;
-    private isStopped: any;
+
+    private secrets: string[];
+    private network: networks.INetwork;
+    private client: Client;
+    private delegates: models.Delegate[];
+    private usernames: { [key: string]: string };
+    private isStopped: boolean;
+    private round: any;
+    private initialized: boolean;
 
     /**
      * Create a new forger manager instance.
@@ -33,14 +36,11 @@ export class ForgerManager {
 
     /**
      * Load all delegates that forge.
-     * @param  {String} bip38
-     * @param  {String} password
-     * @return {Array}
      */
-    public async loadDelegates(bip38, password) {
+    public async loadDelegates(bip38: string, password: string): Promise<models.Delegate[] | null> {
         if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
             this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
-            return;
+            return null;
         }
 
         this.secrets = uniq(this.secrets.map(secret => secret.trim()));
@@ -52,121 +52,93 @@ export class ForgerManager {
             this.delegates.push(new Delegate(bip38, this.network, password));
         }
 
-        await this.__loadUsernames(2000);
-
-        const delegates = this.delegates.map(
-            delegate => `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
-        );
-
-        this.logger.debug(`Loaded ${pluralize("delegate", delegates.length, true)}: ${delegates.join(", ")}`);
-
         return this.delegates;
     }
 
     /**
      * Start forging on the given node.
-     * @return {Object}
      */
-    public async startForging() {
-        const slot = slots.getSlotNumber();
-
-        while (slots.getSlotNumber() === slot) {
-            await delay(100);
-        }
-
-        return this.__monitor(null);
+    public async startForging(): Promise<void> {
+        this.logger.info(
+            `Waiting for next slot. Current slot ${slots.getSlotNumber()} ends in ${slots.getTimeInMsUntilNextSlot()} ms.`,
+        );
+        return this.checkLater(slots.getTimeInMsUntilNextSlot());
     }
 
     /**
      * Stop forging on the given node.
-     * @return {void}
      */
-    public async stop() {
+    public async stop(): Promise<void> {
         this.isStopped = true;
     }
 
     /**
      * Monitor the node for any actions that trigger forging.
-     * @param  {Object} round
-     * @return {Function}
      */
-    public async __monitor(round): Promise<any> {
+    public async __monitor(): Promise<void> {
         try {
             if (this.isStopped) {
-                return false;
+                return;
             }
 
-            await this.__loadUsernames();
+            await this.loadRound();
 
-            round = await this.client.getRound();
-            if (!round.canForge) {
-                // this.logger.debug('Block already forged in current slot')
-                // technically it is possible to compute doing shennanigan with arkjs.slots lib
-
-                await delay(200); // basically looping until we lock at beginning of next slot
-
-                return this.__monitor(round);
+            if (!this.round.canForge) {
+                // basically looping until we lock at beginning of next slot
+                return this.checkLater(200);
             }
 
-            const delegate = this.__isDelegateActivated(round.currentForger.publicKey);
+            const delegate = this.isDelegateActivated(this.round.currentForger.publicKey);
             if (!delegate) {
                 // this.logger.debug(`Current forging delegate ${
                 //  round.currentForger.publicKey
                 // } is not configured on this node.`)
 
-                if (this.__isDelegateActivated(round.nextForger.publicKey)) {
-                    const username = this.usernames[round.nextForger.publicKey];
+                if (this.isDelegateActivated(this.round.nextForger.publicKey)) {
+                    const username = this.usernames[this.round.nextForger.publicKey];
                     this.logger.info(
-                        `Next forging delegate ${username} (${round.nextForger.publicKey}) is active on this node.`,
+                        `Next forging delegate ${username} (${
+                            this.round.nextForger.publicKey
+                        }) is active on this node.`,
                     );
                     await this.client.syncCheck();
                 }
 
-                await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
-
-                return this.__monitor(round);
+                return this.checkLater(slots.getTimeInMsUntilNextSlot());
             }
 
             const networkState = await this.client.getNetworkState();
-            if (networkState.nodeHeight !== round.lastBlock.height) {
+            if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warn(
                     `The NetworkState height (${networkState.nodeHeight}) and round height (${
-                        round.lastBlock.height
+                        this.round.lastBlock.height
                     }) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
-            if (this.__parseNetworkState(networkState, delegate)) {
-                await this.__forgeNewBlock(delegate, round, networkState);
+            if (this.parseNetworkState(networkState, delegate)) {
+                await this.__forgeNewBlock(delegate, this.round, networkState);
             }
 
-            await delay(slots.getTimeInMsUntilNextSlot()); // we will check at next slot
-
-            return this.__monitor(round);
+            return this.checkLater(slots.getTimeInMsUntilNextSlot());
         } catch (error) {
-            // README: The Blockchain is not ready, monitor until it is instead of crashing.
-            if (error.response && error.response.status === 503) {
-                this.logger.warn(`Blockchain not ready - ${error.response.status} ${error.response.statusText}`);
+            if (error instanceof HostNoResponseError) {
+                this.logger.error(error.message);
+            } else {
+                this.logger.error(JSON.stringify(error.stack));
+                this.logger.error(`Forging failed: ${error.message}`);
 
-                await delay(2000);
+                if (!isEmpty(this.round)) {
+                    this.logger.info(
+                        `Round: ${this.round.current.toLocaleString()}, height: ${this.round.lastBlock.height.toLocaleString()}`,
+                    );
+                }
 
-                return this.__monitor(round);
+                this.client.emitEvent("forger.failed", error.message);
             }
 
-            // README: The Blockchain is ready but an action still failed.
-            this.logger.error(`Forging failed: ${error.message}`);
-
-            if (!isEmpty(round)) {
-                this.logger.info(
-                    `Round: ${round.current.toLocaleString()}, height: ${round.lastBlock.height.toLocaleString()}`,
-                );
-            }
-
-            await delay(2000); // no idea when this will be ok, so waiting 2s before checking again
-
-            this.client.emitEvent("forger.failed", error.message);
-
-            return this.__monitor(round);
+            // no idea when this will be ok, so waiting 2s before checking again
+            return this.checkLater(2000);
         }
     }
 
@@ -210,7 +182,6 @@ export class ForgerManager {
      */
     public async __getTransactionsForForging(): Promise<ITransactionData[]> {
         const response = await this.client.getTransactions();
-
         const transactions = response.transactions
             ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
             : [];
@@ -230,10 +201,8 @@ export class ForgerManager {
 
     /**
      * Checks if delegate public key is in the loaded (active) delegates list
-     * @param  {Object} PublicKey
-     * @return {Object}
      */
-    public __isDelegateActivated(queryPublicKey) {
+    public isDelegateActivated(queryPublicKey: string) {
         return this.delegates.find(delegate => delegate.publicKey === queryPublicKey);
     }
 
@@ -242,7 +211,7 @@ export class ForgerManager {
      * @param {Object} networkState internal response
      * @param {Booolean} isAllowedToForge
      */
-    public __parseNetworkState(networkState, currentForger) {
+    public parseNetworkState(networkState, currentForger) {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
             return false;
@@ -291,11 +260,26 @@ export class ForgerManager {
         return true;
     }
 
-    /**
-     * Get a list of all active delegate usernames.
-     * @return {Object}
-     */
-    public async __loadUsernames(wait = 0) {
-        this.usernames = await this.client.getUsernames(wait);
+    private async loadRound(): Promise<void> {
+        this.round = await this.client.getRound();
+
+        this.usernames = this.round.delegates.reduce(
+            (acc, delegate) => Object.assign(acc, { [delegate.publicKey]: delegate.username }),
+            {},
+        );
+
+        if (!this.initialized) {
+            const delegates = this.delegates.map(
+                delegate => `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
+            );
+
+            this.logger.debug(`Loaded ${pluralize("delegate", delegates.length, true)}: ${delegates.join(", ")}`);
+
+            this.initialized = true;
+        }
+    }
+
+    private async checkLater(timeout: number) {
+        setTimeout(() => this.__monitor(), timeout);
     }
 }
