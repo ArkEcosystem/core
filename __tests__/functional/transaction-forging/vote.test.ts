@@ -12,13 +12,13 @@ describe("Transaction Forging - Vote", () => {
         // Initial Funds
         const initialFunds = support.generateTransfer(secrets[0], Address.fromPassphrase(passphrase), 100);
         await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(initialFunds[0].id);
 
         // Submit a vote
         const transactions = support.generateVote(passphrase, PublicKey.fromPassphrase(secrets[0]));
         await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(transactions[0].id);
     });
 
@@ -29,13 +29,13 @@ describe("Transaction Forging - Vote", () => {
         // Initial Funds
         const initialFunds = support.generateTransfer(secrets[0], Address.fromPassphrase(passphrase), 100);
         await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(initialFunds[0].id);
 
         // Register a second passphrase
         const secondSignature = support.generateSecondSignature(passphrase, secondPassphrase);
         await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Submit a vote
@@ -44,7 +44,7 @@ describe("Transaction Forging - Vote", () => {
             PublicKey.fromPassphrase(secrets[0]),
         );
         await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(transactions[0].id);
     });
 });

@@ -3,6 +3,7 @@ import "jest-extended";
 import { bignumify, httpie } from "@arkecosystem/core-utils";
 import { configManager, PublicKey, transactionBuilder } from "@arkecosystem/crypto";
 import delay from "delay";
+import { shellSync } from "execa";
 import { generators } from "../../../utils";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../../../utils/helpers/container";
@@ -13,6 +14,8 @@ jest.setTimeout(1200000);
 
 let app;
 export async function setUp() {
+    shellSync("bash ./.circleci/rebuild-db.sh");
+
     app = await setUpContainer({
         include: [
             "@arkecosystem/core-event-emitter",
@@ -50,8 +53,11 @@ export async function apiPOST(path: string, body) {
     return httpie.post(`http://localhost:4003/api/v2/${path}`, { body });
 }
 
-export async function snoozeForBlock(height: number = 1, extra: number = 0) {
-    return delay(configManager.getMilestone(height).blocktime * 1000 + extra);
+export async function snoozeForBlock(height: number = 1, sleep: number = 0) {
+    const blockTime = configManager.getMilestone(height).blocktime * 1000;
+    const sleepTime = sleep * 1000;
+
+    return delay(blockTime + sleepTime);
 }
 
 export async function broadcastTransactions(transactions) {

@@ -11,7 +11,7 @@ describe("Transaction Forging - Transfer", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
         const transactions = support.generateTransfer(secrets[0], Address.fromPassphrase(passphrase));
         await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(transactions[0].id);
     });
 
@@ -19,13 +19,13 @@ describe("Transaction Forging - Transfer", () => {
         // Funds to register a second passphrase
         const initialFunds = support.generateTransfer(secrets[0], Address.fromPassphrase(passphrase), 50);
         await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(initialFunds[0].id);
 
         // Register a second passphrase
         const secondSignature = support.generateSecondSignature(passphrase, secondPassphrase);
         await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Submit a transfer with 2 passprhases
@@ -34,7 +34,7 @@ describe("Transaction Forging - Transfer", () => {
             Address.fromPassphrase(passphrase),
         );
         await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
-        await support.snoozeForBlock(1000);
+        await support.snoozeForBlock(1);
         await support.expectTransactionForged(transactions[0].id);
     });
 });
