@@ -348,7 +348,7 @@ export class Monitor implements P2P.IMonitor {
         const medians = this.getPeers()
             .filter(peer => peer.state.height)
             .map(peer => peer.state.height)
-            .sort();
+            .sort((a, b) => a - b);
 
         return medians[Math.floor(medians.length / 2)] || 0;
     }

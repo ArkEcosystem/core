@@ -1,2 +1,3 @@
-import EventEmitter from "eventemitter3";
+import { EventEmitter } from "events";
+
 export { EventEmitter };
