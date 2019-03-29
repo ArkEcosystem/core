@@ -10,24 +10,34 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findAllByGenerator(generatorPublicKey: string, paginate: Database.SearchPaginate) {
-        return await this.findAll({ ...{ generatorPublicKey }, ...paginate });
+        return this.findAll({ generatorPublicKey, ...paginate });
     }
 
     public async findLastByPublicKey(generatorPublicKey: string) {
         // we order by height,desc by default
-        return await this.findAll({ generatorPublicKey });
+        return this.findAll({ generatorPublicKey });
     }
 
     public async findByHeight(height: number) {
-        return await this.findAll({ ...{ height } });
+        return this.findAll({ height });
     }
 
     public async findById(id: string) {
-        return await this.databaseServiceProvider().connection.blocksRepository.findById(id);
+        return this.databaseServiceProvider().connection.blocksRepository.findById(id);
+    }
+
+    public async findByIdOrHeight(idOrHeight) {
+        try {
+            const { rows } = await this.findByHeight(idOrHeight);
+
+            return rows[0];
+        } catch (error) {
+            return this.findById(idOrHeight);
+        }
     }
 
     public async search(params: Database.IParameters) {
-        return await this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
+        return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 
     private parseSearchParams(params: Database.IParameters): Database.SearchParameters {

@@ -18,7 +18,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const block = await blocksRepository.findById(request.params.id);
+    const block = await blocksRepository.findByIdOrHeight(request.params.id);
 
     if (!block) {
         return Boom.notFound("Block not found");
