@@ -88,13 +88,13 @@ export class ForgerManager {
                 return this.checkLater(200);
             }
 
-            const delegate = this.isDelegateActivated(this.round.currentForger.publicKey);
+            const delegate = this.getDelegateByPublicKey(this.round.currentForger.publicKey);
             if (!delegate) {
                 // this.logger.debug(`Current forging delegate ${
                 //  round.currentForger.publicKey
                 // } is not configured on this node.`)
 
-                if (this.isDelegateActivated(this.round.nextForger.publicKey)) {
+                if (this.getDelegateByPublicKey(this.round.nextForger.publicKey) !== null) {
                     const username = this.usernames[this.round.nextForger.publicKey];
                     this.logger.info(
                         `Next forging delegate ${username} (${
@@ -200,18 +200,9 @@ export class ForgerManager {
     }
 
     /**
-     * Checks if delegate public key is in the loaded (active) delegates list
-     */
-    public isDelegateActivated(queryPublicKey: string) {
-        return this.delegates.find(delegate => delegate.publicKey === queryPublicKey);
-    }
-
-    /**
      * Parses the given network state and decides if forging is allowed.
-     * @param {Object} networkState internal response
-     * @param {Booolean} isAllowedToForge
      */
-    public parseNetworkState(networkState, currentForger) {
+    public parseNetworkState(networkState: NetworkState, currentForger): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
             return false;
@@ -258,6 +249,13 @@ export class ForgerManager {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if delegate public key is in the loaded (active) delegates list
+     */
+    private getDelegateByPublicKey(publicKey: string): models.Delegate | null {
+        return this.delegates.find(delegate => delegate.publicKey === publicKey);
     }
 
     private async loadRound(): Promise<void> {
