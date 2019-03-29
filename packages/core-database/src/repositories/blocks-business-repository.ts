@@ -10,7 +10,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findAllByGenerator(generatorPublicKey: string, paginate: Database.SearchPaginate) {
-        return this.findAll({ ...{ generatorPublicKey }, ...paginate });
+        return this.findAll({ generatorPublicKey, ...paginate });
     }
 
     public async findLastByPublicKey(generatorPublicKey: string) {
