@@ -340,7 +340,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node10-0:
+  test-node10-integration-0:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -425,7 +425,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node11-0:
+  test-node11-integration-0:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -510,7 +510,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node10-1:
+  test-node10-integration-1:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -625,7 +625,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node10-2:
+  test-node10-integration-2:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -734,7 +734,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node11-1:
+  test-node11-integration-1:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -849,7 +849,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node11-2:
+  test-node11-integration-2:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -966,9 +966,9 @@ workflows:
       - test-node11-unit
       - test-node10-functional
       - test-node11-functional
-      - test-node10-0
-      - test-node11-0
-      - test-node10-1
-      - test-node10-2
-      - test-node11-1
-      - test-node11-2
+      - test-node10-integration-0
+      - test-node11-integration-0
+      - test-node10-integration-1
+      - test-node10-integration-2
+      - test-node11-integration-1
+      - test-node11-integration-2
