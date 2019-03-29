@@ -5,6 +5,7 @@ import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 import nock from "nock";
 import { Client } from "../../../packages/core-forger/src/client";
+import { HostNoResponseError } from "../../../packages/core-forger/src/errors";
 import { sampleBlocks } from "./__fixtures__/blocks";
 
 jest.setTimeout(30000);
@@ -119,6 +120,18 @@ describe("Client", () => {
             await client.syncCheck();
 
             expect(httpie.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
+        });
+    });
+
+    describe("selectHost", () => {
+        it("should fallback to responsive host", async () => {
+            client = new Client(["http://127.0.0.2:4000", "http://127.0.0.3:4000", host]);
+            await expect(client.selectHost()).toResolve();
+        });
+
+        it("should throw error when no host is responsive", async () => {
+            client = new Client(["http://127.0.0.2:4000", "http://127.0.0.3:4000"]);
+            await expect(client.selectHost()).rejects.toThrowError(HostNoResponseError);
         });
     });
 
