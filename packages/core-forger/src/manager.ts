@@ -59,9 +59,6 @@ export class ForgerManager {
      * Start forging on the given node.
      */
     public async startForging(): Promise<void> {
-        this.logger.info(
-            `Waiting for next slot. Current slot ${slots.getSlotNumber()} ends in ${slots.getTimeInMsUntilNextSlot()} ms.`,
-        );
         return this.checkLater(slots.getTimeInMsUntilNextSlot());
     }
 
@@ -94,7 +91,7 @@ export class ForgerManager {
                 //  round.currentForger.publicKey
                 // } is not configured on this node.`)
 
-                if (this.getDelegateByPublicKey(this.round.nextForger.publicKey) !== null) {
+                if (this.getDelegateByPublicKey(this.round.nextForger.publicKey)) {
                     const username = this.usernames[this.round.nextForger.publicKey];
                     this.logger.info(
                         `Next forging delegate ${username} (${
