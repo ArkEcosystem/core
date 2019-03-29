@@ -82,6 +82,27 @@ describe("API 2.0 - Blocks", () => {
         );
     });
 
+    describe("GET /blocks/:height", () => {
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET a block by the given height", async () => {
+                    const response = await utils[request]("GET", `blocks/${genesisBlock.height}`);
+
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeObject();
+
+                    const block = response.data.data;
+                    utils.expectBlock(block, {
+                        id: genesisBlock.id,
+                        height: genesisBlock.height,
+                        transactions: genesisBlock.numberOfTransactions,
+                    });
+                });
+            },
+        );
+    });
+
     describe("GET /blocks/:id/transactions", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             'using the "%s" header',

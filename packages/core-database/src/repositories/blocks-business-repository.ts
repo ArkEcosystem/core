@@ -10,7 +10,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findAllByGenerator(generatorPublicKey: string, paginate: Database.SearchPaginate) {
-        return this.findAll({ ...{ generatorPublicKey }, ...paginate });
+        return this.findAll({ generatorPublicKey, ...paginate });
     }
 
     public async findLastByPublicKey(generatorPublicKey: string) {
@@ -19,11 +19,21 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     public async findByHeight(height: number) {
-        return this.findAll({ ...{ height } });
+        return this.findAll({ height });
     }
 
     public async findById(id: string) {
         return this.databaseServiceProvider().connection.blocksRepository.findById(id);
+    }
+
+    public async findByIdOrHeight(idOrHeight) {
+        try {
+            const { rows } = await this.findByHeight(idOrHeight);
+
+            return rows[0];
+        } catch (error) {
+            return this.findById(idOrHeight);
+        }
     }
 
     public async search(params: Database.IParameters) {
