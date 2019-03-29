@@ -43,7 +43,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
      * @param  {Array} heights the heights of the blocks to retrieve
      * @return {Promise}
      */
-    public async findByHeights(heights) {
+    public async findByHeights(heights: number[]) {
         return this.db.manyOrNone(sql.findByHeight, { heights });
     }
 

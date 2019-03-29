@@ -86,7 +86,7 @@ describe("Database Service", () => {
             databaseService = createService();
 
             connection.blocksRepository = {
-                findByHeight: heights => heights.map(h => ({ height: Number(h), fromDb: true })),
+                findByHeights: heights => heights.map(h => ({ height: Number(h), fromDb: true })),
             } as Database.IBlocksRepository;
 
             let requestHeights = requestHeightsHigh;
