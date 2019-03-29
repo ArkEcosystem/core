@@ -86,8 +86,8 @@ describe("Database Service", () => {
             databaseService = createService();
 
             connection.blocksRepository = {
-                findByHeight: heights => heights.map(h => ({ height: Number(h), fromDb: true })),
-            } as Database.IBlocksRepository;
+                findByHeights: (heights: number[]) => heights.map(h => ({ height: Number(h), fromDb: true })),
+            } as any; // FIXME: use Database.IBlocksRepository
 
             let requestHeights = requestHeightsHigh;
 

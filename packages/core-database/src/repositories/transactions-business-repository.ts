@@ -51,7 +51,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             searchParameters.paginate,
             searchParameters.orderBy,
         );
-        return await this.mapBlocksToTransactions(result.rows);
+        return this.mapBlocksToTransactions(result.rows);
     }
 
     public async findAllLegacy(parameters: any) {
@@ -74,9 +74,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async getFeeStatistics() {
-        const opts = app.resolveOptions("transaction-pool");
-        return await this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
-            opts.dynamicFees.minFeeBroadcast,
+        return this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
+            app.resolveOptions("transaction-pool").dynamicFees.minFeeBroadcast,
         );
     }
 

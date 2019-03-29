@@ -17,7 +17,7 @@ export const plugin: Container.PluginDescriptor = {
 
         const connection = await databaseManager.makeConnection(new PostgresConnection(options, walletManager));
 
-        return await databaseServiceFactory(options, walletManager, connection);
+        return databaseServiceFactory(options, walletManager, connection);
     },
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Closing Database Connection");

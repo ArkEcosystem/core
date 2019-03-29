@@ -107,13 +107,15 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findAllByWallet(wallet: any, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]) {
-        const selectQuery = this.query
-            .select()
-            .from(this.query)
-            .where(this.query.sender_public_key.equals(wallet.publicKey))
-            .or(this.query.recipient_id.equals(wallet.address));
-
-        return await this.findManyWithCount(selectQuery, paginate, orderBy);
+        return this.findManyWithCount(
+            this.query
+                .select()
+                .from(this.query)
+                .where(this.query.sender_public_key.equals(wallet.publicKey))
+                .or(this.query.recipient_id.equals(wallet.address)),
+            paginate,
+            orderBy,
+        );
     }
 
     public async findWithVendorField() {

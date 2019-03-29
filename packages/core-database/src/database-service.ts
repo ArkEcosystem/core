@@ -253,12 +253,13 @@ export class DatabaseService implements Database.IDatabaseService {
             }
         }
 
-        const heightsToGetFromDB = Object.keys(toGetFromDB);
+        const heightsToGetFromDB = Object.keys(toGetFromDB).map(height => +height);
         if (heightsToGetFromDB.length > 0) {
-            for (const blockFromDB of await this.connection.blocksRepository.findByHeight(heightsToGetFromDB)) {
-                const h = blockFromDB.height;
-                const i = toGetFromDB[h];
-                blocks[i] = blockFromDB;
+            const blocksByHeights = await this.connection.blocksRepository.findByHeights(heightsToGetFromDB);
+
+            for (const blockFromDB of blocksByHeights) {
+                const index = toGetFromDB[blockFromDB.height];
+                blocks[index] = blockFromDB;
             }
         }
 
