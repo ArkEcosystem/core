@@ -3,7 +3,7 @@ import "jest-extended";
 import { Bignum, configManager, constants } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
 import { generators } from "../../utils";
-const { generateTransfers, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
+const { generateTransfer, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
 const { SATOSHI, TransactionTypes } = constants;
 
 describe("Models - Wallet", () => {
@@ -150,7 +150,7 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for Transfer type", () => {
-            const transaction = generateTransfers(
+            const transaction = generateTransfer(
                 "devnet",
                 "super secret passphrase",
                 "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
@@ -310,7 +310,7 @@ describe("Models - Wallet", () => {
 
         describe("when wallet has multisignature", () => {
             it("should return correct audit data for Transfer type", () => {
-                const transaction = generateTransfers(
+                const transaction = generateTransfer(
                     "devnet",
                     "super secret passphrase",
                     "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
@@ -339,7 +339,7 @@ describe("Models - Wallet", () => {
 
         describe("when wallet has 2nd public key", () => {
             it("should return correct audit data for Transfer type", () => {
-                const transaction = generateTransfers(
+                const transaction = generateTransfer(
                     "devnet",
                     {
                         passphrase: "super secret passphrase",

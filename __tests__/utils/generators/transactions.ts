@@ -1,11 +1,11 @@
 import { client, constants, crypto } from "@arkecosystem/crypto";
 import superheroes from "superheroes";
-import { delegatesSecrets } from "../../fixtures/testnet/passphrases";
+import { delegatesSecrets } from "../fixtures/testnet/passphrases";
 
 const defaultPassphrase = delegatesSecrets[0];
 const { Transfer, SecondSignature, DelegateRegistration, Vote } = constants.TransactionTypes;
 
-export const generateTransaction = (
+export function generateTransaction(
     network,
     type,
     passphrase,
@@ -14,7 +14,7 @@ export const generateTransaction = (
     quantity: number = 10,
     getStruct: boolean = false,
     fee?: number,
-) => {
+) {
     network = network || "testnet";
     type = type || Transfer;
     passphrase = passphrase || defaultPassphrase;
@@ -92,4 +92,77 @@ export const generateTransaction = (
     }
 
     return transactions;
-};
+}
+
+export function generateTransfer(
+    network: string,
+    passphrase: any = "secret passphrase",
+    address?: string,
+    amount: number = 2,
+    quantity: number = 10,
+    getStruct: boolean = false,
+    fee?: number,
+) {
+    if (Array.isArray(passphrase)) {
+        return passphrase.map(p => generateTransaction(network, Transfer, p, address, amount, 1, getStruct, fee)[0]);
+    }
+
+    return generateTransaction(network, Transfer, passphrase, address, amount, quantity, getStruct, fee);
+}
+
+export function generateSecondSignature(
+    network,
+    passphrase,
+    quantity: number = 10,
+    getStruct: boolean = false,
+    fee?: number,
+) {
+    if (Array.isArray(passphrase)) {
+        return passphrase.map(
+            p => generateTransaction(network, SecondSignature, p, undefined, undefined, 1, getStruct, fee)[0],
+        );
+    }
+
+    return generateTransaction(network, SecondSignature, passphrase, undefined, undefined, quantity, getStruct, fee);
+}
+
+export function generateDelegateRegistration(
+    network,
+    passphrase,
+    quantity: number = 1,
+    getStruct: boolean = false,
+    username?: string,
+    fee?: number,
+) {
+    if (Array.isArray(passphrase)) {
+        return passphrase.map(
+            p => generateTransaction(network, DelegateRegistration, p, username, undefined, 1, getStruct, fee)[0],
+        );
+    }
+
+    return generateTransaction(
+        network,
+        DelegateRegistration,
+        passphrase,
+        username,
+        undefined,
+        quantity,
+        getStruct,
+        fee,
+    );
+}
+
+export function generateVote(
+    network,
+    passphrase,
+    publicKey,
+    quantity: number = 10,
+    getStruct: boolean = false,
+    fee?: number,
+) {
+    if (Array.isArray(passphrase)) {
+        return passphrase.map(p => generateTransaction(network, Vote, p, publicKey, undefined, 1, getStruct, fee)[0]);
+    }
+
+    return generateTransaction(network, Vote, passphrase, publicKey, undefined, quantity, getStruct, fee);
+}

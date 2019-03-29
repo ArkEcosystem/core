@@ -1,5 +1,5 @@
 import { models } from "@arkecosystem/crypto";
-import { generateTransfers } from "../../../utils/generators/transactions/transfer";
+import { generateTransfer } from "../../../utils/generators/transactions";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 import fullBlock from "../fixtures/block-with-transactions.json";
@@ -167,7 +167,7 @@ describe("API - Version 1", () => {
 
     describe("POST /peer/transactions", () => {
         it("should succeed with an existing wallet", async () => {
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "testnet",
                 "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
                 null,
@@ -182,7 +182,7 @@ describe("API - Version 1", () => {
         });
 
         it("should fail with a cold wallet", async () => {
-            const transactions = generateTransfers("testnet", "wallet does not exist");
+            const transactions = generateTransfer("testnet", "wallet does not exist");
             const response = await utils.POST("peer/transactions", {
                 transactions: transactions.map(tx => tx.toJson()),
             });

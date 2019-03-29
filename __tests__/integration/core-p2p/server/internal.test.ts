@@ -1,5 +1,5 @@
 import { models, Transaction } from "@arkecosystem/crypto";
-import { generateTransfers } from "../../../utils/generators/transactions/transfer";
+import { generateTransfer } from "../../../utils/generators/transactions";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 import blockFixture from "../fixtures/block.json";
@@ -68,7 +68,7 @@ describe("API - Internal", () => {
 
     describe("POST /transactions/verify", () => {
         it("should be ok", async () => {
-            const transaction = generateTransfers("testnet")[0];
+            const transaction = generateTransfer("testnet")[0];
             const response = await utils.POST("internal/transactions/verify", {
                 transaction: Transaction.toBytes(transaction.data).toString("hex"),
             });

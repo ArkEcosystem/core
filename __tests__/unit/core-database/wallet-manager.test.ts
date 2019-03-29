@@ -13,7 +13,7 @@ import wallets from "./__fixtures__/wallets.json";
 const { Block } = models;
 const { SATOSHI, TransactionTypes } = constants;
 
-const { generateDelegateRegistration, generateSecondSignature, generateTransfers, generateVote } = generators;
+const { generateDelegateRegistration, generateSecondSignature, generateTransfer, generateVote } = generators;
 
 const block3 = fixtures.blocks2to100[1];
 const block = new Block(block3);
@@ -160,7 +160,7 @@ describe("Wallet Manager", () => {
     describe("applyTransaction", () => {
         describe("when the recipient is a cold wallet", () => {});
 
-        const transfer = generateTransfers("testnet", Math.random().toString(36), walletData2.address, 96579, 1)[0];
+        const transfer = generateTransfer("testnet", Math.random().toString(36), walletData2.address, 96579, 1)[0];
         const delegateReg = generateDelegateRegistration("testnet", Math.random().toString(36), 1)[0];
         const secondSign = generateSecondSignature("testnet", Math.random().toString(36), 1)[0];
         const vote = generateVote("testnet", Math.random().toString(36), walletData2.publicKey, 1)[0];

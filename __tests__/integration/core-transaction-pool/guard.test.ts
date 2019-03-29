@@ -12,7 +12,7 @@ const { Block } = models;
 const {
     generateDelegateRegistration,
     generateSecondSignature,
-    generateTransfers,
+    generateTransfer,
     generateVote,
     generateWallets,
 } = generators;
@@ -83,13 +83,13 @@ describe("Transaction Guard", () => {
                 }
 
                 for (const t of transfers) {
-                    const transferTx = generateTransfers("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
+                    const transferTx = generateTransfer("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
 
                     await guard.validate([transferTx.data]);
                 }
 
                 // apply again transfer from 0 to 1
-                const transfer = generateTransfers(
+                const transfer = generateTransfer(
                     "unitnet",
                     transfer1.from.passphrase,
                     transfer1.to.address,
@@ -125,7 +125,7 @@ describe("Transaction Guard", () => {
 
             const amount1 = 123 * 10 ** 8;
             const fee = 10;
-            const transfers = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee);
+            const transfers = generateTransfer("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee);
 
             await guard.validate(transfers.map(tx => tx.data));
 
@@ -146,7 +146,7 @@ describe("Transaction Guard", () => {
 
             const amount1 = +delegateWallet.balance / 2;
             const fee = 0.1 * 10 ** 8;
-            const transfers = generateTransfers("unitnet", delegate1.secret, newAddress, amount1, 1, false, fee);
+            const transfers = generateTransfer("unitnet", delegate1.secret, newAddress, amount1, 1, false, fee);
             await guard.validate(transfers.map(tx => tx.data));
             expect(guard.errors).toEqual({});
 
@@ -176,7 +176,7 @@ describe("Transaction Guard", () => {
             const voteFee = 10 ** 8;
             const delegateRegFee = 25 * 10 ** 8;
             const signatureFee = 5 * 10 ** 8;
-            const transfers = generateTransfers("unitnet", delegate2.secret, newAddress, amount1, 1, false, fee);
+            const transfers = generateTransfer("unitnet", delegate2.secret, newAddress, amount1, 1, false, fee);
             const votes = generateVote("unitnet", newWalletPassphrase, delegate2.publicKey, 1);
             const delegateRegs = generateDelegateRegistration("unitnet", newWalletPassphrase, 1);
             const signatures = generateSecondSignature("unitnet", newWalletPassphrase, 1);
@@ -226,7 +226,7 @@ describe("Transaction Guard", () => {
             // first, transfer coins to new wallet so that we can test from it then
             const amount1 = 1000 * 10 ** 8;
             const fee = 0.1 * 10 ** 8;
-            const transfers1 = generateTransfers("unitnet", delegate3.secret, newAddress, amount1, 1);
+            const transfers1 = generateTransfer("unitnet", delegate3.secret, newAddress, amount1, 1);
             await guard.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
@@ -238,7 +238,7 @@ describe("Transaction Guard", () => {
 
             // transfer almost everything from new wallet so that we don't have enough for any other transaction
             const amount2 = 999 * 10 ** 8;
-            const transfers2 = generateTransfers("unitnet", newWalletPassphrase, delegate3.address, amount2, 1);
+            const transfers2 = generateTransfer("unitnet", newWalletPassphrase, delegate3.address, amount2, 1);
             await guard.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
@@ -250,7 +250,7 @@ describe("Transaction Guard", () => {
             const transferAmount = 0.5 * 10 ** 8;
             const transferDynFee = 0.5 * 10 ** 8;
             const allTransactions = [
-                generateTransfers(
+                generateTransfer(
                     "unitnet",
                     newWalletPassphrase,
                     delegate3.address,
@@ -282,7 +282,7 @@ describe("Transaction Guard", () => {
 
         it("should not validate 2 double spending transactions", async () => {
             const amount = 245098000000000 - 5098000000000; // a bit less than the delegates' balance
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "unitnet",
                 delegates[0].secret,
                 delegates[1].address,
@@ -310,7 +310,7 @@ describe("Transaction Guard", () => {
             const lastAmountPlusFee = senderWallet.balance - (txNumber - 1) * amountPlusFee;
             const transferFee = 10000000;
 
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "unitnet",
                 sender.secret,
                 receivers[0].address,
@@ -318,7 +318,7 @@ describe("Transaction Guard", () => {
                 txNumber - 1,
                 true,
             );
-            const lastTransaction = generateTransfers(
+            const lastTransaction = generateTransfer(
                 "unitnet",
                 sender.secret,
                 receivers[1].address,
@@ -344,7 +344,7 @@ describe("Transaction Guard", () => {
                 const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
                 const transferFee = 10000000;
 
-                const transactions = generateTransfers(
+                const transactions = generateTransfer(
                     "unitnet",
                     sender.secret,
                     receivers[0].address,
@@ -352,7 +352,7 @@ describe("Transaction Guard", () => {
                     txNumber - 1,
                     true,
                 );
-                const lastTransaction = generateTransfers(
+                const lastTransaction = generateTransfer(
                     "unitnet",
                     sender.secret,
                     receivers[1].address,
@@ -381,7 +381,7 @@ describe("Transaction Guard", () => {
             const sender = delegates[21];
             const receivers = generateWallets("unitnet", 1);
 
-            const transactions: ITransactionData[] = generateTransfers(
+            const transactions: ITransactionData[] = generateTransfer(
                 "unitnet",
                 sender.secret,
                 receivers[0].address,
@@ -440,7 +440,7 @@ describe("Transaction Guard", () => {
                 ];
 
                 // generate transfers, "simple" and 2nd signed
-                const transfers = generateTransfers(
+                const transfers = generateTransfer(
                     "unitnet",
                     sender.secret,
                     "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
@@ -448,7 +448,7 @@ describe("Transaction Guard", () => {
                     modifiedFields.length + 1, // + 1 because we will use it to modify senderPublicKey separately
                     true,
                 );
-                const transfers2ndSigned = generateTransfers(
+                const transfers2ndSigned = generateTransfer(
                     "unitnet",
                     { passphrase: wallets2ndSig[0].passphrase, secondPassphrase: wallets2ndSig[0].secondPassphrase },
                     "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
@@ -662,7 +662,7 @@ describe("Transaction Guard", () => {
             });
 
             it("should not validate an already forged transaction", async () => {
-                const transfers = generateTransfers("unitnet", wallets[0].passphrase, wallets[1].address, 11, 1, true);
+                const transfers = generateTransfer("unitnet", wallets[0].passphrase, wallets[1].address, 11, 1, true);
                 await addBlock(transfers);
 
                 const result = await guard.validate(transfers);
@@ -671,7 +671,7 @@ describe("Transaction Guard", () => {
             });
 
             it("should not validate an already forged transaction - trying to tweak tx id", async () => {
-                const transfers = generateTransfers("unitnet", wallets[0].passphrase, wallets[1].address, 11, 1, true);
+                const transfers = generateTransfer("unitnet", wallets[0].passphrase, wallets[1].address, 11, 1, true);
                 await addBlock(transfers);
 
                 const realTransferId = transfers[0].id;
@@ -686,12 +686,12 @@ describe("Transaction Guard", () => {
 
     describe("__cacheTransactions", () => {
         it("should add transactions to cache", () => {
-            const transactions = generateTransfers("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
+            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
             expect(guard.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(transactions.map(tx => tx.data));
         });
 
         it("should not add a transaction already in cache and add it as an error", () => {
-            const transactions = generateTransfers("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
+            const transactions = generateTransfer("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
             expect(guard.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(transactions.map(tx => tx.data));
             expect(guard.__cacheTransactions([transactions[0].data])).toEqual([]);
             expect(guard.errors).toEqual({

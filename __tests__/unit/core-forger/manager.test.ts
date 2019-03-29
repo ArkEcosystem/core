@@ -14,7 +14,7 @@ import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
 
 const { Delegate } = models;
-const { generateTransfers } = generators;
+const { generateTransfer } = generators;
 
 jest.setTimeout(30000);
 jest.mock("../../../packages/core-forger/src/client");
@@ -49,7 +49,7 @@ describe("Forger Manager", () => {
     describe("__forgeNewBlock", () => {
         it("should forge a block", async () => {
             // NOTE: make sure we have valid transactions from an existing wallet
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "testnet",
                 "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
             );

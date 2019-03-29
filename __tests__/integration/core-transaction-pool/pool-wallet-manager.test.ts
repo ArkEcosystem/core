@@ -7,7 +7,7 @@ import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { Block } = models;
-const { generateTransfers, generateWallets, generateDelegateRegistration, generateVote } = generators;
+const { generateTransfer, generateWallets, generateDelegateRegistration, generateVote } = generators;
 
 const satoshi = 10 ** 8;
 let container: Container.IContainer;
@@ -63,7 +63,7 @@ describe("applyPoolTransactionToSender", () => {
             expect(+newWallet.balance).toBe(0);
 
             const amount1 = 123 * 10 ** 8;
-            const transfer = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1)[0];
+            const transfer = generateTransfer("unitnet", delegate0.secret, newAddress, amount1, 1)[0];
 
             const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
             transactionHandler.applyToSender(transfer, delegateWallet);
@@ -85,7 +85,7 @@ describe("applyPoolTransactionToSender", () => {
 
             const amount1 = 123 * 10 ** 8;
             const fee = 10;
-            const transfer = generateTransfers("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee)[0];
+            const transfer = generateTransfer("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee)[0];
 
             const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
             transactionHandler.applyToSender(transfer, delegateWallet);
@@ -122,7 +122,7 @@ describe("applyPoolTransactionToSender", () => {
             ];
 
             transfers.forEach(t => {
-                const transfer = generateTransfers("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
+                const transfer = generateTransfer("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
                 const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
@@ -167,7 +167,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         const wallet = generateWallets("unitnet", 1)[0];
         const transferAmount = 1234;
         const transferDelegate = delegates[4];
-        const transfer = generateTransfers(
+        const transfer = generateTransfer(
             "unitnet",
             transferDelegate.passphrase,
             wallet.address,
