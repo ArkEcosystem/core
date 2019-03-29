@@ -53,7 +53,7 @@ export async function apiPOST(path: string, body) {
     return httpie.post(`http://localhost:4003/api/v2/${path}`, { body });
 }
 
-export async function snoozeForBlock(height: number = 1, sleep: number = 0) {
+export async function snoozeForBlock(sleep: number = 0, height: number = 1) {
     const blockTime = configManager.getMilestone(height).blocktime * 1000;
     const sleepTime = sleep * 1000;
 
