@@ -3,7 +3,6 @@ import "jest-extended";
 import { bignumify, httpie } from "@arkecosystem/core-utils";
 import { configManager, PublicKey, transactionBuilder } from "@arkecosystem/crypto";
 import delay from "delay";
-import { shellSync } from "execa";
 import { generators } from "../../../utils";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../../../utils/helpers/container";
@@ -14,8 +13,6 @@ jest.setTimeout(1200000);
 
 let app;
 export async function setUp() {
-    shellSync("bash ./.circleci/rebuild-db.sh");
-
     app = await setUpContainer({
         include: [
             "@arkecosystem/core-event-emitter",
@@ -30,7 +27,7 @@ export async function setUp() {
     });
 
     const databaseService = app.resolvePlugin("database");
-    await databaseService.connection.roundsRepository.truncate();
+    await databaseService.reset();
     await databaseService.buildWallets();
     await databaseService.saveRound(
         secrets.map(secret => ({

@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash.clonedeep";
 
@@ -47,8 +47,16 @@ export class DatabaseService implements Database.IDatabaseService {
         this.registerListeners();
     }
 
-    public async init() {
+    public async init(): Promise<void> {
         await this.loadBlocksFromCurrentRound();
+    }
+
+    public async reset(): Promise<void> {
+        await this.connection.blocksRepository.truncate();
+        await this.connection.roundsRepository.truncate();
+        await this.connection.transactionsRepository.truncate();
+
+        await this.saveBlock(new Block(configManager.get("genesisBlock")));
     }
 
     public async applyBlock(block: models.Block) {

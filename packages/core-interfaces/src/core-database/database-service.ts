@@ -92,6 +92,8 @@ export interface IDatabaseService {
 
     init(): Promise<void>;
 
+    reset(): Promise<void>;
+
     loadBlocksFromCurrentRound(): Promise<void>;
 
     loadTransactionsForBlocks(blocks): Promise<void>;
