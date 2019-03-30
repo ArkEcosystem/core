@@ -26,6 +26,6 @@ export class RelayCommunicationError extends ForgerError {
 
 export class HostNoResponseError extends ForgerError {
     constructor(host: string) {
-        super(`Host '${host}' did not respond. Trying again later.`);
+        super(`${host} didn't respond the forger. Trying again later.`);
     }
 }
