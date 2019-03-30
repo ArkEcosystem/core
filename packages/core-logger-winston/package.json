@@ -33,10 +33,6 @@
         "winston": "^3.2.1",
         "winston-daily-rotate-file": "^3.6.0"
     },
-    "devDependencies": {
-        "@types/capture-console": "^1.0.0",
-        "capture-console": "^1.0.1"
-    },
     "publishConfig": {
         "access": "public"
     },

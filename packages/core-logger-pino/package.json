@@ -29,12 +29,10 @@
         "split2": "^3.1.1"
     },
     "devDependencies": {
-        "@types/capture-console": "^1.0.0",
         "@types/pino": "^5.8.6",
         "@types/pump": "^1.0.1",
         "@types/readable-stream": "^2.3.1",
-        "@types/split2": "^2.1.6",
-        "capture-console": "^1.0.1"
+        "@types/split2": "^2.1.6"
     },
     "publishConfig": {
         "access": "public"
