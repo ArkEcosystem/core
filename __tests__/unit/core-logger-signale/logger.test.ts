@@ -1,10 +1,10 @@
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import * as capcon from "capture-console";
 import "jest-extended";
 import { tmpdir } from "os";
 import { SignaleLogger } from "../../../packages/core-logger-signale/src";
 
-let logger: AbstractLogger;
+let logger: Logger.ILogger;
 let message;
 
 beforeAll(() => {

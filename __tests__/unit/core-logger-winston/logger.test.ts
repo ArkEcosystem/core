@@ -1,9 +1,9 @@
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Logger } from "@arkecosystem/core-interfaces";
 import * as capcon from "capture-console";
 import "jest-extended";
 import { WinstonLogger } from "../../../packages/core-logger-winston/src";
 
-let logger: AbstractLogger;
+let logger: Logger.ILogger;
 let message;
 
 beforeAll(() => {
