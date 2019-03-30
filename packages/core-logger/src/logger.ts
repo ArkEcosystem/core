@@ -47,7 +47,7 @@ export abstract class AbstractLogger implements Logger.ILogger {
     }
 
     protected getLevels(): Record<string, string> {
-        return {};
+        return this.defaultLevels;
     }
 
     private createLog(method: string, message: any): void {
