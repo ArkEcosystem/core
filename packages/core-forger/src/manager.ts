@@ -52,6 +52,12 @@ export class ForgerManager {
             this.delegates.push(new Delegate(bip38, this.network, password));
         }
 
+        try {
+            await this.loadRound();
+        } catch (error) {
+            this.logger.warn("Waiting for a responsive host.");
+        }
+
         return this.delegates;
     }
 
@@ -269,7 +275,6 @@ export class ForgerManager {
             );
 
             this.logger.debug(`Loaded ${pluralize("delegate", delegates.length, true)}: ${delegates.join(", ")}`);
-
             this.initialized = true;
         }
     }
