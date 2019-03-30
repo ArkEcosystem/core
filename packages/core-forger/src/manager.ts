@@ -126,7 +126,7 @@ export class ForgerManager {
             return this.checkLater(slots.getTimeInMsUntilNextSlot());
         } catch (error) {
             if (error instanceof HostNoResponseError) {
-                this.logger.error(error.message);
+                this.logger.warn(error.message);
             } else {
                 this.logger.error(JSON.stringify(error.stack));
                 this.logger.error(`Forging failed: ${error.message}`);
