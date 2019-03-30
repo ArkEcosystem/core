@@ -1,0 +1,38 @@
+{
+    "name": "@arkecosystem/core-logger-signale",
+    "description": "Signale integration for Ark Core",
+    "version": "2.3.0-next.3",
+    "contributors": [
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index",
+    "types": "dist/index",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn build",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist"
+    },
+    "dependencies": {
+        "@arkecosystem/core-interfaces": "^2.3.0-next.3",
+        "@arkecosystem/core-logger": "^2.3.0-next.3",
+        "lodash.isempty": "^4.4.0",
+        "signale": "^1.4.0"
+    },
+    "devDependencies": {
+        "@types/capture-console": "^1.0.0",
+        "@types/lodash.isempty": "^4.4.6",
+        "capture-console": "^1.0.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    }
+}
