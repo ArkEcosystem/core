@@ -30,7 +30,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         try {
             const block = await this.findByHeight(idOrHeight);
 
-            return block;
+            return block || this.findById(idOrHeight);
         } catch (error) {
             return this.findById(idOrHeight);
         }
