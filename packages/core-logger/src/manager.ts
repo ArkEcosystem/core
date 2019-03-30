@@ -1,7 +1,7 @@
 import { Logger } from "@arkecosystem/core-interfaces";
 
 export class LogManager {
-    private readonly drivers: Map<string, Logger.ILogger> = new Map();
+    private readonly drivers: Map<string, Logger.ILogger> = new Map<string, Logger.ILogger>();
 
     public driver(name: string = "default"): Logger.ILogger {
         return this.drivers.get(name);
