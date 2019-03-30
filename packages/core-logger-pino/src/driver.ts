@@ -1,6 +1,6 @@
+import { Logger } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { WriteStream } from "fs";
-import isEmpty from "lodash.isempty";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
@@ -8,15 +8,12 @@ import { Transform } from "readable-stream";
 import rfs from "rotating-file-stream";
 import split from "split2";
 import { PassThrough } from "stream";
-import { inspect } from "util";
 
 export class PinoLogger extends AbstractLogger {
-    public logger: pino.Logger;
-    public silent: boolean = false;
-
+    protected logger: pino.Logger;
     private fileStream: WriteStream;
 
-    public make() {
+    public make(): Logger.ILogger {
         const stream = new PassThrough();
         this.logger = pino(
             {
@@ -38,44 +35,10 @@ export class PinoLogger extends AbstractLogger {
         return this;
     }
 
-    public error(message: any): void {
-        this.createLog("error", message);
-    }
-
-    public warn(message: any): void {
-        this.createLog("warn", message);
-    }
-
-    public info(message: any): void {
-        this.createLog("info", message);
-    }
-
-    public debug(message: any): void {
-        this.createLog("debug", message);
-    }
-
-    public verbose(message: any): void {
-        this.createLog("trace", message);
-    }
-
-    public suppressConsoleOutput(suppress: boolean): void {
-        this.silent = suppress;
-    }
-
-    private createLog(method: string, message: any): void {
-        if (this.silent) {
-            return;
-        }
-
-        if (isEmpty(message)) {
-            return;
-        }
-
-        if (typeof message !== "string") {
-            message = inspect(message, { depth: 1 });
-        }
-
-        this.logger[method](message);
+    protected getLevels(): Record<string, string> {
+        return {
+            verbose: "trace",
+        };
     }
 
     private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
