@@ -5,6 +5,7 @@ import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 import nock from "nock";
 import { Client } from "../../../packages/core-forger/src/client";
+import { HostNoResponseError } from "../../../packages/core-forger/src/errors";
 import { sampleBlocks } from "./__fixtures__/blocks";
 
 jest.setTimeout(30000);
@@ -52,7 +53,7 @@ describe("Client", () => {
                             return requestBody;
                         });
 
-                    await client.__chooseHost();
+                    await client.selectHost();
 
                     const wasBroadcasted = await client.broadcast(sampleBlock.toJson());
                     expect(wasBroadcasted).toBeTruthy();
@@ -84,7 +85,7 @@ describe("Client", () => {
                     .get("/internal/transactions/forging")
                     .reply(200, { data: expectedResponse });
 
-                await client.__chooseHost();
+                await client.selectHost();
                 const response = await client.getTransactions();
 
                 expect(response).toEqual(expectedResponse);
@@ -100,7 +101,7 @@ describe("Client", () => {
                     .get("/internal/network/state")
                     .reply(200, { data: expectedResponse });
 
-                await client.__chooseHost();
+                await client.selectHost();
                 const response = await client.getNetworkState();
 
                 expect(response).toEqual(expectedResponse);
@@ -115,23 +116,22 @@ describe("Client", () => {
                 .get("/internal/blockchain/sync")
                 .reply(200);
 
+            await client.selectHost();
             await client.syncCheck();
 
             expect(httpie.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object));
         });
     });
 
-    describe("getUsernames", () => {
-        it("should fetch usernames", async () => {
-            jest.spyOn(httpie, "get");
-            const expectedResponse = { foo: "bar" };
-            nock(host)
-                .get("/internal/utils/usernames")
-                .reply(200, { data: expectedResponse });
+    describe("selectHost", () => {
+        it("should fallback to responsive host", async () => {
+            client = new Client(["http://127.0.0.2:4000", "http://127.0.0.3:4000", host]);
+            await expect(client.selectHost()).toResolve();
+        });
 
-            const response = await client.getUsernames();
-
-            expect(response).toEqual(expectedResponse);
+        it("should throw error when no host is responsive", async () => {
+            client = new Client(["http://127.0.0.2:4000", "http://127.0.0.3:4000"]);
+            await expect(client.selectHost()).rejects.toThrowError(HostNoResponseError);
         });
     });
 
@@ -145,7 +145,7 @@ describe("Client", () => {
                     return [200];
                 });
 
-            await client.__chooseHost();
+            await client.selectHost();
             await client.emitEvent("foo", "bar");
 
             expect(httpie.post).toHaveBeenCalledWith(`${host}/internal/utils/events`, {
@@ -153,7 +153,7 @@ describe("Client", () => {
                 headers: {
                     "Content-Type": "application/json",
                     nethash: {},
-                    port: "4000",
+                    port: 4000,
                     version: "2.3.0",
                     "x-auth": "forger",
                 },
