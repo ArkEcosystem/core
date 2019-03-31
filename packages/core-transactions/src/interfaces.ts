@@ -12,6 +12,6 @@ export interface ITransactionHandler {
     apply(transaction: Transaction, wallet: Database.IWallet): void;
     revert(transaction: Transaction, wallet: Database.IWallet): void;
 
-    canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean;
+    canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean;
     emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void;
 }

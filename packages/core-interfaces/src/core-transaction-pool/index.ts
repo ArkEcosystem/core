@@ -1,2 +1,2 @@
-export * from "./transaction-pool";
-export * from "./transaction-guard";
+export * from "./connection";
+export * from "./guard";

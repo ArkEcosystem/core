@@ -3,7 +3,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { models } from "@arkecosystem/crypto";
 
-export class DatabaseConnectionStub implements Database.IDatabaseConnection {
+export class DatabaseConnectionStub implements Database.IConnection {
     public blocksRepository: Database.IBlocksRepository;
     public roundsRepository: Database.IRoundsRepository;
     public transactionsRepository: Database.ITransactionsRepository;
@@ -32,7 +32,7 @@ export class DatabaseConnectionStub implements Database.IDatabaseConnection {
 
     public enqueueDeleteRound(height: number): any {}
 
-    public async make(): Promise<Database.IDatabaseConnection> {
+    public async make(): Promise<Database.IConnection> {
         return this;
     }
 

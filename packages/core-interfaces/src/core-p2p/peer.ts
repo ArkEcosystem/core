@@ -15,14 +15,14 @@ export interface IPeer {
      * @return {Object}
      */
     toBroadcastInfo(): {
-        ip: any;
+        ip: string;
         port: number;
-        nethash: any;
-        version: any;
-        os: any;
-        status: any;
-        height: any;
-        delay: any;
+        nethash: string;
+        version: string;
+        os: string;
+        status: string | number;
+        height: number;
+        delay: number;
     };
 
     /**

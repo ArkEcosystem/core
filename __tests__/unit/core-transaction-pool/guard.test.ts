@@ -3,7 +3,7 @@ import "./mocks/core-container";
 import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
-import { TransactionPool } from "../../../packages/core-transaction-pool/src/connection";
+import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";
 import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
@@ -20,7 +20,7 @@ let transactionPool;
 beforeAll(async () => {
     localConfig.init(defaults);
 
-    transactionPool = new TransactionPool(defaults);
+    transactionPool = new Connection(defaults);
     await transactionPool.make();
 });
 
