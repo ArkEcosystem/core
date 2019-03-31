@@ -7,7 +7,7 @@ const manager = new LoggerManager();
 describe("Config Manager", () => {
     describe("driver", () => {
         it("should return the driver", async () => {
-            await manager.makeDriver(new Logger({}));
+            await manager.createDriver(new Logger({}));
 
             expect(manager.driver()).toBeInstanceOf(AbstractLogger);
         });

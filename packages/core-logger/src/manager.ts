@@ -9,7 +9,7 @@ export class LoggerManager {
         return this.drivers.get(name);
     }
 
-    public makeDriver(driver: Logger.ILogger, name: string = "default"): Logger.ILogger {
+    public createDriver(driver: Logger.ILogger, name: string = "default"): Logger.ILogger {
         this.drivers.set(name, this.factory.make(driver));
 
         return this.driver();
@@ -17,5 +17,9 @@ export class LoggerManager {
 
     public getDrivers(): Map<string, Logger.ILogger> {
         return this.drivers;
+    }
+
+    public getFactory(): LoggerFactory {
+        return this.factory;
     }
 }

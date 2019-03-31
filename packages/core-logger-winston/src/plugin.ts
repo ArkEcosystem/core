@@ -9,6 +9,6 @@ export const plugin: Container.PluginDescriptor = {
     alias: "logger",
     extends: "@arkecosystem/core-logger",
     async register(container: Container.IContainer, options) {
-        return container.resolvePlugin<LoggerManager>("log-manager").makeDriver(new WinstonLogger(options));
+        return container.resolvePlugin<LoggerManager>("log-manager").createDriver(new WinstonLogger(options));
     },
 };
