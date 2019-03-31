@@ -8,11 +8,11 @@ export class Config {
         this.config = options;
     }
 
-    public get(key: string, defaultValue: any = null): any {
+    public get<T = any>(key: string, defaultValue: any = null): T {
         return get(this.config, key, defaultValue);
     }
 
-    public set(key: string, value: any): void {
+    public set<T = any>(key: string, value: T): void {
         set(this.config, key, value);
     }
 }

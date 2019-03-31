@@ -5,7 +5,7 @@ import { IWalletsRepository } from "./database-repository";
 
 import { models } from "@arkecosystem/crypto";
 
-export interface IDatabaseConnection {
+export interface IConnection {
     options: any;
 
     blocksRepository: IBlocksRepository;
@@ -13,7 +13,7 @@ export interface IDatabaseConnection {
     roundsRepository: IRoundsRepository;
     transactionsRepository: ITransactionsRepository;
 
-    make(): Promise<IDatabaseConnection>;
+    make(): Promise<IConnection>;
 
     connect(): Promise<void>;
 
@@ -21,13 +21,13 @@ export interface IDatabaseConnection {
 
     buildWallets(): Promise<boolean>;
 
-    saveBlock(block: models.Block): Promise<any>;
+    saveBlock(block: models.Block): Promise<void>;
 
-    deleteBlock(block: models.Block): Promise<any>;
+    deleteBlock(block: models.Block): Promise<void>;
 
-    enqueueDeleteBlock(block: models.Block);
+    enqueueDeleteBlock(block: models.Block): void;
 
-    enqueueDeleteRound(height: number);
+    enqueueDeleteRound(height: number): void;
 
-    commitQueuedQueries();
+    commitQueuedQueries(): Promise<void>;
 }

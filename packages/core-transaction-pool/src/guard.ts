@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import {
     configManager,
@@ -10,20 +10,20 @@ import {
     Transaction,
 } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { TransactionPool } from "./connection";
+import { Connection } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 
-export class TransactionGuard implements transanctionPool.ITransactionGuard {
+export class TransactionGuard implements TransactionPool.ITransactionGuard {
     public transactions: ITransactionData[] = [];
     public excess: string[] = [];
     public accept: Map<string, Transaction> = new Map();
     public broadcast: Map<string, Transaction> = new Map();
     public invalid: Map<string, ITransactionData> = new Map();
-    public errors: { [key: string]: transanctionPool.ITransactionErrorResponse[] } = {};
+    public errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(public pool: TransactionPool) {}
+    constructor(public pool: Connection) {}
 
-    public async validate(transactions: ITransactionData[]): Promise<transanctionPool.IValidationResult> {
+    public async validate(transactions: ITransactionData[]): Promise<TransactionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions

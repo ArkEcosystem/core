@@ -12,7 +12,7 @@ export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
     success: boolean;
 }
 
-export interface ITransactionPool {
+export interface IConnection {
     options: any;
 
     make(): Promise<this>;

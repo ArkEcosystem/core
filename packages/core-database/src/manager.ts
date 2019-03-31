@@ -1,7 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 
 export class DatabaseManager {
-    public connections: { [key: string]: Database.IDatabaseConnection };
+    public connections: { [key: string]: Database.IConnection };
 
     /**
      * Create a new database manager instance.
@@ -16,7 +16,7 @@ export class DatabaseManager {
      * @param  {String} name
      * @return {DatabaseConnection}
      */
-    public connection(name = "default"): Database.IDatabaseConnection {
+    public connection(name = "default"): Database.IConnection {
         return this.connections[name];
     }
 
@@ -26,10 +26,7 @@ export class DatabaseManager {
      * @param  {String} name
      * @return {void}
      */
-    public async makeConnection(
-        connection: Database.IDatabaseConnection,
-        name = "default",
-    ): Promise<Database.IDatabaseConnection> {
+    public async makeConnection(connection: Database.IConnection, name = "default"): Promise<Database.IConnection> {
         this.connections[name] = await connection.make();
         return this.connection(name);
     }
