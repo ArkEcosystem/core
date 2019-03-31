@@ -43,7 +43,7 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("__forgeNewBlock", () => {
+    describe("forgeNewBlock", () => {
         it("should forge a block", async () => {
             // NOTE: make sure we have valid transactions from an existing wallet
             const transactions = generateTransfer(
@@ -65,7 +65,7 @@ describe("Forger Manager", () => {
                 reward: 2 * 1e8,
             };
 
-            await forgeManager.__forgeNewBlock(del, round, {
+            await forgeManager.forgeNewBlock(del, round, {
                 lastBlockId: round.lastBlock.id,
                 nodeHeight: round.lastBlock.height,
             });
@@ -92,12 +92,12 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("__getTransactionsForForging", () => {
+    describe("getTransactionsForForging", () => {
         it("should return zero transactions if none to forge", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({});
 
-            const transactions = await forgeManager.__getTransactionsForForging();
+            const transactions = await forgeManager.getTransactionsForForging();
 
             expect(transactions).toHaveLength(0);
             expect(forgeManager.client.getTransactions).toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe("Forger Manager", () => {
                 transactions: [Transaction.fromData(sampleTransaction).serialized.toString("hex")],
             });
 
-            const transactions = await forgeManager.__getTransactionsForForging();
+            const transactions = await forgeManager.getTransactionsForForging();
 
             expect(transactions).toHaveLength(1);
             expect(forgeManager.client.getTransactions).toHaveBeenCalled();
