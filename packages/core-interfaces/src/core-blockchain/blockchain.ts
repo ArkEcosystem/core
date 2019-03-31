@@ -124,10 +124,10 @@ export interface IBlockchain {
      * @return {Object}
      */
     getUnconfirmedTransactions(
-        blockSize: any,
+        blockSize: number,
     ): {
-        transactions: any[];
-        poolSize: any;
+        transactions: string[];
+        poolSize: number;
         count: number;
     };
 

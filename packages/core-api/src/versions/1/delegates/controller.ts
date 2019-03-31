@@ -95,15 +95,14 @@ export class DelegatesController extends Controller {
             const delegatesCount = this.config.getMilestone(lastBlock).activeDelegates;
             const currentSlot = slots.getSlotNumber(lastBlock.data.timestamp);
 
-            let activeDelegates = await this.databaseService.getActiveDelegates(lastBlock.data.height);
-            activeDelegates = activeDelegates.map(delegate => delegate.publicKey);
-
+            const activeDelegates = await this.databaseService.getActiveDelegates(lastBlock.data.height);
             const nextForgers = [];
+
             for (let i = 1; i <= delegatesCount && i <= limit; i++) {
                 const delegate = activeDelegates[(currentSlot + i) % delegatesCount];
 
                 if (delegate) {
-                    nextForgers.push(delegate);
+                    nextForgers.push(delegate.publicKey);
                 }
             }
 

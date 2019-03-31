@@ -11,7 +11,7 @@ export class RoundsRepository extends Repository implements Database.IRoundsRepo
      * @param  {Number} round
      * @return {Promise}
      */
-    public async findById(round) {
+    public async findById(round: number): Promise<Database.IRound[]> {
         return this.db.manyOrNone(sql.find, { round });
     }
 
@@ -20,7 +20,7 @@ export class RoundsRepository extends Repository implements Database.IRoundsRepo
      * @param  {Number} round
      * @return {Promise}
      */
-    public async delete(round) {
+    public async delete(round): Promise<void> {
         return this.db.none(sql.delete, { round });
     }
 
@@ -28,7 +28,7 @@ export class RoundsRepository extends Repository implements Database.IRoundsRepo
      * Get the model related to this repository.
      * @return {Round}
      */
-    public getModel() {
+    public getModel(): Round {
         return new Round(this.pgp);
     }
 }
