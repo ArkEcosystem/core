@@ -80,7 +80,7 @@ class TestTransactionHandler extends TransactionHandler {
         return;
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
         return true;
     }
 }
