@@ -1,4 +1,4 @@
-import { client } from "../client";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Index } from "./base";
 
 export class Wallets extends Index {
@@ -33,6 +33,6 @@ export class Wallets extends Index {
     }
 
     public listen() {
-        this.emitter.on("round.applied", () => this.index());
+        this.emitter.on(ApplicationEvents.RoundApplied, () => this.index());
     }
 }

@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
@@ -550,11 +551,11 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     private registerListeners() {
-        this.emitter.on("state:started", () => {
+        this.emitter.on(ApplicationEvents.StateStarted, () => {
             this.stateStarted = true;
         });
 
-        this.emitter.on("wallet.created.cold", async coldWallet => {
+        this.emitter.on(ApplicationEvents.WalletColdCreated, async coldWallet => {
             try {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 

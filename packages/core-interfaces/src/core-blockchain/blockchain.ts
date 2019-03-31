@@ -173,10 +173,4 @@ export interface IBlockchain {
      * @return {Object}
      */
     pushPingBlock(block: models.IBlockData): void;
-
-    /**
-     * Get the list of events that are available.
-     * @return {Array}
-     */
-    getEvents(): string[];
 }

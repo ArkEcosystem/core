@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
@@ -7,10 +8,9 @@ import { database } from "./database";
 export class WebhookManager {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private readonly blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     public async setUp() {
-        for (const event of this.blockchain.getEvents()) {
+        for (const event of Object.values(ApplicationEvents)) {
             this.emitter.on(event, async payload => {
                 const { rows } = await database.findByEvent(event);
 
