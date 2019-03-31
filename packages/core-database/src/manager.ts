@@ -1,36 +1,23 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import { ConnectionFactory } from "./factory";
 
-export class DatabaseManager {
-    public connections: { [key: string]: Database.IDatabaseConnection };
+export class ConnectionManager {
+    private readonly factory: ConnectionFactory = new ConnectionFactory();
+    private readonly connections: Map<string, Database.IDatabaseConnection> = new Map<
+        string,
+        Database.IDatabaseConnection
+    >();
 
-    /**
-     * Create a new database manager instance.
-     * @constructor
-     */
-    constructor() {
-        this.connections = {};
-    }
-
-    /**
-     * Get a database connection instance.
-     * @param  {String} name
-     * @return {DatabaseConnection}
-     */
     public connection(name = "default"): Database.IDatabaseConnection {
-        return this.connections[name];
+        return this.connections.get(name);
     }
 
-    /**
-     * Make the database connection instance.
-     * @param  {DatabaseConnection} connection
-     * @param  {String} name
-     * @return {void}
-     */
-    public async makeConnection(
+    public async createConnection(
         connection: Database.IDatabaseConnection,
         name = "default",
     ): Promise<Database.IDatabaseConnection> {
-        this.connections[name] = await connection.make();
+        this.connections.set(name, await this.factory.make(connection));
+
         return this.connection(name);
     }
 }
