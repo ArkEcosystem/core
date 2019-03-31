@@ -5,6 +5,8 @@ import { constants, ITransactionData, models, Transaction } from "@arkecosystem/
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;
+    public loggedAllowedSenders: string[];
+    public walletManager: any;
 
     public async make(): Promise<this> {
         return this;
