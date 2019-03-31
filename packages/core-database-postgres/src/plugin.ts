@@ -1,4 +1,4 @@
-import { DatabaseManager, databaseServiceFactory, WalletManager } from "@arkecosystem/core-database";
+import { ConnectionManager, databaseServiceFactory, WalletManager } from "@arkecosystem/core-database";
 import { Container, Database, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { PostgresConnection } from "./postgres-connection";
@@ -13,9 +13,8 @@ export const plugin: Container.PluginDescriptor = {
 
         const walletManager = new WalletManager();
 
-        const databaseManager = container.resolvePlugin<DatabaseManager>("database-manager");
-
-        const connection = await databaseManager.makeConnection(new PostgresConnection(options, walletManager));
+        const connectionManager = container.resolvePlugin<ConnectionManager>("database-manager");
+        const connection = await connectionManager.createConnection(new PostgresConnection(options, walletManager));
 
         return databaseServiceFactory(options, walletManager, connection);
     },
