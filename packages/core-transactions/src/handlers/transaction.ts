@@ -120,7 +120,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Transaction Pool logic
      */
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
         guard.pushError(
             data,
             "ERR_UNSUPPORTED",
@@ -129,7 +129,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    protected typeFromSenderAlreadyInPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+    protected typeFromSenderAlreadyInPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
         const { senderPublicKey, type } = data;
         if (guard.pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             guard.pushError(

@@ -6,7 +6,7 @@ import {
     ITransactionsBusinessRepository,
     IWalletsBusinessRepository,
 } from "./business-repository";
-import { IDatabaseConnection } from "./database-connection";
+import { IConnection } from "./database-connection";
 import { IDelegateWallet, IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
@@ -20,7 +20,7 @@ export interface IDatabaseService {
 
     transactionsBusinessRepository: ITransactionsBusinessRepository;
 
-    connection: IDatabaseConnection;
+    connection: IConnection;
 
     logger: Logger.ILogger;
 

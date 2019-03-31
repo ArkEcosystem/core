@@ -5,7 +5,7 @@ import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    protected transactionPool = app.resolvePlugin<TransactionPool.ITransactionPool>("transaction-pool");
+    protected transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 
     public constructor() {
         super();

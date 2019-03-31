@@ -1,18 +1,13 @@
 import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
+import { constants } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
-import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { constants } from "@arkecosystem/crypto";
-
 export class TransactionsController extends Controller {
-    private transactionPool = app.resolvePlugin<TransactionPool>("transaction-pool");
-
-    public constructor() {
-        super();
-    }
+    private readonly transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
