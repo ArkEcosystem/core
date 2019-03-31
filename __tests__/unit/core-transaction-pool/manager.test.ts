@@ -10,13 +10,13 @@ class FakeDriver {
 describe("Transaction Pool Manager", () => {
     describe("connection", () => {
         it("should return the drive-connection", async () => {
-            await transactionPoolManager.makeConnection(new FakeDriver());
+            await transactionPoolManager.createConnection(new FakeDriver());
 
             expect(transactionPoolManager.connection()).toBeInstanceOf(FakeDriver);
         });
 
         it("should return the drive-connection for a different name", async () => {
-            await transactionPoolManager.makeConnection(new FakeDriver(), "testing");
+            await transactionPoolManager.createConnection(new FakeDriver(), "testing");
 
             expect(transactionPoolManager.connection("testing")).toBeInstanceOf(FakeDriver);
         });
