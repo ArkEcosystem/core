@@ -24,7 +24,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: any[] = null;
+    public forgingDelegates: Database.IDelegateWallet[] = null;
     public cache: Map<any, any> = new Map();
 
     constructor(
@@ -141,7 +141,7 @@ export class DatabaseService implements Database.IDatabaseService {
         this.connection.enqueueDeleteRound(height);
     }
 
-    public async getActiveDelegates(height: number, delegates?: any[]) {
+    public async getActiveDelegates(height: number, delegates?: Database.IDelegateWallet[]) {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
 
@@ -151,7 +151,9 @@ export class DatabaseService implements Database.IDatabaseService {
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
-            delegates = await this.connection.roundsRepository.findById(round);
+            delegates = ((await this.connection.roundsRepository.findById(
+                round,
+            )) as unknown) as Database.IDelegateWallet[];
         }
 
         const seedSource = round.toString();
@@ -169,6 +171,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         this.forgingDelegates = delegates.map(delegate => {
             delegate.round = +delegate.round;
+            delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
         });
 
