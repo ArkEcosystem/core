@@ -1,11 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import {
-    Blockchain,
-    Database,
-    EventEmitter,
-    Logger,
-    TransactionPool as transactionPool,
-} from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, EventEmitter, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 
 import { dato, Dato } from "@faustbrian/dato";
@@ -24,7 +18,7 @@ import { Storage } from "./storage";
  * data (everything other than add or remove transaction) are served from the
  * in-memory storage.
  */
-export class TransactionPool implements transactionPool.ITransactionPool {
+export class Connection implements TransactionPool.IConnection {
     public walletManager: PoolWalletManager;
     public mem: Mem;
     public storage: Storage;
@@ -156,7 +150,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
      * and applied to the pool or not. In case it was not successful, the type and message
      * property yield information about the error.
      */
-    public addTransaction(transaction: Transaction): transactionPool.IAddTransactionResponse {
+    public addTransaction(transaction: Transaction): TransactionPool.IAddTransactionResponse {
         if (this.transactionExists(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
@@ -558,7 +552,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         transaction: Transaction,
         type: string,
         message: string,
-    ): transactionPool.IAddTransactionErrorResponse {
+    ): TransactionPool.IAddTransactionErrorResponse {
         return {
             transaction,
             type,

@@ -13,7 +13,7 @@ import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
-export class PostgresConnection implements Database.IDatabaseConnection {
+export class PostgresConnection implements Database.IConnection {
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public models: { [key: string]: Model } = {};
     public query: QueryExecutor;
@@ -30,9 +30,10 @@ export class PostgresConnection implements Database.IDatabaseConnection {
 
     public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
 
-    public async buildWallets() {
+    public async buildWallets(): Promise<boolean> {
         try {
             const result = await new IntegrityVerifier(this.query, this.walletManager).run();
+
             return result;
         } catch (error) {
             this.logger.error(error.stack);
@@ -42,7 +43,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         return false;
     }
 
-    public async commitQueuedQueries() {
+    public async commitQueuedQueries(): Promise<void> {
         if (!this.queuedQueries || this.queuedQueries.length === 0) {
             return;
         }
@@ -60,10 +61,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         }
     }
 
-    public async connect() {
+    public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
+
         const initialization = {
-            receive(data, result, e) {
+            receive(data) {
                 camelizeColumns(pgp, data);
             },
             extend(object) {
@@ -79,14 +81,14 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         this.db = this.pgp(this.options.connection);
     }
 
-    public async deleteBlock(block: models.Block) {
+    public async deleteBlock(block: models.Block): Promise<void> {
         try {
-            const queries = [
-                this.transactionsRepository.deleteByBlockId(block.data.id),
-                this.blocksRepository.delete(block.data.id),
-            ];
-
-            await this.db.tx(t => t.batch(queries));
+            await this.db.tx(t =>
+                t.batch([
+                    this.transactionsRepository.deleteByBlockId(block.data.id),
+                    this.blocksRepository.delete(block.data.id),
+                ]),
+            );
         } catch (error) {
             this.logger.error(error.stack);
 
@@ -94,7 +96,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         }
     }
 
-    public async disconnect() {
+    public async disconnect(): Promise<void> {
         this.logger.debug("Disconnecting from database");
         this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
 
@@ -111,16 +113,14 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         this.logger.debug("Disconnected from database");
     }
 
-    public enqueueDeleteBlock(block: models.Block): any {
-        const queries = [
+    public enqueueDeleteBlock(block: models.Block): void {
+        this.enqueueQueries([
             this.transactionsRepository.deleteByBlockId(block.data.id),
             this.blocksRepository.delete(block.data.id),
-        ];
-
-        this.enqueueQueries(queries);
+        ]);
     }
 
-    public enqueueDeleteRound(height: number): any {
+    public enqueueDeleteRound(height: number): void {
         const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
 
         if (nextRound === round + 1 && height >= maxDelegates) {
@@ -128,7 +128,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         }
     }
 
-    public async make(): Promise<Database.IDatabaseConnection> {
+    public async make(): Promise<Database.IConnection> {
         if (this.db) {
             throw new Error("Database connection already initialised");
         }
@@ -155,7 +155,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         return null;
     }
 
-    public async saveBlock(block: models.Block) {
+    public async saveBlock(block: models.Block): Promise<void> {
         try {
             const queries = [this.blocksRepository.insert(block.data)];
 
@@ -260,7 +260,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
      * Register all models.
      * @return {void}
      */
-    private async registerModels() {
+    private async registerModels(): Promise<void> {
         for (const [key, Value] of Object.entries(require("./models"))) {
             this.models[key.toLowerCase()] = new (Value as any)(this.pgp);
         }
@@ -270,11 +270,11 @@ export class PostgresConnection implements Database.IDatabaseConnection {
      * Register the query builder.
      * @return {void}
      */
-    private registerQueryExecutor() {
+    private registerQueryExecutor(): void {
         this.query = new QueryExecutor(this);
     }
 
-    private enqueueQueries(queries) {
+    private enqueueQueries(queries): void {
         if (!this.queuedQueries) {
             this.queuedQueries = [];
         }
@@ -282,7 +282,7 @@ export class PostgresConnection implements Database.IDatabaseConnection {
         (this.queuedQueries as any).push(...queries);
     }
 
-    private exposeRepositories() {
+    private exposeRepositories(): void {
         this.blocksRepository = this.db.blocks;
         this.transactionsRepository = this.db.transactions;
         this.roundsRepository = this.db.rounds;

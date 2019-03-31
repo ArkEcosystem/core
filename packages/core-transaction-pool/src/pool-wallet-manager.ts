@@ -5,15 +5,7 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, isException, Transaction } from "@arkecosystem/crypto";
 
 export class PoolWalletManager extends WalletManager {
-    public databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
-    /**
-     * Create a new pool wallet manager instance.
-     * @constructor
-     */
-    constructor() {
-        super();
-    }
+    public readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     /**
      * Get a wallet by the given address. If wallet is not found it is copied from blockchain

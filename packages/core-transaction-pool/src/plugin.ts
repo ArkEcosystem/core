@@ -1,6 +1,6 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { config } from "./config";
-import { TransactionPool } from "./connection";
+import { Connection } from "./connection";
 import { defaults } from "./defaults";
 import { ConnectionManager } from "./manager";
 

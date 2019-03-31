@@ -11,7 +11,7 @@ import { WalletManager } from "./wallet-manager";
 const { Block } = models;
 
 export class DatabaseService implements Database.IDatabaseService {
-    public connection: Database.IDatabaseConnection;
+    public connection: Database.IConnection;
     public walletManager: Database.IWalletManager;
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -29,7 +29,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     constructor(
         options: any,
-        connection: Database.IDatabaseConnection,
+        connection: Database.IConnection,
         walletManager: Database.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
         delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
