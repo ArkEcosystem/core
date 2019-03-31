@@ -7,6 +7,7 @@ import {
     IWalletsBusinessRepository,
 } from "./business-repository";
 import { IDatabaseConnection } from "./database-connection";
+import { IRound } from "./database-repository";
 import { IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
@@ -36,7 +37,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
 
-    getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;
+    getActiveDelegates(height: number, delegates?: any[]): Promise<IRound[]>;
 
     buildWallets(): Promise<boolean>;
 

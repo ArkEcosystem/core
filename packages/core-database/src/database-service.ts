@@ -24,7 +24,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public blocksInCurrentRound: any[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: any[] = null;
+    public forgingDelegates: Database.IRound[] = null;
     public cache: Map<any, any> = new Map();
 
     constructor(
@@ -141,7 +141,7 @@ export class DatabaseService implements Database.IDatabaseService {
         this.connection.enqueueDeleteRound(height);
     }
 
-    public async getActiveDelegates(height: number, delegates?: any[]) {
+    public async getActiveDelegates(height: number, delegates?: Database.IRound[]) {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
 
