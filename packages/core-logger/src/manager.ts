@@ -1,31 +1,21 @@
 import { Logger } from "@arkecosystem/core-interfaces";
+import { LoggerFactory } from "./factory";
 
-export class LogManager {
+export class LoggerManager {
+    private readonly factory: LoggerFactory = new LoggerFactory();
     private readonly drivers: Map<string, Logger.ILogger> = new Map<string, Logger.ILogger>();
 
     public driver(name: string = "default"): Logger.ILogger {
         return this.drivers.get(name);
     }
 
-    public async makeDriver(driver: Logger.ILogger, name: string = "default"): Promise<Logger.ILogger> {
-        const instance: Logger.ILogger = await driver.make();
-
-        this.drivers.set(name, instance);
-
-        this.logPaths(instance);
+    public makeDriver(driver: Logger.ILogger, name: string = "default"): Logger.ILogger {
+        this.drivers.set(name, this.factory.make(driver));
 
         return this.driver();
     }
 
-    private logPaths(driver: Logger.ILogger): void {
-        for (const [key, value] of Object.entries({
-            Data: process.env.CORE_PATH_DATA,
-            Config: process.env.CORE_PATH_CONFIG,
-            Cache: process.env.CORE_PATH_CACHE,
-            Log: process.env.CORE_PATH_LOG,
-            Temp: process.env.CORE_PATH_TEMP,
-        })) {
-            driver.debug(`${key} Directory: ${value}`);
-        }
+    public getDrivers(): Map<string, Logger.ILogger> {
+        return this.drivers;
     }
 }

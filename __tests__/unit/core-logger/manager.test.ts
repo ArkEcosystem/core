@@ -1,8 +1,8 @@
 import "jest-extended";
-import { AbstractLogger, LogManager } from "../../../packages/core-logger/src";
+import { AbstractLogger, LoggerManager } from "../../../packages/core-logger/src";
 import { Logger } from "./__stubs__/logger";
 
-const manager = new LogManager();
+const manager = new LoggerManager();
 
 describe("Config Manager", () => {
     describe("driver", () => {
