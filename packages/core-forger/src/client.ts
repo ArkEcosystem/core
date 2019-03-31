@@ -45,14 +45,14 @@ export class Client {
     /**
      * Send the given block to the relay.
      */
-    public async broadcast(block: models.IBlockData): Promise<void> {
+    public async broadcast(block: models.IBlockData): Promise<IHttpieResponse<null>> {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
             } transactions to ${this.host}`,
         );
 
-        await this.post(`${this.host}/internal/blocks`, { block });
+        return this.post(`${this.host}/internal/blocks`, { block });
     }
 
     /**
