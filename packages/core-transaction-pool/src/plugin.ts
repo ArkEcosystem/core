@@ -15,7 +15,7 @@ export const plugin: Container.PluginDescriptor = {
 
         const connectionManager: ConnectionManager = new ConnectionManager();
 
-        return connectionManager.createConnection(new TransactionPool(options));
+        return connectionManager.createConnection(new Connection(options));
     },
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Disconnecting from transaction pool");
