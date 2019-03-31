@@ -43,6 +43,7 @@ export class TransactionPool implements transactionPool.ITransactionPool {
         this.walletManager = new PoolWalletManager();
         this.blockedByPublicKey = {};
     }
+
     /**
      * Make the transaction pool instance. Load all transactions in the pool from
      * the on-disk database, saved there from a previous run.

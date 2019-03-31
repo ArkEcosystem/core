@@ -1,7 +1,7 @@
-import { TransactionPool } from "./connection";
+import { TransactionPool } from "@arkecosystem/core-interfaces";
 
 export class ConnectionFactory {
-    public async make(connection: TransactionPool): Promise<TransactionPool> {
+    public async make(connection: TransactionPool.ITransactionPool): Promise<TransactionPool.ITransactionPool> {
         return connection.make();
     }
 }
