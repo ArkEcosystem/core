@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { ICurrentRound, NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { configManager, ITransactionData, models, networks, slots, Transaction } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
@@ -21,7 +21,7 @@ export class ForgerManager {
     private delegates: models.Delegate[];
     private usernames: { [key: string]: string };
     private isStopped: boolean;
-    private round: any;
+    private round: ICurrentRound;
     private initialized: boolean;
 
     /**
@@ -120,7 +120,7 @@ export class ForgerManager {
             }
 
             if (this.parseNetworkState(networkState, delegate)) {
-                await this.__forgeNewBlock(delegate, this.round, networkState);
+                await this.forgeNewBlock(delegate, this.round, networkState);
             }
 
             return this.checkLater(slots.getTimeInMsUntilNextSlot());
@@ -148,8 +148,8 @@ export class ForgerManager {
     /**
      * Creates new block by the delegate and sends it to relay node for verification and broadcast
      */
-    public async __forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
-        const transactions = await this.__getTransactionsForForging();
+    public async forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
+        const transactions = await this.getTransactionsForForging();
 
         const previousBlock = {
             id: networkState.lastBlockId,
@@ -183,7 +183,7 @@ export class ForgerManager {
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async __getTransactionsForForging(): Promise<ITransactionData[]> {
+    public async getTransactionsForForging(): Promise<ITransactionData[]> {
         const response = await this.client.getTransactions();
         const transactions = response.transactions
             ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
@@ -205,7 +205,7 @@ export class ForgerManager {
     /**
      * Parses the given network state and decides if forging is allowed.
      */
-    public parseNetworkState(networkState: NetworkState, currentForger): boolean {
+    public parseNetworkState(networkState: NetworkState, delegate: models.Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
             return false;
@@ -232,10 +232,10 @@ export class ForgerManager {
             );
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
-                if (overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
-                    const username = this.usernames[currentForger.publicKey];
+                if (overHeightBlockHeader.generatorPublicKey === delegate.publicKey) {
+                    const username = this.usernames[delegate.publicKey];
                     this.logger.warn(
-                        `Possible double forging delegate: ${username} (${currentForger.publicKey}) - Block: ${
+                        `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${
                             overHeightBlockHeader.id
                         }. Will not forge.`,
                     );
@@ -279,7 +279,7 @@ export class ForgerManager {
         }
     }
 
-    private async checkLater(timeout: number) {
+    private checkLater(timeout: number): void {
         setTimeout(() => this.__monitor(), timeout);
     }
 }

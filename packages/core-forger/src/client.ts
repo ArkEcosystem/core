@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { NetworkState } from "@arkecosystem/core-p2p";
-import { httpie } from "@arkecosystem/core-utils";
-import { models } from "@arkecosystem/crypto";
+import { ICurrentRound, IForgingTransactions, IResponse, NetworkState } from "@arkecosystem/core-p2p";
+import { httpie, IHttpieResponse } from "@arkecosystem/core-utils";
+import { ITransactionData, models } from "@arkecosystem/crypto";
 import { URL } from "url";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
@@ -45,14 +45,14 @@ export class Client {
     /**
      * Send the given block to the relay.
      */
-    public async broadcast(block: models.IBlockData): Promise<any> {
+    public async broadcast(block: models.IBlockData): Promise<void> {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
             } transactions to ${this.host}`,
         );
 
-        return this.post(`${this.host}/internal/blocks`, { block });
+        await this.post(`${this.host}/internal/blocks`, { block });
     }
 
     /**
@@ -66,9 +66,9 @@ export class Client {
     /**
      * Get the current round.
      */
-    public async getRound(): Promise<any> {
+    public async getRound(): Promise<ICurrentRound> {
         await this.selectHost();
-        const response = await this.get(`${this.host}/internal/rounds/current`);
+        const response = await this.get<IResponse<ICurrentRound>>(`${this.host}/internal/rounds/current`);
         return response.body.data;
     }
 
@@ -76,25 +76,22 @@ export class Client {
      * Get the current network quorum.
      */
     public async getNetworkState(): Promise<NetworkState> {
-        const response = await this.get(`${this.host}/internal/network/state`, 4000);
+        const response = await this.get<IResponse<NetworkState>>(`${this.host}/internal/network/state`, 4000);
         return NetworkState.parse(response.body.data);
     }
 
     /**
      * Get all transactions that are ready to be forged.
      */
-    public async getTransactions(): Promise<{ transactions?: string[]; poolSize?: number }> {
-        const response = await this.get(`${this.host}/internal/transactions/forging`);
+    public async getTransactions(): Promise<IForgingTransactions> {
+        const response = await this.get<IResponse<IForgingTransactions>>(`${this.host}/internal/transactions/forging`);
         return response.body.data;
     }
 
     /**
      * Emit the given event and payload to the local host.
-     * @param  {String} event
-     * @param  {Object} body
-     * @return {Object}
      */
-    public async emitEvent(event: string, body: any): Promise<void> {
+    public async emitEvent(event: string, body: string | models.IBlockData | ITransactionData): Promise<void> {
         // NOTE: Events need to be emitted to the localhost. If you need to trigger
         // actions on a remote host based on events you should be using webhooks
         // that get triggered by the events you wish to react to.
@@ -104,7 +101,8 @@ export class Client {
         const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.includes(allowedHost)));
 
         if (!host) {
-            return this.logger.error("Was unable to find any local hosts.");
+            this.logger.error("emitEvent: unable to find any local hosts.");
+            return;
         }
 
         await this.post(`${host}/internal/utils/events`, { event, body });
@@ -131,7 +129,7 @@ export class Client {
         }
     }
 
-    private async get(url, timeout: number = 2000) {
+    private async get<T>(url, timeout: number = 2000): Promise<IHttpieResponse<T>> {
         try {
             return httpie.get(url, { headers: this.headers, timeout });
         } catch (error) {
@@ -139,7 +137,7 @@ export class Client {
         }
     }
 
-    private async post(url, body) {
+    private async post(url, body): Promise<IHttpieResponse<null>> {
         try {
             return httpie.post(url, { body, headers: this.headers, timeout: 2000 });
         } catch (error) {
