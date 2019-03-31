@@ -14,7 +14,7 @@ import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 const { Block } = models;
 const { SATOSHI, TransactionTypes } = constants;
 
-let connection: Database.IDatabaseConnection;
+let connection: Database.IConnection;
 let databaseService: DatabaseService;
 let walletManager: Database.IWalletManager;
 let container;

@@ -1,6 +1,6 @@
 export enum DatabaseEvents {
-    PRE_CONNECT = "database.pre_connect",
-    POST_CONNECT = "database.post_connect",
-    PRE_DISCONNECT = "database.pre_disconnect",
-    POST_DISCONNECT = "databse.post_disconnect",
+    PRE_CONNECT = "database.preConnect",
+    POST_CONNECT = "database.postConnect",
+    PRE_DISCONNECT = "database.preDisconnect",
+    POST_DISCONNECT = "database.postDisconnect",
 }

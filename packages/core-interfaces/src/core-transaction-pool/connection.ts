@@ -12,8 +12,10 @@ export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
     success: boolean;
 }
 
-export interface ITransactionPool {
+export interface IConnection {
     options: any;
+    loggedAllowedSenders: string[];
+    walletManager: any;
 
     make(): Promise<this>;
 

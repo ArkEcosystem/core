@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, Logger, TransactionPool as transanctionPool } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import {
     configManager,
@@ -10,20 +10,19 @@ import {
     Transaction,
 } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { TransactionPool } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 
-export class TransactionGuard implements transanctionPool.ITransactionGuard {
+export class TransactionGuard implements TransactionPool.IGuard {
     public transactions: ITransactionData[] = [];
     public excess: string[] = [];
     public accept: Map<string, Transaction> = new Map();
     public broadcast: Map<string, Transaction> = new Map();
     public invalid: Map<string, ITransactionData> = new Map();
-    public errors: { [key: string]: transanctionPool.ITransactionErrorResponse[] } = {};
+    public errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(public pool: TransactionPool) {}
+    constructor(public pool: TransactionPool.IConnection) {}
 
-    public async validate(transactions: ITransactionData[]): Promise<transanctionPool.IValidationResult> {
+    public async validate(transactions: ITransactionData[]): Promise<TransactionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -225,7 +224,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
      */
     public __addTransactionsToPool() {
         // Add transactions to the transaction pool
-        const { added, notAdded } = this.pool.addTransactions(Array.from(this.accept.values()));
+        const { notAdded } = this.pool.addTransactions(Array.from(this.accept.values()));
 
         // Exclude transactions which were refused from the pool
         notAdded.forEach(item => {
@@ -236,7 +235,7 @@ export class TransactionGuard implements transanctionPool.ITransactionGuard {
                 this.broadcast.delete(item.transaction.id);
             }
 
-            this.pushError(item.transaction, item.type, item.message);
+            this.pushError(item.transaction.data, item.type, item.message);
         });
     }
 
