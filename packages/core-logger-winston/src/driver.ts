@@ -2,6 +2,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import "colors";
 import * as winston from "winston";
+import { ITransport, ITransportStream } from "./interfaces";
 
 export class WinstonLogger extends AbstractLogger {
     protected logger: winston.Logger;
@@ -15,7 +16,9 @@ export class WinstonLogger extends AbstractLogger {
     }
 
     public suppressConsoleOutput(suppress: boolean): void {
-        const consoleTransport = this.logger.transports.find((t: any) => t.name === "console");
+        const consoleTransport = this.logger.transports.find(
+            (transport: ITransportStream) => transport.name === "console",
+        );
 
         if (consoleTransport) {
             consoleTransport.silent = suppress;
@@ -23,17 +26,14 @@ export class WinstonLogger extends AbstractLogger {
     }
 
     private registerTransports(): void {
-        for (const transport of Object.values(this.options.transports)) {
-            // @ts-ignore
+        const transports: ITransport[] = Object.values(this.options.transports);
+
+        for (const transport of transports) {
             if (transport.package) {
-                // @ts-ignore
                 require(transport.package);
             }
 
-            this.logger.add(
-                // @ts-ignore
-                new winston.transports[transport.constructor](transport.options),
-            );
+            this.logger.add(new winston.transports[transport.constructor](transport.options));
         }
     }
 }
