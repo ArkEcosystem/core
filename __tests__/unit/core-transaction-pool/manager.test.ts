@@ -1,8 +1,7 @@
-import "jest-extended";
 import { ConnectionManager } from "../../../packages/core-transaction-pool/src/manager";
 import { Connection } from "./__stubs__/connection";
 
-const manager = new ConnectionManager();
+const manager: ConnectionManager = new ConnectionManager();
 
 describe("Transaction Pool Manager", () => {
     describe("connection", () => {
