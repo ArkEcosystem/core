@@ -3,19 +3,19 @@ import { ConnectionFactory } from "./factory";
 
 export class ConnectionManager {
     private readonly factory: ConnectionFactory = new ConnectionFactory();
-    private readonly connections: Map<string, TransactionPool.ITransactionPool> = new Map<
+    private readonly connections: Map<string, TransactionPool.IConnection> = new Map<
         string,
-        TransactionPool.ITransactionPool
+        TransactionPool.IConnection
     >();
 
-    public connection(name = "default"): TransactionPool.ITransactionPool {
+    public connection(name = "default"): TransactionPool.IConnection {
         return this.connections.get(name);
     }
 
     public async createConnection(
-        connection: TransactionPool.ITransactionPool,
+        connection: TransactionPool.IConnection,
         name = "default",
-    ): Promise<TransactionPool.ITransactionPool> {
+    ): Promise<TransactionPool.IConnection> {
         this.connections.set(name, await this.factory.make(connection));
 
         return this.connection(name);

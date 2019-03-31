@@ -3,7 +3,7 @@ import { Dato } from "@faustbrian/dato";
 
 import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 
-export class Connection implements TransactionPool.ITransactionPool {
+export class Connection implements TransactionPool.IConnection {
     public options: any;
 
     public async make(): Promise<this> {
