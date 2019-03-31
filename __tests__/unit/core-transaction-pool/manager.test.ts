@@ -1,24 +1,20 @@
-import "jest-extended";
-import { transactionPoolManager } from "../../../packages/core-transaction-pool/src/manager";
+import { ConnectionManager } from "../../../packages/core-transaction-pool/src/manager";
+import { Connection } from "./__stubs__/connection";
 
-class FakeDriver {
-    public make() {
-        return this;
-    }
-}
+const manager: ConnectionManager = new ConnectionManager();
 
 describe("Transaction Pool Manager", () => {
     describe("connection", () => {
         it("should return the drive-connection", async () => {
-            await transactionPoolManager.makeConnection(new FakeDriver());
+            await manager.createConnection(new Connection());
 
-            expect(transactionPoolManager.connection()).toBeInstanceOf(FakeDriver);
+            expect(manager.connection()).toBeInstanceOf(Connection);
         });
 
         it("should return the drive-connection for a different name", async () => {
-            await transactionPoolManager.makeConnection(new FakeDriver(), "testing");
+            await manager.createConnection(new Connection(), "testing");
 
-            expect(transactionPoolManager.connection("testing")).toBeInstanceOf(FakeDriver);
+            expect(manager.connection("testing")).toBeInstanceOf(Connection);
         });
     });
 });
