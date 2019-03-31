@@ -3,21 +3,9 @@
     "jobs": {
         "test-node10-unit": {
             "working_directory": "~/core",
-            "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
-            },
             "docker": [
                 {
                     "image": "circleci/node:10-browsers"
-                },
-                {
-                    "image": "postgres:alpine",
-                    "environment": {
-                        "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
-                    }
                 }
             ],
             "steps": [
@@ -30,8 +18,8 @@
                 },
                 {
                     "run": {
-                        "name": "Install xsel & postgresql-client",
-                        "command": "sudo apt-get install -q xsel postgresql-client"
+                        "name": "Install xsel",
+                        "command": "sudo apt-get install -q xsel"
                     }
                 },
                 {
@@ -92,21 +80,9 @@
         },
         "test-node11-unit": {
             "working_directory": "~/core",
-            "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
-            },
             "docker": [
                 {
                     "image": "circleci/node:11-browsers"
-                },
-                {
-                    "image": "postgres:alpine",
-                    "environment": {
-                        "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
-                    }
                 }
             ],
             "steps": [
@@ -119,8 +95,8 @@
                 },
                 {
                     "run": {
-                        "name": "Install xsel & postgresql-client",
-                        "command": "sudo apt-get install -q xsel postgresql-client"
+                        "name": "Install xsel",
+                        "command": "sudo apt-get install -q xsel"
                     }
                 },
                 {
