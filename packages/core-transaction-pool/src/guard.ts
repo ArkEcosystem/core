@@ -12,7 +12,7 @@ import {
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 
-export class TransactionGuard implements TransactionPool.ITransactionGuard {
+export class TransactionGuard implements TransactionPool.IGuard {
     public transactions: ITransactionData[] = [];
     public excess: string[] = [];
     public accept: Map<string, Transaction> = new Map();
