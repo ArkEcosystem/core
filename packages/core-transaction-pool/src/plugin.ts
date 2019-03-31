@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Container, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { config } from "./config";
 import { Connection } from "./connection";
 import { defaults } from "./defaults";
@@ -20,6 +20,6 @@ export const plugin: Container.PluginDescriptor = {
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Disconnecting from transaction pool");
 
-        return container.resolvePlugin<Connection>("transaction-pool").disconnect();
+        return container.resolvePlugin<TransactionPool.IConnection>("transaction-pool").disconnect();
     },
 };
