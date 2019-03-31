@@ -32,32 +32,38 @@ export class HttpieError extends Error {
     }
 }
 
+export interface IHttpieResponse<T> {
+    body: T;
+    headers: { [key: string]: string };
+    status: number;
+}
+
 class Httpie {
-    public async get(url: string, opts?): Promise<any> {
+    public async get<T = any>(url: string, opts?): Promise<IHttpieResponse<T>> {
         return this.sendRequest("get", url, opts);
     }
 
-    public async post(url: string, opts?): Promise<any> {
+    public async post<T = any>(url: string, opts?): Promise<IHttpieResponse<T>> {
         return this.sendRequest("post", url, opts);
     }
 
-    public async put(url: string, opts?): Promise<any> {
+    public async put<T = any>(url: string, opts?): Promise<IHttpieResponse<T>> {
         return this.sendRequest("put", url, opts);
     }
 
-    public async patch(url: string, opts?): Promise<any> {
+    public async patch<T = any>(url: string, opts?): Promise<IHttpieResponse<T>> {
         return this.sendRequest("patch", url, opts);
     }
 
-    public async head(url: string, opts?): Promise<any> {
+    public async head<T = any>(url: string, opts?): Promise<IHttpieResponse<T>> {
         return this.sendRequest("head", url, opts);
     }
 
-    public async delete(url: string, opts?): Promise<any> {
+    public async delete<T = any>(url: string, opts?): Promise<IHttpieResponse<T>> {
         return this.sendRequest("delete", url, opts);
     }
 
-    private async sendRequest(method: string, url: string, opts?): Promise<any> {
+    private async sendRequest<T>(method: string, url: string, opts?): Promise<IHttpieResponse<T>> {
         if (!opts) {
             opts = {};
         }

@@ -3,7 +3,7 @@ import { CappedSet } from "./capped-set";
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
-import { httpie } from "./httpie";
+import { httpie, IHttpieResponse } from "./httpie";
 import { NSect } from "./nsect";
 import { calculateRound, isNewRound } from "./round-calculator";
 import { calculate } from "./supply-calculator";
@@ -18,6 +18,7 @@ export {
     bignumify,
     delegateCalculator,
     formatTimestamp,
+    IHttpieResponse,
     httpie,
     hasSomeProperty,
     roundCalculator,
