@@ -187,7 +187,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param height
      * @return {Array}
      */
-    public loadActiveDelegateList(maxDelegates: number, height?: number): any[] {
+    public loadActiveDelegateList(maxDelegates: number, height?: number): Database.IDelegateWallet[] {
         if (height > 1 && height % maxDelegates !== 1) {
             throw new Error("Trying to build delegates outside of round change");
         }
@@ -252,7 +252,7 @@ export class WalletManager implements Database.IWalletManager {
 
         this.logger.debug(`Loaded ${delegates.length} active ${pluralize("delegate", delegates.length)}`);
 
-        return delegates;
+        return delegates as Database.IDelegateWallet[];
     }
 
     /**

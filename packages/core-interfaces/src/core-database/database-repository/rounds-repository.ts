@@ -5,7 +5,6 @@ export interface IRound {
     publicKey: string;
     balance: string;
     round: number;
-    username?: string;
 }
 
 export interface IRoundsRepository extends IRepository {

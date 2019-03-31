@@ -9,9 +9,9 @@ export interface ICurrentRound {
     current: number;
     reward: string;
     timestamp: number;
-    delegates: Database.IRound[];
-    currentForger: Database.IRound;
-    nextForger: Database.IRound;
+    delegates: Database.IDelegateWallet[];
+    currentForger: Database.IDelegateWallet;
+    nextForger: Database.IDelegateWallet;
     lastBlock: models.IBlockData;
     canForge: boolean;
 }
