@@ -533,36 +533,4 @@ export class Blockchain implements blockchain.IBlockchain {
     public pushPingBlock(block: models.IBlockData) {
         this.state.pushPingBlock(block);
     }
-
-    /**
-     * Get the list of events that are available.
-     * @return {Array}
-     */
-    public getEvents() {
-        return [
-            "block.applied",
-            "block.forged",
-            "block.reverted",
-            "block.received",
-            "block.disregarded",
-            "delegate.registered",
-            "delegate.resigned",
-            "forger.failed",
-            "forger.missing",
-            "forger.started",
-            "peer.added",
-            "peer.removed",
-            "round.created",
-            "state:started",
-            "transaction.applied",
-            "transaction.expired",
-            "transaction.forged",
-            "transaction.reverted",
-            "transaction.pool.added",
-            "transaction.pool.rejected",
-            "transaction.pool.removed",
-            "wallet.saved",
-            "wallet.created.cold",
-        ];
-    }
 }

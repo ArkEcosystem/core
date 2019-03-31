@@ -297,36 +297,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("getEvents", () => {
-        it("should return the events", () => {
-            expect(blockchain.getEvents()).toEqual([
-                "block.applied",
-                "block.forged",
-                "block.reverted",
-                "block.received",
-                "block.disregarded",
-                "delegate.registered",
-                "delegate.resigned",
-                "forger.failed",
-                "forger.missing",
-                "forger.started",
-                "peer.added",
-                "peer.removed",
-                "round.created",
-                "state:started",
-                "transaction.applied",
-                "transaction.expired",
-                "transaction.forged",
-                "transaction.reverted",
-                "transaction.pool.added",
-                "transaction.pool.rejected",
-                "transaction.pool.removed",
-                "wallet.saved",
-                "wallet.created.cold",
-            ]);
-        });
-    });
-
     describe("constructor - networkStart", () => {
         it("should output log messages if launched in networkStart mode", async () => {
             const loggerWarn = jest.spyOn(logger, "warn");
