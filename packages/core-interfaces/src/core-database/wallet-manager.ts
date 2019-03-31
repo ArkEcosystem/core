@@ -21,6 +21,8 @@ export interface IWallet {
     verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean;
 }
 
+export type IDelegateWallet = IWallet & { rate: number; round: number };
+
 export interface IWalletManager {
     logger: Logger.ILogger;
 
@@ -48,7 +50,7 @@ export interface IWalletManager {
 
     clear(): void;
 
-    loadActiveDelegateList(maxDelegateCount: number, height?: number): any[];
+    loadActiveDelegateList(maxDelegateCount: number, height?: number): IDelegateWallet[];
 
     buildVoteBalances(): void;
 
