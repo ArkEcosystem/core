@@ -10,7 +10,6 @@ import {
     Transaction,
 } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { Connection } from "./connection";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 
 export class TransactionGuard implements TransactionPool.ITransactionGuard {
@@ -21,7 +20,7 @@ export class TransactionGuard implements TransactionPool.ITransactionGuard {
     public invalid: Map<string, ITransactionData> = new Map();
     public errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(public pool: Connection) {}
+    constructor(public pool: TransactionPool.IConnection) {}
 
     public async validate(transactions: ITransactionData[]): Promise<TransactionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
@@ -225,7 +224,7 @@ export class TransactionGuard implements TransactionPool.ITransactionGuard {
      */
     public __addTransactionsToPool() {
         // Add transactions to the transaction pool
-        const { added, notAdded } = this.pool.addTransactions(Array.from(this.accept.values()));
+        const { notAdded } = this.pool.addTransactions(Array.from(this.accept.values()));
 
         // Exclude transactions which were refused from the pool
         notAdded.forEach(item => {
@@ -236,7 +235,7 @@ export class TransactionGuard implements TransactionPool.ITransactionGuard {
                 this.broadcast.delete(item.transaction.id);
             }
 
-            this.pushError(item.transaction, item.type, item.message);
+            this.pushError(item.transaction.data, item.type, item.message);
         });
     }
 

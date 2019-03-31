@@ -14,6 +14,8 @@ export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
 
 export interface IConnection {
     options: any;
+    loggedAllowedSenders: string[];
+    walletManager: any;
 
     make(): Promise<this>;
 
