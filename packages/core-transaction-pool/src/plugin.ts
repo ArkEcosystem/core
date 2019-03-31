@@ -20,6 +20,6 @@ export const plugin: Container.PluginDescriptor = {
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Disconnecting from transaction pool");
 
-        return container.resolvePlugin<TransactionPool>("transaction-pool").disconnect();
+        return container.resolvePlugin<Connection>("transaction-pool").disconnect();
     },
 };
