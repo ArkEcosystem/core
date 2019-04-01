@@ -1,3 +1,12 @@
+import { Dato } from "@faustbrian/dato";
+
+export interface ISuspension {
+    peer: any;
+    reason: string;
+    until: Dato;
+    nextSuspensionReminder?: Dato;
+}
+
 export interface INetworkStatus {
     forked: boolean;
     blocksToRollback?: number;
@@ -122,8 +131,8 @@ export interface IMonitor {
     checkNetworkHealth(): Promise<INetworkStatus>;
 
     /**
-     * Dump the list of active peers.
+     * Cache the list of active peers.
      * @return {void}
      */
-    dumpPeers(): void;
+    cachePeers(): void;
 }

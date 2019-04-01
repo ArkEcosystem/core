@@ -61,12 +61,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("checkNetwork", () => {
-        it("should throw an exception", () => {
-            expect(() => blockchain.checkNetwork()).toThrow("Method [checkNetwork] not implemented!");
-        });
-    });
-
     describe("updateNetworkStatus", () => {
         it("should call p2p updateNetworkStatus", async () => {
             const p2pUpdateNetworkStatus = jest.spyOn(blockchain.p2p, "updateNetworkStatus");

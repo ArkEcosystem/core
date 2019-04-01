@@ -2,7 +2,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import snakeCase from "lodash.snakecase";
 
 export class SearchParameterConverter implements Database.ISearchParameterConverter {
-    constructor(private databaseModel: Database.IDatabaseModel) {}
+    constructor(private databaseModel: Database.IModel) {}
 
     public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.SearchParameters {
         const searchParameters: Database.SearchParameters = {

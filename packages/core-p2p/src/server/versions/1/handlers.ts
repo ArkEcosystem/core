@@ -76,17 +76,15 @@ export const getCommonBlocks = {
             };
         }
 
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-
         const ids = request.query.ids.split(",").filter(id => AjvWrapper.instance().validate({ blockId: {} }, id));
 
         try {
-            const commonBlocks = await blockchain.database.getCommonBlocks(ids);
+            const commonBlocks = await app.resolvePlugin<Database.IDatabaseService>("database").getCommonBlocks(ids);
 
             return {
                 success: true,
                 common: commonBlocks.length ? commonBlocks[0] : null,
-                lastBlockHeight: blockchain.getLastBlock().data.height,
+                lastBlockHeight: app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock().data.height,
             };
         } catch (error) {
             return h

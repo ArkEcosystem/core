@@ -51,8 +51,8 @@ export class UnchainedHandler extends BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
     public constructor(
-        protected blockchain: Blockchain,
-        protected block: models.Block,
+        protected readonly blockchain: Blockchain,
+        protected readonly block: models.Block,
         private isValidGenerator: boolean,
     ) {
         super(blockchain, block);

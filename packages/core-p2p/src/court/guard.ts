@@ -1,61 +1,42 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { dato, Dato } from "@faustbrian/dato";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { dato } from "@faustbrian/dato";
 import head from "lodash.head";
 import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
-
 import { config as localConfig } from "../config";
 import { offences } from "./offences";
 
-export interface ISuspension {
-    peer: any;
-    reason: string;
-    until: Dato;
-    nextSuspensionReminder?: Dato;
-}
-
 export class Guard {
-    public readonly suspensions: { [ip: string]: ISuspension };
     public config: any;
     public monitor: any;
+    public suspensions: { [ip: string]: P2P.ISuspension };
 
     private readonly appConfig = app.getConfig();
     private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    /**
-     * Create a new guard instance.
-     */
     constructor() {
         this.suspensions = {};
         this.config = localConfig;
     }
 
-    /**
-     * Initialise a new guard.
-     * @param {IMonitor} monitor
-     */
-    public init(monitor) {
+    public init(monitor: P2P.IMonitor) {
         this.monitor = monitor;
 
         return this;
     }
 
-    /**
-     * Get a list of all suspended peers.
-     * @return {Object}
-     */
     public all() {
         return this.suspensions;
     }
 
-    /**
-     * Get the suspended peer for the give IP.
-     * @return {Object}
-     */
-    public get(ip) {
+    public get(ip: string) {
         return this.suspensions[ip];
+    }
+
+    public delete(ip: string): void {
+        delete this.suspensions[ip];
     }
 
     /**

@@ -23,6 +23,8 @@ export interface PluginConfig<T> {
 }
 
 export interface IContainer {
+    config: any;
+
     silentShutdown: boolean;
 
     isReady: boolean;

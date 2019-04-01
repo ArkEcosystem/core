@@ -35,7 +35,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the network (p2p) interface.
      * @return {P2PInterface}
      */
-    get p2p() {
+    get p2p(): P2P.IMonitor {
         return app.resolvePlugin<P2P.IMonitor>("p2p");
     }
 
@@ -43,7 +43,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the transaction handler.
      * @return {TransactionPool}
      */
-    get transactionPool() {
+    get transactionPool(): TransactionPool.IConnection {
         return app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
     }
 
@@ -51,7 +51,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    get database() {
+    get database(): Database.IDatabaseService {
         return app.resolvePlugin<Database.IDatabaseService>("database");
     }
 
@@ -98,7 +98,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {String} event
      * @return {void}
      */
-    public dispatch(event) {
+    public dispatch(event): void {
         const nextState = stateMachine.transition(this.state.blockchain, event);
 
         if (nextState.actions.length > 0) {
@@ -134,7 +134,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Start the blockchain and wait for it to be ready.
      * @return {void}
      */
-    public async start(skipStartedCheck = false) {
+    public async start(skipStartedCheck = false): Promise<boolean> {
         logger.info("Starting Blockchain Manager :chains:");
 
         this.dispatch("START");
@@ -155,7 +155,7 @@ export class Blockchain implements blockchain.IBlockchain {
         return true;
     }
 
-    public async stop() {
+    public async stop(): Promise<void> {
         if (!this.isStopped) {
             logger.info("Stopping Blockchain Manager :chains:");
 
@@ -168,14 +168,10 @@ export class Blockchain implements blockchain.IBlockchain {
         }
     }
 
-    public checkNetwork() {
-        throw new Error("Method [checkNetwork] not implemented!");
-    }
-
     /**
      * Set wakeup timeout to check the network for new blocks.
      */
-    public setWakeUp() {
+    public setWakeUp(): void {
         this.state.wakeUpTimeout = setTimeout(() => {
             this.state.wakeUpTimeout = null;
             return this.dispatch("WAKEUP");
@@ -185,7 +181,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Reset the wakeup timeout.
      */
-    public resetWakeUp() {
+    public resetWakeUp(): void {
         this.state.clearWakeUpTimeout();
         this.setWakeUp();
     }
@@ -194,15 +190,15 @@ export class Blockchain implements blockchain.IBlockchain {
      * Update network status.
      * @return {void}
      */
-    public async updateNetworkStatus() {
-        return this.p2p.updateNetworkStatus();
+    public async updateNetworkStatus(): Promise<void> {
+        await this.p2p.updateNetworkStatus();
     }
 
     /**
      * Reset the state of the blockchain.
      * @return {void}
      */
-    public resetState() {
+    public resetState(): void {
         this.clearAndStopQueue();
         this.state.reset();
     }
@@ -211,7 +207,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Clear and stop the queue.
      * @return {void}
      */
-    public clearAndStopQueue() {
+    public clearAndStopQueue(): void {
         this.state.lastDownloadedBlock = this.getLastBlock();
 
         this.queue.pause();
@@ -222,14 +218,14 @@ export class Blockchain implements blockchain.IBlockchain {
      * Clear the queue.
      * @return {void}
      */
-    public clearQueue() {
+    public clearQueue(): void {
         this.queue.remove(() => true);
     }
 
     /**
      * Hand the given transactions to the transaction handler.
      */
-    public async postTransactions(transactions: Transaction[]) {
+    public async postTransactions(transactions: Transaction[]): Promise<void> {
         logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
 
         await this.transactionPool.addTransactions(transactions);
@@ -240,7 +236,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Block} block
      * @return {void}
      */
-    public handleIncomingBlock(block) {
+    public handleIncomingBlock(block): void {
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
                 "transaction",
@@ -271,7 +267,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Enqueue blocks in process queue and set last downloaded block to last item in list.
      */
-    public enqueueBlocks(blocks: any[]) {
+    public enqueueBlocks(blocks: any[]): void {
         if (blocks.length === 0) {
             return;
         }
@@ -284,7 +280,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Rollback all blocks up to the previous round.
      * @return {void}
      */
-    public async rollbackCurrentRound() {
+    public async rollbackCurrentRound(): Promise<void> {
         const height = this.state.getLastBlock().data.height;
         const maxDelegates = config.getMilestone(height).activeDelegates;
         const previousRound = Math.floor((height - 1) / maxDelegates);
@@ -334,7 +330,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Number} nblocks
      * @return {void}
      */
-    public async removeBlocks(nblocks) {
+    public async removeBlocks(nblocks: number): Promise<void> {
         this.clearAndStopQueue();
 
         // If the current chain height is H and we will be removing blocks [N, H],
@@ -395,7 +391,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Number} count
      * @return {void}
      */
-    public async removeTopBlocks(count) {
+    public async removeTopBlocks(count: number): Promise<void> {
         const blocks = await this.database.getTopBlocks(count);
 
         logger.info(
@@ -420,7 +416,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block: models.Block, callback) {
+    public async processBlock(block: models.Block, callback): Promise<any> {
         const result = await this.blockProcessor.process(block);
 
         if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
@@ -437,7 +433,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Reset the last downloaded block to last chained block.
      */
-    public resetLastDownloadedBlock() {
+    public resetLastDownloadedBlock(): void {
         this.state.lastDownloadedBlock = this.getLastBlock();
     }
 
@@ -445,7 +441,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Called by forger to wake up and sync with the network.
      * It clears the wakeUpTimeout if set.
      */
-    public forceWakeup() {
+    public forceWakeup(): void {
         this.state.clearWakeUpTimeout();
         this.dispatch("WAKEUP");
     }
@@ -469,7 +465,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @param  {Boolean} forForging
      * @return {Object}
      */
-    public getUnconfirmedTransactions(blockSize) {
+    public getUnconfirmedTransactions(blockSize: number): { transactions: string[]; poolSize: number; count: number } {
         const transactions = this.transactionPool.getTransactionsForForging(blockSize);
 
         return {
@@ -516,7 +512,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the block ping.
      */
-    public getBlockPing() {
+    public getBlockPing(): number {
         return this.state.blockPing;
     }
 
@@ -530,7 +526,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: models.IBlockData) {
+    public pushPingBlock(block: models.IBlockData): void {
         this.state.pushPingBlock(block);
     }
 }

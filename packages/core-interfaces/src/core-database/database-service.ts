@@ -112,5 +112,5 @@ export interface IDatabaseService {
 
     getBlocksForRound(round?: number): Promise<models.Block[]>;
 
-    getCommonBlocks(ids: string[]): Promise<any[]>;
+    getCommonBlocks(ids: string[]): Promise<models.IBlockData[]>;
 }

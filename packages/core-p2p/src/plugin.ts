@@ -27,7 +27,7 @@ export const plugin: Container.PluginDescriptor = {
         container.resolvePlugin<Logger.ILogger>("logger").info("Stopping P2P Interface");
 
         const p2p = container.resolvePlugin<Monitor>("p2p");
-        p2p.dumpPeers();
+        p2p.cachePeers();
 
         return p2p.server.stop();
     },

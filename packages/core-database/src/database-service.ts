@@ -317,7 +317,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return new Block(block);
     }
 
-    public async getCommonBlocks(ids: string[]) {
+    public async getCommonBlocks(ids: string[]): Promise<models.IBlockData[]> {
         const state = app.resolve("state");
         let commonBlocks = state.getCommonBlocks(ids);
         if (commonBlocks.length < ids.length) {

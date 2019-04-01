@@ -1,3 +1,4 @@
+import { Container } from "@arkecosystem/core-interfaces";
 import { asValue } from "awilix";
 import Hoek from "hoek";
 import isString from "lodash.isstring";
@@ -9,12 +10,7 @@ export class PluginRegistrar {
     private options: any;
     private deregister: any;
 
-    /**
-     * Create a new plugin manager instance.
-     * @param  {IContainer} container
-     * @param  {Object} options
-     */
-    constructor(container, options: any = {}) {
+    constructor(container: Container.IContainer, options: Record<string, any> = {}) {
         this.container = container;
         this.plugins = container.config.get("plugins");
         this.options = this.__castOptions(options);

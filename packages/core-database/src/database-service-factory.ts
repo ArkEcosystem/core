@@ -7,7 +7,7 @@ import { WalletsBusinessRepository } from "./repositories/wallets-business-repos
 
 // Allow extenders of core-database to provide, optionally, a IWalletManager concrete in addition to a IConnection, but keep the business repos common
 export const databaseServiceFactory = async (
-    opts: any,
+    opts: Record<string, any>,
     walletManager: Database.IWalletManager,
     connection: Database.IConnection,
 ): Promise<Database.IDatabaseService> => {

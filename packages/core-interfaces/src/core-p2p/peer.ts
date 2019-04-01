@@ -1,14 +1,14 @@
 import { models, Transaction } from "@arkecosystem/crypto";
 
 export interface IPeer {
-    setHeaders(headers: any): void;
+    setHeaders(headers: Record<string, any>): void;
 
     /**
      * Set the given status for the peer.
      * @param  {String} value
      * @return {void}
      */
-    setStatus(value: any): void;
+    setStatus(value: string | number): void;
 
     /**
      * Get information to broadcast.

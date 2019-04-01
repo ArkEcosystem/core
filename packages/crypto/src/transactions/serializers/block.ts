@@ -37,7 +37,7 @@ class BlockSerializer {
         return buffer.flip().toBuffer();
     }
 
-    private serializeHeader(block: IBlockData, buffer: ByteBuffer): any {
+    private serializeHeader(block: IBlockData, buffer: ByteBuffer): void {
         const constants = configManager.getMilestone(block.height - 1);
 
         if (constants.block.idFullSha256) {
@@ -62,7 +62,7 @@ class BlockSerializer {
         buffer.append(block.generatorPublicKey, "hex");
     }
 
-    private serializeSignature(block: IBlockData, buffer: ByteBuffer): any {
+    private serializeSignature(block: IBlockData, buffer: ByteBuffer): void {
         if (block.blockSignature) {
             buffer.append(block.blockSignature, "hex");
         }
