@@ -117,7 +117,7 @@ export class TransactionFactory {
     }
 
     public build(quantity: number = 1): Transaction[] {
-        if (this.passphraseList.length) {
+        if (this.passphraseList && this.passphraseList.length) {
             return this.passphraseList.map(
                 (passphrase: string) => this.withPassphrase(passphrase).make<Transaction>(quantity, "build")[0],
             );
