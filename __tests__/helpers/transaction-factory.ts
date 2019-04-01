@@ -1,4 +1,11 @@
-import { configManager, constants, ITransactionData, NetworkName, transactionBuilder } from "@arkecosystem/crypto";
+import {
+    configManager,
+    constants,
+    ITransactionData,
+    NetworkName,
+    Transaction,
+    transactionBuilder,
+} from "@arkecosystem/crypto";
 import { Address, PublicKey } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
 import { secrets } from "../utils/config/testnet/delegates.json";
@@ -92,9 +99,17 @@ export class TransactionFactory {
     }
 
     public create(quantity: number = 1): ITransactionData[] {
+        return this.make<ITransactionData>(quantity, "getStruct");
+    }
+
+    public build(quantity: number = 1): Transaction[] {
+        return this.make<Transaction>(quantity, "build");
+    }
+
+    private make<T>(quantity: number, method: string): T[] {
         configManager.setFromPreset(this.network);
 
-        const transactions: ITransactionData[] = [];
+        const transactions: T[] = [];
 
         for (let i = 0; i < quantity; i++) {
             if (this.fee) {
@@ -107,7 +122,7 @@ export class TransactionFactory {
                 this.builder.secondSign(this.secondPassphrase);
             }
 
-            transactions.push(this.builder.getStruct());
+            transactions.push(this.builder[method]());
         }
 
         return transactions;

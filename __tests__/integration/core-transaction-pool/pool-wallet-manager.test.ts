@@ -2,12 +2,12 @@ import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, models } from "@arkecosystem/crypto";
 import bip39 from "bip39";
-import { generators } from "../../utils";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
+import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { Block } = models;
-const { generateTransfer, generateWallets, generateDelegateRegistration, generateVote } = generators;
 
 const satoshi = 10 ** 8;
 let container: Container.IContainer;
@@ -29,7 +29,10 @@ afterAll(async () => {
 
 describe("canApply", () => {
     it("should add an error for delegate registration when username is already taken", () => {
-        const delegateReg = generateDelegateRegistration("unitnet", wallets[11].passphrase, 1, false, "genesis_11")[0];
+        const delegateReg = TransactionFactory.delegateRegistration("genesis_11")
+            .withNetwork("unitnet")
+            .withPassphrase(wallets[11].passphrase)
+            .build()[0];
         const errors = [];
 
         expect(poolWalletManager.canApply(delegateReg, errors)).toBeFalse();
@@ -41,7 +44,10 @@ describe("canApply", () => {
     });
 
     it("should add an error when voting for a delegate that doesn't exist", () => {
-        const vote = generateVote("unitnet", wallets[11].passphrase, wallets[12].keys.publicKey, 1)[0];
+        const vote = TransactionFactory.vote(wallets[12].keys.publicKey)
+            .withNetwork("unitnet")
+            .withPassphrase(wallets[11].passphrase)
+            .create()[0];
         const errors = [];
 
         expect(poolWalletManager.canApply(vote, errors)).toBeFalse();
@@ -63,7 +69,10 @@ describe("applyPoolTransactionToSender", () => {
             expect(+newWallet.balance).toBe(0);
 
             const amount1 = 123 * 10 ** 8;
-            const transfer = generateTransfer("unitnet", delegate0.secret, newAddress, amount1, 1)[0];
+            const transfer = TransactionFactory.transfer(newAddress, amount1)
+                .withNetwork("unitnet")
+                .withPassphrase(delegate0.secret)
+                .build()[0];
 
             const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
             transactionHandler.applyToSender(transfer, delegateWallet);
@@ -85,7 +94,11 @@ describe("applyPoolTransactionToSender", () => {
 
             const amount1 = 123 * 10 ** 8;
             const fee = 10;
-            const transfer = generateTransfer("unitnet", delegate0.secret, newAddress, amount1, 1, false, fee)[0];
+            const transfer = TransactionFactory.transfer(newAddress, amount1)
+                .withNetwork("unitnet")
+                .withFee(fee)
+                .withPassphrase(delegate0.secret)
+                .build()[0];
 
             const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
             transactionHandler.applyToSender(transfer, delegateWallet);
@@ -122,7 +135,10 @@ describe("applyPoolTransactionToSender", () => {
             ];
 
             transfers.forEach(t => {
-                const transfer = generateTransfer("unitnet", t.from.passphrase, t.to.address, t.amount, 1)[0];
+                const transfer = TransactionFactory.transfer(t.to.address, t.amount)
+                    .withNetwork("unitnet")
+                    .withPassphrase(t.from.passphrase)
+                    .build()[0];
                 const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
@@ -167,14 +183,10 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         const wallet = generateWallets("unitnet", 1)[0];
         const transferAmount = 1234;
         const transferDelegate = delegates[4];
-        const transfer = generateTransfer(
-            "unitnet",
-            transferDelegate.passphrase,
-            wallet.address,
-            transferAmount,
-            1,
-            true,
-        )[0];
+        const transfer = TransactionFactory.transfer(wallet.address, transferAmount)
+            .withNetwork("unitnet")
+            .withPassphrase(transferDelegate.passphrase)
+            .create()[0];
 
         const totalFee = 0.1 * satoshi;
         const blockWithReward = {

@@ -12,14 +12,13 @@ import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
-import { generators } from "../../utils";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import { block2, delegates } from "../../utils/fixtures/unitnet";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { database as databaseService } from "./mocks/database";
 
 const { SATOSHI, TransactionTypes } = constants;
 const { Block } = models;
-const { generateTransfer } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 const maxTransactionAge = 4036608000;
 
@@ -864,9 +863,15 @@ describe("Connection", () => {
 
     describe("purgeSendersWithInvalidTransactions", () => {
         it("should purge transactions from sender when invalid", async () => {
-            const transfersA = generateTransfer("unitnet", delegatesSecrets[0], mockData.dummy1.data.recipientId, 1, 5);
+            const transfersA = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
+                .withNetwork("unitnet")
+                .withPassphrase(delegatesSecrets[0])
+                .create(5);
 
-            const transfersB = generateTransfer("unitnet", delegatesSecrets[1], mockData.dummy1.data.recipientId, 1, 1);
+            const transfersB = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
+                .withNetwork("unitnet")
+                .withPassphrase(delegatesSecrets[1])
+                .create();
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
@@ -895,13 +900,12 @@ describe("Connection", () => {
             const revertTransactionForSender = jest
                 .spyOn(connection.walletManager, "revertTransactionForSender")
                 .mockReturnValue();
-            const transactions = generateTransfer(
-                "unitnet",
-                delegatesSecrets[0],
-                mockData.dummy1.data.recipientId,
-                1,
-                5,
-            );
+
+            const transactions = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
+                .withNetwork("unitnet")
+                .withPassphrase(delegatesSecrets[0])
+                .create(5);
+
             const block = { transactions } as models.Block;
 
             addTransactions(block.transactions);

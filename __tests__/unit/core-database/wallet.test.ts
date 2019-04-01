@@ -2,8 +2,8 @@ import "jest-extended";
 
 import { Bignum, configManager, constants } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
-import { generators } from "../../utils";
-const { generateTransfer, generateDelegateRegistration, generateSecondSignature, generateVote } = generators;
+import { TransactionFactory } from "../../helpers/transaction-factory";
+
 const { SATOSHI, TransactionTypes } = constants;
 
 describe("Models - Wallet", () => {
@@ -140,7 +140,10 @@ describe("Models - Wallet", () => {
 
         const generateTransactionType = (type, asset = {}) => {
             // use 2nd signature as a base
-            const transaction = generateSecondSignature("devnet", "super secret passphrase", 1, true)[0];
+            const transaction = TransactionFactory.secondSignature()
+                .withNetwork("devnet")
+                .withPassphrase("super secret passphrase")
+                .create()[0];
             return Object.assign(transaction, { type, asset });
         };
 
@@ -150,14 +153,10 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for Transfer type", () => {
-            const transaction = generateTransfer(
-                "devnet",
-                "super secret passphrase",
-                "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-                SATOSHI,
-                1,
-                true,
-            )[0];
+            const transaction = TransactionFactory.transfer("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7")
+                .withNetwork("devnet")
+                .withPassphrase("super secret passphrase")
+                .create()[0];
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -170,7 +169,10 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for 2nd signature type", () => {
-            const transaction = generateSecondSignature("devnet", "super secret passphrase", 1, true)[0];
+            const transaction = TransactionFactory.secondSignature()
+                .withNetwork("devnet")
+                .withPassphrase("super secret passphrase")
+                .create()[0];
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -183,7 +185,10 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for delegate registration type", () => {
-            const transaction = generateDelegateRegistration("devnet", "super secret passphrase", 1, true)[0];
+            const transaction = TransactionFactory.delegateRegistration()
+                .withNetwork("devnet")
+                .withPassphrase("super secret passphrase")
+                .create()[0];
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -197,13 +202,12 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for vote type", () => {
-            const transaction = generateVote(
-                "devnet",
-                "super secret passphrase",
+            const transaction = TransactionFactory.vote(
                 "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
-                1,
-                true,
-            )[0];
+            )
+                .withNetwork("devnet")
+                .withPassphrase("super secret passphrase")
+                .create()[0];
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -310,14 +314,10 @@ describe("Models - Wallet", () => {
 
         describe("when wallet has multisignature", () => {
             it("should return correct audit data for Transfer type", () => {
-                const transaction = generateTransfer(
-                    "devnet",
-                    "super secret passphrase",
-                    "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-                    SATOSHI,
-                    1,
-                    true,
-                )[0];
+                const transaction = TransactionFactory.transfer("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7")
+                    .withNetwork("devnet")
+                    .withPassphrase("super secret passphrase")
+                    .create()[0];
                 testWallet.multisignature = {
                     keysgroup: [
                         "+02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d",
@@ -339,17 +339,13 @@ describe("Models - Wallet", () => {
 
         describe("when wallet has 2nd public key", () => {
             it("should return correct audit data for Transfer type", () => {
-                const transaction = generateTransfer(
-                    "devnet",
-                    {
+                const transaction = TransactionFactory.transfer("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7")
+                    .withNetwork("devnet")
+                    .withPassphrases({
                         passphrase: "super secret passphrase",
                         secondPassphrase: "super secret secondpassphrase",
-                    },
-                    "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-                    SATOSHI,
-                    1,
-                    true,
-                )[0];
+                    })
+                    .create()[0];
                 testWallet.secondPublicKey = "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d";
 
                 const audit = testWallet.auditApply(transaction);

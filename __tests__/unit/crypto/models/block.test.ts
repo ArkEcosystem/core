@@ -1,14 +1,12 @@
 import "jest-extended";
 
-import { generators } from "../../../utils";
-const { generateTransfer } = generators;
-
 import ByteBuffer from "bytebuffer";
 import { configManager, NetworkName } from "../../../../packages/crypto/src";
 import { slots } from "../../../../packages/crypto/src/crypto";
 import { Block, Delegate } from "../../../../packages/crypto/src/models";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { Bignum } from "../../../../packages/crypto/src/utils";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
@@ -91,14 +89,11 @@ describe("Models - Block", () => {
                 },
                 reward: new Bignum(0),
             };
-            const transactions = generateTransfer(
-                "devnet",
-                "super cool passphrase",
-                "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
-                10,
-                210,
-                true,
-            );
+            const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
+                .withNetwork("devnet")
+                .withFee(210)
+                .withPassphrase("super cool passphrase")
+                .create();
 
             const blockForged = delegate.forge(transactions, optionsDefault);
 
@@ -119,14 +114,10 @@ describe("Models - Block", () => {
                 },
                 reward: new Bignum(0),
             };
-            const transactions = generateTransfer(
-                "devnet",
-                "super cool passphrase",
-                "DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY",
-                10,
-                1,
-                true,
-            );
+            const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
+                .withNetwork("devnet")
+                .withPassphrase("super cool passphrase")
+                .create();
 
             const blockForged = delegate.forge([transactions[0], transactions[0]], optionsDefault);
 

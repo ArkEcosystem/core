@@ -1,9 +1,5 @@
 import "../../../../packages/core-jest-matchers/src/transactions/valid-second-signature";
 
-// import { generators } from "../../../utils";
-// const wallets = generators.generateWallets("testnet", 2);
-// const transaction = generators.generateTransfer("testnet", wallets.map(w => w.passphrase))[0];
-
 const wallets = [
     {
         address: "AWTRWfm2qdEwxbXnLXxQnviMywFGSHdgkn",

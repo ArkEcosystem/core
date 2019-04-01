@@ -7,12 +7,10 @@ import { Connection } from "../../../packages/core-transaction-pool/src/connecti
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";
 import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
-import { generators } from "../../utils";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, wallets } from "../../utils/fixtures/unitnet";
 import { database } from "./mocks/database";
 import { state } from "./mocks/state";
-
-const { generateDelegateRegistration, generateSecondSignature, generateTransfer, generateVote } = generators;
 
 let guard;
 let transactionPool;
@@ -33,14 +31,21 @@ beforeEach(async () => {
 describe("Transaction Guard", () => {
     describe("__cacheTransactions", () => {
         it("should add transactions to cache", () => {
-            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 3);
+            const transactions = TransactionFactory.transfer(wallets[11].address, 35)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[10].passphrase)
+                .create(3);
             jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
 
             expect(guard.__cacheTransactions(transactions)).toEqual(transactions);
         });
 
         it("should not add a transaction already in cache and add it as an error", () => {
-            const transactions = generateTransfer("unitnet", wallets[11].passphrase, wallets[12].address, 35, 3);
+            const transactions = TransactionFactory.transfer(wallets[12].address, 35)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[11].passphrase)
+                .create(3);
+
             jest.spyOn(state, "cacheTransactions")
                 .mockReturnValueOnce({ added: transactions, notAdded: [] })
                 .mockReturnValueOnce({ added: [], notAdded: [transactions[0]] });
@@ -60,7 +65,11 @@ describe("Transaction Guard", () => {
 
     describe("getBroadcastTransactions", () => {
         it("should return broadcast transaction", async () => {
-            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 25, 3);
+            const transactions = TransactionFactory.transfer(wallets[11].address, 25)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[10].passphrase)
+                .create(3);
+
             jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
 
             for (const tx of transactions) {
@@ -110,7 +119,10 @@ describe("Transaction Guard", () => {
         });
 
         it("should reject transactions that are too large", () => {
-            const tx = generateTransfer("unitnet", wallets[11].passphrase, wallets[12].address, 1, 3)[0];
+            const tx = TransactionFactory.transfer(wallets[12].address)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[11].passphrase)
+                .create(3)[0];
             tx.data.signatures = [""];
             for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
                 tx.data.signatures += "1";
@@ -227,7 +239,10 @@ describe("Transaction Guard", () => {
         });
 
         it("should not accept transaction if pool hasExceededMaxTransactions and add it to excess", () => {
-            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
+            const transactions = TransactionFactory.transfer(wallets[11].address, 35)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[10].passphrase)
+                .create(3);
 
             jest.spyOn(guard.pool, "hasExceededMaxTransactions").mockImplementationOnce(tx => true);
 
@@ -239,7 +254,10 @@ describe("Transaction Guard", () => {
         });
 
         it("should push a ERR_UNKNOWN error if something threw in validated transaction block", () => {
-            const transactions = generateTransfer("unitnet", wallets[10].passphrase, wallets[11].address, 35, 1);
+            const transactions = TransactionFactory.transfer(wallets[11].address, 35)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[10].passphrase)
+                .create(3);
 
             // use guard.accept.set() call to introduce a throw
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementationOnce(() => {
@@ -261,13 +279,10 @@ describe("Transaction Guard", () => {
 
     describe("__validateTransaction", () => {
         it("should not validate when recipient is not on the same network", async () => {
-            const transactions = generateTransfer(
-                "unitnet",
-                wallets[10].passphrase,
-                "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
-                35,
-                1,
-            );
+            const transactions = TransactionFactory.transfer("DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY", 35)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[10].passphrase)
+                .create(3);
 
             expect(guard.__validateTransaction(transactions[0].data)).toBeFalse();
             expect(guard.errors).toEqual({
@@ -284,8 +299,14 @@ describe("Transaction Guard", () => {
 
         it("should not validate a delegate registration if an existing registration for the same username from a different wallet exists in the pool", async () => {
             const delegateRegistrations = [
-                generateDelegateRegistration("unitnet", wallets[16].passphrase, 1, false, "test_delegate")[0],
-                generateDelegateRegistration("unitnet", wallets[17].passphrase, 1, false, "test_delegate")[0],
+                TransactionFactory.delegateRegistration("test_delegate")
+                    .withNetwork("unitnet")
+                    .withPassphrase(wallets[16].passphrase)
+                    .build()[0],
+                TransactionFactory.delegateRegistration("test_delegate")
+                    .withNetwork("unitnet")
+                    .withPassphrase(wallets[17].passphrase)
+                    .build()[0],
             ];
             const memPoolTx = new MemPoolTransaction(delegateRegistrations[0]);
             jest.spyOn(guard.pool, "getTransactionsByType").mockReturnValueOnce(new Set([memPoolTx]));
@@ -304,9 +325,20 @@ describe("Transaction Guard", () => {
         it("should not validate when sender has same type transactions in the pool (only for 2nd sig, delegate registration, vote)", async () => {
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
             jest.spyOn(guard.pool, "senderHasTransactionsOfType").mockReturnValue(true);
-            const vote = generateVote("unitnet", wallets[10].passphrase, delegates[0].publicKey, 1)[0];
-            const delegateReg = generateDelegateRegistration("unitnet", wallets[11].passphrase, 1)[0];
-            const signature = generateSecondSignature("unitnet", wallets[12].passphrase, 1)[0];
+            const vote = TransactionFactory.vote(delegates[0].publicKey)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[10].passphrase)
+                .create()[0];
+
+            const delegateReg = TransactionFactory.delegateRegistration()
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[11].passphrase)
+                .create()[0];
+
+            const signature = TransactionFactory.secondSignature(wallets[12].passphrase)
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[12].passphrase)
+                .create()[0];
 
             for (const tx of [vote, delegateReg, signature]) {
                 expect(guard.__validateTransaction(tx.data)).toBeFalse();
@@ -327,7 +359,10 @@ describe("Transaction Guard", () => {
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
 
             // use a random transaction as a base - then play with type
-            const baseTransaction = generateDelegateRegistration("unitnet", wallets[11].passphrase, 1)[0];
+            const baseTransaction = TransactionFactory.delegateRegistration()
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[11].passphrase)
+                .create()[0];
 
             for (const transactionType of [
                 constants.TransactionTypes.MultiSignature,
@@ -357,7 +392,10 @@ describe("Transaction Guard", () => {
 
     describe("__removeForgedTransactions", () => {
         it("should remove forged transactions", async () => {
-            const transfers = generateTransfer("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
+            const transfers = TransactionFactory.transfer(delegates[0].senderPublicKey)
+                .withNetwork("unitnet")
+                .withPassphrase(delegates[0].secret)
+                .create(4);
 
             transfers.forEach(tx => {
                 guard.accept.set(tx.id, tx);
@@ -379,7 +417,10 @@ describe("Transaction Guard", () => {
 
     describe("__addTransactionsToPool", () => {
         it("should add transactions to the pool", () => {
-            const transfers = generateTransfer("unitnet", delegates[0].secret, delegates[0].senderPublicKey, 1, 4);
+            const transfers = TransactionFactory.transfer(delegates[0].senderPublicKey)
+                .withNetwork("unitnet")
+                .withPassphrase(delegates[0].secret)
+                .create(4);
 
             transfers.forEach(tx => {
                 guard.accept.set(tx.id, tx);
@@ -397,12 +438,19 @@ describe("Transaction Guard", () => {
         });
 
         it("should delete from accept and broadcast transactions that were not added to the pool", () => {
-            const added = generateTransfer("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
+            const added = TransactionFactory.transfer(delegates[0].address)
+                .withNetwork("unitnet")
+                .withPassphrase(delegates[0].secret)
+                .create(2);
             const notAddedError = { type: "ERR_TEST", message: "" };
-            const notAdded = generateTransfer("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
-                transaction: tx,
-                ...notAddedError,
-            }));
+            const notAdded = TransactionFactory.transfer(delegates[1].address)
+                .withNetwork("unitnet")
+                .withPassphrase(delegates[0].secret)
+                .create(2)
+                .map(tx => ({
+                    transaction: tx,
+                    ...notAddedError,
+                }));
 
             added.forEach(tx => {
                 guard.accept.set(tx.id, tx);
@@ -424,12 +472,20 @@ describe("Transaction Guard", () => {
         });
 
         it("should delete from accept but keep in broadcast transactions that were not added to the pool because of ERR_POOL_FULL", () => {
-            const added = generateTransfer("unitnet", delegates[0].secret, delegates[0].address, 1, 2);
+            const added = TransactionFactory.transfer(delegates[0].address)
+                .withNetwork("unitnet")
+                .withPassphrase(delegates[0].secret)
+                .create(2);
+
             const notAddedError = { type: "ERR_POOL_FULL", message: "" };
-            const notAdded = generateTransfer("unitnet", delegates[0].secret, delegates[1].address, 1, 2).map(tx => ({
-                transaction: tx,
-                ...notAddedError,
-            }));
+            const notAdded = TransactionFactory.transfer(delegates[1].address)
+                .withNetwork("unitnet")
+                .withPassphrase(delegates[0].secret)
+                .create(2)
+                .map(tx => ({
+                    transaction: tx,
+                    ...notAddedError,
+                }));
 
             added.forEach(tx => {
                 guard.accept.set(tx.id, tx);
