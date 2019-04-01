@@ -400,12 +400,12 @@ describe("Transaction serializer / deserializer", () => {
         //     asset: {},
         //     senderPublicKey: '5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09',
         //     signature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a',
-        //     signSignature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
+        //     secondSignature: '618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a'
         //   }
 
         //   bytes = crypto.getBytes(transaction)
         //   expect(bytes).toBeObject()
-        //   expect(bytes.toString('hex') + transaction.signature + transaction.signSignature).toHaveLength(420)
+        //   expect(bytes.toString('hex') + transaction.signature + transaction.secondSignature).toHaveLength(420)
         // })
 
         it("should return Buffer of transaction with second signature and buffer must be 266 length", () => {
@@ -420,7 +420,7 @@ describe("Transaction serializer / deserializer", () => {
                 senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
                 signature:
                     "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-                signSignature:
+                secondSignature:
                     "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
                 id: "13987348420913138422",
             };
@@ -445,7 +445,7 @@ describe("Transaction serializer / deserializer", () => {
                 senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
                 signature:
                     "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-                signSignature:
+                secondSignature:
                     "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
                 id: "13987348420913138422",
             };
