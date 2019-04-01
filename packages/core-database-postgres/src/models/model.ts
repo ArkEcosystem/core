@@ -1,4 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import { IMain } from "pg-promise";
 import sql from "sql";
 
 interface ColumnDescriptor {
@@ -9,7 +10,7 @@ interface ColumnDescriptor {
     def?: any;
 }
 
-export abstract class Model implements Database.IDatabaseModel {
+export abstract class Model implements Database.IModel {
     protected columnsDescriptor: ColumnDescriptor[];
     protected columnSet: any;
 
@@ -17,7 +18,7 @@ export abstract class Model implements Database.IDatabaseModel {
      * Create a new model instance.
      * @param {Object} pgp
      */
-    protected constructor(public pgp) {}
+    protected constructor(protected readonly pgp: IMain) {}
 
     /**
      * Get table name for model.

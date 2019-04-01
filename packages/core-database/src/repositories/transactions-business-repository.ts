@@ -51,7 +51,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             searchParameters.paginate,
             searchParameters.orderBy,
         );
-        return await this.mapBlocksToTransactions(result.rows);
+        return this.mapBlocksToTransactions(result.rows);
     }
 
     public async findAllLegacy(parameters: any) {
@@ -59,7 +59,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findById(id: string) {
-        return this.databaseServiceProvider().connection.transactionsRepository.findById(id);
+        const rows = await this.databaseServiceProvider().connection.transactionsRepository.findById(id);
+        return (await this.mapBlocksToTransactions(rows))[0];
     }
 
     public async findByTypeAndId(type: any, id: string) {
@@ -73,9 +74,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async getFeeStatistics() {
-        const opts = app.resolveOptions("transactionPool");
-        return await this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
-            opts.dynamicFees.minFeeBroadcast,
+        return this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
+            app.resolveOptions("transaction-pool").dynamicFees.minFeeBroadcast,
         );
     }
 
@@ -193,6 +193,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
                 offset: 0,
                 limit: 100,
             };
+        }
+
+        if (!searchParameters.orderBy.length) {
+            // default order-by
+            searchParameters.orderBy.push({
+                field: "timestamp",
+                direction: "desc",
+            });
         }
 
         searchParameters.orderBy.push({

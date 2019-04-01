@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for Ark Core",
-    "version": "2.2.1",
+    "version": "2.3.0-next.3",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -21,21 +21,18 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.1",
-        "@arkecosystem/core-interfaces": "^2.2.1",
-        "@arkecosystem/core-p2p": "^2.2.1",
-        "@arkecosystem/core-utils": "^2.2.1",
-        "@arkecosystem/crypto": "^2.2.1",
-        "delay": "^4.1.0",
+        "@arkecosystem/core-container": "^2.3.0-next.3",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.3",
+        "@arkecosystem/core-p2p": "^2.3.0-next.3",
+        "@arkecosystem/core-utils": "^2.3.0-next.3",
+        "@arkecosystem/crypto": "^2.3.0-next.3",
         "lodash.isempty": "^4.4.0",
-        "lodash.sample": "^4.2.1",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0",
         "socketcluster-client": "^14.2.1"
     },
     "devDependencies": {
         "@types/lodash.isempty": "^4.4.6",
-        "@types/lodash.sample": "^4.2.6",
         "@types/lodash.uniq": "^4.5.6",
         "@types/pluralize": "^0.0.29",
         "@types/socketcluster-client": "^13.0.2"

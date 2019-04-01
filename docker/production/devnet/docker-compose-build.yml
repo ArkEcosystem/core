@@ -36,7 +36,6 @@ services:
      - ~/.config/ark-core:/home/node/.config/ark-core
      - ~/.local/share/ark-core:/home/node/.local/share/ark-core
      - ~/.local/state/ark-core:/home/node/.local/state/ark-core
-     - /etc/timezone:/etc/timezone:ro
      - /etc/localtime:/etc/localtime:ro
      - ./enc:/run/secrets
     networks:

@@ -2,11 +2,11 @@ import "../mocks/core-container";
 
 import delay from "delay";
 import socketCluster from "socketcluster-client";
-import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
 import { monitor } from "../../../../packages/core-p2p/src/monitor";
+import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
 import genesisBlockJSON from "../../../utils/config/unitnet/genesisBlock.json";
-import { generateTransfers } from "../../../utils/generators/transactions/";
 import { wallets } from "../../../utils/fixtures/unitnet/wallets";
+import { generateTransfer } from "../../../utils/generators/transactions";
 
 let socket;
 let emit;
@@ -33,7 +33,7 @@ beforeAll(async () => {
             socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
 
-    jest.spyOn(monitor, "acceptNewPeer").mockImplementation(async () => {});
+    jest.spyOn(monitor, "acceptNewPeer").mockImplementation(async () => true);
 });
 
 afterAll(() => {
@@ -88,7 +88,7 @@ describe("Peer socket endpoint", () => {
 
         describe("postTransactions", () => {
             it("should get back 'transaction list is not conform' error when transactions are invalid (already in cache)", async () => {
-                const transactions = generateTransfers("unitnet", "one two three", wallets[0].address, 111, 15, true);
+                const transactions = generateTransfer("unitnet", "one two three", wallets[0].address, 111, 15, true);
 
                 const status = await emit("p2p.peer.postTransactions", {
                     data: { transactions },
@@ -103,7 +103,7 @@ describe("Peer socket endpoint", () => {
             });
 
             it("should throw validation error when sending too much transactions", async () => {
-                const transactions = generateTransfers("unitnet", "one two three", wallets[0].address, 111, 50, true);
+                const transactions = generateTransfer("unitnet", "one two three", wallets[0].address, 111, 50, true);
                 await expect(
                     emit("p2p.peer.postTransactions", {
                         data: { transactions },

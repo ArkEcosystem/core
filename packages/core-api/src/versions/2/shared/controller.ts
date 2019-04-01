@@ -12,9 +12,9 @@ import {
 } from "../utils";
 
 export class Controller {
-    protected config = app.getConfig();
-    protected blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    protected databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    protected readonly config = app.getConfig();
+    protected readonly blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    protected readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     protected paginate(request: Hapi.Request): any {
         return paginate(request);

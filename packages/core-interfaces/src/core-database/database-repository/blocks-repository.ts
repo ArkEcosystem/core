@@ -8,14 +8,25 @@ export interface IBlocksRepository extends IRepository {
      */
     findById(id: string): Promise<any>;
 
+    /**
+     * Find many blocks by their IDs.
+     * @param {String[]} ids
+     */
     findByIds(id: string[]): Promise<any[]>;
+
+    /**
+     * Get a block at the given height.
+     * @param  {Number} height the height of the blocks to retrieve
+     * @return {Promise}
+     */
+    findByHeight(height: number): Promise<any>;
 
     /**
      * Get all of the blocks at the given heights.
      * @param {Array} heights the heights of the blocks to retrieve
      * @return {Promise}
      */
-    findByHeight(heights): Promise<any>;
+    findByHeights(heights: number[]): Promise<any>;
 
     /**
      * Count the number of records in the database.

@@ -1,9 +1,9 @@
 import { generators } from "../../../utils";
 import { delegates } from "../../../utils/fixtures/unitnet/delegates";
-const { generateTransfers } = generators;
+const { generateTransfer } = generators;
 
 export const transactions = {
-    dummy1: generateTransfers(
+    dummy1: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
@@ -13,7 +13,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy2: generateTransfers(
+    dummy2: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8",
@@ -23,7 +23,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy3: generateTransfers(
+    dummy3: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "ANqvJEMZcmUpcKBC8xiP1TntVkJeuZ3Lw3",
@@ -33,7 +33,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy4: generateTransfers(
+    dummy4: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "AJ5eV59hu4xrbRCpoP3of7fEYWUteSVa8k",
@@ -43,7 +43,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy5: generateTransfers(
+    dummy5: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "ASvC1E9hMLfANTi63S2gUMvr7rVZYJBj3u",
@@ -53,7 +53,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy6: generateTransfers(
+    dummy6: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "Ac8utEr7XRebWRvArSBnbVoxbq6bXftAmL",
@@ -63,7 +63,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy7: generateTransfers(
+    dummy7: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "ANWEaVfvAh3VTyZNYcuFESUum1XBmAvAdj",
@@ -73,7 +73,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy8: generateTransfers(
+    dummy8: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "ALsZS24Dn4HYXwed5kAC5fKyB9BFzdmcSx",
@@ -83,7 +83,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy9: generateTransfers(
+    dummy9: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "ANuaLhRuBJhTcHao7kTfDcfsewLQGr7x5G",
@@ -93,7 +93,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummy10: generateTransfers(
+    dummy10: generateTransfer(
         "unitnet",
         delegates[1].passphrase,
         "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8",
@@ -103,7 +103,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummyLarge1: generateTransfers(
+    dummyLarge1: generateTransfer(
         "unitnet",
         delegates[1].passphrase,
         "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
@@ -113,7 +113,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dummyLarge2: generateTransfers(
+    dummyLarge2: generateTransfer(
         "unitnet",
         delegates[1].passphrase,
         "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8",
@@ -123,7 +123,7 @@ export const transactions = {
         10000000,
     )[0],
 
-    dynamicFeeNormalDummy1: generateTransfers(
+    dynamicFeeNormalDummy1: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "AcjGpvDJEQdBVwspYsAs16B8Rv66zo7gyd",
@@ -133,7 +133,7 @@ export const transactions = {
         280000,
     )[0],
 
-    dynamicFeeLowDummy2: generateTransfers(
+    dynamicFeeLowDummy2: generateTransfer(
         "unitnet",
         delegates[0].passphrase,
         "AabMvWPVKbdTHRcGBpATq9TEMiMD5xeJh9",
@@ -143,7 +143,7 @@ export const transactions = {
         100,
     )[0],
 
-    // dynamicFeeZero: generateTransfers(
+    // dynamicFeeZero: generateTransfer(
     //     "unitnet",
     //     delegates[0].passphrase,
     //     "AVnRZSvrAeeSJZN3oSBxEF6mvvVpuKUXL5",
@@ -153,7 +153,7 @@ export const transactions = {
     //     0,
     // )[0],
 
-    dummyExp1: generateTransfers(
+    dummyExp1: generateTransfer(
         "unitnet",
         delegates[1].passphrase,
         "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
@@ -161,7 +161,7 @@ export const transactions = {
         1,
     )[0],
 
-    dummyExp2: generateTransfers(
+    dummyExp2: generateTransfer(
         "unitnet",
         delegates[1].passphrase,
         "DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8",

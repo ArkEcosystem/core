@@ -5,6 +5,7 @@ import "jest-extended";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import delay from "delay";
 import { Client } from "../../../packages/core-forger/src/client";
+import { HostNoResponseError } from "../../../packages/core-forger/src/errors";
 import { sampleBlocks } from "./__fixtures__/blocks";
 
 import { MockSocketManager } from "../core-p2p/__support__/mock-socket-server/manager";
@@ -24,6 +25,8 @@ beforeAll(async () => {
         port: 4009,
         ip: "127.0.0.1",
     });
+
+    await delay(1000);
 });
 
 afterAll(() => {
@@ -61,7 +64,7 @@ describe("Client", () => {
                 await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
                 await socketManager.addMock("p2p.internal.storeBlock", {});
 
-                await client.__chooseHost(1000);
+                await client.selectHost();
 
                 const wasBroadcasted = await client.broadcast(sampleBlocks[0].toJson());
                 expect(wasBroadcasted).toBeTruthy();
@@ -118,18 +121,6 @@ describe("Client", () => {
             const response = await client.syncCheck();
 
             expect(response).toBeUndefined();
-        });
-    });
-
-    describe("getUsernames", () => {
-        it("should fetch usernames", async () => {
-            const expectedResponse = { foo: "bar" };
-            await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
-            await socketManager.addMock("p2p.internal.getUsernames", { data: expectedResponse });
-
-            const response = await client.getUsernames();
-
-            expect(response).toEqual(expectedResponse);
         });
     });
 });

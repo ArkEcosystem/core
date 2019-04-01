@@ -117,6 +117,10 @@ describe("Transactions Business Repository", () => {
                     ],
                     orderBy: [
                         {
+                            field: "timestamp",
+                            direction: "desc",
+                        },
+                        {
                             field: "sequence",
                             direction: "asc",
                         },
@@ -222,13 +226,21 @@ describe("Transactions Business Repository", () => {
 
     describe("findById", () => {
         it("should invoke findById on db repository", async () => {
+            const expectedBlockId = "id";
+            const expectedHeight = 100;
             databaseService.connection.transactionsRepository = {
                 findById: async id => id,
                 getModel: () => new MockDatabaseModel(),
             } as Database.ITransactionsRepository;
-            jest.spyOn(databaseService.connection.transactionsRepository, "findById").mockImplementation(
-                async () => true,
-            );
+            jest.spyOn(databaseService.connection.transactionsRepository, "findById").mockImplementation(async () => ({
+                rows: [
+                    {
+                        blockId: expectedBlockId,
+                    },
+                ],
+            }));
+            databaseService.cache = new Map();
+            jest.spyOn(databaseService.cache, "get").mockReturnValue(expectedHeight);
 
             await transactionsBusinessRepository.findById("id");
 

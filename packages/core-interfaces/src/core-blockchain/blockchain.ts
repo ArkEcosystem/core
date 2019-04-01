@@ -1,6 +1,7 @@
 import { models, Transaction } from "@arkecosystem/crypto";
+import { IDatabaseService } from "../core-database";
 import { IMonitor } from "../core-p2p";
-import { ITransactionPool } from "../core-transaction-pool";
+import { IConnection } from "../core-transaction-pool";
 import { IStateStorage } from "./state-storage";
 
 export interface IBlockchain {
@@ -17,17 +18,17 @@ export interface IBlockchain {
 
     /**
      * Get the transaction handler.
-     * @return {ITransactionPool}
+     * @return {IConnection}
      */
-    readonly transactionPool: ITransactionPool;
+    readonly transactionPool: IConnection;
 
     /**
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    readonly database: any;
+    readonly database: IDatabaseService;
 
-    dispatch(event: any): any;
+    dispatch(event: string): void;
 
     /**
      * Start the blockchain and wait for it to be ready.
@@ -36,8 +37,6 @@ export interface IBlockchain {
     start(skipStartedCheck?: boolean): Promise<boolean>;
 
     stop(): Promise<void>;
-
-    checkNetwork(): void;
 
     /**
      * Update network status.
@@ -124,10 +123,10 @@ export interface IBlockchain {
      * @return {Object}
      */
     getUnconfirmedTransactions(
-        blockSize: any,
+        blockSize: number,
     ): {
-        transactions: any[];
-        poolSize: any;
+        transactions: string[];
+        poolSize: number;
         count: number;
     };
 
@@ -173,10 +172,4 @@ export interface IBlockchain {
      * @return {Object}
      */
     pushPingBlock(block: models.IBlockData): void;
-
-    /**
-     * Get the list of events that are available.
-     * @return {Array}
-     */
-    getEvents(): string[];
 }

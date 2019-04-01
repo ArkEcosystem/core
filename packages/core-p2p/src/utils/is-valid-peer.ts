@@ -18,15 +18,7 @@ export const isValidPeer = (peer: { ip: string; status?: string | number }): boo
     return true;
 };
 
-const sanitizeRemoteAddress = (ip: string): string | null => {
-    try {
-        return process(ip).toString();
-    } catch (error) {
-        return null;
-    }
-};
-
-const isLocalHost = (ip: string): boolean => {
+export const isLocalHost = (ip: string): boolean => {
     try {
         const parsed = parse(ip);
         if (parsed.range() === "loopback") {
@@ -41,5 +33,13 @@ const isLocalHost = (ip: string): boolean => {
         return Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ip));
     } catch (error) {
         return false;
+    }
+};
+
+const sanitizeRemoteAddress = (ip: string): string | null => {
+    try {
+        return process(ip).toString();
+    } catch (error) {
+        return null;
     }
 };

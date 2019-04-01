@@ -1,31 +1,25 @@
 import { Logger } from "@arkecosystem/core-interfaces";
+import { LoggerFactory } from "./factory";
 
-export class LogManager {
-    private drivers: Map<string, Logger.ILogger>;
+export class LoggerManager {
+    private readonly factory: LoggerFactory = new LoggerFactory();
+    private readonly drivers: Map<string, Logger.ILogger> = new Map<string, Logger.ILogger>();
 
-    /**
-     * Create a new manager instance.
-     */
-    constructor() {
-        this.drivers = new Map();
-    }
-
-    /**
-     * Get a logger instance.
-     * @param  {String} name
-     * @return {AbstractLogger}
-     */
     public driver(name: string = "default"): Logger.ILogger {
         return this.drivers.get(name);
     }
 
-    /**
-     * Make the logger instance.
-     * @param  {AbstractLogger} driver
-     * @param  {String} name
-     * @return {void}
-     */
-    public async makeDriver(driver: Logger.ILogger, name: string = "default"): Promise<void> {
-        this.drivers.set(name, await driver.make());
+    public createDriver(driver: Logger.ILogger, name: string = "default"): Logger.ILogger {
+        this.drivers.set(name, this.factory.make(driver));
+
+        return this.driver();
+    }
+
+    public getDrivers(): Map<string, Logger.ILogger> {
+        return this.drivers;
+    }
+
+    public getFactory(): LoggerFactory {
+        return this.factory;
     }
 }

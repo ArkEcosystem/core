@@ -6,8 +6,8 @@ import {
     ITransactionsBusinessRepository,
     IWalletsBusinessRepository,
 } from "./business-repository";
-import { IDatabaseConnection } from "./database-connection";
-import { IWalletManager } from "./wallet-manager";
+import { IConnection } from "./database-connection";
+import { IDelegateWallet, IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
     walletManager: IWalletManager;
@@ -20,7 +20,7 @@ export interface IDatabaseService {
 
     transactionsBusinessRepository: ITransactionsBusinessRepository;
 
-    connection: IDatabaseConnection;
+    connection: IConnection;
 
     logger: Logger.ILogger;
 
@@ -36,7 +36,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
 
-    getActiveDelegates(height: number, delegates?: any[]): Promise<any[]>;
+    getActiveDelegates(height: number, delegates?: any[]): Promise<IDelegateWallet[]>;
 
     buildWallets(): Promise<boolean>;
 
@@ -92,6 +92,8 @@ export interface IDatabaseService {
 
     init(): Promise<void>;
 
+    reset(): Promise<void>;
+
     loadBlocksFromCurrentRound(): Promise<void>;
 
     loadTransactionsForBlocks(blocks): Promise<void>;
@@ -110,5 +112,5 @@ export interface IDatabaseService {
 
     getBlocksForRound(round?: number): Promise<models.Block[]>;
 
-    getCommonBlocks(ids: string[]): Promise<any[]>;
+    getCommonBlocks(ids: string[]): Promise<models.IBlockData[]>;
 }

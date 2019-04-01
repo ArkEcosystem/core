@@ -13,6 +13,10 @@ export class LogCommand extends AbstractLogCommand {
         error: flags.boolean({
             description: "only show error output",
         }),
+        lines: flags.integer({
+            description: "number of lines to tail",
+            default: 15,
+        }),
     };
 
     public getClass() {

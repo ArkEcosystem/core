@@ -1,51 +1,25 @@
 import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
-import { execSync } from "child_process";
 import delay from "delay";
-import { existsSync } from "fs";
-import { join } from "path";
 import semver from "semver";
 import { configManager } from "./config";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
 export class Container implements container.IContainer {
-    public options: any;
-    public exitEvents: any;
     /**
      * May be used by CLI programs to suppress the shutdown messages.
      */
     public silentShutdown = false;
-    public hashid: string;
-    public plugins: any;
+    public options: Record<string, any>;
+    public plugins: PluginRegistrar;
     public shuttingDown: boolean;
     public version: string;
     public isReady: boolean = false;
-    public variables: any;
+    public variables: Record<string, any>;
     public config: any;
-    private container = createContainer();
 
-    /**
-     * Create a new container instance.
-     * @constructor
-     */
-    constructor() {
-        this.hashid = "unknown";
-
-        /**
-         * The git commit hash of the repository. Used during development to
-         * easily idenfity nodes based on their commit hash and version.
-         */
-        try {
-            if (existsSync(join(__dirname, "../../..", ".git"))) {
-                this.hashid = execSync("git rev-parse --short=8 HEAD")
-                    .toString()
-                    .trim();
-            }
-        } catch (e) {
-            this.hashid = "unknown";
-        }
-    }
+    private readonly container = createContainer();
 
     /**
      * Set up the app.
@@ -54,7 +28,7 @@ export class Container implements container.IContainer {
      * @param  {Object} options
      * @return {void}
      */
-    public async setUp(version: string, variables: any, options: any = {}) {
+    public async setUp(version: string, variables: Record<string, any>, options: Record<string, any> = {}) {
         // Register any exit signal handling
         this.registerExitHandler(["SIGINT", "exit"]);
 
@@ -190,7 +164,6 @@ export class Container implements container.IContainer {
         this.shuttingDown = true;
 
         const logger = this.resolvePlugin<Logger.ILogger>("logger");
-        logger.error(":boom: Container force shutdown :boom:");
         logger.error(message);
 
         if (error) {
@@ -198,14 +171,6 @@ export class Container implements container.IContainer {
         }
 
         process.exit(exitCode);
-    }
-
-    /**
-     * Get the application git commit hash.
-     * @throws {String}
-     */
-    public getHashid() {
-        return this.hashid;
     }
 
     /**

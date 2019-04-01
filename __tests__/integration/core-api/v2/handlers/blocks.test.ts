@@ -55,8 +55,8 @@ describe("API 2.0 - Blocks", () => {
                     expect(response).toBePaginated();
                     expect(response.data.data).toBeArray();
 
-                    const block = response.data.data[0];
-                    utils.expectBlock(block);
+                    response.data.data.forEach(utils.expectBlock);
+                    expect(response.data.data.sort((a, b) => a.height > b.height)).toEqual(response.data.data);
                 });
             },
         );
@@ -75,6 +75,27 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data;
                     utils.expectBlock(block, {
                         id: genesisBlock.id,
+                        transactions: genesisBlock.numberOfTransactions,
+                    });
+                });
+            },
+        );
+    });
+
+    describe("GET /blocks/:height", () => {
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            "using the %s header",
+            (header, request) => {
+                it("should GET a block by the given height", async () => {
+                    const response = await utils[request]("GET", `blocks/${genesisBlock.height}`);
+
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeObject();
+
+                    const block = response.data.data;
+                    utils.expectBlock(block, {
+                        id: genesisBlock.id,
+                        height: genesisBlock.height,
                         transactions: genesisBlock.numberOfTransactions,
                     });
                 });

@@ -61,12 +61,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("checkNetwork", () => {
-        it("should throw an exception", () => {
-            expect(() => blockchain.checkNetwork()).toThrow("Method [checkNetwork] not implemented!");
-        });
-    });
-
     describe("updateNetworkStatus", () => {
         it("should call p2p updateNetworkStatus", async () => {
             const p2pUpdateNetworkStatus = jest.spyOn(blockchain.p2p, "updateNetworkStatus");
@@ -294,31 +288,6 @@ describe("Blockchain", () => {
             blockchain.pushPingBlock(blocks2to100[3]);
             expect(blockchain.state.blockPing).toBeObject();
             expect(blockchain.state.blockPing.block).toBe(blocks2to100[3]);
-        });
-    });
-
-    describe("getEvents", () => {
-        it("should return the events", () => {
-            expect(blockchain.getEvents()).toEqual([
-                "block.applied",
-                "block.forged",
-                "block.reverted",
-                "delegate.registered",
-                "delegate.resigned",
-                "forger.failed",
-                "forger.missing",
-                "forger.started",
-                "peer.added",
-                "peer.removed",
-                "round.created",
-                "state:started",
-                "transaction.applied",
-                "transaction.expired",
-                "transaction.forged",
-                "transaction.reverted",
-                "wallet.saved",
-                "wallet.created.cold",
-            ]);
         });
     });
 

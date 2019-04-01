@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
+import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { models, slots } from "@arkecosystem/crypto";
 import { validate } from "../../utils/validate";
 import { schema } from "./schema";
@@ -10,7 +10,7 @@ import { monitor } from "../../../monitor";
 
 const { Block } = models;
 
-const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
+const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transactionPool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const acceptNewPeer = async req => {

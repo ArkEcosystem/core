@@ -47,12 +47,9 @@ export class UpdateCommand extends BaseCommand {
         }
 
         try {
-            const currentVersion = state.currentVersion;
-            const newVersion = state.updateVersion;
-
             this.warn(
-                `${state.name} update available from ${Chalk.greenBright(currentVersion)} to ${Chalk.greenBright(
-                    newVersion,
+                `${state.name} update available from ${Chalk.greenBright(state.currentVersion)} to ${Chalk.greenBright(
+                    state.updateVersion,
                 )}.`,
             );
 
@@ -71,15 +68,15 @@ export class UpdateCommand extends BaseCommand {
     }
 
     private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
-        cli.action.start(`Updating from ${state.currentVersion} to ${state.newVersion}`);
+        cli.action.start(`Updating from ${state.currentVersion} to ${state.updateVersion}`);
 
-        await installFromChannel(state.name, state.newVersion);
+        await installFromChannel(state.name, state.updateVersion);
 
         cli.action.stop();
 
         removeSync(state.cache);
 
-        this.warn(`Version ${state.newVersion} has been installed.`);
+        this.warn(`Version ${state.updateVersion} has been installed.`);
 
         if (this.hasRestartFlag(flags)) {
             if (flags.restart) {

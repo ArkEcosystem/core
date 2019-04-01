@@ -56,7 +56,9 @@ describe("Monitor", () => {
         });
     });
 
-    describe.skip("acceptNewPeer", () => {});
+    describe("acceptNewPeer", () => {
+        test.todo("add test cases for acceptNewPeer");
+    });
 
     describe("getPeers", () => {
         it("should be ok", async () => {
@@ -81,7 +83,7 @@ describe("Monitor", () => {
             const getPeersPeerMock = { ip: "1.1.1.1", port: 4000 };
             await socketManager.addMock("getPeers", { success: true, peers: [getPeersPeerMock] });
 
-            const mockAcceptNewPeer = jest.spyOn(monitor, "acceptNewPeer").mockImplementationOnce(async () => {});
+            const mockAcceptNewPeer = jest.spyOn(monitor, "acceptNewPeer").mockImplementationOnce(async () => true);
 
             await monitor.discoverPeers();
 

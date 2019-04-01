@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the Ark Blockchain",
-    "version": "2.2.1",
+    "version": "2.3.0-next.3",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -27,14 +27,18 @@
         "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js"
     },
     "dependencies": {
+        "@faustbrian/dato": "^0.2.0",
+        "ajv": "^6.10.0",
+        "ajv-keywords": "^3.4.0",
         "bcrypto": "^3.0.2",
         "bignumber.js": "^8.1.1",
         "bip32": "^1.0.2",
         "bip39": "^2.5.0",
+        "browserify-aes": "^1.2.0",
         "bs58check": "^2.1.2",
+        "buffer-xor": "^2.0.2",
         "bytebuffer": "^5.0.1",
         "create-hash": "^1.2.0",
-        "dayjs-ext": "^2.2.0",
         "deepmerge": "^3.2.0",
         "joi": "^14.3.1",
         "lodash.camelcase": "^4.3.0",

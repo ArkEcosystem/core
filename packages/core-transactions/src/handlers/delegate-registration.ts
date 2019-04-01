@@ -53,7 +53,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         emitter.emit("delegate.registered", transaction.data);
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.ITransactionGuard): boolean {
+    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
         if (this.typeFromSenderAlreadyInPool(data, guard)) {
             return false;
         }

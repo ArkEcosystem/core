@@ -9,7 +9,7 @@ import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
-import { TransactionPool } from "../../../packages/core-transaction-pool/src";
+import { Connection } from "../../../packages/core-transaction-pool/src";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
 import { generators } from "../../utils";
@@ -19,14 +19,14 @@ import { database as databaseService } from "./mocks/database";
 
 const { SATOSHI, TransactionTypes } = constants;
 const { Block } = models;
-const { generateTransfers } = generators;
+const { generateTransfer } = generators;
 const delegatesSecrets = delegates.map(d => d.secret);
 const maxTransactionAge = 4036608000;
 
-let connection: TransactionPool;
+let connection: Connection;
 
 beforeAll(async () => {
-    connection = new TransactionPool(defaults);
+    connection = new Connection(defaults);
     await connection.make();
 });
 
@@ -864,21 +864,9 @@ describe("Connection", () => {
 
     describe("purgeSendersWithInvalidTransactions", () => {
         it("should purge transactions from sender when invalid", async () => {
-            const transfersA = generateTransfers(
-                "unitnet",
-                delegatesSecrets[0],
-                mockData.dummy1.data.recipientId,
-                1,
-                5,
-            );
+            const transfersA = generateTransfer("unitnet", delegatesSecrets[0], mockData.dummy1.data.recipientId, 1, 5);
 
-            const transfersB = generateTransfers(
-                "unitnet",
-                delegatesSecrets[1],
-                mockData.dummy1.data.recipientId,
-                1,
-                1,
-            );
+            const transfersB = generateTransfer("unitnet", delegatesSecrets[1], mockData.dummy1.data.recipientId, 1, 1);
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
@@ -907,7 +895,7 @@ describe("Connection", () => {
             const revertTransactionForSender = jest
                 .spyOn(connection.walletManager, "revertTransactionForSender")
                 .mockReturnValue();
-            const transactions = generateTransfers(
+            const transactions = generateTransfer(
                 "unitnet",
                 delegatesSecrets[0],
                 mockData.dummy1.data.recipientId,

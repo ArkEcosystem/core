@@ -1,20 +1,20 @@
 import { models, Transaction } from "@arkecosystem/crypto";
 
 export interface IPeer {
-    setHeaders(headers: any): void;
+    setHeaders(headers: Record<string, any>): void;
 
     /**
      * Get information to broadcast.
      * @return {Object}
      */
     toBroadcastInfo(): {
-        ip: any;
+        ip: string;
         port: number;
-        nethash: any;
-        version: any;
-        os: any;
-        height: any;
-        delay: any;
+        nethash: string;
+        version: string;
+        os: string;
+        height: number;
+        delay: number;
     };
 
     /**

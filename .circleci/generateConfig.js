@@ -1,9 +1,15 @@
 const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
-const chunk = require("lodash.chunk");
 
 const config = require("./configTemplate.json");
+
+const fixedJobs = [
+    "test-node10-unit",
+    "test-node11-unit",
+    "test-node10-functional",
+    "test-node11-functional",
+]
 
 function jason(value) {
     return JSON.parse(JSON.stringify(value));
@@ -13,24 +19,27 @@ fs.readdir("./packages", (_, packages) => {
     // test split
     const packagesChunks = splitPackages(packages);
 
-    for (const [name, unitJob] of Object.entries(config.jobs)) {
+    for (const [name, job] of Object.entries(config.jobs)) {
         // save cache
-        const saveCacheStep = unitJob.steps.find(step => typeof step === "object" && step.save_cache);
+        const saveCacheStep = job.steps.find(step => typeof step === "object" && step.save_cache);
         saveCacheStep.save_cache.paths = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules");
 
-        
+        if (fixedJobs.includes(name)) {
+            continue;
+        }
+
         // copy base unit jobs (unit tests) to adapt for integration tests
         const jobs = [
-            jason(unitJob),
-            jason(unitJob), 
+            jason(job),
+            jason(job),
         ];
 
         jobs.forEach((job, index) => {
             const testStepIndex = job.steps.findIndex(
                 step => typeof step === "object" && step.run && step.run.name === "Unit tests",
-            );
+            ) + 1;
 
             const steps = getIntegrationSteps(packagesChunks[index]);
 
@@ -51,6 +60,8 @@ fs.readdir("./packages", (_, packages) => {
         });
     }
 
+    config.workflows.build_and_test.jobs = fixedJobs.concat(config.workflows.build_and_test.jobs)
+
     fs.writeFileSync(".circleci/config.yml", yaml.safeDump(config));
 });
 
@@ -59,7 +70,7 @@ function splitPackages(packageNames) {
     const integrationPackages = packageNames.sort()
         .map(pkg => path.basename(pkg))
         .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/integration/${pkg}`)))
-    
+
     var indexToSplit = Math.floor(integrationPackages.length / 2);
     return [
         integrationPackages.slice(0, indexToSplit),
@@ -74,12 +85,11 @@ function getIntegrationSteps(packages) {
     steps.push(...packages
         .filter(pkg => fs.existsSync(path.resolve(__dirname, `../__tests__/integration/${pkg}`)))
         .map(pkg => ({
-                run: {
-                    name: `${pkg} - integration`,
-                    command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /integration/${pkg}/ --coverageDirectory .coverage/integration/${pkg}`,
-                },
-            })
-        )
+            run: {
+                name: `${pkg} - integration`,
+                command: `${resetSqlCommand} && cd ~/core && yarn test:coverage /integration/${pkg}/ --coverageDirectory .coverage/integration/${pkg}`,
+            },
+        }))
     );
 
     return steps;

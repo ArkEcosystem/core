@@ -13,10 +13,6 @@ export const getHeaders = () => {
         height: null,
     };
 
-    if (config.get("network.name") !== "mainnet") {
-        (headers as any).hashid = app.getHashid();
-    }
-
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     if (blockchain) {
         const lastBlock = blockchain.getLastBlock();

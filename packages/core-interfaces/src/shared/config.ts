@@ -1,18 +1,18 @@
-import get from "lodash/get";
-import set from "lodash/set";
+import get from "lodash.get";
+import set from "lodash.set";
 
 export class Config {
-    private config: any;
+    private config: Record<string, any>;
 
-    public init(options: any): void {
+    public init(options: Record<string, any>): void {
         this.config = options;
     }
 
-    public get(key: string, defaultValue: any = null): any {
+    public get<T = any>(key: string, defaultValue: T = null): T {
         return get(this.config, key, defaultValue);
     }
 
-    public set(key: string, value: any): void {
+    public set<T = any>(key: string, value: T): void {
         set(this.config, key, value);
     }
 }

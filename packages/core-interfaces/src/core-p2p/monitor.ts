@@ -1,3 +1,12 @@
+import { Dato } from "@faustbrian/dato";
+
+export interface ISuspension {
+    peer: any;
+    reason: string;
+    until: Dato;
+    nextSuspensionReminder?: Dato;
+}
+
 export interface INetworkStatus {
     forked: boolean;
     blocksToRollback?: number;
@@ -20,7 +29,7 @@ export interface IMonitor {
      * @param  {IPeer} peer
      * @throws {Error} If invalid peer
      */
-    acceptNewPeer(peer: any): Promise<void>;
+    acceptNewPeer(peer: any): Promise<boolean>;
 
     /**
      * Remove peer from monitor.
@@ -122,8 +131,8 @@ export interface IMonitor {
     checkNetworkHealth(): Promise<INetworkStatus>;
 
     /**
-     * Dump the list of active peers.
+     * Cache the list of active peers.
      * @return {void}
      */
-    dumpPeers(): void;
+    cachePeers(): void;
 }

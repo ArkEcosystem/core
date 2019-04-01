@@ -85,7 +85,7 @@ describe("Monitor", () => {
                 ping: jest.fn().mockImplementation(() => {
                     throw new Error("yo");
                 }),
-            });
+            } as any);
 
             await monitor.cleanPeers();
 
@@ -321,8 +321,8 @@ describe("Monitor", () => {
         test.todo("more cases need to be covered, see checkNetworkHealth implementation");
     });
 
-    describe("dumpPeers", () => {
-        it("should dump the peers into file", () => {
+    describe("cachePeers", () => {
+        it("should cache the peers into file", () => {
             monitor.peers = {
                 "1.1.1.1": {
                     ip: "1.1.1.1",
@@ -331,12 +331,24 @@ describe("Monitor", () => {
                 },
             };
             process.env.CORE_PATH_CACHE = ".";
-            monitor.dumpPeers();
+            monitor.cachePeers();
 
             expect(fs.writeFileSync).toHaveBeenCalledWith(
                 "./peers.json",
                 JSON.stringify([monitor.peers["1.1.1.1"]], null, 2),
             );
+        });
+    });
+
+    describe("getNetworkHeight", () => {
+        it("should return correct network height", () => {
+            monitor.peers = {
+                "1.1.1.1": { state: { height: 1 } },
+                "1.1.1.2": { state: { height: 7 } },
+                "1.1.1.3": { state: { height: 10 } },
+            };
+
+            expect(monitor.getNetworkHeight()).toBe(7);
         });
     });
 });

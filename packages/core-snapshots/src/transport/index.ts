@@ -9,26 +9,25 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import * as utils from "../utils";
-import { getCodec } from "./codecs";
+import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
 export const exportTable = async (table, options) => {
-    const snapFileName = utils.getPath(table, options.meta.folder, options.codec);
-    const codec = getCodec(options.codec);
+    const snapFileName = utils.getFilePath(table, options.meta.folder);
     const gzip = zlib.createGzip();
     await fs.ensureFile(snapFileName);
 
     logger.info(
-        `Starting to export table ${table} to folder ${options.meta.folder}, codec: ${
-            options.codec
+        `Starting to export table ${table} to folder ${
+            options.meta.folder
         }, append:${!!options.blocks}, skipCompression: ${options.meta.skipCompression}`,
     );
     try {
         const snapshotWriteStream = fs.createWriteStream(snapFileName, options.blocks ? { flags: "a" } : {});
-        const encodeStream = msgpack.createEncodeStream(codec ? { codec: codec[table] } : {});
+        const encodeStream = msgpack.createEncodeStream({ codec: Codec[table] });
         const qs = new QueryStream(options.queries[table]);
 
         const data = await options.database.db.stream(qs, s => {
@@ -57,14 +56,11 @@ export const exportTable = async (table, options) => {
 };
 
 export const importTable = async (table, options) => {
-    const sourceFile = utils.getPath(table, options.meta.folder, options.codec);
-    const codec = getCodec(options.codec);
+    const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
-    const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {});
+    const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
     logger.info(
-        `Starting to import table ${table} from ${sourceFile}, codec: ${options.codec}, skipCompression: ${
-            options.meta.skipCompression
-        }`,
+        `Starting to import table ${table} from ${sourceFile}, skipCompression: ${options.meta.skipCompression}`,
     );
 
     const readStream = options.meta.skipCompression
@@ -90,9 +86,11 @@ export const importTable = async (table, options) => {
     // @ts-ignore
     for await (const record of readStream) {
         counter++;
-        if (!verifyData(table, record, prevData, options.signatureVerification)) {
+
+        if (!verifyData(table, record, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`);
         }
+
         if (canImportRecord(table, record, options.lastBlock)) {
             values.push(record);
         }
@@ -106,14 +104,14 @@ export const importTable = async (table, options) => {
     if (values.length > 0) {
         await saveData(values);
     }
+
     emitter.emit("complete");
 };
 
 export const verifyTable = async (table, options) => {
-    const sourceFile = utils.getPath(table, options.meta.folder, options.codec);
-    const codec = getCodec(options.codec);
+    const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
-    const decodeStream = msgpack.createDecodeStream(codec ? { codec: codec[table] } : {});
+    const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
     const readStream = options.meta.skipCompression
         ? fs.createReadStream(sourceFile).pipe(decodeStream)
         : fs
@@ -125,7 +123,7 @@ export const verifyTable = async (table, options) => {
     let prevData = null;
 
     decodeStream.on("data", data => {
-        if (!verifyData(table, data, prevData, options.signatureVerification)) {
+        if (!verifyData(table, data, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`);
         }
         prevData = data;

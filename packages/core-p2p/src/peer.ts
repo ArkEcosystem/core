@@ -13,12 +13,11 @@ import { SocketErrors } from "./socket-server/constants";
 import { socketEmit } from "./utils/socket";
 
 export class Peer implements P2P.IPeer {
-    public downloadSize: any;
-    public hashid: string;
-    public nethash: any;
-    public version: any;
-    public os: any;
-    public delay: any;
+    public downloadSize: number;
+    public nethash: string;
+    public version: string;
+    public os: string;
+    public delay: number;
     public ban: number;
     public offences: any[];
 
@@ -28,7 +27,6 @@ export class Peer implements P2P.IPeer {
         nethash: number;
         height: number | null;
         "Content-Type": "application/json";
-        hashid?: string;
     };
 
     public socket;
@@ -66,10 +64,6 @@ export class Peer implements P2P.IPeer {
             "Content-Type": "application/json",
         };
 
-        if (this.config.get("network.name") !== "mainnet") {
-            this.headers.hashid = app.getHashid();
-        }
-
         this.socket = socketCluster.create({
             port,
             hostname: ip,
@@ -90,7 +84,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} headers
      * @return {void}
      */
-    public setHeaders(headers) {
+    public setHeaders(headers: Record<string, any>): void {
         ["nethash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
@@ -101,7 +95,7 @@ export class Peer implements P2P.IPeer {
      * @return {Object}
      */
     public toBroadcastInfo() {
-        const data = {
+        return {
             ip: this.ip,
             port: +this.port,
             nethash: this.nethash,
@@ -110,12 +104,6 @@ export class Peer implements P2P.IPeer {
             height: this.state.height,
             delay: this.delay,
         };
-
-        if (this.config.get("network.name") !== "mainnet") {
-            (data as any).hashid = this.hashid || "unknown";
-        }
-
-        return data;
     }
 
     /**
@@ -124,7 +112,7 @@ export class Peer implements P2P.IPeer {
      * @return {(Object|undefined)}
      */
     public async postBlock(block) {
-        return this.emit("p2p.peer.postBlock", { block });
+        return this.emit("p2p.peer.postBlock", { block }, 5000);
     }
 
     /**
@@ -132,7 +120,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Transaction[]}      transactions
      * @return {(Object|undefined)}
      */
-    public async postTransactions(transactions) {
+    public async postTransactions(transactions): Promise<any> {
         try {
             const response = await this.emit("p2p.peer.postTransactions", { transactions });
 
@@ -147,7 +135,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Number} fromBlockHeight
      * @return {(Object[]|undefined)}
      */
-    public async downloadBlocks(fromBlockHeight) {
+    public async downloadBlocks(fromBlockHeight): Promise<any> {
         try {
             const response = await this.getPeerBlocks(fromBlockHeight);
 
@@ -214,7 +202,7 @@ export class Peer implements P2P.IPeer {
      * Returns true if this peer was pinged the past 2 minutes.
      * @return {Boolean}
      */
-    public recentlyPinged() {
+    public recentlyPinged(): boolean {
         return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
     }
 
@@ -222,7 +210,7 @@ export class Peer implements P2P.IPeer {
      * Refresh peer list. It removes blacklisted peers from the fetch
      * @return {Object[]}
      */
-    public async getPeers() {
+    public async getPeers(): Promise<any> {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         const body: any = await this.emit("p2p.peer.getPeers", null);
@@ -242,7 +230,7 @@ export class Peer implements P2P.IPeer {
      * @param {Number} timeoutMsec timeout for the operation, in milliseconds
      * @return {Boolean}
      */
-    public async hasCommonBlocks(ids, timeoutMsec?: number) {
+    public async hasCommonBlocks(ids, timeoutMsec?: number): Promise<any> {
         const errorMessage = `Could not determine common blocks with ${this.ip}`;
         try {
             const body: any = await this.emit("p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
@@ -275,8 +263,8 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} response
      * @return {Object}
      */
-    public __parseHeaders(response) {
-        ["nethash", "os", "version", "hashid"].forEach(key => {
+    public __parseHeaders(response): any {
+        ["nethash", "os", "version"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });
 

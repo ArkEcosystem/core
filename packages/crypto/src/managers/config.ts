@@ -1,7 +1,7 @@
 import deepmerge from "deepmerge";
-import camelCase from "lodash/camelCase";
-import get from "lodash/get";
-import set from "lodash/set";
+import camelCase from "lodash.camelcase";
+import get from "lodash.get";
+import set from "lodash.set";
 
 import { TransactionTypes } from "../constants";
 import * as networks from "../networks";

@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import joi from "joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
@@ -58,7 +59,11 @@ export const store: object = {
     required: ["transactions"],
     additionalProperties: false,
     properties: {
-        transactions: { $ref: "transactions", minItems: 1, maxItems: 40 }, // TODO: use config
+        transactions: {
+            $ref: "transactions",
+            minItems: 1,
+            maxItems: app.resolveOptions("transaction-pool").maxTransactionsPerRequest,
+        },
     },
 };
 

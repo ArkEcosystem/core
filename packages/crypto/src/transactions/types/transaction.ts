@@ -26,9 +26,30 @@ export abstract class Transaction {
         return this.fromSerialized(buffer);
     }
 
+    /**
+     * Deserializes a transaction from `buffer` with the given `id`. It is faster
+     * than `fromBytes` at the cost of vital safety checks (validation, verification and id calculation).
+     *
+     * NOTE: Only use this internally when it is safe to assume the buffer has already been
+     * verified.
+     */
+    public static fromBytesUnsafe(buffer: Buffer, id?: string): Transaction {
+        try {
+            const transaction = TransactionDeserializer.deserialize(buffer);
+            transaction.data.id = id || crypto.getId(transaction.data);
+            transaction.isVerified = true;
+
+            return transaction;
+        } catch (error) {
+            throw new MalformedTransactionBytesError();
+        }
+    }
+
     private static fromSerialized(serialized: string | Buffer): Transaction {
         try {
             const transaction = TransactionDeserializer.deserialize(serialized);
+            transaction.data.id = crypto.getId(transaction.data);
+
             const { value, error } = this.validateSchema(transaction.data, true);
             if (error !== null && !isException(value)) {
                 throw new TransactionSchemaError(error);

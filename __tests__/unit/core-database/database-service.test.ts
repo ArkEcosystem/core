@@ -14,7 +14,7 @@ import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 const { Block } = models;
 const { SATOSHI, TransactionTypes } = constants;
 
-let connection: Database.IDatabaseConnection;
+let connection: Database.IConnection;
 let databaseService: DatabaseService;
 let walletManager: Database.IWalletManager;
 let container;
@@ -46,7 +46,7 @@ describe("Database Service", () => {
 
         databaseService = createService();
 
-        expect(emitter.on).toHaveBeenCalledWith("state:started", expect.toBeFunction());
+        expect(emitter.on).toHaveBeenCalledWith("state.started", expect.toBeFunction());
         expect(emitter.on).toHaveBeenCalledWith("wallet.created.cold", expect.toBeFunction());
     });
 
@@ -86,8 +86,8 @@ describe("Database Service", () => {
             databaseService = createService();
 
             connection.blocksRepository = {
-                findByHeight: heights => heights.map(h => ({ height: Number(h), fromDb: true })),
-            } as Database.IBlocksRepository;
+                findByHeights: (heights: number[]) => heights.map(h => ({ height: Number(h), fromDb: true })),
+            } as any; // FIXME: use Database.IBlocksRepository
 
             let requestHeights = requestHeightsHigh;
 

@@ -5,7 +5,7 @@ import { configManager } from "../managers/config";
 import { ITransactionData, Transaction } from "../transactions";
 import { BlockDeserializer } from "../transactions/deserializers";
 import { BlockSerializer } from "../transactions/serializers";
-import { Bignum } from "../utils";
+import { Bignum, isException } from "../utils";
 import { AjvWrapper } from "../validation";
 
 export interface BlockVerification {
@@ -127,7 +127,7 @@ export class Block implements IBlock {
         this.data = deserialized.data;
 
         const { value, error } = AjvWrapper.validate("block", deserialized.data);
-        if (error !== null) {
+        if (error !== null && !(isException(value) || this.data.transactions.some(tx => isException(tx)))) {
             throw new BlockSchemaError(error);
         }
 
@@ -196,7 +196,7 @@ export class Block implements IBlock {
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
-    public toJson(): any {
+    public toJson(): IBlockData {
         const blockData = Object.assign({}, this.data) as IBlockData;
         ["reward", "totalAmount", "totalFee"].forEach((key: string) => {
             blockData[key] = +(blockData[key] as Bignum).toFixed();

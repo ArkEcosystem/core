@@ -7,6 +7,7 @@ export const queries = {
         delete: loadQueryFile(__dirname, "./blocks/delete.sql"),
         findById: loadQueryFile(__dirname, "./blocks/find-by-id.sql"),
         findByHeight: loadQueryFile(__dirname, "./blocks/find-by-height.sql"),
+        findByHeights: loadQueryFile(__dirname, "./blocks/find-by-heights.sql"),
         headers: loadQueryFile(__dirname, "./blocks/headers.sql"),
         heightRange: loadQueryFile(__dirname, "./blocks/height-range.sql"),
         latest: loadQueryFile(__dirname, "./blocks/latest.sql"),

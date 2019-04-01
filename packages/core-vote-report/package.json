@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-vote-report",
     "description": "Vote Report for Ark Core",
-    "version": "2.2.1",
+    "version": "2.3.0-next.3",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,10 +18,10 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.2.1",
-        "@arkecosystem/core-http-utils": "^2.2.1",
-        "@arkecosystem/core-utils": "^2.2.1",
-        "@arkecosystem/crypto": "^2.2.1",
+        "@arkecosystem/core-container": "^2.3.0-next.3",
+        "@arkecosystem/core-http-utils": "^2.3.0-next.3",
+        "@arkecosystem/core-utils": "^2.3.0-next.3",
+        "@arkecosystem/crypto": "^2.3.0-next.3",
         "handlebars": "^4.1.0",
         "lodash.sumby": "^4.6.0",
         "vision": "^5.4.4"
