@@ -10,7 +10,7 @@ export class Environment {
      * @param  {Object} variables
      * @return {void}
      */
-    constructor(readonly variables: any) {}
+    constructor(private readonly variables: Record<string, any>) {}
 
     /**
      * Set up the environment variables.

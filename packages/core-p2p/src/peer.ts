@@ -10,12 +10,12 @@ import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./reply-schemas";
 
 export class Peer implements P2P.IPeer {
-    public downloadSize: any;
-    public nethash: any;
-    public version: any;
-    public os: any;
-    public status: any;
-    public delay: any;
+    public downloadSize: number;
+    public nethash: string;
+    public version: string;
+    public os: string;
+    public status: string | number;
+    public delay: number;
     public ban: number;
     public offences: any[];
 
@@ -25,7 +25,7 @@ export class Peer implements P2P.IPeer {
         nethash: number;
         height: number | null;
         "Content-Type": "application/json";
-        status?: any;
+        status?: string | number;
     };
 
     public state: any;
@@ -66,7 +66,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} headers
      * @return {void}
      */
-    public setHeaders(headers) {
+    public setHeaders(headers: Record<string, any>): void {
         ["nethash", "os", "version"].forEach(key => {
             this[key] = headers[key];
         });
@@ -77,7 +77,7 @@ export class Peer implements P2P.IPeer {
      * @param  {String} value
      * @return {void}
      */
-    public setStatus(value) {
+    public setStatus(value: string | number): void {
         this.headers.status = value;
     }
 
@@ -103,7 +103,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Block}              block
      * @return {(Object|undefined)}
      */
-    public async postBlock(block) {
+    public async postBlock(block): Promise<any> {
         return this.__post(
             "/peer/blocks",
             { block },
@@ -119,7 +119,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Transaction[]}      transactions
      * @return {(Object|undefined)}
      */
-    public async postTransactions(transactions) {
+    public async postTransactions(transactions): Promise<any> {
         try {
             const response = await this.__post(
                 "/peer/transactions",
@@ -143,7 +143,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Number} fromBlockHeight
      * @return {(Object[]|undefined)}
      */
-    public async downloadBlocks(fromBlockHeight) {
+    public async downloadBlocks(fromBlockHeight): Promise<any> {
         try {
             const response = await this.getPeerBlocks(fromBlockHeight);
 
@@ -174,7 +174,7 @@ export class Peer implements P2P.IPeer {
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    public async ping(delay: number, force = false) {
+    public async ping(delay: number, force: boolean = false): Promise<any> {
         const deadline = new Date().getTime() + delay;
 
         if (this.recentlyPinged() && !force) {
@@ -213,7 +213,7 @@ export class Peer implements P2P.IPeer {
      * Returns true if this peer was pinged the past 2 minutes.
      * @return {Boolean}
      */
-    public recentlyPinged() {
+    public recentlyPinged(): boolean {
         return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
     }
 
@@ -221,7 +221,7 @@ export class Peer implements P2P.IPeer {
      * Refresh peer list. It removes blacklisted peers from the fetch
      * @return {Object[]}
      */
-    public async getPeers() {
+    public async getPeers(): Promise<any> {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
         const body = await this.__get("/peer/list");
@@ -241,7 +241,7 @@ export class Peer implements P2P.IPeer {
      * @param {Number} timeoutMsec timeout for the operation, in milliseconds
      * @return {Boolean}
      */
-    public async hasCommonBlocks(ids, timeoutMsec?: number) {
+    public async hasCommonBlocks(ids, timeoutMsec?: number): Promise<any> {
         const errorMessage = `Could not determine common blocks with ${this.ip}`;
         try {
             let url = `/peer/blocks/common?ids=${ids.join(",")}`;
@@ -280,7 +280,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Number} [timeout=10000]
      * @return {(Object|undefined)}
      */
-    public async __get(endpoint, timeout?) {
+    public async __get(endpoint, timeout?): Promise<any> {
         const temp = new Date().getTime();
 
         try {
@@ -321,7 +321,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} opts
      * @return {(Object|undefined)}
      */
-    public async __post(endpoint, body, opts) {
+    public async __post(endpoint, body, opts): Promise<any> {
         try {
             const response = await httpie.post(`${this.url}${endpoint}`, { body, ...opts });
 
@@ -342,7 +342,7 @@ export class Peer implements P2P.IPeer {
      * @param  {Object} response
      * @return {Object}
      */
-    public __parseHeaders(response) {
+    public __parseHeaders(response): any {
         ["nethash", "os", "version"].forEach(key => {
             this[key] = response.headers[key] || this[key];
         });

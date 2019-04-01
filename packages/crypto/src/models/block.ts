@@ -196,7 +196,7 @@ export class Block implements IBlock {
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
-    public toJson(): any {
+    public toJson(): IBlockData {
         const blockData = Object.assign({}, this.data) as IBlockData;
         ["reward", "totalAmount", "totalFee"].forEach((key: string) => {
             blockData[key] = +(blockData[key] as Bignum).toFixed();

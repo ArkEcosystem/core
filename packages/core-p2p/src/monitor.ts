@@ -12,18 +12,12 @@ import shuffle from "lodash.shuffle";
 import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
-
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
+import { IAcceptNewPeerOptions } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
-
 import { checkDNS, checkNTP, isValidPeer, restorePeers } from "./utils";
-
-interface IAcceptNewPeerOptions {
-    seed?: boolean;
-    lessVerbose?: boolean;
-}
 
 export class Monitor implements P2P.IMonitor {
     public peers: { [ip: string]: any };
@@ -58,7 +52,7 @@ export class Monitor implements P2P.IMonitor {
      * Method to run on startup.
      * @param {Object} options
      */
-    public async start(options) {
+    public async start(options): Promise<this> {
         this.config = options;
 
         await this.__checkDNSConnectivity(options.dns);
@@ -90,7 +84,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Boolean} networkStart
      * @return {Promise}
      */
-    public async updateNetworkStatus(networkStart: boolean = false) {
+    public async updateNetworkStatus(networkStart: boolean = false): Promise<void> {
         if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
             return;
         }
@@ -205,7 +199,7 @@ export class Monitor implements P2P.IMonitor {
      * Remove peer from monitor.
      * @param {Peer} peer
      */
-    public removePeer(peer) {
+    public removePeer(peer): void {
         delete this.peers[peer.ip];
     }
 
@@ -215,7 +209,7 @@ export class Monitor implements P2P.IMonitor {
      * @param {Boolean} tracker
      * @param {Boolean} forcePing
      */
-    public async cleanPeers(fast = false, forcePing = false) {
+    public async cleanPeers(fast = false, forcePing = false): Promise<void> {
         const keys = Object.keys(this.peers);
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
@@ -263,7 +257,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Peer} peer
      * @return {void}
      */
-    public suspendPeer(ip) {
+    public suspendPeer(ip): void {
         const peer = this.peers[ip];
 
         if (peer && !this.guard.isSuspended(peer)) {
@@ -275,7 +269,7 @@ export class Monitor implements P2P.IMonitor {
      * Get a list of all suspended peers.
      * @return {void}
      */
-    public getSuspendedPeers() {
+    public getSuspendedPeers(): any {
         return this.guard.all();
     }
 
@@ -283,7 +277,7 @@ export class Monitor implements P2P.IMonitor {
      * Get all available peers.
      * @return {Peer[]}
      */
-    public getPeers() {
+    public getPeers(): Peer[] {
         return Object.values(this.peers) as Peer[];
     }
 
@@ -292,11 +286,11 @@ export class Monitor implements P2P.IMonitor {
      * @param  {String} ip
      * @return {Peer}
      */
-    public getPeer(ip) {
+    public getPeer(ip): Peer {
         return this.peers[ip];
     }
 
-    public async peerHasCommonBlocks(peer, blockIds) {
+    public async peerHasCommonBlocks(peer, blockIds): Promise<boolean> {
         if (await peer.hasCommonBlocks(blockIds)) {
             return true;
         }
@@ -311,7 +305,7 @@ export class Monitor implements P2P.IMonitor {
     /**
      * Populate list of available peers from random peers.
      */
-    public async discoverPeers() {
+    public async discoverPeers(): Promise<void> {
         const queryAtLeastNPeers = 4;
         let queriedPeers = 0;
 
@@ -336,7 +330,7 @@ export class Monitor implements P2P.IMonitor {
      * Check if we have any peers.
      * @return {bool}
      */
-    public hasPeers() {
+    public hasPeers(): boolean {
         return !!this.getPeers().length;
     }
 
@@ -344,7 +338,7 @@ export class Monitor implements P2P.IMonitor {
      * Get the median network height.
      * @return {Number}
      */
-    public getNetworkHeight() {
+    public getNetworkHeight(): number {
         const medians = this.getPeers()
             .filter(peer => peer.state.height)
             .map(peer => peer.state.height)
@@ -357,7 +351,7 @@ export class Monitor implements P2P.IMonitor {
      * Get the PBFT Forging status.
      * @return {Number}
      */
-    public getPBFTForgingStatus() {
+    public getPBFTForgingStatus(): number {
         const height = this.getNetworkHeight();
         const slot = slots.getSlotNumber();
 
@@ -394,7 +388,7 @@ export class Monitor implements P2P.IMonitor {
      * suspended.
      * @return {void}
      */
-    public async refreshPeersAfterFork() {
+    public async refreshPeersAfterFork(): Promise<void> {
         this.logger.info(`Refreshing ${this.getPeers().length} peers after fork.`);
 
         // Reset all peers, except peers banned because of causing a fork.
@@ -413,7 +407,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Number}   fromBlockHeight
      * @return {Object[]}
      */
-    public async downloadBlocks(fromBlockHeight) {
+    public async downloadBlocks(fromBlockHeight): Promise<any> {
         let randomPeer;
 
         try {
@@ -444,7 +438,7 @@ export class Monitor implements P2P.IMonitor {
      * @param  {Block}   block
      * @return {Promise}
      */
-    public async broadcastBlock(block) {
+    public async broadcastBlock(block): Promise<void> {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
@@ -491,7 +485,7 @@ export class Monitor implements P2P.IMonitor {
      * Broadcast transactions to a fixed number of random peers.
      * @param {Transaction[]} transactions
      */
-    public async broadcastTransactions(transactions) {
+    public async broadcastTransactions(transactions): Promise<any> {
         const peers = take(shuffle(this.getPeers()), localConfig.get("maxPeersBroadcast"));
 
         this.logger.debug(
@@ -521,7 +515,7 @@ export class Monitor implements P2P.IMonitor {
 
         const peers = this.getPeers();
         const suspendedPeers = Object.values(this.getSuspendedPeers())
-            .map(suspendedPeer => suspendedPeer.peer)
+            .map((suspendedPeer: any) => suspendedPeer.peer)
             .filter(peer => peer.verification !== null);
 
         const allPeers = [...peers, ...suspendedPeers];
@@ -565,7 +559,7 @@ export class Monitor implements P2P.IMonitor {
      * Dump the list of active peers.
      * @return {void}
      */
-    public dumpPeers() {
+    public cachePeers(): void {
         const peers = Object.values(this.peers).map(peer => ({
             ip: peer.ip,
             port: peer.port,
@@ -583,7 +577,7 @@ export class Monitor implements P2P.IMonitor {
      * Get last 10 block IDs from database.
      * @return {[]String}
      */
-    public async __getRecentBlockIds() {
+    public async __getRecentBlockIds(): Promise<string[]> {
         return app.resolvePlugin<Database.IDatabaseService>("database").getRecentBlockIds();
     }
 
@@ -592,7 +586,7 @@ export class Monitor implements P2P.IMonitor {
      * We need this for the network to start, so we dont forge, while
      * not all peers are up, or the network is not active
      */
-    public __isColdStartActive() {
+    public __isColdStartActive(): boolean {
         return this.coldStartPeriod.isAfter(dato());
     }
 
@@ -600,7 +594,7 @@ export class Monitor implements P2P.IMonitor {
      * Check if the node can connect to any DNS host.
      * @return {void}
      */
-    public async __checkDNSConnectivity(options) {
+    public async __checkDNSConnectivity(options): Promise<void> {
         try {
             const host = await checkDNS(options);
 
@@ -614,7 +608,7 @@ export class Monitor implements P2P.IMonitor {
      * Check if the node can connect to any NTP host.
      * @return {void}
      */
-    public async __checkNTPConnectivity(options) {
+    public async __checkNTPConnectivity(options): Promise<void> {
         try {
             const { host, time } = await checkNTP(options);
 
@@ -631,7 +625,7 @@ export class Monitor implements P2P.IMonitor {
      * @return {Peer}
      * @throws {Error} if a peer could not be selected
      */
-    private getRandomPeerForDownloadingBlocks() {
+    private getRandomPeerForDownloadingBlocks(): Peer {
         const now = new Date().getTime();
         const peersAll = this.getPeers();
 
@@ -652,7 +646,7 @@ export class Monitor implements P2P.IMonitor {
      * @param {Number} nextUpdateInSeconds
      * @returns {void}
      */
-    private async scheduleUpdateNetworkStatus(nextUpdateInSeconds) {
+    private async scheduleUpdateNetworkStatus(nextUpdateInSeconds): Promise<void> {
         if (this.nextUpdateNetworkStatusScheduled) {
             return;
         }
@@ -670,7 +664,7 @@ export class Monitor implements P2P.IMonitor {
      * Returns if the minimum amount of peers are available.
      * @return {Boolean}
      */
-    private hasMinimumPeers() {
+    private hasMinimumPeers(): boolean {
         if (this.config.ignoreMinimumNetworkReach) {
             this.logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
 
@@ -684,7 +678,7 @@ export class Monitor implements P2P.IMonitor {
      * Populate the initial seed list.
      * @return {void}
      */
-    private async populateSeedPeers() {
+    private async populateSeedPeers(): Promise<any> {
         const peerList = this.appConfig.get("peers.list");
 
         if (!peerList) {
@@ -702,7 +696,7 @@ export class Monitor implements P2P.IMonitor {
 
         return Promise.all(
             Object.values(peers).map((peer: any) => {
-                delete this.guard.suspensions[peer.ip];
+                this.guard.delete(peer.ip);
                 return this.acceptNewPeer(peer, { seed: true, lessVerbose: true });
             }),
         );

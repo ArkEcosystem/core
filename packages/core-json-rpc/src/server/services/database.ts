@@ -1,7 +1,7 @@
 import Keyv from "keyv";
 
 class Database {
-    public database: any;
+    public database: Keyv;
 
     public init(options) {
         this.database = new Keyv(options);

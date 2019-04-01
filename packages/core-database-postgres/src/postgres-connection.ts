@@ -4,7 +4,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { configManager, models, Transaction } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
-import pgPromise from "pg-promise";
+import pgPromise, { IMain } from "pg-promise";
 import { IntegrityVerifier } from "./integrity-verifier";
 import { migrations } from "./migrations";
 import { Model } from "./models";
@@ -22,13 +22,77 @@ export class PostgresConnection implements Database.IConnection {
     public roundsRepository: Database.IRoundsRepository;
     public transactionsRepository: Database.ITransactionsRepository;
     public walletsRepository: Database.IWalletsRepository;
-    public pgp: any;
+    public pgp: IMain;
     private emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
     public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
+
+    public async make(): Promise<Database.IConnection> {
+        if (this.db) {
+            throw new Error("Database connection already initialised");
+        }
+
+        this.logger.debug("Connecting to database");
+
+        this.queuedQueries = null;
+        this.cache = new Map();
+
+        try {
+            await this.connect();
+            this.exposeRepositories();
+            await this.registerQueryExecutor();
+            await this.runMigrations();
+            await this.registerModels();
+            this.logger.debug("Connected to database.");
+            this.emitter.emit(Database.DatabaseEvents.POST_CONNECT);
+
+            return this;
+        } catch (error) {
+            app.forceExit("Unable to connect to the database!", error);
+        }
+
+        return null;
+    }
+
+    public async connect(): Promise<void> {
+        this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
+
+        const initialization = {
+            receive(data) {
+                camelizeColumns(pgp, data);
+            },
+            extend(object) {
+                for (const repository of Object.keys(repositories)) {
+                    object[repository] = new repositories[repository](object, pgp);
+                }
+            },
+        };
+
+        const pgp = pgPromise({ ...this.options.initialization, ...initialization });
+
+        this.pgp = pgp;
+        this.db = this.pgp(this.options.connection);
+    }
+
+    public async disconnect(): Promise<void> {
+        this.logger.debug("Disconnecting from database");
+        this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
+
+        try {
+            await this.commitQueuedQueries();
+            this.cache.clear();
+        } catch (error) {
+            this.logger.warn("Issue in commiting blocks, database might be corrupted");
+            this.logger.warn(error.message);
+        }
+
+        await this.pgp.end();
+        this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
+        this.logger.debug("Disconnected from database");
+    }
 
     public async buildWallets(): Promise<boolean> {
         try {
@@ -61,26 +125,6 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async connect(): Promise<void> {
-        this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
-
-        const initialization = {
-            receive(data) {
-                camelizeColumns(pgp, data);
-            },
-            extend(object) {
-                for (const repository of Object.keys(repositories)) {
-                    object[repository] = new repositories[repository](object, pgp);
-                }
-            },
-        };
-
-        const pgp = pgPromise({ ...this.options.initialization, ...initialization });
-
-        this.pgp = pgp;
-        this.db = this.pgp(this.options.connection);
-    }
-
     public async deleteBlock(block: models.Block): Promise<void> {
         try {
             await this.db.tx(t =>
@@ -96,23 +140,6 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async disconnect(): Promise<void> {
-        this.logger.debug("Disconnecting from database");
-        this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
-
-        try {
-            await this.commitQueuedQueries();
-            this.cache.clear();
-        } catch (error) {
-            this.logger.warn("Issue in commiting blocks, database might be corrupted");
-            this.logger.warn(error.message);
-        }
-
-        await this.pgp.end();
-        this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
-        this.logger.debug("Disconnected from database");
-    }
-
     public enqueueDeleteBlock(block: models.Block): void {
         this.enqueueQueries([
             this.transactionsRepository.deleteByBlockId(block.data.id),
@@ -126,33 +153,6 @@ export class PostgresConnection implements Database.IConnection {
         if (nextRound === round + 1 && height >= maxDelegates) {
             this.enqueueQueries([this.roundsRepository.delete(nextRound)]);
         }
-    }
-
-    public async make(): Promise<Database.IConnection> {
-        if (this.db) {
-            throw new Error("Database connection already initialised");
-        }
-
-        this.logger.debug("Connecting to database");
-
-        this.queuedQueries = null;
-        this.cache = new Map();
-
-        try {
-            await this.connect();
-            this.exposeRepositories();
-            await this.registerQueryExecutor();
-            await this.runMigrations();
-            await this.registerModels();
-            this.logger.debug("Connected to database.");
-            this.emitter.emit(Database.DatabaseEvents.POST_CONNECT);
-
-            return this;
-        } catch (error) {
-            app.forceExit("Unable to connect to the database!", error);
-        }
-
-        return null;
     }
 
     public async saveBlock(block: models.Block): Promise<void> {

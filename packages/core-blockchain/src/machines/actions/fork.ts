@@ -8,7 +8,7 @@ export const fork = {
             },
         },
         network: {
-            onEntry: ["checkNetwork"],
+            onEntry: ["checkNetwork"], // TODO: implement
         },
         revertBlocks: {},
         exit: {

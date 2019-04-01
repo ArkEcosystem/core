@@ -12,7 +12,7 @@ const config = app.getConfig();
 const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
 
 export class IntegrityVerifier {
-    constructor(private query: QueryExecutor, private walletManager: Database.IWalletManager) {}
+    constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
 
     /**
      * Perform the State & Integrity Verification.

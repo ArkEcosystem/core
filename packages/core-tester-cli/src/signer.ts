@@ -1,5 +1,4 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { formatSatoshi } from "@arkecosystem/crypto";
 import { client } from "@arkecosystem/crypto";
 
 export class Signer {

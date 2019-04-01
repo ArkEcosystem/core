@@ -1,4 +1,5 @@
 import { models, Transaction } from "@arkecosystem/crypto";
+import { IDatabaseService } from "../core-database";
 import { IMonitor } from "../core-p2p";
 import { IConnection } from "../core-transaction-pool";
 import { IStateStorage } from "./state-storage";
@@ -25,9 +26,9 @@ export interface IBlockchain {
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    readonly database: any;
+    readonly database: IDatabaseService;
 
-    dispatch(event: any): any;
+    dispatch(event: string): void;
 
     /**
      * Start the blockchain and wait for it to be ready.
@@ -36,8 +37,6 @@ export interface IBlockchain {
     start(skipStartedCheck?: boolean): Promise<boolean>;
 
     stop(): Promise<void>;
-
-    checkNetwork(): void;
 
     /**
      * Update network status.

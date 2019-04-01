@@ -1,4 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import { IMain } from "pg-promise";
 import { Model } from "../models";
 
 export abstract class Repository implements Database.IRepository {
@@ -10,7 +11,7 @@ export abstract class Repository implements Database.IRepository {
      * @param  {Object} db
      * @param  {Object} pgp
      */
-    constructor(public db, public pgp) {
+    constructor(protected readonly db, protected readonly pgp: IMain) {
         this.model = this.getModel();
         this.query = this.model.query();
     }

@@ -2,24 +2,24 @@ import { Container as container, EventEmitter, Logger } from "@arkecosystem/core
 import { createContainer, Resolver } from "awilix";
 import delay from "delay";
 import semver from "semver";
-import { configManager } from "./config";
+import { Config, configManager } from "./config";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
 export class Container implements container.IContainer {
-    public options: any;
-    public exitEvents: any;
     /**
      * May be used by CLI programs to suppress the shutdown messages.
      */
     public silentShutdown = false;
-    public plugins: any;
+    public options: Record<string, any>;
+    public plugins: PluginRegistrar;
     public shuttingDown: boolean;
     public version: string;
     public isReady: boolean = false;
-    public variables: any;
-    public config: any;
-    private container = createContainer();
+    public variables: Record<string, any>;
+    public config: Config;
+
+    private readonly container = createContainer();
 
     /**
      * Set up the app.
@@ -28,7 +28,7 @@ export class Container implements container.IContainer {
      * @param  {Object} options
      * @return {void}
      */
-    public async setUp(version: string, variables: any, options: any = {}) {
+    public async setUp(version: string, variables: Record<string, any>, options: Record<string, any> = {}) {
         // Register any exit signal handling
         this.registerExitHandler(["SIGINT", "exit"]);
 
