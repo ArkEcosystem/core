@@ -91,9 +91,8 @@ describe("Models - Block", () => {
             };
             const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
-                .withFee(210)
                 .withPassphrase("super cool passphrase")
-                .create();
+                .create(210);
 
             const blockForged = delegate.forge(transactions, optionsDefault);
 
