@@ -2,7 +2,7 @@ import { Container as container, EventEmitter, Logger } from "@arkecosystem/core
 import { createContainer, Resolver } from "awilix";
 import delay from "delay";
 import semver from "semver";
-import { Config, configManager } from "./config";
+import { configManager } from "./config";
 import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
@@ -17,7 +17,7 @@ export class Container implements container.IContainer {
     public version: string;
     public isReady: boolean = false;
     public variables: Record<string, any>;
-    public config: Config;
+    public config: any;
 
     private readonly container = createContainer();
 
