@@ -19,7 +19,7 @@ describe("Transaction Forging - Transfer", () => {
         await support.expectTransactionForged(transactions[0].id);
     });
 
-    it.only("should broadcast, accept and forge it [Signed with 2 Passphases]", async () => {
+    it("should broadcast, accept and forge it [Signed with 2 Passphases]", async () => {
         // Funds to register a second passphrase
         const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 50)
             .withPassphrase(secrets[0])

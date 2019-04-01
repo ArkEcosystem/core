@@ -51,7 +51,7 @@ export async function expectAcceptAndBroadcast(transactions, id): Promise<void> 
     const { body } = await RestClient.broadcast(transactions);
 
     if (body.data.invalid.length) {
-        console.log(body.data, JSON.stringify(transactions));
+        console.log(body.errors);
     }
 
     expect(body.data.accept).toContain(id);

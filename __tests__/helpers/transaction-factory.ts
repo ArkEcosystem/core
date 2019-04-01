@@ -1,4 +1,4 @@
-import { configManager, ITransactionData, NetworkName, transactionBuilder } from "@arkecosystem/crypto";
+import { configManager, constants, ITransactionData, NetworkName, transactionBuilder } from "@arkecosystem/crypto";
 import { Address, PublicKey } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
 import { secrets } from "../utils/config/testnet/delegates.json";
@@ -9,7 +9,7 @@ export class TransactionFactory {
     public static transfer(recipientId?: string, amount: number = 2, vendorField?: string): TransactionFactory {
         const builder = transactionBuilder
             .transfer()
-            .amount(amount)
+            .amount(amount * constants.SATOSHI)
             .recipientId(recipientId || Address.fromPassphrase(defaultPassphrase));
 
         if (vendorField) {
@@ -85,8 +85,6 @@ export class TransactionFactory {
     }
 
     public withPassphrases(passphrases: { passphrase: string; secondPassphrase: string }): TransactionFactory {
-        console.log(passphrases);
-
         this.passphrase = passphrases.passphrase;
         this.secondPassphrase = passphrases.secondPassphrase;
 
@@ -94,28 +92,22 @@ export class TransactionFactory {
     }
 
     public create(quantity: number = 1): ITransactionData[] {
+        configManager.setFromPreset(this.network);
+
         const transactions: ITransactionData[] = [];
 
         for (let i = 0; i < quantity; i++) {
-            if (this.network) {
-                configManager.setFromPreset(this.network);
-            }
-
             if (this.fee) {
                 this.builder.fee(this.fee);
             }
 
-            if (this.passphrase) {
-                this.builder.sign(this.passphrase);
-            }
+            this.builder.sign(this.passphrase);
 
             if (this.secondPassphrase) {
                 this.builder.secondSign(this.secondPassphrase);
             }
 
             transactions.push(this.builder.getStruct());
-
-            console.log(this.builder.build().verify());
         }
 
         return transactions;
