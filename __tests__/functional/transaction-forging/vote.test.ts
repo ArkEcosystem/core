@@ -29,7 +29,7 @@ describe("Transaction Forging - Vote", () => {
         await support.expectTransactionForged(transactions[0].id);
     });
 
-    it("should broadcast, accept and forge it [Signed with 2 Passphases]", async () => {
+    it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Make a fresh wallet for the second signature tests
         const passphrase = secondPassphrase;
 
@@ -52,12 +52,12 @@ describe("Transaction Forging - Vote", () => {
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Submit a vote
-        const transactions = TransactionFactory.vote(PublicKey.fromPassphrase(secrets[0]))
+        const vote = TransactionFactory.vote(PublicKey.fromPassphrase(secrets[0]))
             .withPassphrases(support.passphrases)
             .create();
 
-        await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
+        await support.expectAcceptAndBroadcast(vote, vote[0].id);
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(transactions[0].id);
+        await support.expectTransactionForged(vote[0].id);
     });
 });

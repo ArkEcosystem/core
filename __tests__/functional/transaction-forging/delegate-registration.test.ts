@@ -29,7 +29,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await support.expectTransactionForged(transactions[0].id);
     });
 
-    it("should broadcast, accept and forge it [Signed with 2 Passphases]", async () => {
+    it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Make a fresh wallet for the second signature tests
         const passphrase = secondPassphrase;
 
@@ -52,12 +52,12 @@ describe("Transaction Forging - Delegate Registration", () => {
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Register a delegate
-        const transactions = TransactionFactory.delegateRegistration("second_username")
+        const delegateRegistration = TransactionFactory.delegateRegistration("second_username")
             .withPassphrases(support.passphrases)
             .create();
 
-        await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
+        await support.expectAcceptAndBroadcast(delegateRegistration, delegateRegistration[0].id);
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(transactions[0].id);
+        await support.expectTransactionForged(delegateRegistration[0].id);
     });
 });
