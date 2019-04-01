@@ -122,11 +122,13 @@ describe("Transaction Guard", () => {
             const tx = TransactionFactory.transfer(wallets[12].address)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[11].passphrase)
-                .create(3)[0];
-            tx.data.signatures = [""];
-            for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
-                tx.data.signatures += "1";
-            }
+                .build(3)[0];
+
+            // @FIXME: Uhm excuse me, what the?
+            // tx.data.signatures = [""];
+            // for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
+            //     tx.data.signatures += "1";
+            // }
             guard.__filterAndTransformTransactions([tx]);
 
             expect(guard.errors[tx.id]).toEqual([
@@ -257,7 +259,7 @@ describe("Transaction Guard", () => {
             const transactions = TransactionFactory.transfer(wallets[11].address, 35)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
-                .create(3);
+                .build(3);
 
             // use guard.accept.set() call to introduce a throw
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementationOnce(() => {
@@ -282,7 +284,7 @@ describe("Transaction Guard", () => {
             const transactions = TransactionFactory.transfer("DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY", 35)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
-                .create(3);
+                .build(3);
 
             expect(guard.__validateTransaction(transactions[0].data)).toBeFalse();
             expect(guard.errors).toEqual({
@@ -328,17 +330,17 @@ describe("Transaction Guard", () => {
             const vote = TransactionFactory.vote(delegates[0].publicKey)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
-                .create()[0];
+                .build()[0];
 
             const delegateReg = TransactionFactory.delegateRegistration()
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[11].passphrase)
-                .create()[0];
+                .build()[0];
 
             const signature = TransactionFactory.secondSignature(wallets[12].passphrase)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[12].passphrase)
-                .create()[0];
+                .build()[0];
 
             for (const tx of [vote, delegateReg, signature]) {
                 expect(guard.__validateTransaction(tx.data)).toBeFalse();
@@ -362,7 +364,7 @@ describe("Transaction Guard", () => {
             const baseTransaction = TransactionFactory.delegateRegistration()
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[11].passphrase)
-                .create()[0];
+                .build()[0];
 
             for (const transactionType of [
                 constants.TransactionTypes.MultiSignature,
@@ -373,7 +375,8 @@ describe("Transaction Guard", () => {
                 99,
             ]) {
                 baseTransaction.data.type = transactionType;
-                baseTransaction.data.id = transactionType;
+                // @FIXME: Uhm excuse me, what the?
+                // baseTransaction.data.id = transactionType;
 
                 expect(guard.__validateTransaction(baseTransaction)).toBeFalse();
                 expect(guard.errors[baseTransaction.id]).toEqual([
