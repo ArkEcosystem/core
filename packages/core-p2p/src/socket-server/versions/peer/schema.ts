@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-const transactionPool = app.resolveOptions("transactionPool");
+const transactionPool = app.resolveOptions("transaction-pool");
 
 /**
  * @type {Object}

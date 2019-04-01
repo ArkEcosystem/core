@@ -10,7 +10,7 @@ import { monitor } from "../../../monitor";
 
 const { Block } = models;
 
-const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transactionPool");
+const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const acceptNewPeer = async req => {

@@ -34,7 +34,7 @@ export const isForgerAuthorized = req => {
 export const isAppReady = () => {
     const p2p = app.resolvePlugin("p2p");
     return {
-        transactionPool: !!app.resolvePlugin("transactionPool"),
+        transactionPool: !!app.resolvePlugin("transaction-pool"),
         blockchain: !!app.resolvePlugin("blockchain"),
         p2p: !!p2p && !!p2p.guard,
     };
