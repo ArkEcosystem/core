@@ -1,8 +1,20 @@
 import { Database } from "@arkecosystem/core-interfaces";
 
-export class MockDatabaseModel implements Database.IDatabaseModel {
+export class MockDatabaseModel implements Database.IModel {
     public getName(): string {
         return this.constructor.name;
+    }
+
+    public getTable(): string {
+        return "test";
+    }
+
+    public query(): any {
+        return;
+    }
+
+    public getColumnSet(): any {
+        return;
     }
 
     public getSearchableFields(): Database.SearchableField[] {
