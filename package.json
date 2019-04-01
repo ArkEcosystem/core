@@ -106,7 +106,7 @@
     "jest": {
         "testEnvironment": "node",
         "bail": true,
-        "verbose": true,
+        "verbose": false,
         "transform": {
             "^.+\\.tsx?$": "ts-jest"
         },
