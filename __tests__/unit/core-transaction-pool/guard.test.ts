@@ -68,7 +68,7 @@ describe("Transaction Guard", () => {
             const transactions = TransactionFactory.transfer(wallets[11].address, 25)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
-                .create(3);
+                .build(3);
 
             jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
 

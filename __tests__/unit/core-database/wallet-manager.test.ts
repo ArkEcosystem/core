@@ -157,27 +157,27 @@ describe("Wallet Manager", () => {
     });
 
     describe("applyTransaction", () => {
-        describe("when the recipient is a cold wallet", () => {});
+        it.todo("when the recipient is a cold wallet");
 
         const transfer = TransactionFactory.transfer(walletData2.address, 96579)
             .withNetwork("testnet")
             .withPassphrase(Math.random().toString(36))
-            .create()[0];
+            .build()[0];
 
         const delegateReg = TransactionFactory.delegateRegistration()
             .withNetwork("testnet")
             .withPassphrase(Math.random().toString(36))
-            .create()[0];
+            .build()[0];
 
         const secondSign = TransactionFactory.secondSignature()
             .withNetwork("testnet")
             .withPassphrase(Math.random().toString(36))
-            .create()[0];
+            .build()[0];
 
         const vote = TransactionFactory.vote(walletData2.publicKey)
             .withNetwork("testnet")
             .withPassphrase(Math.random().toString(36))
-            .create()[0];
+            .build()[0];
 
         describe.each`
             type          | transaction    | amount               | balanceSuccess              | balanceFail

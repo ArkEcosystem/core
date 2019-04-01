@@ -34,7 +34,14 @@ export class TransactionFactory {
 
     public static delegateRegistration(username?: string): TransactionFactory {
         return new TransactionFactory(
-            transactionBuilder.delegateRegistration().usernameAsset(username || pokemon.random()),
+            transactionBuilder.delegateRegistration().usernameAsset(
+                username ||
+                    pokemon
+                        .random()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, "_")
+                        .substring(0, 20),
+            ),
         );
     }
 
