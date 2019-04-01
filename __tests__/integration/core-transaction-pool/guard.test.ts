@@ -502,13 +502,11 @@ describe("Transaction Guard", () => {
                 // generate delegate registrations, "simple" and 2nd signed
                 const delegateRegs = TransactionFactory.delegateRegistration()
                     .withNetwork("unitnet")
-                    // @TODO: implement withPassphraseMulti
-                    .withPassphraseMulti(wallets.slice(0, modifiedFieldsDelReg.length + 1).map(w => w.passphrase))
+                    .withPassphraseList(wallets.slice(0, modifiedFieldsDelReg.length + 1).map(w => w.passphrase))
                     .create();
                 const delegateRegs2ndSigned = TransactionFactory.delegateRegistration()
                     .withNetwork("unitnet")
-                    // @TODO: implement withPassphraseMulti
-                    .withPassphraseMulti(
+                    .withPassphraseList(
                         wallets2ndSig
                             .slice(0, modifiedFieldsDelReg.length + 1)
                             .map(w => ({ passphrase: w.passphrase, secondPassphrase: w.secondPassphrase })),
@@ -557,13 +555,11 @@ describe("Transaction Guard", () => {
                 // generate votes, "simple" and 2nd signed
                 const votes = TransactionFactory.vote(delegates[21].publicKey)
                     .withNetwork("unitnet")
-                    // @TODO: implement withPassphraseMulti
-                    .withPassphraseMulti(wallets.slice(0, modifiedFieldsVote.length + 1).map(w => w.passphrase))
+                    .withPassphraseList(wallets.slice(0, modifiedFieldsVote.length + 1).map(w => w.passphrase))
                     .create();
                 const votes2ndSigned = TransactionFactory.vote(delegates[21].publicKey)
                     .withNetwork("unitnet")
-                    // @TODO: implement withPassphraseMulti
-                    .withPassphraseMulti(
+                    .withPassphraseList(
                         wallets2ndSig
                             .slice(0, modifiedFieldsVote.length + 1)
                             .map(w => ({ passphrase: w.passphrase, secondPassphrase: w.secondPassphrase })),

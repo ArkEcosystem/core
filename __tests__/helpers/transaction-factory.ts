@@ -56,6 +56,7 @@ export class TransactionFactory {
     private milestone: Record<string, any>;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
+    private passphraseList: string[];
 
     public constructor(builder) {
         this.builder = builder;
@@ -98,11 +99,30 @@ export class TransactionFactory {
         return this;
     }
 
+    public withPassphraseList(passphrases: string[]): TransactionFactory {
+        this.passphraseList = passphrases;
+
+        return this;
+    }
+
     public create(quantity: number = 1): ITransactionData[] {
+        if (this.passphraseList.length) {
+            return this.passphraseList.map(
+                (passphrase: string) =>
+                    this.withPassphrase(passphrase).make<ITransactionData>(quantity, "getStruct")[0],
+            );
+        }
+
         return this.make<ITransactionData>(quantity, "getStruct");
     }
 
     public build(quantity: number = 1): Transaction[] {
+        if (this.passphraseList.length) {
+            return this.passphraseList.map(
+                (passphrase: string) => this.withPassphrase(passphrase).make<Transaction>(quantity, "build")[0],
+            );
+        }
+
         return this.make<Transaction>(quantity, "build");
     }
 
