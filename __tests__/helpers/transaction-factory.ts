@@ -106,7 +106,7 @@ export class TransactionFactory {
     }
 
     public create(quantity: number = 1): ITransactionData[] {
-        if (this.passphraseList.length) {
+        if (this.passphraseList && this.passphraseList.length) {
             return this.passphraseList.map(
                 (passphrase: string) =>
                     this.withPassphrase(passphrase).make<ITransactionData>(quantity, "getStruct")[0],
