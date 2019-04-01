@@ -11,7 +11,7 @@ import { offences } from "./offences";
 export class Guard {
     public config: any;
     public monitor: any;
-    private readonly suspensions: { [ip: string]: P2P.ISuspension };
+    public suspensions: { [ip: string]: P2P.ISuspension };
 
     private readonly appConfig = app.getConfig();
     private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
