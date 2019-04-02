@@ -277,55 +277,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Rollback all blocks up to the previous round.
-     * @return {void}
-     */
-    public async rollbackCurrentRound(): Promise<void> {
-        const height = this.state.getLastBlock().data.height;
-        const maxDelegates = config.getMilestone(height).activeDelegates;
-        const previousRound = Math.floor((height - 1) / maxDelegates);
-
-        if (previousRound < 2) {
-            return;
-        }
-
-        const newHeight = previousRound * maxDelegates;
-        // If the current chain height is H and we will be removing blocks [N, H],
-        // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight);
-        const deleteLastBlock = async () => {
-            const lastBlock = this.state.getLastBlock();
-            await this.database.enqueueDeleteBlock(lastBlock);
-
-            const newLastBlock = new Block(blocksToRemove.pop());
-
-            this.state.setLastBlock(newLastBlock);
-            this.state.lastDownloadedBlock = newLastBlock;
-        };
-
-        logger.info(`Removing ${pluralize("block", height - newHeight, true)} to reset current round`);
-
-        let count = 0;
-        const max = this.state.getLastBlock().data.height - newHeight;
-
-        while (this.state.getLastBlock().data.height >= newHeight + 1) {
-            const removalBlockId = this.state.getLastBlock().data.id;
-            const removalBlockHeight = this.state.getLastBlock().data.height.toLocaleString();
-
-            logger.info(`Removing block ${count++} of ${max} - ID: ${removalBlockId}, height: ${removalBlockHeight}`);
-
-            await deleteLastBlock();
-        }
-
-        // Commit delete blocks
-        await this.database.commitQueuedQueries();
-
-        logger.info(`Removed ${count} ${pluralize("block", max, true)}`);
-
-        await this.database.deleteRound(previousRound + 1);
-    }
-
-    /**
      * Remove N number of blocks.
      * @param  {Number} nblocks
      * @return {void}

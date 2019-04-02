@@ -14,6 +14,7 @@ export const database = {
     deleteRound: () => null,
     applyRound: () => null,
     getActiveDelegates: () => [],
+    restoreCurrentRound: () => null,
     enqueueDeleteBlock: () => null,
     getBlocks: () => [],
     getBlock: () => null,

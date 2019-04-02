@@ -120,8 +120,7 @@ export class TransactionSerializer {
         const { transactionIdFixTable } = configManager.get("exceptions");
         const isBrokenTransaction =
             transactionIdFixTable && Object.values(transactionIdFixTable).includes(transaction.id);
-        const correctType = transaction.type !== 1 && transaction.type !== 4;
-        if (transaction.recipientId && (isBrokenTransaction || correctType)) {
+        if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
             const recipientId =
                 transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
             const recipient = bs58check.decode(recipientId);
