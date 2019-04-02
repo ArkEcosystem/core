@@ -30,5 +30,9 @@ export const plugin: Container.PluginDescriptor = {
 
         const p2p = container.resolvePlugin<Monitor>("p2p");
         p2p.cachePeers();
+
+        if (p2p.server) {
+            p2p.server.destroy();
+        }
     },
 };
