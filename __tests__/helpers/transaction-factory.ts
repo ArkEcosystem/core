@@ -8,6 +8,7 @@ import {
 } from "@arkecosystem/crypto";
 import { Address, PublicKey } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
+import { TransferBuilder } from "../../packages/crypto/src/builder/transactions/transfer";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -139,6 +140,10 @@ export class TransactionFactory {
         const transactions: T[] = [];
 
         for (let i = 0; i < quantity; i++) {
+            if (this.builder.constructor.name === "TransferBuilder") {
+                this.builder.vendorField(`Test Transaction ${i + 1}`);
+            }
+
             if (this.fee) {
                 this.builder.fee(this.fee);
             }

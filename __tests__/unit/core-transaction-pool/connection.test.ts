@@ -413,11 +413,13 @@ describe("Connection", () => {
 
         it("should only return transaction ids for transactions not exceeding the maximum payload size", () => {
             // @FIXME: Uhm excuse me, what the?
-            // mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
-            // for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
-            //     mockData.dummyLarge1.data.signatures += "1";
-            //     mockData.dummyLarge2.data.signatures += "2";
-            // }
+            mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
+            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+                // @ts-ignore
+                mockData.dummyLarge1.data.signatures += "1";
+                // @ts-ignore
+                mockData.dummyLarge2.data.signatures += "2";
+            }
 
             const transactions = [
                 mockData.dummyLarge1,
@@ -466,11 +468,13 @@ describe("Connection", () => {
         });
         it("should only return transactions not exceeding the maximum payload size", () => {
             // @FIXME: Uhm excuse me, what the?
-            // mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
-            // for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
-            //     mockData.dummyLarge1.data.signatures += "1";
-            //     mockData.dummyLarge2.data.signatures += "2";
-            // }
+            mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
+            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+                // @ts-ignore
+                mockData.dummyLarge1.data.signatures += "1";
+                // @ts-ignore
+                mockData.dummyLarge2.data.signatures += "2";
+            }
 
             const transactions = [
                 mockData.dummyLarge1,
@@ -799,7 +803,8 @@ describe("Connection", () => {
                 for (const sender of ["nonexistent", mockData.dummy1.data.senderPublicKey]) {
                     connection.getSenderSize(sender);
                     // @FIXME: Uhm excuse me, what the?
-                    // connection.hasExceededMaxTransactions(sender);
+                    // @ts-ignore
+                    connection.hasExceededMaxTransactions(sender);
                 }
                 connection.getTransaction(fakeTransactionId(i));
                 connection.getTransactions(0, i);
@@ -869,12 +874,12 @@ describe("Connection", () => {
             const transfersA = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
                 .withNetwork("unitnet")
                 .withPassphrase(delegatesSecrets[0])
-                .create(5);
+                .build(5);
 
             const transfersB = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
                 .withNetwork("unitnet")
                 .withPassphrase(delegatesSecrets[1])
-                .create();
+                .build();
 
             const block = {
                 transactions: [...transfersA, ...transfersB],
