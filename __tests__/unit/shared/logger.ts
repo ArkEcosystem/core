@@ -5,7 +5,7 @@ import { tmpdir } from "os";
 
 export function expectLogger(callback): void {
     let logger: Logger.ILogger;
-    let message;
+    let message: string = "";
 
     beforeAll(() => {
         process.env.CORE_PATH_LOG = tmpdir();
@@ -13,11 +13,21 @@ export function expectLogger(callback): void {
         logger = callback().make();
 
         capcon.startCapture(process.stdout, stdout => {
-            message += stdout;
+            message = stdout.toString();
         });
 
         capcon.startCapture(process.stderr, stderr => {
-            message += stderr;
+            message = stderr.toString();
+        });
+
+        // @ts-ignore
+        capcon.startCapture(console._stdout, stdout => {
+            message = stdout.toString();
+        });
+
+        // @ts-ignore
+        capcon.startCapture(console._stderr, stderr => {
+            message = stderr.toString();
         });
     });
 
