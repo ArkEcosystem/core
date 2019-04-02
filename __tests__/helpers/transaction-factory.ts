@@ -142,13 +142,19 @@ export class TransactionFactory {
 
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
-                // @TODO: only call this if no vendor field is set
-                this.builder.vendorField(`Test Transaction ${i + 1}`);
+                // @FIXME: when we use any of the "withPassphrase*" methods the builder will
+                // always remember the previous vendor field instead generating a new one on each iteration
+                if (!this.builder.data.vendorField) {
+                    this.builder.vendorField(`Test Transaction ${i + 1}`);
+                }
             }
 
             if (this.builder.constructor.name === "DelegateRegistrationBuilder") {
-                // @TODO: only call this if no username is set
-                this.builder = transactionBuilder.delegateRegistration().usernameAsset(this.getRandomUsername());
+                // @FIXME: when we use any of the "withPassphrase*" methods the builder will
+                // always remember the previous username instead generating a new one on each iteration
+                if (!this.builder.data.asset.delegate.username) {
+                    this.builder = transactionBuilder.delegateRegistration().usernameAsset(this.getRandomUsername());
+                }
             }
 
             if (this.fee) {

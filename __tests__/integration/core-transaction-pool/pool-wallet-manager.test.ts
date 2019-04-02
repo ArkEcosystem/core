@@ -47,7 +47,7 @@ describe("canApply", () => {
         const vote = TransactionFactory.vote(wallets[12].keys.publicKey)
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
-            .create()[0];
+            .build()[0];
         const errors = [];
 
         expect(poolWalletManager.canApply(vote, errors)).toBeFalse();

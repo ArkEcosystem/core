@@ -284,7 +284,7 @@ describe("Transaction Guard", () => {
                     .withNetwork("unitnet")
                     .withPassphrase(newWalletPassphrase)
                     .build(),
-                TransactionFactory.delegateRegistration(newWalletPassphrase)
+                TransactionFactory.delegateRegistration()
                     .withNetwork("unitnet")
                     .withPassphrase(newWalletPassphrase)
                     .build(),
