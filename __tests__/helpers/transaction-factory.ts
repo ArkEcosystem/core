@@ -5,6 +5,11 @@ import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
 
+interface PassphrasePair {
+    passphrase: string;
+    secondPassphrase: string;
+}
+
 export class TransactionFactory {
     public static transfer(recipientId?: string, amount: number = 2, vendorField?: string): TransactionFactory {
         const builder = transactionBuilder
@@ -57,6 +62,7 @@ export class TransactionFactory {
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
     private passphraseList: string[];
+    private passphrasePairs: PassphrasePair[];
 
     public constructor(builder) {
         this.builder = builder;
@@ -92,7 +98,7 @@ export class TransactionFactory {
         return this;
     }
 
-    public withPassphrases(passphrases: { passphrase: string; secondPassphrase: string }): TransactionFactory {
+    public withPassphrases(passphrases: PassphrasePair): TransactionFactory {
         this.passphrase = passphrases.passphrase;
         this.secondPassphrase = passphrases.secondPassphrase;
 
@@ -105,28 +111,40 @@ export class TransactionFactory {
         return this;
     }
 
-    public create(quantity: number = 1): ITransactionData[] {
-        if (this.passphraseList && this.passphraseList.length) {
-            return this.passphraseList.map(
-                (passphrase: string) =>
-                    this.withPassphrase(passphrase).make<ITransactionData>(quantity, "getStruct")[0],
-            );
-        }
+    public withPassphrasePairs(passphrases: PassphrasePair[]): TransactionFactory {
+        this.passphrasePairs = passphrases;
 
+        return this;
+    }
+
+    public create(quantity: number = 1): ITransactionData[] {
         return this.make<ITransactionData>(quantity, "getStruct");
     }
 
     public build(quantity: number = 1): Transaction[] {
-        if (this.passphraseList && this.passphraseList.length) {
-            return this.passphraseList.map(
-                (passphrase: string) => this.withPassphrase(passphrase).make<Transaction>(quantity, "build")[0],
-            );
-        }
-
         return this.make<Transaction>(quantity, "build");
     }
 
-    private make<T>(quantity: number, method: string): T[] {
+    private make<T>(quantity: number = 1, method: string): T[] {
+        if (this.passphrasePairs && this.passphrasePairs.length) {
+            return this.passphrasePairs.map(
+                (passphrasePair: PassphrasePair) =>
+                    this.withPassphrase(passphrasePair.passphrase)
+                        .withSecondPassphrase(passphrasePair.secondPassphrase)
+                        .sign<T>(quantity, method)[0],
+            );
+        }
+
+        if (this.passphraseList && this.passphraseList.length) {
+            return this.passphraseList.map(
+                (passphrase: string) => this.withPassphrase(passphrase).sign<T>(quantity, method)[0],
+            );
+        }
+
+        return this.sign<T>(quantity, method);
+    }
+
+    private sign<T>(quantity: number, method: string): T[] {
         configManager.setFromPreset(this.network);
 
         const transactions: T[] = [];

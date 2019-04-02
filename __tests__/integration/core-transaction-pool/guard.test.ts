@@ -491,7 +491,7 @@ describe("Transaction Guard", () => {
                 expect(result.broadcast).toEqual([]);
             });
 
-            it("should not validate when changing fields after signing - delegate registration", async () => {
+            it.only("should not validate when changing fields after signing - delegate registration", async () => {
                 // the fields we are going to modify after signing
                 const modifiedFieldsDelReg = [
                     { timestamp: 111111 },
@@ -506,10 +506,11 @@ describe("Transaction Guard", () => {
                     .create();
                 const delegateRegs2ndSigned = TransactionFactory.delegateRegistration()
                     .withNetwork("unitnet")
-                    .withPassphraseList(
-                        wallets2ndSig
-                            .slice(0, modifiedFieldsDelReg.length + 1)
-                            .map(w => ({ passphrase: w.passphrase, secondPassphrase: w.secondPassphrase })),
+                    .withPassphrasePairs(
+                        wallets2ndSig.slice(0, modifiedFieldsDelReg.length + 1).map(w => ({
+                            passphrase: w.passphrase,
+                            secondPassphrase: w.secondPassphrase,
+                        })),
                     )
                     .create();
 
@@ -559,10 +560,11 @@ describe("Transaction Guard", () => {
                     .create();
                 const votes2ndSigned = TransactionFactory.vote(delegates[21].publicKey)
                     .withNetwork("unitnet")
-                    .withPassphraseList(
-                        wallets2ndSig
-                            .slice(0, modifiedFieldsVote.length + 1)
-                            .map(w => ({ passphrase: w.passphrase, secondPassphrase: w.secondPassphrase })),
+                    .withPassphrasePairs(
+                        wallets2ndSig.slice(0, modifiedFieldsVote.length + 1).map(w => ({
+                            passphrase: w.passphrase,
+                            secondPassphrase: w.secondPassphrase,
+                        })),
                     )
                     .create();
 
@@ -602,12 +604,16 @@ describe("Transaction Guard", () => {
                     { senderPublicKey: wallets[50].keys.publicKey },
                 ];
 
-                const secondSigs = TransactionFactory.secondSignature(
-                    wallets.slice(0, modifiedFields2ndSig.length).map(w => w.passphrase),
-                )
-                    .withNetwork("unitnet")
-                    .withPassphrase(delegates[0].secret)
-                    .create();
+                const secondSigs = [];
+
+                for (const wallet of wallets.slice(0, modifiedFields2ndSig.length)) {
+                    secondSigs.push(
+                        TransactionFactory.secondSignature(wallet.passphrase)
+                            .withNetwork("unitnet")
+                            .withPassphrase(wallet.passphrase)
+                            .create()[0],
+                    );
+                }
 
                 const modifiedTransactions = modifiedFields2ndSig.map((objField, index) =>
                     Object.assign({}, secondSigs[index], objField),

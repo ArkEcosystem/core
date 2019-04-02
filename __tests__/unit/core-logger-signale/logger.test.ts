@@ -21,6 +21,8 @@ beforeAll(() => {
     });
 });
 
+afterEach(() => (message = null));
+
 describe("Logger", () => {
     describe("error", () => {
         it("should log a message", () => {
@@ -28,7 +30,6 @@ describe("Logger", () => {
 
             expect(message).toMatch(/error/);
             expect(message).toMatch(/error_message/);
-            message = null;
         });
     });
 
@@ -38,7 +39,6 @@ describe("Logger", () => {
 
             expect(message).toMatch(/warn/);
             expect(message).toMatch(/warning_message/);
-            message = null;
         });
     });
 
@@ -48,7 +48,6 @@ describe("Logger", () => {
 
             expect(message).toMatch(/info/);
             expect(message).toMatch(/info_message/);
-            message = null;
         });
     });
 
@@ -58,7 +57,6 @@ describe("Logger", () => {
 
             expect(message).toMatch(/debug/);
             expect(message).toMatch(/debug_message/);
-            message = null;
         });
     });
 
@@ -68,7 +66,6 @@ describe("Logger", () => {
 
             expect(message).toMatch(/verbose/);
             expect(message).toMatch(/verbose_message/);
-            message = null;
         });
     });
 
@@ -83,8 +80,6 @@ describe("Logger", () => {
 
             logger.info("non_silent_message");
             expect(message).toMatch(/non_silent_message/);
-
-            message = null;
         });
     });
 });
