@@ -11,7 +11,7 @@ interface PassphrasePair {
 }
 
 export class TransactionFactory {
-    public static transfer(recipientId?: string, amount: number = 2, vendorField?: string): TransactionFactory {
+    public static transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
         const builder = transactionBuilder
             .transfer()
             .amount(amount)

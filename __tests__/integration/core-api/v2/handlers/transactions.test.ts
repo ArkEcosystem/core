@@ -505,10 +505,10 @@ describe("API 2.0 - Transactions", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
             (header, request) => {
-                const transactions = TransactionFactory.transfer(delegates[1].address, 40)
+                const transactions = TransactionFactory.transfer(delegates[1].address)
                     .withNetwork("testnet")
                     .withPassphrase(delegates[0].secret)
-                    .create();
+                    .create(40);
 
                 it("should POST all the transactions", async () => {
                     const response = await utils[request]("POST", "transactions", {
