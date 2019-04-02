@@ -17,15 +17,6 @@ export function registerRoutes(server: Hapi.Server): void {
 
     server.route({
         method: "GET",
-        path: "/delegates/active",
-        handler: controller.active,
-        options: {
-            validate: Schema.active,
-        },
-    });
-
-    server.route({
-        method: "GET",
         path: "/delegates/{id}",
         handler: controller.show,
         options: {

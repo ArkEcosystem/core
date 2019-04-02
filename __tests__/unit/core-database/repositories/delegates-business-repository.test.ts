@@ -360,30 +360,4 @@ describe("Delegate Repository", () => {
             expectWallet("username");
         });
     });
-
-    describe("getActiveAtHeight", () => {
-        it("should be ok", async () => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
-
-            const delegate = {
-                username: "test",
-                publicKey: "test",
-                voteBalance: new Bignum(10000 * constants.SATOSHI),
-                producedBlocks: 1000,
-            };
-            const height = 1;
-
-            // @ts-ignore
-            jest.spyOn(databaseService, "getActiveDelegates").mockReturnValue([delegate]);
-            // @ts-ignore
-            jest.spyOn(walletsRepository, "findById").mockReturnValue(delegate);
-
-            const results = await repository.getActiveAtHeight(height);
-
-            expect(results).toBeArray();
-            expect(results[0].username).toBeString();
-            expect(results[0].username).toEqual(delegate.username);
-        });
-    });
 });

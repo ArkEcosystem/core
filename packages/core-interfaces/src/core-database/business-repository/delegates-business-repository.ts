@@ -9,6 +9,4 @@ export interface IDelegatesBusinessRepository {
     search<T extends IParameters>(params: T): { count: number; rows: IWallet[] };
 
     findById(id: string): IWallet;
-
-    getActiveAtHeight(height: number): Promise<IWallet[]>;
 }
