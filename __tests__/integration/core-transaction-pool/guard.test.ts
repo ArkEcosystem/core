@@ -492,26 +492,35 @@ describe("Transaction Guard", () => {
             it("should not validate when changing fields after signing - delegate registration", async () => {
                 // the fields we are going to modify after signing
                 const modifiedFieldsDelReg = [
-                    { timestamp: 111111 },
-                    { fee: 1111111 },
+                    {
+                        timestamp: 111111,
+                    },
+                    {
+                        fee: 1111111,
+                    },
                     // we are also going to modify senderPublicKey but separately
                 ];
 
                 // generate delegate registrations, "simple" and 2nd signed
-                const delegateRegs = TransactionFactory.delegateRegistration()
-                    .withNetwork("unitnet")
-                    .withPassphraseList(wallets.slice(0, modifiedFieldsDelReg.length + 1).map(w => w.passphrase))
-                    .create();
+                const delegateRegs = [];
+                for (const wallet of wallets.slice(0, modifiedFieldsDelReg.length + 1)) {
+                    delegateRegs.push(
+                        TransactionFactory.delegateRegistration()
+                            .withNetwork("unitnet")
+                            .withPassphrase(wallet.passphrase)
+                            .create()[0],
+                    );
+                }
 
-                const delegateRegs2ndSigned = TransactionFactory.delegateRegistration()
-                    .withNetwork("unitnet")
-                    .withPassphrasePairs(
-                        wallets2ndSig.slice(0, modifiedFieldsDelReg.length + 1).map(w => ({
-                            passphrase: w.passphrase,
-                            secondPassphrase: w.secondPassphrase,
-                        })),
-                    )
-                    .create();
+                const delegateRegs2ndSigned = [];
+                for (const wallet of wallets2ndSig.slice(0, modifiedFieldsDelReg.length + 1)) {
+                    delegateRegs2ndSigned.push(
+                        TransactionFactory.delegateRegistration()
+                            .withNetwork("unitnet")
+                            .withPassphrasePair(wallet)
+                            .create()[0],
+                    );
+                }
 
                 // console.log(delegateRegs.map(d => ({ id: d.id, username: d.asset.delegate })));
 
@@ -555,19 +564,25 @@ describe("Transaction Guard", () => {
                 ];
 
                 // generate votes, "simple" and 2nd signed
-                const votes = TransactionFactory.vote(delegates[21].publicKey)
-                    .withNetwork("unitnet")
-                    .withPassphraseList(wallets.slice(0, modifiedFieldsVote.length + 1).map(w => w.passphrase))
-                    .create();
-                const votes2ndSigned = TransactionFactory.vote(delegates[21].publicKey)
-                    .withNetwork("unitnet")
-                    .withPassphrasePairs(
-                        wallets2ndSig.slice(0, modifiedFieldsVote.length + 1).map(w => ({
-                            passphrase: w.passphrase,
-                            secondPassphrase: w.secondPassphrase,
-                        })),
-                    )
-                    .create();
+                const votes = [];
+                for (const wallet of wallets.slice(0, modifiedFieldsVote.length + 1)) {
+                    votes.push(
+                        TransactionFactory.vote(delegates[21].publicKey)
+                            .withNetwork("unitnet")
+                            .withPassphrase(wallet.passphrase)
+                            .create()[0],
+                    );
+                }
+
+                const votes2ndSigned = [];
+                for (const wallet of wallets2ndSig.slice(0, modifiedFieldsVote.length + 1)) {
+                    votes2ndSigned.push(
+                        TransactionFactory.vote(delegates[21].publicKey)
+                            .withNetwork("unitnet")
+                            .withPassphrasePair(wallet)
+                            .create()[0],
+                    );
+                }
 
                 // modify transaction fields and try to validate
                 const modifiedTransactions = [

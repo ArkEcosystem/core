@@ -144,9 +144,7 @@ export class TransactionFactory {
             if (this.builder.constructor.name === "TransferBuilder") {
                 // @FIXME: when we use any of the "withPassphrase*" methods the builder will
                 // always remember the previous vendor field instead generating a new one on each iteration
-                if (!this.builder.data.vendorField) {
-                    this.builder.vendorField(`Test Transaction ${i + 1}`);
-                }
+                this.builder.vendorField(`Test Transaction ${i + 1}`);
             }
 
             if (this.builder.constructor.name === "DelegateRegistrationBuilder") {
