@@ -54,18 +54,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async restoreCurrentRound(height: number): Promise<void> {
         await this.initializeActiveDelegates(height);
-
-        // NOTE: if the node is shutdown between round, the round has already been applied
-        if (roundCalculator.isNewRound(height + 1)) {
-            const { round } = roundCalculator.calculateRound(height + 1);
-
-            this.logger.info(
-                `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
-            );
-
-            await this.deleteRound(round);
-        }
-
         await this.applyRound(height);
     }
 

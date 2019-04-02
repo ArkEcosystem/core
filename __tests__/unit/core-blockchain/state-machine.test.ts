@@ -188,7 +188,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     applyRound: jest.spyOn(blockchain.database, "applyRound").mockReturnValue(true),
                     // @ts-ignore
-                    getActiveDelegates: jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(true),
+                    restoreCurrentRound: jest.spyOn(blockchain.database, "restoreCurrentRound").mockReturnValue(true),
                 };
             });
 

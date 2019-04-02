@@ -198,6 +198,17 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 );
             }
 
+            // NOTE: if the node is shutdown between round, the round has already been applied
+            if (roundCalculator.isNewRound(block.data.height + 1)) {
+                const { round } = roundCalculator.calculateRound(block.data.height + 1);
+
+                logger.info(
+                    `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
+                );
+
+                await blockchain.database.deleteRound(round);
+            }
+
             await blockchain.database.restoreCurrentRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
 
