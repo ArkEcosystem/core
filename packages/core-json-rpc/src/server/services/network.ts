@@ -29,7 +29,7 @@ class Network {
         this.server = this.getRandomPeer();
     }
 
-    public async sendRequest(url, params = {}) {
+    public async sendRequest(url, query = {}) {
         if (!this.server) {
             this.setServer();
         }
@@ -40,7 +40,7 @@ class Network {
         try {
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
-            const response = await httpie.get(uri, { params, ...this.requestOpts });
+            const response = await httpie.get(uri, { query, ...this.requestOpts });
 
             return response.body;
         } catch (error) {
