@@ -87,23 +87,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("rollbackCurrentRound", () => {
-        it("should rollback", async () => {
-            await __addBlocks(155);
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(153);
-        });
-
-        it("shouldnt rollback more if previous round is round 2", async () => {
-            await __addBlocks(140);
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(102);
-
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(102);
-        });
-    });
-
     describe("removeBlocks", () => {
         it("should remove blocks", async () => {
             const lastBlockHeight = blockchain.getLastBlock().data.height;
@@ -129,6 +112,36 @@ describe("Blockchain", () => {
             const dbLastBlockAfter = await blockchain.database.getLastBlock();
 
             expect(dbLastBlockAfter.data.height).toBe(lastBlockHeight - 2);
+        });
+    });
+
+    describe("restoreCurrentRound", () => {
+        it("should restore the active delegates of the current round", async () => {
+            await __resetToHeight1();
+
+            // Go to arbitrary height in round 2.
+            await __addBlocks(55);
+
+            // Pretend blockchain just started
+            await blockchain.database.restoreCurrentRound(blockchain.getLastHeight());
+            const forgingDelegates = await blockchain.database.getActiveDelegates(blockchain.getLastHeight());
+            expect(forgingDelegates).toHaveLength(51);
+
+            // Reset again and replay to round 2. In both cases the forging delegates
+            // have to match.
+            await __resetToHeight1();
+            await __addBlocks(52);
+
+            // FIXME: using jest.spyOn getActiveDelegates with toHaveLastReturnedWith() somehow gets
+            // overwritten in afterEach
+            // FIXME: wallet.lastBlock needs to be properly restored when reverting
+            forgingDelegates.forEach(forger => (forger.lastBlock = null));
+            expect(forgingDelegates).toEqual(
+                (blockchain.database as any).forgingDelegates.map(forger => {
+                    forger.lastBlock = null;
+                    return forger;
+                }),
+            );
         });
     });
 

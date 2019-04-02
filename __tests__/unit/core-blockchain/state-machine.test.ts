@@ -188,7 +188,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     applyRound: jest.spyOn(blockchain.database, "applyRound").mockReturnValue(true),
                     // @ts-ignore
-                    getActiveDelegates: jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(true),
+                    restoreCurrentRound: jest.spyOn(blockchain.database, "restoreCurrentRound").mockReturnValue(true),
                 };
             });
 
@@ -269,15 +269,6 @@ describe("State Machine", () => {
                 expect(loggerVerbose).toHaveBeenCalledWith(
                     "TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.",
                 );
-            });
-
-            it("should rollbackCurrentRound and dispatch STARTED if couldnt get activeDelegates", async () => {
-                process.env.NODE_ENV = "";
-                jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(undefined);
-                const spyRollbackCurrentRound = jest.spyOn(blockchain, "rollbackCurrentRound").mockReturnThis();
-
-                await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(spyRollbackCurrentRound).toHaveBeenCalled();
             });
 
             it("should rebuild wallets table and dispatch STARTED if database.buildWallets() failed", async () => {

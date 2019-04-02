@@ -10,7 +10,6 @@ export const blockchain = {
     dispatch: () => null,
     isSynced: () => true,
     isRebuildSynced: () => true,
-    rollbackCurrentRound: () => null,
     enqueueBlocks: () => null,
     clearAndStopQueue: () => null,
     removeBlocks: () => null,
