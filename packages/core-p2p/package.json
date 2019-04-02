@@ -50,8 +50,11 @@
         "nanomatch": "^1.2.13",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
+        "scc-broker-client": "^6.1.0",
         "semver": "^5.6.0",
-        "sntp": "^3.0.2"
+        "sntp": "^3.0.2",
+        "socketcluster": "^14.3.3",
+        "socketcluster-client": "^14.2.1"
     },
     "devDependencies": {
         "@types/boom": "^7.2.1",
@@ -70,7 +73,10 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
-        "@types/semver": "^5.5.0"
+        "@types/semver": "^5.5.0",
+        "@types/socketcluster": "^14.0.2",
+        "@types/socketcluster-client": "^13.0.2",
+        "@types/scc-broker-client": "^6.1.0"
     },
     "publishConfig": {
         "access": "public"

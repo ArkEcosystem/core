@@ -22,7 +22,6 @@ beforeAll(async () => {
 
     const peerMocks = peers.map(mock => {
         const peerMock = new Peer(mock.ip, mock.port);
-        peerMock.setStatus("OK");
         peerMock.version = mock.version;
         return peerMock;
     });

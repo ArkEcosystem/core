@@ -1,6 +1,7 @@
 export const defaults = {
     host: process.env.CORE_P2P_HOST || "0.0.0.0",
     port: process.env.CORE_P2P_PORT || 4002,
+    workers: 2,
     /**
      * The minimum peer version we expect
      */
@@ -56,15 +57,12 @@ export const defaults = {
      */
     ntp: ["pool.ntp.org", "time.google.com"],
     /**
-     * @see https://github.com/wraithgar/hapi-rate-limit
+     * Rate limit config, used in socket-server worker / master
      */
     rateLimit: {
         enabled: true,
-        pathLimit: false,
-        userLimit: 20,
-        userCache: {
-            expiresIn: 1000,
-        },
+        socketLimit: 20, // max number of messages per second per socket connection
         ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
+        banDurationMs: 10 * 60 * 1000, // 10min ban for peer exceeding rate limit
     },
 };

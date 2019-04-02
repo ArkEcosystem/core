@@ -4,13 +4,6 @@ export interface IPeer {
     setHeaders(headers: Record<string, any>): void;
 
     /**
-     * Set the given status for the peer.
-     * @param  {String} value
-     * @return {void}
-     */
-    setStatus(value: string | number): void;
-
-    /**
      * Get information to broadcast.
      * @return {Object}
      */
@@ -20,7 +13,6 @@ export interface IPeer {
         nethash: string;
         version: string;
         os: string;
-        status: string | number;
         height: number;
         delay: number;
     };
@@ -49,12 +41,12 @@ export interface IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} delay operation timeout, in milliseconds
+     * @param  {Number} timeoutMsec operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    ping(delay: number, force?: boolean): Promise<any>;
+    ping(timeoutMsec: number, force?: boolean): Promise<any>;
 
     /**
      * Returns true if this peer was pinged the past 2 minutes.

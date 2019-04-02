@@ -63,10 +63,10 @@ export const offences = {
         reason: "High Latency",
         weight: 1,
     },
-    BLOCKCHAIN_NOT_READY: {
+    APPLICATION_NOT_READY: {
         number: 30,
         period: "addSeconds",
-        reason: "Blockchain not ready",
+        reason: "Application is not ready",
         weight: 0,
     },
     TOO_MANY_REQUESTS: {
@@ -92,5 +92,11 @@ export const offences = {
         period: "addDays",
         reason: "Repeat Offender",
         weight: 100,
+    },
+    SOCKET_NOT_OPEN: {
+        number: 5,
+        period: "addMinutes",
+        reason: "Socket not open",
+        weight: 3,
     },
 };

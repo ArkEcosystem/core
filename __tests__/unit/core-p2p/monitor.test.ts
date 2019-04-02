@@ -1,214 +1,342 @@
-/* tslint:disable:max-line-length  */
-
+import { blockchain } from "./mocks/blockchain";
 import "./mocks/core-container";
+import { logger } from "./mocks/logger";
+import { state } from "./mocks/state";
 
-import nock from "nock";
+import { slots } from "@arkecosystem/crypto";
+import fs from "fs";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
-import { Guard } from "../../../packages/core-p2p/src/court";
-import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
-import { Peer } from "../../../packages/core-p2p/src/peer";
-import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
+import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 
-let peerMock: Peer;
-
-beforeEach(() => {
-    monitor.config = defaults;
-    localConfig.init(defaults);
-    localConfig.set("port", 4000);
-
-    monitor.guard = new Guard();
-    monitor.guard.init(monitor);
-    monitor.guard.config = localConfig;
-
-    const initialPeersMock = {};
-    ["1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"].forEach(ip => {
-        const initialPeer = new Peer(ip, 4000);
-        initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, {
-            ban: 0,
-            verification: { forked: false },
-        });
-    });
-
-    monitor.peers = initialPeersMock;
-
-    peerMock = new Peer("1.0.0.99", 4000); // this peer is just here to be picked up by tests below (not added to initial peers)
-    Object.assign(peerMock, peerMock.headers, { status: 200 });
-    peerMock.nethash = "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192";
-
-    nock.cleanAll();
-});
-
-afterAll(() => {
-    nock.cleanAll();
-});
+jest.mock("../../../packages/core-p2p/src/utils/check-dns", () => ({
+    checkDNS: jest.fn().mockReturnValue("dnshost"),
+}));
+jest.mock("../../../packages/core-p2p/src/utils/check-ntp", () => ({
+    checkNTP: jest.fn().mockReturnValue({ host: "ntphost", time: { t: 10 } }),
+}));
+jest.mock("../../../packages/core-p2p/src/peer");
+jest.mock("fs");
 
 describe("Monitor", () => {
-    describe("cleanPeers", () => {
-        it("should be ok", async () => {
-            const previousLength = Object.keys(monitor.peers).length;
+    beforeEach(() => {
+        jest.resetAllMocks();
+    });
 
-            await monitor.cleanPeers(true);
+    describe("start", () => {
+        it("should start without error and set blockchain forceWakeup", async () => {
+            const peerMock = { ip: "0.0.0.0", port: 4000 };
+            const acceptNewPeer = jest.spyOn(monitor, "acceptNewPeer");
+            await monitor.start({
+                networkStart: false,
+            });
 
-            expect(Object.keys(monitor.peers).length).toBeLessThan(previousLength);
+            expect(acceptNewPeer).toHaveBeenCalledWith({ ...peerMock, version: "2.3.0" }, expect.any(Object));
+
+            acceptNewPeer.mockRestore();
         });
     });
 
     describe("acceptNewPeer", () => {
-        it("should be ok", async () => {
-            nock(peerMock.url)
-                .get("/peer/status")
-                .reply(
-                    200,
-                    {
-                        header: {
-                            height: 1,
-                            id: genesisBlock.data.id,
-                        },
-                        success: true,
-                    },
-                    peerMock.headers,
-                );
+        it("should accept the peer", async () => {
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            monitor.config = { disableDiscovery: false };
+            (monitor.guard as any) = {
+                isSuspended: jest.fn().mockReturnValue(false),
+                isBlacklisted: jest.fn().mockReturnValue(false),
+                isValidVersion: jest.fn().mockReturnValue(true),
+                isWhitelisted: jest.fn().mockReturnValue(false),
+                isValidNetwork: jest.fn().mockReturnValue(true),
+                suspend: jest.fn(),
+            };
 
-            await monitor.acceptNewPeer(peerMock);
+            await monitor.acceptNewPeer(peerMock, { seed: false, lessVerbose: false });
 
-            expect(monitor.peers[peerMock.ip]).toBeObject();
+            expect(logger.debug).toHaveBeenCalledWith("Accepted new peer undefined:undefined");
+            // undefined:undefined because of peer default jest mock
+        });
+
+        test.todo("should suspend the peer - blacklisted");
+
+        test.todo("should suspend the peer - isValidVersion false");
+
+        test.todo("should suspend the peer - isValidNetwork false");
+
+        test.todo("should not accept the peer - ping failed");
+    });
+
+    describe("removePeer", () => {
+        it("should remove the peer", () => {
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            monitor.peers = { [peerMock.ip]: peerMock };
+
+            monitor.removePeer(peerMock);
+
+            expect(monitor.peers).toEqual({});
+        });
+    });
+
+    describe("cleanPeers", () => {
+        it("should remove the unresponsive peers", async () => {
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            monitor.peers = { [peerMock.ip]: peerMock };
+            const mockGetPeer = jest.spyOn(monitor, "getPeer").mockReturnValue({
+                ...peerMock,
+                ping: jest.fn().mockImplementation(() => {
+                    throw new Error("yo");
+                }),
+            } as any);
+
+            await monitor.cleanPeers();
+
+            expect(monitor.peers).toEqual({});
+
+            mockGetPeer.mockRestore();
+        });
+    });
+
+    describe("suspendPeer", () => {
+        it("should suspend the peer from ip provided", async () => {
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            monitor.peers = { [peerMock.ip]: peerMock };
+
+            (monitor.guard as any) = {
+                isSuspended: jest.fn().mockReturnValue(false),
+                suspend: jest.fn(),
+            };
+
+            await monitor.suspendPeer(peerMock.ip);
+
+            expect(monitor.guard.suspend).toHaveBeenCalledWith(peerMock);
+        });
+    });
+
+    describe("getSuspendedPeers", () => {
+        it("should get the suspended peers from guard.all()", () => {
+            (monitor.guard as any) = {
+                all: jest.fn().mockReturnValue(["peer1"]),
+            };
+
+            const suspendedPeers = monitor.getSuspendedPeers();
+
+            expect(suspendedPeers).toEqual(["peer1"]);
         });
     });
 
     describe("getPeers", () => {
-        it("should be ok", async () => {
+        it("should get the peers", () => {
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            monitor.peers = { [peerMock.ip]: peerMock };
+
             const peers = monitor.getPeers();
 
-            expect(peers).toBeArray();
-            expect(peers.length).toBe(5); // 5 from peers.json
+            expect(peers).toEqual([peerMock]);
+        });
+    });
+
+    describe("getPeer", () => {
+        it("should get the peer", () => {
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            monitor.peers = { [peerMock.ip]: peerMock };
+
+            const peer = monitor.getPeer(peerMock.ip);
+
+            expect(peer).toEqual(peerMock);
         });
     });
 
     describe("discoverPeers", () => {
-        it("should be ok", async () => {
-            nock(/.*/)
-                .get("/peer/status")
-                .reply(
-                    200,
-                    {
-                        header: {
-                            height: 1,
-                            id: genesisBlock.data.id,
-                        },
-                        success: true,
-                    },
-                    peerMock.headers,
-                );
-
-            nock(/.*/)
-                .get("/peer/list")
-                .reply(
-                    200,
-                    {
-                        peers: [peerMock.toBroadcastInfo()],
-                        success: true,
-                    },
-                    peerMock.headers,
-                );
+        it("should populate list of available peers from existing peers", async () => {
+            const peerMock = {
+                ip: "1.2.3.4",
+                port: 4000,
+                getPeers: jest.fn().mockReturnValue([{ ip: "1.1.1.1" }, { ip: "2.2.2.2" }]),
+            };
+            monitor.peers = { [peerMock.ip]: peerMock };
+            monitor.config = { ignoreMinimumNetworkReach: true };
+            const acceptNewPeer = jest.spyOn(monitor, "acceptNewPeer");
 
             await monitor.discoverPeers();
-            const peers = monitor.getPeers();
 
-            expect(peers).toBeArray();
-            expect(Object.keys(peers).length).toBe(6); // 5 from initial peers + 1 from peerMock
-            expect(peers.find(e => e.ip === peerMock.ip)).toBeDefined();
+            expect(acceptNewPeer).toHaveBeenCalledTimes(2);
+            expect(acceptNewPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
+            expect(acceptNewPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
+        });
+    });
+
+    describe("hasPeers", () => {
+        it("should return true when it has peers", () => {
+            const peerMock = {
+                ip: "1.2.3.4",
+                port: 4000,
+            };
+            monitor.peers = { [peerMock.ip]: peerMock };
+
+            expect(monitor.hasPeers()).toBe(true);
+        });
+
+        it("should return false when it has no peer", () => {
+            monitor.peers = {};
+
+            expect(monitor.hasPeers()).toBe(false);
         });
     });
 
     describe("getNetworkHeight", () => {
-        it("should be ok", async () => {
-            nock(/.*/)
-                .get("/peer/status")
-                .reply(
-                    200,
-                    {
-                        header: {
-                            height: 1,
-                            id: genesisBlock.data.id,
-                        },
-                        height: 2,
-                        success: true,
-                    },
-                    peerMock.headers,
-                );
+        it("should return correct network height", () => {
+            monitor.peers = {
+                "1.1.1.1": { state: { height: 1 } },
+                "1.1.1.2": { state: { height: 7 } },
+                "1.1.1.3": { state: { height: 10 } },
+            };
 
-            nock(/.*/)
-                .get("/peer/list")
-                .reply(200, { peers: [] }, peerMock.headers);
-
-            await monitor.discoverPeers();
-            await monitor.cleanPeers();
-
-            const height = await monitor.getNetworkHeight();
-            expect(height).toBe(2);
+            expect(monitor.getNetworkHeight()).toBe(7);
         });
-
-        // TODO test with peers with different heights (use replyOnce) and check that median is OK
     });
 
     describe("getPBFTForgingStatus", () => {
-        it("should be ok", async () => {
-            nock(/.*/)
-                .get("/peer/status")
-                .reply(200, { success: true, height: 2 }, peerMock.headers);
+        it("should return correct pbft data", () => {
+            monitor.peers = {
+                "1.1.1.1": { state: { height: 1, currentSlot: 2, forgingAllowed: true } },
+                "1.1.1.2": { state: { height: 7, currentSlot: 2, forgingAllowed: true } },
+                "1.1.1.3": { state: { height: 10, currentSlot: 2, forgingAllowed: true } },
+            };
+            jest.spyOn(slots, "getSlotNumber").mockReturnValue(2);
 
-            nock(/.*/)
-                .get("/peer/list")
-                .reply(200, { peers: [] }, peerMock.headers);
+            expect(monitor.getPBFTForgingStatus()).toBe(2 / 3);
+        });
+        test.todo("more cases need to be covered, see pbft calculation");
+    });
 
-            await monitor.discoverPeers();
-            const pbftForgingStatus = monitor.getPBFTForgingStatus();
+    describe("getNetworkState", () => {
+        it("should return network state from NetworkState.analyze", async () => {
+            monitor.peers = {};
+            const networkState = { nodeHeight: 333 };
+            jest.spyOn(NetworkState, "analyze").mockReturnValue(networkState as any);
 
-            expect(pbftForgingStatus).toBeNumber();
-            // TODO test mocking peers currentSlot & forgingAllowed
+            expect(await monitor.getNetworkState()).toEqual(networkState);
+        });
+    });
+
+    describe("refreshPeersAfterFork", () => {
+        it("should reset the suspended peers and suspend the peer causing the fork", async () => {
+            monitor.peers = {};
+            (monitor.guard as any) = {
+                resetSuspendedPeers: jest.fn(),
+            };
+            const suspendPeer = jest.spyOn(monitor, "suspendPeer");
+            state.forkedBlock = { ip: "1.1.1.1" };
+
+            await monitor.refreshPeersAfterFork();
+            expect(monitor.guard.resetSuspendedPeers).toHaveBeenCalled();
+            expect(suspendPeer).toHaveBeenCalledWith("1.1.1.1");
         });
     });
 
     describe("downloadBlocks", () => {
-        it("should be ok", async () => {
-            nock(/.*/)
-                .get("/peer/blocks/common")
-                .reply(
-                    200,
-                    {
-                        success: true,
-                        common: true,
+        it("should download blocks from random peer", async () => {
+            const mockBlock = { id: "123456" };
+            monitor.peers = {
+                "1.1.1.1": {
+                    ip: "1.1.1.1",
+                    state: {
+                        height: 1,
+                        currentSlot: 2,
+                        forgingAllowed: true,
                     },
-                    peerMock.headers,
-                );
-
-            nock(/.*/)
-                .get("/peer/status")
-                .reply(
-                    200,
-                    {
-                        success: true,
-                        height: 2,
+                    ban: 0,
+                    verification: {
+                        forked: false,
                     },
-                    peerMock.headers,
-                );
+                    downloadBlocks: jest.fn().mockReturnValue([mockBlock]),
+                },
+            };
 
-            nock(/.*/)
-                .get("/peer/blocks")
-                .query({ lastBlockHeight: 1 })
-                .reply(
-                    200,
-                    {
-                        blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
+            expect(await monitor.downloadBlocks(1)).toEqual([{ ...mockBlock, ip: "1.1.1.1" }]);
+        });
+    });
+
+    describe("broadcastBlock", () => {
+        it("should broadcast the block to peers", async () => {
+            monitor.peers = {
+                "1.1.1.1": {
+                    postBlock: jest.fn(),
+                },
+            };
+            blockchain.getBlockPing = jest.fn().mockReturnValue({
+                block: {
+                    id: "123",
+                },
+                last: 1110,
+                first: 800,
+                count: 1,
+            });
+            global.Math.random = () => 0.5;
+
+            await monitor.broadcastBlock({
+                data: {
+                    height: 3,
+                    id: "123",
+                },
+                toJson: jest.fn(),
+            });
+
+            expect(monitor.peers["1.1.1.1"].postBlock).toHaveBeenCalled();
+        });
+    });
+
+    describe("broadcastTransactions", () => {
+        it("should broadcast the transactions to peers", async () => {
+            monitor.peers = {
+                "1.1.1.1": {
+                    postTransactions: jest.fn(),
+                },
+            };
+            jest.spyOn(localConfig, "get").mockReturnValueOnce(4);
+
+            await monitor.broadcastTransactions([
+                {
+                    toJson: jest.fn(),
+                },
+            ]);
+
+            expect(monitor.peers["1.1.1.1"].postTransactions).toHaveBeenCalled();
+        });
+    });
+
+    describe("checkNetworkHealth", () => {
+        it("should return {forked: false} if majority of peers is not forked", async () => {
+            monitor.peers = {
+                "1.1.1.1": {
+                    verification: {
+                        forked: false,
                     },
-                    peerMock.headers,
-                );
+                },
+            };
+            jest.spyOn(monitor, "getSuspendedPeers").mockReturnValueOnce([] as any);
+            jest.spyOn(monitor, "__isColdStartActive").mockReturnValueOnce(true);
 
-            const blocks = await monitor.downloadBlocks(1);
+            expect(await monitor.checkNetworkHealth()).toEqual({ forked: false });
+        });
+        test.todo("more cases need to be covered, see checkNetworkHealth implementation");
+    });
 
-            expect(blocks).toBeArray();
-            expect(blocks.length).toBe(2);
+    describe("cachePeers", () => {
+        it("should cache the peers into file", () => {
+            monitor.peers = {
+                "1.1.1.1": {
+                    ip: "1.1.1.1",
+                    port: 4000,
+                    version: "2.3.0",
+                },
+            };
+            process.env.CORE_PATH_CACHE = ".";
+            monitor.cachePeers();
+
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+                "./peers.json",
+                JSON.stringify([monitor.peers["1.1.1.1"]], null, 2),
+            );
         });
     });
 

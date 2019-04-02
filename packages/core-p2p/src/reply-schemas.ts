@@ -1,81 +1,138 @@
-import Joi from "joi";
-
 export const replySchemas: any = {
-    "/peer/blocks": Joi.object().keys({
-        blocks: Joi.array()
-            .items(
-                Joi.object().keys({
-                    height: Joi.number()
-                        .integer()
-                        .min(1)
-                        .required(),
-                    id: Joi.string()
-                        .max(64)
-                        .hex()
-                        .required(),
-                }),
-            )
-            .required(),
-    }),
-    "/peer/blocks/common?ids=": Joi.object()
-        .keys({
-            common: [
-                Joi.object()
-                    .keys({
-                        height: Joi.number()
-                            .integer()
-                            .min(1)
-                            .required(),
-                        id: Joi.string()
-                            .max(64)
-                            .hex()
-                            .required(),
-                    })
-                    .required(),
-                Joi.any().valid(null),
-            ],
-            success: Joi.boolean()
-                .equal(true)
-                .required(),
-        })
-        .required(),
-    "/peer/list": Joi.object()
-        .keys({
-            peers: Joi.array()
-                .items(
-                    Joi.object().keys({
-                        ip: Joi.string()
-                            .ip({ cidr: "forbidden" })
-                            .required(),
-                        status: [Joi.string(), Joi.number().integer()],
-                    }),
-                )
-                .required(),
-            success: Joi.boolean()
-                .equal(true)
-                .required(),
-        })
-        .required(),
-    "/peer/status": Joi.object()
-        .keys({
-            header: Joi.object()
-                .keys({
-                    height: Joi.number()
-                        .integer()
-                        .min(1)
-                        .required(),
-                    id: Joi.string()
-                        .max(64)
-                        .hex()
-                        .required(),
-                })
-                .required(),
-            height: Joi.number()
-                .integer()
-                .min(1),
-            success: Joi.boolean()
-                .equal(true)
-                .required(),
-        })
-        .required(),
+    "p2p.peer.getBlocks": {
+        type: "object",
+        properties: {
+            blocks: {
+                type: "array",
+                items: {
+                    type: "object",
+                    properties: {
+                        height: {
+                            type: "integer",
+                            minimum: 1,
+                        },
+                        id: {
+                            type: "string",
+                            maxLength: 64,
+                            pattern: "[0-9a-fA-F]+", // hexadecimal
+                        },
+                    },
+                    required: ["height", "id"],
+                },
+            },
+        },
+        required: ["blocks"],
+    },
+
+    "p2p.peer.getCommonBlocks": {
+        type: "object",
+        properties: {
+            common: {
+                anyOf: [
+                    {
+                        type: "object",
+                        properties: {
+                            height: {
+                                type: "integer",
+                                minimum: 1,
+                            },
+                            id: {
+                                type: "string",
+                                maxLength: 64,
+                                pattern: "[0-9a-fA-F]+", // hexadecimal
+                            },
+                        },
+                        required: ["height", "id"],
+                    },
+                    {
+                        type: "null",
+                    },
+                ],
+            },
+            success: {
+                const: true,
+            },
+        },
+        required: ["common", "success"],
+    },
+
+    "p2p.peer.getPeers": {
+        type: "object",
+        properties: {
+            peers: {
+                type: "array",
+                items: {
+                    type: "object",
+                    properties: {
+                        ip: {
+                            anyOf: [
+                                {
+                                    type: "string",
+                                    format: "ipv4",
+                                },
+                                {
+                                    type: "string",
+                                    format: "ipv6",
+                                },
+                            ],
+                        },
+                    },
+                    required: ["ip"],
+                },
+            },
+            success: {
+                const: true,
+            },
+        },
+        required: ["peers", "success"],
+    },
+
+    "p2p.peer.getStatus": {
+        type: "object",
+        properties: {
+            header: {
+                type: "object",
+                properties: {
+                    height: {
+                        type: "integer",
+                        minimum: 1,
+                    },
+                    id: {
+                        type: "string",
+                        maxLength: 64,
+                        pattern: "[0-9a-fA-F]+", // hexadecimal
+                    },
+                },
+                required: ["height", "id"],
+            },
+            height: {
+                type: "integer",
+                minimum: 1,
+            },
+            success: {
+                const: true,
+            },
+        },
+        required: ["header", "height", "success"],
+    },
+
+    "p2p.peer.postBlock": {
+        type: "object",
+        properties: {
+            success: {
+                type: "boolean",
+            },
+        },
+        required: ["success"],
+    },
+
+    "p2p.peer.postTransactions": {
+        type: "object",
+        properties: {
+            success: {
+                type: "boolean",
+            },
+        },
+        required: ["success"],
+    },
 };

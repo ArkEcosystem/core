@@ -7,10 +7,13 @@ import { offences } from "../../../../packages/core-p2p/src/court/offences";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { monitor } from "../../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../../packages/core-p2p/src/peer";
+import { SocketErrors } from "../../../../packages/core-p2p/src/socket-server/constants";
+
+import delay from "delay";
 
 let peerMock;
 
-beforeEach(async () => {
+beforeAll(async () => {
     localConfig.init(defaults);
 
     monitor.config = localConfig;
@@ -22,6 +25,13 @@ beforeEach(async () => {
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers);
+    peerMock.nethash = "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
+
+    await delay(500);
+});
+
+afterAll(() => {
+    peerMock.socket.destroy();
 });
 
 describe("Guard", () => {
@@ -91,17 +101,21 @@ describe("Guard", () => {
         const convertToMinutes = actual => Math.ceil(actual.diff(dato()) / 1000) / 60;
 
         const dummy = {
-            nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+            nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
             version: "2.1.1",
             status: 200,
             state: {},
+            socket: {
+                getState: () => "open",
+                OPEN: "open",
+            },
         };
 
         it('should return a 1 year suspension for "Blacklisted"', () => {
             guard.config.set("blacklist", ["dummy-ip-addr"]);
 
             const { until, reason } = guard.__determineOffence({
-                nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
                 ip: "dummy-ip-addr",
             });
 
@@ -125,10 +139,14 @@ describe("Guard", () => {
 
         it('should return a 5 minute suspension for "Invalid Version"', () => {
             const { until, reason } = guard.__determineOffence({
-                nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
                 version: "1.0.0",
                 status: 200,
                 delay: 1000,
+                socket: {
+                    OPEN: "open",
+                    getState: () => "open",
+                },
             });
 
             expect(reason).toBe("Invalid Version");
@@ -147,16 +165,6 @@ describe("Guard", () => {
 
             expect(reason).toBe("Node is not at height");
             expect(convertToMinutes(until)).toBe(10);
-        });
-
-        it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
-            const { until, reason } = guard.__determineOffence({
-                ...dummy,
-                ...{ status: 201 },
-            });
-
-            expect(reason).toBe("Invalid Response Status");
-            expect(convertToMinutes(until)).toBe(5);
         });
 
         it('should return a 2 minutes suspension for "Timeout"', () => {
@@ -179,24 +187,14 @@ describe("Guard", () => {
             expect(convertToMinutes(until)).toBe(1);
         });
 
-        it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
+        it('should return a 30 seconds suspension for "Application not ready"', () => {
             const { until, reason } = guard.__determineOffence({
                 ...dummy,
-                ...{ status: 503 },
+                socketError: SocketErrors.AppNotReady,
             });
 
-            expect(reason).toBe("Blockchain not ready");
+            expect(reason).toBe("Application is not ready");
             expect(convertToMinutes(until)).toBe(0.5);
-        });
-
-        it('should return a 60 seconds suspension for "Rate limit exceeded"', () => {
-            const { until, reason } = guard.__determineOffence({
-                ...dummy,
-                ...{ status: 429 },
-            });
-
-            expect(reason).toBe("Rate limit exceeded");
-            expect(convertToMinutes(until)).toBe(1);
         });
 
         it('should return a 10 minutes suspension for "Unknown"', () => {

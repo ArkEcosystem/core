@@ -6,6 +6,7 @@ import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 import { config as localConfig } from "../config";
+import { SocketErrors } from "../socket-server/constants";
 import { offences } from "./offences";
 
 export class Guard {
@@ -88,7 +89,13 @@ export class Guard {
         delete this.suspensions[peer.ip];
         delete peer.nextSuspensionReminder;
 
-        await this.monitor.acceptNewPeer(peer);
+        if (peer.socket.getState() !== peer.socket.OPEN) {
+            // if after suspension peer socket is not open, we just "destroy" the socket connection
+            // and we don't try to "accept" the peer again, so it will be definitively removed as there will be no reference to it
+            peer.socket.destroy();
+        } else {
+            await this.monitor.acceptNewPeer(peer);
+        }
     }
 
     /**
@@ -225,18 +232,12 @@ export class Guard {
             return this.__determinePunishment(peer, offences.NO_COMMON_ID);
         }
 
-        // NOTE: We check this extra because a response can still succeed if
-        // it returns any codes that are not 4xx or 5xx.
-        if (peer.status === 503) {
-            return this.__determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY);
+        if (peer.socket.getState() !== peer.socket.OPEN) {
+            return this.__determinePunishment(peer, offences.SOCKET_NOT_OPEN);
         }
 
-        if (peer.status === 429) {
-            return this.__determinePunishment(peer, offences.TOO_MANY_REQUESTS);
-        }
-
-        if (peer.status && peer.status !== 200) {
-            return this.__determinePunishment(peer, offences.INVALID_STATUS);
+        if (peer.socketError === SocketErrors.AppNotReady) {
+            return this.__determinePunishment(peer, offences.APPLICATION_NOT_READY);
         }
 
         if (peer.delay === -1) {

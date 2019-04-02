@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    defaults.hosts = [`http://127.0.0.1:4000`];
+    defaults.hosts = [{ ip: "127.0.0.1", port: 4000 }];
     forgeManager = new ForgerManager(defaults);
 });
 
