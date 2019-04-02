@@ -125,10 +125,11 @@ describe("Transaction Guard", () => {
                 .build(3)[0];
 
             // @FIXME: Uhm excuse me, what the?
-            // tx.data.signatures = [""];
-            // for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
-            //     tx.data.signatures += "1";
-            // }
+            tx.data.signatures = [""];
+            for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
+                // @ts-ignore
+                tx.data.signatures += "1";
+            }
             guard.__filterAndTransformTransactions([tx]);
 
             expect(guard.errors[tx.id]).toEqual([
@@ -376,7 +377,8 @@ describe("Transaction Guard", () => {
             ]) {
                 baseTransaction.data.type = transactionType;
                 // @FIXME: Uhm excuse me, what the?
-                // baseTransaction.data.id = transactionType;
+                // @ts-ignore
+                baseTransaction.data.id = transactionType;
 
                 expect(guard.__validateTransaction(baseTransaction)).toBeFalse();
                 expect(guard.errors[baseTransaction.id]).toEqual([
@@ -398,7 +400,7 @@ describe("Transaction Guard", () => {
             const transfers = TransactionFactory.transfer(delegates[0].senderPublicKey)
                 .withNetwork("unitnet")
                 .withPassphrase(delegates[0].secret)
-                .create(4);
+                .build(4);
 
             transfers.forEach(tx => {
                 guard.accept.set(tx.id, tx);
@@ -444,12 +446,12 @@ describe("Transaction Guard", () => {
             const added = TransactionFactory.transfer(delegates[0].address)
                 .withNetwork("unitnet")
                 .withPassphrase(delegates[0].secret)
-                .create(2);
+                .build(2);
             const notAddedError = { type: "ERR_TEST", message: "" };
             const notAdded = TransactionFactory.transfer(delegates[1].address)
                 .withNetwork("unitnet")
                 .withPassphrase(delegates[0].secret)
-                .create(2)
+                .build(2)
                 .map(tx => ({
                     transaction: tx,
                     ...notAddedError,
@@ -478,13 +480,13 @@ describe("Transaction Guard", () => {
             const added = TransactionFactory.transfer(delegates[0].address)
                 .withNetwork("unitnet")
                 .withPassphrase(delegates[0].secret)
-                .create(2);
+                .build(2);
 
             const notAddedError = { type: "ERR_POOL_FULL", message: "" };
             const notAdded = TransactionFactory.transfer(delegates[1].address)
                 .withNetwork("unitnet")
                 .withPassphrase(delegates[0].secret)
-                .create(2)
+                .build(2)
                 .map(tx => ({
                     transaction: tx,
                     ...notAddedError,
