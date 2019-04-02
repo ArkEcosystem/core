@@ -22,7 +22,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
-    public blocksInCurrentRound: any[] = null;
+    public blocksInCurrentRound: models.Block[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: Database.IDelegateWallet[] = null;
@@ -50,6 +50,23 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async init(): Promise<void> {
         await this.loadBlocksFromCurrentRound();
+    }
+
+    public async restoreLastRound(height: number): Promise<void> {
+        await this.initializeActiveDelegates(height);
+
+        // NOTE: if the node is shutdown between round, the round has already been applied
+        if (roundCalculator.isNewRound(height + 1)) {
+            const { round } = roundCalculator.calculateRound(height + 1);
+
+            this.logger.info(
+                `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
+            );
+
+            await this.deleteRound(round);
+        }
+
+        await this.applyRound(height);
     }
 
     public async reset(): Promise<void> {
@@ -394,7 +411,9 @@ export class DatabaseService implements Database.IDatabaseService {
         if (nextRound === round + 1 && height >= maxDelegates) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
-            const delegates = await this.calcPreviousActiveDelegates(round);
+            this.blocksInCurrentRound = await this.getBlocksForRound(round);
+
+            const delegates = await this.calcPreviousActiveDelegates(round, this.blocksInCurrentRound);
             this.forgingDelegates = await this.getActiveDelegates(height, delegates);
 
             await this.deleteRound(nextRound);
@@ -515,9 +534,19 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    private async calcPreviousActiveDelegates(round: number) {
-        // TODO: cache the blocks of the last X rounds
-        this.blocksInCurrentRound = await this.getBlocksForRound(round);
+    private async initializeActiveDelegates(height: number): Promise<void> {
+        this.forgingDelegates = null;
+
+        const { round } = roundCalculator.calculateRound(height);
+        const delegates = await this.calcPreviousActiveDelegates(round);
+        this.forgingDelegates = await this.getActiveDelegates(height, delegates);
+    }
+
+    private async calcPreviousActiveDelegates(
+        round: number,
+        blocks?: models.Block[],
+    ): Promise<Database.IDelegateWallet[]> {
+        blocks = blocks || (await this.getBlocksForRound(round));
 
         // Create temp wallet manager from all delegates
         const tempWalletManager = new WalletManager();
@@ -525,9 +554,9 @@ export class DatabaseService implements Database.IDatabaseService {
 
         // Revert all blocks in reverse order
         let height = 0;
-        for (let i = this.blocksInCurrentRound.length - 1; i >= 0; i--) {
-            tempWalletManager.revertBlock(this.blocksInCurrentRound[i]);
-            height = this.blocksInCurrentRound[i].data.height;
+        for (let i = blocks.length - 1; i >= 0; i--) {
+            tempWalletManager.revertBlock(blocks[i]);
+            height = blocks[i].data.height;
         }
 
         // The first round has no active delegates

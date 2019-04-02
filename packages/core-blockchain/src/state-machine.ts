@@ -187,13 +187,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             logger.info(`Last block in database: ${block.data.height.toLocaleString()}`);
 
-            // removing blocks up to the last round to compute active delegate list later if needed
-            const activeDelegates = await blockchain.database.getActiveDelegates(block.data.height);
-
-            if (!activeDelegates) {
-                await blockchain.rollbackCurrentRound();
-            }
-
             /** *******************************
              * database init                 *
              ******************************* */
@@ -205,18 +198,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 );
             }
 
-            // NOTE: if the node is shutdown between round, the round has already been applied
-            if (roundCalculator.isNewRound(block.data.height + 1)) {
-                const { round } = roundCalculator.calculateRound(block.data.height + 1);
-
-                logger.info(
-                    `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
-                );
-
-                await blockchain.database.deleteRound(round);
-            }
-
-            await blockchain.database.applyRound(block.data.height);
+            await blockchain.database.restoreLastRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
 
             return blockchain.dispatch("STARTED");
