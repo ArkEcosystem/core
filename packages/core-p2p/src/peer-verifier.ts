@@ -324,7 +324,7 @@ export class PeerVerifier {
 
     /**
      * Get the delegates for the given round.
-     * @param {Object} round to get delegates for
+     * @param {Object} round round to get delegates for
      * @return {Object} a map of { publicKey: delegate, ... } of all delegates for the given round
      */
     private async getDelegatesByRound(round: any): Promise<any> {

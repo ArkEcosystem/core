@@ -43,7 +43,10 @@ afterEach(async () => {
 describe("Blocks", () => {
     describe("POST blocks.latest", () => {
         it("should get the latest block", async () => {
-            mockHost.get("/api/blocks").reply(200, { data: [{ id: "123" }] }, peerMock.headers);
+            mockHost
+                .get("/api/blocks")
+                .query({ orderBy: "height:desc", limit: 1 })
+                .reply(200, { data: [{ id: "123" }] }, peerMock.headers);
 
             const response = await sendRequest("blocks.latest");
 
@@ -82,6 +85,7 @@ describe("Blocks", () => {
         it("should get the block transactions", async () => {
             mockHost
                 .get("/api/blocks/123/transactions")
+                .query({ orderBy: "timestamp:desc" })
                 .reply(200, { meta: { totalCount: 1 }, data: [{ id: "123" }, { id: "123" }] }, peerMock.headers);
 
             const response = await sendRequest("blocks.transactions", {

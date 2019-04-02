@@ -2,19 +2,17 @@ import "./mocks/core-container";
 
 import "jest-extended";
 
-import { generators } from "../../utils";
-
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, Transaction } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
 import { testnet } from "../../../packages/crypto/src/networks";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
 
 const { Delegate } = models;
-const { generateTransfer } = generators;
 
 jest.setTimeout(30000);
 jest.mock("../../../packages/core-forger/src/client");
@@ -46,10 +44,10 @@ describe("Forger Manager", () => {
     describe("forgeNewBlock", () => {
         it("should forge a block", async () => {
             // NOTE: make sure we have valid transactions from an existing wallet
-            const transactions = generateTransfer(
-                "testnet",
-                "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
-            );
+            const transactions = TransactionFactory.transfer()
+                .withNetwork("testnet")
+                .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .build();
 
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({

@@ -38,6 +38,8 @@ export interface IDatabaseService {
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<IDelegateWallet[]>;
 
+    restoreCurrentRound(height: number): Promise<void>;
+
     buildWallets(): Promise<boolean>;
 
     saveBlock(block: models.Block): Promise<void>;

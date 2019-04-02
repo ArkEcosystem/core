@@ -1,13 +1,11 @@
 import "jest-extended";
 
-import { generators } from "../../../utils";
-const { generateSecondSignature } = generators;
-
 import { Delegate } from "../../../../packages/crypto/src/models/delegate";
 import { INetwork, testnet } from "../../../../packages/crypto/src/networks";
 import { ITransactionData } from "../../../../packages/crypto/src/transactions";
 import { Bignum } from "../../../../packages/crypto/src/utils";
 import { sortTransactions } from "../../../../packages/crypto/src/utils";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 
 const dummy = {
     plainPassphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
@@ -158,7 +156,9 @@ describe("Models - Delegate", () => {
             },
             reward: new Bignum(0),
         };
-        const transactions = generateSecondSignature("devnet", dummy.plainPassphrase, 1, true);
+        const transactions = TransactionFactory.secondSignature(dummy.plainPassphrase)
+            .withPassphrase(dummy.plainPassphrase)
+            .create();
         const expectedBlockData = {
             generatorPublicKey: dummy.publicKey,
             timestamp: optionsDefault.timestamp,

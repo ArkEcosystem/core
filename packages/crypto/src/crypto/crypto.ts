@@ -5,8 +5,6 @@ import { ITransactionData } from "../transactions";
 import { ISerializeOptions, TransactionSerializer } from "../transactions/serializers/transaction";
 import { HashAlgorithms } from "./hash-algorithms";
 
-const { transactionIdFixTable } = configManager.getPreset("mainnet").exceptions;
-
 class Crypto {
     /**
      * Get transaction fee.
@@ -23,8 +21,9 @@ class Crypto {
 
         // Apply fix for broken type 1 and 4 transactions, which were
         // erroneously calculated with a recipient id.
-        if (transactionIdFixTable[transaction.id]) {
-            return transactionIdFixTable[transaction.id];
+        const { transactionIdFixTable } = configManager.get("exceptions");
+        if (transactionIdFixTable && transactionIdFixTable[id]) {
+            return transactionIdFixTable[id];
         }
 
         return id;

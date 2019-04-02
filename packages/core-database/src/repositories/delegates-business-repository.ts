@@ -126,19 +126,6 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         return this.getLocalDelegates().find(a => a.address === id || a.publicKey === id || a.username === id);
     }
 
-    /**
-     * Find all active delegates at height.
-     * @param  {Number} height
-     * @return {Array}
-     */
-    public async getActiveAtHeight(height: number) {
-        const delegates = await this.databaseServiceProvider().getActiveDelegates(height);
-
-        return delegates.map(delegate => {
-            return this.databaseServiceProvider().wallets.findById(delegate.publicKey);
-        });
-    }
-
     private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
         const assignOrder = (params, value) => (params.orderBy = value);
 

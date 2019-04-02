@@ -71,12 +71,6 @@ export interface IBlockchain {
     handleIncomingBlock(block: models.Block): void;
 
     /**
-     * Rollback all blocks up to the previous round.
-     * @return {void}
-     */
-    rollbackCurrentRound(): Promise<void>;
-
-    /**
      * Remove N number of blocks.
      * @param  {Number} nblocks
      * @return {void}

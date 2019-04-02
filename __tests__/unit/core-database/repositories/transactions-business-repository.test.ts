@@ -63,7 +63,7 @@ describe("Transactions Business Repository", () => {
         });
     });
 
-    describe("allVotesBySender", async () => {
+    describe("allVotesBySender", () => {
         it("should search by senderPublicKey and type=vote", async () => {
             databaseService.connection.transactionsRepository = {
                 findAll: async parameters => parameters,

@@ -66,14 +66,6 @@ export const index: object = {
     },
 };
 
-export const active: object = {
-    query: {
-        height: Joi.number()
-            .integer()
-            .min(1),
-    },
-};
-
 export const show: object = {
     params: {
         id: schemaIdentifier,

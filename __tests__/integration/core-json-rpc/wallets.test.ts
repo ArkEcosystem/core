@@ -64,7 +64,7 @@ afterEach(async () => {
 });
 
 describe("Wallets", () => {
-    describe.only("POST wallets.info", () => {
+    describe("POST wallets.info", () => {
         it("should get information about the given wallet", async () => {
             mockHost
                 .get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv")
@@ -102,6 +102,11 @@ describe("Wallets", () => {
         it("should get the transactions for the given wallet", async () => {
             mockHost
                 .get("/api/transactions")
+                .query({
+                    offset: 0,
+                    orderBy: "timestamp:desc",
+                    ownerId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+                })
                 .reply(200, { meta: { totalCount: 2 }, data: [{ id: "123" }, { id: "1234" }] }, peerMock.headers);
 
             const response = await sendRequest("wallets.transactions", {

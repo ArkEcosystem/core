@@ -1,11 +1,10 @@
-import { constants } from "@arkecosystem/crypto";
 import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
+import { TransactionFactory } from "../../../../helpers/transaction-factory";
 import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
-import { generateTransfer } from "../../../../utils/generators/transactions";
 import { generateWallets } from "../../../../utils/generators/wallets";
 
 const transferFee = 10000000;
@@ -506,14 +505,10 @@ describe("API 2.0 - Transactions", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
             (header, request) => {
-                const transactions = generateTransfer(
-                    "testnet",
-                    delegates[0].secret,
-                    delegates[1].address,
-                    1,
-                    40,
-                    true,
-                );
+                const transactions = TransactionFactory.transfer(delegates[1].address)
+                    .withNetwork("testnet")
+                    .withPassphrase(delegates[0].secret)
+                    .create(40);
 
                 it("should POST all the transactions", async () => {
                     const response = await utils[request]("POST", "transactions", {
@@ -534,14 +529,14 @@ describe("API 2.0 - Transactions", () => {
         );
 
         it("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
-            const transactions = generateTransfer(
-                "testnet",
-                delegates[0].secret,
+            const transactions = TransactionFactory.transfer(
                 delegates[1].address,
                 245098000000000 - 5098000000000, // a bit less than the delegates' balance
-                2,
-                true,
-            );
+            )
+                .withNetwork("testnet")
+                .withPassphrase(delegates[0].secret)
+                .create(2);
+
             const response = await utils.requestWithAcceptHeader("POST", "transactions", {
                 transactions,
             });
@@ -564,22 +559,15 @@ describe("API 2.0 - Transactions", () => {
             const amountPlusFee = Math.floor(sender.balance / txNumber);
             const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee;
 
-            const transactions = generateTransfer(
-                "testnet",
-                sender.secret,
-                receivers[0].address,
-                amountPlusFee - transferFee,
-                txNumber - 1,
-                true,
-            );
-            const lastTransaction = generateTransfer(
-                "testnet",
-                sender.secret,
-                receivers[1].address,
-                lastAmountPlusFee - transferFee,
-                1,
-                true,
-            );
+            const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
+                .withNetwork("testnet")
+                .withPassphrase(sender.secret)
+                .create(txNumber - 1);
+
+            const lastTransaction = TransactionFactory.transfer(receivers[1].address, lastAmountPlusFee - transferFee)
+                .withNetwork("testnet")
+                .withPassphrase(sender.secret)
+                .create();
             // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
 
             const allTransactions = transactions.concat(lastTransaction);
@@ -605,22 +593,17 @@ describe("API 2.0 - Transactions", () => {
                 const amountPlusFee = Math.floor(sender.balance / txNumber);
                 const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
-                const transactions = generateTransfer(
-                    "testnet",
-                    sender.secret,
-                    receivers[0].address,
-                    amountPlusFee - transferFee,
-                    txNumber - 1,
-                    true,
-                );
-                const lastTransaction = generateTransfer(
-                    "testnet",
-                    sender.secret,
+                const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
+                    .withNetwork("testnet")
+                    .withPassphrase(sender.secret)
+                    .create(txNumber - 1);
+                const lastTransaction = TransactionFactory.transfer(
                     receivers[1].address,
                     lastAmountPlusFee - transferFee,
-                    1,
-                    true,
-                );
+                )
+                    .withNetwork("testnet")
+                    .withPassphrase(sender.secret)
+                    .create();
                 // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
 
                 const allTransactions = transactions.concat(lastTransaction);

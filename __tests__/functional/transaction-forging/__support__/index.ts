@@ -1,15 +1,13 @@
 import "jest-extended";
 
-import { bignumify, httpie } from "@arkecosystem/core-utils";
-import { configManager, PublicKey, transactionBuilder } from "@arkecosystem/crypto";
+import { bignumify } from "@arkecosystem/core-utils";
+import { configManager, PublicKey } from "@arkecosystem/crypto";
 import delay from "delay";
-import { generators } from "../../../utils";
+import { RestClient } from "../../../helpers";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../../../utils/helpers/container";
 
 jest.setTimeout(1200000);
-
-// @TODO: implement a flexible transaction builder
 
 let app;
 export async function setUp() {
@@ -42,14 +40,6 @@ export async function tearDown() {
     await app.tearDown();
 }
 
-export async function apiGET(path: string, opts?) {
-    return httpie.get(`http://localhost:4003/api/v2/${path}`, opts);
-}
-
-export async function apiPOST(path: string, body) {
-    return httpie.post(`http://localhost:4003/api/v2/${path}`, { body });
-}
-
 export async function snoozeForBlock(sleep: number = 0, height: number = 1) {
     const blockTime = configManager.getMilestone(height).blocktime * 1000;
     const sleepTime = sleep * 1000;
@@ -57,81 +47,21 @@ export async function snoozeForBlock(sleep: number = 0, height: number = 1) {
     return delay(blockTime + sleepTime);
 }
 
-export async function broadcastTransactions(transactions) {
-    return apiPOST("transactions", { transactions });
-}
-
 export async function expectAcceptAndBroadcast(transactions, id): Promise<void> {
-    const { body } = await broadcastTransactions(transactions);
+    const { body } = await RestClient.broadcast(transactions);
+
+    if (body.data.invalid.length) {
+        console.log(body.errors);
+    }
 
     expect(body.data.accept).toContain(id);
     expect(body.data.broadcast).toContain(id);
 }
 
 export async function expectTransactionForged(id): Promise<void> {
-    const { body } = await apiGET(`transactions/${id}`);
+    const { body } = await RestClient.get(`transactions/${id}`);
 
     expect(body.data.id).toBe(id);
-}
-
-export function generateTransfer(passphrase, address: string, amount: number = 2, height: number = 1) {
-    return generators
-        .generateTransfer(
-            "testnet",
-            passphrase,
-            address,
-            amount * 1e8,
-            1,
-            false,
-            configManager.getMilestone(height).fees.staticFees.transfer,
-        )
-        .map(transaction => transaction.toJson());
-}
-
-export function generateVote(passphrase, publicKey: string, height: number = 1) {
-    return generators
-        .generateVote(
-            "testnet",
-            passphrase,
-            publicKey,
-            1,
-            false,
-            configManager.getMilestone(height).fees.staticFees.vote,
-        )
-        .map(transaction => transaction.toJson());
-}
-
-export function generateSecondSignature(passphrase: string, secondPassphrase: string, height: number = 1) {
-    return [
-        transactionBuilder
-            .secondSignature()
-            .signatureAsset(secondPassphrase)
-            .sign(passphrase)
-            .getStruct(),
-    ];
-
-    // return generators,
-    //     .generateSecondSignature(
-    //         "testnet",
-    //         passphrase,
-    //         1,
-    //         false,
-    //         configManager.getMilestone(height).fees.staticFees.secondSignature,
-    //     )
-    //     .map(transaction => transaction.toJson());
-}
-
-export function generateDelegateRegistration(passphrase, username: string, height: number = 1) {
-    return generators
-        .generateDelegateRegistration(
-            "testnet",
-            passphrase,
-            1,
-            false,
-            username,
-            configManager.getMilestone(height).fees.staticFees.delegateRegistration,
-        )
-        .map(transaction => transaction.toJson());
 }
 
 export const passphrases = {
