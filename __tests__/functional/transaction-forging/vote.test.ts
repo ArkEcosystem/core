@@ -53,7 +53,7 @@ describe("Transaction Forging - Vote", () => {
 
         // Submit a vote
         const vote = TransactionFactory.vote(PublicKey.fromPassphrase(secrets[0]))
-            .withPassphrases({ passphrase, secondPassphrase })
+            .withPassphrasePair({ passphrase, secondPassphrase })
             .create();
 
         await support.expectAcceptAndBroadcast(vote, vote[0].id);

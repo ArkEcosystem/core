@@ -20,7 +20,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await support.expectTransactionForged(initialFunds[0].id);
 
         // Register a delegate
-        const transactions = TransactionFactory.delegateRegistration("username")
+        const transactions = TransactionFactory.delegateRegistration()
             .withPassphrase(passphrase)
             .create();
 
@@ -52,8 +52,8 @@ describe("Transaction Forging - Delegate Registration", () => {
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Register a delegate
-        const delegateRegistration = TransactionFactory.delegateRegistration("second_username")
-            .withPassphrases({ passphrase, secondPassphrase })
+        const delegateRegistration = TransactionFactory.delegateRegistration()
+            .withPassphrasePair({ passphrase, secondPassphrase })
             .create();
 
         await support.expectAcceptAndBroadcast(delegateRegistration, delegateRegistration[0].id);

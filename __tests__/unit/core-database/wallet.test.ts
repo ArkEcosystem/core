@@ -341,7 +341,7 @@ describe("Models - Wallet", () => {
             it("should return correct audit data for Transfer type", () => {
                 const transaction = TransactionFactory.transfer("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7")
                     .withNetwork("devnet")
-                    .withPassphrases({
+                    .withPassphrasePair({
                         passphrase: "super secret passphrase",
                         secondPassphrase: "super secret secondpassphrase",
                     })

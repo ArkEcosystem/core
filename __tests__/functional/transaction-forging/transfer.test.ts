@@ -40,7 +40,7 @@ describe("Transaction Forging - Transfer", () => {
 
         // Submit a transfer with 2 passprhases
         const transfer = TransactionFactory.transfer(Address.fromPassphrase(passphrase))
-            .withPassphrases(support.passphrases)
+            .withPassphrasePair(support.passphrases)
             .create();
 
         await support.expectAcceptAndBroadcast(transfer, transfer[0].id);

@@ -311,7 +311,7 @@ describe("Transaction Guard", () => {
             const transactions = TransactionFactory.transfer(delegates[1].address, amount)
                 .withNetwork("unitnet")
                 .withPassphrase(delegates[0].secret)
-                .create();
+                .create(2);
 
             const result = await guard.validate(transactions);
 
@@ -339,6 +339,7 @@ describe("Transaction Guard", () => {
                 .create(txNumber - 1);
             const lastTransaction = TransactionFactory.transfer(receivers[1].address, lastAmountPlusFee - transferFee)
                 .withNetwork("unitnet")
+                .withFee(lastAmountPlusFee - transferFee)
                 .withPassphrase(sender.secret)
                 .create();
             // we change the receiver in lastTransaction to prevent having 2 exact
@@ -406,14 +407,14 @@ describe("Transaction Guard", () => {
 
         it("should not validate when multiple wallets register the same username in the same transaction payload", async () => {
             const delegateRegistrations = [
-                TransactionFactory.delegateRegistration("test_delegate")[0]
+                TransactionFactory.delegateRegistration("test_delegate")
                     .withNetwork("unitnet")
                     .withPassphrase(wallets[14].passphrase)
-                    .create(),
-                TransactionFactory.delegateRegistration("test_delegate")[0]
+                    .build()[0],
+                TransactionFactory.delegateRegistration("test_delegate")
                     .withNetwork("unitnet")
                     .withPassphrase(wallets[15].passphrase)
-                    .create(),
+                    .build()[0],
             ];
 
             const result = await guard.validate(delegateRegistrations.map(transaction => transaction.data));
@@ -458,10 +459,7 @@ describe("Transaction Guard", () => {
                     .create(modifiedFields.length + 1); // + 1 because we will use it to modify senderPublicKey separately
                 const transfers2ndSigned = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5", 50)
                     .withNetwork("unitnet")
-                    .withPassphrases({
-                        passphrase: wallets2ndSig[0].passphrase,
-                        secondPassphrase: wallets2ndSig[0].secondPassphrase,
-                    })
+                    .withPassphrasePair(wallets2ndSig[0])
                     .create(modifiedFields.length + 1); // + 1 because we will use it to modify senderPublicKey separately
 
                 // modify transaction fields and try to validate
@@ -491,7 +489,7 @@ describe("Transaction Guard", () => {
                 expect(result.broadcast).toEqual([]);
             });
 
-            it.only("should not validate when changing fields after signing - delegate registration", async () => {
+            it("should not validate when changing fields after signing - delegate registration", async () => {
                 // the fields we are going to modify after signing
                 const modifiedFieldsDelReg = [
                     { timestamp: 111111 },
@@ -504,6 +502,7 @@ describe("Transaction Guard", () => {
                     .withNetwork("unitnet")
                     .withPassphraseList(wallets.slice(0, modifiedFieldsDelReg.length + 1).map(w => w.passphrase))
                     .create();
+
                 const delegateRegs2ndSigned = TransactionFactory.delegateRegistration()
                     .withNetwork("unitnet")
                     .withPassphrasePairs(
@@ -513,6 +512,8 @@ describe("Transaction Guard", () => {
                         })),
                     )
                     .create();
+
+                // console.log(delegateRegs.map(d => ({ id: d.id, username: d.asset.delegate })));
 
                 // modify transaction fields and try to validate
                 const modifiedTransactions = [

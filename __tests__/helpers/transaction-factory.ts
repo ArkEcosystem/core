@@ -31,16 +31,7 @@ export class TransactionFactory {
     }
 
     public static delegateRegistration(username?: string): TransactionFactory {
-        return new TransactionFactory(
-            transactionBuilder.delegateRegistration().usernameAsset(
-                username ||
-                    pokemon
-                        .random()
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]/g, "_")
-                        .substring(0, 20),
-            ),
-        );
+        return new TransactionFactory(transactionBuilder.delegateRegistration().usernameAsset(username));
     }
 
     public static vote(publicKey?: string): TransactionFactory {
@@ -98,15 +89,15 @@ export class TransactionFactory {
         return this;
     }
 
-    public withPassphrases(passphrases: PassphrasePair): TransactionFactory {
-        this.passphrase = passphrases.passphrase;
-        this.secondPassphrase = passphrases.secondPassphrase;
+    public withPassphraseList(passphrases: string[]): TransactionFactory {
+        this.passphraseList = passphrases;
 
         return this;
     }
 
-    public withPassphraseList(passphrases: string[]): TransactionFactory {
-        this.passphraseList = passphrases;
+    public withPassphrasePair(passphrases: PassphrasePair): TransactionFactory {
+        this.passphrase = passphrases.passphrase;
+        this.secondPassphrase = passphrases.secondPassphrase;
 
         return this;
     }
@@ -151,7 +142,13 @@ export class TransactionFactory {
 
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
+                // @TODO: only call this if no vendor field is set
                 this.builder.vendorField(`Test Transaction ${i + 1}`);
+            }
+
+            if (this.builder.constructor.name === "DelegateRegistrationBuilder") {
+                // @TODO: only call this if no username is set
+                this.builder = transactionBuilder.delegateRegistration().usernameAsset(this.getRandomUsername());
             }
 
             if (this.fee) {
@@ -168,5 +165,13 @@ export class TransactionFactory {
         }
 
         return transactions;
+    }
+
+    private getRandomUsername(): string {
+        return pokemon
+            .random()
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "_")
+            .substring(0, 20);
     }
 }
