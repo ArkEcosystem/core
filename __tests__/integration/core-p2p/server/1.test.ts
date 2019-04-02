@@ -1,5 +1,5 @@
 import { models } from "@arkecosystem/crypto";
-import { generateTransfer } from "../../../utils/generators/transactions";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../__support__/utils";
 import fullBlock from "../fixtures/block-with-transactions.json";
@@ -167,14 +167,12 @@ describe("API - Version 1", () => {
 
     describe("POST /peer/transactions", () => {
         it("should succeed with an existing wallet", async () => {
-            const transactions = generateTransfer(
-                "testnet",
-                "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
-                null,
-                40,
-            );
+            const transactions = TransactionFactory.transfer(null, 40)
+                .withNetwork("testnet")
+                .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .create();
             const response = await utils.POST("peer/transactions", {
-                transactions: transactions.map(tx => tx.toJson()),
+                transactions,
             });
 
             expect(response.data).toBeObject();
@@ -182,9 +180,11 @@ describe("API - Version 1", () => {
         });
 
         it("should fail with a cold wallet", async () => {
-            const transactions = generateTransfer("testnet", "wallet does not exist");
+            const transactions = TransactionFactory.transfer("wallet does not exist")
+                .withNetwork("testnet")
+                .create();
             const response = await utils.POST("peer/transactions", {
-                transactions: transactions.map(tx => tx.toJson()),
+                transactions,
             });
 
             expect(response.data).toBeObject();
