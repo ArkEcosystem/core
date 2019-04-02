@@ -53,7 +53,7 @@ describe("Transaction Forging - Delegate Registration", () => {
 
         // Register a delegate
         const delegateRegistration = TransactionFactory.delegateRegistration("second_username")
-            .withPassphrases(support.passphrases)
+            .withPassphrases({ passphrase, secondPassphrase })
             .create();
 
         await support.expectAcceptAndBroadcast(delegateRegistration, delegateRegistration[0].id);
