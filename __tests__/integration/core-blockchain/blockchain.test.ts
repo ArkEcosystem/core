@@ -87,23 +87,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("rollbackCurrentRound", () => {
-        it("should rollback", async () => {
-            await __addBlocks(155);
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(153);
-        });
-
-        it("shouldnt rollback more if previous round is round 2", async () => {
-            await __addBlocks(140);
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(102);
-
-            await blockchain.rollbackCurrentRound();
-            expect(blockchain.getLastBlock().data.height).toBe(102);
-        });
-    });
-
     describe("removeBlocks", () => {
         it("should remove blocks", async () => {
             const lastBlockHeight = blockchain.getLastBlock().data.height;

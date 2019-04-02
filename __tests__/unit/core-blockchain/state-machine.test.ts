@@ -271,15 +271,6 @@ describe("State Machine", () => {
                 );
             });
 
-            it("should rollbackCurrentRound and dispatch STARTED if couldnt get activeDelegates", async () => {
-                process.env.NODE_ENV = "";
-                jest.spyOn(blockchain.database, "getActiveDelegates").mockReturnValue(undefined);
-                const spyRollbackCurrentRound = jest.spyOn(blockchain, "rollbackCurrentRound").mockReturnThis();
-
-                await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(spyRollbackCurrentRound).toHaveBeenCalled();
-            });
-
             it("should rebuild wallets table and dispatch STARTED if database.buildWallets() failed", async () => {
                 process.env.NODE_ENV = "";
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
