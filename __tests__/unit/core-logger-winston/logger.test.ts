@@ -1,12 +1,15 @@
 import { Logger } from "@arkecosystem/core-interfaces";
 import * as capcon from "capture-console";
 import "jest-extended";
+import { tmpdir } from "os";
 import { WinstonLogger } from "../../../packages/core-logger-winston/src";
 
 let logger: Logger.ILogger;
 let message;
 
 beforeAll(() => {
+    process.env.CORE_PATH_LOG = tmpdir();
+
     logger = new WinstonLogger({
         transports: [
             {
@@ -32,7 +35,7 @@ afterEach(() => (message = null));
 
 describe("Logger", () => {
     describe("error", () => {
-        it.only("should log a message", () => {
+        it("should log a message", () => {
             logger.error("error_message");
             console.log(message);
             expect(message).toMatch(/error/);
