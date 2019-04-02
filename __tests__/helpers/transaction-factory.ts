@@ -1,14 +1,6 @@
-import {
-    configManager,
-    constants,
-    ITransactionData,
-    NetworkName,
-    Transaction,
-    transactionBuilder,
-} from "@arkecosystem/crypto";
+import { configManager, ITransactionData, NetworkName, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { Address, PublicKey } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
-import { TransferBuilder } from "../../packages/crypto/src/builder/transactions/transfer";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -17,7 +9,7 @@ export class TransactionFactory {
     public static transfer(recipientId?: string, amount: number = 2, vendorField?: string): TransactionFactory {
         const builder = transactionBuilder
             .transfer()
-            .amount(amount * constants.SATOSHI)
+            .amount(amount)
             .recipientId(recipientId || Address.fromPassphrase(defaultPassphrase));
 
         if (vendorField) {

@@ -11,7 +11,7 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Vote", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 100)
+        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .create();
 
@@ -34,7 +34,7 @@ describe("Transaction Forging - Vote", () => {
         const passphrase = secondPassphrase;
 
         // Initial Funds
-        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 100)
+        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .create();
 

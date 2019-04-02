@@ -21,7 +21,7 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Funds to register a second passphrase
-        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 50)
+        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 50 * 1e8)
             .withPassphrase(secrets[0])
             .create();
 
