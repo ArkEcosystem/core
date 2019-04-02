@@ -22,8 +22,8 @@ class Crypto {
         // Apply fix for broken type 1 and 4 transactions, which were
         // erroneously calculated with a recipient id.
         const { transactionIdFixTable } = configManager.get("exceptions");
-        if (transactionIdFixTable && transactionIdFixTable[transaction.id]) {
-            return transactionIdFixTable[transaction.id];
+        if (transactionIdFixTable && transactionIdFixTable[id]) {
+            return transactionIdFixTable[id];
         }
 
         return id;
