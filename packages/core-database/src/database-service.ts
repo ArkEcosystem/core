@@ -52,7 +52,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.loadBlocksFromCurrentRound();
     }
 
-    public async restoreLastRound(height: number): Promise<void> {
+    public async restoreCurrentRound(height: number): Promise<void> {
         await this.initializeActiveDelegates(height);
 
         // NOTE: if the node is shutdown between round, the round has already been applied

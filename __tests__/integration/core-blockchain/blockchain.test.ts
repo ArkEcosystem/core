@@ -115,6 +115,36 @@ describe("Blockchain", () => {
         });
     });
 
+    describe("restoreCurrentRound", () => {
+        it("should restore the active delegates of the current round", async () => {
+            await __resetToHeight1();
+
+            // Go to arbitrary height in round 2.
+            await __addBlocks(55);
+
+            // Pretend blockchain just started
+            await blockchain.database.restoreCurrentRound(blockchain.getLastHeight());
+            const forgingDelegates = await blockchain.database.getActiveDelegates(blockchain.getLastHeight());
+            expect(forgingDelegates).toHaveLength(51);
+
+            // Reset again and replay to round 2. In both cases the forging delegates
+            // have to match.
+            await __resetToHeight1();
+            await __addBlocks(52);
+
+            // FIXME: using jest.spyOn getActiveDelegates with toHaveLastReturnedWith() somehow gets
+            // overwritten in afterEach
+            // FIXME: wallet.lastBlock needs to be properly restored when reverting
+            forgingDelegates.forEach(forger => (forger.lastBlock = null));
+            expect(forgingDelegates).toEqual(
+                (blockchain.database as any).forgingDelegates.map(forger => {
+                    forger.lastBlock = null;
+                    return forger;
+                }),
+            );
+        });
+    });
+
     describe("rollback", () => {
         beforeEach(async () => {
             await __resetToHeight1();

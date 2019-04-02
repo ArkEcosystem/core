@@ -198,7 +198,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 );
             }
 
-            await blockchain.database.restoreLastRound(block.data.height);
+            await blockchain.database.restoreCurrentRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
 
             return blockchain.dispatch("STARTED");

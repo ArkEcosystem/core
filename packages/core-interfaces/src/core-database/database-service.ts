@@ -38,7 +38,7 @@ export interface IDatabaseService {
 
     getActiveDelegates(height: number, delegates?: any[]): Promise<IDelegateWallet[]>;
 
-    restoreLastRound(height: number): Promise<void>;
+    restoreCurrentRound(height: number): Promise<void>;
 
     buildWallets(): Promise<boolean>;
 
