@@ -29,7 +29,7 @@ describe("Transaction Forging - Vote", () => {
         await support.expectTransactionForged(transactions[0].id);
     });
 
-    it.only("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
+    it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Make a fresh wallet for the second signature tests
         const passphrase = secondPassphrase;
 

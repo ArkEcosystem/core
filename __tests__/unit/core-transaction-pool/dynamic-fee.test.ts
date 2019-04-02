@@ -29,7 +29,7 @@ describe("static fees", () => {
     });
 });
 
-describe.only("dynamic fees", () => {
+describe("dynamic fees", () => {
     let dynamicFeeConfig;
     beforeEach(() => {
         config.set("dynamicFees.enabled", true);

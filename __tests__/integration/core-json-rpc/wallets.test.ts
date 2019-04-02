@@ -64,7 +64,7 @@ afterEach(async () => {
 });
 
 describe("Wallets", () => {
-    describe.only("POST wallets.info", () => {
+    describe("POST wallets.info", () => {
         it("should get information about the given wallet", async () => {
             mockHost
                 .get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv")
