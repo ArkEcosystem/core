@@ -99,9 +99,7 @@ class TransactionDeserializer {
 
     // tslint:disable-next-line:member-ordering
     public applyV1Compatibility(transaction: ITransactionData): void {
-        if (transaction.secondSignature) {
-            transaction.signSignature = transaction.secondSignature;
-        }
+        transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
 
         if (transaction.type === TransactionTypes.Vote) {
             transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);

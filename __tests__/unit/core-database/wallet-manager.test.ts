@@ -6,14 +6,13 @@ import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/er
 import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
-import { fixtures, generators } from "../../utils";
+import { TransactionFactory } from "../../helpers/transaction-factory";
+import { fixtures } from "../../utils";
 
 import wallets from "./__fixtures__/wallets.json";
 
 const { Block } = models;
 const { SATOSHI, TransactionTypes } = constants;
-
-const { generateDelegateRegistration, generateSecondSignature, generateTransfer, generateVote } = generators;
 
 const block3 = fixtures.blocks2to100[1];
 const block = new Block(block3);
@@ -158,12 +157,28 @@ describe("Wallet Manager", () => {
     });
 
     describe("applyTransaction", () => {
-        describe("when the recipient is a cold wallet", () => {});
+        it.todo("when the recipient is a cold wallet");
 
-        const transfer = generateTransfer("testnet", Math.random().toString(36), walletData2.address, 96579, 1)[0];
-        const delegateReg = generateDelegateRegistration("testnet", Math.random().toString(36), 1)[0];
-        const secondSign = generateSecondSignature("testnet", Math.random().toString(36), 1)[0];
-        const vote = generateVote("testnet", Math.random().toString(36), walletData2.publicKey, 1)[0];
+        const transfer = TransactionFactory.transfer(walletData2.address, 96579)
+            .withNetwork("testnet")
+            .withPassphrase(Math.random().toString(36))
+            .build()[0];
+
+        const delegateReg = TransactionFactory.delegateRegistration()
+            .withNetwork("testnet")
+            .withPassphrase(Math.random().toString(36))
+            .build()[0];
+
+        const secondSign = TransactionFactory.secondSignature()
+            .withNetwork("testnet")
+            .withPassphrase(Math.random().toString(36))
+            .build()[0];
+
+        const vote = TransactionFactory.vote(walletData2.publicKey)
+            .withNetwork("testnet")
+            .withPassphrase(Math.random().toString(36))
+            .build()[0];
+
         describe.each`
             type          | transaction    | amount               | balanceSuccess              | balanceFail
             ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(SATOSHI)}      | ${Bignum.ONE}

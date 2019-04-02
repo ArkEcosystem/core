@@ -173,8 +173,8 @@ export class TransactionSerializer {
             }
         }
 
-        if (!options.excludeSecondSignature && transaction.signSignature) {
-            const signSignatureBuffer = Buffer.from(transaction.signSignature, "hex");
+        if (!options.excludeSecondSignature && transaction.secondSignature) {
+            const signSignatureBuffer = Buffer.from(transaction.secondSignature, "hex");
             for (const byte of signSignatureBuffer) {
                 bb.writeByte(byte);
             }

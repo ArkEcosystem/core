@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { IdentityCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/identity";
 
-describe("Commands - Identity", async () => {
+describe("Commands - Identity", () => {
     const fixtureIdentities = require("../../__fixtures__/identities.json");
 
     it("should return identities from passphrase", async () => {

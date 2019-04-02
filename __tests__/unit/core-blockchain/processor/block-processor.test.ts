@@ -11,13 +11,13 @@ import {
     ExceptionHandler,
     VerificationFailedHandler,
 } from "../../../../packages/core-blockchain/src/processor/handlers";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 import "../../../utils";
 import { fixtures, generators } from "../../../utils";
 import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 
 const { Block } = models;
 const { delegates } = fixtures;
-const { generateTransfer } = generators;
 
 let blockProcessor: BlockProcessor;
 
@@ -75,14 +75,10 @@ describe("Block processor", () => {
         describe("should not accept replay transactions", () => {
             let block;
             beforeEach(() => {
-                const transfers = generateTransfer(
-                    "unitnet",
-                    delegates[0].passphrase,
-                    delegates[1].address,
-                    11,
-                    1,
-                    true,
-                );
+                const transfers = TransactionFactory.transfer(delegates[1].address)
+                    .withNetwork("unitnet")
+                    .withPassphrase(delegates[0].passphrase)
+                    .create(11);
 
                 const lastBlock = new Block(getBlock(transfers));
 
