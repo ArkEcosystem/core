@@ -334,12 +334,10 @@ describe("Transaction Guard", () => {
 
             const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withNetwork("unitnet")
-                .withFee(amountPlusFee - transferFee)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
             const lastTransaction = TransactionFactory.transfer(receivers[1].address, lastAmountPlusFee - transferFee)
                 .withNetwork("unitnet")
-                .withFee(lastAmountPlusFee - transferFee)
                 .withPassphrase(sender.secret)
                 .create();
             // we change the receiver in lastTransaction to prevent having 2 exact
