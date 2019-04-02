@@ -10,9 +10,7 @@ let message;
 beforeAll(() => {
     process.env.CORE_PATH_LOG = tmpdir();
 
-    const driver = new SignaleLogger({ logLevel: "info" });
-
-    logger = driver.make();
+    logger = new SignaleLogger({ logLevel: "info" }).make();
 
     capcon.startCapture(process.stdout, stdout => {
         message += stdout;

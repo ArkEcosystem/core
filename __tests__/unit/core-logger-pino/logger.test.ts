@@ -10,14 +10,12 @@ let message;
 beforeAll(() => {
     process.env.CORE_PATH_LOG = tmpdir();
 
-    const driver = new PinoLogger({
+    logger = new PinoLogger({
         levels: {
             console: "trace",
             file: "trace",
         },
-    });
-
-    logger = driver.make();
+    }).make();
 
     capcon.startCapture(process.stdout, stdout => {
         message += stdout;

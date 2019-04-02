@@ -39,7 +39,7 @@ fs.readdir("./packages", (_, packages) => {
         jobs.forEach((job, index) => {
             const testStepIndex = job.steps.findIndex(
                 step => typeof step === "object" && step.run && step.run.name === "Unit tests",
-            ) + 1;
+            );
 
             const steps = getIntegrationSteps(packagesChunks[index]);
 

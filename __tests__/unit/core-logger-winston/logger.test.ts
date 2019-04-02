@@ -7,7 +7,7 @@ let logger: Logger.ILogger;
 let message;
 
 beforeAll(() => {
-    const driver = new WinstonLogger({
+    logger = new WinstonLogger({
         transports: [
             {
                 constructor: "Console",
@@ -16,17 +16,15 @@ beforeAll(() => {
                     level: "debug",
                 },
             },
-            {
-                constructor: "File",
-                options: { filename: "tmp.log", level: "silly" },
-            },
         ],
-    });
-
-    logger = driver.make();
+    }).make();
 
     capcon.startCapture(process.stdout, stdout => {
         message += stdout;
+    });
+
+    capcon.startCapture(process.stderr, stderr => {
+        message += stderr;
     });
 });
 
