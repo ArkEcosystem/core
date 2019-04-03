@@ -47,18 +47,6 @@ export class Guard {
             reason: "Invalid Version",
             weight: 2,
         },
-        INVALID_MILESTONE_HASH: {
-            number: 5,
-            period: "addMinutes",
-            reason: "Invalid Milestones",
-            weight: 2,
-        },
-        INVALID_HEIGHT: {
-            number: 10,
-            period: "addMinutes",
-            reason: "Node is not at height",
-            weight: 3,
-        },
         INVALID_NETWORK: {
             number: 5,
             period: "addMinutes",
@@ -310,14 +298,6 @@ export class Guard {
 
         if (!this.isValidVersion(peer)) {
             return this.determinePunishment(peer, this.offences.INVALID_VERSION);
-        }
-
-        // NOTE: Suspending this peer only means that we no longer
-        // will download blocks from him but he can still download blocks from us.
-        const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height);
-
-        if (heightDifference >= 153) {
-            return this.determinePunishment(peer, this.offences.INVALID_HEIGHT);
         }
 
         return this.determinePunishment(peer, this.offences.UNKNOWN);

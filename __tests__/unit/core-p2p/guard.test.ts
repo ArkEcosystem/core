@@ -153,22 +153,6 @@ describe("Guard", () => {
             expect(convertToMinutes(until)).toBe(5);
         });
 
-        it('should return a 10 minutes suspension for "Node is not at height"', () => {
-            guard.monitor.getNetworkHeight = jest.fn(() => 154);
-
-            guard.suspend({
-                ...dummy,
-                state: {
-                    height: 1,
-                },
-            });
-
-            const { until, reason } = guard.get(dummy.ip);
-
-            expect(reason).toBe("Node is not at height");
-            expect(convertToMinutes(until)).toBe(10);
-        });
-
         it('should return a 2 minutes suspension for "Timeout"', () => {
             guard.suspend({
                 ...dummy,
