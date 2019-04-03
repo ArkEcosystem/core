@@ -292,15 +292,15 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
-        const round = roundCalculator.calculateRound(startHeight);
-        const lastBlockHeightInRound = round.round * round.maxDelegates;
+        const { round, maxDelegates } = roundCalculator.calculateRound(startHeight);
+        const lastBlockHeightInRound = round * maxDelegates;
 
         // Verify a few blocks that are not too far up from the last common block. Within the
         // same round as the last common block or in the next round if the last common block is
         // the last block in a round (so that the delegates calculations are still the same for
         // both chains).
 
-        const delegates = await this.getDelegatesByRound(round);
+        const delegates = await this.getDelegatesByRound(round, maxDelegates);
 
         const hisBlocksByHeight = {};
 
@@ -327,10 +327,8 @@ export class PeerVerifier {
      * @param {Object} round round to get delegates for
      * @return {Object} a map of { publicKey: delegate, ... } of all delegates for the given round
      */
-    private async getDelegatesByRound(round: any): Promise<any> {
-        const numDelegates = round.maxDelegates;
-
-        const heightOfFirstBlockInRound = (round.round - 1) * numDelegates + 1;
+    private async getDelegatesByRound(round: number, numDelegates: number): Promise<any> {
+        const heightOfFirstBlockInRound = (round - 1) * numDelegates + 1;
 
         let delegates = await this.database.getActiveDelegates(heightOfFirstBlockInRound);
 
@@ -341,11 +339,11 @@ export class PeerVerifier {
 
             // loadActiveDelegateList() is upset if we give it any height - it wants the height
             // of the first block in the round.
-            delegates = this.database.walletManager.loadActiveDelegateList(numDelegates, heightOfFirstBlockInRound);
+            delegates = this.database.walletManager.loadActiveDelegateList(heightOfFirstBlockInRound);
             assert.strictEqual(
                 delegates.length,
                 numDelegates,
-                `Couldn't derive the list of delegates for round ${round.round}. The database ` +
+                `Couldn't derive the list of delegates for round ${round}. The database ` +
                     `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
             );
         }

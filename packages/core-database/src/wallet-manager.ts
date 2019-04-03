@@ -198,15 +198,13 @@ export class WalletManager implements Database.IWalletManager {
      * @param height
      * @return {Array}
      */
-    public loadActiveDelegateList(maxDelegates: number, height?: number): Database.IDelegateWallet[] {
-        if (height > 1 && height % maxDelegates !== 1) {
-            throw new Error("Trying to build delegates outside of round change");
-        }
-
-        const { round } = roundCalculator.calculateRound(height, maxDelegates);
+    public loadActiveDelegateList(height: number): Database.IDelegateWallet[] {
+        const { round, maxDelegates } = roundCalculator.calculateRound(height);
         const delegatesWallets = this.allByUsername();
 
-        if (delegatesWallets.length < maxDelegates) {
+        if (height >= 1 && height % maxDelegates !== 1) {
+            throw new Error("Trying to build delegates outside of round change");
+        } else if (delegatesWallets.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${
                     delegatesWallets.length
@@ -215,7 +213,6 @@ export class WalletManager implements Database.IWalletManager {
         }
 
         const equalVotesMap = new Map();
-
         const delegates = delegatesWallets
             .sort((a, b) => {
                 const diff = b.voteBalance.comparedTo(a.voteBalance);

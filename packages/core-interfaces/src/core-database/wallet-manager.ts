@@ -50,7 +50,7 @@ export interface IWalletManager {
 
     cloneDelegateWallets(): IWalletManager;
 
-    loadActiveDelegateList(maxDelegateCount: number, height?: number): IDelegateWallet[];
+    loadActiveDelegateList(height: number): IDelegateWallet[];
 
     buildVoteBalances(): void;
 
