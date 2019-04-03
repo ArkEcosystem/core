@@ -543,7 +543,7 @@ export class DatabaseService implements Database.IDatabaseService {
         let height = blocks[index].data.height;
         for (let i = index; i >= 0 && height > 1; i--) {
             tempWalletManager.revertBlock(blocks[i]);
-            height = blocks[index].data.height;
+            height = blocks[i].data.height;
         }
 
         // Now retrieve the active delegate list from the temporary wallet manager.

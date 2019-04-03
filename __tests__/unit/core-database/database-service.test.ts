@@ -182,6 +182,8 @@ describe("Database Service", () => {
 
     describe("calcPreviousActiveDelegates", () => {
         it("should calculate the previous delegate list", async () => {
+            databaseService = createService();
+
             walletManager = new WalletManager();
             const initialHeight = 52;
 
