@@ -203,7 +203,7 @@ describe("Database Service", () => {
             };
 
             // Beginning of round 2 with all delegates 0 vote balance.
-            const delegatesRound2 = walletManager.loadActiveDelegateList(51, initialHeight);
+            const delegatesRound2 = walletManager.loadActiveDelegateList(initialHeight);
 
             // Prepare sender wallet
             const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
@@ -252,7 +252,7 @@ describe("Database Service", () => {
             }
 
             // The delegates from round 2 are now reversed in rank in round 3.
-            const delegatesRound3 = walletManager.loadActiveDelegateList(51, initialHeight + 51);
+            const delegatesRound3 = walletManager.loadActiveDelegateList(initialHeight + 51);
             for (let i = 0; i < delegatesRound3.length; i++) {
                 expect(delegatesRound3[i].rate).toBe(i + 1);
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
