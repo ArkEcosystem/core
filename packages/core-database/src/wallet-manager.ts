@@ -12,6 +12,7 @@ import {
     models,
     Transaction,
 } from "@arkecosystem/crypto";
+import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
 import { Wallet } from "./wallet";
 
@@ -183,6 +184,12 @@ export class WalletManager implements Database.IWalletManager {
         if (wallet.username) {
             this.byUsername[wallet.username] = wallet;
         }
+    }
+
+    public cloneDelegateWallets(): WalletManager {
+        const walletManager = new WalletManager();
+        walletManager.index(cloneDeep(this.allByUsername()));
+        return walletManager;
     }
 
     /**

@@ -5,9 +5,6 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
-import cloneDeep from "lodash.clonedeep";
-
-import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
 
@@ -535,9 +532,7 @@ export class DatabaseService implements Database.IDatabaseService {
     ): Promise<Database.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(round));
 
-        // Create temp wallet manager from all delegates
-        const tempWalletManager = new WalletManager();
-        tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()));
+        const tempWalletManager = this.walletManager.cloneDelegateWallets();
 
         // Revert all blocks in reverse order
         let height = 0;

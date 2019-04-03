@@ -48,6 +48,8 @@ export interface IWalletManager {
 
     reindex(wallet: IWallet): void;
 
+    cloneDelegateWallets(): IWalletManager;
+
     loadActiveDelegateList(maxDelegateCount: number, height?: number): IDelegateWallet[];
 
     buildVoteBalances(): void;
