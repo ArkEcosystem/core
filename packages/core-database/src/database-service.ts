@@ -80,7 +80,7 @@ export class DatabaseService implements Database.IDatabaseService {
         if (roundCalculator.isNewRound(nextHeight)) {
             const { round } = roundCalculator.calculateRound(nextHeight);
 
-            if (nextHeight === 1 || this.forgingDelegates[0].round !== round) {
+            if (nextHeight === 1 || this.forgingDelegates.length === 0 || this.forgingDelegates[0].round !== round) {
                 this.logger.info(`Starting Round ${round.toLocaleString()}`);
 
                 try {
