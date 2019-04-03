@@ -24,7 +24,6 @@ const startSocketServer = async config => {
 
         wsEngine: "ws",
         workerController: __dirname + `${relativeSocketPath}/worker.js`,
-        brokerController: __dirname + `${relativeSocketPath}/broker.js`,
         rebootWorkerOnCrash: true,
     });
 
