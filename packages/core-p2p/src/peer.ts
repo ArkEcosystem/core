@@ -67,6 +67,7 @@ export class Peer implements P2P.IPeer {
         this.socket = socketCluster.create({
             port,
             hostname: ip,
+            multiplex: false,
         });
         this.socket.on("error", err => {
             if (guard.isSuspended(this)) {
