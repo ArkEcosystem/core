@@ -436,7 +436,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
                 if (producedBlocks.length === 0) {
                     this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
-                    wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,
                     });
