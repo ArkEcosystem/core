@@ -50,7 +50,6 @@ export class Client {
             host.socket = socketCluster.create({
                 port: host.port,
                 hostname: host.ip,
-                multiplex: false,
             });
 
             host.socket.on("error", err => {
