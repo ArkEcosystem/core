@@ -1,6 +1,9 @@
 import { models, Transaction } from "@arkecosystem/crypto";
 
 export interface IPeer {
+    readonly ip: string;
+    readonly port: string;
+
     setHeaders(headers: Record<string, any>): void;
 
     /**

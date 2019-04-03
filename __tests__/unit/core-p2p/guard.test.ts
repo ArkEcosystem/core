@@ -1,14 +1,14 @@
 import "./mocks/core-container";
 
 import { dato } from "@faustbrian/dato";
+import delay from "delay";
+import "jest-extended";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { guard } from "../../../packages/core-p2p/src/guard";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { SocketErrors } from "../../../packages/core-p2p/src/socket-server/constants";
-
-import delay from "delay";
 
 let peerMock;
 

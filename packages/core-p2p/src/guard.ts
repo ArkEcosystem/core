@@ -6,13 +6,13 @@ import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
 import { config as localConfig } from "./config";
-import { IOffence } from "./interfaces";
+import { IOffence, IPunishment, ISuspensionList } from "./interfaces";
 import { SocketErrors } from "./socket-server/constants";
 
 export class Guard {
     public config: Shared.Config;
     public monitor: P2P.IMonitor;
-    public suspensions: { [ip: string]: P2P.ISuspension };
+    public suspensions: ISuspensionList;
 
     private readonly appConfig = app.getConfig();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -131,11 +131,11 @@ export class Guard {
         return this;
     }
 
-    public all() {
+    public all(): ISuspensionList {
         return this.suspensions;
     }
 
-    public get(ip: string) {
+    public get(ip: string): P2P.ISuspension {
         return this.suspensions[ip];
     }
 
@@ -143,11 +143,7 @@ export class Guard {
         delete this.suspensions[ip];
     }
 
-    /**
-     * Suspends a peer unless whitelisted.
-     * @param {Peer} peer
-     */
-    public suspend(peer) {
+    public suspend(peer): void {
         const whitelist = this.config.get("whitelist");
         if (whitelist && whitelist.includes(peer.ip)) {
             return;
@@ -176,12 +172,7 @@ export class Guard {
         this.monitor.removePeer(peer);
     }
 
-    /**
-     * Remove a suspended peer.
-     * @param {Peer} peer
-     * @return {void}
-     */
-    public async unsuspend(peer) {
+    public async unsuspend(peer): Promise<void> {
         if (!this.suspensions[peer.ip]) {
             return;
         }
@@ -205,21 +196,13 @@ export class Guard {
         }
     }
 
-    /**
-     * Reset suspended peers
-     * @return {void}
-     */
-    public async resetSuspendedPeers() {
+    public async resetSuspendedPeers(): Promise<void> {
         this.logger.info("Clearing suspended peers.");
+
         await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)));
     }
 
-    /**
-     * Determine if peer is suspended or not.
-     * @param  {Peer} peer
-     * @return {Boolean}
-     */
-    public isSuspended(peer) {
+    public isSuspended(peer: P2P.IPeer): boolean {
         const suspendedPeer = this.get(peer.ip);
 
         if (suspendedPeer && dato().isBefore(suspendedPeer.until)) {
@@ -248,30 +231,15 @@ export class Guard {
         return false;
     }
 
-    /**
-     * Determine if the peer is whitelisted.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isWhitelisted(peer) {
+    public isWhitelisted(peer): boolean {
         return this.config.get("whitelist").includes(peer.ip);
     }
 
-    /**
-     * Determine if the peer is blacklisted.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isBlacklisted(peer) {
+    public isBlacklisted(peer): boolean {
         return this.config.get("blacklist").includes(peer.ip);
     }
 
-    /**
-     * Determine if the peer is within the version constraints.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidVersion(peer) {
+    public isValidVersion(peer): boolean {
         const version = peer.version || (peer.headers && peer.headers.version);
         if (!semver.valid(version)) {
             return false;
@@ -282,40 +250,20 @@ export class Guard {
             .some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
     }
 
-    /**
-     * Determine if the peer is on the right network.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidNetwork(peer) {
+    public isValidNetwork(peer): boolean {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
         return nethash === this.appConfig.get("network.nethash");
     }
 
-    /**
-     * Determine if the peer has a valid port.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidPort(peer) {
+    public isValidPort(peer): boolean {
         return peer.port === this.config.get("port");
     }
 
-    /**
-     * Decide if the given peer is a repeat offender.
-     * @param  {Object}  peer
-     * @return {Boolean}
-     */
-    public isRepeatOffender(peer) {
+    public isRepeatOffender(peer): boolean {
         return sumBy(peer.offences, "weight") >= 150;
     }
 
-    /**
-     * Decide for how long the peer should be banned.
-     * @param  {Peer}  peer
-     * @return {Object}
-     */
-    private determineOffence(peer) {
+    private determineOffence(peer): IPunishment {
         if (this.isBlacklisted(peer)) {
             return this.determinePunishment(peer, this.offences.BLACKLISTED);
         }
@@ -374,19 +322,12 @@ export class Guard {
         return this.determinePunishment(peer, this.offences.UNKNOWN);
     }
 
-    /**
-     * Compile the information about the punishment the peer will face.
-     * @param  {Object} peer
-     * @param  {Object} offence
-     * @return {Object}
-     */
-    private determinePunishment(peer, offence) {
+    private determinePunishment(peer, offence: IOffence): IPunishment {
         if (this.isRepeatOffender(peer)) {
             offence = this.offences.REPEAT_OFFENDER;
         }
 
         const until = dato()[offence.period](offence.number);
-        // @ts-ignore
         const untilDiff = until.diff(dato());
 
         this.logger.debug(
