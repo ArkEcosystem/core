@@ -10,13 +10,15 @@ import { IOffence, IPunishment, ISuspensionList } from "./interfaces";
 import { SocketErrors } from "./socket-server/constants";
 
 export class Guard {
+    // @TODO: mark this as private (O)
     public config: Shared.Config;
+    // @TODO: mark this as private (O)
     public monitor: P2P.IMonitor;
-    public suspensions: ISuspensionList;
-
+    // @TODO: mark this as private (O)
+    public suspensions: ISuspensionList = {};
+    // @TODO: get rid of this and resolve options directly from the container
     private readonly appConfig = app.getConfig();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-
     private readonly offences: Record<string, IOffence> = {
         BLACKLISTED: {
             number: 1,
@@ -121,7 +123,6 @@ export class Guard {
     };
 
     constructor() {
-        this.suspensions = {};
         this.config = localConfig;
     }
 
