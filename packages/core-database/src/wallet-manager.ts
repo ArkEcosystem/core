@@ -2,7 +2,16 @@ import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto, formatSatoshi, isException, models, Transaction } from "@arkecosystem/crypto";
+import {
+    Bignum,
+    constants,
+    crypto,
+    formatSatoshi,
+    isException,
+    ITransactionData,
+    models,
+    Transaction,
+} from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { Wallet } from "./wallet";
 
@@ -58,14 +67,15 @@ export class WalletManager implements Database.IWalletManager {
 
     /**
      * Checks if wallet exits in wallet manager
-     * @param  {String} key can be publicKey or address of wallet
+     * @param  {String} addressOrPublicKey
+     * @return {boolean}
      */
-    public exists(key: string) {
-        if (this.byPublicKey[key]) {
+    public exists(addressOrPublicKey: string): boolean {
+        if (this.byPublicKey[addressOrPublicKey]) {
             return true;
         }
 
-        return !!this.byAddress[key];
+        return !!this.byAddress[addressOrPublicKey];
     }
 
     /**
@@ -99,7 +109,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param {String} address
      * @param {Wallet} wallet
      */
-    public setByAddress(address, wallet) {
+    public setByAddress(address: string, wallet: Wallet): void {
         this.byAddress[address] = wallet;
     }
 
@@ -108,7 +118,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param {String} publicKey
      * @param {Wallet} wallet
      */
-    public setByPublicKey(publicKey, wallet) {
+    public setByPublicKey(publicKey: string, wallet: Wallet): void {
         this.byPublicKey[publicKey] = wallet;
     }
 
@@ -117,7 +127,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param {String} username
      * @param {Wallet} wallet
      */
-    public setByUsername(username, wallet) {
+    public setByUsername(username: string, wallet: Wallet): void {
         this.byUsername[username] = wallet;
     }
 
@@ -125,7 +135,7 @@ export class WalletManager implements Database.IWalletManager {
      * Remove wallet by address.
      * @param {String} address
      */
-    public forgetByAddress(address) {
+    public forgetByAddress(address: string): void {
         delete this.byAddress[address];
     }
 
@@ -133,7 +143,7 @@ export class WalletManager implements Database.IWalletManager {
      * Remove wallet by publicKey.
      * @param {String} publicKey
      */
-    public forgetByPublicKey(publicKey) {
+    public forgetByPublicKey(publicKey: string): void {
         delete this.byPublicKey[publicKey];
     }
 
@@ -141,7 +151,7 @@ export class WalletManager implements Database.IWalletManager {
      * Remove wallet by username.
      * @param {String} username
      */
-    public forgetByUsername(username) {
+    public forgetByUsername(username: string): void {
         delete this.byUsername[username];
     }
 
@@ -150,7 +160,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Array} wallets
      * @return {void}
      */
-    public index(wallets) {
+    public index(wallets: Wallet[]): void {
         for (const wallet of wallets) {
             this.reindex(wallet);
         }
@@ -161,7 +171,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Wallet} wallet
      * @return {void}
      */
-    public reindex(wallet: Wallet) {
+    public reindex(wallet: Wallet): void {
         if (wallet.address) {
             this.byAddress[wallet.address] = wallet;
         }
@@ -254,7 +264,7 @@ export class WalletManager implements Database.IWalletManager {
      * NOTE: Only called during integrity verification on boot.
      * @return {void}
      */
-    public buildVoteBalances() {
+    public buildVoteBalances(): void {
         Object.values(this.byPublicKey).forEach(voter => {
             if (voter.vote) {
                 const delegate = this.byPublicKey[voter.vote];
@@ -267,7 +277,7 @@ export class WalletManager implements Database.IWalletManager {
      * Remove non-delegate wallets that have zero (0) balance from memory.
      * @return {void}
      */
-    public purgeEmptyNonDelegates() {
+    public purgeEmptyNonDelegates(): void {
         Object.values(this.byPublicKey).forEach(wallet => {
             if (this.canBePurged(wallet)) {
                 delete this.byPublicKey[wallet.publicKey];
@@ -281,7 +291,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public applyBlock(block: models.Block) {
+    public applyBlock(block: models.Block): void {
         const generatorPublicKey = block.data.generatorPublicKey;
 
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
@@ -342,7 +352,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public revertBlock(block: models.Block) {
+    public revertBlock(block: models.Block): void {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
@@ -381,7 +391,7 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Apply the given transaction to a delegate.
      */
-    public applyTransaction(transaction: Transaction) {
+    public applyTransaction(transaction: Transaction): void {
         const { data } = transaction;
         const { type, recipientId, senderPublicKey } = data;
 
@@ -440,13 +450,13 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Boolean} revert
      * @return {Transaction}
      */
-    public _updateVoteBalances(sender, recipient, transaction, revert = false) {
+    public _updateVoteBalances(sender: Wallet, recipient: Wallet, transaction: ITransactionData, revert = false): void {
         // TODO: multipayment?
         if (transaction.type !== TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.vote) {
                 const delegate = this.findByPublicKey(sender.vote);
-                const total = transaction.amount.plus(transaction.fee);
+                const total = (transaction.amount as Bignum).plus(transaction.fee);
                 delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
             }
 
@@ -476,7 +486,7 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Remove the given transaction from a delegate.
      */
-    public revertTransaction(transaction: Transaction) {
+    public revertTransaction(transaction: Transaction): void {
         const { type, data } = transaction;
         const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
@@ -501,7 +511,7 @@ export class WalletManager implements Database.IWalletManager {
      * Checks if a given publicKey is a registered delegate
      * @param {String} publicKey
      */
-    public isDelegate(publicKey: string) {
+    public isDelegate(publicKey: string): boolean {
         const delegateWallet = this.byPublicKey[publicKey];
 
         if (delegateWallet && delegateWallet.username) {
@@ -516,7 +526,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Object} wallet
      * @return {Boolean}
      */
-    public canBePurged(wallet) {
+    public canBePurged(wallet): boolean {
         return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
     }
 
@@ -524,7 +534,7 @@ export class WalletManager implements Database.IWalletManager {
      * Reset the wallets index.
      * @return {void}
      */
-    public reset() {
+    public reset(): void {
         this.byAddress = {};
         this.byPublicKey = {};
         this.byUsername = {};
