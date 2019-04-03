@@ -148,7 +148,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
 
-        if (this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
+        if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
             return this.forgingDelegates;
         }
 
