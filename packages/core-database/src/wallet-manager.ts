@@ -175,12 +175,6 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
-    public clear() {
-        Object.values(this.byAddress).forEach(wallet => {
-            wallet.dirty = false;
-        });
-    }
-
     /**
      * Load a list of all active delegates.
      * @param  {Number} maxDelegates
