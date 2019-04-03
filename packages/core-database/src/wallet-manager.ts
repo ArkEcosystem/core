@@ -435,56 +435,7 @@ export class WalletManager implements Database.IWalletManager {
             transactionHandler.applyToRecipient(transaction, recipient);
         }
 
-        this._updateVoteBalances(sender, recipient, data);
-    }
-
-    /**
-     * Updates the vote balances of the respective delegates of sender and recipient.
-     * If the transaction is not a vote...
-     *    1. fee + amount is removed from the sender's delegate vote balance
-     *    2. amount is added to the recipient's delegate vote balance
-     *
-     * in case of a vote...
-     *    1. the full sender balance is added to the sender's delegate vote balance
-     *
-     * If revert is set to true, the operations are reversed (plus -> minus, minus -> plus).
-     * @param  {Wallet} sender
-     * @param  {Wallet} recipient
-     * @param  {Transaction} transaction
-     * @param  {Boolean} revert
-     * @return {Transaction}
-     */
-    public _updateVoteBalances(sender: Wallet, recipient: Wallet, transaction: ITransactionData, revert = false): void {
-        // TODO: multipayment?
-        if (transaction.type !== TransactionTypes.Vote) {
-            // Update vote balance of the sender's delegate
-            if (sender.vote) {
-                const delegate = this.findByPublicKey(sender.vote);
-                const total = (transaction.amount as Bignum).plus(transaction.fee);
-                delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
-            }
-
-            // Update vote balance of recipient's delegate
-            if (recipient && recipient.vote) {
-                const delegate = this.findByPublicKey(recipient.vote);
-                delegate.voteBalance = revert
-                    ? delegate.voteBalance.minus(transaction.amount)
-                    : delegate.voteBalance.plus(transaction.amount);
-            }
-        } else {
-            const vote = transaction.asset.votes[0];
-            const delegate = this.findByPublicKey(vote.substr(1));
-
-            if (vote.startsWith("+")) {
-                delegate.voteBalance = revert
-                    ? delegate.voteBalance.minus(sender.balance.minus(transaction.fee))
-                    : delegate.voteBalance.plus(sender.balance);
-            } else {
-                delegate.voteBalance = revert
-                    ? delegate.voteBalance.plus(sender.balance)
-                    : delegate.voteBalance.minus(sender.balance.plus(transaction.fee));
-            }
-        }
+        this.updateVoteBalances(sender, recipient, data);
     }
 
     /**
@@ -508,7 +459,7 @@ export class WalletManager implements Database.IWalletManager {
         }
 
         // Revert vote balance updates
-        this._updateVoteBalances(sender, recipient, data, true);
+        this.updateVoteBalances(sender, recipient, data, true);
     }
 
     /**
@@ -542,5 +493,49 @@ export class WalletManager implements Database.IWalletManager {
         this.byAddress = {};
         this.byPublicKey = {};
         this.byUsername = {};
+    }
+
+    /**
+     * Updates the vote balances of the respective delegates of sender and recipient.
+     * If the transaction is not a vote...
+     *    1. fee + amount is removed from the sender's delegate vote balance
+     *    2. amount is added to the recipient's delegate vote balance
+     *
+     * in case of a vote...
+     *    1. the full sender balance is added to the sender's delegate vote balance
+     *
+     * If revert is set to true, the operations are reversed (plus -> minus, minus -> plus).
+     */
+    private updateVoteBalances(sender: Wallet, recipient: Wallet, transaction: ITransactionData, revert = false): void {
+        // TODO: multipayment?
+        if (transaction.type !== TransactionTypes.Vote) {
+            // Update vote balance of the sender's delegate
+            if (sender.vote) {
+                const delegate = this.findByPublicKey(sender.vote);
+                const total = (transaction.amount as Bignum).plus(transaction.fee);
+                delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
+            }
+
+            // Update vote balance of recipient's delegate
+            if (recipient && recipient.vote) {
+                const delegate = this.findByPublicKey(recipient.vote);
+                delegate.voteBalance = revert
+                    ? delegate.voteBalance.minus(transaction.amount)
+                    : delegate.voteBalance.plus(transaction.amount);
+            }
+        } else {
+            const vote = transaction.asset.votes[0];
+            const delegate = this.findByPublicKey(vote.substr(1));
+
+            if (vote.startsWith("+")) {
+                delegate.voteBalance = revert
+                    ? delegate.voteBalance.minus(sender.balance.minus(transaction.fee))
+                    : delegate.voteBalance.plus(sender.balance);
+            } else {
+                delegate.voteBalance = revert
+                    ? delegate.voteBalance.plus(sender.balance)
+                    : delegate.voteBalance.minus(sender.balance.plus(transaction.fee));
+            }
+        }
     }
 }
