@@ -5,9 +5,6 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
-import cloneDeep from "lodash.clonedeep";
-
-import { WalletManager } from "./wallet-manager";
 
 const { Block } = models;
 
@@ -80,23 +77,20 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async applyRound(height: number) {
         const nextHeight = height === 1 ? 1 : height + 1;
-        const maxDelegates = this.config.getMilestone(nextHeight).activeDelegates;
+        if (roundCalculator.isNewRound(nextHeight)) {
+            const { round } = roundCalculator.calculateRound(nextHeight);
 
-        if (nextHeight % maxDelegates === 1) {
-            const round = Math.floor((nextHeight - 1) / maxDelegates) + 1;
-
-            if (
-                !this.forgingDelegates ||
-                this.forgingDelegates.length === 0 ||
-                (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
-            ) {
+            if (nextHeight === 1 || this.forgingDelegates.length === 0 || this.forgingDelegates[0].round !== round) {
                 this.logger.info(`Starting Round ${round.toLocaleString()}`);
 
                 try {
-                    this.updateDelegateStats(this.forgingDelegates);
-                    const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight); // get active delegate list from in-memory wallet manager
-                    await this.saveRound(delegates); // save next round delegate list non-blocking
-                    this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
+                    if (nextHeight > 1) {
+                        this.updateDelegateStats(this.forgingDelegates);
+                    }
+
+                    const delegates = this.walletManager.loadActiveDelegateList(nextHeight);
+                    await this.saveRound(delegates);
+                    this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates);
                     this.blocksInCurrentRound.length = 0;
 
                     this.emitter.emit("round.applied");
@@ -147,7 +141,10 @@ export class DatabaseService implements Database.IDatabaseService {
         this.connection.enqueueDeleteRound(height);
     }
 
-    public async getActiveDelegates(height: number, delegates?: Database.IDelegateWallet[]) {
+    public async getActiveDelegates(
+        height: number,
+        delegates?: Database.IDelegateWallet[],
+    ): Promise<Database.IDelegateWallet[]> {
         const maxDelegates = this.config.getMilestone(height).activeDelegates;
         const round = Math.floor((height - 1) / maxDelegates) + 1;
 
@@ -412,7 +409,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.saveBlock(block);
     }
 
-    public async saveRound(activeDelegates: any[]) {
+    public async saveRound(activeDelegates: Database.IDelegateWallet[]) {
         this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
 
         await this.connection.roundsRepository.insert(activeDelegates);
@@ -420,8 +417,12 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("round.created", activeDelegates);
     }
 
-    public updateDelegateStats(delegates: any[]): void {
+    public updateDelegateStats(delegates: Database.IDelegateWallet[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
+            return;
+        }
+
+        if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
             return;
         }
 
@@ -436,7 +437,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
                 if (producedBlocks.length === 0) {
                     this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
-                    wallet.dirty = true;
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,
                     });
@@ -536,38 +536,32 @@ export class DatabaseService implements Database.IDatabaseService {
     ): Promise<Database.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(round));
 
-        // Create temp wallet manager from all delegates
-        const tempWalletManager = new WalletManager();
-        tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()));
+        const tempWalletManager = this.walletManager.cloneDelegateWallets();
 
         // Revert all blocks in reverse order
+        const index = blocks.length - 1;
         let height = 0;
-        for (let i = blocks.length - 1; i >= 0; i--) {
-            tempWalletManager.revertBlock(blocks[i]);
+        for (let i = index; i >= 0; i--) {
             height = blocks[i].data.height;
-        }
+            if (height === 1) {
+                break;
+            }
 
-        // The first round has no active delegates
-        if (height === 1) {
-            return [];
+            tempWalletManager.revertBlock(blocks[i]);
         }
-
-        // Assert that the height is the beginning of a round.
-        const { maxDelegates } = roundCalculator.calculateRound(height);
-        assert(height > 1 && height % maxDelegates === 1);
 
         // Now retrieve the active delegate list from the temporary wallet manager.
-        return tempWalletManager.loadActiveDelegateList(maxDelegates, height);
+        return tempWalletManager.loadActiveDelegateList(height);
     }
 
-    private emitTransactionEvents(transaction: Transaction) {
+    private emitTransactionEvents(transaction: Transaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
         const handler = TransactionHandlerRegistry.get(transaction.type);
         handler.emitEvents(transaction, this.emitter);
     }
 
-    private registerListeners() {
+    private registerListeners(): void {
         this.emitter.on(ApplicationEvents.StateStarted, () => {
             this.stateStarted = true;
         });

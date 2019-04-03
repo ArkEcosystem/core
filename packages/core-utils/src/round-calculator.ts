@@ -6,7 +6,10 @@ import { app } from "@arkecosystem/core-container";
  * @param  {Number} maxDelegates
  * @return {Object}
  */
-function calculateRound(height, maxDelegates: any = null) {
+export const calculateRound = (
+    height: number,
+    maxDelegates?: number,
+): { round: number; nextRound: number; maxDelegates: number } => {
     const config = app.getConfig();
     maxDelegates = maxDelegates || config.getMilestone(height).activeDelegates;
 
@@ -14,18 +17,16 @@ function calculateRound(height, maxDelegates: any = null) {
     const nextRound = Math.floor(height / maxDelegates) + 1;
 
     return { round, nextRound, maxDelegates };
-}
+};
 
 /**
  * Detect if height is the beginning of a new round.
  * @param  {Number} height
  * @return {boolean} true if new round, false if not
  */
-function isNewRound(height) {
+export const isNewRound = (height: number): boolean => {
     const config = app.getConfig();
     const maxDelegates = config.getMilestone(height).activeDelegates;
 
     return height % maxDelegates === 1;
-}
-
-export { calculateRound, isNewRound };
+};

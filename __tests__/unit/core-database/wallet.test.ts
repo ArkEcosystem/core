@@ -48,7 +48,6 @@ describe("Models - Wallet", () => {
             expect(testWallet.forgedFees).toEqual(block.totalFee);
             expect(testWallet.forgedRewards).toEqual(block.totalFee);
             expect(testWallet.lastBlock).toBeObject();
-            expect(testWallet.dirty).toBeTrue();
         });
 
         it("should not apply incorrect block", () => {
@@ -60,7 +59,6 @@ describe("Models - Wallet", () => {
             expect(testWallet.forgedFees).toEqual(originalWallet.forgedFees);
             expect(testWallet.forgedRewards).toEqual(originalWallet.forgedRewards);
             expect(testWallet.lastBlock).toBe(originalWallet.lastBlock);
-            expect(testWallet.dirty).toBeTrue();
         });
     });
 
@@ -97,7 +95,6 @@ describe("Models - Wallet", () => {
             expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
             expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
             expect(testWallet.lastBlock).toBeNull();
-            expect(testWallet.dirty).toBeTrue();
         });
 
         it("should revert block if generator public key matches the wallet address", () => {
@@ -110,7 +107,6 @@ describe("Models - Wallet", () => {
             expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
             expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
             expect(testWallet.lastBlock).toBeNull();
-            expect(testWallet.dirty).toBeTrue();
         });
 
         it("should not revert block if generator public key doesn't match the wallet address / publicKey", () => {

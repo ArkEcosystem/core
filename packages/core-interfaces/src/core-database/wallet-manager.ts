@@ -48,9 +48,9 @@ export interface IWalletManager {
 
     reindex(wallet: IWallet): void;
 
-    clear(): void;
+    cloneDelegateWallets(): IWalletManager;
 
-    loadActiveDelegateList(maxDelegateCount: number, height?: number): IDelegateWallet[];
+    loadActiveDelegateList(height: number): IDelegateWallet[];
 
     buildVoteBalances(): void;
 
@@ -58,9 +58,9 @@ export interface IWalletManager {
 
     revertBlock(block: models.Block): void;
 
-    applyTransaction(transaction: Transaction);
+    applyTransaction(transaction: Transaction): void;
 
-    revertTransaction(transaction: Transaction);
+    revertTransaction(transaction: Transaction): void;
 
     isDelegate(publicKey: string): boolean;
 
