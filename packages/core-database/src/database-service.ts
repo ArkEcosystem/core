@@ -540,10 +540,14 @@ export class DatabaseService implements Database.IDatabaseService {
 
         // Revert all blocks in reverse order
         const index = blocks.length - 1;
-        let height = blocks[index].data.height;
-        for (let i = index; i >= 0 && height > 1; i--) {
-            tempWalletManager.revertBlock(blocks[i]);
+        let height = 0;
+        for (let i = index; i >= 0; i--) {
             height = blocks[i].data.height;
+            if (height === 1) {
+                break;
+            }
+
+            tempWalletManager.revertBlock(blocks[i]);
         }
 
         // Now retrieve the active delegate list from the temporary wallet manager.
