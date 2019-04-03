@@ -9,6 +9,7 @@ import {
     socketEmit,
 } from "@arkecosystem/core-p2p";
 import { ITransactionData, models } from "@arkecosystem/crypto";
+import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
@@ -169,14 +170,19 @@ export class Client {
      * Chose a responsive host.
      */
     public async selectHost(): Promise<void> {
-        for (const host of this.hosts) {
-            if (host.socket.getState() !== host.socket.OPEN) {
-                this.logger.debug(`${host.ip} socket is not open. Trying another host`);
-            } else {
-                this.host = host;
-                return;
+        // if no socket is connected, we give it 1 second
+        for (let i = 0; i < 10; i++) {
+            for (const host of this.hosts) {
+                if (host.socket.getState() === host.socket.OPEN) {
+                    this.host = host;
+                    return;
+                }
             }
+            await delay(100);
         }
+
+        this.logger.debug(`No open socket connection to any host : ${this.hosts.map(h => h.ip).join()}.`);
+
         throw new HostNoResponseError(this.hosts.map(h => h.ip).join());
     }
 
