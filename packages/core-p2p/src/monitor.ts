@@ -13,7 +13,7 @@ import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import { config as localConfig } from "./config";
-import { guard, Guard } from "./court";
+import { guard, Guard } from "./guard";
 import { IAcceptNewPeerOptions } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";

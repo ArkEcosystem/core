@@ -1,24 +1,128 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Logger, P2P, Shared } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import head from "lodash.head";
 import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
-import { config as localConfig } from "../config";
-import { SocketErrors } from "../socket-server/constants";
-import { offences } from "./offences";
+import { config as localConfig } from "./config";
+import { IOffence, IPunishment, ISuspensionList } from "./interfaces";
+import { SocketErrors } from "./socket-server/constants";
 
 export class Guard {
-    public config: any;
-    public monitor: any;
-    public suspensions: { [ip: string]: P2P.ISuspension };
-
+    // @TODO: mark this as private (O)
+    public config: Shared.Config;
+    // @TODO: mark this as private (O)
+    public monitor: P2P.IMonitor;
+    // @TODO: mark this as private (O)
+    public suspensions: ISuspensionList = {};
+    // @TODO: get rid of this and resolve options directly from the container
     private readonly appConfig = app.getConfig();
-    private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly offences: Record<string, IOffence> = {
+        BLACKLISTED: {
+            number: 1,
+            period: "addYears",
+            reason: "Blacklisted",
+            weight: 10,
+            critical: true,
+        },
+        NO_COMMON_BLOCKS: {
+            number: 5,
+            period: "addMinutes",
+            reason: "No Common Blocks",
+            weight: 1,
+            critical: true,
+        },
+        NO_COMMON_ID: {
+            number: 5,
+            period: "addMinutes",
+            reason: "No Common Id",
+            weight: 1,
+            critical: true,
+        },
+        INVALID_VERSION: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Version",
+            weight: 2,
+        },
+        INVALID_MILESTONE_HASH: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Milestones",
+            weight: 2,
+        },
+        INVALID_HEIGHT: {
+            number: 10,
+            period: "addMinutes",
+            reason: "Node is not at height",
+            weight: 3,
+        },
+        INVALID_NETWORK: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Network",
+            weight: 5,
+            critical: true,
+        },
+        INVALID_STATUS: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Response Status",
+            weight: 3,
+        },
+        TIMEOUT: {
+            number: 2,
+            period: "addMinutes",
+            reason: "Timeout",
+            weight: 2,
+        },
+        HIGH_LATENCY: {
+            number: 1,
+            period: "addMinutes",
+            reason: "High Latency",
+            weight: 1,
+        },
+        APPLICATION_NOT_READY: {
+            number: 30,
+            period: "addSeconds",
+            reason: "Application is not ready",
+            weight: 0,
+        },
+        TOO_MANY_REQUESTS: {
+            number: 60,
+            period: "addSeconds",
+            reason: "Rate limit exceeded",
+            weight: 0,
+        },
+        FORK: {
+            number: 15,
+            period: "addMinutes",
+            reason: "Fork",
+            weight: 10,
+        },
+        UNKNOWN: {
+            number: 10,
+            period: "addMinutes",
+            reason: "Unknown",
+            weight: 5,
+        },
+        REPEAT_OFFENDER: {
+            number: 1,
+            period: "addDays",
+            reason: "Repeat Offender",
+            weight: 100,
+        },
+        SOCKET_NOT_OPEN: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Socket not open",
+            weight: 3,
+        },
+    };
 
     constructor() {
-        this.suspensions = {};
         this.config = localConfig;
     }
 
@@ -28,11 +132,11 @@ export class Guard {
         return this;
     }
 
-    public all() {
+    public all(): ISuspensionList {
         return this.suspensions;
     }
 
-    public get(ip: string) {
+    public get(ip: string): P2P.ISuspension {
         return this.suspensions[ip];
     }
 
@@ -40,14 +144,14 @@ export class Guard {
         delete this.suspensions[ip];
     }
 
-    /**
-     * Suspends a peer unless whitelisted.
-     * @param {Peer} peer
-     */
-    public suspend(peer) {
+    public suspend(peer): void {
         const whitelist = this.config.get("whitelist");
         if (whitelist && whitelist.includes(peer.ip)) {
             return;
+        }
+
+        if (!Array.isArray(peer.offences)) {
+            peer.offences = [];
         }
 
         if (peer.offences.length > 0) {
@@ -56,7 +160,7 @@ export class Guard {
             }
         }
 
-        const offence = this.__determineOffence(peer);
+        const offence = this.determineOffence(peer);
 
         peer.offences.push(offence);
 
@@ -69,12 +173,7 @@ export class Guard {
         this.monitor.removePeer(peer);
     }
 
-    /**
-     * Remove a suspended peer.
-     * @param {Peer} peer
-     * @return {void}
-     */
-    public async unsuspend(peer) {
+    public async unsuspend(peer): Promise<void> {
         if (!this.suspensions[peer.ip]) {
             return;
         }
@@ -98,21 +197,13 @@ export class Guard {
         }
     }
 
-    /**
-     * Reset suspended peers
-     * @return {void}
-     */
-    public async resetSuspendedPeers() {
+    public async resetSuspendedPeers(): Promise<void> {
         this.logger.info("Clearing suspended peers.");
+
         await Promise.all(Object.values(this.suspensions).map(suspension => this.unsuspend(suspension.peer)));
     }
 
-    /**
-     * Determine if peer is suspended or not.
-     * @param  {Peer} peer
-     * @return {Boolean}
-     */
-    public isSuspended(peer) {
+    public isSuspended(peer: P2P.IPeer): boolean {
         const suspendedPeer = this.get(peer.ip);
 
         if (suspendedPeer && dato().isBefore(suspendedPeer.until)) {
@@ -141,30 +232,15 @@ export class Guard {
         return false;
     }
 
-    /**
-     * Determine if the peer is whitelisted.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isWhitelisted(peer) {
+    public isWhitelisted(peer): boolean {
         return this.config.get("whitelist").includes(peer.ip);
     }
 
-    /**
-     * Determine if the peer is blacklisted.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isBlacklisted(peer) {
+    public isBlacklisted(peer): boolean {
         return this.config.get("blacklist").includes(peer.ip);
     }
 
-    /**
-     * Determine if the peer is within the version constraints.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidVersion(peer) {
+    public isValidVersion(peer): boolean {
         const version = peer.version || (peer.headers && peer.headers.version);
         if (!semver.valid(version)) {
             return false;
@@ -175,85 +251,65 @@ export class Guard {
             .some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
     }
 
-    /**
-     * Determine if the peer is on the right network.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidNetwork(peer) {
+    public isValidNetwork(peer): boolean {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
         return nethash === this.appConfig.get("network.nethash");
     }
 
-    /**
-     * Determine if the peer has a valid port.
-     * @param  {Peer}  peer
-     * @return {Boolean}
-     */
-    public isValidPort(peer) {
+    public isValidPort(peer): boolean {
         return peer.port === this.config.get("port");
     }
 
-    /**
-     * Decide if the given peer is a repeat offender.
-     * @param  {Object}  peer
-     * @return {Boolean}
-     */
-    public isRepeatOffender(peer) {
+    public isRepeatOffender(peer): boolean {
         return sumBy(peer.offences, "weight") >= 150;
     }
 
-    /**
-     * Decide for how long the peer should be banned.
-     * @param  {Peer}  peer
-     * @return {Object}
-     */
-    public __determineOffence(peer) {
+    private determineOffence(peer): IPunishment {
         if (this.isBlacklisted(peer)) {
-            return this.__determinePunishment(peer, offences.BLACKLISTED);
+            return this.determinePunishment(peer, this.offences.BLACKLISTED);
         }
 
         if (app.has("state")) {
             const state = app.resolve("state");
             if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-                return this.__determinePunishment(peer, offences.FORK);
+                return this.determinePunishment(peer, this.offences.FORK);
             }
         }
 
         if (peer.commonBlocks === false) {
             delete peer.commonBlocks;
 
-            return this.__determinePunishment(peer, offences.NO_COMMON_BLOCKS);
+            return this.determinePunishment(peer, this.offences.NO_COMMON_BLOCKS);
         }
 
         if (peer.commonId === false) {
             delete peer.commonId;
 
-            return this.__determinePunishment(peer, offences.NO_COMMON_ID);
+            return this.determinePunishment(peer, this.offences.NO_COMMON_ID);
         }
 
         if (peer.socket.getState() !== peer.socket.OPEN) {
-            return this.__determinePunishment(peer, offences.SOCKET_NOT_OPEN);
+            return this.determinePunishment(peer, this.offences.SOCKET_NOT_OPEN);
         }
 
         if (peer.socketError === SocketErrors.AppNotReady) {
-            return this.__determinePunishment(peer, offences.APPLICATION_NOT_READY);
+            return this.determinePunishment(peer, this.offences.APPLICATION_NOT_READY);
         }
 
         if (peer.delay === -1) {
-            return this.__determinePunishment(peer, offences.TIMEOUT);
+            return this.determinePunishment(peer, this.offences.TIMEOUT);
         }
 
         if (peer.delay > 2000) {
-            return this.__determinePunishment(peer, offences.HIGH_LATENCY);
+            return this.determinePunishment(peer, this.offences.HIGH_LATENCY);
         }
 
         if (!this.isValidNetwork(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_NETWORK);
+            return this.determinePunishment(peer, this.offences.INVALID_NETWORK);
         }
 
         if (!this.isValidVersion(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_VERSION);
+            return this.determinePunishment(peer, this.offences.INVALID_VERSION);
         }
 
         // NOTE: Suspending this peer only means that we no longer
@@ -261,25 +317,18 @@ export class Guard {
         const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height);
 
         if (heightDifference >= 153) {
-            return this.__determinePunishment(peer, offences.INVALID_HEIGHT);
+            return this.determinePunishment(peer, this.offences.INVALID_HEIGHT);
         }
 
-        return this.__determinePunishment(peer, offences.UNKNOWN);
+        return this.determinePunishment(peer, this.offences.UNKNOWN);
     }
 
-    /**
-     * Compile the information about the punishment the peer will face.
-     * @param  {Object} peer
-     * @param  {Object} offence
-     * @return {Object}
-     */
-    public __determinePunishment(peer, offence) {
+    private determinePunishment(peer, offence: IOffence): IPunishment {
         if (this.isRepeatOffender(peer)) {
-            offence = offences.REPEAT_OFFENDER;
+            offence = this.offences.REPEAT_OFFENDER;
         }
 
         const until = dato()[offence.period](offence.number);
-        // @ts-ignore
         const untilDiff = until.diff(dato());
 
         this.logger.debug(
