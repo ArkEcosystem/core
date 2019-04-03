@@ -1,21 +1,124 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Logger, P2P, Shared } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import head from "lodash.head";
 import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
-import { config as localConfig } from "../config";
-import { SocketErrors } from "../socket-server/constants";
-import { offences } from "./offences";
+import { config as localConfig } from "./config";
+import { IOffence } from "./interfaces";
+import { SocketErrors } from "./socket-server/constants";
 
 export class Guard {
-    public config: any;
-    public monitor: any;
+    public config: Shared.Config;
+    public monitor: P2P.IMonitor;
     public suspensions: { [ip: string]: P2P.ISuspension };
 
     private readonly appConfig = app.getConfig();
-    private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+
+    private readonly offences: Record<string, IOffence> = {
+        BLACKLISTED: {
+            number: 1,
+            period: "addYears",
+            reason: "Blacklisted",
+            weight: 10,
+            critical: true,
+        },
+        NO_COMMON_BLOCKS: {
+            number: 5,
+            period: "addMinutes",
+            reason: "No Common Blocks",
+            weight: 1,
+            critical: true,
+        },
+        NO_COMMON_ID: {
+            number: 5,
+            period: "addMinutes",
+            reason: "No Common Id",
+            weight: 1,
+            critical: true,
+        },
+        INVALID_VERSION: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Version",
+            weight: 2,
+        },
+        INVALID_MILESTONE_HASH: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Milestones",
+            weight: 2,
+        },
+        INVALID_HEIGHT: {
+            number: 10,
+            period: "addMinutes",
+            reason: "Node is not at height",
+            weight: 3,
+        },
+        INVALID_NETWORK: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Network",
+            weight: 5,
+            critical: true,
+        },
+        INVALID_STATUS: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Invalid Response Status",
+            weight: 3,
+        },
+        TIMEOUT: {
+            number: 2,
+            period: "addMinutes",
+            reason: "Timeout",
+            weight: 2,
+        },
+        HIGH_LATENCY: {
+            number: 1,
+            period: "addMinutes",
+            reason: "High Latency",
+            weight: 1,
+        },
+        APPLICATION_NOT_READY: {
+            number: 30,
+            period: "addSeconds",
+            reason: "Application is not ready",
+            weight: 0,
+        },
+        TOO_MANY_REQUESTS: {
+            number: 60,
+            period: "addSeconds",
+            reason: "Rate limit exceeded",
+            weight: 0,
+        },
+        FORK: {
+            number: 15,
+            period: "addMinutes",
+            reason: "Fork",
+            weight: 10,
+        },
+        UNKNOWN: {
+            number: 10,
+            period: "addMinutes",
+            reason: "Unknown",
+            weight: 5,
+        },
+        REPEAT_OFFENDER: {
+            number: 1,
+            period: "addDays",
+            reason: "Repeat Offender",
+            weight: 100,
+        },
+        SOCKET_NOT_OPEN: {
+            number: 5,
+            period: "addMinutes",
+            reason: "Socket not open",
+            weight: 3,
+        },
+    };
 
     constructor() {
         this.suspensions = {};
@@ -50,13 +153,17 @@ export class Guard {
             return;
         }
 
+        if (!Array.isArray(peer.offences)) {
+            peer.offences = [];
+        }
+
         if (peer.offences.length > 0) {
             if (dato().isAfter((head(peer.offences) as any).until)) {
                 peer.offences = [];
             }
         }
 
-        const offence = this.__determineOffence(peer);
+        const offence = this.determineOffence(peer);
 
         peer.offences.push(offence);
 
@@ -208,52 +315,52 @@ export class Guard {
      * @param  {Peer}  peer
      * @return {Object}
      */
-    public __determineOffence(peer) {
+    private determineOffence(peer) {
         if (this.isBlacklisted(peer)) {
-            return this.__determinePunishment(peer, offences.BLACKLISTED);
+            return this.determinePunishment(peer, this.offences.BLACKLISTED);
         }
 
         if (app.has("state")) {
             const state = app.resolve("state");
             if (state && state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-                return this.__determinePunishment(peer, offences.FORK);
+                return this.determinePunishment(peer, this.offences.FORK);
             }
         }
 
         if (peer.commonBlocks === false) {
             delete peer.commonBlocks;
 
-            return this.__determinePunishment(peer, offences.NO_COMMON_BLOCKS);
+            return this.determinePunishment(peer, this.offences.NO_COMMON_BLOCKS);
         }
 
         if (peer.commonId === false) {
             delete peer.commonId;
 
-            return this.__determinePunishment(peer, offences.NO_COMMON_ID);
+            return this.determinePunishment(peer, this.offences.NO_COMMON_ID);
         }
 
         if (peer.socket.getState() !== peer.socket.OPEN) {
-            return this.__determinePunishment(peer, offences.SOCKET_NOT_OPEN);
+            return this.determinePunishment(peer, this.offences.SOCKET_NOT_OPEN);
         }
 
         if (peer.socketError === SocketErrors.AppNotReady) {
-            return this.__determinePunishment(peer, offences.APPLICATION_NOT_READY);
+            return this.determinePunishment(peer, this.offences.APPLICATION_NOT_READY);
         }
 
         if (peer.delay === -1) {
-            return this.__determinePunishment(peer, offences.TIMEOUT);
+            return this.determinePunishment(peer, this.offences.TIMEOUT);
         }
 
         if (peer.delay > 2000) {
-            return this.__determinePunishment(peer, offences.HIGH_LATENCY);
+            return this.determinePunishment(peer, this.offences.HIGH_LATENCY);
         }
 
         if (!this.isValidNetwork(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_NETWORK);
+            return this.determinePunishment(peer, this.offences.INVALID_NETWORK);
         }
 
         if (!this.isValidVersion(peer)) {
-            return this.__determinePunishment(peer, offences.INVALID_VERSION);
+            return this.determinePunishment(peer, this.offences.INVALID_VERSION);
         }
 
         // NOTE: Suspending this peer only means that we no longer
@@ -261,10 +368,10 @@ export class Guard {
         const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height);
 
         if (heightDifference >= 153) {
-            return this.__determinePunishment(peer, offences.INVALID_HEIGHT);
+            return this.determinePunishment(peer, this.offences.INVALID_HEIGHT);
         }
 
-        return this.__determinePunishment(peer, offences.UNKNOWN);
+        return this.determinePunishment(peer, this.offences.UNKNOWN);
     }
 
     /**
@@ -273,9 +380,9 @@ export class Guard {
      * @param  {Object} offence
      * @return {Object}
      */
-    public __determinePunishment(peer, offence) {
+    private determinePunishment(peer, offence) {
         if (this.isRepeatOffender(peer)) {
-            offence = offences.REPEAT_OFFENDER;
+            offence = this.offences.REPEAT_OFFENDER;
         }
 
         const until = dato()[offence.period](offence.number);

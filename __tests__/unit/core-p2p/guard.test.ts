@@ -1,13 +1,12 @@
-import "../mocks/core-container";
+import "./mocks/core-container";
 
 import { dato } from "@faustbrian/dato";
-import { config as localConfig } from "../../../../packages/core-p2p/src/config";
-import { guard } from "../../../../packages/core-p2p/src/court/guard";
-import { offences } from "../../../../packages/core-p2p/src/court/offences";
-import { defaults } from "../../../../packages/core-p2p/src/defaults";
-import { monitor } from "../../../../packages/core-p2p/src/monitor";
-import { Peer } from "../../../../packages/core-p2p/src/peer";
-import { SocketErrors } from "../../../../packages/core-p2p/src/socket-server/constants";
+import { config as localConfig } from "../../../packages/core-p2p/src/config";
+import { defaults } from "../../../packages/core-p2p/src/defaults";
+import { guard } from "../../../packages/core-p2p/src/guard";
+import { monitor } from "../../../packages/core-p2p/src/monitor";
+import { Peer } from "../../../packages/core-p2p/src/peer";
+import { SocketErrors } from "../../../packages/core-p2p/src/socket-server/constants";
 
 import delay from "delay";
 
@@ -97,10 +96,11 @@ describe("Guard", () => {
         });
     });
 
-    describe("__determineOffence", () => {
+    describe("suspend", () => {
         const convertToMinutes = actual => Math.ceil(actual.diff(dato()) / 1000) / 60;
 
         const dummy = {
+            ip: "dummy-ip-addr",
             nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
             version: "2.1.1",
             status: 200,
@@ -114,10 +114,12 @@ describe("Guard", () => {
         it('should return a 1 year suspension for "Blacklisted"', () => {
             guard.config.set("blacklist", ["dummy-ip-addr"]);
 
-            const { until, reason } = guard.__determineOffence({
+            guard.suspend({
                 nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
                 ip: "dummy-ip-addr",
             });
+
+            const { until, reason } = guard.get(dummy.ip);
 
             expect(reason).toBe("Blacklisted");
             expect(convertToMinutes(until)).toBeGreaterThanOrEqual(525600);
@@ -126,28 +128,26 @@ describe("Guard", () => {
         });
 
         it('should return a 5 minutes suspension for "No Common Blocks"', () => {
-            const { until, reason } = guard.__determineOffence({
+            guard.suspend({
                 ...dummy,
                 ...{
                     commonBlocks: false,
                 },
             });
 
+            const { until, reason } = guard.get(dummy.ip);
+
             expect(reason).toBe("No Common Blocks");
             expect(convertToMinutes(until)).toBe(5);
         });
 
         it('should return a 5 minute suspension for "Invalid Version"', () => {
-            const { until, reason } = guard.__determineOffence({
-                nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
+            guard.suspend({
+                ...dummy,
                 version: "1.0.0",
-                status: 200,
-                delay: 1000,
-                socket: {
-                    OPEN: "open",
-                    getState: () => "open",
-                },
             });
+
+            const { until, reason } = guard.get(dummy.ip);
 
             expect(reason).toBe("Invalid Version");
             expect(convertToMinutes(until)).toBe(5);
@@ -156,67 +156,62 @@ describe("Guard", () => {
         it('should return a 10 minutes suspension for "Node is not at height"', () => {
             guard.monitor.getNetworkHeight = jest.fn(() => 154);
 
-            const { until, reason } = guard.__determineOffence({
+            guard.suspend({
                 ...dummy,
                 state: {
                     height: 1,
                 },
             });
 
+            const { until, reason } = guard.get(dummy.ip);
+
             expect(reason).toBe("Node is not at height");
             expect(convertToMinutes(until)).toBe(10);
         });
 
         it('should return a 2 minutes suspension for "Timeout"', () => {
-            const { until, reason } = guard.__determineOffence({
+            guard.suspend({
                 ...dummy,
                 ...{ delay: -1 },
             });
+
+            const { until, reason } = guard.get(dummy.ip);
 
             expect(reason).toBe("Timeout");
             expect(convertToMinutes(until)).toBe(2);
         });
 
         it('should return a 1 minutes suspension for "High Latency"', () => {
-            const { until, reason } = guard.__determineOffence({
+            guard.suspend({
                 ...dummy,
                 ...{ delay: 3000 },
             });
+
+            const { until, reason } = guard.get(dummy.ip);
 
             expect(reason).toBe("High Latency");
             expect(convertToMinutes(until)).toBe(1);
         });
 
         it('should return a 30 seconds suspension for "Application not ready"', () => {
-            const { until, reason } = guard.__determineOffence({
+            guard.suspend({
                 ...dummy,
                 socketError: SocketErrors.AppNotReady,
             });
+
+            const { until, reason } = guard.get(dummy.ip);
 
             expect(reason).toBe("Application is not ready");
             expect(convertToMinutes(until)).toBe(0.5);
         });
 
         it('should return a 10 minutes suspension for "Unknown"', () => {
-            const { until, reason } = guard.__determineOffence(dummy);
+            guard.suspend(dummy);
+
+            const { until, reason } = guard.get(dummy.ip);
 
             expect(reason).toBe("Unknown");
             expect(convertToMinutes(until)).toBe(10);
-        });
-    });
-
-    describe("__determinePunishment", () => {
-        it("should be true if the threshold is met", () => {
-            const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER);
-
-            expect(actual).toHaveProperty("until");
-            expect(actual.until).toBeObject();
-
-            expect(actual).toHaveProperty("reason");
-            expect(actual.reason).toBeString();
-
-            expect(actual).toHaveProperty("weight");
-            expect(actual.weight).toBeNumber();
         });
     });
 });
