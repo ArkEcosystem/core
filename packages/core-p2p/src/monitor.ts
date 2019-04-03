@@ -685,17 +685,22 @@ export class Monitor implements P2P.IMonitor {
             app.forceExit("No seed peers defined in peers.json");
         }
 
-        let peers = peerList.map(peer => {
+        const peers = peerList.map(peer => {
             peer.version = app.getVersion();
             return peer;
         });
 
-        if (localConfig.get("peers")) {
-            peers = { ...peers, ...localConfig.get("peers") };
+        const localConfigPeers = localConfig.get("peers");
+        if (localConfigPeers) {
+            localConfigPeers.forEach(peerA => {
+                if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {
+                    peers.push(peerA);
+                }
+            });
         }
 
         return Promise.all(
-            Object.values(peers).map((peer: any) => {
+            peers.map((peer: any) => {
                 this.guard.delete(peer.ip);
                 return this.acceptNewPeer(peer, { seed: true, lessVerbose: true });
             }),
