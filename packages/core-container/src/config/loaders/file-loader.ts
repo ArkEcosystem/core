@@ -73,34 +73,42 @@ class FileLoader {
 
     /**
      * Build the peer list either from a local file, remote file or object.
-     * @param  {String} configFile
-     * @return {void}
      */
     private async buildPeers(configFile: any): Promise<void> {
+        let fetchedList: Array<{ ip: string; port: number }>;
+
         if (configFile.sources) {
             for (const source of configFile.sources) {
                 // Local File...
                 if (source.startsWith("/")) {
-                    configFile.list = require(source);
-
-                    writeFileSync(configFile, JSON.stringify(configFile, null, 2));
-
+                    fetchedList = require(source);
                     break;
                 }
 
                 // URL...
                 try {
                     const { body } = await got.get(source);
-
-                    configFile.list = JSON.parse(body);
-
-                    writeFileSync(configFile, JSON.stringify(configFile, null, 2));
-
+                    fetchedList = JSON.parse(body);
                     break;
                 } catch (error) {
                     //
                 }
             }
+        }
+
+        if (fetchedList) {
+            if (!configFile.list) {
+                configFile.list = [];
+            }
+
+            fetchedList.forEach(peer => {
+                if (!configFile.list.some(seed => seed.ip === peer.ip && seed.port === peer.port)) {
+                    configFile.list.push(peer);
+                }
+            });
+
+            const path = `${resolve(process.env.CORE_PATH_CONFIG)}/peers.json`;
+            writeFileSync(path, JSON.stringify(configFile, null, 2));
         }
     }
 }
