@@ -1,6 +1,8 @@
+import "jest-extended";
 import "../mocks/core-container";
 
 import { dato } from "@faustbrian/dato";
+import nock from "nock";
 import { config as localConfig } from "../../../../packages/core-p2p/src/config";
 import { guard } from "../../../../packages/core-p2p/src/court/guard";
 import { offences } from "../../../../packages/core-p2p/src/court/offences";
@@ -22,18 +24,36 @@ beforeEach(async () => {
     // this peer is here to be ready for future use in tests (not added to initial peers)
     peerMock = new Peer("1.0.0.99", 4002);
     Object.assign(peerMock, peerMock.headers);
+    nock.cleanAll();
+});
+
+afterAll(() => {
+    nock.cleanAll();
 });
 
 describe("Guard", () => {
     describe("isSuspended", () => {
-        it("should return true", async () => {
+        it("should not ban for timeout", async () => {
             await guard.monitor.acceptNewPeer(peerMock);
 
-            expect(guard.isSuspended(peerMock)).toBe(true);
+            expect(guard.isSuspended(peerMock)).toBe(false);
         });
 
         it("should return false because passed", async () => {
+            nock(peerMock.url)
+                .get("/peer/status")
+                .reply(
+                    200,
+                    {
+                        success: true,
+                        header: { height: 1, id: "213432344" },
+                    },
+                    peerMock.headers,
+                );
+
             await guard.monitor.acceptNewPeer(peerMock);
+            expect(guard.isSuspended(peerMock)).toBe(true);
+
             guard.suspensions[peerMock.ip].until = dato().subMinutes(1);
 
             expect(guard.isSuspended(peerMock)).toBe(false);
@@ -166,7 +186,7 @@ describe("Guard", () => {
             });
 
             expect(reason).toBe("Timeout");
-            expect(convertToMinutes(until)).toBe(2);
+            expect(convertToMinutes(until)).toBe(0.5);
         });
 
         it('should return a 1 minutes suspension for "High Latency"', () => {
