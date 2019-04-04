@@ -19,8 +19,8 @@ export class P2PError extends Error {
 }
 
 export class PeerStatusResponseError extends P2PError {
-    constructor(message: string) {
-        super(`Failed to retrieve status: ${message}`);
+    constructor(ip: string) {
+        super(`Failed to retrieve status from peer ${ip}.`);
     }
 }
 

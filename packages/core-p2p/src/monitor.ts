@@ -14,6 +14,7 @@ import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import { config as localConfig } from "./config";
 import { guard, Guard } from "./court";
+import { PeerStatusResponseError } from "./errors";
 import { IAcceptNewPeerOptions } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
@@ -117,12 +118,7 @@ export class Monitor implements P2P.IMonitor {
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
-    /**
-     * Accept and store a valid peer.
-     * @param  {Peer} peer
-     * @throws {Error} If invalid peer
-     */
-    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}): Promise<boolean> {
+    public validatePeer(peer, options: IAcceptNewPeerOptions = {}): boolean {
         if (this.config.disableDiscovery && !this.pendingPeers[peer.ip]) {
             this.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
@@ -132,13 +128,8 @@ export class Monitor implements P2P.IMonitor {
             return false;
         }
 
-        const newPeer = new Peer(peer.ip, peer.port);
-        newPeer.setHeaders(peer);
-
         if (this.guard.isBlacklisted(peer)) {
             this.logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`);
-
-            this.guard.suspend(newPeer);
             return false;
         }
 
@@ -153,7 +144,6 @@ export class Monitor implements P2P.IMonitor {
                 }`,
             );
 
-            this.guard.suspend(newPeer);
             return false;
         }
 
@@ -164,13 +154,22 @@ export class Monitor implements P2P.IMonitor {
                 )} - Received: ${peer.nethash}`,
             );
 
-            this.guard.suspend(newPeer);
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * Accept and store a valid peer.
+     */
+    public async acceptNewPeer(peer, options: IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.getPeer(peer.ip)) {
-            return true;
+            return;
         }
+
+        const newPeer = new Peer(peer.ip, peer.port);
+        newPeer.setHeaders(peer);
 
         try {
             this.pendingPeers[peer.ip] = true;
@@ -185,14 +184,15 @@ export class Monitor implements P2P.IMonitor {
 
             this.emitter.emit("peer.added", newPeer);
         } catch (error) {
-            this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
-            this.guard.suspend(newPeer);
-            return false;
+            if (error instanceof PeerStatusResponseError) {
+                this.logger.debug(error.message);
+            } else {
+                this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
+                this.guard.suspend(newPeer);
+            }
         } finally {
             delete this.pendingPeers[peer.ip];
         }
-
-        return true;
     }
 
     /**
@@ -315,7 +315,7 @@ export class Monitor implements P2P.IMonitor {
             try {
                 const hisPeers = await peer.getPeers();
                 queriedPeers++;
-                await Promise.all(hisPeers.map(p => this.acceptNewPeer(p, { lessVerbose: true })));
+                await Promise.all(hisPeers.map(p => this.validateAndAcceptPeer(p, { lessVerbose: true })));
             } catch (error) {
                 // Just try with the next peer from shuffledPeers.
             }
@@ -620,6 +620,12 @@ export class Monitor implements P2P.IMonitor {
         }
     }
 
+    private async validateAndAcceptPeer(peer, options: IAcceptNewPeerOptions = {}): Promise<void> {
+        if (this.validatePeer(peer, options)) {
+            await this.acceptNewPeer(peer, options);
+        }
+    }
+
     /**
      * Get a random peer for downloading blocks.
      * @return {Peer}
@@ -702,7 +708,7 @@ export class Monitor implements P2P.IMonitor {
         return Promise.all(
             peers.map((peer: any) => {
                 this.guard.delete(peer.ip);
-                return this.acceptNewPeer(peer, { seed: true, lessVerbose: true });
+                return this.validateAndAcceptPeer(peer, { seed: true, lessVerbose: true });
             }),
         );
     }

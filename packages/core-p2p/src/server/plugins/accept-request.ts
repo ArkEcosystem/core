@@ -41,15 +41,10 @@ const register = async (server, options) => {
                 });
 
                 try {
-                    if (!isLocalHost(peer.ip)) {
-                        if (request.method === "post") {
-                            const accepted = await monitor.acceptNewPeer(peer);
-                            if (!accepted) {
-                                return Boom.forbidden();
-                            }
-                        } else {
-                            monitor.acceptNewPeer(peer);
-                        }
+                    if (monitor.validatePeer(peer)) {
+                        monitor.acceptNewPeer(peer);
+                    } else if (!isLocalHost(peer.ip) && request.method === "post") {
+                        return Boom.forbidden();
                     }
                 } catch (error) {
                     return Boom.badImplementation(error.message);

@@ -52,8 +52,8 @@ export const offences = {
         weight: 3,
     },
     TIMEOUT: {
-        number: 2,
-        period: "addMinutes",
+        number: 30,
+        period: "addSeconds",
         reason: "Timeout",
         weight: 2,
     },
