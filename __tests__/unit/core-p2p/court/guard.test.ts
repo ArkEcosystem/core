@@ -1,3 +1,4 @@
+import "jest-extended";
 import "../mocks/core-container";
 
 import { dato } from "@faustbrian/dato";
@@ -166,7 +167,7 @@ describe("Guard", () => {
             });
 
             expect(reason).toBe("Timeout");
-            expect(convertToMinutes(until)).toBe(2);
+            expect(convertToMinutes(until)).toBe(0.5);
         });
 
         it('should return a 1 minutes suspension for "High Latency"', () => {
