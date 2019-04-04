@@ -125,7 +125,7 @@ describe("Peer", () => {
                 .get("/peer/status")
                 .reply(500, {}, peerMock.headers);
 
-            return expect(peerMock.ping(1)).rejects.toThrowError("could not get status response");
+            return expect(peerMock.ping(1)).rejects.toThrowError(`Failed to retrieve status from peer ${peerMock.ip}.`);
         });
 
         it.each([200, 500, 503])("should update peer status from http response %i", async status => {
