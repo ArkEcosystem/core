@@ -2,10 +2,18 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
+import { P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
+import { Peer } from "../../../packages/core-p2p/src/peer";
 import { makePeerService } from "../../../packages/core-p2p/src/plugin";
+
+const stubPeer: P2P.IPeer = new Peer("1.2.3.4", 4000);
+
+function createStubPeer(stub): P2P.IPeer {
+    return Object.assign(new Peer(stub.ip, stub.port), stub);
+}
 
 let monitor;
 let processor;
@@ -24,7 +32,6 @@ beforeEach(() => {
 describe("NetworkMonitor", () => {
     describe("start", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
-            const peerMock = { ip: "1.2.3.4", port: 4000 };
             const acceptNewPeer = jest.spyOn(processor, "acceptNewPeer");
 
             jest.spyOn(localConfig, "get").mockReturnValue([]);
@@ -32,7 +39,14 @@ describe("NetworkMonitor", () => {
 
             await monitor.start({ networkStart: false });
 
-            expect(acceptNewPeer).toHaveBeenCalledWith({ ...peerMock, version: "2.3.0" }, expect.any(Object));
+            expect(acceptNewPeer).toHaveBeenCalledWith(
+                {
+                    ip: stubPeer.ip,
+                    port: stubPeer.port,
+                    version: "2.3.0",
+                },
+                { lessVerbose: true, seed: true },
+            );
 
             acceptNewPeer.mockRestore();
         });
@@ -40,10 +54,10 @@ describe("NetworkMonitor", () => {
 
     describe("cleanPeers", () => {
         it("should remove the unresponsive peers", async () => {
-            const peerMock = { ip: "1.2.3.4", port: 4000 };
-            storage.setPeer(peerMock);
+            storage.setPeer(stubPeer);
+
             const mockGetPeer = jest.spyOn(storage, "getPeer").mockReturnValue({
-                ...peerMock,
+                ...stubPeer,
                 ping: jest.fn().mockImplementation(() => {
                     throw new Error("yo");
                 }),
@@ -122,13 +136,16 @@ describe("NetworkMonitor", () => {
 
             expect(monitor.getPBFTForgingStatus()).toBe(2 / 3);
         });
+
         test.todo("more cases need to be covered, see pbft calculation");
     });
 
     describe("getNetworkState", () => {
         it("should return network state from NetworkState.analyze", async () => {
             const networkState = { nodeHeight: 333 };
+
             jest.spyOn(NetworkState, "analyze").mockReturnValue(networkState as any);
+
             expect(await monitor.getNetworkState()).toEqual(networkState);
         });
     });
@@ -215,13 +232,15 @@ describe("NetworkMonitor", () => {
 
     describe("checkNetworkHealth", () => {
         it("should return {forked: false} if majority of peers is not forked", async () => {
-            storage.setPeer({
-                ip: "1.1.1.1",
-                port: 4000,
-                verificationResult: {
-                    forked: false,
-                },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.1",
+                    port: 4000,
+                    verificationResult: {
+                        forked: false,
+                    },
+                }),
+            );
 
             jest.spyOn(storage, "getSuspendedPeers").mockReturnValueOnce([] as any);
             jest.spyOn(monitor, "isColdStartActive").mockReturnValueOnce(true);

@@ -221,18 +221,21 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         const lastBlock = app.resolve("state").getLastBlock();
 
-        const peers = this.storage.getPeers();
-        const suspendedPeers = Object.values(this.storage.getSuspendedPeers())
-            .map((suspendedPeer: any) => suspendedPeer.peer)
-            .filter(peer => peer.verificationResult !== null);
+        const allPeers: P2P.IPeer[] = [
+            ...this.storage.getPeers(),
+            ...this.storage
+                .getSuspendedPeers()
+                .map((suspendedPeer: P2P.ISuspension) => suspendedPeer.peer)
+                .filter(peer => peer.isVerified()),
+        ];
 
-        const allPeers = [...peers, ...suspendedPeers];
         if (!allPeers.length) {
             this.logger.info("No peers available.");
+
             return { forked: false };
         }
 
-        const forkedPeers = allPeers.filter(peer => peer.verificationResult.forked);
+        const forkedPeers = allPeers.filter((peer: P2P.IPeer) => peer.isForked());
         const majorityOnOurChain = forkedPeers.length / allPeers.length < 0.5;
 
         if (majorityOnOurChain) {
@@ -250,10 +253,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         const longestGroups = groupedByLength[longest];
 
         // Sort by highest common height DESC
-        longestGroups.sort((a, b) => b[0].verification.highestCommonHeight - a[0].verification.highestCommonHeight);
+        longestGroups.sort(
+            (a, b) => b[0].verificationResult.highestCommonHeight - a[0].verificationResult.highestCommonHeight,
+        );
         const peersMostCommonHeight = longestGroups[0];
 
-        const { highestCommonHeight } = peersMostCommonHeight[0].verification;
+        const { highestCommonHeight } = peersMostCommonHeight[0].verificationResult;
         this.logger.info(
             `Rolling back to most common height ${highestCommonHeight}. Own height: ${lastBlock.data.height}`,
         );

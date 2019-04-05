@@ -6,6 +6,9 @@ import { SCClientSocket } from "socketcluster-client";
 import { IDelegateWallet } from "../core-database";
 
 export interface IPeerVerificationResult {
+    readonly myHeight: number;
+    readonly hisHeight: number;
+    readonly highestCommonHeight: number;
     readonly forked: boolean;
 }
 
