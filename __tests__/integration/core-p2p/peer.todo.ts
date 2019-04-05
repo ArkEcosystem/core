@@ -39,6 +39,7 @@ afterAll(async () => {
     socketManager.stopServer();
 });
 
+// @TODO: the peer was broken up into multiple classes that each serve their own purpose so those tests need to be relocated
 describe("Peer", () => {
     afterEach(async () => socketManager.resetAllMocks());
 
