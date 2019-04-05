@@ -224,7 +224,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         const peers = this.storage.getPeers();
         const suspendedPeers = Object.values(this.storage.getSuspendedPeers())
             .map((suspendedPeer: any) => suspendedPeer.peer)
-            .filter(peer => peer.verification !== null);
+            .filter(peer => peer.verificationResult !== null);
 
         const allPeers = [...peers, ...suspendedPeers];
         if (!allPeers.length) {
@@ -232,7 +232,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return { forked: false };
         }
 
-        const forkedPeers = allPeers.filter(peer => peer.verification.forked);
+        const forkedPeers = allPeers.filter(peer => peer.verificationResult.forked);
         const majorityOnOurChain = forkedPeers.length / allPeers.length < 0.5;
 
         if (majorityOnOurChain) {
