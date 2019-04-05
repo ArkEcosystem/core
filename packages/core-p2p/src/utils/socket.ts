@@ -1,7 +1,14 @@
 import delay from "delay";
+import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "../enums";
 
-export const socketEmit = async (socket: any, event: string, data: any, headers: any, timeout?: number) => {
+export const socketEmit = async (
+    socket: SCClientSocket,
+    event: string,
+    data: any,
+    headers: Record<string, any>,
+    timeout?: number,
+) => {
     const req = {
         data: data || {},
         headers,
@@ -11,6 +18,7 @@ export const socketEmit = async (socket: any, event: string, data: any, headers:
     for (let i = 0; i < 10 && socket.getState() !== socket.OPEN; i++) {
         await delay(100);
     }
+
     if (socket.getState() !== socket.OPEN) {
         const error = new Error(`Peer ${this.ip} socket is not connected. State: ${socket.getState()}`);
         error.name = SocketErrors.SocketNotOpen;
@@ -20,6 +28,7 @@ export const socketEmit = async (socket: any, event: string, data: any, headers:
     const socketEmitPromise = new Promise((resolve, reject) => {
         socket.emit(event, req, (err, val) => (err ? reject(err) : resolve(val)));
     });
+
     const timeoutPromiseFn = (resolve, reject) => {
         const id = setTimeout(() => {
             clearTimeout(id);
@@ -28,6 +37,7 @@ export const socketEmit = async (socket: any, event: string, data: any, headers:
             reject(timeoutError);
         }, timeout);
     };
+
     const allPromises = timeout ? [socketEmitPromise, new Promise(timeoutPromiseFn)] : [socketEmitPromise];
 
     return Promise.race(allPromises);

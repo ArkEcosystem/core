@@ -11,7 +11,7 @@ export class Peer implements P2P.IPeer {
     public delay: number;
     public downloadSize: number;
     public headers: Record<string, string | number>;
-    public state: any; // @TODO: add an interface/type
+    public state: any = {}; // @TODO: add an interface/type
     public lastPinged: Dato | null;
     public verificationResult: PeerVerificationResult | null;
 
@@ -37,7 +37,9 @@ export class Peer implements P2P.IPeer {
     }
 
     public setHeaders(headers: Record<string, string>): void {
-        ["nethash", "os", "version"].forEach((key: string) => (this[key] = headers[key] || this[key]));
+        for (const key of ["nethash", "os", "version"]) {
+            this[key] = headers[key] || this[key];
+        }
     }
 
     public isVerified(): boolean {

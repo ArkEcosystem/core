@@ -107,7 +107,7 @@ export class PeerGuard implements P2P.IPeerGuard {
 
         const connection: SCClientSocket = this.connector.connection(peer);
 
-        if (connection.getState() !== connection.OPEN) {
+        if (!connection || connection.getState() !== connection.OPEN) {
             return this.createPunishment(this.offences.socketNotOpen);
         }
 
@@ -131,7 +131,10 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.invalidVersion);
         }
 
-        return this.createPunishment(this.offences.unknown);
+        return null;
+
+        // @TODO: review and check if we keep it or not
+        // return this.createPunishment(this.offences.unknown);
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {

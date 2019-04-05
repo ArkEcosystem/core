@@ -16,8 +16,8 @@ function makeService(): PeerService {
     const connector = new PeerConnector();
 
     const guard = new PeerGuard(connector);
-    const processor = new PeerProcessor(storage, guard, connector);
     const communicator = new PeerCommunicator(connector);
+    const processor = new PeerProcessor(storage, guard, connector, communicator);
     const monitor = new NetworkMonitor(storage, processor, communicator);
 
     return new PeerService(storage, processor, connector, communicator, monitor, guard);

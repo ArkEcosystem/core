@@ -8,7 +8,19 @@ export class PeerConnector implements P2P.IPeerConnector {
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private readonly connections: PeerRepository<SCClientSocket> = new PeerRepository<SCClientSocket>();
 
-    public connect(peer: P2P.IPeer): void {
+    public all(): SCClientSocket[] {
+        return this.connections.values();
+    }
+
+    public connection(peer: P2P.IPeer): SCClientSocket {
+        return this.connections.get(peer.ip);
+    }
+
+    public ensureConnection(peer: P2P.IPeer): SCClientSocket {
+        return this.connection(peer) || this.connect(peer);
+    }
+
+    public connect(peer: P2P.IPeer): SCClientSocket {
         this.connections.set(
             peer.ip,
             create({
@@ -22,6 +34,8 @@ export class PeerConnector implements P2P.IPeerConnector {
 
             this.emitter.emit("internal.p2p.suspendPeer", { peer });
         });
+
+        return this.connection(peer);
     }
 
     public disconnect(peer: P2P.IPeer): void {
@@ -30,9 +44,5 @@ export class PeerConnector implements P2P.IPeerConnector {
 
     public emit(peer: P2P.IPeer, event: string, data: any): void {
         return this.connection(peer).emit(event, data);
-    }
-
-    public connection(peer: P2P.IPeer): SCClientSocket {
-        return this.connections.get(peer.ip);
     }
 }

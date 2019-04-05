@@ -22,6 +22,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         private readonly storage: P2P.IPeerStorage,
         private readonly guard: P2P.IPeerGuard,
         private readonly connector: P2P.IPeerConnector,
+        private readonly communicator: P2P.IPeerCommunicator,
     ) {}
 
     public async validateAndAcceptPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
@@ -78,14 +79,15 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            // @TODO: ping via PeerCommunicator
-            // await newPeer.ping(3000);
+            await this.communicator.ping(newPeer, 3000);
 
             this.storage.setPeer(newPeer);
 
             if (!options.lessVerbose) {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
+
+            this.connector.connect(newPeer);
 
             this.emitter.emit("peer.added", newPeer);
         } catch (error) {
@@ -115,8 +117,14 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
         punishment = punishment || this.guard.analyze(peer);
 
+        if (!punishment) {
+            return;
+        }
+
         this.storage.setSuspendedPeer({ peer, punishment });
         this.storage.forgetPeer(peer);
+
+        this.connector.disconnect(peer);
 
         this.logger.debug(
             `Suspended ${peer.ip} for ${prettyMs(punishment.until.diff(dato()), {

@@ -54,9 +54,11 @@ export interface IPeerService {
 }
 
 export interface IPeerConnector {
-    connect(peer: IPeer): void;
-    disconnect(peer: IPeer): void;
+    all(): SCClientSocket[];
     connection(peer: IPeer): SCClientSocket;
+    ensureConnection(peer: IPeer): SCClientSocket;
+    connect(peer: IPeer): SCClientSocket;
+    disconnect(peer: IPeer): void;
     emit(peer: IPeer, event: string, data: any): void;
 }
 

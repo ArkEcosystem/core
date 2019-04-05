@@ -355,10 +355,10 @@ export class PeerVerifier {
         let response;
 
         try {
-            const msRemaining = this.throwIfPastDeadline(deadline);
+            this.throwIfPastDeadline(deadline);
 
             // returns blocks from the next one, thus we do -1
-            response = await this.communicator.getPeerBlocks(this.peer, height - 1, msRemaining);
+            response = await this.communicator.getPeerBlocks(this.peer, height - 1);
         } catch (err) {
             this.log(
                 Severity.DEBUG_EXTRA,
