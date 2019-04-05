@@ -12,7 +12,6 @@ import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import { config as localConfig } from "./config";
-import { PeerStatusResponseError } from "./errors";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP, restorePeers } from "./utils";
 
