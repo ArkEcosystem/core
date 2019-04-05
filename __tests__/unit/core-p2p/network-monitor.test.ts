@@ -90,23 +90,29 @@ describe("NetworkMonitor", () => {
 
     describe("getNetworkHeight", () => {
         it("should return correct network height", () => {
-            storage.setPeer({
-                ip: "1.1.1.1",
-                port: 4000,
-                state: { height: 1 },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.1",
+                    port: 4000,
+                    state: { height: 1 },
+                }),
+            );
 
-            storage.setPeer({
-                ip: "1.1.1.2",
-                port: 4000,
-                state: { height: 7 },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.2",
+                    port: 4000,
+                    state: { height: 7 },
+                }),
+            );
 
-            storage.setPeer({
-                ip: "1.1.1.3",
-                port: 4000,
-                state: { height: 10 },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.3",
+                    port: 4000,
+                    state: { height: 10 },
+                }),
+            );
 
             expect(monitor.getNetworkHeight()).toBe(7);
         });
@@ -114,23 +120,29 @@ describe("NetworkMonitor", () => {
 
     describe("getPBFTForgingStatus", () => {
         it("should return correct pbft data", () => {
-            storage.setPeer({
-                ip: "1.1.1.1",
-                port: 4000,
-                state: { height: 1, currentSlot: 2, forgingAllowed: true },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.1",
+                    port: 4000,
+                    state: { height: 1, currentSlot: 2, forgingAllowed: true },
+                }),
+            );
 
-            storage.setPeer({
-                ip: "1.1.1.2",
-                port: 4000,
-                state: { height: 7, currentSlot: 2, forgingAllowed: true },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.2",
+                    port: 4000,
+                    state: { height: 7, currentSlot: 2, forgingAllowed: true },
+                }),
+            );
 
-            storage.setPeer({
-                ip: "1.1.1.3",
-                port: 4000,
-                state: { height: 10, currentSlot: 2, forgingAllowed: true },
-            });
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.3",
+                    port: 4000,
+                    state: { height: 10, currentSlot: 2, forgingAllowed: true },
+                }),
+            );
 
             jest.spyOn(slots, "getSlotNumber").mockReturnValue(2);
 
