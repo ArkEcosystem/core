@@ -8,6 +8,7 @@ import {
     verifyTransaction,
 } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/transactions";
 
+import { makePeerService } from "../../../../../../../packages/core-p2p/src/plugin";
 import genesisBlockJSON from "../../../../../../utils/config/unitnet/genesisBlock.json";
 
 jest.mock("../../../../../../../packages/core-p2p/src/socket-server/utils/validate");
@@ -21,7 +22,7 @@ describe("Internal handlers - transactions", () => {
                     transaction: Transaction.toBytes(genesisBlockJSON.transactions[0]),
                 },
             };
-            const result = await verifyTransaction(req);
+            const result = await verifyTransaction(makePeerService(), req);
             expect(result).toEqual({
                 data: {
                     valid: true,
@@ -36,7 +37,7 @@ describe("Internal handlers - transactions", () => {
                     transaction: Transaction.toBytes(genesisBlockJSON.transactions[0]),
                 },
             };
-            const result = await verifyTransaction(req);
+            const result = await verifyTransaction(makePeerService(), req);
             expect(result).toEqual({
                 data: {
                     valid: false,

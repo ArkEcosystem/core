@@ -1,6 +1,7 @@
 import "../../../../mocks/core-container";
 import { eventEmitter } from "../../../../mocks/event-emitter";
 
+import { makePeerService } from "../../../../../../../packages/core-p2p/src/plugin";
 import {
     emitEvent,
     getUsernames,
@@ -30,7 +31,8 @@ describe("Internal handlers - utils", () => {
                     body: { thing: "stuff" },
                 },
             };
-            emitEvent(req);
+
+            emitEvent(makePeerService(), req);
 
             expect(eventEmitter.emit).toHaveBeenCalledWith(req.data.event, req.data.body);
         });

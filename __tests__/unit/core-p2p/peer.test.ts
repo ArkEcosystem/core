@@ -1,18 +1,20 @@
 import "jest-extended";
-import { IPeer } from "../../../packages/core-p2p/src/interfaces";
+import "./mocks/core-container";
+
+import { P2P } from "@arkecosystem/core-interfaces";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerVerificationResult } from "../../../packages/core-p2p/src/peer-verifier";
 
 const dummy = { ip: "127.0.0.1", port: 4000 };
 
-let peer: IPeer;
+let peer: P2P.IPeer;
 beforeEach(() => {
     peer = new Peer(dummy.ip, dummy.port);
 });
 
 describe("Peer", () => {
     it("should return the url", () => {
-        expect(peer.getUrl()).toBe(`http://${dummy.ip}:${dummy.port}`);
+        expect(peer.url).toBe(`http://${dummy.ip}:${dummy.port}`);
     });
 
     it("should return true if verified", () => {

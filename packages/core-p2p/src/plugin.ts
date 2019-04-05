@@ -11,7 +11,7 @@ import { PeerService } from "./peer-service";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 
-function makeService(): PeerService {
+export function makePeerService(): PeerService {
     const storage = new PeerStorage();
     const connector = new PeerConnector();
 
@@ -33,7 +33,7 @@ export const plugin: Container.PluginDescriptor = {
         // @TODO: get rid of this and load directly from the container
         localConfig.init(options);
 
-        const service = makeService();
+        const service = makePeerService();
 
         // tslint:disable-next-line: no-unused-expression
         new EventListener(service);

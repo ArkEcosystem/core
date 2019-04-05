@@ -58,7 +58,7 @@ export class PeersController extends Controller {
             }
 
             return super.respondWith({
-                peers: super.toCollection(request, peers.map(peer => peer.toBroadcastInfo()), "peer"),
+                peers: super.toCollection(request, peers.map(peer => peer.toBroadcast()), "peer"),
             });
         } catch (error) {
             return Boom.badImplementation(error);
