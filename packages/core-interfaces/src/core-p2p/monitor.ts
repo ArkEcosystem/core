@@ -25,6 +25,14 @@ export interface IMonitor {
     updateNetworkStatus(networkStart?: boolean): Promise<void>;
 
     /**
+     * Validate the peer provided.
+     * @param {IPeer} peer
+     * @param {IAcceptNewPeerOptions} options
+     * @returns {boolean}
+     */
+    validatePeer(peer: any, options: any): boolean;
+
+    /**
      * Accept and store a valid peer.
      * @param  {IPeer} peer
      * @throws {Error} If invalid peer
