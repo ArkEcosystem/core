@@ -1,5 +1,5 @@
 import bip32 from "bip32";
-import bip39 from "bip39";
+import { mnemonicToSeedSync } from "bip39";
 import { KeyPair } from "../identities/keys";
 import { configManager } from "../managers";
 
@@ -10,8 +10,7 @@ export class HDWallet {
      * Get root node from the given mnemonic with an optional passphrase.
      */
     public static fromMnemonic(mnemonic: string, passphrase?: string): bip32.BIP32 {
-        const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
-        return bip32.fromSeed(seed, configManager.config);
+        return bip32.fromSeed(mnemonicToSeedSync(mnemonic, passphrase), configManager.config);
     }
 
     /**

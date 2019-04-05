@@ -6,7 +6,7 @@ jest.mock("@arkecosystem/core-container", () => {
         app: {
             resolvePlugin: name => ({
                 info,
-                getNetworkHeight: () => 120,
+                getMonitor: () => ({ getNetworkHeight: () => 120 }),
             }),
         },
     };
