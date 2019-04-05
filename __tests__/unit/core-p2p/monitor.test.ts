@@ -25,8 +25,11 @@ describe("Monitor", () => {
 
     describe("start", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
-            const peerMock = { ip: "0.0.0.0", port: 4000 };
+            const peerMock = { ip: "1.2.3.4", port: 4000 };
             const acceptNewPeer = jest.spyOn(monitor, "acceptNewPeer");
+            jest.spyOn(localConfig, "get").mockReturnValue([]);
+            jest.spyOn(monitor, "validatePeer").mockReturnValueOnce(true);
+
             await monitor.start({
                 networkStart: false,
             });
@@ -39,7 +42,7 @@ describe("Monitor", () => {
 
     describe("acceptNewPeer", () => {
         it("should accept the peer", async () => {
-            const peerMock = { ip: "1.2.3.4", port: 4000 };
+            const peerMock = { ip: "2.3.4.5", port: 4000 };
             monitor.config = { disableDiscovery: false };
             (monitor.guard as any) = {
                 isSuspended: jest.fn().mockReturnValue(false),
@@ -155,12 +158,14 @@ describe("Monitor", () => {
             monitor.peers = { [peerMock.ip]: peerMock };
             monitor.config = { ignoreMinimumNetworkReach: true };
             const acceptNewPeer = jest.spyOn(monitor, "acceptNewPeer");
+            const validatePeer = jest.spyOn(monitor, "validatePeer").mockReturnValue(true);
 
             await monitor.discoverPeers();
 
             expect(acceptNewPeer).toHaveBeenCalledTimes(2);
             expect(acceptNewPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
             expect(acceptNewPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
+            validatePeer.mockRestore();
         });
     });
 

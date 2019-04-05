@@ -2,10 +2,10 @@ import "./mocks/core-container";
 
 import { Transaction } from "@arkecosystem/crypto";
 import { Peer } from "../../../packages/core-p2p/src/peer";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import genesisBlockJSON from "../../utils/config/unitnet/genesisBlock.json";
 import { delegates } from "../../utils/fixtures/unitnet";
 import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
-import { generateTransfer } from "../../utils/generators";
 
 import delay from "delay";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
@@ -56,14 +56,11 @@ describe("Peer", () => {
     describe("postTransactions", () => {
         it("should be ok", async () => {
             await socketManager.addMock("postTransactions", { success: true, transactionsIds: [] });
-            const transactions = generateTransfer(
-                "testnet",
-                delegates[1].passphrase,
-                delegates[2].address,
-                1000,
-                1,
-                true,
-            );
+            const transactions = TransactionFactory.transfer(delegates[2].address, 1000)
+                .withNetwork("testnet")
+                .withPassphrase(delegates[1].passphrase)
+                .create(1);
+
             const response = await peerMock.postTransactions(transactions);
 
             expect(response).toBeObject();

@@ -30,9 +30,9 @@ fs.readdir("./packages", (_, packages) => {
             continue;
         }
 
-        // copy base unit jobs (unit tests) to adapt for integration tests
+        // duplicate base integration jobs
         const jobs = [
-            jason(job),
+            job,
             jason(job),
         ];
 
@@ -55,8 +55,8 @@ fs.readdir("./packages", (_, packages) => {
             job.steps.push(stepLint);
             job.steps.push(stepCoverage);
 
-            config.jobs[name.slice(0, -1) + (index + 1)] = job;
-            config.workflows.build_and_test.jobs.push(name.slice(0, -1) + (index + 1));
+            config.jobs[name.slice(0, -1) + index] = job;
+            config.workflows.build_and_test.jobs.push(name.slice(0, -1) + index);
         });
     }
 
@@ -74,7 +74,7 @@ function splitPackages(packageNames) {
     var indexToSplit = Math.floor(integrationPackages.length / 2);
     return [
         integrationPackages.slice(0, indexToSplit),
-        integrationPackages.slice(indexToSplit + 1)
+        integrationPackages.slice(indexToSplit)
     ]
 }
 
