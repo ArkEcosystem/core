@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, ITransactionData, models } from "@arkecosystem/crypto";
-import bip39 from "bip39";
+import { generateMnemonic } from "bip39";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -108,7 +108,7 @@ describe("Transaction Guard", () => {
 
         it("should not apply the tx to the balance of the sender & recipient with dyn fee < min fee", async () => {
             const delegate0 = delegates[14];
-            const { publicKey } = crypto.getKeys(bip39.generateMnemonic());
+            const { publicKey } = crypto.getKeys(generateMnemonic());
             const newAddress = crypto.getAddress(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate0.publicKey);
@@ -133,7 +133,7 @@ describe("Transaction Guard", () => {
 
         it("should update the balance of the sender & recipient with dyn fee > min fee", async () => {
             const delegate1 = delegates[1];
-            const { publicKey } = crypto.getKeys(bip39.generateMnemonic());
+            const { publicKey } = crypto.getKeys(generateMnemonic());
             const newAddress = crypto.getAddress(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate1.publicKey);
@@ -162,7 +162,7 @@ describe("Transaction Guard", () => {
 
         it("should update the balance of the sender & recipient with multiple transactions type", async () => {
             const delegate2 = delegates[2];
-            const newWalletPassphrase = bip39.generateMnemonic();
+            const newWalletPassphrase = generateMnemonic();
             const { publicKey } = crypto.getKeys(newWalletPassphrase);
             const newAddress = crypto.getAddress(publicKey);
 
@@ -225,7 +225,7 @@ describe("Transaction Guard", () => {
 
         it("should not accept transaction in excess", async () => {
             const delegate3 = delegates[3];
-            const newWalletPassphrase = bip39.generateMnemonic();
+            const newWalletPassphrase = generateMnemonic();
             const { publicKey } = crypto.getKeys(newWalletPassphrase);
             const newAddress = crypto.getAddress(publicKey);
 

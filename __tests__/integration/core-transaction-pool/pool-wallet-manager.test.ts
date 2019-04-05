@@ -1,7 +1,7 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, models } from "@arkecosystem/crypto";
-import bip39 from "bip39";
+import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
@@ -59,7 +59,7 @@ describe("applyPoolTransactionToSender", () => {
     describe("update the balance", () => {
         it("should only update the balance of the sender", async () => {
             const delegate0 = delegates[0];
-            const { publicKey } = crypto.getKeys(bip39.generateMnemonic());
+            const { publicKey } = crypto.getKeys(generateMnemonic());
             const newAddress = crypto.getAddress(publicKey);
 
             const delegateWallet = poolWalletManager.findByAddress(delegate0.address);
@@ -83,7 +83,7 @@ describe("applyPoolTransactionToSender", () => {
 
         it("should only update the balance of the sender with dyn fees", async () => {
             const delegate0 = delegates[1];
-            const { publicKey } = crypto.getKeys(bip39.generateMnemonic());
+            const { publicKey } = crypto.getKeys(generateMnemonic());
             const newAddress = crypto.getAddress(publicKey);
 
             const delegateWallet = poolWalletManager.findByAddress(delegate0.address);
