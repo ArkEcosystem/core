@@ -1,31 +1,34 @@
 import { app } from "@arkecosystem/core-container";
+import { Shared } from "@arkecosystem/core-interfaces";
 
 interface IActiveDelegateMilestone {
     activeDelegates: number;
     height: number;
 }
 
-export const calculateRound = (height: number): { round: number; nextRound: number; maxDelegates: number } => {
+export const calculateRound = (height: number): Shared.IRoundInfo => {
     const config = app.getConfig();
+    const { milestones } = config.config;
 
     let round = 0;
+    let roundHeight = 1;
     let nextRound = 0;
     let maxDelegates = 0;
 
     let milestoneHeight = height;
     let milestone = null;
 
-    for (let i = 0, j = 0; i < config.milestones.length; i++) {
-        if (!milestone || milestone.activeDelegates !== config.milestones[i].activeDelegates) {
-            milestone = config.milestones[i];
+    for (let i = 0, j = 0; i < milestones.length; i++) {
+        if (!milestone || milestone.activeDelegates !== milestones[i].activeDelegates) {
+            milestone = milestones[i];
         }
         maxDelegates = milestone.activeDelegates;
 
         let delegateCountChanged = false;
         let nextMilestoneHeight = milestone.height;
 
-        for (j = i + 1; j < config.milestones.length; j++) {
-            const nextMilestone = config.milestones[j];
+        for (j = i + 1; j < milestones.length; j++) {
+            const nextMilestone = milestones[j];
             if (nextMilestone.height > height) {
                 break;
             }
@@ -47,11 +50,14 @@ export const calculateRound = (height: number): { round: number; nextRound: numb
         if (delegateCountChanged) {
             console.assert(milestoneHeight % milestone.activeDelegates === 0);
             round += milestoneHeight / milestone.activeDelegates;
+            roundHeight += milestoneHeight;
         }
 
-        if (i === config.milestones.length - 1 || config.milestones[i + 1].height > height) {
-            round += Math.floor((height - nextMilestoneHeight) / maxDelegates) + (delegateCountChanged ? 0 : 1);
-
+        if (i === milestones.length - 1 || milestones[i + 1].height > height) {
+            const roundIncrease =
+                Math.floor((height - nextMilestoneHeight) / maxDelegates) + (delegateCountChanged ? 0 : 1);
+            round += roundIncrease;
+            roundHeight += (roundIncrease - 1) * maxDelegates;
             nextRound = round + ((height - (nextMilestoneHeight - 1)) % maxDelegates === 0 ? 1 : 0);
             break;
         }
@@ -59,7 +65,7 @@ export const calculateRound = (height: number): { round: number; nextRound: numb
         delegateCountChanged = false;
     }
 
-    return { round, nextRound, maxDelegates };
+    return { round, roundHeight, nextRound, maxDelegates };
 };
 
 export const isNewRound = (height: number): boolean => {
@@ -124,7 +130,7 @@ export const isNewRound = (height: number): boolean => {
  */
 const getPreviousDelegateMilestone = (height: number): IActiveDelegateMilestone => {
     const config = app.getConfig();
-    const milestones: IActiveDelegateMilestone[] = config.milestones.filter(
+    const milestones: IActiveDelegateMilestone[] = config.config.milestones.filter(
         ({ activeDelegates, height }: IActiveDelegateMilestone) => {
             return activeDelegates !== undefined && height !== undefined;
         },

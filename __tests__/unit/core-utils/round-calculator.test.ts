@@ -34,34 +34,34 @@ describe("Round calculator", () => {
         });
 
         describe("dynamic delegate count", () => {
-            it.only("should calculate the correct with dynamic delegate count", () => {
+            it("should calculate the correct with dynamic delegate count", () => {
                 const testVector = [
-                    { height: 1, round: 1, nextRound: 1, activeDelegates: 2 },
-                    { height: 2, round: 1, nextRound: 2, activeDelegates: 2 },
-                    { height: 3, round: 2, nextRound: 2, activeDelegates: 3 },
-                    { height: 4, round: 2, nextRound: 2, activeDelegates: 3 },
-                    { height: 5, round: 2, nextRound: 3, activeDelegates: 3 },
-                    { height: 6, round: 3, nextRound: 4, activeDelegates: 1 },
-                    { height: 7, round: 4, nextRound: 5, activeDelegates: 1 },
-                    { height: 8, round: 5, nextRound: 6, activeDelegates: 1 },
-                    { height: 9, round: 6, nextRound: 7, activeDelegates: 1 },
-                    { height: 10, round: 7, nextRound: 7, activeDelegates: 51 },
-                    { height: 11, round: 7, nextRound: 7, activeDelegates: 51 },
-                    { height: 61, round: 8, nextRound: 8, activeDelegates: 51 },
-                    { height: 62, round: 8, nextRound: 8, activeDelegates: 51 },
-                    { height: 112, round: 9, nextRound: 10, activeDelegates: 1 },
-                    { height: 113, round: 10, nextRound: 11, activeDelegates: 1 },
-                    { height: 114, round: 11, nextRound: 12, activeDelegates: 1 },
-                    { height: 115, round: 12, nextRound: 12, activeDelegates: 2 },
-                    { height: 116, round: 12, nextRound: 13, activeDelegates: 2 },
-                    { height: 117, round: 13, nextRound: 13, activeDelegates: 2 },
-                    { height: 118, round: 13, nextRound: 14, activeDelegates: 2 },
-                    { height: 119, round: 14, nextRound: 14, activeDelegates: 2 },
-                    { height: 120, round: 14, nextRound: 15, activeDelegates: 2 },
-                    { height: 131, round: 20, nextRound: 20, activeDelegates: 51 },
-                    { height: 180, round: 20, nextRound: 20, activeDelegates: 51 },
-                    { height: 181, round: 20, nextRound: 21, activeDelegates: 51 },
-                    { height: 182, round: 21, nextRound: 21, activeDelegates: 51 },
+                    { height: 1, round: 1, roundHeight: 1, nextRound: 1, activeDelegates: 2 },
+                    { height: 2, round: 1, roundHeight: 1, nextRound: 2, activeDelegates: 2 },
+                    { height: 3, round: 2, roundHeight: 3, nextRound: 2, activeDelegates: 3 },
+                    { height: 4, round: 2, roundHeight: 3, nextRound: 2, activeDelegates: 3 },
+                    { height: 5, round: 2, roundHeight: 3, nextRound: 3, activeDelegates: 3 },
+                    { height: 6, round: 3, roundHeight: 6, nextRound: 4, activeDelegates: 1 },
+                    { height: 7, round: 4, roundHeight: 7, nextRound: 5, activeDelegates: 1 },
+                    { height: 8, round: 5, roundHeight: 8, nextRound: 6, activeDelegates: 1 },
+                    { height: 9, round: 6, roundHeight: 9, nextRound: 7, activeDelegates: 1 },
+                    { height: 10, round: 7, roundHeight: 10, nextRound: 7, activeDelegates: 51 },
+                    { height: 11, round: 7, roundHeight: 10, nextRound: 7, activeDelegates: 51 },
+                    { height: 61, round: 8, roundHeight: 61, nextRound: 8, activeDelegates: 51 },
+                    { height: 62, round: 8, roundHeight: 61, nextRound: 8, activeDelegates: 51 },
+                    { height: 112, round: 9, roundHeight: 112, nextRound: 10, activeDelegates: 1 },
+                    { height: 113, round: 10, roundHeight: 113, nextRound: 11, activeDelegates: 1 },
+                    { height: 114, round: 11, roundHeight: 114, nextRound: 12, activeDelegates: 1 },
+                    { height: 115, round: 12, roundHeight: 115, nextRound: 12, activeDelegates: 2 },
+                    { height: 116, round: 12, roundHeight: 115, nextRound: 13, activeDelegates: 2 },
+                    { height: 117, round: 13, roundHeight: 117, nextRound: 13, activeDelegates: 2 },
+                    { height: 118, round: 13, roundHeight: 117, nextRound: 14, activeDelegates: 2 },
+                    { height: 119, round: 14, roundHeight: 119, nextRound: 14, activeDelegates: 2 },
+                    { height: 120, round: 14, roundHeight: 119, nextRound: 15, activeDelegates: 2 },
+                    { height: 131, round: 20, roundHeight: 131, nextRound: 20, activeDelegates: 51 },
+                    { height: 180, round: 20, roundHeight: 131, nextRound: 20, activeDelegates: 51 },
+                    { height: 181, round: 20, roundHeight: 131, nextRound: 21, activeDelegates: 51 },
+                    { height: 182, round: 21, roundHeight: 182, nextRound: 21, activeDelegates: 51 },
                 ];
 
                 const milestones = testVector.reduce((acc, vector) => acc.set(vector.height, vector), new Map());
@@ -69,16 +69,20 @@ describe("Round calculator", () => {
                 const backup = app.getConfig;
                 app.getConfig = jest.fn(() => {
                     return {
-                        milestones: Array.from(milestones.values()),
+                        config: {
+                            milestones: Array.from(milestones.values()),
+                        },
                         getMilestone: height => {
                             return milestones.get(height);
                         },
                     };
                 });
 
-                testVector.forEach(({ height, round, nextRound, activeDelegates }) => {
+                testVector.forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
                     const result = calculateRound(height);
                     expect(result.round).toBe(round);
+                    expect(result.roundHeight).toBe(roundHeight);
+                    expect(isNewRound(result.roundHeight)).toBeTrue();
                     expect(result.nextRound).toBe(nextRound);
                     expect(result.maxDelegates).toBe(activeDelegates);
                 });
@@ -120,7 +124,9 @@ describe("Round calculator", () => {
             const backup = app.getConfig;
             app.getConfig = jest.fn(() => {
                 return {
-                    milestones: Object.values(milestones),
+                    config: {
+                        milestones: Object.values(milestones),
+                    },
                     getMilestone: height => {
                         return milestones[height];
                     },
