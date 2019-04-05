@@ -63,6 +63,6 @@ export const defaults = {
         enabled: true,
         socketLimit: 20, // max number of messages per second per socket connection
         ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-        banDurationMs: 10 * 60 * 1000, // 10min ban for peer exceeding rate limit
+        banDurationMs: 10 * 60 * 1000, // 10 minute ban for peer exceeding rate limit
     },
 };

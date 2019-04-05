@@ -1,5 +1,5 @@
 import delay from "delay";
-import { SocketErrors } from "../socket-server/constants";
+import { SocketErrors } from "../enums";
 
 export const socketEmit = async (socket: any, event: string, data: any, headers: any, timeout?: number) => {
     const req = {

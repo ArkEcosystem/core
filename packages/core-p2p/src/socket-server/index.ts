@@ -1,14 +1,10 @@
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
-import { SocketErrors } from "./constants";
+import { SocketErrors } from "../enums";
 import { getHeaders } from "./utils/get-headers";
 
-/**
- * Create a new socketcluster server.
- * @param  {Object} config
- * @return {Object}
- */
-const startSocketServer = async config => {
+export const startSocketServer = async (service: P2P.IPeerService, config) => {
     const peerHandlers = require("./versions/peer");
     const internalHandlers = require("./versions/internal");
     const utilsHandlers = require("./versions/utils");
@@ -21,7 +17,6 @@ const startSocketServer = async config => {
         brokers: 1,
         port: config.port,
         appName: "core-p2p",
-
         wsEngine: "ws",
         workerController: __dirname + `${relativeSocketPath}/worker.js`,
         rebootWorkerOnCrash: true,
@@ -44,7 +39,7 @@ const startSocketServer = async config => {
 
         try {
             const result = {
-                data: (await handlers[version][method](req)) || {},
+                data: (await handlers[version][method](service, req)) || {},
                 headers: getHeaders(),
             };
 
@@ -74,5 +69,3 @@ const startSocketServer = async config => {
 
     return Promise.race([serverReadyPromise, timeoutPromise]);
 };
-
-export { startSocketServer };

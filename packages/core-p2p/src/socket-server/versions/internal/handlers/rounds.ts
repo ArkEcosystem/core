@@ -2,9 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 
-const config = app.getConfig();
-
 export const getCurrentRound = async () => {
+    const config = app.getConfig();
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 

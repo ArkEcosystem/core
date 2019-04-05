@@ -8,7 +8,7 @@ export class NodeController extends Controller {
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
-            const networkHeight = await this.blockchain.p2p.getNetworkHeight();
+            const networkHeight = await this.blockchain.p2p.getMonitor().getNetworkHeight();
 
             return {
                 data: {
@@ -25,7 +25,7 @@ export class NodeController extends Controller {
     public async syncing(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
-            const networkHeight = await this.blockchain.p2p.getNetworkHeight();
+            const networkHeight = await this.blockchain.p2p.getMonitor().getNetworkHeight();
 
             return {
                 data: {

@@ -1,9 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 const transactionPool = app.resolveOptions("transaction-pool");
 
-/**
- * @type {Object}
- */
 export const schema = {
     getStatus: {
         type: "object",

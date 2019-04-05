@@ -10,7 +10,8 @@
         "strict": false,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "incremental": true
     },
     "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

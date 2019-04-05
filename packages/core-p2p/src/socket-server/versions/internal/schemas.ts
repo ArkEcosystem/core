@@ -1,6 +1,3 @@
-/**
- * @type {Object}
- */
 export const emitEvent = {
     type: "object",
     required: ["event", "body"],
@@ -8,5 +5,14 @@ export const emitEvent = {
     properties: {
         event: { type: "string" },
         body: { type: "object" },
+    },
+};
+
+export const verifyTransaction = {
+    type: "object",
+    required: ["transaction"],
+    additionalProperties: false,
+    properties: {
+        transaction: { $ref: "transaction" },
     },
 };

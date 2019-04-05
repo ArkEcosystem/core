@@ -1,11 +1,6 @@
 import AJV from "ajv";
 import ip from "ip";
 
-/**
- * Validate the headers provided.
- * @param  {Object} headers
- * @return {Object<{valid: boolean, errors: Array<Object>}>} Validation object
- */
 const validateHeaders = headers => {
     const ajv = new AJV();
 

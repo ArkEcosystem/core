@@ -36,7 +36,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
 
-    getActiveDelegates(height: number, delegates?: any[]): Promise<IDelegateWallet[]>;
+    getActiveDelegates(height: number, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
@@ -80,13 +80,13 @@ export interface IDatabaseService {
      */
     getBlocksByHeight(heights: number[]): Promise<any[]>;
 
-    getTopBlocks(count): Promise<any[]>;
+    getTopBlocks(count: number): Promise<any[]>;
 
     getRecentBlockIds(): Promise<string[]>;
 
-    saveRound(activeDelegates: object[]): Promise<void>;
+    saveRound(activeDelegates: IDelegateWallet[]): Promise<void>;
 
-    deleteRound(round: any): Promise<void>;
+    deleteRound(round: number): Promise<void>;
 
     getTransaction(id: string): Promise<any>;
 

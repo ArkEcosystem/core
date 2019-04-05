@@ -1,34 +1,30 @@
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
+import { config } from "../../../config";
 import { isWhitelisted } from "../../../utils/is-whitelisted";
 
 export const getHandlers = () => {
-    const peerHandlers = require("../peer");
-    const internalHandlers = require("../internal");
-
     return {
-        peer: Object.keys(peerHandlers),
-        internal: Object.keys(internalHandlers),
+        peer: Object.keys(require("../peer")),
+        internal: Object.keys(require("../internal")),
     };
 };
 
-export const logInfo = req => {
+export const logInfo = (service: P2P.IPeerService, req) => {
     const logger = app.resolvePlugin("logger");
     if (logger) {
         logger.info(req.data.message);
     }
 };
 
-export const logError = req => {
-    const logger = app.resolvePlugin("logger");
-    if (logger) {
-        logger.error(req.data.message);
+export const logError = (service: P2P.IPeerService, req) => {
+    if (app.has("logger")) {
+        app.resolvePlugin("logger").error(req.data.message);
     }
 };
 
-export const isForgerAuthorized = req => {
-    const config = require("../../../config");
-
-    return isWhitelisted(config.remoteAccess, req.data.ip);
+export const isForgerAuthorized = (service: P2P.IPeerService, req) => {
+    return isWhitelisted(config.get("remoteAccess"), req.data.ip);
 };
 
 export const isAppReady = () => {

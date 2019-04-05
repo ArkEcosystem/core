@@ -1,13 +1,15 @@
 /* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
+
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "./config";
-import { Monitor } from "./monitor";
-import { Peer } from "./peer";
+import { NetworkStateStatus } from "./enums";
 
-class QuorumDetails {
+class QuorumDetails implements P2P.IQuorumDetails {
     public getQuorum() {
         const quorum = this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
+
         return isFinite(quorum) ? quorum : 0;
     }
 
@@ -54,15 +56,7 @@ class QuorumDetails {
     public peersForgingNotAllowed = 0;
 }
 
-export enum NetworkStateStatus {
-    Default,
-    ColdStart,
-    BelowMinimumPeers,
-    Test,
-    Unknown,
-}
-
-export class NetworkState {
+export class NetworkState implements P2P.INetworkState {
     public nodeHeight: number;
     public lastBlockId: string;
     private quorumDetails: QuorumDetails;
@@ -83,13 +77,13 @@ export class NetworkState {
     /**
      * Returns the current network state. Peers are updated before the call.
      */
-    public static analyze(monitor: Monitor): NetworkState {
+    public static analyze(monitor: P2P.INetworkMonitor, storage: P2P.IPeerStorage): P2P.INetworkState {
         const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
 
-        const peers = monitor.getPeers();
+        const peers = storage.getPeers();
         const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
 
-        if (monitor.__isColdStartActive()) {
+        if (monitor.isColdStartActive()) {
             return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);
         } else if (process.env.CORE_ENV === "test") {
             return new NetworkState(NetworkStateStatus.Test, lastBlock);
@@ -100,7 +94,7 @@ export class NetworkState {
         return this.analyzeNetwork(lastBlock, peers);
     }
 
-    public static parse(data: any): NetworkState {
+    public static parse(data: any): P2P.INetworkState {
         if (!data || data.status === undefined) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
@@ -133,7 +127,7 @@ export class NetworkState {
         return JSON.stringify(data, null, 2);
     }
 
-    private static analyzeNetwork(lastBlock, peers: Peer[]): NetworkState {
+    private static analyzeNetwork(lastBlock, peers: P2P.IPeer[]): P2P.INetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
         const currentSlot = slots.getSlotNumber();
 
@@ -144,13 +138,13 @@ export class NetworkState {
         return networkState;
     }
 
-    private update(peer: Peer, currentSlot: number) {
+    private update(peer: P2P.IPeer, currentSlot: number) {
         if (peer.state.height > this.nodeHeight) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;
         } else {
-            if (peer.verification.forked) {
+            if (peer.isForked()) {
                 this.quorumDetails.peersNoQuorum++;
                 this.quorumDetails.peersForked++;
             } else {

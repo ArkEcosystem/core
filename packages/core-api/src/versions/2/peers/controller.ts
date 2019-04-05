@@ -1,5 +1,3 @@
-import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
 import semver from "semver";
@@ -8,7 +6,7 @@ import { Controller } from "../shared/controller";
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const allPeers = await this.blockchain.p2p.getPeers();
+            const allPeers = await this.blockchain.p2p.getStorage().getPeers();
 
             let result = allPeers.sort((a, b) => a.delay - b.delay);
             // @ts-ignore
@@ -62,7 +60,7 @@ export class PeersController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = await this.blockchain.p2p.getPeers();
+            const peers = await this.blockchain.p2p.getStorage().getPeers();
             const peer = peers.find(p => p.ip === request.params.ip);
 
             if (!peer) {
@@ -77,7 +75,7 @@ export class PeersController extends Controller {
 
     public async suspended(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = app.resolvePlugin<P2P.IMonitor>("p2p").getSuspendedPeers();
+            const peers = this.blockchain.p2p.getStorage().getSuspendedPeers();
 
             return super.respondWithCollection(
                 request,

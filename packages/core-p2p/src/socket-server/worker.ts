@@ -1,5 +1,5 @@
 import SCWorker from "socketcluster/scworker";
-import { SocketErrors } from "./constants";
+import { SocketErrors } from "../enums";
 import { validateHeaders } from "./utils/validate-headers";
 
 export class Worker extends SCWorker {
@@ -16,10 +16,7 @@ export class Worker extends SCWorker {
 
         this.initRateLimit();
 
-        scServer.on("connection", socket => {
-            this.registerEndpoints(socket);
-        });
-
+        scServer.on("connection", socket => this.registerEndpoints(socket));
         scServer.addMiddleware(scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) => this.middlewareHandshake(req, next));
         scServer.addMiddleware(scServer.MIDDLEWARE_EMIT, (req, next) => this.middlewareEmit(req, next));
     }
