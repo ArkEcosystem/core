@@ -44,6 +44,7 @@ beforeEach(async () => {
     monitor.peers = { "127.0.0.1": peerMock };
 });
 
+// @TODO: the monitor was broken up into multiple classes that each serve their own purpose so those tests need to be relocated
 describe("Monitor", () => {
     describe("cleanPeers", () => {
         it("should be ok", async () => {
