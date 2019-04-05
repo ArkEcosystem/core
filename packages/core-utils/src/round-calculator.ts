@@ -7,10 +7,42 @@ interface IActiveDelegateMilestone {
 
 export const calculateRound = (height: number): { round: number; nextRound: number; maxDelegates: number } => {
     const config = app.getConfig();
-    const maxDelegates = config.getMilestone(height).activeDelegates;
 
-    const round = Math.floor((height - 1) / maxDelegates) + 1;
-    const nextRound = Math.floor(height / maxDelegates) + 1;
+    let round = 0;
+    let nextRound = 0;
+    let maxDelegates = 0;
+
+    let milestoneHeight = height;
+    for (let i = 0, j = 0; i < config.milestones.length; i++) {
+        const milestone = config.milestones[i];
+
+        maxDelegates = milestone.activeDelegates;
+
+        let delegateCountChanged = false;
+        for (j = i + 1; j < config.milestones.length; j++) {
+            const nextMilestone = config.milestones[j];
+            if (nextMilestone.activeDelegates !== milestone.activeDelegates && nextMilestone.height <= height) {
+                console.assert(isNewRound(nextMilestone.height));
+                delegateCountChanged = true;
+                milestoneHeight = nextMilestone.height - milestone.height;
+                i = j;
+                break;
+            }
+        }
+
+        if (delegateCountChanged) {
+            console.assert(milestoneHeight % milestone.activeDelegates === 0);
+            round += milestoneHeight / milestone.activeDelegates;
+            delegateCountChanged = false;
+        } else {
+            round += Math.floor((height - milestone.height) / milestone.activeDelegates) + 1;
+        }
+
+        if (i === config.milestones.length - 1 || config.milestones[i + 1].height > height) {
+            nextRound = round + ((height - (milestone.height - 1)) % milestone.activeDelegates === 0 ? 1 : 0);
+            break;
+        }
+    }
 
     return { round, nextRound, maxDelegates };
 };
@@ -35,12 +67,12 @@ export const isNewRound = (height: number): boolean => {
         if (height >= previousMilestone.height) {
             height -= previousMilestone.height;
         }
-        console.info(`Normalizing height to: ${height}`);
+        //   console.info(`Normalizing height to: ${height}`);
     } else {
         height -= 1; // The first round is special, because the height is initially below the delegate count.
     }
 
-    console.info(`${height}%${nextMilestone.activeDelegates} === ${height % nextMilestone.activeDelegates}`);
+    // console.info(`${height}%${nextMilestone.activeDelegates} === ${height % nextMilestone.activeDelegates}`);
     return height % nextMilestone.activeDelegates === 0;
 };
 
@@ -88,7 +120,7 @@ const getPreviousDelegateMilestone = (height: number): IActiveDelegateMilestone 
     }
 
     let previousMilestone = milestones[0];
-    console.info(`Previous milestone ${JSON.stringify(previousMilestone)}`);
+    //  console.info(`Previous milestone ${JSON.stringify(previousMilestone)}`);
 
     for (;;) {
         const milestone = milestones.find(
@@ -99,7 +131,7 @@ const getPreviousDelegateMilestone = (height: number): IActiveDelegateMilestone 
                 (milestone.height - previousMilestone.height) % previousMilestone.activeDelegates === 0,
         );
 
-        console.info(`${JSON.stringify(milestone)}`);
+        //    console.info(`${JSON.stringify(milestone)}`);
         if (milestone) {
             previousMilestone = milestone;
         } else {
