@@ -4,14 +4,18 @@ import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerVerifier } from "../../../packages/core-p2p/src/peer-verifier";
+import { makePeerService } from "../../../packages/core-p2p/src/plugin";
 import { blocks2to100 as blocks2to100Json } from "../../utils/fixtures";
 import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
 let peerMock: Peer;
 let socketManager: MockSocketManager;
+let peerService;
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test"; // important for socket server setup (testing), see socket-server/index.ts
+
+    peerService = makePeerService();
 
     socketManager = new MockSocketManager();
     await socketManager.init();
@@ -21,7 +25,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    peerMock.socket.destroy();
     socketManager.stopServer();
 });
 
@@ -32,7 +35,7 @@ beforeEach(async () => {
 describe("Peer Verifier", () => {
     describe("checkState", () => {
         it("identical chains", async () => {
-            const peerVerifier = new PeerVerifier(peerMock);
+            const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
             const state = { header: { height: 1, id: genesisBlock.data.id } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeObject();
@@ -42,7 +45,7 @@ describe("Peer Verifier", () => {
         it("different chains, including the genesis block", async () => {
             await socketManager.addMock("getCommonBlocks", { success: true, common: null });
 
-            const peerVerifier = new PeerVerifier(peerMock);
+            const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
             const state = { header: { height: 1, id: "123" } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeNull();
@@ -61,7 +64,7 @@ describe("Peer Verifier", () => {
                 await socketManager.resetMock("getCommonBlocks");
                 await socketManager.addMock("getCommonBlocks", { success: true, common: commonBlockReply });
 
-                const peerVerifier = new PeerVerifier(peerMock);
+                const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
                 const state = { header: { height: 1, id: "123" } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(result).toBeNull();
@@ -89,7 +92,7 @@ describe("Peer Verifier", () => {
                 await socketManager.resetMock("getBlocks");
                 await socketManager.addMock("getBlocks", { blocks: [block2] });
 
-                const peerVerifier = new PeerVerifier(peerMock);
+                const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
                 const state = { header: { height: 2, id: block2.id } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(result).toBeNull();
@@ -104,7 +107,7 @@ describe("Peer Verifier", () => {
 
             await socketManager.addMock("getBlocks", { blocks: [blocks2to100Json[0]] });
 
-            const peerVerifier = new PeerVerifier(peerMock);
+            const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
             const state = { header: { height: 2, id: blocks2to100Json[0].id } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeObject();
