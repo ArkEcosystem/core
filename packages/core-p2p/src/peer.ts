@@ -43,7 +43,7 @@ export class Peer implements P2P.IPeer {
     }
 
     public isVerified(): boolean {
-        return this.verificationResult !== null;
+        return this.verificationResult instanceof PeerVerificationResult;
     }
 
     public isForked(): boolean {
