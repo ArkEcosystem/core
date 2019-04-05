@@ -6,29 +6,85 @@ import { calculateRound, isNewRound } from "../../../packages/core-utils/src/rou
 
 describe("Round calculator", () => {
     describe("calculateRound", () => {
-        it("should calculate the round when nextRound is the same", () => {
-            for (let i = 0, height = 51; i < 1000; i++, height += 51) {
-                const { round, nextRound } = calculateRound(height - 1);
-                expect(round).toBe(i + 1);
-                expect(nextRound).toBe(i + 1);
-            }
+        describe("static delegate count", () => {
+            it("should calculate the round when nextRound is the same", () => {
+                for (let i = 0, height = 51; i < 1000; i++, height += 51) {
+                    const { round, nextRound } = calculateRound(height - 1);
+                    expect(round).toBe(i + 1);
+                    expect(nextRound).toBe(i + 1);
+                }
+            });
+
+            it("should calculate the round when nextRound is not the same", () => {
+                for (let i = 0, height = 51; i < 1000; i++, height += 51) {
+                    const { round, nextRound } = calculateRound(height);
+                    expect(round).toBe(i + 1);
+                    expect(nextRound).toBe(i + 2);
+                }
+            });
+
+            it("should calculate the correct round", () => {
+                const activeDelegates = 51;
+                for (let i = 0; i < 1000; i++) {
+                    const { round, nextRound } = calculateRound(i + 1);
+                    expect(round).toBe(Math.floor(i / activeDelegates) + 1);
+                    expect(nextRound).toBe(Math.floor((i + 1) / activeDelegates) + 1);
+                }
+            });
         });
 
-        it("should calculate the round when nextRound is not the same", () => {
-            for (let i = 0, height = 51; i < 1000; i++, height += 51) {
-                const { round, nextRound } = calculateRound(height);
-                expect(round).toBe(i + 1);
-                expect(nextRound).toBe(i + 2);
-            }
-        });
+        describe("dynamic delegate count", () => {
+            it.only("should calculate the correct with dynamic delegate count", () => {
+                const testVector = [
+                    { height: 1, round: 1, nextRound: 1, activeDelegates: 2 },
+                    { height: 2, round: 1, nextRound: 2, activeDelegates: 2 },
+                    { height: 3, round: 2, nextRound: 2, activeDelegates: 3 },
+                    { height: 4, round: 2, nextRound: 2, activeDelegates: 3 },
+                    { height: 5, round: 2, nextRound: 3, activeDelegates: 3 },
+                    { height: 6, round: 3, nextRound: 4, activeDelegates: 1 },
+                    { height: 7, round: 4, nextRound: 5, activeDelegates: 1 },
+                    { height: 8, round: 5, nextRound: 6, activeDelegates: 1 },
+                    { height: 9, round: 6, nextRound: 7, activeDelegates: 1 },
+                    { height: 10, round: 7, nextRound: 7, activeDelegates: 51 },
+                    { height: 11, round: 7, nextRound: 7, activeDelegates: 51 },
+                    { height: 61, round: 8, nextRound: 8, activeDelegates: 51 },
+                    { height: 62, round: 8, nextRound: 8, activeDelegates: 51 },
+                    { height: 112, round: 9, nextRound: 10, activeDelegates: 1 },
+                    { height: 113, round: 10, nextRound: 11, activeDelegates: 1 },
+                    { height: 114, round: 11, nextRound: 12, activeDelegates: 1 },
+                    { height: 115, round: 12, nextRound: 12, activeDelegates: 2 },
+                    { height: 116, round: 12, nextRound: 13, activeDelegates: 2 },
+                    { height: 117, round: 13, nextRound: 13, activeDelegates: 2 },
+                    { height: 118, round: 13, nextRound: 14, activeDelegates: 2 },
+                    { height: 119, round: 14, nextRound: 14, activeDelegates: 2 },
+                    { height: 120, round: 14, nextRound: 15, activeDelegates: 2 },
+                    { height: 131, round: 20, nextRound: 20, activeDelegates: 51 },
+                    { height: 180, round: 20, nextRound: 20, activeDelegates: 51 },
+                    { height: 181, round: 20, nextRound: 21, activeDelegates: 51 },
+                    { height: 182, round: 21, nextRound: 21, activeDelegates: 51 },
+                ];
 
-        it("should calculate the correct round", () => {
-            const activeDelegates = 51;
-            for (let i = 0; i < 1000; i++) {
-                const { round, nextRound } = calculateRound(i + 1);
-                expect(round).toBe(Math.floor(i / activeDelegates) + 1);
-                expect(nextRound).toBe(Math.floor((i + 1) / activeDelegates) + 1);
-            }
+                const milestones = testVector.reduce((acc, vector) => acc.set(vector.height, vector), new Map());
+
+                const backup = app.getConfig;
+                app.getConfig = jest.fn(() => {
+                    return {
+                        milestones: Array.from(milestones.values()),
+                        getMilestone: height => {
+                            return milestones.get(height);
+                        },
+                    };
+                });
+
+                testVector.forEach(({ height, round, nextRound, activeDelegates }) => {
+                    const result = calculateRound(height);
+                    expect(result.round).toBe(round);
+                    expect(result.nextRound).toBe(nextRound);
+                    expect(result.maxDelegates).toBe(activeDelegates);
+                });
+
+                app.getConfig = backup;
+            });
         });
     });
 
@@ -61,6 +117,7 @@ describe("Round calculator", () => {
                 "62": { height: 62, activeDelegates: 51 }, // R8
             };
 
+            const backup = app.getConfig;
             app.getConfig = jest.fn(() => {
                 return {
                     milestones: Object.values(milestones),
@@ -89,6 +146,8 @@ describe("Round calculator", () => {
             expect(isNewRound(10)).toBeTrue();
             expect(isNewRound(11)).toBeFalse();
             expect(isNewRound(61)).toBeTrue();
+
+            app.getConfig = backup;
         });
     });
 });
