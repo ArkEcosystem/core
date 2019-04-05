@@ -4,9 +4,9 @@ import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { monitor } from "../../../../packages/core-p2p/src/monitor";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 import genesisBlockJSON from "../../../utils/config/unitnet/genesisBlock.json";
 import { wallets } from "../../../utils/fixtures/unitnet/wallets";
-import { generateTransfer } from "../../../utils/generators/transactions";
 
 let socket;
 let emit;
@@ -33,7 +33,7 @@ beforeAll(async () => {
             socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
 
-    jest.spyOn(monitor, "acceptNewPeer").mockImplementation(async () => true);
+    jest.spyOn(monitor, "acceptNewPeer").mockImplementation(jest.fn());
 });
 
 afterAll(() => {
@@ -88,7 +88,10 @@ describe("Peer socket endpoint", () => {
 
         describe("postTransactions", () => {
             it("should get back 'transaction list is not conform' error when transactions are invalid (already in cache)", async () => {
-                const transactions = generateTransfer("unitnet", "one two three", wallets[0].address, 111, 15, true);
+                const transactions = TransactionFactory.transfer(wallets[0].address, 111)
+                    .withNetwork("unitnet")
+                    .withPassphrase("one two three")
+                    .create(15);
 
                 const status = await emit("p2p.peer.postTransactions", {
                     data: { transactions },
@@ -103,7 +106,11 @@ describe("Peer socket endpoint", () => {
             });
 
             it("should throw validation error when sending too much transactions", async () => {
-                const transactions = generateTransfer("unitnet", "one two three", wallets[0].address, 111, 50, true);
+                const transactions = TransactionFactory.transfer(wallets[0].address, 111)
+                    .withNetwork("unitnet")
+                    .withPassphrase("one two three")
+                    .create(50);
+
                 await expect(
                     emit("p2p.peer.postTransactions", {
                         data: { transactions },
