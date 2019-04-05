@@ -7,15 +7,28 @@ import { calculateRound, isNewRound } from "../../../packages/core-utils/src/rou
 describe("Round calculator", () => {
     describe("calculateRound", () => {
         it("should calculate the round when nextRound is the same", () => {
-            const { round, nextRound } = calculateRound(1);
-            expect(round).toBe(1);
-            expect(nextRound).toBe(1);
+            for (let i = 0, height = 51; i < 1000; i++, height += 51) {
+                const { round, nextRound } = calculateRound(height - 1);
+                expect(round).toBe(i + 1);
+                expect(nextRound).toBe(i + 1);
+            }
         });
 
         it("should calculate the round when nextRound is not the same", () => {
-            const { round, nextRound } = calculateRound(51);
-            expect(round).toBe(1);
-            expect(nextRound).toBe(2);
+            for (let i = 0, height = 51; i < 1000; i++, height += 51) {
+                const { round, nextRound } = calculateRound(height);
+                expect(round).toBe(i + 1);
+                expect(nextRound).toBe(i + 2);
+            }
+        });
+
+        it("should calculate the correct round", () => {
+            const activeDelegates = 51;
+            for (let i = 0; i < 1000; i++) {
+                const { round, nextRound } = calculateRound(i + 1);
+                expect(round).toBe(Math.floor(i / activeDelegates) + 1);
+                expect(nextRound).toBe(Math.floor((i + 1) / activeDelegates) + 1);
+            }
         });
     });
 
@@ -31,7 +44,7 @@ describe("Round calculator", () => {
             expect(isNewRound(154)).toBeTrue();
         });
 
-        it("should determine the beginning of a new round with changing delegate count", () => {
+        it("should be ok when changing delegate count", () => {
             const milestones = {
                 "1": { height: 1, activeDelegates: 2 }, // R1
                 "2": { height: 2, activeDelegates: 2 }, // R1
