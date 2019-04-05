@@ -5,8 +5,8 @@ import { slots } from "@arkecosystem/crypto";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
-import { guard } from "../../../packages/core-p2p/src/court";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
+import { guard } from "../../../packages/core-p2p/src/guard";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 
@@ -84,7 +84,8 @@ describe("Monitor", () => {
             const getPeersPeerMock = { ip: "1.1.1.1", port: 4000 };
             await socketManager.addMock("getPeers", { success: true, peers: [getPeersPeerMock] });
 
-            const mockAcceptNewPeer = jest.spyOn(monitor, "acceptNewPeer").mockImplementationOnce(async () => true);
+            const mockAcceptNewPeer = jest.spyOn(monitor, "acceptNewPeer").mockImplementationOnce(jest.fn());
+            jest.spyOn(monitor, "validatePeer").mockReturnValueOnce(true);
 
             await monitor.discoverPeers();
 

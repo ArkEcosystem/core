@@ -18,7 +18,9 @@ jest.mock("@arkecosystem/core-container", () => {
                             case "network.nethash":
                                 return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
                             case "peers.list":
-                                return [{ ip: "0.0.0.0", port: 4000 }];
+                                return [{ ip: "1.2.3.4", port: 4000 }];
+                            case "blacklist":
+                                return [];
                         }
 
                         return null;
