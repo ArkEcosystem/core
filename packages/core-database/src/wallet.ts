@@ -39,7 +39,6 @@ export class Wallet implements Database.IWallet {
         this.lastBlock = null;
         this.voteBalance = Bignum.ZERO;
         this.multisignature = null;
-        this.dirty = true;
         this.producedBlocks = 0;
         this.forgedFees = Bignum.ZERO;
         this.forgedRewards = Bignum.ZERO;
@@ -49,8 +48,6 @@ export class Wallet implements Database.IWallet {
      * Add block data to this wallet.
      */
     public applyBlock(block: models.IBlockData): boolean {
-        this.dirty = true;
-
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address
@@ -76,10 +73,8 @@ export class Wallet implements Database.IWallet {
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address
         ) {
-            this.dirty = true;
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
-            // update stats
             this.forgedFees = this.forgedFees.minus(block.totalFee);
             this.forgedRewards = this.forgedRewards.minus(block.reward);
             this.producedBlocks--;

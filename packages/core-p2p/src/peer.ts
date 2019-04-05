@@ -172,12 +172,8 @@ export class Peer implements P2P.IPeer {
 
         const body: any = await this.emit("p2p.peer.getStatus", null, timeoutMsec);
 
-        if (!body) {
-            throw new Error(`Peer ${this.ip}: could not get status response`);
-        }
-
-        if (!body.success) {
-            throw new PeerStatusResponseError(JSON.stringify(body));
+        if (!body || !body.success) {
+            throw new PeerStatusResponseError(this.ip);
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {

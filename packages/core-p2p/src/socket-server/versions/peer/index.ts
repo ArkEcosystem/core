@@ -22,6 +22,7 @@ export const acceptNewPeer = async req => {
         peer[key] = req.headers[key];
     });
 
+    // @TODO: port #2363 and #2366
     await monitor.acceptNewPeer(peer);
 };
 

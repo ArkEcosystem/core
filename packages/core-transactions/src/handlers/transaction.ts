@@ -76,8 +76,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
             wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
 
             this.apply(transaction, wallet);
-
-            wallet.dirty = true;
         }
     }
 
@@ -85,7 +83,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount);
-            wallet.dirty = true;
         }
     }
 
@@ -95,8 +92,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
             wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
 
             this.revert(transaction, wallet);
-
-            wallet.dirty = true;
         }
     }
 
@@ -104,7 +99,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount);
-            wallet.dirty = true;
         }
     }
 

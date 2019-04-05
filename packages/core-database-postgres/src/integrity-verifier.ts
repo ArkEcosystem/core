@@ -230,11 +230,6 @@ export class IntegrityVerifier {
             }
         }
 
-        // Remove dirty flags when no inconsistency has been found
-        if (!detectedInconsistency) {
-            this.walletManager.clear();
-        }
-
         return !detectedInconsistency;
     }
 }
