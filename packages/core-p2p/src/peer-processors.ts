@@ -18,12 +18,27 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-    constructor(
-        private readonly storage: P2P.IPeerStorage,
-        private readonly guard: P2P.IPeerGuard,
-        private readonly connector: P2P.IPeerConnector,
-        private readonly communicator: P2P.IPeerCommunicator,
-    ) {}
+    private readonly communicator: P2P.IPeerCommunicator;
+    private readonly connector: P2P.IPeerConnector;
+    private readonly guard: P2P.IPeerGuard;
+    private readonly storage: P2P.IPeerStorage;
+
+    public constructor({
+        communicator,
+        connector,
+        guard,
+        storage,
+    }: {
+        communicator: P2P.IPeerCommunicator;
+        connector: P2P.IPeerConnector;
+        guard: P2P.IPeerGuard;
+        storage: P2P.IPeerStorage;
+    }) {
+        this.communicator = communicator;
+        this.connector = connector;
+        this.guard = guard;
+        this.storage = storage;
+    }
 
     public async validateAndAcceptPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.validatePeer(peer, options)) {

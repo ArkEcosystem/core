@@ -17,10 +17,10 @@ export function makePeerService(): PeerService {
 
     const guard = new PeerGuard(connector);
     const communicator = new PeerCommunicator(connector);
-    const processor = new PeerProcessor(storage, guard, connector, communicator);
-    const monitor = new NetworkMonitor(storage, processor, communicator);
+    const processor = new PeerProcessor({ storage, guard, connector, communicator });
+    const monitor = new NetworkMonitor({ storage, processor, communicator });
 
-    return new PeerService(storage, processor, connector, communicator, monitor, guard);
+    return new PeerService({ storage, processor, connector, communicator, monitor, guard });
 }
 
 export const plugin: Container.PluginDescriptor = {

@@ -26,11 +26,23 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-    constructor(
-        private readonly storage: P2P.IPeerStorage,
-        private readonly processor: P2P.IPeerProcessor,
-        private readonly communicator: P2P.IPeerCommunicator,
-    ) {
+    private readonly communicator: P2P.IPeerCommunicator;
+    private readonly processor: P2P.IPeerProcessor;
+    private readonly storage: P2P.IPeerStorage;
+
+    public constructor({
+        communicator,
+        processor,
+        storage,
+    }: {
+        communicator: P2P.IPeerCommunicator;
+        processor: P2P.IPeerProcessor;
+        storage: P2P.IPeerStorage;
+    }) {
+        this.communicator = communicator;
+        this.processor = processor;
+        this.storage = storage;
+
         this.coldStartPeriod = dato().addSeconds(localConfig.get("coldStart"));
     }
 
