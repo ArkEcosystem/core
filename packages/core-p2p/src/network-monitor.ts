@@ -92,17 +92,16 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
-    public async cleanPeers(fast = false, forcePing = false): Promise<void> {
-        const keys = Object.keys(this.storage.getPeers());
+    public async cleanPeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
+        const peers = this.storage.getPeers();
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
-        const max = keys.length;
+        const max = peers.length;
 
         this.logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
-            keys.map(async ip => {
-                const peer = this.storage.getPeer(ip);
+            peers.map(async peer => {
                 try {
                     await this.communicator.ping(peer, pingDelay, forcePing);
                 } catch (error) {
