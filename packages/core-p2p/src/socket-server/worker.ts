@@ -1,4 +1,5 @@
 import SCWorker from "socketcluster/scworker";
+import { config as localConfig } from "../config";
 import { SocketErrors } from "../enums";
 import { validateHeaders } from "./utils/validate-headers";
 
@@ -63,6 +64,11 @@ export class Worker extends SCWorker {
             err.name = name;
             return err;
         };
+
+        if (localConfig.get("blacklist").includes(req.socket.remoteAddress)) {
+            req.socket.disconnect(403, "Forbidden");
+            return;
+        }
 
         if (!this.isRateLimitOk(req.socket.remoteAddress)) {
             this.banPeer(req.socket.remoteAddress);

@@ -13,15 +13,15 @@ const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transact
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const acceptNewPeer = async (service: P2P.IPeerService, req) => {
-    const requiredHeaders = ["nethash", "version", "port", "os"];
-
     const peer = { ip: req.data.ip };
+
+    const requiredHeaders = ["nethash", "version", "port", "os"];
 
     requiredHeaders.forEach(key => {
         peer[key] = req.headers[key];
     });
 
-    await service.getProcessor().acceptNewPeer(peer);
+    await service.getProcessor().validateAndAcceptPeer(peer);
 };
 
 export const getPeers = (service: P2P.IPeerService) => {
