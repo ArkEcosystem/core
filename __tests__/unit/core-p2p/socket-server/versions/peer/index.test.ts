@@ -38,14 +38,14 @@ describe("Peers handler", () => {
     describe("acceptNewPeer", () => {
         it("should call monitor acceptNewPeer", async () => {
             const service = makePeerService();
-            service.getProcessor().acceptNewPeer = jest.fn();
+            service.getProcessor().validateAndAcceptPeer = jest.fn();
 
             await acceptNewPeer(service, {
                 data: { ip: "0.0.0.0" },
                 headers: {},
             });
 
-            expect(service.getProcessor().acceptNewPeer).toHaveBeenCalledTimes(1);
+            expect(service.getProcessor().validateAndAcceptPeer).toHaveBeenCalledTimes(1);
         });
     });
 
