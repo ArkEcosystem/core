@@ -1,5 +1,6 @@
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
+import { roundCalculator } from "@arkecosystem/core-utils";
 import {
     Bignum,
     crypto,
@@ -123,8 +124,9 @@ describe("Blockchain", () => {
             await __addBlocks(55);
 
             // Pretend blockchain just started
+            const roundInfo = roundCalculator.calculateRound(blockchain.getLastHeight());
             await blockchain.database.restoreCurrentRound(blockchain.getLastHeight());
-            const forgingDelegates = await blockchain.database.getActiveDelegates(blockchain.getLastHeight());
+            const forgingDelegates = await blockchain.database.getActiveDelegates(roundInfo);
             expect(forgingDelegates).toHaveLength(51);
 
             // Reset again and replay to round 2. In both cases the forging delegates
@@ -153,7 +155,8 @@ describe("Blockchain", () => {
 
         const getNextForger = async () => {
             const lastBlock = blockchain.state.getLastBlock();
-            const activeDelegates = await blockchain.database.getActiveDelegates(lastBlock.data.height);
+            const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
+            const activeDelegates = await blockchain.database.getActiveDelegates(roundInfo);
             const nextSlot = slots.getSlotNumber(lastBlock.data.timestamp) + 1;
             return activeDelegates[nextSlot % activeDelegates.length];
         };
