@@ -98,7 +98,6 @@ export interface IPeerCommunicator {
     downloadBlocks(peer: IPeer, fromBlockHeight): Promise<any>;
     postBlock(peer: IPeer, block);
     postTransactions(peer: IPeer, transactions): Promise<any>;
-    recentlyPinged(peer: IPeer): boolean;
     getPeers(peer: IPeer): Promise<any>;
     getPeerBlocks(peer: IPeer, afterBlockHeight: number, timeoutMsec?: number): Promise<any>;
     hasCommonBlocks(peer: IPeer, ids: string[], timeoutMsec?: number): Promise<any>;
@@ -155,8 +154,9 @@ export interface IPeer {
 
     isVerified(): boolean;
     isForked(): boolean;
+    recentlyPinged(): boolean;
 
-    toBroadcast(): Record<string, any>;
+    toBroadcast(): IPeerBroadcast;
 }
 
 export interface IPeerGuard {
@@ -273,4 +273,14 @@ export interface INetworkState {
     getQuorum();
     getOverHeightBlockHeaders();
     toJson();
+}
+
+export interface IPeerBroadcast {
+    ip: string;
+    port: number;
+    nethash: string;
+    version: string;
+    os: string;
+    height: number;
+    delay: number;
 }

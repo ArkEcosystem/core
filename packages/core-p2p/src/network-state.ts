@@ -7,53 +7,19 @@ import { config as localConfig } from "./config";
 import { NetworkStateStatus } from "./enums";
 
 class QuorumDetails implements P2P.IQuorumDetails {
+    public peersQuorum = 0;
+    public peersNoQuorum = 0;
+    public peersOverHeight = 0;
+    public peersOverHeightBlockHeaders: { [id: string]: any } = {};
+    public peersForked = 0;
+    public peersDifferentSlot = 0;
+    public peersForgingNotAllowed = 0;
+
     public getQuorum() {
         const quorum = this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
 
         return isFinite(quorum) ? quorum : 0;
     }
-
-    /**
-     * Number of peers on same height, with same block and same slot. Used for
-     * quorum calculation.
-     */
-    public peersQuorum = 0;
-
-    /**
-     * Number of peers which do not meet the quorum requirements. Used for
-     * quorum calculation.
-     */
-    public peersNoQuorum = 0;
-
-    /**
-     * Number of overheight peers.
-     */
-    public peersOverHeight = 0;
-
-    /**
-     * All overheight block headers grouped by id.
-     */
-    public peersOverHeightBlockHeaders: { [id: string]: any } = {};
-
-    /**
-     * The following properties are not mutual exclusive for a peer
-     * and imply a peer is on the same `nodeHeight`.
-     */
-
-    /**
-     * Number of peers that are on a different chain (forked).
-     */
-    public peersForked = 0;
-
-    /**
-     * Number of peers with a different slot.
-     */
-    public peersDifferentSlot = 0;
-
-    /**
-     * Number of peers where forging is not allowed.
-     */
-    public peersForgingNotAllowed = 0;
 }
 
 export class NetworkState implements P2P.INetworkState {
@@ -61,6 +27,7 @@ export class NetworkState implements P2P.INetworkState {
     public lastBlockId: string;
     private quorumDetails: QuorumDetails;
 
+    // @TODO: add typehint for lastBlock
     public constructor(readonly status: NetworkStateStatus, lastBlock?: any) {
         this.quorumDetails = new QuorumDetails();
 
@@ -69,14 +36,12 @@ export class NetworkState implements P2P.INetworkState {
         }
     }
 
+    // @TODO: add typehint for lastBlock
     public setLastBlock(lastBlock) {
         this.nodeHeight = lastBlock.data.height;
         this.lastBlockId = lastBlock.data.id;
     }
 
-    /**
-     * Returns the current network state. Peers are updated before the call.
-     */
     public static analyze(monitor: P2P.INetworkMonitor, storage: P2P.IPeerStorage): P2P.INetworkState {
         const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
 
@@ -107,7 +72,7 @@ export class NetworkState implements P2P.INetworkState {
         return networkState;
     }
 
-    public getQuorum() {
+    public getQuorum(): number {
         if (this.status === NetworkStateStatus.Test) {
             return 1;
         }
@@ -115,11 +80,12 @@ export class NetworkState implements P2P.INetworkState {
         return this.quorumDetails.getQuorum();
     }
 
+    // @TODO: add return type
     public getOverHeightBlockHeaders() {
         return Object.values(this.quorumDetails.peersOverHeightBlockHeaders);
     }
 
-    public toJson() {
+    public toJson(): string {
         const data = { quorum: this.getQuorum() } as any;
         Object.assign(data, this);
         delete data.status;
@@ -138,7 +104,7 @@ export class NetworkState implements P2P.INetworkState {
         return networkState;
     }
 
-    private update(peer: P2P.IPeer, currentSlot: number) {
+    private update(peer: P2P.IPeer, currentSlot: number): void {
         if (peer.state.height > this.nodeHeight) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;

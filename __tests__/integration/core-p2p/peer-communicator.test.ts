@@ -120,7 +120,7 @@ describe("PeerCommunicator", () => {
 
     describe("recentlyPinged", () => {
         it("should return true after a ping", async () => {
-            const mockStatus = {
+            await socketManager.addMock("getStatus", {
                 success: true,
                 height: 1,
                 forgingAllowed: true,
@@ -129,19 +129,18 @@ describe("PeerCommunicator", () => {
                     height: 1,
                     id: "123456",
                 },
-            };
-            await socketManager.addMock("getStatus", mockStatus);
+            });
 
             stubPeer.lastPinged = null;
 
-            expect(communicator.recentlyPinged(stubPeer)).toBeFalse();
+            expect(stubPeer.recentlyPinged()).toBeFalse();
 
             const response = await communicator.ping(stubPeer, 5000);
 
             expect(response).toBeObject();
             expect(response).toHaveProperty("success");
             expect(response.success).toBeTrue();
-            expect(communicator.recentlyPinged(stubPeer)).toBeTrue();
+            expect(stubPeer.recentlyPinged()).toBeTrue();
         });
     });
 

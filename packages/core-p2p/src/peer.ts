@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { Dato } from "@faustbrian/dato";
+import { Dato, dato } from "@faustbrian/dato";
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
@@ -50,7 +50,11 @@ export class Peer implements P2P.IPeer {
         return this.isVerified() && this.verificationResult.forked;
     }
 
-    public toBroadcast(): Record<string, any> {
+    public recentlyPinged(): boolean {
+        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
+    }
+
+    public toBroadcast(): P2P.IPeerBroadcast {
         return {
             ip: this.ip,
             port: +this.port,

@@ -15,7 +15,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
     constructor(private readonly connector: P2P.IPeerConnector) {}
 
-    public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight): Promise<any> {
+    public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight: number): Promise<any> {
         try {
             this.logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
 
@@ -37,10 +37,12 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
+    // @TODO: add typehint for block
     public async postBlock(peer: P2P.IPeer, block) {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
     }
 
+    // @TODO: add typehint for transactions
     public async postTransactions(peer: P2P.IPeer, transactions): Promise<any> {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions });
     }
@@ -48,7 +50,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     public async ping(peer: P2P.IPeer, timeoutMsec: number, force: boolean = false): Promise<any> {
         const deadline = new Date().getTime() + timeoutMsec;
 
-        if (this.recentlyPinged(peer) && !force) {
+        if (peer.recentlyPinged() && !force) {
             return;
         }
 
@@ -79,10 +81,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         peer.lastPinged = dato();
         peer.state = body;
         return body;
-    }
-
-    public recentlyPinged(peer: P2P.IPeer): boolean {
-        return !!peer.lastPinged && dato().diffInMinutes(peer.lastPinged) < 2;
     }
 
     public async getPeers(peer: P2P.IPeer): Promise<any> {
@@ -141,6 +139,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         });
     }
 
+    // @TODO: add typehint for response
     private parseHeaders(peer: P2P.IPeer, response): any {
         ["nethash", "os", "version"].forEach(key => {
             this[key] = response.headers[key] || this[key];
@@ -206,6 +205,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
+    // @TODO: add typehint for error
     private handleSocketError(peer: P2P.IPeer, error) {
         if (!error.name) {
             return;
