@@ -5,7 +5,6 @@ import { database } from "../../../mocks/database";
 import { getStorage } from "../../../mocks/p2p/peer-storage";
 
 import { slots } from "@arkecosystem/crypto";
-import { makePeerService } from "../../../../../../packages/core-p2p/src/plugin";
 import {
     acceptNewPeer,
     getBlocks,
@@ -15,6 +14,7 @@ import {
     postBlock,
     postTransactions,
 } from "../../../../../../packages/core-p2p/src/socket-server/versions/peer";
+import { createPeerService } from "../../../../../helpers/peers";
 import { block2 } from "../../../../../utils/fixtures/unitnet/blocks";
 
 jest.mock("@arkecosystem/core-transaction-pool", () => {
@@ -37,22 +37,22 @@ jest.mock("../../../../../../packages/core-p2p/src/socket-server/utils/validate"
 describe("Peers handler", () => {
     describe("acceptNewPeer", () => {
         it("should call monitor acceptNewPeer", async () => {
-            const service = makePeerService();
-            service.getProcessor().validateAndAcceptPeer = jest.fn();
+            const { service, processor } = createPeerService();
+            processor.validateAndAcceptPeer = jest.fn();
 
             await acceptNewPeer(service, {
                 data: { ip: "0.0.0.0" },
                 headers: {},
             });
 
-            expect(service.getProcessor().validateAndAcceptPeer).toHaveBeenCalledTimes(1);
+            expect(processor.validateAndAcceptPeer).toHaveBeenCalledTimes(1);
         });
     });
 
     describe("getPeers", () => {
         it("should return the peers", () => {
-            const service = makePeerService();
-            service.getStorage().getPeers = jest.fn().mockReturnValue([
+            const { service, storage } = createPeerService();
+            storage.getPeers = jest.fn().mockReturnValue([
                 {
                     toBroadcast: jest.fn().mockReturnValue({ delay: 1 }),
                 },
@@ -68,7 +68,7 @@ describe("Peers handler", () => {
     describe("getCommonBlocks", () => {
         it("should return common blocks", async () => {
             database.getCommonBlocks = jest.fn().mockReturnValue(["12345"]);
-            const result = await getCommonBlocks(makePeerService(), {
+            const result = await getCommonBlocks(createPeerService().service, {
                 data: { ids: ["12345"] },
             });
             expect(result).toEqual({
@@ -98,7 +98,7 @@ describe("Peers handler", () => {
 
     describe("postBlock", () => {
         it("should handle the incoming block", () => {
-            const result = postBlock(makePeerService(), {
+            const result = postBlock(createPeerService().service, {
                 headers: { remoteAddress: "0.0.0.0" },
                 data: {
                     block: block2,
@@ -113,7 +113,7 @@ describe("Peers handler", () => {
 
     describe("postTransactions", () => {
         it("should handle the incoming transactions", async () => {
-            const result = await postTransactions(makePeerService(), {
+            const result = await postTransactions(createPeerService().service, {
                 data: {
                     transactions: [{}],
                 },
@@ -129,7 +129,7 @@ describe("Peers handler", () => {
     describe("getBlocks", () => {
         // TODO also test with something like {lastBlockHeight: 1}
         it("should return the blocks", async () => {
-            const result = await getBlocks(makePeerService(), {
+            const result = await getBlocks(createPeerService().service, {
                 data: {},
                 headers: { remoteAddress: "0.0.0.0" },
             });

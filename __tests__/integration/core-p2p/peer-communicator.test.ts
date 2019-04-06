@@ -2,15 +2,13 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { P2P } from "@arkecosystem/core-interfaces";
-import { Peer } from "../../../packages/core-p2p/src/peer";
-import { makePeerService } from "../../../packages/core-p2p/src/plugin";
+import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import genesisBlockJSON from "../../utils/config/unitnet/genesisBlock.json";
 import { delegates } from "../../utils/fixtures/unitnet";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
-let stubPeer: P2P.IPeer;
+let stubPeer;
 let localConfig;
 let socketManager: MockSocketManager;
 
@@ -33,11 +31,9 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    const service = makePeerService();
-    storage = service.getStorage();
-    communicator = service.getCommunicator();
+    ({ communicator, storage } = createPeerService());
 
-    stubPeer = new Peer("127.0.0.1", 4009);
+    stubPeer = createStubPeer({ ip: "127.0.0.1", port: 4009 });
     stubPeer.nethash = "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
     storage.setPeer(stubPeer);
 });

@@ -2,22 +2,14 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { P2P } from "@arkecosystem/core-interfaces";
-import { Peer } from "../../../packages/core-p2p/src/peer";
-import { makePeerService } from "../../../packages/core-p2p/src/plugin";
-
-const stubPeer: P2P.IPeer = new Peer("1.2.3.4", 4000);
+import { createPeerService, stubPeer } from "../../helpers/peers";
 
 let processor;
 let storage;
 let connector;
 let communicator;
 beforeEach(() => {
-    const service = makePeerService();
-    processor = service.getProcessor();
-    storage = service.getStorage();
-    connector = service.getConnector();
-    communicator = service.getCommunicator();
+    ({ connector, communicator, processor, storage } = createPeerService());
 });
 
 beforeEach(() => {

@@ -1,5 +1,5 @@
-const SCBroker = require('socketcluster/scbroker');
-const scClusterBrokerClient = require('scc-broker-client');
+const SCBroker = require("socketcluster/scbroker");
+const scClusterBrokerClient = require("scc-broker-client");
 
 class Broker extends SCBroker {
     run() {
@@ -16,7 +16,7 @@ class Broker extends SCBroker {
                 authKey: options.clusterAuthKey,
                 stateServerConnectTimeout: options.clusterStateServerConnectTimeout,
                 stateServerAckTimeout: options.clusterStateServerAckTimeout,
-                stateServerReconnectRandomness: options.clusterStateServerReconnectRandomness
+                stateServerReconnectRandomness: options.clusterStateServerReconnectRandomness,
             });
         }
     }

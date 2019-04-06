@@ -5,12 +5,11 @@ import "./mocks/core-container";
 import { P2P } from "@arkecosystem/core-interfaces/src";
 import { dato } from "@faustbrian/dato";
 import fs from "fs";
-import { Peer } from "../../../packages/core-p2p/src";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
+import { stubPeer } from "../../helpers/peers";
 
 jest.mock("fs");
 
-const stubPeer: P2P.IPeer = new Peer("1.2.3.4", 4000);
 const stubSuspension: P2P.ISuspension = {
     peer: stubPeer,
     punishment: {

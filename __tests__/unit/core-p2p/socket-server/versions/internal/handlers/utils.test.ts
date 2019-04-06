@@ -1,11 +1,11 @@
 import "../../../../mocks/core-container";
 import { eventEmitter } from "../../../../mocks/event-emitter";
 
-import { makePeerService } from "../../../../../../../packages/core-p2p/src/plugin";
 import {
     emitEvent,
     getUsernames,
 } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/utils";
+import { createPeerService } from "../../../../../../helpers/peers";
 import { delegates } from "../../../../../../utils/fixtures/testnet/delegates";
 
 describe("Internal handlers - utils", () => {
@@ -32,7 +32,7 @@ describe("Internal handlers - utils", () => {
                 },
             };
 
-            emitEvent(makePeerService(), req);
+            emitEvent(createPeerService().service, req);
 
             expect(eventEmitter.emit).toHaveBeenCalledWith(req.data.event, req.data.body);
         });

@@ -2,26 +2,23 @@ import "./mocks/core-container";
 
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
-import { Peer } from "../../../packages/core-p2p/src/peer";
+import { P2P } from "@arkecosystem/core-interfaces";
 import { PeerVerifier } from "../../../packages/core-p2p/src/peer-verifier";
-import { makePeerService } from "../../../packages/core-p2p/src/plugin";
+import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { blocks2to100 as blocks2to100Json } from "../../utils/fixtures";
 import { genesisBlock } from "../../utils/fixtures/unitnet/block-model";
 
-let peerMock: Peer;
+const peerMock: P2P.IPeer = createStubPeer({ ip: "127.0.0.1", port: 4009 });
 let socketManager: MockSocketManager;
-let peerService;
+let service;
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test"; // important for socket server setup (testing), see socket-server/index.ts
 
-    peerService = makePeerService();
+    ({ service } = createPeerService());
 
     socketManager = new MockSocketManager();
     await socketManager.init();
-
-    peerMock = new Peer("127.0.0.1", 4009);
-    Object.assign(peerMock, peerMock.headers);
 });
 
 afterAll(async () => {
@@ -35,7 +32,7 @@ beforeEach(async () => {
 describe("Peer Verifier", () => {
     describe("checkState", () => {
         it("identical chains", async () => {
-            const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
+            const peerVerifier = new PeerVerifier(service.getCommunicator(), peerMock);
             const state = { header: { height: 1, id: genesisBlock.data.id } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeObject();
@@ -45,7 +42,7 @@ describe("Peer Verifier", () => {
         it("different chains, including the genesis block", async () => {
             await socketManager.addMock("getCommonBlocks", { success: true, common: null });
 
-            const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
+            const peerVerifier = new PeerVerifier(service.getCommunicator(), peerMock);
             const state = { header: { height: 1, id: "123" } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeNull();
@@ -64,7 +61,7 @@ describe("Peer Verifier", () => {
                 await socketManager.resetMock("getCommonBlocks");
                 await socketManager.addMock("getCommonBlocks", { success: true, common: commonBlockReply });
 
-                const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
+                const peerVerifier = new PeerVerifier(service.getCommunicator(), peerMock);
                 const state = { header: { height: 1, id: "123" } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(result).toBeNull();
@@ -92,7 +89,7 @@ describe("Peer Verifier", () => {
                 await socketManager.resetMock("getBlocks");
                 await socketManager.addMock("getBlocks", { blocks: [block2] });
 
-                const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
+                const peerVerifier = new PeerVerifier(service.getCommunicator(), peerMock);
                 const state = { header: { height: 2, id: block2.id } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(result).toBeNull();
@@ -107,7 +104,7 @@ describe("Peer Verifier", () => {
 
             await socketManager.addMock("getBlocks", { blocks: [blocks2to100Json[0]] });
 
-            const peerVerifier = new PeerVerifier(peerService.getCommunicator(), peerMock);
+            const peerVerifier = new PeerVerifier(service.getCommunicator(), peerMock);
             const state = { header: { height: 2, id: blocks2to100Json[0].id } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeObject();

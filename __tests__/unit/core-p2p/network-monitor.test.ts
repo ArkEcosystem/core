@@ -2,31 +2,18 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
-import { Peer } from "../../../packages/core-p2p/src/peer";
-import { makePeerService } from "../../../packages/core-p2p/src/plugin";
-
-const stubPeer: P2P.IPeer = new Peer("1.2.3.4", 4000);
-
-function createStubPeer(stub): P2P.IPeer {
-    return Object.assign(new Peer(stub.ip, stub.port), stub);
-}
+import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
 
 let monitor;
 let processor;
 let storage;
 beforeEach(() => {
-    const service = makePeerService();
-    monitor = service.getMonitor();
-    processor = service.getProcessor();
-    storage = service.getStorage();
-});
-
-beforeEach(() => {
     jest.resetAllMocks();
+
+    ({ monitor, processor, storage } = createPeerService());
 });
 
 describe("NetworkMonitor", () => {

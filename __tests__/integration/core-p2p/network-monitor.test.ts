@@ -6,10 +6,9 @@ import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { makePeerService } from "../../../packages/core-p2p/src/plugin";
+import { createPeerService, stubPeer } from "../../helpers/peers";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
-let stubPeer: P2P.IPeer;
 let socketManager: MockSocketManager;
 
 beforeAll(async () => {
@@ -20,24 +19,22 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    // stubPeer.socket.destroy();
-    // for (const peer of Object.values(monitor.peers)) {
-    //     peer.socket.destroy();
-    // }
-    // socketManager.stopServer();
+    for (const connection of connector.all()) {
+        connection.destroy();
+    }
+
+    socketManager.stopServer();
 });
 
 let storage;
 let monitor;
+let connector;
 beforeEach(async () => {
     localConfig.init(defaults);
     localConfig.set("port", 4000);
 
-    const service = makePeerService();
-    storage = service.getStorage();
-    monitor = service.getMonitor();
+    ({ connector, monitor, storage } = createPeerService());
 
-    stubPeer = new Peer("127.0.0.1", 4009);
     storage.setPeer(stubPeer);
 });
 

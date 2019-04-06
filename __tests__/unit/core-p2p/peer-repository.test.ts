@@ -1,73 +1,72 @@
 import "jest-extended";
+
+import "./mocks/core-container";
+
+import { P2P } from "@arkecosystem/core-interfaces";
 import { PeerRepository } from "../../../packages/core-p2p/src/peer-repository";
+import { stubPeer } from "../../helpers/peers";
 
-interface IPeer {
-    ip: string;
-    port: number;
-}
-
-let repo: PeerRepository<IPeer>;
-let peer: IPeer;
+let repo: PeerRepository<P2P.IPeer>;
 beforeEach(() => {
-    repo = new PeerRepository<IPeer>();
-    peer = { ip: "127.0.0.1", port: 4000 };
+    repo = new PeerRepository<P2P.IPeer>();
 });
 
 describe("PeerRepository", () => {
     it("should return the underlying repository", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.all()).toEqual(new Map().set(peer.ip, peer));
+        expect(repo.all()).toEqual(new Map().set(stubPeer.ip, stubPeer));
     });
 
     it("should return all entries", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.entries()).toEqual([[peer.ip, peer]]);
+        expect(repo.entries()).toEqual([[stubPeer.ip, stubPeer]]);
     });
 
     it("should return all keys", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.keys()).toEqual([peer.ip]);
+        expect(repo.keys()).toEqual([stubPeer.ip]);
     });
 
     it("should return all values", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.values()).toEqual([peer]);
+        expect(repo.values()).toEqual([stubPeer]);
     });
 
     it("should get an item and remove it", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.pull(peer.ip)).toEqual(peer);
+        expect(repo.pull(stubPeer.ip)).toEqual(stubPeer);
 
         expect(repo.isEmpty()).toBeTrue();
     });
 
     it("should get an item", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.get(peer.ip)).toEqual(peer);
+        expect(repo.get(stubPeer.ip)).toEqual(stubPeer);
     });
     it("should set an item", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.has(peer.ip)).toBeTrue();
+        expect(repo.has(stubPeer.ip)).toBeTrue();
     });
 
     it("should forget an item", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
         expect(repo.isEmpty()).toBeFalse();
 
-        repo.forget(peer.ip);
+        repo.forget(stubPeer.ip);
 
         expect(repo.isEmpty()).toBeTrue();
     });
+
     it("should flush all items", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
         expect(repo.isEmpty()).toBeFalse();
 
@@ -78,37 +77,37 @@ describe("PeerRepository", () => {
 
     describe("has", () => {
         it("should return true if an item exists", () => {
-            repo.set(peer.ip, peer);
+            repo.set(stubPeer.ip, stubPeer);
 
-            expect(repo.has(peer.ip)).toBeTrue();
+            expect(repo.has(stubPeer.ip)).toBeTrue();
         });
 
         it("should return false if an item doesn't exist", () => {
-            expect(repo.has(peer.ip)).toBeFalse();
+            expect(repo.has(stubPeer.ip)).toBeFalse();
         });
     });
 
     describe("missing", () => {
         it("should return false if an item is missing", () => {
-            repo.set(peer.ip, peer);
+            repo.set(stubPeer.ip, stubPeer);
 
-            expect(repo.missing(peer.ip)).toBeFalse();
+            expect(repo.missing(stubPeer.ip)).toBeFalse();
         });
 
         it("should return true if an item isn't missing", () => {
-            expect(repo.missing(peer.ip)).toBeTrue();
+            expect(repo.missing(stubPeer.ip)).toBeTrue();
         });
     });
 
     it("should count all items", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
         expect(repo.count()).toBe(1);
     });
 
     describe("isEmpty", () => {
         it("should return false if there are items", () => {
-            repo.set(peer.ip, peer);
+            repo.set(stubPeer.ip, stubPeer);
 
             expect(repo.isEmpty()).toBeFalse();
         });
@@ -120,7 +119,7 @@ describe("PeerRepository", () => {
 
     describe("isNotEmpty", () => {
         it("should return true if there are items", () => {
-            repo.set(peer.ip, peer);
+            repo.set(stubPeer.ip, stubPeer);
 
             expect(repo.isNotEmpty()).toBeTrue();
         });
@@ -130,15 +129,15 @@ describe("PeerRepository", () => {
         });
     });
 
-    it("should return a random peer", () => {
-        repo.set(peer.ip, peer);
+    it("should return a random item", () => {
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.random()).toEqual(peer);
+        expect(repo.random()).toEqual(stubPeer);
     });
 
     it("should turn the items into JSON", () => {
-        repo.set(peer.ip, peer);
+        repo.set(stubPeer.ip, stubPeer);
 
-        expect(repo.toJson()).toEqual(JSON.stringify({ [peer.ip]: peer }));
+        expect(repo.toJson()).toEqual(JSON.stringify({ [stubPeer.ip]: stubPeer }));
     });
 });

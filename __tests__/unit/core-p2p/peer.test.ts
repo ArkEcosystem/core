@@ -1,39 +1,32 @@
 import "jest-extended";
+
 import "./mocks/core-container";
 
-import { P2P } from "@arkecosystem/core-interfaces";
-import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerVerificationResult } from "../../../packages/core-p2p/src/peer-verifier";
-
-const dummy = { ip: "127.0.0.1", port: 4000 };
-
-let peer: P2P.IPeer;
-beforeEach(() => {
-    peer = new Peer(dummy.ip, dummy.port);
-});
+import { stubPeer } from "../../helpers/peers";
 
 describe("Peer", () => {
     it("should return the url", () => {
-        expect(peer.url).toBe(`http://${dummy.ip}:${dummy.port}`);
+        expect(stubPeer.url).toBe(`http://${stubPeer.ip}:${stubPeer.port}`);
     });
 
     it("should return true if verified", () => {
-        expect(peer.isVerified()).toBeFalse();
+        expect(stubPeer.isVerified()).toBeFalse();
 
-        peer.verificationResult = new PeerVerificationResult(10, 1, 5);
+        stubPeer.verificationResult = new PeerVerificationResult(10, 1, 5);
 
-        expect(peer.isVerified()).toBeTrue();
+        expect(stubPeer.isVerified()).toBeTrue();
     });
 
     it("should set and get the headers", () => {
-        peer.setHeaders({
+        stubPeer.setHeaders({
             nethash: "nethash",
             os: "os",
             version: "version",
         });
 
-        expect(peer.nethash).toEqual("nethash");
-        expect(peer.os).toEqual("os");
-        expect(peer.version).toEqual("version");
+        expect(stubPeer.nethash).toEqual("nethash");
+        expect(stubPeer.os).toEqual("os");
+        expect(stubPeer.version).toEqual("version");
     });
 });
