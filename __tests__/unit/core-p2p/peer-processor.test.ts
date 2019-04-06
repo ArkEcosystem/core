@@ -29,15 +29,15 @@ describe("PeerProcessor", () => {
         });
     });
 
-    describe("suspendPeer", () => {
+    describe("suspend", () => {
         it("should suspend the peer from ip provided", async () => {
             storage.setPeer(stubPeer);
 
             connector.disconnect = jest.fn();
 
-            await processor.suspend(stubPeer.ip);
+            await processor.suspend(stubPeer);
 
-            expect(connector.disconnect).toHaveBeenCalledWith(stubPeer.ip);
+            expect(connector.disconnect).toHaveBeenCalledWith(stubPeer);
         });
     });
 });

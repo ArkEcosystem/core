@@ -138,7 +138,7 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {
-        return localConfig.get("whitelist").includes(peer.ip);
+        return localConfig.get("whitelist", []).includes(peer.ip);
     }
 
     public isValidVersion(peer: P2P.IPeer): boolean {
@@ -149,12 +149,13 @@ export class PeerGuard implements P2P.IPeerGuard {
         }
 
         return localConfig
-            .get("minimumVersions")
+            .get("minimumVersions", [])
             .some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
     }
 
     public isValidNetwork(peer: P2P.IPeer): boolean {
         const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
+
         return nethash === app.getConfig().get("network.nethash");
     }
 
