@@ -9,6 +9,7 @@ export const container = {
     app: {
         getConfig: () => {
             return {
+                config: { milestones: [{ activeDelegates: 51, height: 1 }] },
                 get: key => config[key],
                 getMilestone: () => ({
                     activeDelegates: 51,
