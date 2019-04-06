@@ -22,7 +22,6 @@ export class WalletManager implements Database.IWalletManager {
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public config = app.getConfig();
 
-    public networkId: number;
     public byAddress: { [key: string]: Wallet };
     public byPublicKey: { [key: string]: Wallet };
     public byUsername: { [key: string]: Wallet };
@@ -32,7 +31,6 @@ export class WalletManager implements Database.IWalletManager {
      * @constructor
      */
     constructor() {
-        this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();
     }
 
@@ -86,7 +84,7 @@ export class WalletManager implements Database.IWalletManager {
      */
     public findByPublicKey(publicKey: string): Wallet {
         if (!this.byPublicKey[publicKey]) {
-            const address = crypto.getAddress(publicKey, this.networkId);
+            const address = crypto.getAddress(publicKey);
 
             const wallet = this.findByAddress(address);
             wallet.publicKey = publicKey;
@@ -299,7 +297,7 @@ export class WalletManager implements Database.IWalletManager {
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
-            const generator = crypto.getAddress(generatorPublicKey, this.networkId);
+            const generator = crypto.getAddress(generatorPublicKey);
 
             if (block.data.height === 1) {
                 delegate = new Wallet(generator);
