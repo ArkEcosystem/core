@@ -89,7 +89,7 @@ export class SnapshotManager {
         }
 
         const currentHeight = (await this.database.getLastBlock()).height;
-        const roundInfo = roundCalculator.calculateRound(currentHeight);
+        const roundInfo = roundCalculator.calculateRound(height);
         const { round } = roundInfo;
 
         if (height >= currentHeight) {

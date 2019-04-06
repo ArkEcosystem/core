@@ -64,7 +64,22 @@ export const calculateRound = (height: number): Shared.IRoundInfo => {
 };
 
 export const isNewRound = (height: number): boolean => {
-    const config = app.getConfig();
-    const milestone = config.getMilestone(height);
+    const { config } = app.getConfig();
+
+    // Since milestones are merged, find the first milestone to introduce the delegate count.
+    let milestone;
+    for (let i = config.milestones.length - 1; i >= 0; i--) {
+        const temp = config.milestones[i];
+        if (temp.height > height) {
+            continue;
+        }
+
+        if (!milestone || temp.activeDelegates === milestone.activeDelegates) {
+            milestone = temp;
+        } else {
+            break;
+        }
+    }
+
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };
