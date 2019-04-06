@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import {
@@ -198,13 +198,11 @@ export class WalletManager implements Database.IWalletManager {
      * @param height
      * @return {Array}
      */
-    public loadActiveDelegateList(height: number): Database.IDelegateWallet[] {
-        const { round, maxDelegates } = roundCalculator.calculateRound(height);
+    public loadActiveDelegateList(roundInfo: Shared.IRoundInfo): Database.IDelegateWallet[] {
+        const { round, maxDelegates } = roundInfo;
         const delegatesWallets = this.allByUsername();
 
-        if (height >= 1 && height % maxDelegates !== 1) {
-            throw new Error("Trying to build delegates outside of round change");
-        } else if (delegatesWallets.length < maxDelegates) {
+        if (delegatesWallets.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${
                     delegatesWallets.length
@@ -242,7 +240,7 @@ export class WalletManager implements Database.IWalletManager {
             .map((delegate, i) => {
                 const rate = i + 1;
                 this.byUsername[delegate.username].rate = rate;
-                return { ...{ round }, ...delegate, rate };
+                return { round, ...delegate, rate };
             })
             .slice(0, maxDelegates);
 

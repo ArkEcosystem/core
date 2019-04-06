@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { slots } from "@arkecosystem/crypto";
 
 const config = app.getConfig();
@@ -20,18 +21,20 @@ export const current: object = {
         const lastBlock = blockchain.getLastBlock();
 
         const height = lastBlock.data.height + 1;
-        const maxActive = config.getMilestone(height).activeDelegates;
+        const roundInfo = roundCalculator.calculateRound(height);
+        const { maxDelegates } = roundInfo;
+
         const blockTime = config.getMilestone(height).blocktime;
         const reward = config.getMilestone(height).reward;
-        const delegates = await databaseService.getActiveDelegates(height);
+        const delegates = await databaseService.getActiveDelegates(roundInfo);
         const timestamp = slots.getTime();
         const blockTimestamp = slots.getSlotNumber(timestamp) * blockTime;
-        const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
-        const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
+        const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
+        const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
 
         return {
             data: {
-                current: +(height / maxActive),
+                current: +(height / maxDelegates),
                 reward,
                 timestamp: blockTimestamp,
                 delegates,

@@ -1,12 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { models, slots } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: models.Block): Promise<boolean> => {
     const database = app.resolvePlugin("database");
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    const delegates = await database.getActiveDelegates(block.data.height);
+    const roundInfo = roundCalculator.calculateRound(block.data.height);
+    const delegates = await database.getActiveDelegates(roundInfo);
     const slot = slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate = delegates[slot % delegates.length];
 
