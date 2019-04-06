@@ -3,16 +3,18 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { roundCalculator } from "@arkecosystem/core-utils";
+
 import pick from "lodash.pick";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
-import { database } from "./db";
+import { database, Database } from "./db";
 import * as utils from "./utils";
 
 import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from "./transport";
 
 export class SnapshotManager {
-    public database: any;
+    public database: Database;
     constructor(readonly options) {}
 
     public async make(connection: PostgresConnection) {
@@ -87,7 +89,8 @@ export class SnapshotManager {
         }
 
         const currentHeight = (await this.database.getLastBlock()).height;
-        const { activeDelegates } = app.getConfig().getMilestone(currentHeight);
+        const roundInfo = roundCalculator.calculateRound(currentHeight);
+        const { round } = roundInfo;
 
         if (height >= currentHeight) {
             app.forceExit(
@@ -104,11 +107,9 @@ export class SnapshotManager {
             this.database,
         );
 
-        const newLastBlock = await this.database.rollbackChain(height);
+        const newLastBlock = await this.database.rollbackChain(roundInfo);
         logger.info(
-            `Rolling back chain to last finished round ${(
-                newLastBlock.height / activeDelegates
-            ).toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
+            `Rolling back chain to last finished round ${round.toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
         );
 
         this.database.close();

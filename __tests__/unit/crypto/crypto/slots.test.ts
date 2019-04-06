@@ -88,12 +88,6 @@ describe("Slots", () => {
         });
     });
 
-    describe("getLastSlot", () => {
-        it("returns last slot", () => {
-            expect(slots.getLastSlot(1)).toBe(52);
-        });
-    });
-
     describe("isForgingAllowed", () => {
         it("returns boolean", () => {
             expect(slots.isForgingAllowed()).toBeDefined();
