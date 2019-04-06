@@ -2,14 +2,16 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
+import { P2P } from "@arkecosystem/core-interfaces";
 import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
 
-let monitor;
-let processor;
-let storage;
+let monitor: P2P.INetworkMonitor;
+let processor: P2P.IPeerProcessor;
+let storage: P2P.IPeerStorage;
+
 beforeEach(() => {
     jest.resetAllMocks();
 
