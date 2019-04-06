@@ -2,18 +2,20 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
+import { P2P } from "@arkecosystem/core-interfaces";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import genesisBlockJSON from "../../utils/config/unitnet/genesisBlock.json";
 import { delegates } from "../../utils/fixtures/unitnet";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
-let stubPeer;
+let stubPeer: P2P.IPeer;
 let localConfig;
 let socketManager: MockSocketManager;
 
-let storage;
-let communicator;
+let storage: P2P.IPeerStorage;
+let communicator: P2P.IPeerCommunicator;
+
 beforeAll(async () => {
     socketManager = new MockSocketManager();
     await socketManager.init();

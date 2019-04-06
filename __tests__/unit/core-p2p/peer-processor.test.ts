@@ -2,18 +2,18 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
+import { P2P } from "@arkecosystem/core-interfaces";
 import { createPeerService, stubPeer } from "../../helpers/peers";
 
-let processor;
-let storage;
-let connector;
-let communicator;
-beforeEach(() => {
-    ({ connector, communicator, processor, storage } = createPeerService());
-});
+let processor: P2P.IPeerProcessor;
+let storage: P2P.IPeerStorage;
+let connector: P2P.IPeerConnector;
+let communicator: P2P.IPeerCommunicator;
 
 beforeEach(() => {
     jest.resetAllMocks();
+
+    ({ connector, communicator, processor, storage } = createPeerService());
 });
 
 describe("PeerProcessor", () => {

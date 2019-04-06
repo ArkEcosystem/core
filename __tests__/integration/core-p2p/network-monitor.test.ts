@@ -10,6 +10,9 @@ import { createPeerService, stubPeer } from "../../helpers/peers";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 let socketManager: MockSocketManager;
+let storage: P2P.IPeerStorage;
+let monitor: P2P.INetworkMonitor;
+let connector: P2P.IPeerConnector;
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test"; // important for socket server setup (testing), see socket-server/index.ts
@@ -26,9 +29,6 @@ afterAll(async () => {
     socketManager.stopServer();
 });
 
-let storage;
-let monitor;
-let connector;
 beforeEach(async () => {
     localConfig.init(defaults);
     localConfig.set("port", 4000);

@@ -7,6 +7,7 @@ import { PeerRepository } from "../../../packages/core-p2p/src/peer-repository";
 import { stubPeer } from "../../helpers/peers";
 
 let repo: PeerRepository<P2P.IPeer>;
+
 beforeEach(() => {
     repo = new PeerRepository<P2P.IPeer>();
 });

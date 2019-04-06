@@ -21,6 +21,7 @@ const stubSuspension: P2P.ISuspension = {
 };
 
 let storage: P2P.IPeerStorage;
+
 beforeEach(() => {
     storage = new PeerStorage();
 });
