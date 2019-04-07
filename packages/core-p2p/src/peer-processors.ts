@@ -53,7 +53,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!isValidPeer(peer) || this.isSuspended(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!isValidPeer(peer) || this.hasPendingSuspension(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
@@ -154,15 +154,14 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return;
         }
 
-        const suspension = this.storage.getSuspendedPeer(peer.ip);
+        const suspension: P2P.IPeerSuspension = this.storage.getSuspendedPeer(peer.ip);
 
         // Don't unsuspend critical offenders before the ban is expired.
         if (suspension.isCritical() && !suspension.hasExpired()) {
             return;
         }
 
-        this.storage.forgetSuspendedPeer(peer);
-        // delete peer.nextSuspensionReminder;
+        this.storage.forgetSuspendedPeer(suspension);
 
         const connection: SCClientSocket = this.connector.connection(peer);
         if (connection.getState() !== connection.OPEN) {
@@ -174,32 +173,31 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         }
     }
 
-    // @TODO: review this and move into an appropriate class
-    public isSuspended(peer: P2P.IPeer): boolean {
-        const suspendedPeer = this.storage.getSuspendedPeer(peer.ip);
+    private hasPendingSuspension(peer: P2P.IPeer): boolean {
+        const suspension: P2P.IPeerSuspension = this.storage.getSuspendedPeer(peer.ip);
 
-        if (suspendedPeer && !suspendedPeer.hasExpired()) {
-            const { nextSuspensionReminder } = suspendedPeer;
-
-            if (!nextSuspensionReminder || dato().isAfter(nextSuspensionReminder)) {
-                const untilDiff = suspendedPeer.punishment.until.diff(dato());
-
-                this.logger.debug(
-                    `${peer.ip} still suspended for ${prettyMs(untilDiff, {
-                        verbose: true,
-                    })} because of "${suspendedPeer.punishment.reason}".`,
-                );
-
-                suspendedPeer.nextSuspensionReminder = dato().addMinutes(5);
-            }
-
-            return true;
+        if (!suspension) {
+            return false;
         }
 
-        if (suspendedPeer) {
-            this.storage.forgetSuspendedPeer(suspendedPeer.peer);
+        if (suspension.hasExpired()) {
+            this.storage.forgetSuspendedPeer(suspension);
+
+            return false;
         }
 
-        return false;
+        if (!suspension.nextReminder || dato().isAfter(suspension.nextReminder)) {
+            const untilDiff = suspension.punishment.until.diff(dato());
+
+            this.logger.debug(
+                `${peer.ip} still suspended for ${prettyMs(untilDiff, {
+                    verbose: true,
+                })} because of "${suspension.punishment.reason}".`,
+            );
+
+            suspension.nextReminder = dato().addMinutes(5);
+        }
+
+        return true;
     }
 }

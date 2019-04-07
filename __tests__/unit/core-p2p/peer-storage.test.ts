@@ -150,7 +150,7 @@ describe("PeerStorage", () => {
 
             expect(storage.hasSuspendedPeers()).toBeTrue();
 
-            storage.forgetSuspendedPeer(stubPeer);
+            storage.forgetSuspendedPeer(stubSuspension);
 
             expect(storage.hasSuspendedPeers()).toBeFalse();
         });

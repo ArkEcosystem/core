@@ -29,7 +29,7 @@ export const getPeers = (service: P2P.IPeerService) => {
         .getStorage()
         .getPeers()
         .map(peer => peer.toBroadcast())
-        .sort((a, b) => a.delay - b.delay);
+        .sort((a, b) => a.latency - b.latency);
 
     return {
         success: true,

@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
+import { models, slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "./config";
 import { NetworkStateStatus } from "./enums";
 
@@ -27,8 +27,7 @@ export class NetworkState implements P2P.INetworkState {
     public lastBlockId: string;
     private quorumDetails: QuorumDetails;
 
-    // @TODO: add typehint for lastBlock
-    public constructor(readonly status: NetworkStateStatus, lastBlock?: any) {
+    public constructor(readonly status: NetworkStateStatus, lastBlock?: models.Block) {
         this.quorumDetails = new QuorumDetails();
 
         if (lastBlock) {
@@ -36,17 +35,16 @@ export class NetworkState implements P2P.INetworkState {
         }
     }
 
-    // @TODO: add typehint for lastBlock
-    public setLastBlock(lastBlock) {
+    public setLastBlock(lastBlock: models.Block): void {
         this.nodeHeight = lastBlock.data.height;
         this.lastBlockId = lastBlock.data.id;
     }
 
     public static analyze(monitor: P2P.INetworkMonitor, storage: P2P.IPeerStorage): P2P.INetworkState {
-        const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+        const lastBlock: models.Block = app.resolvePlugin("blockchain").getLastBlock();
 
-        const peers = storage.getPeers();
-        const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
+        const peers: P2P.IPeer[] = storage.getPeers();
+        const minimumNetworkReach: number = localConfig.get("minimumNetworkReach", 20);
 
         if (monitor.isColdStartActive()) {
             return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);
@@ -80,8 +78,7 @@ export class NetworkState implements P2P.INetworkState {
         return this.quorumDetails.getQuorum();
     }
 
-    // @TODO: add return type
-    public getOverHeightBlockHeaders() {
+    public getOverHeightBlockHeaders(): { [id: string]: any } {
         return Object.values(this.quorumDetails.peersOverHeightBlockHeaders);
     }
 

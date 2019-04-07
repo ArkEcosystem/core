@@ -180,7 +180,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             response = await socketEmit(this.connector.ensureConnection(peer), event, data, peer.headers, timeout);
 
-            peer.delay = new Date().getTime() - timeBeforeSocketCall;
+            peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response);
 
             if (!this.validateReply(peer, response.data, event)) {
@@ -221,7 +221,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 break;
             case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
-                peer.delay = -1;
+                peer.latency = -1;
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });
                 break;
             default:

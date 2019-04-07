@@ -91,11 +91,11 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.applicationNotReady);
         }
 
-        if (peer.delay === -1) {
+        if (peer.latency === -1) {
             return this.createPunishment(this.offences.timeout);
         }
 
-        if (peer.delay > 2000) {
+        if (peer.latency > 2000) {
             return this.createPunishment(this.offences.highLatency);
         }
 

@@ -11,7 +11,7 @@ export interface IPeer {
     version: string;
     os: string;
 
-    delay: number;
+    latency: number;
     downloadSize: number;
     headers: Record<string, string | number>;
     state: any; // @TODO: add an interface/type
@@ -21,7 +21,7 @@ export interface IPeer {
     // @TODO: review and remove them where appropriate
     status: any;
     commonBlocks: any;
-    socketError: any;
+    socketError: any; // @TODO: store errors in the PeerConnector
 
     setHeaders(headers: Record<string, string>): void;
 
@@ -39,5 +39,5 @@ export interface IPeerBroadcast {
     version: string;
     os: string;
     height: number;
-    delay: number;
+    latency: number;
 }

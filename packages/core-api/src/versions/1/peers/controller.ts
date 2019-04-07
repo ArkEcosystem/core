@@ -21,7 +21,7 @@ export class PeersController extends Controller {
                     peer.status = peer.status === 200 ? "OK" : peer.status;
                     return peer;
                 })
-                .sort((a, b) => a.delay - b.delay);
+                .sort((a, b) => a.latency - b.latency);
             // @ts-ignore
             peers = request.query.os
                 ? // @ts-ignore

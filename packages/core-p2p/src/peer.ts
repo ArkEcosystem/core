@@ -7,8 +7,7 @@ export class Peer implements P2P.IPeer {
     public nethash: string;
     public version: string;
     public os: string;
-    // @TODO: rename this to latency
-    public delay: number;
+    public latency: number;
     public downloadSize: number;
     public headers: Record<string, string | number>;
     public state: any = {}; // @TODO: add an interface/type
@@ -21,7 +20,6 @@ export class Peer implements P2P.IPeer {
     public socketError: any;
 
     constructor(readonly ip: string, readonly port: number) {
-        // @TODO: load data from container
         this.headers = {
             version: app.getVersion(),
             port,
@@ -61,7 +59,7 @@ export class Peer implements P2P.IPeer {
             version: this.version,
             os: this.os,
             height: this.state.height,
-            delay: this.delay,
+            latency: this.latency,
         };
     }
 }

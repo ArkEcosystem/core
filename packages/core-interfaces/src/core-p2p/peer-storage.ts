@@ -20,7 +20,7 @@ export interface IPeerStorage {
     hasSuspendedPeers(): boolean;
     getSuspendedPeer(ip: string): IPeerSuspension;
     setSuspendedPeer(suspension: IPeerSuspension): void;
-    forgetSuspendedPeer(peer: IPeer): void;
+    forgetSuspendedPeer(suspension: IPeerSuspension): void;
     hasSuspendedPeer(ip: string): boolean;
 
     savePeers(): void;

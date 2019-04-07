@@ -3,12 +3,11 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
 import { SocketErrors } from "../enums";
 import { getHeaders } from "./utils/get-headers";
+import * as internalHandlers from "./versions/internal";
+import * as peerHandlers from "./versions/peer";
+import * as utilsHandlers from "./versions/utils";
 
-export const startSocketServer = async (service: P2P.IPeerService, config) => {
-    const peerHandlers = require("./versions/peer");
-    const internalHandlers = require("./versions/internal");
-    const utilsHandlers = require("./versions/utils");
-
+export const startSocketServer = async (service: P2P.IPeerService, config): Promise<any> => {
     // when testing we also need to get socket files from dist folder
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
@@ -63,6 +62,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config) => {
             reject("Socket server failed to setup in 10 seconds.");
         }, 10000);
     });
+
     const serverReadyPromise = new Promise((resolve, reject) => {
         server.on("ready", () => resolve(server));
     });

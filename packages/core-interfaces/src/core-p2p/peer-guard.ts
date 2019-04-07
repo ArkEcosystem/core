@@ -14,7 +14,7 @@ export interface IPeerSuspension {
     readonly peer: any;
     readonly punishment: IPunishment;
 
-    nextSuspensionReminder?: Dato;
+    nextReminder?: Dato;
 
     isLow(): boolean;
     isMedium(): boolean;

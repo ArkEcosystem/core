@@ -8,7 +8,7 @@ export class PeersController extends Controller {
         try {
             const allPeers = await this.blockchain.p2p.getStorage().getPeers();
 
-            let result = allPeers.sort((a, b) => a.delay - b.delay);
+            let result = allPeers.sort((a, b) => a.latency - b.latency);
             // @ts-ignore
             result = request.query.os
                 ? // @ts-ignore

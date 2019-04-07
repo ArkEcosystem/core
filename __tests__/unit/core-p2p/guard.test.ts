@@ -89,7 +89,7 @@ describe("Guard", () => {
         it('should return a 2 minutes suspension for "Timeout"', () => {
             const { until, reason } = guard.analyze({
                 ...dummy,
-                ...{ delay: -1 },
+                ...{ latency: -1 },
             });
 
             expect(reason).toBe("Timeout");
@@ -99,7 +99,7 @@ describe("Guard", () => {
         it('should return a 1 minutes suspension for "High Latency"', () => {
             const { until, reason } = guard.analyze({
                 ...dummy,
-                ...{ delay: 3000 },
+                ...{ latency: 3000 },
             });
 
             expect(reason).toBe("High Latency");

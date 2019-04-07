@@ -54,13 +54,13 @@ describe("Peers handler", () => {
             const { service, storage } = createPeerService();
             storage.getPeers = jest.fn().mockReturnValue([
                 {
-                    toBroadcast: jest.fn().mockReturnValue({ delay: 1 }),
+                    toBroadcast: jest.fn().mockReturnValue({ latency: 1 }),
                 },
             ]);
             const result = getPeers(service);
             expect(result).toEqual({
                 success: true,
-                peers: [{ delay: 1 }],
+                peers: [{ latency: 1 }],
             });
         });
     });

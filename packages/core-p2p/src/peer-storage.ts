@@ -71,8 +71,8 @@ export class PeerStorage implements P2P.IPeerStorage {
         this.peersSuspended.set(suspension.peer.ip, suspension);
     }
 
-    public forgetSuspendedPeer(peer: P2P.IPeer): void {
-        this.peersSuspended.forget(peer.ip);
+    public forgetSuspendedPeer(suspension: P2P.IPeerSuspension): void {
+        this.peersSuspended.forget(suspension.peer.ip);
     }
 
     public hasSuspendedPeer(ip: string): boolean {

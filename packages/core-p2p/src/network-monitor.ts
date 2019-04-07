@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
+import { models, slots, Transaction } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -11,12 +11,13 @@ import shuffle from "lodash.shuffle";
 import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
+import SocketCluster from "socketcluster";
 import { config as localConfig } from "./config";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP, restorePeers } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
-    public server: any;
+    public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
@@ -46,6 +47,18 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.coldStartPeriod = dato().addSeconds(localConfig.get("coldStart"));
     }
 
+    public getServer(): any {
+        return this.server;
+    }
+
+    public setServer(server: any): void {
+        this.server = server;
+    }
+
+    public isColdStartActive(): boolean {
+        return this.coldStartPeriod.isAfter(dato());
+    }
+
     public async start(options): Promise<this> {
         this.config = options;
 
@@ -68,6 +81,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
 
         this.initializing = false;
+
         return this;
     }
 
@@ -214,7 +228,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         // Reset all peers, except peers banned because of causing a fork.
         await this.cleanPeers(false, true);
-        // @TODO: move this out of the processor
         await this.resetSuspendedPeers();
 
         // Ban peer who caused the fork
@@ -246,8 +259,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return { forked: false };
         }
 
-        const forkedPeers = allPeers.filter((peer: P2P.IPeer) => peer.isForked());
-        const majorityOnOurChain = forkedPeers.length / allPeers.length < 0.5;
+        const forkedPeers: P2P.IPeer[] = allPeers.filter((peer: P2P.IPeer) => peer.isForked());
+        const majorityOnOurChain: boolean = forkedPeers.length / allPeers.length < 0.5;
 
         if (majorityOnOurChain) {
             this.logger.info("The majority of peers is not forked. No need to rollback.");
@@ -275,19 +288,16 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         );
 
         // Now rollback blocks equal to the distance to the most common height.
-        const blocksToRollback = lastBlock.data.height - highestCommonHeight;
-        return { forked: true, blocksToRollback };
-    }
-
-    public isColdStartActive(): boolean {
-        return this.coldStartPeriod.isAfter(dato());
+        return { forked: true, blocksToRollback: lastBlock.data.height - highestCommonHeight };
     }
 
     // @TODO: review and move into an appropriate class
     public async syncWithNetwork(fromBlockHeight: number): Promise<any> {
         try {
-            const peersAll = this.storage.getPeers();
-            const peersFiltered = peersAll.filter(peer => !this.storage.hasSuspendedPeer(peer.ip) && !peer.isForked());
+            const peersAll: P2P.IPeer[] = this.storage.getPeers();
+            const peersFiltered: P2P.IPeer[] = peersAll.filter(
+                peer => !this.storage.hasSuspendedPeer(peer.ip) && !peer.isForked(),
+            );
 
             if (peersFiltered.length === 0) {
                 throw new Error(
@@ -305,7 +315,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastBlock(block): Promise<void> {
+    public async broadcastBlock(block: models.Block): Promise<void> {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
@@ -316,7 +326,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
 
         let blockPing = blockchain.getBlockPing();
-        let peers = this.storage.getPeers();
+        let peers: P2P.IPeer[] = this.storage.getPeers();
 
         if (blockPing && blockPing.block.id === block.data.id) {
             // wait a bit before broadcasting if a bit early
@@ -349,7 +359,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastTransactions(transactions): Promise<any> {
+    public async broadcastTransactions(transactions: Transaction[]): Promise<any> {
         const peers = take(shuffle(this.storage.getPeers()), localConfig.get("maxPeersBroadcast"));
 
         this.logger.debug(
@@ -360,17 +370,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             )}`,
         );
 
-        transactions = transactions.map(transaction => transaction.toJson());
+        const transactionsBroadcast = transactions.map(transaction => transaction.toJson());
 
-        return Promise.all(peers.map(peer => this.communicator.postTransactions(peer, transactions)));
-    }
-
-    public getServer(): any {
-        return this.server;
-    }
-
-    public setServer(server: any): void {
-        this.server = server;
+        return Promise.all(peers.map(peer => this.communicator.postTransactions(peer, transactionsBroadcast)));
     }
 
     public async resetSuspendedPeers(): Promise<void> {

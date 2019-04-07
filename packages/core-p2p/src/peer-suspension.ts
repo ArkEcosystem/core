@@ -1,7 +1,9 @@
 import { P2P } from "@arkecosystem/core-interfaces";
-import { dato } from "@faustbrian/dato";
+import { dato, Dato } from "@faustbrian/dato";
 
 export class PeerSuspension implements P2P.IPeerSuspension {
+    public nextReminder?: Dato;
+
     public constructor(readonly peer: P2P.IPeer, readonly punishment: P2P.IPunishment) {}
 
     public isLow(): boolean {

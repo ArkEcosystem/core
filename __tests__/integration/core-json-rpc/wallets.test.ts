@@ -51,7 +51,7 @@ beforeEach(async () => {
                         ip: peerMock.ip,
                         port: 4002,
                         height: 5,
-                        delay: 8,
+                        latency: 8,
                     },
                 ],
             },
