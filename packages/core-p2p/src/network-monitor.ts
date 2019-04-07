@@ -215,7 +215,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         // Reset all peers, except peers banned because of causing a fork.
         await this.cleanPeers(false, true);
         // @TODO: move this out of the processor
-        await this.processor.resetSuspendedPeers();
+        await this.resetSuspendedPeers();
 
         // Ban peer who caused the fork
         const forkedBlock = app.resolve("state").forkedBlock;
@@ -227,7 +227,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.isColdStartActive()) {
             await this.cleanPeers(false, true);
-            await this.processor.resetSuspendedPeers();
+            await this.resetSuspendedPeers();
         }
 
         const lastBlock = app.resolve("state").getLastBlock();
@@ -236,7 +236,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             ...this.storage.getPeers(),
             ...this.storage
                 .getSuspendedPeers()
-                .map((suspendedPeer: P2P.ISuspension) => suspendedPeer.peer)
+                .map((suspendedPeer: P2P.IPeerSuspension) => suspendedPeer.peer)
                 .filter(peer => peer.isVerified()),
         ];
 
@@ -371,6 +371,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public setServer(server: any): void {
         this.server = server;
+    }
+
+    public async resetSuspendedPeers(): Promise<void> {
+        this.logger.info("Clearing suspended peers.");
+
+        await Promise.all(
+            this.storage.getSuspendedPeers().map(suspension => this.processor.unsuspend(suspension.peer)),
+        );
     }
 
     private async checkDNSConnectivity(options): Promise<void> {

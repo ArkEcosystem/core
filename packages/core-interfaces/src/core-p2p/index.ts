@@ -17,29 +17,27 @@ export interface IAcceptNewPeerOptions {
     lessVerbose?: boolean;
 }
 
-export interface ISuspension {
-    peer: any;
-    punishment: IPunishment;
+export interface IPeerSuspension {
+    readonly peer: any;
+    readonly punishment: IPunishment;
+
     nextSuspensionReminder?: Dato;
+
+    isCritical(): boolean;
+    hasExpired(): boolean;
 }
 
 export interface IOffence {
     number: number;
     period: string;
     reason: string;
-    weight: number;
-    critical?: boolean;
+    severity?: "low" | "medium" | "high" | "critical";
 }
 
 export interface IPunishment {
     until: Dato;
     reason: string;
-    weight: number;
-    critical: boolean;
-}
-
-export interface ISuspensionList {
-    [ip: string]: ISuspension;
+    severity: "low" | "medium" | "high" | "critical";
 }
 
 export interface INetworkStatus {
@@ -71,7 +69,6 @@ export interface IPeerProcessor {
     acceptNewPeer(peer, options?: IAcceptNewPeerOptions): Promise<void>;
     suspend(peer: IPeer, punishment?: IPunishment): void;
     unsuspend(peer: IPeer): Promise<void>;
-    resetSuspendedPeers(): Promise<void>;
     isSuspended(peer: IPeer): boolean;
 }
 
@@ -91,6 +88,7 @@ export interface INetworkMonitor {
     broadcastTransactions(transactions): Promise<any>;
     getServer(): any;
     setServer(server: any): void;
+    resetSuspendedPeers(): Promise<void>;
 }
 
 export interface IPeerCommunicator {
@@ -148,7 +146,6 @@ export interface IPeer {
     status: any;
     commonBlocks: any;
     socketError: any;
-    nextSuspensionReminder: any;
 
     setHeaders(headers: Record<string, string>): void;
 
@@ -183,10 +180,10 @@ export interface IPeerStorage {
     forgetPendingPeer(peer: IPeer): void;
     hasPendingPeer(ip: string): boolean;
 
-    getSuspendedPeers(): ISuspension[];
+    getSuspendedPeers(): IPeerSuspension[];
     hasSuspendedPeers(): boolean;
-    getSuspendedPeer(ip: string): ISuspension;
-    setSuspendedPeer(suspension: ISuspension): void;
+    getSuspendedPeer(ip: string): IPeerSuspension;
+    setSuspendedPeer(suspension: IPeerSuspension): void;
     forgetSuspendedPeer(peer: IPeer): void;
     hasSuspendedPeer(ip: string): boolean;
 

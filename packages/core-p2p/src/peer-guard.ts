@@ -12,75 +12,63 @@ export class PeerGuard implements P2P.IPeerGuard {
             number: 5,
             period: "addMinutes",
             reason: "No Common Blocks",
-            weight: 1,
-            critical: true,
+            severity: "critical",
         },
         invalidVersion: {
             number: 5,
             period: "addMinutes",
             reason: "Invalid Version",
-            weight: 2,
         },
         invalidNetwork: {
             number: 5,
             period: "addMinutes",
             reason: "Invalid Network",
-            weight: 5,
-            critical: true,
+            severity: "critical",
         },
         invalidStatus: {
             number: 5,
             period: "addMinutes",
             reason: "Invalid Response Status",
-            weight: 3,
         },
         timeout: {
             number: 30,
             period: "addSeconds",
             reason: "Timeout",
-            weight: 2,
         },
         highLatency: {
             number: 1,
             period: "addMinutes",
             reason: "High Latency",
-            weight: 1,
         },
         applicationNotReady: {
             number: 30,
             period: "addSeconds",
             reason: "Application is not ready",
-            weight: 0,
         },
         failedBlocksDownload: {
             number: 30,
             period: "addSeconds",
             reason: "Failed to download blocks",
-            weight: 0,
         },
         tooManyRequests: {
             number: 60,
             period: "addSeconds",
             reason: "Rate limit exceeded",
-            weight: 0,
         },
         fork: {
             number: 15,
             period: "addMinutes",
             reason: "Fork",
-            weight: 10,
         },
         socketNotOpen: {
             number: 5,
             period: "addMinutes",
             reason: "Socket not open",
-            weight: 3,
         },
         unknown: {
             number: 10,
             period: "addMinutes",
             reason: "Unknown",
-            weight: 5,
         },
     };
 
@@ -167,8 +155,7 @@ export class PeerGuard implements P2P.IPeerGuard {
         return {
             until: dato()[offence.period](offence.number),
             reason: offence.reason,
-            weight: offence.weight,
-            critical: offence.critical,
+            severity: offence.severity,
         };
     }
 }

@@ -8,6 +8,7 @@ import { SCClientSocket } from "socketcluster-client";
 import { config as localConfig } from "./config";
 import { PeerStatusResponseError } from "./errors";
 import { Peer } from "./peer";
+import { PeerSuspension } from "./peer-suspension";
 import { isValidPeer } from "./utils";
 
 export class PeerProcessor implements P2P.IPeerProcessor {
@@ -136,7 +137,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return;
         }
 
-        this.storage.setSuspendedPeer({ peer, punishment });
+        this.storage.setSuspendedPeer(new PeerSuspension(peer, punishment));
         this.storage.forgetPeer(peer);
 
         this.connector.disconnect(peer);
@@ -156,12 +157,12 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         const suspension = this.storage.getSuspendedPeer(peer.ip);
 
         // Don't unsuspend critical offenders before the ban is expired.
-        if (suspension.punishment.critical && dato().isBefore(suspension.punishment.until)) {
+        if (suspension.isCritical() && !suspension.hasExpired()) {
             return;
         }
 
         this.storage.forgetSuspendedPeer(peer);
-        delete peer.nextSuspensionReminder;
+        // delete peer.nextSuspensionReminder;
 
         const connection: SCClientSocket = this.connector.connection(peer);
         if (connection.getState() !== connection.OPEN) {
@@ -174,17 +175,10 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     }
 
     // @TODO: review this and move into an appropriate class
-    public async resetSuspendedPeers(): Promise<void> {
-        this.logger.info("Clearing suspended peers.");
-
-        await Promise.all(this.storage.getSuspendedPeers().map(suspension => this.unsuspend(suspension.peer)));
-    }
-
-    // @TODO: review this and move into an appropriate class
     public isSuspended(peer: P2P.IPeer): boolean {
         const suspendedPeer = this.storage.getSuspendedPeer(peer.ip);
 
-        if (suspendedPeer && dato().isBefore(suspendedPeer.punishment.until)) {
+        if (suspendedPeer && !suspendedPeer.hasExpired()) {
             const { nextSuspensionReminder } = suspendedPeer;
 
             if (!nextSuspensionReminder || dato().isAfter(nextSuspensionReminder)) {

@@ -6,19 +6,16 @@ import { P2P } from "@arkecosystem/core-interfaces/src";
 import { dato } from "@faustbrian/dato";
 import fs from "fs";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
+import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
 
 jest.mock("fs");
 
-const stubSuspension: P2P.ISuspension = {
-    peer: stubPeer,
-    punishment: {
-        until: dato(),
-        reason: "reason",
-        weight: 1,
-        critical: false,
-    },
-};
+const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
+    until: dato(),
+    reason: "reason",
+    severity: "critical",
+});
 
 let storage: P2P.IPeerStorage;
 

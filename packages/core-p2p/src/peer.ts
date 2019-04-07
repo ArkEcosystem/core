@@ -19,7 +19,6 @@ export class Peer implements P2P.IPeer {
     public status: any;
     public commonBlocks: any;
     public socketError: any;
-    public nextSuspensionReminder: any;
 
     constructor(readonly ip: string, readonly port: number) {
         // @TODO: load data from container

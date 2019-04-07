@@ -5,7 +5,7 @@ import { PeerRepository } from "./peer-repository";
 export class PeerStorage implements P2P.IPeerStorage {
     private readonly peers: PeerRepository<P2P.IPeer> = new PeerRepository<P2P.IPeer>();
     private readonly peersPending: PeerRepository<P2P.IPeer> = new PeerRepository<P2P.IPeer>();
-    private readonly peersSuspended: PeerRepository<P2P.ISuspension> = new PeerRepository<P2P.ISuspension>();
+    private readonly peersSuspended: PeerRepository<P2P.IPeerSuspension> = new PeerRepository<P2P.IPeerSuspension>();
 
     public getPeers(): P2P.IPeer[] {
         return this.peers.values();
@@ -55,7 +55,7 @@ export class PeerStorage implements P2P.IPeerStorage {
         return this.peersPending.has(ip);
     }
 
-    public getSuspendedPeers(): P2P.ISuspension[] {
+    public getSuspendedPeers(): P2P.IPeerSuspension[] {
         return this.peersSuspended.values();
     }
 
@@ -63,11 +63,11 @@ export class PeerStorage implements P2P.IPeerStorage {
         return this.peersSuspended.isNotEmpty();
     }
 
-    public getSuspendedPeer(ip: string): P2P.ISuspension {
+    public getSuspendedPeer(ip: string): P2P.IPeerSuspension {
         return this.peersSuspended.get(ip);
     }
 
-    public setSuspendedPeer(suspension: P2P.ISuspension): void {
+    public setSuspendedPeer(suspension: P2P.IPeerSuspension): void {
         this.peersSuspended.set(suspension.peer.ip, suspension);
     }
 
