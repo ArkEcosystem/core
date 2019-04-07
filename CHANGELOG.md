@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.3.0] - YYYY-MM-DD
+## [2.3.0] - 2019-04-23
 
 ### Breaking Changes
 
@@ -31,10 +31,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Add the `/v2/delegates/active` endpoint to `core-api` ([#2205])
 -   Added restart flags to the `ark update` command in `core` ([#2218])
 -   Added the `make:block` command to `core-tester-cli` to create blocks ([#2221])
+-   Added the `core-error-tracker-rollbar` package ([#2287])
+-   Added the `core-error-tracker-raygun` package ([#2288])
+-   Added the `core-error-tracker-airbrake` package ([#2289])
+-   Added the `core-logger-signale` package ([#2343])
+-   Added more events for blocks and the transaction pool ([#2321])
 
 ### Fixed
 
 -   Properly sort peers by their version ([#2229])
+-   Memory leak in the monitoring process of `core-forger` ([#2341])
 
 ### Changed
 
@@ -270,8 +276,11 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ArkEcosystem/core/compare/2.2.0...develop
-[2.2.0]: https://github.com/ArkEcosystem/core/compare/2.1.2...2.2.0
+[unreleased]: https://github.com/ArkEcosystem/core/compare/2.3.0...develop
+[2.3.0]: https://github.com/ArkEcosystem/core/compare/2.2.2...2.3.0
+[2.2.2]: https://github.com/ArkEcosystem/core/compare/2.2.1...2.2.2
+[2.2.1]: https://github.com/ArkEcosystem/core/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/ArkEcosystem/core/compare/2.1.2..2.2.0
 [2.1.2]: https://github.com/ArkEcosystem/core/compare/2.1.1..2.1.2
 [2.1.1]: https://github.com/ArkEcosystem/core/compare/2.1.0..2.1.1
 [2.1.0]: https://github.com/ArkEcosystem/core/compare/2.0.19...2.1.0
@@ -406,3 +415,9 @@ Closed security vulnerabilities:
 [#2218]: https://github.com/ArkEcosystem/core/pull/2218
 [#2221]: https://github.com/ArkEcosystem/core/pull/2221
 [#2229]: https://github.com/ArkEcosystem/core/pull/2229
+[#2287]: https://github.com/ArkEcosystem/core/pull/2287
+[#2288]: https://github.com/ArkEcosystem/core/pull/2288
+[#2289]: https://github.com/ArkEcosystem/core/pull/2289
+[#2321]: https://github.com/ArkEcosystem/core/pull/2321
+[#2341]: https://github.com/ArkEcosystem/core/pull/2341
+[#2343]: https://github.com/ArkEcosystem/core/pull/2343
