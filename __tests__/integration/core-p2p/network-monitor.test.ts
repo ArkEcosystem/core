@@ -51,15 +51,6 @@ describe("NetworkMonitor", () => {
         });
     });
 
-    // describe("getPeers", () => {
-    //     it("should be ok", async () => {
-    //         const peers = monitor.getPeers();
-
-    //         expect(peers).toBeArray();
-    //         expect(peers.length).toBe(1);
-    //     });
-    // });
-
     // describe("discoverPeers", () => {
     //     it("should be ok", async () => {
     //         const mockStatus = {

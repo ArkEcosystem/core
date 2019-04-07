@@ -27,7 +27,7 @@ beforeEach(async () => {
     peerMock.nethash = "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
 });
 
-describe("Guard", () => {
+describe("PeerGuard", () => {
     describe("isValidVersion", () => {
         it("should be a valid version", () => {
             expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.0.0" } })).toBeTrue();
