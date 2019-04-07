@@ -9,65 +9,53 @@ import { SocketErrors } from "./enums";
 export class PeerGuard implements P2P.IPeerGuard {
     private readonly offences: Record<string, P2P.IOffence> = {
         noCommonBlocks: {
-            number: 5,
-            period: "addMinutes",
+            until: () => dato().addMinutes(5),
             reason: "No Common Blocks",
             severity: "critical",
         },
         invalidVersion: {
-            number: 5,
-            period: "addMinutes",
+            until: () => dato().addMinutes(5),
             reason: "Invalid Version",
         },
         invalidNetwork: {
-            number: 5,
-            period: "addMinutes",
+            until: () => dato().addMinutes(5),
             reason: "Invalid Network",
             severity: "critical",
         },
         invalidStatus: {
-            number: 5,
-            period: "addMinutes",
+            until: () => dato().addMinutes(5),
             reason: "Invalid Response Status",
         },
         timeout: {
-            number: 30,
-            period: "addSeconds",
+            until: () => dato().addSeconds(30),
             reason: "Timeout",
         },
         highLatency: {
-            number: 1,
-            period: "addMinutes",
+            until: () => dato().addMinutes(1),
             reason: "High Latency",
         },
         applicationNotReady: {
-            number: 30,
-            period: "addSeconds",
+            until: () => dato().addSeconds(30),
             reason: "Application is not ready",
         },
         failedBlocksDownload: {
-            number: 30,
-            period: "addSeconds",
+            until: () => dato().addSeconds(30),
             reason: "Failed to download blocks",
         },
         tooManyRequests: {
-            number: 60,
-            period: "addSeconds",
+            until: () => dato().addSeconds(60),
             reason: "Rate limit exceeded",
         },
         fork: {
-            number: 15,
-            period: "addMinutes",
+            until: () => dato().addMinutes(15),
             reason: "Fork",
         },
         socketNotOpen: {
-            number: 5,
-            period: "addMinutes",
+            until: () => dato().addMinutes(5),
             reason: "Socket not open",
         },
         unknown: {
-            number: 10,
-            period: "addMinutes",
+            until: () => dato().addMinutes(10),
             reason: "Unknown",
         },
     };
@@ -153,7 +141,7 @@ export class PeerGuard implements P2P.IPeerGuard {
 
     private createPunishment(offence: P2P.IOffence): P2P.IPunishment {
         return {
-            until: dato()[offence.period](offence.number),
+            until: offence.until(),
             reason: offence.reason,
             severity: offence.severity,
         };

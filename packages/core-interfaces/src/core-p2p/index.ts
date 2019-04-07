@@ -23,13 +23,16 @@ export interface IPeerSuspension {
 
     nextSuspensionReminder?: Dato;
 
+    isLow(): boolean;
+    isMedium(): boolean;
+    isHigh(): boolean;
     isCritical(): boolean;
+
     hasExpired(): boolean;
 }
 
 export interface IOffence {
-    number: number;
-    period: string;
+    until: () => Dato;
     reason: string;
     severity?: "low" | "medium" | "high" | "critical";
 }
@@ -37,7 +40,7 @@ export interface IOffence {
 export interface IPunishment {
     until: Dato;
     reason: string;
-    severity: "low" | "medium" | "high" | "critical";
+    severity?: "low" | "medium" | "high" | "critical";
 }
 
 export interface INetworkStatus {
