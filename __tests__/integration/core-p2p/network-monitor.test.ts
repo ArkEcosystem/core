@@ -36,7 +36,18 @@ beforeEach(async () => {
 
     ({ connector, monitor, storage, processor } = createPeerService());
 
-    storage.setPeer(stubPeer);
+    const peer = createStubPeer({
+        ip: "127.0.0.1",
+        port: 4009,
+        state: {
+            height: 1,
+        },
+        verificationResult: {},
+    });
+
+    storage.setPeer(peer);
+
+    connector.ensureConnection(peer);
 });
 
 describe("NetworkMonitor", () => {
