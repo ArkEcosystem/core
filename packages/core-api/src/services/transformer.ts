@@ -12,6 +12,7 @@ import { transformDelegate } from "../versions/2/delegates/transformer";
 import { transformPeer } from "../versions/2/peers/transformer";
 import { transformFeeStatistics } from "../versions/2/shared/transformers/fee-statistics";
 import { transformPorts } from "../versions/2/shared/transformers/ports";
+import { transformRoundDelegate } from "../versions/2/rounds/transformer";
 import { transformTransaction } from "../versions/2/transactions/transformer";
 import { transformWallet } from "../versions/2/wallets/transformer";
 
@@ -36,6 +37,7 @@ class Transformer {
             "fee-statistics": transformFeeStatistics,
             peer: transformPeer,
             ports: transformPorts,
+            "round-delegate": transformRoundDelegate,
             transaction: transformTransaction,
             wallet: transformWallet,
         });
