@@ -15,12 +15,6 @@ export const isValidPeer = (peer: { ip: string; status?: string | number }): boo
         return false;
     }
 
-    if (peer.status) {
-        if (peer.status !== 200 && peer.status !== "OK") {
-            return false;
-        }
-    }
-
     return true;
 };
 

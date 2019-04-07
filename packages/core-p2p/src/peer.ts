@@ -1,20 +1,22 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { httpie } from "@arkecosystem/core-utils";
+import { Blockchain, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato, Dato } from "@faustbrian/dato";
-import Joi from "joi";
+import AJV from "ajv";
+import socketCluster from "socketcluster-client";
 import util from "util";
 import { config as localConfig } from "./config";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
+import { guard } from "./guard";
 import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./reply-schemas";
+import { SocketErrors } from "./socket-server/constants";
+import { socketEmit } from "./utils/socket";
 
 export class Peer implements P2P.IPeer {
     public downloadSize: number;
     public nethash: string;
     public version: string;
     public os: string;
-    public status: string | number;
     public delay: number;
     public ban: number;
     public offences: any[];
@@ -25,8 +27,10 @@ export class Peer implements P2P.IPeer {
         nethash: number;
         height: number | null;
         "Content-Type": "application/json";
-        status?: string | number;
     };
+
+    public socket;
+    public socketError: string | null;
 
     public state: any;
     public url: string;
@@ -59,6 +63,20 @@ export class Peer implements P2P.IPeer {
             height: null,
             "Content-Type": "application/json",
         };
+
+        this.socket = socketCluster.create({
+            port,
+            hostname: ip,
+        });
+        this.socket.on("error", err => {
+            if (guard.isSuspended(this)) {
+                return; // ignore socket errors if peer is already suspended
+            }
+
+            this.logger.debug(`Socket error for peer ${this.ip} : "${err}"`);
+            guard.suspend(this);
+        });
+        this.socketError = null;
     }
 
     /**
@@ -73,15 +91,6 @@ export class Peer implements P2P.IPeer {
     }
 
     /**
-     * Set the given status for the peer.
-     * @param  {String} value
-     * @return {void}
-     */
-    public setStatus(value: string | number): void {
-        this.headers.status = value;
-    }
-
-    /**
      * Get information to broadcast.
      * @return {Object}
      */
@@ -92,7 +101,6 @@ export class Peer implements P2P.IPeer {
             nethash: this.nethash,
             version: this.version,
             os: this.os,
-            status: this.status,
             height: this.state.height,
             delay: this.delay,
         };
@@ -103,15 +111,8 @@ export class Peer implements P2P.IPeer {
      * @param  {Block}              block
      * @return {(Object|undefined)}
      */
-    public async postBlock(block): Promise<any> {
-        return this.__post(
-            "/peer/blocks",
-            { block },
-            {
-                headers: this.headers,
-                timeout: 5000,
-            },
-        );
+    public async postBlock(block) {
+        return this.emit("p2p.peer.postBlock", { block }, 5000);
     }
 
     /**
@@ -121,16 +122,7 @@ export class Peer implements P2P.IPeer {
      */
     public async postTransactions(transactions): Promise<any> {
         try {
-            const response = await this.__post(
-                "/peer/transactions",
-                {
-                    transactions,
-                },
-                {
-                    headers: this.headers,
-                    timeout: 8000,
-                },
-            );
+            const response = await this.emit("p2p.peer.postTransactions", { transactions });
 
             return response;
         } catch (err) {
@@ -147,9 +139,7 @@ export class Peer implements P2P.IPeer {
         try {
             const response = await this.getPeerBlocks(fromBlockHeight);
 
-            this.__parseHeaders(response);
-
-            const { blocks } = response.body;
+            const { blocks } = response;
             const size = blocks.length;
 
             if (size === 100 || size === 400) {
@@ -169,19 +159,18 @@ export class Peer implements P2P.IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} delay operation timeout, in milliseconds
+     * @param  {Number} timeoutMsec operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    public async ping(delay: number, force: boolean = false): Promise<any> {
-        const deadline = new Date().getTime() + delay;
-
+    public async ping(timeoutMsec, force = false) {
+        const deadline = new Date().getTime() + timeoutMsec;
         if (this.recentlyPinged() && !force) {
             return;
         }
 
-        const body = await this.__get("/peer/status", delay);
+        const body: any = await this.emit("p2p.peer.getStatus", null, timeoutMsec);
 
         if (!body || !body.success) {
             throw new PeerStatusResponseError(this.ip);
@@ -191,7 +180,7 @@ export class Peer implements P2P.IPeer {
             const peerVerifier = new PeerVerifier(this);
 
             if (deadline <= new Date().getTime()) {
-                throw new PeerPingTimeoutError(delay);
+                throw new PeerPingTimeoutError(timeoutMsec);
             }
 
             this.verification = await peerVerifier.checkState(body, deadline);
@@ -220,7 +209,7 @@ export class Peer implements P2P.IPeer {
     public async getPeers(): Promise<any> {
         this.logger.info(`Fetching a fresh peer list from ${this.url}`);
 
-        const body = await this.__get("/peer/list");
+        const body: any = await this.emit("p2p.peer.getPeers", null);
 
         if (!body) {
             return [];
@@ -240,12 +229,7 @@ export class Peer implements P2P.IPeer {
     public async hasCommonBlocks(ids, timeoutMsec?: number): Promise<any> {
         const errorMessage = `Could not determine common blocks with ${this.ip}`;
         try {
-            let url = `/peer/blocks/common?ids=${ids.join(",")}`;
-            if (ids.length === 1) {
-                url += ",";
-            }
-
-            const body = await this.__get(url, timeoutMsec);
+            const body: any = await this.emit("p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
 
             if (!body) {
                 return false;
@@ -271,69 +255,6 @@ export class Peer implements P2P.IPeer {
     }
 
     /**
-     * Perform GET request.
-     * @param  {String} endpoint
-     * @param  {Number} [timeout=10000]
-     * @return {(Object|undefined)}
-     */
-    public async __get(endpoint, timeout?): Promise<any> {
-        const temp = new Date().getTime();
-
-        try {
-            const response = await httpie.get(`${this.url}${endpoint}`, {
-                headers: this.headers,
-                timeout: timeout || this.config.get("peers.globalTimeout"),
-            });
-
-            this.__parseHeaders(response);
-
-            if (!this.validateReply(response.body, endpoint)) {
-                return;
-            }
-
-            this.delay = new Date().getTime() - temp;
-
-            if (!response.body) {
-                this.logger.debug(`Request to ${this.url}${endpoint} failed: empty response`);
-                return;
-            }
-
-            return response.body;
-        } catch (error) {
-            this.delay = -1;
-
-            this.logger.debug(`Request to ${this.url}${endpoint} failed: ${error.message}`);
-
-            if (error.response) {
-                this.__parseHeaders(error.response);
-            }
-        }
-    }
-
-    /**
-     * Perform POST request.
-     * @param  {String} endpoint
-     * @param  {Object} body
-     * @param  {Object} opts
-     * @return {(Object|undefined)}
-     */
-    public async __post(endpoint, body, opts): Promise<any> {
-        try {
-            const response = await httpie.post(`${this.url}${endpoint}`, { body, ...opts });
-
-            this.__parseHeaders(response);
-
-            return response.body;
-        } catch (error) {
-            this.logger.debug(`Request to ${this.url}${endpoint} failed because of "${error.message}"`);
-
-            if (error.response) {
-                this.__parseHeaders(error.response);
-            }
-        }
-    }
-
-    /**
      * Parse headers from response.
      * @param  {Object} response
      * @return {Object}
@@ -347,8 +268,6 @@ export class Peer implements P2P.IPeer {
             this.state.height = +response.headers.height;
         }
 
-        this.status = response.status;
-
         return response;
     }
 
@@ -360,16 +279,11 @@ export class Peer implements P2P.IPeer {
      * @return {(Object[]|undefined)}
      */
     public async getPeerBlocks(afterBlockHeight: number): Promise<any> {
-        const endpoint = "/peer/blocks";
-        const response = await httpie.get(`${this.url}${endpoint}`, {
-            query: { lastBlockHeight: afterBlockHeight },
+        const response: any = this.emit("p2p.peer.getBlocks", {
+            lastBlockHeight: afterBlockHeight,
             headers: this.headers,
             timeout: 10000,
         });
-
-        if (!this.validateReply(response.body, endpoint)) {
-            throw new Error("Invalid reply to request for blocks");
-        }
 
         return response;
     }
@@ -377,45 +291,94 @@ export class Peer implements P2P.IPeer {
     /**
      * Validate a reply from the peer according to a predefined JSON schema rules.
      * @param {Object} reply peer's reply
-     * @param {String} endpoint the path in the URL for which we got the reply, e.g. /peer/status
+     * @param {String} endpoint the path in the URL for which we got the reply, e.g. p2p.peer.getStatus
      * @return {Boolean} true if validated successfully
      */
     private validateReply(reply: any, endpoint: string): boolean {
-        let schema = replySchemas[endpoint];
+        const schema = replySchemas[endpoint];
         if (schema === undefined) {
-            // See if any of the keys in replySchemas is a prefix of endpoint and pick the longest one.
-            let len = 0;
-            const definedEndpoints = Object.keys(replySchemas);
-            for (const d of definedEndpoints) {
-                if (endpoint.startsWith(d) && len < d.length) {
-                    schema = replySchemas[d];
-                    len = d.length;
-                }
-            }
-
-            if (schema === undefined) {
-                this.logger.error(
-                    `Can't validate reply from "${endpoint}": none of the predefined ` +
-                        `schemas matches: ` +
-                        JSON.stringify(definedEndpoints),
-                );
-                return false;
-            }
+            this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined ` + `schemas matches.`);
+            return false;
         }
 
-        const result = Joi.validate(reply, schema, { allowUnknown: true, convert: false });
+        const ajv = new AJV();
+        const errors = ajv.validate(schema, reply) ? null : ajv.errorsText();
 
-        if (result.error) {
-            let errorMessage = result.error.message;
-            if (result.error.details && result.error.details.length > 0) {
-                const context = result.error.details[0].context;
-                errorMessage += ` - ${context.key}: ${context.value}`;
-            }
-
-            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errorMessage}`);
+        if (errors) {
+            this.logger.error(`Got unexpected reply from ${this.url}${endpoint}: ${errors}`);
             return false;
         }
 
         return true;
+    }
+
+    /*
+     * Emit the event to the socket, with the data provided
+     * Does not throw : handles the potential errors and returns the response or undefined.
+     * @param  {string} event
+     * @param  {any} data
+     * @param  {number|undefined} timeout
+     * @return {(Object[]|undefined)}
+     */
+    private async emit(event: string, data: any, timeout?: number) {
+        let response;
+        try {
+            this.socketError = null; // reset socket error between each call
+            const timeBeforeSocketCall = new Date().getTime();
+
+            this.updateHeaders();
+
+            response = await socketEmit(this.socket, event, data, this.headers, timeout);
+
+            this.delay = new Date().getTime() - timeBeforeSocketCall;
+            this.__parseHeaders(response);
+
+            if (!this.validateReply(response.data, event)) {
+                throw new Error(`Response validation failed from peer ${this.ip} : ${JSON.stringify(response.data)}`);
+            }
+        } catch (e) {
+            this.handleSocketError(e);
+            return;
+        }
+
+        return response.data;
+    }
+
+    /*
+     * Updates the headers to be sent : to call before each socket call.
+     * Right now only this.headers.height needs to be updated.
+     * @return {undefined}
+     */
+    private updateHeaders() {
+        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+        if (blockchain) {
+            const lastBlock = blockchain.getLastBlock();
+            if (lastBlock) {
+                this.headers.height = lastBlock.data.height;
+            }
+        }
+    }
+
+    private handleSocketError(error) {
+        if (!error.name) {
+            return;
+        }
+        // guard will then be able to determine offence / punishment based on socketError
+        this.socketError = error.name;
+
+        switch (error.name) {
+            case SocketErrors.Validation:
+                this.logger.error(`Socket data validation error (peer ${this.ip}) : ${error.message}`);
+                // don't suspend peer for validation error
+                break;
+            case "TimeoutError": // socketcluster timeout error
+            case SocketErrors.Timeout:
+                this.delay = -1;
+                guard.suspend(this);
+                break;
+            default:
+                this.logger.error(`Socket error (peer ${this.ip}) : ${error.message}`);
+                guard.suspend(this);
+        }
     }
 }

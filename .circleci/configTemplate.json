@@ -515,7 +515,7 @@
     "workflows": {
         "version": 2,
         "build_and_test": {
-            "jobs": ["test-node10-integration-0", "test-node11-integration-0"]
+            "jobs": []
         }
     }
 }

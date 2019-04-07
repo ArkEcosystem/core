@@ -1,9 +1,11 @@
 import { configManager } from "@arkecosystem/crypto";
-import { blocks2to100 } from "../../../utils/fixtures";
-import { delegates } from "../../../utils/fixtures/testnet/delegates";
-import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
+import { blockchain } from "./blockchain";
+import { database } from "./database";
+import { eventEmitter } from "./event-emitter";
+import { logger } from "./logger";
+import { state } from "./state";
 
-configManager.setFromPreset("testnet");
+configManager.setFromPreset("unitnet");
 
 jest.mock("@arkecosystem/core-container", () => {
     return {
@@ -11,14 +13,24 @@ jest.mock("@arkecosystem/core-container", () => {
             getConfig: () => {
                 return {
                     get: key => {
-                        if (key === "network.nethash") {
-                            return configManager.get("nethash");
+                        switch (key) {
+                            case "network.nethash":
+                                return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
+                            case "peers.list":
+                                return [{ ip: "1.2.3.4", port: 4000 }];
+                            case "blacklist":
+                                return [];
                         }
 
                         return null;
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
+                        blocktime: 8,
+                        reward: 0,
+                        block: {
+                            maxTransactions: 200,
+                        },
                     }),
                 };
             },
@@ -26,39 +38,24 @@ jest.mock("@arkecosystem/core-container", () => {
             has: () => true,
             resolvePlugin: name => {
                 if (name === "logger") {
-                    return {
-                        info: jest.fn(),
-                        warn: jest.fn(),
-                        error: jest.fn(),
-                        debug: jest.fn(),
-                    };
+                    return logger;
                 }
 
                 if (name === "database") {
-                    return {
-                        getBlocksByHeight: heights => {
-                            if (heights[0] === 1) {
-                                return [genesisBlock.data];
-                            }
-
-                            return [];
-                        },
-                        getActiveDelegates: height => {
-                            return delegates;
-                        },
-                        loadActiveDelegateList: (count, height) => {
-                            if (height === 2) {
-                                return [blocks2to100[1]];
-                            }
-
-                            return delegates;
-                        },
-                    };
+                    return database;
                 }
 
                 if (name === "event-emitter") {
+                    return eventEmitter;
+                }
+
+                if (name === "blockchain") {
+                    return blockchain;
+                }
+
+                if (name === "p2p") {
                     return {
-                        emit: jest.fn(),
+                        guard: {},
                     };
                 }
 
@@ -66,9 +63,14 @@ jest.mock("@arkecosystem/core-container", () => {
             },
             resolve: name => {
                 if (name === "state") {
-                    return {
-                        getLastBlock: () => genesisBlock,
-                    };
+                    return state;
+                }
+
+                return {};
+            },
+            resolveOptions: name => {
+                if (name === "transactionPool") {
+                    return null;
                 }
 
                 return {};

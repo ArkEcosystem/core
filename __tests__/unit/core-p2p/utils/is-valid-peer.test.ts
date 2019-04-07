@@ -31,10 +31,6 @@ describe("isValidPeer", () => {
         expect(isValidPeer({ ip: "garbage" })).toBeFalse();
     });
 
-    it("should not be ok for invalid status", () => {
-        expect(isValidPeer({ ip: "5.196.105.32", status: 400 })).toBeFalse();
-    });
-
     it("should not be ok for LAN addresses", () => {
         const interfaces = os.networkInterfaces();
         const addresses = [];
@@ -52,7 +48,7 @@ describe("isValidPeer", () => {
     it("should be ok", () => {
         expect(isValidPeer({ ip: "192.168.178.0" })).toBeTrue();
         expect(isValidPeer({ ip: "5.196.105.32" })).toBeTrue();
-        expect(isValidPeer({ ip: "5.196.105.32", status: 200 })).toBeTrue();
-        expect(isValidPeer({ ip: "5.196.105.32", status: "OK" })).toBeTrue();
+        expect(isValidPeer({ ip: "5.196.105.32" })).toBeTrue();
+        expect(isValidPeer({ ip: "5.196.105.32" })).toBeTrue();
     });
 });

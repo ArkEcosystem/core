@@ -21,6 +21,8 @@ const options = {
 async function setUp() {
     jest.setTimeout(60000);
 
+    process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
+
     await setUpContainer({
         exclude: [
             "@arkecosystem/core-webhooks",

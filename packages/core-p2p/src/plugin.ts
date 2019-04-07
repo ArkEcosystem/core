@@ -2,7 +2,7 @@ import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { config } from "./config";
 import { defaults } from "./defaults";
 import { monitor, Monitor } from "./monitor";
-import { startServer } from "./server";
+import { startSocketServer } from "./socket-server";
 
 /**
  * The struct used by the plugin container.
@@ -17,7 +17,9 @@ export const plugin: Container.PluginDescriptor = {
 
         config.init(options);
 
-        monitor.server = await startServer(options);
+        if (!process.env.DISABLE_P2P_SERVER) {
+            monitor.server = await startSocketServer(options);
+        }
 
         await monitor.start(options);
 
@@ -29,6 +31,8 @@ export const plugin: Container.PluginDescriptor = {
         const p2p = container.resolvePlugin<Monitor>("p2p");
         p2p.cachePeers();
 
-        return p2p.server.stop();
+        if (p2p.server) {
+            p2p.server.destroy();
+        }
     },
 };
