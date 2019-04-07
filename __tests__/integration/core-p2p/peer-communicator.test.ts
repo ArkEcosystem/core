@@ -71,6 +71,17 @@ describe("PeerCommunicator", () => {
     });
 
     describe("downloadBlocks", () => {
+        it("should be ok", async () => {
+            await socketManager.addMock("getBlocks", {
+                blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
+            });
+
+            const blocks = await communicator.downloadBlocks(stubPeer, 1);
+
+            expect(blocks).toBeArray();
+            expect(blocks.length).toBe(2);
+        });
+
         it("should return the blocks with status 200", async () => {
             await socketManager.addMock("getBlocks", { blocks: [genesisBlockJSON] });
             const response = await communicator.downloadBlocks(stubPeer, 1);
