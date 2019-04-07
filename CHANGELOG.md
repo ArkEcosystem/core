@@ -7,17 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.3.0] - YYYY-MM-DD
+## [2.3.0] - 2019-04-23
 
 ### Breaking Changes
 
 -   Removed the `wallets` table from the database ([#2209])
     -   **Core 2.0 has been fully reliant on in-memory wallets since the 2.0 release. This only removes the dumping of wallets into the database as it is wasted space and doesn't serve any purpose.**
     -   **If you have applications that rely on the database you should migrate them as soon as possible to using the API as only that data is provided in real-time.**
--   Replace SQLite3 with lowdb in `core-webhooks` ([#2124])
+-   Replace SQLite3 with [lowdb](https://github.com/typicode/lowdb) in `core-webhooks` ([#2124])
     -   **This significantly reduces the size of the package and it's dependencies.**
+    -   **This requires you to recreate your webhooks as the storage method changed.**
 -   Replaced `core-logger-winston` with `core-logger-pino` ([#2134])
-    -   **This significantly improves performance of logging when it occurs a lot in situation like syncing.**
+    -   **This significantly improves performance of logging when it occurs a lot in situations like syncing or rollbacks.**
 -   Rewrote `core-tester-cli` from scratch ([#2133])
 -   Merged `core-debugger-cli` into `core-tester-cli` and deprecated it ([#2133])
 
@@ -31,10 +32,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Add the `/v2/delegates/active` endpoint to `core-api` ([#2205])
 -   Added restart flags to the `ark update` command in `core` ([#2218])
 -   Added the `make:block` command to `core-tester-cli` to create blocks ([#2221])
+-   Added the `core-error-tracker-rollbar` package ([#2287])
+-   Added the `core-error-tracker-raygun` package ([#2288])
+-   Added the `core-error-tracker-airbrake` package ([#2289])
+-   Added the `core-logger-signale` package ([#2343])
+-   Added more events for blocks and the transaction pool ([#2321])
 
 ### Fixed
 
 -   Properly sort peers by their version ([#2229])
+-   Memory leak in the monitoring process of `core-forger` ([#2341])
 
 ### Changed
 
@@ -270,8 +277,11 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ArkEcosystem/core/compare/2.2.0...develop
-[2.2.0]: https://github.com/ArkEcosystem/core/compare/2.1.2...2.2.0
+[unreleased]: https://github.com/ArkEcosystem/core/compare/2.3.0...develop
+[2.3.0]: https://github.com/ArkEcosystem/core/compare/2.2.2...2.3.0
+[2.2.2]: https://github.com/ArkEcosystem/core/compare/2.2.1...2.2.2
+[2.2.1]: https://github.com/ArkEcosystem/core/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/ArkEcosystem/core/compare/2.1.2..2.2.0
 [2.1.2]: https://github.com/ArkEcosystem/core/compare/2.1.1..2.1.2
 [2.1.1]: https://github.com/ArkEcosystem/core/compare/2.1.0..2.1.1
 [2.1.0]: https://github.com/ArkEcosystem/core/compare/2.0.19...2.1.0
@@ -406,3 +416,9 @@ Closed security vulnerabilities:
 [#2218]: https://github.com/ArkEcosystem/core/pull/2218
 [#2221]: https://github.com/ArkEcosystem/core/pull/2221
 [#2229]: https://github.com/ArkEcosystem/core/pull/2229
+[#2287]: https://github.com/ArkEcosystem/core/pull/2287
+[#2288]: https://github.com/ArkEcosystem/core/pull/2288
+[#2289]: https://github.com/ArkEcosystem/core/pull/2289
+[#2321]: https://github.com/ArkEcosystem/core/pull/2321
+[#2341]: https://github.com/ArkEcosystem/core/pull/2341
+[#2343]: https://github.com/ArkEcosystem/core/pull/2343
