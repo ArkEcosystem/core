@@ -46,10 +46,8 @@ const headers = {
     version: "2.1.0",
     port: "4009",
     nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
-    milestoneHash: "519afa9b68898c31",
     height: 1,
     "Content-Type": "application/json",
-    hashid: "4e41294e",
 };
 
 describe("Peer socket endpoint", () => {
