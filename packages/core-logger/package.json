@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-logger",
     "description": "Logger Manager for Ark Core",
-    "version": "2.3.0-next.5",
+    "version": "2.3.0-next.4",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -19,7 +19,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.3.0-next.5",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.4",
         "lodash.isempty": "^4.4.0"
     },
     "devDependencies": {

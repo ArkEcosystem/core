@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-logger-signale",
     "description": "Signale integration for Ark Core",
-    "version": "2.3.0-next.5",
+    "version": "2.3.0-next.4",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -19,8 +19,8 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.3.0-next.5",
-        "@arkecosystem/core-logger": "^2.3.0-next.5",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.4",
+        "@arkecosystem/core-logger": "^2.3.0-next.4",
         "signale": "^1.4.0"
     },
     "publishConfig": {

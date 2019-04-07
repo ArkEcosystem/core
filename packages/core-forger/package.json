@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for Ark Core",
-    "version": "2.3.0-next.5",
+    "version": "2.3.0-next.4",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
