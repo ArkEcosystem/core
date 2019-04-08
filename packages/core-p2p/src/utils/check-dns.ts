@@ -15,8 +15,7 @@ export const checkDNS = async hosts => {
 
             return Promise.resolve(hosts[i]);
         } catch (err) {
-            const logger = app.resolvePlugin<Logger.ILogger>("logger");
-            logger.error(err.message);
+            app.resolvePlugin<Logger.ILogger>("logger").error(err.message);
         }
     }
 

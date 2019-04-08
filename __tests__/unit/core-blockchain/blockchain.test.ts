@@ -11,6 +11,8 @@ import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { config } from "./mocks/config";
 import { logger } from "./mocks/logger";
+import { getMonitor } from "./mocks/p2p/network-monitor";
+import { getStorage } from "./mocks/p2p/peer-storage";
 
 const { Block } = models;
 
@@ -63,7 +65,7 @@ describe("Blockchain", () => {
 
     describe("updateNetworkStatus", () => {
         it("should call p2p updateNetworkStatus", async () => {
-            const p2pUpdateNetworkStatus = jest.spyOn(blockchain.p2p, "updateNetworkStatus");
+            const p2pUpdateNetworkStatus = jest.spyOn(getMonitor, "updateNetworkStatus");
 
             await blockchain.updateNetworkStatus();
 
@@ -132,7 +134,7 @@ describe("Blockchain", () => {
             const lastBlock = blockchain.getLastBlock();
             lastBlock.data.timestamp = slots.getSlotNumber() * 8000;
 
-            const broadcastBlock = jest.spyOn(blockchain.p2p, "broadcastBlock");
+            const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
             await blockchain.processBlock(lastBlock, mockCallback);
             await delay(200);
@@ -244,7 +246,7 @@ describe("Blockchain", () => {
 
         describe("without a block param", () => {
             it("should use the last block", () => {
-                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
+                jest.spyOn(getStorage, "hasPeers").mockReturnValueOnce(true);
                 const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
                     // @ts-ignore
                     data: {

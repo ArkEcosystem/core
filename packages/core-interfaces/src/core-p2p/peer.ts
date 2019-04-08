@@ -1,81 +1,43 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Dato } from "@faustbrian/dato";
+import { IPeerVerificationResult } from "./peer-verifier";
 
 export interface IPeer {
-    readonly ip: string;
-    readonly port: string;
+    readonly url: string;
 
-    setHeaders(headers: Record<string, any>): void;
+    ip: string;
+    port: number;
 
-    /**
-     * Get information to broadcast.
-     * @return {Object}
-     */
-    toBroadcastInfo(): {
-        ip: string;
-        port: number;
-        nethash: string;
-        version: string;
-        os: string;
-        height: number;
-        delay: number;
-    };
+    nethash: string;
+    version: string;
+    os: string;
 
-    /**
-     * Perform POST request for a block.
-     * @param  {Block}              block
-     * @return {(Object|undefined)}
-     */
-    postBlock(block: models.Block): Promise<any>;
+    latency: number;
+    downloadSize: number;
+    headers: Record<string, string | number>;
+    state: any; // @TODO: add an interface/type
+    lastPinged: Dato | null;
+    verificationResult: IPeerVerificationResult | null;
 
-    /**
-     * Perform POST request for a transactions.
-     * @param  {Transaction[]}      transactions
-     * @return {(Object|undefined)}
-     */
-    postTransactions(transactions: Transaction[]): Promise<any>;
+    // @TODO: review and remove them where appropriate
+    status: any;
+    commonBlocks: any;
+    socketError: any; // @TODO: store errors in the PeerConnector
 
-    /**
-     * Download blocks from peer.
-     * @param  {Number} fromBlockHeight
-     * @return {(Object[]|undefined)}
-     */
-    downloadBlocks(fromBlockHeight: number): Promise<any>;
+    setHeaders(headers: Record<string, string>): void;
 
-    /**
-     * Perform ping request on this peer if it has not been
-     * recently pinged.
-     * @param  {Number} timeoutMsec operation timeout, in milliseconds
-     * @param  {Boolean} force
-     * @return {Object}
-     * @throws {Error} If fail to get peer status.
-     */
-    ping(timeoutMsec: number, force?: boolean): Promise<any>;
-
-    /**
-     * Returns true if this peer was pinged the past 2 minutes.
-     * @return {Boolean}
-     */
+    isVerified(): boolean;
+    isForked(): boolean;
     recentlyPinged(): boolean;
 
-    /**
-     * Refresh peer list. It removes blacklisted peers from the fetch
-     * @return {Object[]}
-     */
-    getPeers(): Promise<any>;
+    toBroadcast(): IPeerBroadcast;
+}
 
-    /**
-     * Check if peer has common blocks.
-     * @param  {[]String} ids
-     * @return {Boolean}
-     */
-    hasCommonBlocks(ids: string[]): Promise<any>;
-
-    /**
-     * GET /peer/blocks and return the raw response.
-     * The API is such that the response is supposed to contain blocks at height
-     * afterBlockHeight + 1, afterBlockHeight + 2, and so on up to some limit determined by the peer.
-     * @param  {Number} afterBlockHeight
-     * @return {(Object[]|undefined)}
-     */
-    getPeerBlocks(afterBlockHeight: number): Promise<any>;
+export interface IPeerBroadcast {
+    ip: string;
+    port: number;
+    nethash: string;
+    version: string;
+    os: string;
+    height: number;
+    latency: number;
 }

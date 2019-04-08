@@ -7,6 +7,7 @@ describe("Internal handlers - blockchain", () => {
     describe("syncBlockchain", () => {
         it("should call blockchain forceWakeup", () => {
             syncBlockchain();
+
             expect(blockchain.forceWakeup).toHaveBeenCalledTimes(1);
         });
     });

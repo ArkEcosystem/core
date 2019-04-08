@@ -11,11 +11,12 @@ import { blockchain } from "./mocks/blockchain";
 import { config } from "./mocks/config";
 import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
+import { getMonitor } from "./mocks/p2p/network-monitor";
 
 let stateMachine;
 
 beforeAll(async () => {
-    stateMachine = require("../../../packages/core-blockchain/src/state-machine").stateMachine;
+    ({ stateMachine } = require("../../../packages/core-blockchain/src/state-machine"));
 
     process.env.CORE_ENV = "";
 });
@@ -77,8 +78,10 @@ describe("State Machine", () => {
                 blockchain.queue.length = jest.fn(() => 0);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
-                // @ts-ignore
-                jest.spyOn(blockchain.p2p, "checkNetworkHealth").mockImplementation(() => ({ forked: true }));
+
+                jest.spyOn(getMonitor, "checkNetworkHealth").mockImplementation(() => ({
+                    forked: true,
+                }));
 
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
             });
@@ -168,13 +171,9 @@ describe("State Machine", () => {
                 loggerWarn = jest.spyOn(logger, "warn");
 
                 databaseMocks = {
-                    getLastBlock: jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
-                        // @ts-ignore
-                        data: {
-                            height: 1,
-                            timestamp: slots.getTime(),
-                        },
-                    }),
+                    getLastBlock: jest
+                        .spyOn(blockchain.database, "getLastBlock")
+                        .mockReturnValue(new Block(genesisBlockJSON)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
@@ -197,13 +196,6 @@ describe("State Machine", () => {
                 jest.restoreAllMocks();
 
                 process.env.NODE_ENV = "TEST";
-            });
-
-            it("should get genesis block from config if there is no last block in database", async () => {
-                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(null);
-
-                await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.saveBlock).toHaveBeenCalled();
             });
 
             it("should dispatch FAILURE if there is no last block in database and genesis block payload hash != configured nethash", async () => {
@@ -335,7 +327,7 @@ describe("State Machine", () => {
             });
 
             it("should dispatch DOWNLOADED if new blocks downloaded are chained", async () => {
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([
+                jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([
                     {
                         numberOfTransactions: 2,
                         previousBlock: genesisBlockJSON.id,
@@ -362,7 +354,7 @@ describe("State Machine", () => {
                     height: 3,
                     timestamp: genesisBlockJSON.timestamp + 115,
                 };
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([downloadedBlock]);
+                jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([downloadedBlock]);
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
                 expect(loggerWarn).toHaveBeenCalledWith(
                     `Downloaded block not accepted: ${JSON.stringify(downloadedBlock)}`,
@@ -370,7 +362,7 @@ describe("State Machine", () => {
             });
 
             it("should dispatch NOBLOCK if new blocks downloaded are empty", async () => {
-                jest.spyOn(blockchain.p2p, "downloadBlocks").mockReturnValue([]);
+                jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([]);
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
                 expect(loggerInfo).toHaveBeenCalledWith("No new block found on this peer");
             });
@@ -396,7 +388,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     jest.spyOn(blockchain.transactionPool, "buildWallets").mockReturnValue(true),
                     // @ts-ignore
-                    jest.spyOn(blockchain.p2p, "refreshPeersAfterFork").mockReturnValue(true),
+                    jest.spyOn(getMonitor, "refreshPeersAfterFork").mockReturnValue(true),
                     jest.spyOn(blockchain, "clearAndStopQueue"),
                     // @ts-ignore
                     jest.spyOn(blockchain, "removeBlocks").mockReturnValue(true),
@@ -441,7 +433,7 @@ describe("State Machine", () => {
             });
 
             it(`should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes
-                and dispatch FAILURE as verifyBlockchain never passed`, async () => {
+                    and dispatch FAILURE as verifyBlockchain never passed`, async () => {
                 const loggerError = jest.spyOn(logger, "error");
 
                 jest.spyOn(localConfig, "get").mockReturnValue({

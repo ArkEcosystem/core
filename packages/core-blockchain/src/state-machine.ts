@@ -65,7 +65,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (stateStorage.p2pUpdateCounter + 1 > 3) {
                 logger.info("Network keeps missing blocks.");
 
-                const networkStatus = await blockchain.p2p.checkNetworkHealth();
+                const networkStatus = await blockchain.p2p.getMonitor().checkNetworkHealth();
                 if (networkStatus.forked) {
                     stateStorage.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                     event = "FORK";
@@ -125,21 +125,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async init() {
         try {
-            let block = await blockchain.database.getLastBlock();
-
-            if (!block) {
-                logger.warn("No block found in database");
-
-                block = new Block(config.get("genesisBlock"));
-
-                if (block.data.payloadHash !== config.get("network.nethash")) {
-                    logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
-
-                    return blockchain.dispatch("FAILURE");
-                }
-
-                await blockchain.database.saveBlock(block);
-            }
+            const block: models.Block = await blockchain.database.getLastBlock();
 
             if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
@@ -159,6 +145,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             // only genesis block? special case of first round needs to be dealt with
             if (block.data.height === 1) {
+                if (block.data.payloadHash !== config.get("network.nethash")) {
+                    logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
+
+                    return blockchain.dispatch("FAILURE");
+                }
+
                 await blockchain.database.deleteRound(1);
             }
 
@@ -222,7 +214,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async downloadBlocks() {
         const lastDownloadedBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
-        const blocks = await blockchain.p2p.downloadBlocks(lastDownloadedBlock.data.height);
+        const blocks = await blockchain.p2p.getMonitor().syncWithNetwork(lastDownloadedBlock.data.height);
 
         if (blockchain.isStopped) {
             return;
@@ -295,7 +287,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         logger.info(`Removed ${pluralize("block", random, true)}`);
 
         await blockchain.transactionPool.buildWallets();
-        await blockchain.p2p.refreshPeersAfterFork();
+        await blockchain.p2p.getMonitor().refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
     },

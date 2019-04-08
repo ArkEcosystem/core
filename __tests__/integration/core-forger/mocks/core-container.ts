@@ -19,6 +19,9 @@ jest.mock("@arkecosystem/core-container", () => {
 
                 return {};
             },
+            resolveOptions: name => {
+                return {};
+            },
         },
     };
 });
