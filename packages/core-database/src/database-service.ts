@@ -47,6 +47,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async init(): Promise<void> {
         await this.loadBlocksFromCurrentRound();
+        await this.createGenesisBlock();
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -519,6 +520,14 @@ export class DatabaseService implements Database.IDatabaseService {
             return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
         } catch {
             return false;
+        }
+    }
+
+    protected async createGenesisBlock(): Promise<void> {
+        if (!(await this.getLastBlock())) {
+            this.logger.warn("No block found in database");
+
+            await this.saveBlock(new Block(this.config.get("genesisBlock")));
         }
     }
 

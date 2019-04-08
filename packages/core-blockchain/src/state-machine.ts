@@ -125,20 +125,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async init() {
         try {
-            let block = await blockchain.database.getLastBlock();
+            const block: models.Block = await blockchain.database.getLastBlock();
 
-            if (!block) {
-                logger.warn("No block found in database");
+            if (block.data.payloadHash !== config.get("network.nethash")) {
+                logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
 
-                block = new Block(config.get("genesisBlock"));
-
-                if (block.data.payloadHash !== config.get("network.nethash")) {
-                    logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
-
-                    return blockchain.dispatch("FAILURE");
-                }
-
-                await blockchain.database.saveBlock(block);
+                return blockchain.dispatch("FAILURE");
             }
 
             if (!blockchain.database.restoredDatabaseIntegrity) {
