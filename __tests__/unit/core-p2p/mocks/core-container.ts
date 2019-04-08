@@ -3,6 +3,7 @@ import { blockchain } from "./blockchain";
 import { database } from "./database";
 import { eventEmitter } from "./event-emitter";
 import { logger } from "./logger";
+import { p2p } from "./p2p";
 import { state } from "./state";
 
 configManager.setFromPreset("unitnet");
@@ -54,9 +55,7 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 if (name === "p2p") {
-                    return {
-                        guard: {},
-                    };
+                    return p2p;
                 }
 
                 return {};

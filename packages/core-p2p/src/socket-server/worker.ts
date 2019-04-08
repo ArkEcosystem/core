@@ -1,5 +1,6 @@
 import SCWorker from "socketcluster/scworker";
-import { SocketErrors } from "./constants";
+import { config as localConfig } from "../config";
+import { SocketErrors } from "../enums";
 import { validateHeaders } from "./utils/validate-headers";
 
 export class Worker extends SCWorker {
@@ -16,10 +17,7 @@ export class Worker extends SCWorker {
 
         this.initRateLimit();
 
-        scServer.on("connection", socket => {
-            this.registerEndpoints(socket);
-        });
-
+        scServer.on("connection", socket => this.registerEndpoints(socket));
         scServer.addMiddleware(scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) => this.middlewareHandshake(req, next));
         scServer.addMiddleware(scServer.MIDDLEWARE_EMIT, (req, next) => this.middlewareEmit(req, next));
     }
@@ -66,6 +64,11 @@ export class Worker extends SCWorker {
             err.name = name;
             return err;
         };
+
+        if (localConfig.get("blacklist", []).includes(req.socket.remoteAddress)) {
+            req.socket.disconnect(4403, "Forbidden");
+            return;
+        }
 
         if (!this.isRateLimitOk(req.socket.remoteAddress)) {
             this.banPeer(req.socket.remoteAddress);

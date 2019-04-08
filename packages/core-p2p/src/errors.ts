@@ -25,8 +25,8 @@ export class PeerStatusResponseError extends P2PError {
 }
 
 export class PeerPingTimeoutError extends P2PError {
-    constructor(delay: number) {
-        super(`Ping timeout (${delay} ms)`);
+    constructor(latency: number) {
+        super(`Ping timeout (${latency} ms)`);
     }
 }
 

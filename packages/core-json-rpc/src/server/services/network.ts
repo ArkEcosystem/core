@@ -11,7 +11,7 @@ class Network {
 
     private readonly network: any = configManager.all();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private readonly p2p: P2P.IMonitor = app.resolvePlugin<P2P.IMonitor>("p2p");
+    private readonly p2p: P2P.IPeerService = app.resolvePlugin<P2P.IPeerService>("p2p");
 
     private readonly requestOpts: Record<string, any> = {
         headers: {
@@ -98,7 +98,7 @@ class Network {
         this.peers =
             this.network.name === "testnet"
                 ? [{ ip: "localhost", port: app.resolveOptions("api").port }]
-                : this.p2p.getPeers();
+                : this.p2p.getStorage().getPeers();
 
         if (!this.peers.length) {
             this.logger.error("No peers found. Shutting down...");

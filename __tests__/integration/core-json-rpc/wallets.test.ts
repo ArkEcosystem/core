@@ -16,9 +16,9 @@ beforeAll(async () => {
     peerMock = new Peer("1.0.0.99", 4000);
     Object.assign(peerMock, peerMock.headers, { status: "OK" });
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-    monitor.peers[peerMock.ip] = peerMock;
+    app.resolvePlugin("p2p")
+        .getStorage()
+        .setPeer(peerMock);
 
     nock("http://localhost", { allowUnmocked: true });
 
@@ -51,7 +51,7 @@ beforeEach(async () => {
                         ip: peerMock.ip,
                         port: 4002,
                         height: 5,
-                        delay: 8,
+                        latency: 8,
                     },
                 ],
             },

@@ -30,7 +30,7 @@
         "@arkecosystem/core-transactions": "^2.3.0-next.4",
         "@arkecosystem/crypto": "^2.3.0-next.4",
         "@faustbrian/dato": "^0.2.0",
-        "@types/better-sqlite3": "^5.2.2",
+        "@types/better-sqlite3": "^5.2.3",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
@@ -41,12 +41,12 @@
     },
     "devDependencies": {
         "@arkecosystem/core-utils": "^2.3.0-next.4",
-        "@types/better-sqlite3": "^5.2.2",
+        "@types/better-sqlite3": "^5.2.3",
         "@types/bip39": "^2.4.2",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "@types/random-seed": "^0.3.3",
-        "bip39": "^2.5.0",
+        "bip39": "^3.0.0",
         "lodash.clonedeep": "^4.5.0",
         "random-seed": "^0.3.0"
     },

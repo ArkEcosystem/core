@@ -1,6 +1,6 @@
 import { models, Transaction } from "@arkecosystem/crypto";
 import { IDatabaseService } from "../core-database";
-import { IMonitor } from "../core-p2p";
+import { IPeerService } from "../core-p2p";
 import { IConnection } from "../core-transaction-pool";
 import { IStateStorage } from "./state-storage";
 
@@ -14,7 +14,7 @@ export interface IBlockchain {
     /**
      * Get the network (p2p) interface.
      */
-    readonly p2p: IMonitor;
+    readonly p2p: IPeerService;
 
     /**
      * Get the transaction handler.

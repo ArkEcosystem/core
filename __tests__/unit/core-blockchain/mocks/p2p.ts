@@ -1,10 +1,7 @@
+import { getMonitor } from "./p2p/network-monitor";
+import { getStorage } from "./p2p/peer-storage";
+
 export const p2p = {
-    getNetworkHeight: () => 1,
-    updateNetworkStatus: () => null,
-    // tslint:disable-next-line: no-empty
-    checkNetworkHealth: () => {},
-    downloadBlocks: () => [],
-    refreshPeersAfterFork: () => null,
-    broadcastBlock: () => null,
-    hasPeers: () => false,
+    getStorage: () => getStorage,
+    getMonitor: () => getMonitor,
 };

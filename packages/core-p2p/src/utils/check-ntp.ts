@@ -3,19 +3,11 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import shuffle from "lodash.shuffle";
 import Sntp from "sntp";
 
-/**
- * Check if it is possible to connect to any NTP host.
- * @param {Array} hosts
- * @param {Number} [timeout = 1000]
- * @return {Promise}
- */
 export const checkNTP = (hosts, timeout = 1000): any => {
-    hosts = shuffle(hosts);
-
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     return new Promise(async (resolve, reject) => {
-        for (const host of hosts) {
+        for (const host of shuffle(hosts)) {
             try {
                 const time = await Sntp.time({ host, timeout });
 
