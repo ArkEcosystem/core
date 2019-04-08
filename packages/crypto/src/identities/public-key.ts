@@ -1,5 +1,5 @@
 import { configManager } from "../managers";
-import { INetwork } from "../networks";
+import { INetwork } from "../types";
 import { Address } from "./address";
 import { Keys } from "./keys";
 

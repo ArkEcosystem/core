@@ -1,22 +1,24 @@
+import {
+    Bignum,
+    bip38,
+    blocks,
+    crypto,
+    HashAlgorithms,
+    interfaces,
+    ITransactionData,
+    KeyPair,
+    sortTransactions,
+    types,
+} from "@arkecosystem/crypto";
 import forge from "node-forge";
 import { authenticator } from "otplib";
 import wif from "wif";
-import * as bip38 from "../crypto/bip38";
-import { Bignum } from "../utils";
-
-import { HashAlgorithms } from "../crypto";
-import { crypto } from "../crypto/crypto";
-import { KeyPair } from "../identities";
-import { INetwork } from "../networks";
-import { ITransactionData } from "../transactions";
-import { sortTransactions } from "../utils";
-import { Block, IBlockData } from "./block";
 
 export class Delegate {
     /**
      * BIP38 encrypt passphrase.
      */
-    public static encryptPassphrase(passphrase: string, network: INetwork, password: string): string {
+    public static encryptPassphrase(passphrase: string, network: types.INetwork, password: string): string {
         const keys = crypto.getKeys(passphrase);
         // @ts-ignore
         const decoded = wif.decode(crypto.keysToWIF(keys, network));
@@ -27,14 +29,14 @@ export class Delegate {
     /**
      * BIP38 decrypt passphrase keys.
      */
-    public static decryptPassphrase(passphrase: string, network: INetwork, password?: string): KeyPair {
+    public static decryptPassphrase(passphrase: string, network: types.INetwork, password?: string): KeyPair {
         const decryptedWif = bip38.decrypt(passphrase, password);
         const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed);
 
         return crypto.getKeysFromWIF(wifKey, network);
     }
 
-    public network: INetwork;
+    public network: types.INetwork;
     public keySize: number;
     public iterations: number;
     public keys: KeyPair;
@@ -45,7 +47,7 @@ export class Delegate {
     public otp: string;
     public encryptedKeys: string;
 
-    constructor(passphrase: string, network: INetwork, password?: string) {
+    constructor(passphrase: string, network: types.INetwork, password?: string) {
         this.network = network;
         this.keySize = 32; // AES-256
         this.iterations = 5000;
@@ -93,7 +95,7 @@ export class Delegate {
     /**
      * Forge block - we consider transactions are signed, verified and unique.
      */
-    public forge(transactions: ITransactionData[], options: any): Block | null {
+    public forge(transactions: ITransactionData[], options: any): blocks.Block | null {
         if (!options.version && (this.encryptedKeys || !this.bip38)) {
             const transactionData = {
                 amount: Bignum.ZERO,
@@ -108,7 +110,7 @@ export class Delegate {
                 payloadBuffers.push(Buffer.from(transaction.id, "hex"));
             });
 
-            const data: IBlockData = {
+            const data: interfaces.IBlockData = {
                 version: 0,
                 generatorPublicKey: this.publicKey,
                 timestamp: options.timestamp,
@@ -128,7 +130,7 @@ export class Delegate {
                 this.decryptKeysWithOtp();
             }
 
-            const block = Block.create(data, this.keys);
+            const block = blocks.Block.create(data, this.keys);
 
             if (this.bip38) {
                 this.encryptKeysWithOtp();

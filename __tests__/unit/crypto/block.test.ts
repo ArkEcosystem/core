@@ -1,13 +1,14 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { configManager, NetworkName } from "../../../../packages/crypto/src";
-import { slots } from "../../../../packages/crypto/src/crypto";
-import { Block, Delegate } from "../../../../packages/crypto/src/models";
-import { testnet } from "../../../../packages/crypto/src/networks";
-import { Bignum } from "../../../../packages/crypto/src/utils";
-import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { dummyBlock, dummyBlock2 } from "../fixtures/block";
+import { Delegate } from "../../../packages/core-forger/src/delegate";
+import { configManager, NetworkName } from "../../../packages/crypto/src";
+import { Block } from "../../../packages/crypto/src/blocks";
+import { slots } from "../../../packages/crypto/src/crypto";
+import { testnet } from "../../../packages/crypto/src/networks";
+import { Bignum } from "../../../packages/crypto/src/utils";
+import { TransactionFactory } from "../../helpers/transaction-factory";
+import { dummyBlock, dummyBlock2 } from "./fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 

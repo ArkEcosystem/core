@@ -1,4 +1,4 @@
-import { INetwork } from "../networks";
+import { INetwork } from "../types";
 import { Keys } from "./keys";
 
 export class PrivateKey {

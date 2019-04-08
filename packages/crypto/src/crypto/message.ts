@@ -1,13 +1,8 @@
+import { IMessage } from "../interfaces";
 import { configManager } from "../managers";
-import { INetwork } from "../networks";
+import { INetwork } from "../types";
 import { crypto } from "./crypto";
 import { HashAlgorithms } from "./hash-algorithms";
-
-export interface IMessage {
-    readonly publicKey: string;
-    readonly signature: string;
-    readonly message: string;
-}
 
 export class Message {
     /**

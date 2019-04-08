@@ -1,11 +1,12 @@
 import "jest-extended";
 
-import { Delegate } from "../../../../packages/crypto/src/models/delegate";
-import { INetwork, testnet } from "../../../../packages/crypto/src/networks";
-import { ITransactionData } from "../../../../packages/crypto/src/transactions";
-import { Bignum } from "../../../../packages/crypto/src/utils";
-import { sortTransactions } from "../../../../packages/crypto/src/utils";
-import { TransactionFactory } from "../../../helpers/transaction-factory";
+import { Delegate } from "../../../packages/core-forger/src/delegate";
+import { testnet } from "../../../packages/crypto/src/networks";
+import { ITransactionData } from "../../../packages/crypto/src/transactions";
+import { INetwork } from "../../../packages/crypto/src/types";
+import { Bignum } from "../../../packages/crypto/src/utils";
+import { sortTransactions } from "../../../packages/crypto/src/utils";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 
 const dummy = {
     plainPassphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",

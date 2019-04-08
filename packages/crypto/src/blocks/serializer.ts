@@ -1,9 +1,10 @@
 import ByteBuffer from "bytebuffer";
-import { PreviousBlockIdFormatError } from "../../errors";
-import { configManager } from "../../managers/config";
-import { Block, IBlockData } from "../../models/block";
-import { Bignum } from "../../utils";
-import { Transaction } from "../types";
+import { PreviousBlockIdFormatError } from "../errors";
+import { IBlockData } from "../interfaces";
+import { configManager } from "../managers/config";
+import { Transaction } from "../transactions/types";
+import { Bignum } from "../utils";
+import { Block } from "./block";
 
 class BlockSerializer {
     public serializeFull(block: IBlockData): Buffer {

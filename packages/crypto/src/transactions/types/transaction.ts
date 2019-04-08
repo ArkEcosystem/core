@@ -10,9 +10,9 @@ import {
 } from "../../errors";
 import { Bignum, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
-import { TransactionDeserializer } from "../deserializers";
+import { transactionDeserializer } from "../deserializer";
 import { ISchemaValidationResult, ITransactionData } from "../interfaces";
-import { TransactionSerializer } from "../serializers";
+import { TransactionSerializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction {
@@ -35,7 +35,7 @@ export abstract class Transaction {
      */
     public static fromBytesUnsafe(buffer: Buffer, id?: string): Transaction {
         try {
-            const transaction = TransactionDeserializer.deserialize(buffer);
+            const transaction = transactionDeserializer.deserialize(buffer);
             transaction.data.id = id || crypto.getId(transaction.data);
             transaction.isVerified = true;
 
@@ -47,7 +47,7 @@ export abstract class Transaction {
 
     private static fromSerialized(serialized: string | Buffer): Transaction {
         try {
-            const transaction = TransactionDeserializer.deserialize(serialized);
+            const transaction = transactionDeserializer.deserialize(serialized);
             transaction.data.id = crypto.getId(transaction.data);
 
             const { value, error } = this.validateSchema(transaction.data, true);
@@ -73,7 +73,7 @@ export abstract class Transaction {
         }
 
         const transaction = TransactionRegistry.create(value);
-        TransactionDeserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
+        transactionDeserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
         TransactionSerializer.serialize(transaction);
 
         data.id = crypto.getId(data);

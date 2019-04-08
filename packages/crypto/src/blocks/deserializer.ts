@@ -1,8 +1,9 @@
 import ByteBuffer from "bytebuffer";
-import { configManager } from "../../managers";
-import { Block, IBlockData } from "../../models/block";
-import { Bignum } from "../../utils";
-import { Transaction } from "../types";
+import { IBlockData } from "../interfaces";
+import { configManager } from "../managers";
+import { Transaction } from "../transactions/types";
+import { Bignum } from "../utils";
+import { Block } from "./block";
 
 class BlockDeserializer {
     public deserialize(

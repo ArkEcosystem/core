@@ -1,6 +1,6 @@
 import wif from "wif";
 import { configManager } from "../managers";
-import { INetwork } from "../networks";
+import { INetwork } from "../types";
 import { KeyPair, Keys } from "./keys";
 
 export class WIF {

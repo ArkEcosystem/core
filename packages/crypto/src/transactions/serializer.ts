@@ -2,18 +2,14 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../constants";
-import { TransactionVersionError } from "../../errors";
-import { Address } from "../../identities";
-import { configManager } from "../../managers";
-import { Bignum } from "../../utils";
-import { ITransactionData } from "../interfaces";
-import { Transaction } from "../types";
-
-export interface ISerializeOptions {
-    excludeSignature?: boolean;
-    excludeSecondSignature?: boolean;
-}
+import { TransactionTypes } from "../constants";
+import { TransactionVersionError } from "../errors";
+import { Address } from "../identities";
+import { ISerializeOptions } from "../interfaces";
+import { configManager } from "../managers";
+import { Bignum } from "../utils";
+import { ITransactionData } from "./interfaces";
+import { Transaction } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class TransactionSerializer {

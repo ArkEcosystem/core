@@ -1,43 +1,13 @@
 import pluralize from "pluralize";
 import { crypto, HashAlgorithms, slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
+import { IBlock, IBlockData, IBlockVerification } from "../interfaces";
 import { configManager } from "../managers/config";
-import { ITransactionData, Transaction } from "../transactions";
-import { BlockDeserializer } from "../transactions/deserializers";
-import { BlockSerializer } from "../transactions/serializers";
+import { Transaction } from "../transactions";
 import { Bignum, isException } from "../utils";
 import { AjvWrapper } from "../validation";
-
-export interface BlockVerification {
-    verified: boolean;
-    errors: string[];
-}
-
-export interface IBlock {
-    data: IBlockData;
-}
-
-export interface IBlockData {
-    id?: string;
-    idHex?: string;
-
-    timestamp: number;
-    version: number;
-    height: number;
-    previousBlockHex?: string;
-    previousBlock: string;
-    numberOfTransactions: number;
-    totalAmount: Bignum | number | string;
-    totalFee: Bignum | number | string;
-    reward: Bignum | number | string;
-    payloadLength: number;
-    payloadHash: string;
-    generatorPublicKey: string;
-
-    blockSignature?: string;
-    serialized?: string;
-    transactions?: ITransactionData[];
-}
+import { blockDeserializer } from "./deserializer";
+import { blockSerializer } from "./serializer";
 
 export class Block implements IBlock {
     /**
@@ -59,21 +29,21 @@ export class Block implements IBlock {
      * Deserialize block from hex string.
      */
     public static deserialize(hexString, headerOnly = false): IBlockData {
-        return BlockDeserializer.deserialize(hexString, headerOnly).data;
+        return blockDeserializer.deserialize(hexString, headerOnly).data;
     }
 
     /**
      * Serialize the given block including transactions.
      */
     public static serializeFull(block: IBlockData) {
-        return BlockSerializer.serializeFull(block);
+        return blockSerializer.serializeFull(block);
     }
 
     /**
      * Serialize the given block without transactions.
      */
     public static serialize(block: IBlockData, includeSignature: boolean = true) {
-        return BlockSerializer.serialize(block, includeSignature);
+        return blockSerializer.serialize(block, includeSignature);
     }
 
     public static getIdHex(data): string {
@@ -113,7 +83,7 @@ export class Block implements IBlock {
     public serialized: string;
     public data: IBlockData;
     public transactions: Transaction[];
-    public verification: BlockVerification;
+    public verification: IBlockVerification;
 
     constructor(data: IBlockData | string) {
         let deserialized;
@@ -123,7 +93,7 @@ export class Block implements IBlock {
             this.serialized = Block.serializeFull(data).toString("hex");
         }
 
-        deserialized = BlockDeserializer.deserialize(this.serialized);
+        deserialized = blockDeserializer.deserialize(this.serialized);
         this.data = deserialized.data;
 
         const { value, error } = AjvWrapper.validate("block", deserialized.data);
@@ -209,9 +179,9 @@ export class Block implements IBlock {
     /**
      * Verify this block.
      */
-    private verify(): BlockVerification {
+    private verify(): IBlockVerification {
         const block = this.data;
-        const result: BlockVerification = {
+        const result: IBlockVerification = {
             verified: false,
             errors: [],
         };

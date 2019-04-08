@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { SATOSHI } from "./constants";
+import { IBlockData } from "./interfaces";
 import { configManager } from "./managers";
-import { IBlockData } from "./models";
 import { ITransactionData } from "./transactions/interfaces";
 
 class Bignum extends BigNumber {

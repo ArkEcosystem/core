@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
-import { ITransactionData, models } from "@arkecosystem/crypto";
+import { interfaces, ITransactionData } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -65,7 +65,7 @@ export class Client {
     /**
      * Send the given block to the relay.
      */
-    public async broadcast(block: models.IBlockData): Promise<any> {
+    public async broadcast(block: interfaces.IBlockData): Promise<any> {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
@@ -142,7 +142,7 @@ export class Client {
     /**
      * Emit the given event and payload to the local host.
      */
-    public async emitEvent(event: string, body: string | models.IBlockData | ITransactionData): Promise<void> {
+    public async emitEvent(event: string, body: string | interfaces.IBlockData | ITransactionData): Promise<void> {
         // NOTE: Events need to be emitted to the localhost. If you need to trigger
         // actions on a remote host based on events you should be using webhooks
         // that get triggered by the events you wish to react to.

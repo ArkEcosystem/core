@@ -1,7 +1,7 @@
-import { configManager } from "../../../../../packages/crypto/src/managers";
-import { BlockDeserializer } from "../../../../../packages/crypto/src/transactions/deserializers";
-import { BlockSerializer } from "../../../../../packages/crypto/src/transactions/serializers";
-import { dummyBlock2, dummyBlock3 } from "../../fixtures/block";
+import { blockDeserializer } from "../../../../packages/crypto/src/blocks/deserializer";
+import { blockSerializer } from "../../../../packages/crypto/src/blocks/serializer";
+import { configManager } from "../../../../packages/crypto/src/managers";
+import { dummyBlock2, dummyBlock3 } from "../fixtures/block";
 
 describe("block deserializer", () => {
     describe("deserialize", () => {
@@ -9,8 +9,8 @@ describe("block deserializer", () => {
             const outlookTableBlockId = "123456";
             configManager.config.exceptions.outlookTable = { [dummyBlock3.id]: outlookTableBlockId };
 
-            const deserialized = BlockDeserializer.deserialize(
-                BlockSerializer.serialize(dummyBlock3).toString("hex"),
+            const deserialized = blockDeserializer.deserialize(
+                blockSerializer.serialize(dummyBlock3).toString("hex"),
                 true,
             ).data;
 
@@ -19,7 +19,7 @@ describe("block deserializer", () => {
         });
 
         it("should correctly deserialize a block", () => {
-            const deserialized = BlockDeserializer.deserialize(dummyBlock2.serializedFull).data;
+            const deserialized = blockDeserializer.deserialize(dummyBlock2.serializedFull).data;
 
             const blockFields = [
                 "id",

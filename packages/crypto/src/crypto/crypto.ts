@@ -1,8 +1,9 @@
 import secp256k1 from "secp256k1";
 import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
+import { ISerializeOptions } from "../interfaces";
 import { configManager, feeManager } from "../managers";
 import { ITransactionData } from "../transactions";
-import { ISerializeOptions, TransactionSerializer } from "../transactions/serializers/transaction";
+import { TransactionSerializer } from "../transactions/serializer";
 import { HashAlgorithms } from "./hash-algorithms";
 
 class Crypto {
