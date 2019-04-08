@@ -1,13 +1,13 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { crypto, models } from "@arkecosystem/crypto";
+import { blocks, crypto } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { Block } = models;
+const { Block } = blocks;
 
 const satoshi = 10 ** 8;
 let container: Container.IContainer;

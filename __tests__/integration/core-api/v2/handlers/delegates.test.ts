@@ -4,8 +4,8 @@ import { utils } from "../utils";
 
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
-import { Bignum, models } from "@arkecosystem/crypto";
-const { Block } = models;
+import { Bignum, blocks } from "@arkecosystem/crypto";
+const { Block } = blocks;
 
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
