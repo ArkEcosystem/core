@@ -1,5 +1,5 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { ITransactionData, Transaction, TransactionConstructor, VoteTransaction } from "@arkecosystem/crypto";
+import { interfaces, Transaction, TransactionConstructor, VoteTransaction } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError, VotedForNonDelegateError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
@@ -65,7 +65,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         });
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         return !this.typeFromSenderAlreadyInPool(data, guard);
     }
 }

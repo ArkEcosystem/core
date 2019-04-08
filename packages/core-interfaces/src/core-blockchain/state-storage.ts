@@ -1,4 +1,4 @@
-import { blocks, interfaces, ITransactionData } from "@arkecosystem/crypto";
+import { blocks, interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStorage {
     reset(): void;
@@ -52,7 +52,9 @@ export interface IStateStorage {
     /**
      * Cache the ids of the given transactions.
      */
-    cacheTransactions(transactions: ITransactionData[]): { [key in "added" | "notAdded"]: ITransactionData[] };
+    cacheTransactions(
+        transactions: interfaces.ITransactionData[],
+    ): { [key in "added" | "notAdded"]: interfaces.ITransactionData[] };
 
     /**
      * Remove the given transaction ids from the cache.

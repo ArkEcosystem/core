@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Wallet } from "@arkecosystem/core-database";
-import { Bignum, configManager, constants, crypto, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { Bignum, configManager, constants, crypto, interfaces, Transaction } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -26,8 +26,8 @@ import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wal
 const { ARKTOSHI } = constants;
 
 let wallet: Wallet;
-let transaction: ITransactionData;
-let transactionWithSecondSignature: ITransactionData;
+let transaction: interfaces.ITransactionData;
+let transactionWithSecondSignature: interfaces.ITransactionData;
 let handler: TransactionHandler;
 let instance: any;
 

@@ -8,8 +8,8 @@ import {
     constants,
     crypto,
     formatSatoshi,
+    interfaces,
     isException,
-    ITransactionData,
     Transaction,
 } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
@@ -506,7 +506,12 @@ export class WalletManager implements Database.IWalletManager {
      *
      * If revert is set to true, the operations are reversed (plus -> minus, minus -> plus).
      */
-    private updateVoteBalances(sender: Wallet, recipient: Wallet, transaction: ITransactionData, revert = false): void {
+    private updateVoteBalances(
+        sender: Wallet,
+        recipient: Wallet,
+        transaction: interfaces.ITransactionData,
+        revert = false,
+    ): void {
         // TODO: multipayment?
         if (transaction.type !== TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate

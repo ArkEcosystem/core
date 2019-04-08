@@ -1,7 +1,7 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { Dato } from "@faustbrian/dato";
 
-import { blocks, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { blocks, constants, interfaces, Transaction } from "@arkecosystem/crypto";
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;
@@ -77,7 +77,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public hasExceededMaxTransactions(transaction: ITransactionData): boolean {
+    public hasExceededMaxTransactions(transaction: interfaces.ITransactionData): boolean {
         return true;
     }
 

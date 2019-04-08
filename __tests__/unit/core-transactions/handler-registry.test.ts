@@ -6,7 +6,7 @@ import {
     configManager,
     constants,
     crypto,
-    ITransactionData,
+    interfaces,
     schemas,
     slots,
     Transaction,
@@ -80,7 +80,7 @@ class TestTransactionHandler extends TransactionHandler {
         return;
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         return true;
     }
 }
@@ -122,7 +122,7 @@ describe("TransactionHandlerRegistry", () => {
         TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler);
 
         const keys = crypto.getKeys("secret");
-        const data: ITransactionData = {
+        const data: interfaces.ITransactionData = {
             type: TEST_TRANSACTION_TYPE,
             timestamp: slots.getTime(),
             senderPublicKey: keys.publicKey,

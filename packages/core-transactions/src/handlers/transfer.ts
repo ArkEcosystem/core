@@ -1,7 +1,7 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import {
     configManager,
-    ITransactionData,
+    interfaces,
     Transaction,
     TransactionConstructor,
     TransferTransaction,
@@ -34,7 +34,7 @@ export class TransferTransactionHandler extends TransactionHandler {
         return;
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         if (!isRecipientOnActiveNetwork(data)) {
             guard.pushError(
                 data,

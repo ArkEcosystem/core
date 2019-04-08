@@ -1,13 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import {
-    Bignum,
-    constants,
-    crypto,
-    formatSatoshi,
-    IMultiSignatureAsset,
-    interfaces,
-    ITransactionData,
-} from "@arkecosystem/crypto";
+import { Bignum, constants, crypto, formatSatoshi, interfaces } from "@arkecosystem/crypto";
 
 const { TransactionTypes } = constants;
 
@@ -21,7 +13,7 @@ export class Wallet implements Database.IWallet {
     public username: string | null;
     public lastBlock: any;
     public voteBalance: Bignum;
-    public multisignature?: IMultiSignatureAsset;
+    public multisignature?: interfaces.IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
     public forgedFees: Bignum;
@@ -90,7 +82,10 @@ export class Wallet implements Database.IWallet {
     /**
      * Verify multi-signatures for the wallet.
      */
-    public verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean {
+    public verifySignatures(
+        transaction: interfaces.ITransactionData,
+        multisignature: interfaces.IMultiSignatureAsset,
+    ): boolean {
         if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
             return false;
         }
@@ -118,7 +113,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Audit the specified transaction.
      */
-    public auditApply(transaction: ITransactionData): any[] {
+    public auditApply(transaction: interfaces.ITransactionData): any[] {
         const audit = [];
 
         if (this.multisignature) {
@@ -209,7 +204,7 @@ export class Wallet implements Database.IWallet {
      * Goes through signatures to check if public key matches. Can also remove valid signatures.
      */
     private verifyTransactionSignatures(
-        transaction: ITransactionData,
+        transaction: interfaces.ITransactionData,
         signatures: string[],
         publicKey: string,
     ): string | null {
@@ -225,7 +220,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Verify the wallet.
      */
-    private verify(transaction: ITransactionData, signature: string, publicKey: string): boolean {
+    private verify(transaction: interfaces.ITransactionData, signature: string, publicKey: string): boolean {
         const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         return crypto.verifyHash(hash, signature, publicKey);
     }

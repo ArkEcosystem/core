@@ -1,7 +1,7 @@
 import "./mocks/";
 import { logger } from "./mocks/logger";
 
-import { blocks as cBlocks, interfaces, ITransactionData } from "@arkecosystem/crypto";
+import { blocks as cBlocks, interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { config } from "../../../packages/core-blockchain/src/config";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
@@ -176,7 +176,7 @@ describe("State Storage", () => {
 
     describe("cacheTransactions", () => {
         it("should add transaction id", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as interfaces.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
@@ -184,11 +184,11 @@ describe("State Storage", () => {
         });
 
         it("should not add duplicate transaction ids", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as interfaces.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
-            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as interfaces.ITransactionData])).toEqual({
                 added: [],
                 notAdded: [{ id: "1" }],
             });

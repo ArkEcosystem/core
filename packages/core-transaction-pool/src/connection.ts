@@ -6,7 +6,7 @@ import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
 import { PoolWalletManager } from "./pool-wallet-manager";
 
-import { Bignum, blocks, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, constants, interfaces, Transaction } from "@arkecosystem/crypto";
 import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
@@ -306,7 +306,7 @@ export class Connection implements TransactionPool.IConnection {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    public hasExceededMaxTransactions(transaction: ITransactionData): boolean {
+    public hasExceededMaxTransactions(transaction: interfaces.ITransactionData): boolean {
         this.__purgeExpired();
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {

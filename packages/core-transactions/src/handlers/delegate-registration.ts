@@ -2,7 +2,7 @@ import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-inte
 import {
     constants,
     DelegateRegistrationTransaction,
-    ITransactionData,
+    interfaces,
     Transaction,
     TransactionConstructor,
 } from "@arkecosystem/crypto";
@@ -53,7 +53,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         emitter.emit("delegate.registered", transaction.data);
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         if (this.typeFromSenderAlreadyInPool(data, guard)) {
             return false;
         }
@@ -72,7 +72,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
 
-        const delegateRegistrationsInPool: ITransactionData[] = Array.from(
+        const delegateRegistrationsInPool: interfaces.ITransactionData[] = Array.from(
             guard.pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
         ).map((memTx: any) => memTx.transaction.data);
 

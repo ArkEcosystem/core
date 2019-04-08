@@ -5,7 +5,7 @@ import {
     configManager,
     constants,
     crypto,
-    ITransactionData,
+    interfaces,
     Transaction,
     TransactionConstructor,
 } from "@arkecosystem/crypto";
@@ -114,7 +114,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Transaction Pool logic
      */
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         guard.pushError(
             data,
             "ERR_UNSUPPORTED",
@@ -123,7 +123,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    protected typeFromSenderAlreadyInPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    protected typeFromSenderAlreadyInPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         const { senderPublicKey, type } = data;
         if (guard.pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             guard.pushError(

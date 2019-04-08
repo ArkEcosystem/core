@@ -5,7 +5,6 @@ import {
     crypto,
     HashAlgorithms,
     interfaces,
-    ITransactionData,
     KeyPair,
     sortTransactions,
     types,
@@ -95,7 +94,7 @@ export class Delegate {
     /**
      * Forge block - we consider transactions are signed, verified and unique.
      */
-    public forge(transactions: ITransactionData[], options: any): blocks.Block | null {
+    public forge(transactions: interfaces.ITransactionData[], options: any): blocks.Block | null {
         if (!options.version && (this.encryptedKeys || !this.bip38)) {
             const transactionData = {
                 amount: Bignum.ZERO,

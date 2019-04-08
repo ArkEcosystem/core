@@ -1,4 +1,4 @@
-import { configManager, ITransactionData, NetworkName, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import { configManager, interfaces, NetworkName, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { Address, PublicKey } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
 import { secrets } from "../utils/config/testnet/delegates.json";
@@ -108,8 +108,8 @@ export class TransactionFactory {
         return this;
     }
 
-    public create(quantity: number = 1): ITransactionData[] {
-        return this.make<ITransactionData>(quantity, "getStruct");
+    public create(quantity: number = 1): interfaces.ITransactionData[] {
+        return this.make<interfaces.ITransactionData>(quantity, "getStruct");
     }
 
     public build(quantity: number = 1): Transaction[] {

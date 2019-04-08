@@ -1,6 +1,6 @@
 import { Dato } from "@faustbrian/dato";
 
-import { blocks, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { blocks, constants, interfaces, Transaction } from "@arkecosystem/crypto";
 
 export interface IAddTransactionResponse {
     success: boolean;
@@ -117,7 +117,7 @@ export interface IConnection {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: ITransactionData): boolean;
+    hasExceededMaxTransactions(transaction: interfaces.ITransactionData): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).

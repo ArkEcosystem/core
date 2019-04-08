@@ -1,4 +1,4 @@
-import { Bignum, blocks, IMultiSignatureAsset, ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, interfaces, Transaction } from "@arkecosystem/crypto";
 import { Logger } from "../index";
 
 export interface IWallet {
@@ -11,14 +11,17 @@ export interface IWallet {
     username: string | null;
     lastBlock: any;
     voteBalance: Bignum;
-    multisignature?: IMultiSignatureAsset;
+    multisignature?: interfaces.IMultiSignatureAsset;
     dirty: boolean;
     producedBlocks: number;
     forgedFees: Bignum;
     forgedRewards: Bignum;
     rate?: number;
 
-    verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean;
+    verifySignatures(
+        transaction: interfaces.ITransactionData,
+        multisignature: interfaces.IMultiSignatureAsset,
+    ): boolean;
 }
 
 export type IDelegateWallet = IWallet & { rate: number; round: number };

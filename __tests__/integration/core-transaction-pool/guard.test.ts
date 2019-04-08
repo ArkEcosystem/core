@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { blocks, crypto, ITransactionData } from "@arkecosystem/crypto";
+import { blocks, crypto, interfaces } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
@@ -390,7 +390,7 @@ describe("Transaction Guard", () => {
             const sender = delegates[21];
             const receivers = generateWallets("unitnet", 1);
 
-            const transactions: ITransactionData[] = TransactionFactory.transfer(receivers[0].address, 50)
+            const transactions: interfaces.ITransactionData[] = TransactionFactory.transfer(receivers[0].address, 50)
                 .withNetwork("unitnet")
                 .withPassphrase(sender.secret)
                 .create();

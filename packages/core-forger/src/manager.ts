@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { blocks, configManager, ITransactionData, slots, Transaction, types } from "@arkecosystem/crypto";
+import { blocks, configManager, interfaces, slots, Transaction, types } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
 import pluralize from "pluralize";
@@ -182,7 +182,7 @@ export class ForgerManager {
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async getTransactionsForForging(): Promise<ITransactionData[]> {
+    public async getTransactionsForForging(): Promise<interfaces.ITransactionData[]> {
         const response = await this.client.getTransactions();
         const transactions = response.transactions
             ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)

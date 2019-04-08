@@ -1,5 +1,5 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { ITransactionData, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { interfaces, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
 
 export interface ITransactionHandler {
     getConstructor(): TransactionConstructor;
@@ -12,6 +12,6 @@ export interface ITransactionHandler {
     apply(transaction: Transaction, wallet: Database.IWallet): void;
     revert(transaction: Transaction, wallet: Database.IWallet): void;
 
-    canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean;
+    canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean;
     emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void;
 }

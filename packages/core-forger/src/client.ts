@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
-import { interfaces, ITransactionData } from "@arkecosystem/crypto";
+import { interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -142,7 +142,10 @@ export class Client {
     /**
      * Emit the given event and payload to the local host.
      */
-    public async emitEvent(event: string, body: string | interfaces.IBlockData | ITransactionData): Promise<void> {
+    public async emitEvent(
+        event: string,
+        body: string | interfaces.IBlockData | interfaces.ITransactionData,
+    ): Promise<void> {
         // NOTE: Events need to be emitted to the localhost. If you need to trigger
         // actions on a remote host based on events you should be using webhooks
         // that get triggered by the events you wish to react to.

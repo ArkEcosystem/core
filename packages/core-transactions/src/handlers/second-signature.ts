@@ -1,6 +1,6 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import {
-    ITransactionData,
+    interfaces,
     SecondSignatureRegistrationTransaction,
     Transaction,
     TransactionConstructor,
@@ -33,7 +33,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         wallet.secondPublicKey = null;
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         return !this.typeFromSenderAlreadyInPool(data, guard);
     }
 }

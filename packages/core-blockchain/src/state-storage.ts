@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
-import { blocks, configManager, interfaces, ITransactionData, TransactionRegistry } from "@arkecosystem/crypto";
+import { blocks, configManager, interfaces, TransactionRegistry } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
 import { config } from "./config";
@@ -160,8 +160,8 @@ export class StateStorage implements Blockchain.IStateStorage {
      * Cache the ids of the given transactions.
      */
     public cacheTransactions(
-        transactions: ITransactionData[],
-    ): { added: ITransactionData[]; notAdded: ITransactionData[] } {
+        transactions: interfaces.ITransactionData[],
+    ): { added: interfaces.ITransactionData[]; notAdded: interfaces.ITransactionData[] } {
         const notAdded = [];
         const added = transactions.filter(tx => {
             if (_cachedTransactionIds.has(tx.id)) {
