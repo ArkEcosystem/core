@@ -4,7 +4,7 @@ import "./mocks/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Bignum, blocks, constants, crypto, transactionBuilder } from "@arkecosystem/crypto";
-import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
+import { interfaces, Transaction } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { fixtures } from "../../utils";
@@ -408,7 +408,7 @@ describe("Wallet Manager", () => {
 
         it("should not be removed if wallet.multisignature is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.multisignature = {} as IMultiSignatureAsset;
+            wallet.multisignature = {} as interfaces.IMultiSignatureAsset;
 
             expect(wallet.multisignature).toEqual({});
             expect(walletManager.canBePurged(wallet)).toBeFalse();
@@ -458,7 +458,7 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.multisignature is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.multisignature = {} as IMultiSignatureAsset;
+            wallet1.multisignature = {} as interfaces.IMultiSignatureAsset;
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
