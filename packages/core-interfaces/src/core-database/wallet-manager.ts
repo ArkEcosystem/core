@@ -1,4 +1,4 @@
-import { Bignum, IMultiSignatureAsset, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, IMultiSignatureAsset, ITransactionData, Transaction } from "@arkecosystem/crypto";
 import { Logger } from "../index";
 
 export interface IWallet {
@@ -54,9 +54,9 @@ export interface IWalletManager {
 
     buildVoteBalances(): void;
 
-    applyBlock(block: models.Block): void;
+    applyBlock(block: blocks.Block): void;
 
-    revertBlock(block: models.Block): void;
+    revertBlock(block: blocks.Block): void;
 
     applyTransaction(transaction: Transaction): void;
 

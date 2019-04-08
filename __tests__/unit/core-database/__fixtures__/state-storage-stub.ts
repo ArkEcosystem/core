@@ -1,6 +1,6 @@
 /* tslint:disable:no-empty */
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { ITransactionData, models } from "@arkecosystem/crypto";
+import { blocks, interfaces, ITransactionData } from "@arkecosystem/crypto";
 
 export class StateStorageStub implements Blockchain.IStateStorage {
     public cacheTransactions(
@@ -17,11 +17,11 @@ export class StateStorageStub implements Blockchain.IStateStorage {
         return [];
     }
 
-    public getCommonBlocks(ids: string[]): models.IBlockData[] {
+    public getCommonBlocks(ids: string[]): interfaces.IBlockData[] {
         return [];
     }
 
-    public getLastBlock(): models.Block | null {
+    public getLastBlock(): blocks.Block | null {
         return undefined;
     }
 
@@ -29,23 +29,23 @@ export class StateStorageStub implements Blockchain.IStateStorage {
         return [];
     }
 
-    public getLastBlocks(): models.Block[] {
+    public getLastBlocks(): blocks.Block[] {
         return [];
     }
 
-    public getLastBlocksByHeight(start: number, end?: number): models.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number): interfaces.IBlockData[] {
         return [];
     }
 
-    public pingBlock(incomingBlock: models.IBlockData): boolean {
+    public pingBlock(incomingBlock: interfaces.IBlockData): boolean {
         return false;
     }
 
-    public pushPingBlock(block: models.IBlockData): void {}
+    public pushPingBlock(block: interfaces.IBlockData): void {}
 
     public removeCachedTransactionIds(transactionIds: string[]): void {}
 
     public reset(): void {}
 
-    public setLastBlock(block: models.Block): void {}
+    public setLastBlock(block: blocks.Block): void {}
 }

@@ -4,14 +4,14 @@ import "./mocks/core-container";
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Address, Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import { Address, Bignum, blocks, constants, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
-const { Block } = models;
+const { Block } = blocks;
 const { SATOSHI, TransactionTypes } = constants;
 
 let connection: Database.IConnection;

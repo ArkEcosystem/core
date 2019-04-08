@@ -4,11 +4,11 @@ import { blockchain } from "../../mocks/blockchain";
 import { ExceptionHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
 import "../../../../utils";
 
-import { models } from "@arkecosystem/crypto";
+import { blocks } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
-const { Block } = models;
+const { Block } = blocks;
 
 describe("Exception handler", () => {
     describe("execute", () => {

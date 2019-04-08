@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { models } from "@arkecosystem/crypto";
+import { blocks } from "@arkecosystem/crypto";
 import genesisBlock from "../../utils/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block } = models;
+const { Block } = blocks;
 
 let databaseService: Database.IDatabaseService;
 

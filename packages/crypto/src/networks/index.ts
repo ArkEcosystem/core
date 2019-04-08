@@ -1,6 +1,4 @@
-import { devnet } from "./devnet";
-import { mainnet } from "./mainnet";
-import { testnet } from "./testnet";
-import { unitnet } from "./unitnet";
-
-export { devnet, mainnet, testnet, unitnet };
+export { devnet } from "./devnet";
+export { mainnet } from "./mainnet";
+export { testnet } from "./testnet";
+export { unitnet } from "./unitnet";

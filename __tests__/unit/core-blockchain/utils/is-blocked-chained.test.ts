@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { models, slots } from "@arkecosystem/crypto";
+import { interfaces, slots } from "@arkecosystem/crypto";
 import { isBlockChained } from "../../../../packages/core-blockchain/src/utils";
 
 describe("isChained", () => {
@@ -12,7 +12,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -21,7 +21,7 @@ describe("isChained", () => {
                 height: 2,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeTrue();
     });
@@ -34,7 +34,7 @@ describe("isChained", () => {
                 height: 2,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -43,7 +43,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -56,7 +56,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -65,7 +65,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -78,7 +78,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -87,7 +87,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -100,7 +100,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -109,7 +109,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });

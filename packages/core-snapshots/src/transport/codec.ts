@@ -1,13 +1,13 @@
-import { Bignum, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, Transaction } from "@arkecosystem/crypto";
 import { createCodec, decode, encode } from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 
 function encodeBlock(block) {
-    return models.Block.serialize(camelizeKeys(block), true);
+    return blocks.Block.serialize(camelizeKeys(block), true);
 }
 
 function decodeBlock(buffer) {
-    const block = models.Block.deserialize(buffer.toString("hex"), true);
+    const block = blocks.Block.deserialize(buffer.toString("hex"), true);
     block.totalAmount = (block.totalAmount as Bignum).toFixed();
     block.totalFee = (block.totalFee as Bignum).toFixed();
     block.reward = (block.reward as Bignum).toFixed();

@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { PreviousBlockIdFormatError } from "../errors";
 import { IBlockData } from "../interfaces";
 import { configManager } from "../managers/config";
-import { Transaction } from "../transactions/types";
+import { Transaction } from "../transactions";
 import { Bignum } from "../utils";
 import { Block } from "./block";
 

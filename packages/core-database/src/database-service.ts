@@ -3,10 +3,10 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, configManager, crypto, HashAlgorithms, interfaces, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
 
-const { Block } = models;
+const { Block } = blocks;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IConnection;
@@ -19,7 +19,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
-    public blocksInCurrentRound: models.Block[] = null;
+    public blocksInCurrentRound: blocks.Block[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: Database.IDelegateWallet[] = null;
@@ -63,7 +63,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.saveBlock(new Block(configManager.get("genesisBlock")));
     }
 
-    public async applyBlock(block: models.Block) {
+    public async applyBlock(block: blocks.Block) {
         this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
@@ -126,7 +126,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.commitQueuedQueries();
     }
 
-    public async deleteBlock(block: models.Block) {
+    public async deleteBlock(block: blocks.Block) {
         await this.connection.deleteBlock(block);
     }
 
@@ -134,7 +134,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.delete(round);
     }
 
-    public enqueueDeleteBlock(block: models.Block) {
+    public enqueueDeleteBlock(block: blocks.Block) {
         this.connection.enqueueDeleteBlock(block);
     }
 
@@ -184,7 +184,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getBlock(id: string) {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block: models.IBlockData = await this.connection.blocksRepository.findById(id);
+        const block: interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
 
         if (!block) {
             return null;
@@ -320,7 +320,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return new Block(block);
     }
 
-    public async getCommonBlocks(ids: string[]): Promise<models.IBlockData[]> {
+    public async getCommonBlocks(ids: string[]): Promise<interfaces.IBlockData[]> {
         const state = app.resolve("state");
         let commonBlocks = state.getCommonBlocks(ids);
         if (commonBlocks.length < ids.length) {
@@ -382,7 +382,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async revertBlock(block: models.Block) {
+    public async revertBlock(block: blocks.Block) {
         await this.revertRound(block.data.height);
         await this.walletManager.revertBlock(block);
 
@@ -406,7 +406,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async saveBlock(block: models.Block) {
+    public async saveBlock(block: blocks.Block) {
         await this.connection.saveBlock(block);
     }
 
@@ -541,7 +541,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     private async calcPreviousActiveDelegates(
         round: number,
-        blocks?: models.Block[],
+        blocks?: blocks.Block[],
     ): Promise<Database.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(round));
 

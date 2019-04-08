@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
-import { configManager, ITransactionData, models, TransactionRegistry } from "@arkecosystem/crypto";
+import { blocks, configManager, interfaces, ITransactionData, TransactionRegistry } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
 import { config } from "./config";
@@ -12,14 +12,14 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.
-let _lastBlocks: immutable.OrderedMap<number, models.Block> = immutable.OrderedMap<number, models.Block>();
+let _lastBlocks: immutable.OrderedMap<number, blocks.Block> = immutable.OrderedMap<number, blocks.Block>();
 
 // Stores the last n incoming transaction ids. The amount of transaction ids
 // can be configred with the option `state.maxLastTransactionIds`.
 let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet();
 
 // Map Block instances to block data.
-const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> =>
+const _mapToBlockData = (blocks: immutable.Seq<number, blocks.Block>): immutable.Seq<number, interfaces.IBlockData> =>
     blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
 
 /**
@@ -27,10 +27,10 @@ const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable
  */
 export class StateStorage implements Blockchain.IStateStorage {
     public blockchain: any;
-    public lastDownloadedBlock: models.IBlock | null;
+    public lastDownloadedBlock: interfaces.IBlock | null;
     public blockPing: any;
     public started: boolean;
-    public forkedBlock: models.Block | null;
+    public forkedBlock: blocks.Block | null;
     public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
@@ -80,17 +80,17 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Get the last block.
      */
-    public getLastBlock(): models.Block | null {
+    public getLastBlock(): blocks.Block | null {
         return _lastBlocks.last() || null;
     }
 
     /**
      * Sets the last block.
      */
-    public setLastBlock(block: models.Block): void {
+    public setLastBlock(block: blocks.Block): void {
         // Only keep blocks which are below the new block height (i.e. rollback)
-        if (_lastBlocks.last() && _lastBlocks.last<models.Block>().data.height !== block.data.height - 1) {
-            assert(block.data.height - 1 <= _lastBlocks.last<models.Block>().data.height);
+        if (_lastBlocks.last() && _lastBlocks.last<blocks.Block>().data.height !== block.data.height - 1) {
+            assert(block.data.height - 1 <= _lastBlocks.last<blocks.Block>().data.height);
             _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height);
         }
 
@@ -100,14 +100,14 @@ export class StateStorage implements Blockchain.IStateStorage {
 
         // Delete oldest block if size exceeds the maximum
         if (_lastBlocks.size > config.get("state.maxLastBlocks")) {
-            _lastBlocks = _lastBlocks.delete(_lastBlocks.first<models.Block>().data.height);
+            _lastBlocks = _lastBlocks.delete(_lastBlocks.first<blocks.Block>().data.height);
         }
     }
 
     /**
      * Get the last blocks.
      */
-    public getLastBlocks(): models.Block[] {
+    public getLastBlocks(): blocks.Block[] {
         return _lastBlocks
             .valueSeq()
             .reverse()
@@ -117,7 +117,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Get the last blocks data.
      */
-    public getLastBlocksData(): immutable.Seq<number, models.IBlockData> {
+    public getLastBlocksData(): immutable.Seq<number, interfaces.IBlockData> {
         return _mapToBlockData(_lastBlocks.valueSeq().reverse());
     }
 
@@ -137,23 +137,23 @@ export class StateStorage implements Blockchain.IStateStorage {
      * @param {Number} start
      * @param {Number} end
      */
-    public getLastBlocksByHeight(start, end?): models.IBlockData[] {
+    public getLastBlocksByHeight(start, end?): interfaces.IBlockData[] {
         end = end || start;
 
         const blocks = _lastBlocks.valueSeq().filter(block => block.data.height >= start && block.data.height <= end);
 
-        return _mapToBlockData(blocks).toArray() as models.IBlockData[];
+        return _mapToBlockData(blocks).toArray() as interfaces.IBlockData[];
     }
 
     /**
      * Get common blocks for the given IDs.
      */
-    public getCommonBlocks(ids): models.IBlockData[] {
+    public getCommonBlocks(ids): interfaces.IBlockData[] {
         const idsHash = {};
         ids.forEach(id => (idsHash[id] = true));
         return this.getLastBlocksData()
             .filter(block => idsHash[block.id])
-            .toArray() as models.IBlockData[];
+            .toArray() as interfaces.IBlockData[];
     }
 
     /**
@@ -201,7 +201,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Ping a block.
      */
-    public pingBlock(incomingBlock: models.IBlockData): boolean {
+    public pingBlock(incomingBlock: interfaces.IBlockData): boolean {
         if (!this.blockPing) {
             return false;
         }
@@ -219,7 +219,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: models.IBlockData) {
+    public pushPingBlock(block: interfaces.IBlockData) {
         // logging for stats about network health
         if (this.blockPing) {
             logger.info(

@@ -5,11 +5,11 @@ import { logger } from "../../mocks/logger";
 import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
 import "../../../../utils";
 
-import { models } from "@arkecosystem/crypto";
+import { blocks } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
-const { Block } = models;
+const { Block } = blocks;
 
 beforeAll(async () => {
     // mock apply / saveBlock - we dont want to actually do anything to the db

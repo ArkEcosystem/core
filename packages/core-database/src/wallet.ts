@@ -5,8 +5,8 @@ import {
     crypto,
     formatSatoshi,
     IMultiSignatureAsset,
+    interfaces,
     ITransactionData,
-    models,
 } from "@arkecosystem/crypto";
 
 const { TransactionTypes } = constants;
@@ -47,7 +47,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Add block data to this wallet.
      */
-    public applyBlock(block: models.IBlockData): boolean {
+    public applyBlock(block: interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address
@@ -68,7 +68,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Remove block data from this wallet.
      */
-    public revertBlock(block: models.IBlockData): boolean {
+    public revertBlock(block: interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address

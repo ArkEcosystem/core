@@ -36,3 +36,5 @@ export const plugin: Container.PluginDescriptor = {
         }
     },
 };
+
+export * from "./delegate";

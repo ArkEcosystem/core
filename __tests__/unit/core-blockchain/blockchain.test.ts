@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
 import "./mocks/";
 
-import { models, slots } from "@arkecosystem/crypto";
+import { blocks, interfaces, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { config as localConfig } from "../../../packages/core-blockchain/src/config";
@@ -14,7 +14,7 @@ import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { getStorage } from "./mocks/p2p/peer-storage";
 
-const { Block } = models;
+const { Block } = blocks;
 
 let genesisBlock;
 
@@ -239,7 +239,7 @@ describe("Blockchain", () => {
                             timestamp: slots.getTime(),
                             height: genesisBlock.height,
                         },
-                    } as models.IBlock),
+                    } as interfaces.IBlock),
                 ).toBeTrue();
             });
         });

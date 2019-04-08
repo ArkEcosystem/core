@@ -1,6 +1,6 @@
-import { models, slots } from "@arkecosystem/crypto";
+import { interfaces, slots } from "@arkecosystem/crypto";
 
-export const isBlockChained = (previousBlock: models.IBlock, nextBlock: models.IBlock): boolean => {
+export const isBlockChained = (previousBlock: interfaces.IBlock, nextBlock: interfaces.IBlock): boolean => {
     const followsPrevious = nextBlock.data.previousBlock === previousBlock.data.id;
     const isPlusOne = nextBlock.data.height === previousBlock.data.height + 1;
 

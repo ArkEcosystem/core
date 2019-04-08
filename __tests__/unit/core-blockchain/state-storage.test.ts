@@ -1,7 +1,7 @@
 import "./mocks/";
 import { logger } from "./mocks/logger";
 
-import { ITransactionData, models } from "@arkecosystem/crypto";
+import { blocks, interfaces, ITransactionData } from "@arkecosystem/crypto";
 import delay from "delay";
 import { config } from "../../../packages/core-blockchain/src/config";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
@@ -9,7 +9,7 @@ import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 
-const { Block } = models;
+const { Block } = blocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
 let stateStorage;
 
@@ -106,7 +106,7 @@ describe("State Storage", () => {
                 stateStorage.setLastBlock(blocks[i]);
             }
 
-            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as models.IBlockData[];
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as interfaces.IBlockData[];
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {

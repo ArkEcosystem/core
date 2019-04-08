@@ -3,16 +3,15 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Transaction } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
+import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
 import { testnet } from "../../../packages/crypto/src/networks";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
-
-const { Delegate } = models;
 
 jest.setTimeout(30000);
 jest.mock("../../../packages/core-forger/src/client");

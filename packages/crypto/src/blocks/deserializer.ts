@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { IBlockData } from "../interfaces";
 import { configManager } from "../managers";
-import { Transaction } from "../transactions/types";
+import { Transaction } from "../transactions";
 import { Bignum } from "../utils";
 import { Block } from "./block";
 

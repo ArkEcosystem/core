@@ -6,7 +6,7 @@ import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
 import { PoolWalletManager } from "./pool-wallet-manager";
 
-import { Bignum, constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
 import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 import { Storage } from "./storage";
@@ -385,7 +385,7 @@ export class Connection implements TransactionPool.IConnection {
      * It removes block transaction from the pool and adjusts
      * pool wallets for non existing transactions.
      */
-    public acceptChainedBlock(block: models.Block) {
+    public acceptChainedBlock(block: blocks.Block) {
         for (const transaction of block.transactions) {
             const { data } = transaction;
             const exists = this.transactionExists(data.id);
@@ -489,7 +489,7 @@ export class Connection implements TransactionPool.IConnection {
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
-    public purgeSendersWithInvalidTransactions(block: models.Block) {
+    public purgeSendersWithInvalidTransactions(block: blocks.Block) {
         const publicKeys = new Set(block.transactions.filter(tx => !tx.verified).map(tx => tx.data.senderPublicKey));
 
         publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey));
@@ -499,7 +499,7 @@ export class Connection implements TransactionPool.IConnection {
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
-    public purgeBlock(block: models.Block) {
+    public purgeBlock(block: blocks.Block) {
         block.transactions.forEach(tx => {
             if (this.transactionExists(tx.id)) {
                 this.removeTransaction(tx);

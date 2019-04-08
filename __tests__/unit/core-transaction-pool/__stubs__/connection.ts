@@ -1,7 +1,7 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { Dato } from "@faustbrian/dato";
 
-import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { blocks, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;
@@ -97,7 +97,7 @@ export class Connection implements TransactionPool.IConnection {
         return null;
     }
 
-    public acceptChainedBlock(block: models.Block): void {
+    public acceptChainedBlock(block: blocks.Block): void {
         return;
     }
 
@@ -109,11 +109,11 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public purgeSendersWithInvalidTransactions(block: models.Block): void {
+    public purgeSendersWithInvalidTransactions(block: blocks.Block): void {
         return;
     }
 
-    public purgeBlock(block: models.Block): void {
+    public purgeBlock(block: blocks.Block): void {
         return;
     }
 

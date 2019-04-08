@@ -4,12 +4,12 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import {
     Bignum,
+    blocks,
     constants,
     crypto,
     formatSatoshi,
     isException,
     ITransactionData,
-    models,
     Transaction,
 } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
@@ -295,7 +295,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public applyBlock(block: models.Block): void {
+    public applyBlock(block: blocks.Block): void {
         const generatorPublicKey = block.data.generatorPublicKey;
 
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
@@ -356,7 +356,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public revertBlock(block: models.Block): void {
+    public revertBlock(block: blocks.Block): void {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {

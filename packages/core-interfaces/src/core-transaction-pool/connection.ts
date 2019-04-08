@@ -1,6 +1,6 @@
 import { Dato } from "@faustbrian/dato";
 
-import { constants, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { blocks, constants, ITransactionData, Transaction } from "@arkecosystem/crypto";
 
 export interface IAddTransactionResponse {
     success: boolean;
@@ -148,7 +148,7 @@ export interface IConnection {
      * @param  {Object} block
      * @return {void}
      */
-    acceptChainedBlock(block: models.Block): void;
+    acceptChainedBlock(block: blocks.Block): void;
 
     /**
      * Rebuild pool manager wallets
@@ -164,13 +164,13 @@ export interface IConnection {
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
-    purgeSendersWithInvalidTransactions(block: models.Block): void;
+    purgeSendersWithInvalidTransactions(block: blocks.Block): void;
 
     /**
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
-    purgeBlock(block: models.Block): void;
+    purgeBlock(block: blocks.Block): void;
 
     /**
      * Check whether a given sender has any transactions of the specified type

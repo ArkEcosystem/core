@@ -3,7 +3,7 @@ import "./mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
+import { Bignum, blocks, constants, crypto, transactionBuilder } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -11,7 +11,7 @@ import { fixtures } from "../../utils";
 
 import wallets from "./__fixtures__/wallets.json";
 
-const { Block } = models;
+const { Block } = blocks;
 const { SATOSHI, TransactionTypes } = constants;
 
 const block3 = fixtures.blocks2to100[1];
@@ -53,7 +53,7 @@ describe("Wallet Manager", () => {
 
     describe("applyBlock", () => {
         let delegateMock;
-        let block2: models.Block;
+        let block2: blocks.Block;
 
         const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 

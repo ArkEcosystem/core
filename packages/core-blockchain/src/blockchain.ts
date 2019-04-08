@@ -8,7 +8,7 @@ import {
     P2P,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { models, slots, Transaction } from "@arkecosystem/crypto";
+import { blocks, interfaces, slots, Transaction } from "@arkecosystem/crypto";
 
 import async from "async";
 import delay from "delay";
@@ -20,7 +20,7 @@ import { StateStorage } from "./state-storage";
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const { Block } = models;
+const { Block } = blocks;
 
 export class Blockchain implements blockchain.IBlockchain {
     /**
@@ -80,9 +80,9 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.queue = async.queue((block: models.IBlockData, cb) => {
+        this.queue = async.queue((block: interfaces.IBlockData, cb) => {
             try {
-                return this.processBlock(new models.Block(block), cb);
+                return this.processBlock(new blocks.Block(block), cb);
             } catch (error) {
                 logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
                 logger.error(error.stack);
@@ -367,7 +367,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block: models.Block, callback): Promise<any> {
+    public async processBlock(block: blocks.Block, callback): Promise<any> {
         const result = await this.blockProcessor.process(block);
 
         if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
@@ -400,7 +400,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Fork the chain at the given block.
      */
-    public forkBlock(block: models.Block, numberOfBlockToRollback?: number): void {
+    public forkBlock(block: blocks.Block, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
 
         if (numberOfBlockToRollback) {
@@ -429,7 +429,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Determine if the blockchain is synced.
      */
-    public isSynced(block?: models.IBlock): boolean {
+    public isSynced(block?: interfaces.IBlock): boolean {
         if (!this.p2p.getStorage().hasPeers()) {
             return true;
         }
@@ -442,7 +442,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the last block of the blockchain.
      */
-    public getLastBlock(): models.Block {
+    public getLastBlock(): blocks.Block {
         return this.state.getLastBlock();
     }
 
@@ -456,7 +456,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the last downloaded block of the blockchain.
      */
-    public getLastDownloadedBlock(): { data: models.IBlockData } {
+    public getLastDownloadedBlock(): { data: interfaces.IBlockData } {
         return this.state.lastDownloadedBlock;
     }
 
@@ -470,14 +470,14 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Ping a block.
      */
-    public pingBlock(incomingBlock: models.IBlockData): boolean {
+    public pingBlock(incomingBlock: interfaces.IBlockData): boolean {
         return this.state.pingBlock(incomingBlock);
     }
 
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: models.IBlockData): void {
+    public pushPingBlock(block: interfaces.IBlockData): void {
         this.state.pushPingBlock(block);
     }
 }

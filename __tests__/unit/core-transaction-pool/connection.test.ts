@@ -4,7 +4,7 @@ import "./mocks/core-container";
 import { Wallet } from "@arkecosystem/core-database";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { bignumify } from "@arkecosystem/core-utils";
-import { Bignum, constants, models, slots, Transaction } from "@arkecosystem/crypto";
+import { Bignum, blocks, constants, slots, Transaction } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -18,7 +18,7 @@ import { transactions as mockData } from "./__fixtures__/transactions";
 import { database as databaseService } from "./mocks/database";
 
 const { SATOSHI, TransactionTypes } = constants;
-const { Block } = models;
+const { Block } = blocks;
 const delegatesSecrets = delegates.map(d => d.secret);
 const maxTransactionAge = 4036608000;
 
@@ -914,7 +914,7 @@ describe("Connection", () => {
                 .withPassphrase(delegatesSecrets[0])
                 .build(5);
 
-            const block = { transactions } as models.Block;
+            const block = { transactions } as blocks.Block;
 
             addTransactions(block.transactions);
 

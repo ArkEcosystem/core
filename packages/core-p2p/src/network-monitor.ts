@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { models, slots, Transaction } from "@arkecosystem/crypto";
+import { blocks, slots, Transaction } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -290,7 +290,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastBlock(block: models.Block): Promise<void> {
+    public async broadcastBlock(block: blocks.Block): Promise<void> {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {

@@ -1,4 +1,4 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import { blocks, interfaces, Transaction } from "@arkecosystem/crypto";
 import { EventEmitter, Logger } from "../index";
 import {
     IBlocksBusinessRepository,
@@ -42,21 +42,21 @@ export interface IDatabaseService {
 
     buildWallets(): Promise<boolean>;
 
-    saveBlock(block: models.Block): Promise<void>;
+    saveBlock(block: blocks.Block): Promise<void>;
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
-    enqueueDeleteBlock(block: models.Block): void;
+    enqueueDeleteBlock(block: blocks.Block): void;
 
     enqueueDeleteRound(height: number): void;
 
     commitQueuedQueries(): Promise<void>;
 
-    deleteBlock(block: models.Block): Promise<void>;
+    deleteBlock(block: blocks.Block): Promise<void>;
 
-    getBlock(id: string): Promise<models.Block>;
+    getBlock(id: string): Promise<blocks.Block>;
 
-    getLastBlock(): Promise<models.Block>;
+    getLastBlock(): Promise<blocks.Block>;
 
     getBlocks(offset: number, limit: number): Promise<any[]>;
 
@@ -106,13 +106,13 @@ export interface IDatabaseService {
 
     revertRound(height: number): Promise<void>;
 
-    applyBlock(block: models.Block): Promise<boolean>;
+    applyBlock(block: blocks.Block): Promise<boolean>;
 
-    revertBlock(block: models.Block): Promise<void>;
+    revertBlock(block: blocks.Block): Promise<void>;
 
     verifyTransaction(transaction: Transaction): Promise<boolean>;
 
-    getBlocksForRound(round?: number): Promise<models.Block[]>;
+    getBlocksForRound(round?: number): Promise<blocks.Block[]>;
 
-    getCommonBlocks(ids: string[]): Promise<models.IBlockData[]>;
+    getCommonBlocks(ids: string[]): Promise<interfaces.IBlockData[]>;
 }

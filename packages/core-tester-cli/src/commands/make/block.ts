@@ -1,4 +1,5 @@
-import { configManager, models, slots } from "@arkecosystem/crypto";
+import { Delegate } from "@arkecosystem/core-forger";
+import { configManager, interfaces, slots } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { writeFileSync } from "fs";
 import { satoshiFlag } from "../../flags";
@@ -43,7 +44,7 @@ export class BlockCommand extends BaseCommand {
         }),
     };
 
-    public async run(): Promise<models.IBlockData[]> {
+    public async run(): Promise<interfaces.IBlockData[]> {
         const { flags } = this.makeOffline(BlockCommand);
 
         const genesisBlock = configManager.get("genesisBlock");
@@ -51,11 +52,11 @@ export class BlockCommand extends BaseCommand {
 
         let previousBlock = flags.previousBlock ? JSON.parse(flags.previousBlock) : genesisBlock;
 
-        const blocks: models.IBlockData[] = [];
+        const blocks: interfaces.IBlockData[] = [];
 
         for (let i = 0; i < flags.number; i++) {
             const milestone = configManager.getMilestone(previousBlock.height);
-            const delegate = new models.Delegate(flags.passphrase, configManager.get("pubKeyHash"));
+            const delegate = new Delegate(flags.passphrase, configManager.get("pubKeyHash"));
 
             const transactions = [];
             for (let i = 0; i < flags.transactions; i++) {
