@@ -15,11 +15,6 @@ const startSocketServer = async config => {
          */
         workerController: __dirname + "/worker.js",
 
-        /* JS file which you can use to configure each of your
-         * brokers - Useful for scaling horizontally across multiple machines (optional)
-         */
-        brokerController: __dirname + "/broker.js",
-
         // Whether or not to reboot the worker in case it crashes (defaults to true)
         rebootWorkerOnCrash: true,
     });
