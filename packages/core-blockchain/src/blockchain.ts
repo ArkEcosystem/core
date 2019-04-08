@@ -273,7 +273,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         this.queue.push(blocks);
-        this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
+        this.state.lastDownloadedBlock = Block.fromData(blocks.slice(-1)[0]);
     }
 
     /**
@@ -300,7 +300,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = new Block(blocksToRemove.pop());
+            const newLastBlock = Block.fromData(blocksToRemove.pop());
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock;
@@ -354,7 +354,7 @@ export class Blockchain implements blockchain.IBlockchain {
         );
 
         for (let block of blocks) {
-            block = new Block(block);
+            block = Block.fromData(block);
 
             this.database.enqueueDeleteRound(block.data.height);
             this.database.enqueueDeleteBlock(block);

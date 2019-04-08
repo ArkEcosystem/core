@@ -52,7 +52,7 @@ export class Block implements IBlock {
         data.blockSignature = crypto.signHash(hash, keys);
         data.id = Block.getId(data);
 
-        return new Block(data);
+        return Block.fromData(data);
     }
 
     /**

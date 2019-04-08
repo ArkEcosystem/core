@@ -130,7 +130,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (!block) {
                 logger.warn("No block found in database");
 
-                block = new Block(config.get("genesisBlock"));
+                block = Block.fromData(config.get("genesisBlock"));
 
                 if (block.data.payloadHash !== config.get("network.nethash")) {
                     logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
@@ -179,7 +179,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
-                stateStorage.setLastBlock(new Block(config.get("genesisBlock")));
+                stateStorage.setLastBlock(Block.fromData(config.get("genesisBlock")));
                 await blockchain.database.buildWallets();
 
                 return blockchain.dispatch("STARTED");
