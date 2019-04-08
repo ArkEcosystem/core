@@ -11,7 +11,6 @@ export interface INetworkMonitor {
     cleanPeers(fast?: boolean, forcePing?: boolean): Promise<void>;
     discoverPeers(): Promise<void>;
     getNetworkHeight(): number;
-    getPBFTForgingStatus(): number;
     getNetworkState(): Promise<INetworkState>;
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<INetworkStatus>;

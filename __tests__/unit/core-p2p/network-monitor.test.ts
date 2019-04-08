@@ -118,40 +118,6 @@ describe("NetworkMonitor", () => {
         });
     });
 
-    describe("getPBFTForgingStatus", () => {
-        it("should return correct pbft data", () => {
-            storage.setPeer(
-                createStubPeer({
-                    ip: "1.1.1.1",
-                    port: 4000,
-                    state: { height: 1, currentSlot: 2, forgingAllowed: true },
-                }),
-            );
-
-            storage.setPeer(
-                createStubPeer({
-                    ip: "1.1.1.2",
-                    port: 4000,
-                    state: { height: 7, currentSlot: 2, forgingAllowed: true },
-                }),
-            );
-
-            storage.setPeer(
-                createStubPeer({
-                    ip: "1.1.1.3",
-                    port: 4000,
-                    state: { height: 10, currentSlot: 2, forgingAllowed: true },
-                }),
-            );
-
-            jest.spyOn(slots, "getSlotNumber").mockReturnValue(2);
-
-            expect(monitor.getPBFTForgingStatus()).toBe(2 / 3);
-        });
-
-        test.todo("more cases need to be covered, see pbft calculation");
-    });
-
     describe("getNetworkState", () => {
         it("should return network state from NetworkState.analyze", async () => {
             const networkState = { nodeHeight: 333 };

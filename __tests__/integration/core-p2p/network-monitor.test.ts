@@ -98,40 +98,4 @@ describe("NetworkMonitor", () => {
             expect(await monitor.getNetworkHeight()).toBe(16);
         });
     });
-
-    describe("getPBFTForgingStatus", () => {
-        it("should get PBFT == 1 if all peers are at same height, slot, and with forging allowed", async () => {
-            const height = 3;
-            const slotNmber = 17;
-            jest.spyOn(monitor, "getNetworkHeight").mockReturnValueOnce(height);
-            jest.spyOn(slots, "getSlotNumber").mockReturnValueOnce(slotNmber);
-
-            const state = { height, forgingAllowed: true, currentSlot: slotNmber };
-
-            storage.setPeer(createStubPeer({ ip: "2.2.2.2", port: 4000, state }));
-            storage.setPeer(createStubPeer({ ip: "3.3.3.3", port: 4000, state }));
-
-            const pbftForgingStatus = monitor.getPBFTForgingStatus();
-
-            expect(pbftForgingStatus).toBe(1);
-        });
-
-        it("should get PBFT == 0.5 if half the peers are not at network height", async () => {
-            const height = 3;
-            const slotNmber = 17;
-            jest.spyOn(monitor, "getNetworkHeight").mockReturnValueOnce(height);
-            jest.spyOn(slots, "getSlotNumber").mockReturnValueOnce(slotNmber);
-
-            const state = { height: height - 1, forgingAllowed: true, currentSlot: slotNmber };
-
-            storage.setPeer(createStubPeer({ ip: "2.2.2.2", port: 4000, state }));
-            storage.setPeer(
-                createStubPeer({ ip: "127.0.0.1", port: 4000, state: Object.assign({}, state, { height }) }),
-            );
-
-            const pbftForgingStatus = monitor.getPBFTForgingStatus();
-
-            expect(pbftForgingStatus).toBe(0.5);
-        });
-    });
 });

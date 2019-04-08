@@ -156,7 +156,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (this.initializing) {
             this.logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
             this.logger.info(`Median Network Height: ${this.getNetworkHeight().toLocaleString()}`);
-            this.logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`);
         }
     }
 
@@ -189,30 +188,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             .sort((a, b) => a - b);
 
         return medians[Math.floor(medians.length / 2)] || 0;
-    }
-
-    public getPBFTForgingStatus(): number {
-        const height = this.getNetworkHeight();
-        const slot = slots.getSlotNumber();
-
-        let allowedToForge = 0;
-        let syncedPeers = 0;
-
-        for (const peer of this.storage.getPeers()) {
-            if (peer.state) {
-                if (peer.state.currentSlot === slot) {
-                    syncedPeers++;
-
-                    if (peer.state.forgingAllowed && peer.state.height >= height) {
-                        allowedToForge++;
-                    }
-                }
-            }
-        }
-
-        const pbft = allowedToForge / syncedPeers;
-
-        return isNaN(pbft) ? 0 : pbft;
     }
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
