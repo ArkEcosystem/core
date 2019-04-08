@@ -523,7 +523,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    protected async createGenesisBlock(): Promise<void> {
+    private async createGenesisBlock(): Promise<void> {
         if (!(await this.getLastBlock())) {
             this.logger.warn("No block found in database");
 

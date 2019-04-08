@@ -115,6 +115,4 @@ export interface IDatabaseService {
     getBlocksForRound(round?: number): Promise<models.Block[]>;
 
     getCommonBlocks(ids: string[]): Promise<models.IBlockData[]>;
-
-    createGenesisBlock(): Promise<void>;
 }
