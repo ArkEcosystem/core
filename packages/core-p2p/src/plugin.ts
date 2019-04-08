@@ -54,6 +54,7 @@ export const plugin: Container.PluginDescriptor = {
 
         const server = service.getMonitor().getServer();
         if (server) {
+            server.removeAllListeners("fail");
             server.destroy();
         }
     },
