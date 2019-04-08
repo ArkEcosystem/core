@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { IBlockData } from "@arkecosystem/crypto/dist/models";
 import ByteBuffer from "bytebuffer";
 import { configManager, NetworkName } from "../../../../packages/crypto/src";
 import { slots } from "../../../../packages/crypto/src/crypto";
-import { Block, Delegate } from "../../../../packages/crypto/src/models";
+import { Block, Delegate, IBlockData } from "../../../../packages/crypto/src/models";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { Bignum } from "../../../../packages/crypto/src/utils";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
