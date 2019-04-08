@@ -119,7 +119,11 @@ export class Block implements IBlock {
     }
 
     public static fromData(data: IBlockData): Block {
-        return this.fromSerialized(Block.serializeFull(data).toString("hex"));
+        const serialized = Block.serializeFull(data).toString("hex");
+        const block = new Block({ ...BlockDeserializer.deserialize(serialized), id: data.id });
+        block.serialized = serialized;
+
+        return block;
     }
 
     private static fromSerialized(serialized: string): Block {
@@ -134,11 +138,9 @@ export class Block implements IBlock {
     public transactions: Transaction[];
     public verification: BlockVerification;
 
-    private constructor({ data, transactions }: { data: IBlockData; transactions: Transaction[] }) {
-        this.data = data;
-
+    private constructor({ data, transactions, id }: { data: IBlockData; transactions: Transaction[]; id?: string }) {
         const { value, error } = AjvWrapper.validate("block", data);
-        if (error !== null && !(isException(value) || this.data.transactions.some(tx => isException(tx)))) {
+        if (error !== null && !(isException(value) || data.transactions.some(tx => isException(tx)))) {
             throw new BlockSchemaError(error);
         }
 
@@ -146,7 +148,7 @@ export class Block implements IBlock {
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
-            this.applyGenesisBlockFix(this.data);
+            this.applyGenesisBlockFix(id || data.id);
         }
 
         // fix on real timestamp, this is overloading transaction
@@ -323,8 +325,8 @@ export class Block implements IBlock {
         return result;
     }
 
-    private applyGenesisBlockFix(data: IBlockData): void {
-        this.data.id = data.id;
-        this.data.idHex = Block.toBytesHex(this.data.id);
+    private applyGenesisBlockFix(id: string): void {
+        this.data.id = id;
+        this.data.idHex = Block.toBytesHex(id);
     }
 }
