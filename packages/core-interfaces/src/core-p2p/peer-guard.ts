@@ -11,7 +11,7 @@ export interface IPeerGuard {
 }
 
 export interface IPeerSuspension {
-    readonly peer: any;
+    readonly peer: IPeer;
     readonly punishment: IPunishment;
 
     nextReminder?: Dato;
