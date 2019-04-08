@@ -110,23 +110,31 @@ export class Block implements IBlock {
         return new Bignum(idHex, 16).toFixed();
     }
 
+    public static fromHex(hex: string): Block {
+        return this.fromSerialized(hex);
+    }
+
+    public static fromBytes(buffer: Buffer): Block {
+        return this.fromSerialized(buffer.toString("hex"));
+    }
+
+    public static fromData(data: IBlockData): Block {
+        return this.fromSerialized(Block.serializeFull(data).toString("hex"));
+    }
+
+    private static fromSerialized(serialized: string): Block {
+        return new Block(BlockDeserializer.deserialize(serialized));
+    }
+
     public serialized: string;
     public data: IBlockData;
     public transactions: Transaction[];
     public verification: BlockVerification;
 
-    constructor(data: IBlockData | string) {
-        let deserialized;
-        if (typeof data === "string") {
-            this.serialized = data;
-        } else {
-            this.serialized = Block.serializeFull(data).toString("hex");
-        }
+    private constructor({ data, transactions }: { data: IBlockData; transactions: Transaction[] }) {
+        this.data = data;
 
-        deserialized = BlockDeserializer.deserialize(this.serialized);
-        this.data = deserialized.data;
-
-        const { value, error } = AjvWrapper.validate("block", deserialized.data);
+        const { value, error } = AjvWrapper.validate("block", data);
         if (error !== null && !(isException(value) || this.data.transactions.some(tx => isException(tx)))) {
             throw new BlockSchemaError(error);
         }
@@ -135,13 +143,12 @@ export class Block implements IBlock {
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
-            this.applyGenesisBlockFix(data as IBlockData);
+            this.applyGenesisBlockFix(this.data);
         }
 
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        const { transactions } = deserialized;
         this.transactions = transactions.map((transaction, index) => {
             transaction.data.blockId = this.data.id;
             transaction.timestamp = this.data.timestamp;

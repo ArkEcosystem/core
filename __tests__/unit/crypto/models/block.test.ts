@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { IBlockData } from "@arkecosystem/crypto/dist/models";
 import ByteBuffer from "bytebuffer";
 import { configManager, NetworkName } from "../../../../packages/crypto/src";
 import { slots } from "../../../../packages/crypto/src/crypto";
@@ -10,6 +11,18 @@ import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
+
+function expectBlock({ data }: { data: IBlockData }) {
+    delete data.idHex;
+
+    const blockWithoutTransactions = Object.assign(dummyBlock);
+    blockWithoutTransactions.reward = new Bignum(blockWithoutTransactions.reward);
+    blockWithoutTransactions.totalAmount = new Bignum(blockWithoutTransactions.totalAmount);
+    blockWithoutTransactions.totalFee = new Bignum(blockWithoutTransactions.totalFee);
+    delete blockWithoutTransactions.transactions;
+
+    expect(data).toEqual(blockWithoutTransactions);
+}
 
 describe("Models - Block", () => {
     const data = {
@@ -29,6 +42,18 @@ describe("Models - Block", () => {
         transactions: [],
         version: 6,
     };
+
+    test("#fromHex", () => {
+        expectBlock(Block.fromHex(Block.serializeFull(dummyBlock).toString("hex")));
+    });
+
+    test("#fromBytes", () => {
+        expectBlock(Block.fromBytes(Block.serializeFull(dummyBlock)));
+    });
+
+    test("#fromData", () => {
+        expectBlock(Block.fromData(dummyBlock));
+    });
 
     describe("constructor", () => {
         it("should store the data", () => {
