@@ -2,8 +2,9 @@ import "jest-extended";
 
 import { transactionBuilder as builder } from "../../../../packages/crypto/src/builder";
 import { crypto } from "../../../../packages/crypto/src/crypto/crypto";
+import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { ITransactionData, Transaction } from "../../../../packages/crypto/src/transactions";
+import { Transaction } from "../../../../packages/crypto/src/transactions";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
 import deepmerge = require("deepmerge");
