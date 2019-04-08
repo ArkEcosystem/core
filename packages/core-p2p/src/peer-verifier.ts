@@ -420,7 +420,7 @@ export class PeerVerifier {
             return true;
         }
 
-        const block = new models.Block(blockData);
+        const block = models.Block.fromData(blockData);
 
         if (!block.verification.verified) {
             this.log(

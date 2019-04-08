@@ -82,7 +82,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.queue = async.queue((block: models.IBlockData, cb) => {
             try {
-                return this.processBlock(new models.Block(block), cb);
+                return this.processBlock(models.Block.fromData(block), cb);
             } catch (error) {
                 logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
                 logger.error(error.stack);
