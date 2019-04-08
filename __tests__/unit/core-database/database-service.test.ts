@@ -7,6 +7,7 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Address, Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { roundCalculator } from "../../../packages/core-utils/dist";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
@@ -205,7 +206,8 @@ describe("Database Service", () => {
             };
 
             // Beginning of round 2 with all delegates 0 vote balance.
-            const delegatesRound2 = walletManager.loadActiveDelegateList(initialHeight);
+            const roundInfo1 = roundCalculator.calculateRound(initialHeight);
+            const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
             const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
@@ -254,7 +256,8 @@ describe("Database Service", () => {
             }
 
             // The delegates from round 2 are now reversed in rank in round 3.
-            const delegatesRound3 = walletManager.loadActiveDelegateList(initialHeight + 51);
+            const roundInfo2 = roundCalculator.calculateRound(initialHeight + 51);
+            const delegatesRound3 = walletManager.loadActiveDelegateList(roundInfo2);
             for (let i = 0; i < delegatesRound3.length; i++) {
                 expect(delegatesRound3[i].rate).toBe(i + 1);
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
@@ -273,7 +276,7 @@ describe("Database Service", () => {
             });
 
             // Finally recalculate the round 2 list and compare against the original list
-            const restoredDelegatesRound2 = await (databaseService as any).calcPreviousActiveDelegates(2);
+            const restoredDelegatesRound2 = await (databaseService as any).calcPreviousActiveDelegates(roundInfo2);
 
             for (let i = 0; i < restoredDelegatesRound2.length; i++) {
                 expect(restoredDelegatesRound2[i].rate).toBe(i + 1);

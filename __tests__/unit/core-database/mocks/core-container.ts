@@ -5,6 +5,7 @@ jest.mock("@arkecosystem/core-container", () => {
         app: {
             getConfig: () => {
                 return {
+                    config: { milestones: [{ activeDelegates: 51, height: 1 }] },
                     get: () => ({}),
                     getMilestone: () => ({
                         activeDelegates: 51,

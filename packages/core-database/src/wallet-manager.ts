@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import {
@@ -22,7 +22,6 @@ export class WalletManager implements Database.IWalletManager {
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public config = app.getConfig();
 
-    public networkId: number;
     public byAddress: { [key: string]: Wallet };
     public byPublicKey: { [key: string]: Wallet };
     public byUsername: { [key: string]: Wallet };
@@ -32,7 +31,6 @@ export class WalletManager implements Database.IWalletManager {
      * @constructor
      */
     constructor() {
-        this.networkId = this.config ? this.config.get("network.pubKeyHash") : 0x17;
         this.reset();
     }
 
@@ -86,7 +84,7 @@ export class WalletManager implements Database.IWalletManager {
      */
     public findByPublicKey(publicKey: string): Wallet {
         if (!this.byPublicKey[publicKey]) {
-            const address = crypto.getAddress(publicKey, this.networkId);
+            const address = crypto.getAddress(publicKey);
 
             const wallet = this.findByAddress(address);
             wallet.publicKey = publicKey;
@@ -198,13 +196,11 @@ export class WalletManager implements Database.IWalletManager {
      * @param height
      * @return {Array}
      */
-    public loadActiveDelegateList(height: number): Database.IDelegateWallet[] {
-        const { round, maxDelegates } = roundCalculator.calculateRound(height);
+    public loadActiveDelegateList(roundInfo: Shared.IRoundInfo): Database.IDelegateWallet[] {
+        const { round, maxDelegates } = roundInfo;
         const delegatesWallets = this.allByUsername();
 
-        if (height >= 1 && height % maxDelegates !== 1) {
-            throw new Error("Trying to build delegates outside of round change");
-        } else if (delegatesWallets.length < maxDelegates) {
+        if (delegatesWallets.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${
                     delegatesWallets.length
@@ -242,7 +238,7 @@ export class WalletManager implements Database.IWalletManager {
             .map((delegate, i) => {
                 const rate = i + 1;
                 this.byUsername[delegate.username].rate = rate;
-                return { ...{ round }, ...delegate, rate };
+                return { round, ...delegate, rate };
             })
             .slice(0, maxDelegates);
 
@@ -301,7 +297,7 @@ export class WalletManager implements Database.IWalletManager {
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
-            const generator = crypto.getAddress(generatorPublicKey, this.networkId);
+            const generator = crypto.getAddress(generatorPublicKey);
 
             if (block.data.height === 1) {
                 delegate = new Wallet(generator);

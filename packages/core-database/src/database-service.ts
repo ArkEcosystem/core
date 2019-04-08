@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
@@ -78,19 +78,25 @@ export class DatabaseService implements Database.IDatabaseService {
     public async applyRound(height: number) {
         const nextHeight = height === 1 ? 1 : height + 1;
         if (roundCalculator.isNewRound(nextHeight)) {
-            const { round } = roundCalculator.calculateRound(nextHeight);
+            const roundInfo = roundCalculator.calculateRound(nextHeight);
+            const { round } = roundInfo;
 
-            if (nextHeight === 1 || this.forgingDelegates.length === 0 || this.forgingDelegates[0].round !== round) {
-                this.logger.info(`Starting Round ${round.toLocaleString()}`);
+            if (
+                nextHeight === 1 ||
+                !this.forgingDelegates ||
+                this.forgingDelegates.length === 0 ||
+                this.forgingDelegates[0].round !== round
+            ) {
+                this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
                 try {
                     if (nextHeight > 1) {
                         this.updateDelegateStats(this.forgingDelegates);
                     }
 
-                    const delegates = this.walletManager.loadActiveDelegateList(nextHeight);
+                    const delegates = this.walletManager.loadActiveDelegateList(roundInfo);
                     await this.saveRound(delegates);
-                    this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates);
+                    await this.setForgingDelegatesOfRound(roundInfo, delegates);
                     this.blocksInCurrentRound.length = 0;
 
                     this.emitter.emit("round.applied");
@@ -142,12 +148,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getActiveDelegates(
-        height: number,
+        roundInfo: Shared.IRoundInfo,
         delegates?: Database.IDelegateWallet[],
     ): Promise<Database.IDelegateWallet[]> {
-        const maxDelegates = this.config.getMilestone(height).activeDelegates;
-        const round = Math.floor((height - 1) / maxDelegates) + 1;
-
+        const { round } = roundInfo;
         if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
             return this.forgingDelegates;
         }
@@ -172,13 +176,13 @@ export class DatabaseService implements Database.IDatabaseService {
             currentSeed = HashAlgorithms.sha256(currentSeed);
         }
 
-        this.forgingDelegates = delegates.map(delegate => {
+        const forgingDelegates = delegates.map(delegate => {
             delegate.round = +delegate.round;
             delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
         });
 
-        return this.forgingDelegates;
+        return forgingDelegates;
     }
 
     public async getBlock(id: string) {
@@ -272,7 +276,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
-    public async getBlocksForRound(round?: number) {
+    public async getBlocksForRound(roundInfo?: Shared.IRoundInfo) {
         let lastBlock;
         if (app.has("state")) {
             lastBlock = app.resolve<Blockchain.IStateStorage>("state").getLastBlock();
@@ -284,15 +288,14 @@ export class DatabaseService implements Database.IDatabaseService {
             return [];
         }
 
-        let height = +lastBlock.data.height;
-        if (!round) {
-            round = roundCalculator.calculateRound(height).round;
+        const height = +lastBlock.data.height;
+        if (!roundInfo) {
+            roundInfo = roundCalculator.calculateRound(height);
         }
 
-        const maxDelegates = this.config.getMilestone(height).activeDelegates;
-        height = round * maxDelegates + 1;
+        const { maxDelegates, roundHeight } = roundInfo;
 
-        const blocks = await this.getBlocks(height - maxDelegates, maxDelegates);
+        const blocks = await this.getBlocks(roundHeight, maxDelegates);
         return blocks.map(b => new Block(b));
     }
 
@@ -391,15 +394,16 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async revertRound(height: number) {
-        const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
+        const roundInfo = roundCalculator.calculateRound(height);
+        const { round, nextRound, maxDelegates } = roundInfo;
 
         if (nextRound === round + 1 && height >= maxDelegates) {
             this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
-            this.blocksInCurrentRound = await this.getBlocksForRound(round);
+            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
 
-            const delegates = await this.calcPreviousActiveDelegates(round, this.blocksInCurrentRound);
-            this.forgingDelegates = await this.getActiveDelegates(height, delegates);
+            const delegates = await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound);
+            await this.setForgingDelegatesOfRound(roundInfo, delegates);
 
             await this.deleteRound(nextRound);
         }
@@ -525,16 +529,24 @@ export class DatabaseService implements Database.IDatabaseService {
     private async initializeActiveDelegates(height: number): Promise<void> {
         this.forgingDelegates = null;
 
-        const { round } = roundCalculator.calculateRound(height);
-        const delegates = await this.calcPreviousActiveDelegates(round);
-        this.forgingDelegates = await this.getActiveDelegates(height, delegates);
+        const roundInfo = roundCalculator.calculateRound(height);
+        const delegates = await this.calcPreviousActiveDelegates(roundInfo);
+        await this.setForgingDelegatesOfRound(roundInfo, delegates);
+    }
+
+    private async setForgingDelegatesOfRound(
+        roundInfo: Shared.IRoundInfo,
+        delegates?: Database.IDelegateWallet[],
+    ): Promise<void> {
+        const activeDelegates = await this.getActiveDelegates(roundInfo, delegates);
+        this.forgingDelegates = activeDelegates;
     }
 
     private async calcPreviousActiveDelegates(
-        round: number,
+        roundInfo: Shared.IRoundInfo,
         blocks?: models.Block[],
     ): Promise<Database.IDelegateWallet[]> {
-        blocks = blocks || (await this.getBlocksForRound(round));
+        blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
         const tempWalletManager = this.walletManager.cloneDelegateWallets();
 
@@ -551,7 +563,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         // Now retrieve the active delegate list from the temporary wallet manager.
-        return tempWalletManager.loadActiveDelegateList(height);
+        return tempWalletManager.loadActiveDelegateList(roundInfo);
     }
 
     private emitTransactionEvents(transaction: Transaction): void {

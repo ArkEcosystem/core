@@ -1,5 +1,6 @@
 import { models, Transaction } from "@arkecosystem/crypto";
 import { EventEmitter, Logger } from "../index";
+import { IRoundInfo } from "../shared";
 import {
     IBlocksBusinessRepository,
     IDelegatesBusinessRepository,
@@ -36,7 +37,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
 
-    getActiveDelegates(height: number, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
+    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
@@ -100,7 +101,7 @@ export interface IDatabaseService {
 
     loadTransactionsForBlocks(blocks): Promise<void>;
 
-    updateDelegateStats(delegates: any[]): void;
+    updateDelegateStats(delegates: IDelegateWallet[]): void;
 
     applyRound(height: number): Promise<void>;
 
@@ -112,7 +113,7 @@ export interface IDatabaseService {
 
     verifyTransaction(transaction: Transaction): Promise<boolean>;
 
-    getBlocksForRound(round?: number): Promise<models.Block[]>;
+    getBlocksForRound(roundInfo?: IRoundInfo): Promise<models.Block[]>;
 
     getCommonBlocks(ids: string[]): Promise<models.IBlockData[]>;
 }

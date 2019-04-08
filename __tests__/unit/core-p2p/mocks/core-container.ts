@@ -17,6 +17,7 @@ jest.mock("@arkecosystem/core-container", () => {
 
                         return null;
                     },
+                    config: { milestones: [{ activeDelegates: 51, height: 1 }] },
                     getMilestone: () => ({
                         activeDelegates: 51,
                     }),

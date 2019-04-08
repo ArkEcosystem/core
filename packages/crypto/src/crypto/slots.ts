@@ -106,13 +106,6 @@ class Slots {
     }
 
     /**
-     * Get the last slot number.
-     */
-    public getLastSlot(nextSlot: number): number {
-        return nextSlot + this.getMilestone("activeDelegates");
-    }
-
-    /**
      * Checks if forging is allowed
      */
     public isForgingAllowed(epochTime?: number): boolean {

@@ -141,3 +141,9 @@ export class PreviousBlockIdFormatError extends CryptoError {
         );
     }
 }
+
+export class InvalidMilestoneConfigurationError extends CryptoError {
+    constructor(message: string) {
+        super(message);
+    }
+}
