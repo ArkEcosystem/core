@@ -66,7 +66,7 @@ export class Worker extends SCWorker {
         };
 
         if (localConfig.get("blacklist", []).includes(req.socket.remoteAddress)) {
-            req.socket.disconnect(403, "Forbidden");
+            req.socket.disconnect(4403, "Forbidden");
             return;
         }
 
