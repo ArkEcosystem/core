@@ -527,7 +527,7 @@ export class DatabaseService implements Database.IDatabaseService {
         if (!(await this.getLastBlock())) {
             this.logger.warn("No block found in database");
 
-            await this.saveBlock(new Block(this.config.get("genesisBlock")));
+            await this.saveBlock(Block.fromData(this.config.get("genesisBlock")));
         }
     }
 
