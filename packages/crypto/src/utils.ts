@@ -1,8 +1,8 @@
 import BigNumber from "bignumber.js";
 import { SATOSHI } from "./constants";
 import { IBlockData } from "./interfaces";
+import { ITransactionData } from "./interfaces";
 import { configManager } from "./managers";
-import { ITransactionData } from "./transactions/interfaces";
 
 class Bignum extends BigNumber {
     public static readonly ZERO = new BigNumber(0);

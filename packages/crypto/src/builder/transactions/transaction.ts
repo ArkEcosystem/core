@@ -1,7 +1,8 @@
 import { crypto, slots } from "../../crypto";
 import { MissingTransactionSignatureError } from "../../errors";
+import { ITransactionData } from "../../interfaces";
 import { configManager } from "../../managers";
-import { ITransactionData, Transaction } from "../../transactions";
+import { Transaction } from "../../transactions";
 import { INetwork } from "../../types";
 import { Bignum, maxVendorFieldLength } from "../../utils";
 

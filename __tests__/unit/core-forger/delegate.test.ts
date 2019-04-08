@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Delegate } from "../../../packages/core-forger/src/delegate";
+import { ITransactionData } from "../../../packages/crypto/src/interfaces";
 import { testnet } from "../../../packages/crypto/src/networks";
-import { ITransactionData } from "../../../packages/crypto/src/transactions";
 import { INetwork } from "../../../packages/crypto/src/types";
 import { Bignum } from "../../../packages/crypto/src/utils";
 import { sortTransactions } from "../../../packages/crypto/src/utils";

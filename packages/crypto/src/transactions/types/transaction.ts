@@ -8,10 +8,10 @@ import {
     TransactionSchemaError,
     TransactionVersionError,
 } from "../../errors";
+import { ISchemaValidationResult, ITransactionData } from "../../interfaces";
 import { Bignum, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
 import { transactionDeserializer } from "../deserializer";
-import { ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { TransactionSerializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 

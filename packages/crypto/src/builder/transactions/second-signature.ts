@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
+import { ITransactionAsset, ITransactionData } from "../../interfaces";
 import { feeManager } from "../../managers";
-import { ITransactionAsset, ITransactionData } from "../../transactions";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {

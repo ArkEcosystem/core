@@ -2,10 +2,10 @@
 import { Wallet } from "@arkecosystem/core-database";
 import {
     Bignum,
+    blocks,
     crypto,
     HashAlgorithms,
-    ITransactionData,
-    models,
+    interfaces,
     slots,
     sortTransactions,
     transactionBuilder,
@@ -20,7 +20,7 @@ import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block } = models;
+const { Block } = blocks;
 
 let genesisBlock;
 let configManager;
@@ -158,7 +158,7 @@ describe("Blockchain", () => {
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
-        const createBlock = (generatorKeys: any, transactions: ITransactionData[]) => {
+        const createBlock = (generatorKeys: any, transactions: interfaces.ITransactionData[]) => {
             const transactionData = {
                 amount: Bignum.ZERO,
                 fee: Bignum.ZERO,

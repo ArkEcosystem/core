@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../constants";
-import { ITransactionData } from "../transactions";
+import { ITransactionData } from "../interfaces";
 
 export class FeeManager {
     public fees: { [key: number]: number } = {};

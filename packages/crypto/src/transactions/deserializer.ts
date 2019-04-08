@@ -3,8 +3,8 @@ import { Transaction, TransactionRegistry } from ".";
 import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto";
 import { TransactionVersionError } from "../errors";
+import { ITransactionData } from "../interfaces";
 import { Bignum } from "../utils";
-import { ITransactionData } from "./interfaces";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {

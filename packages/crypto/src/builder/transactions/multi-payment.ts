@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../constants";
 import { MaximumPaymentCountExceededError } from "../../errors";
+import { ITransactionData } from "../../interfaces";
 import { feeManager } from "../../managers";
-import { ITransactionData } from "../../transactions";
 import { Bignum } from "../../utils";
 import { TransactionBuilder } from "./transaction";
 

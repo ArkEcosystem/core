@@ -1,6 +1,6 @@
 import { TransactionTypes } from "../../constants";
+import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../interfaces";
 import { feeManager } from "../../managers";
-import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../transactions";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
