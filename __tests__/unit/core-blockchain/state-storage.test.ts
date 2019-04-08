@@ -1,7 +1,7 @@
 import "./mocks/";
 import { logger } from "./mocks/logger";
 
-import { blocks, interfaces, ITransactionData } from "@arkecosystem/crypto";
+import { blocks as cBlocks, interfaces, ITransactionData } from "@arkecosystem/crypto";
 import delay from "delay";
 import { config } from "../../../packages/core-blockchain/src/config";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
@@ -9,7 +9,7 @@ import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 
-const { Block } = blocks;
+const { Block } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => new Block(block));
 let stateStorage;
 
