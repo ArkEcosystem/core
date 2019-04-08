@@ -123,7 +123,10 @@ export class Block implements IBlock {
     }
 
     private static fromSerialized(serialized: string): Block {
-        return new Block(BlockDeserializer.deserialize(serialized));
+        const block = new Block(BlockDeserializer.deserialize(serialized));
+        block.serialized = serialized;
+
+        return block;
     }
 
     public serialized: string;
