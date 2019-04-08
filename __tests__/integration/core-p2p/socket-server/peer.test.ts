@@ -1,16 +1,16 @@
+import "jest-extended";
 import "../mocks/core-container";
 
 import delay from "delay";
 import socketCluster from "socketcluster-client";
-import { monitor } from "../../../../packages/core-p2p/src/monitor";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
+import { createPeerService } from "../../../helpers/peers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import genesisBlockJSON from "../../../utils/config/unitnet/genesisBlock.json";
 import { wallets } from "../../../utils/fixtures/unitnet/wallets";
 
 let socket;
 let emit;
-let server;
 
 const rateLimit = {
     enabled: true,
@@ -21,7 +21,9 @@ const rateLimit = {
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test";
-    server = await startSocketServer({ port: 4007, rateLimit });
+
+    const { service, processor } = createPeerService();
+    await startSocketServer(service, { port: 4007, rateLimit });
     await delay(3000);
     socket = socketCluster.create({
         port: 4007,
@@ -33,7 +35,7 @@ beforeAll(async () => {
             socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
 
-    jest.spyOn(monitor, "acceptNewPeer").mockImplementation(jest.fn());
+    jest.spyOn(processor, "acceptNewPeer").mockImplementation(jest.fn());
 });
 
 afterAll(() => {
@@ -44,10 +46,8 @@ const headers = {
     version: "2.1.0",
     port: "4009",
     nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
-    milestoneHash: "519afa9b68898c31",
     height: 1,
     "Content-Type": "application/json",
-    hashid: "4e41294e",
 };
 
 describe("Peer socket endpoint", () => {

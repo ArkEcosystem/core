@@ -1,6 +1,6 @@
-import "./mocks/core-container";
-
 import "jest-extended";
+
+import "./mocks/core-container";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { models, Transaction } from "@arkecosystem/crypto";

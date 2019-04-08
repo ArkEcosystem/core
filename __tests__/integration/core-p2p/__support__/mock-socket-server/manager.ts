@@ -28,6 +28,7 @@ export class MockSocketManager {
         if (endpoint.split(".").length === 1) {
             endpoint = `p2p.peer.${endpoint}`;
         }
+
         return this.clientSocket.emit("mock.add", {
             endpoint,
             value: {
@@ -38,7 +39,6 @@ export class MockSocketManager {
                     nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
                     height: 1,
                     "Content-Type": "application/json",
-                    hashid: "a4e0e642",
                 },
             },
         });

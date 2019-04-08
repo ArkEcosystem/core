@@ -33,10 +33,10 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Get the network (p2p) interface.
-     * @return {P2PInterface}
+     * @return {IPeerService}
      */
-    get p2p(): P2P.IMonitor {
-        return app.resolvePlugin<P2P.IMonitor>("p2p");
+    get p2p(): P2P.IPeerService {
+        return app.resolvePlugin<P2P.IPeerService>("p2p");
     }
 
     /**
@@ -191,7 +191,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await this.p2p.updateNetworkStatus();
+        await this.p2p.getMonitor().updateNetworkStatus();
     }
 
     /**
@@ -374,7 +374,7 @@ export class Blockchain implements blockchain.IBlockchain {
             // broadcast only current block
             const blocktime = config.getMilestone(block.data.height).blocktime;
             if (this.state.started && slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-                this.p2p.broadcastBlock(block);
+                this.p2p.getMonitor().broadcastBlock(block);
             }
         }
 
@@ -430,7 +430,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: models.IBlock): boolean {
-        if (!this.p2p.hasPeers()) {
+        if (!this.p2p.getStorage().hasPeers()) {
             return true;
         }
 

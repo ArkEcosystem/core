@@ -1,18 +1,13 @@
 import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
-import { SocketErrors } from "./constants";
+import { SocketErrors } from "../enums";
 import { getHeaders } from "./utils/get-headers";
+import * as internalHandlers from "./versions/internal";
+import * as peerHandlers from "./versions/peer";
+import * as utilsHandlers from "./versions/utils";
 
-/**
- * Create a new socketcluster server.
- * @param  {Object} config
- * @return {Object}
- */
-const startSocketServer = async config => {
-    const peerHandlers = require("./versions/peer");
-    const internalHandlers = require("./versions/internal");
-    const utilsHandlers = require("./versions/utils");
-
+export const startSocketServer = async (service: P2P.IPeerService, config): Promise<any> => {
     // when testing we also need to get socket files from dist folder
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
@@ -21,7 +16,6 @@ const startSocketServer = async config => {
         brokers: 1,
         port: config.port,
         appName: "core-p2p",
-
         wsEngine: "ws",
         workerController: __dirname + `${relativeSocketPath}/worker.js`,
         rebootWorkerOnCrash: true,
@@ -44,7 +38,7 @@ const startSocketServer = async config => {
 
         try {
             const result = {
-                data: (await handlers[version][method](req)) || {},
+                data: (await handlers[version][method](service, req)) || {},
                 headers: getHeaders(),
             };
 
@@ -68,11 +62,10 @@ const startSocketServer = async config => {
             reject("Socket server failed to setup in 10 seconds.");
         }, 10000);
     });
+
     const serverReadyPromise = new Promise((resolve, reject) => {
         server.on("ready", () => resolve(server));
     });
 
     return Promise.race([serverReadyPromise, timeoutPromise]);
 };
-
-export { startSocketServer };

@@ -10,9 +10,9 @@ import { transformTransactionLegacy } from "../versions/1/transactions/transform
 import { transformBlock } from "../versions/2/blocks/transformer";
 import { transformDelegate } from "../versions/2/delegates/transformer";
 import { transformPeer } from "../versions/2/peers/transformer";
+import { transformRoundDelegate } from "../versions/2/rounds/transformer";
 import { transformFeeStatistics } from "../versions/2/shared/transformers/fee-statistics";
 import { transformPorts } from "../versions/2/shared/transformers/ports";
-import { transformRoundDelegate } from "../versions/2/rounds/transformer";
 import { transformTransaction } from "../versions/2/transactions/transformer";
 import { transformWallet } from "../versions/2/wallets/transformer";
 

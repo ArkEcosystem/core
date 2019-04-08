@@ -9,7 +9,10 @@ export function tickSyncTracker(blockCount, count) {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),
-            networkHeight: app.resolvePlugin<P2P.IMonitor>("p2p").getNetworkHeight(),
+            networkHeight: app
+                .resolvePlugin<P2P.IPeerService>("p2p")
+                .getMonitor()
+                .getNetworkHeight(),
             blocksInitial: +count,
             blocksDownloaded: +count,
             blocksSession: 0,

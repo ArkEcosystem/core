@@ -33,7 +33,7 @@
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
-        "xstate": "^4.3.3"
+        "xstate": "^4.4.0"
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.3.0-next.4",

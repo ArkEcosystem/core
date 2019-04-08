@@ -31,7 +31,9 @@ export class TransactionsController extends Controller {
             const result = await guard.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
-                app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+                app.resolvePlugin<P2P.IPeerService>("p2p")
+                    .getMonitor()
+                    .broadcastTransactions(guard.getBroadcastTransactions());
             }
 
             return {
