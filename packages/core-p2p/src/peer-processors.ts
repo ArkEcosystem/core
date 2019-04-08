@@ -84,42 +84,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         return true;
     }
 
-    public async acceptNewPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
-        if (this.storage.getPeer(peer.ip)) {
-            return;
-        }
-
-        const newPeer = new Peer(peer.ip, peer.port);
-        newPeer.setHeaders(peer);
-
-        try {
-            this.storage.setPendingPeer(peer);
-
-            await this.communicator.ping(newPeer, 3000);
-
-            this.storage.setPeer(newPeer);
-
-            if (!options.lessVerbose) {
-                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
-            }
-
-            this.connector.connect(newPeer);
-
-            this.emitter.emit("peer.added", newPeer);
-        } catch (error) {
-            if (error instanceof PeerStatusResponseError) {
-                this.logger.debug(error.message);
-            } else {
-                this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
-                this.suspend(newPeer);
-            }
-        } finally {
-            this.storage.forgetPendingPeer(peer);
-        }
-
-        return;
-    }
-
     public suspend(peer: P2P.IPeer, punishment?: P2P.IPunishment): void {
         if (this.storage.hasSuspendedPeer(peer.ip)) {
             return;
@@ -171,6 +135,42 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         } else {
             await this.acceptNewPeer(peer);
         }
+    }
+
+    private async acceptNewPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
+        if (this.storage.getPeer(peer.ip)) {
+            return;
+        }
+
+        const newPeer = new Peer(peer.ip, peer.port);
+        newPeer.setHeaders(peer);
+
+        try {
+            this.storage.setPendingPeer(peer);
+
+            await this.communicator.ping(newPeer, 3000);
+
+            this.storage.setPeer(newPeer);
+
+            if (!options.lessVerbose) {
+                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            }
+
+            this.connector.connect(newPeer);
+
+            this.emitter.emit("peer.added", newPeer);
+        } catch (error) {
+            if (error instanceof PeerStatusResponseError) {
+                this.logger.debug(error.message);
+            } else {
+                this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
+                this.suspend(newPeer);
+            }
+        } finally {
+            this.storage.forgetPendingPeer(peer);
+        }
+
+        return;
     }
 
     private hasPendingSuspension(peer: P2P.IPeer): boolean {
