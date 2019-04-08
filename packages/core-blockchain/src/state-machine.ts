@@ -127,12 +127,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         try {
             const block: models.Block = await blockchain.database.getLastBlock();
 
-            if (block.data.payloadHash !== config.get("network.nethash")) {
-                logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
-
-                return blockchain.dispatch("FAILURE");
-            }
-
             if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
 
@@ -151,6 +145,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             // only genesis block? special case of first round needs to be dealt with
             if (block.data.height === 1) {
+                if (block.data.payloadHash !== config.get("network.nethash")) {
+                    logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
+
+                    return blockchain.dispatch("FAILURE");
+                }
+
                 await blockchain.database.deleteRound(1);
             }
 

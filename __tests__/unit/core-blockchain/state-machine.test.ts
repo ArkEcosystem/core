@@ -15,7 +15,7 @@ import { logger } from "./mocks/logger";
 let stateMachine;
 
 beforeAll(async () => {
-    stateMachine = require("../../../packages/core-blockchain/src/state-machine").stateMachine;
+    ({ stateMachine } = require("../../../packages/core-blockchain/src/state-machine"));
 
     process.env.CORE_ENV = "";
 });
@@ -168,13 +168,9 @@ describe("State Machine", () => {
                 loggerWarn = jest.spyOn(logger, "warn");
 
                 databaseMocks = {
-                    getLastBlock: jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
-                        // @ts-ignore
-                        data: {
-                            height: 1,
-                            timestamp: slots.getTime(),
-                        },
-                    }),
+                    getLastBlock: jest
+                        .spyOn(blockchain.database, "getLastBlock")
+                        .mockReturnValue(new Block(genesisBlockJSON)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
@@ -197,13 +193,6 @@ describe("State Machine", () => {
                 jest.restoreAllMocks();
 
                 process.env.NODE_ENV = "TEST";
-            });
-
-            it("should get genesis block from config if there is no last block in database", async () => {
-                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(null);
-
-                await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(databaseMocks.saveBlock).toHaveBeenCalled();
             });
 
             it("should dispatch FAILURE if there is no last block in database and genesis block payload hash != configured nethash", async () => {
