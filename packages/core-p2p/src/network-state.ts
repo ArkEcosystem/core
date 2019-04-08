@@ -1,7 +1,6 @@
 /* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
 import { app } from "@arkecosystem/core-container";
 import { slots } from "@arkecosystem/crypto";
-import { config as localConfig } from "./config";
 import { Monitor } from "./monitor";
 import { Peer } from "./peer";
 
@@ -87,7 +86,7 @@ export class NetworkState {
         const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
 
         const peers = monitor.getPeers();
-        const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
+        const minimumNetworkReach = app.resolveOptions("p2p").minimumNetworkReach;
 
         if (monitor.__isColdStartActive()) {
             return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);

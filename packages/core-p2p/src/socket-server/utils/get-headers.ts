@@ -1,14 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { config as localConfig } from "../../config";
-
-const config = app.getConfig();
 
 export const getHeaders = () => {
     const headers = {
-        nethash: config.get("network.nethash"),
+        nethash: app.getConfig().get("network.nethash"),
         version: app.getVersion(),
-        port: localConfig.get("port"),
+        port: app.resolveOptions("p2p").get("port"),
         os: require("os").platform(),
         height: null,
     };

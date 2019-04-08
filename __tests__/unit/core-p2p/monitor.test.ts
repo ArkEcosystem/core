@@ -5,7 +5,6 @@ import { state } from "./mocks/state";
 
 import { slots } from "@arkecosystem/crypto";
 import fs from "fs";
-import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { monitor } from "../../../packages/core-p2p/src/monitor";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 

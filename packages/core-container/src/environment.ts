@@ -33,7 +33,7 @@ export class Environment {
      * Export all path variables for the core environment.
      * @return {void}
      */
-    private exportPaths() {
+    private exportPaths(): void {
         const allowedKeys = ["data", "config", "cache", "log", "temp"];
 
         const createPathVariables = (values, namespace?) =>
@@ -60,7 +60,7 @@ export class Environment {
      * Export all additional variables for the core environment.
      * @return {void}
      */
-    private exportVariables() {
+    private exportVariables(): void {
         process.env.CORE_TOKEN = this.variables.token;
 
         // Don't pollute the test environment!

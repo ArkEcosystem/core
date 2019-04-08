@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { Bignum, constants, feeManager, formatSatoshi, Transaction } from "@arkecosystem/crypto";
 import camelCase from "lodash.camelcase";
-import { config as localConfig } from "../config";
 
 /**
  * Calculate minimum fee of a transaction for entering the pool.
@@ -19,7 +18,7 @@ export function calculateFee(satoshiPerByte: number, transaction: Transaction): 
         key = camelCase(transaction.constructor.name.replace("Transaction", ""));
     }
 
-    const addonBytes = localConfig.get("dynamicFees.addonBytes")[key];
+    const addonBytes = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[key];
 
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2;
@@ -39,7 +38,7 @@ export function dynamicFeeMatcher(transaction: Transaction): { broadcast: boolea
     const fee = +(transaction.data.fee as Bignum).toFixed();
     const id = transaction.id;
 
-    const dynamicFees = localConfig.get("dynamicFees");
+    const { dynamicFees } = app.resolveOptions("transaction-pool");
 
     let broadcast;
     let enterPool;

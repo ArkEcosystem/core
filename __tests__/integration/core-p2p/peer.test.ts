@@ -13,7 +13,6 @@ import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 let genesisTransaction;
 
 let peerMock;
-let localConfig;
 let socketManager: MockSocketManager;
 
 beforeAll(async () => {
@@ -21,8 +20,6 @@ beforeAll(async () => {
 
     socketManager = new MockSocketManager();
     await socketManager.init();
-
-    localConfig = require("../../../packages/core-p2p/src/config").config;
 
     localConfig.init({});
     localConfig.set("port", 4009); // we mock a peer on localhost:4009

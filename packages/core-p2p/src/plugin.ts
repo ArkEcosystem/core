@@ -1,5 +1,4 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
-import { config } from "./config";
 import { defaults } from "./defaults";
 import { monitor, Monitor } from "./monitor";
 import { startSocketServer } from "./socket-server";
@@ -14,8 +13,6 @@ export const plugin: Container.PluginDescriptor = {
     alias: "p2p",
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");
-
-        config.init(options);
 
         if (!process.env.DISABLE_P2P_SERVER) {
             monitor.server = await startSocketServer(options);

@@ -4,7 +4,6 @@ import { dato, Dato } from "@faustbrian/dato";
 import AJV from "ajv";
 import socketCluster from "socketcluster-client";
 import util from "util";
-import { config as localConfig } from "./config";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { guard } from "./guard";
 import { PeerVerificationResult, PeerVerifier } from "./peer-verifier";
@@ -58,7 +57,7 @@ export class Peer implements P2P.IPeer {
 
         this.headers = {
             version: app.getVersion(),
-            port: localConfig.get("port"),
+            port: app.resolveOptions("p2p").port,
             nethash: this.config.get("network.nethash"),
             height: null,
             "Content-Type": "application/json",
@@ -216,7 +215,7 @@ export class Peer implements P2P.IPeer {
         }
 
         const blacklisted = {};
-        localConfig.get("blacklist", []).forEach(ipaddr => (blacklisted[ipaddr] = true));
+        app.resolveOptions("p2p").blacklist.forEach(ipaddr => (blacklisted[ipaddr] = true));
         return body.peers.filter(peer => !blacklisted[peer.ip]);
     }
 

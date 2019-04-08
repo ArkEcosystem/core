@@ -4,7 +4,6 @@ import "./mocks/";
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
-import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";

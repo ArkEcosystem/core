@@ -77,7 +77,7 @@ export class Container implements container.IContainer {
     /**
      * Add a new registration.
      */
-    public register<T>(name, resolver: Resolver<T>) {
+    public register<T>(name: string, resolver: Resolver<T>) {
         try {
             this.container.register(name, resolver);
             return this;
@@ -92,7 +92,7 @@ export class Container implements container.IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    public resolve<T = any>(key): T {
+    public resolve<T = any>(key: string): T {
         try {
             return this.container.resolve<T>(key);
         } catch (err) {
@@ -106,7 +106,7 @@ export class Container implements container.IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    public resolvePlugin<T = any>(key): T {
+    public resolvePlugin<T = any>(key: string): T {
         try {
             return this.container.resolve<container.PluginConfig<T>>(key).plugin;
         } catch (err) {
@@ -120,9 +120,9 @@ export class Container implements container.IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    public resolveOptions(key) {
+    public resolveOptions(key: string) {
         try {
-            return this.container.resolve<container.PluginConfig<any>>(key).options;
+            return this.container.resolve<container.PluginConfig<any>>(`pkg.${key}.opts`);
         } catch (err) {
             throw err;
         }
@@ -133,7 +133,7 @@ export class Container implements container.IContainer {
      * @param  {String}  key
      * @return {Boolean}
      */
-    public has(key) {
+    public has(key: string) {
         try {
             this.container.resolve(key);
 

@@ -4,7 +4,6 @@ import "./mocks/core-container";
 import { slots } from "@arkecosystem/crypto";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
-import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { guard } from "../../../packages/core-p2p/src/guard";
 import { monitor } from "../../../packages/core-p2p/src/monitor";

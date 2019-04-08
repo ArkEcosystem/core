@@ -26,9 +26,7 @@ export const logError = req => {
 };
 
 export const isForgerAuthorized = req => {
-    const config = require("../../../config");
-
-    return isWhitelisted(config.remoteAccess, req.data.ip);
+    return isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.data.ip);
 };
 
 export const isAppReady = () => {

@@ -3,7 +3,6 @@ import "./mocks/";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { slots } from "@arkecosystem/crypto";
 import { Block } from "@arkecosystem/crypto/dist/models";
-import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import "../../utils";
 import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";

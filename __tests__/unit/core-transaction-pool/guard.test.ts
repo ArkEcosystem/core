@@ -2,7 +2,6 @@ import "./mocks/core-container";
 
 import { configManager, constants, slots } from "@arkecosystem/crypto";
 import "jest-extended";
-import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";

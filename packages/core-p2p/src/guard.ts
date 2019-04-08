@@ -1,17 +1,14 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger, P2P, Shared } from "@arkecosystem/core-interfaces";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import head from "lodash.head";
 import sumBy from "lodash.sumby";
 import prettyMs from "pretty-ms";
 import semver from "semver";
-import { config as localConfig } from "./config";
 import { IOffence, IPunishment, ISuspensionList } from "./interfaces";
 import { SocketErrors } from "./socket-server/constants";
 
 export class Guard {
-    // @TODO: mark this as private (O)
-    public config: Shared.Config;
     // @TODO: mark this as private (O)
     public monitor: P2P.IMonitor;
     // @TODO: mark this as private (O)
@@ -110,10 +107,6 @@ export class Guard {
         },
     };
 
-    constructor() {
-        this.config = localConfig;
-    }
-
     public init(monitor: P2P.IMonitor) {
         this.monitor = monitor;
 
@@ -133,7 +126,7 @@ export class Guard {
     }
 
     public suspend(peer): void {
-        const whitelist = this.config.get("whitelist");
+        const whitelist = app.resolveOptions("p2p").whitelist;
         if (whitelist && whitelist.includes(peer.ip)) {
             return;
         }
@@ -221,11 +214,11 @@ export class Guard {
     }
 
     public isWhitelisted(peer): boolean {
-        return this.config.get("whitelist").includes(peer.ip);
+        return app.resolveOptions("p2p").whitelist.includes(peer.ip);
     }
 
     public isBlacklisted(peer): boolean {
-        return this.config.get("blacklist").includes(peer.ip);
+        return app.resolveOptions("p2p").blacklist.includes(peer.ip);
     }
 
     public isValidVersion(peer): boolean {
@@ -234,9 +227,9 @@ export class Guard {
             return false;
         }
 
-        return this.config
-            .get("minimumVersions")
-            .some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
+        return app
+            .resolveOptions("p2p")
+            .minimumVersions.some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
     }
 
     public isValidNetwork(peer): boolean {
@@ -245,7 +238,7 @@ export class Guard {
     }
 
     public isValidPort(peer): boolean {
-        return peer.port === this.config.get("port");
+        return peer.port === app.resolveOptions("p2p").port;
     }
 
     public isRepeatOffender(peer): boolean {

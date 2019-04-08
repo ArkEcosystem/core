@@ -12,7 +12,6 @@ import shuffle from "lodash.shuffle";
 import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
-import { config as localConfig } from "./config";
 import { PeerStatusResponseError } from "./errors";
 import { guard, Guard } from "./guard";
 import { IAcceptNewPeerOptions } from "./interfaces";
@@ -40,7 +39,7 @@ export class Monitor implements P2P.IMonitor {
      */
     constructor() {
         this.peers = {};
-        this.coldStartPeriod = dato().addSeconds(localConfig.get("coldStart"));
+        this.coldStartPeriod = dato().addSeconds(app.resolveOptions("p2p").coldStart);
         this.initializing = true;
 
         // Holds temporary peers which are in the process of being accepted. Prevents that
@@ -61,8 +60,8 @@ export class Monitor implements P2P.IMonitor {
 
         this.guard = guard.init(this);
 
-        const cachedPeers = restorePeers();
-        localConfig.set("peers", cachedPeers);
+        restorePeers();
+        // localConfig.set("peers", cachedPeers);
 
         await this.populateSeedPeers();
 
@@ -134,7 +133,7 @@ export class Monitor implements P2P.IMonitor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersions: string[] = localConfig.get("minimumVersions");
+            const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
             this.logger.debug(
                 `Rejected peer ${
@@ -212,7 +211,7 @@ export class Monitor implements P2P.IMonitor {
     public async cleanPeers(fast = false, forcePing = false): Promise<void> {
         const keys = Object.keys(this.peers);
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
+        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
         const max = keys.length;
 
         this.logger.info(`Checking ${max} peers`);
@@ -486,7 +485,7 @@ export class Monitor implements P2P.IMonitor {
      * @param {Transaction[]} transactions
      */
     public async broadcastTransactions(transactions): Promise<any> {
-        const peers = take(shuffle(this.getPeers()), localConfig.get("maxPeersBroadcast"));
+        const peers = take(shuffle(this.getPeers()), app.resolveOptions("p2p").maxPeersBroadcast);
 
         this.logger.debug(
             `Broadcasting ${pluralize("transaction", transactions.length, true)} to ${pluralize(
@@ -677,7 +676,7 @@ export class Monitor implements P2P.IMonitor {
             return true;
         }
 
-        return Object.keys(this.peers).length >= localConfig.get("minimumNetworkReach");
+        return Object.keys(this.peers).length >= app.resolveOptions("p2p").minimumNetworkReach;
     }
 
     /**
@@ -696,7 +695,8 @@ export class Monitor implements P2P.IMonitor {
             return peer;
         });
 
-        const localConfigPeers = localConfig.get("peers");
+        // @TODO: check what we want to resolve
+        const localConfigPeers = app.resolveOptions("p2p").peers;
         if (localConfigPeers) {
             localConfigPeers.forEach(peerA => {
                 if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {
