@@ -76,7 +76,7 @@ export class Block implements IBlock {
         return BlockSerializer.serialize(block, includeSignature);
     }
 
-    public static getIdHex(data): string {
+    public static getIdHex(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
         const payloadHash: any = Block.serialize(data);
 
@@ -99,7 +99,7 @@ export class Block implements IBlock {
         return "0".repeat(16 - temp.length) + temp;
     }
 
-    public static getId(data): string {
+    public static getId(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
         const idHex = Block.getIdHex(data);
 
