@@ -181,6 +181,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             /** *******************************
              * database init                 *
              ******************************* */
+            // Integrity Verification
+            await blockchain.database.buildWallets();
 
             // NOTE: if the node is shutdown between round, the round has already been applied
             if (roundCalculator.isNewRound(block.data.height + 1)) {
