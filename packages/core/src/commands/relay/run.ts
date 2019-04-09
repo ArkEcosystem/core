@@ -33,9 +33,9 @@ $ ark relay:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const flags = await this.getFlags();
+        const flags = await super.getFlags();
 
-        await this.buildApplication(app, flags, {
+        await super.buildApplication(app, flags, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
                 "@arkecosystem/core-p2p": this.buildPeerOptions(flags),

@@ -21,7 +21,7 @@ $ ark forger:run --bip38="..." --password="..."
     };
 
     public async run(): Promise<void> {
-        const flags = await this.getFlags();
+        const flags = await super.getFlags();
 
         await this.buildApplication(app, flags, {
             include: [
