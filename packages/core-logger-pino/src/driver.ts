@@ -74,15 +74,21 @@ export class PinoLogger extends AbstractLogger {
     private getFileStream(): WriteStream {
         const createFileName = (time: Date, index: number) => {
             if (!time) {
-                return new Date().toISOString().slice(0, 10) + ".log";
+                return "current.log";
             }
 
-            return `${time.toISOString().slice(0, 10)}.${index}.log.gz`;
+            let filename = time.toISOString().slice(0, 10);
+            if (index > 1) {
+                filename += `.${index}`;
+            }
+
+            return `${filename}.log.gz`;
         };
 
         return rfs(createFileName, {
             path: process.env.CORE_PATH_LOG,
-            interval: "1d",
+            initialRotation: true,
+            interval: this.options.fileRotator ? this.options.fileRotator.interval : "1d",
             maxSize: "100M",
             maxFiles: 10,
             compress: "gzip",
