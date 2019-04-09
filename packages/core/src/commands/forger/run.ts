@@ -1,8 +1,9 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractRunCommand } from "../../shared/run";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
-export class RunCommand extends BaseCommand {
+export class RunCommand extends AbstractRunCommand {
     public static description: string = "Run the forger (without pm2)";
 
     public static examples: string[] = [
@@ -20,7 +21,7 @@ $ ark forger:run --bip38="..." --password="..."
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const flags = await this.getFlags();
 
         await this.buildApplication(app, flags, {
             include: [
@@ -34,5 +35,13 @@ $ ark forger:run --bip38="..." --password="..."
                 "@arkecosystem/core-forger": await this.buildBIP38(flags),
             },
         });
+    }
+
+    protected getSuffix(): string {
+        return "relay";
+    }
+
+    protected getClass() {
+        return RunCommand;
     }
 }
