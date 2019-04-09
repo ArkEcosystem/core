@@ -44,6 +44,7 @@ export class PeerConnector implements P2P.IPeerConnector {
 
         if (connection) {
             connection.destroy();
+            this.connections.forget(peer.ip);
         }
     }
 
