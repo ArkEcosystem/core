@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { models, slots, Transaction } from "@arkecosystem/crypto";
+import { ITransactionData, models, Transaction } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -335,7 +335,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     // @TODO: review and move into an appropriate class
     public async broadcastTransactions(transactions: Transaction[]): Promise<any> {
-        const peers = take(shuffle(this.storage.getPeers()), localConfig.get("maxPeersBroadcast"));
+        const peers: P2P.IPeer[] = take(shuffle(this.storage.getPeers()), localConfig.get("maxPeersBroadcast"));
 
         this.logger.debug(
             `Broadcasting ${pluralize("transaction", transactions.length, true)} to ${pluralize(
@@ -345,7 +345,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             )}`,
         );
 
-        const transactionsBroadcast = transactions.map(transaction => transaction.toJson());
+        const transactionsBroadcast: ITransactionData[] = transactions.map(transaction => transaction.toJson());
 
         return Promise.all(peers.map(peer => this.communicator.postTransactions(peer, transactionsBroadcast)));
     }

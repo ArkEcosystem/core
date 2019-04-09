@@ -25,14 +25,14 @@ beforeEach(() => {
 describe("NetworkMonitor", () => {
     describe("start", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
-            const acceptNewPeer = jest.spyOn(processor, "acceptNewPeer");
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
 
             jest.spyOn(localConfig, "get").mockReturnValue([]);
             jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
 
             await monitor.start({ networkStart: false });
 
-            expect(acceptNewPeer).toHaveBeenCalledWith(
+            expect(validateAndAcceptPeer).toHaveBeenCalledWith(
                 {
                     ip: stubPeer.ip,
                     port: stubPeer.port,
@@ -41,7 +41,7 @@ describe("NetworkMonitor", () => {
                 { lessVerbose: true, seed: true },
             );
 
-            acceptNewPeer.mockRestore();
+            validateAndAcceptPeer.mockRestore();
         });
     });
 
@@ -75,14 +75,14 @@ describe("NetworkMonitor", () => {
 
             communicator.getPeers = jest.fn().mockReturnValue([{ ip: "1.1.1.1" }, { ip: "2.2.2.2" }]);
 
-            const acceptNewPeer = jest.spyOn(processor, "acceptNewPeer");
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
             const validatePeer = jest.spyOn(processor, "validatePeer").mockReturnValue(true);
 
             await monitor.discoverPeers();
 
-            expect(acceptNewPeer).toHaveBeenCalledTimes(2);
-            expect(acceptNewPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
-            expect(acceptNewPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
+            expect(validateAndAcceptPeer).toHaveBeenCalledTimes(2);
+            expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
+            expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
 
             validatePeer.mockRestore();
         });

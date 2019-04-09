@@ -1,5 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { ITransactionData } from "@arkecosystem/crypto";
+import { IBlockData } from "@arkecosystem/crypto/dist/models";
 import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
 import util from "util";
@@ -37,13 +39,11 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
-    // @TODO: add typehint for block
-    public async postBlock(peer: P2P.IPeer, block) {
+    public async postBlock(peer: P2P.IPeer, block: IBlockData) {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
     }
 
-    // @TODO: add typehint for transactions
-    public async postTransactions(peer: P2P.IPeer, transactions): Promise<any> {
+    public async postTransactions(peer: P2P.IPeer, transactions: ITransactionData[]): Promise<any> {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions });
     }
 
