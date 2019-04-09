@@ -2,7 +2,6 @@
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
@@ -30,9 +29,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-    localConfig.init(defaults);
-    localConfig.set("port", 4000);
-
     ({ connector, monitor, storage, processor } = createPeerService());
 
     const peer = createStubPeer({

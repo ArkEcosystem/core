@@ -5,7 +5,6 @@ import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
-import { config } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -99,7 +98,7 @@ export class StateStorage implements Blockchain.IStateStorage {
         Transactions.TransactionRegistry.updateStaticFees(block.data.height);
 
         // Delete oldest block if size exceeds the maximum
-        if (_lastBlocks.size > config.get("state.maxLastBlocks")) {
+        if (_lastBlocks.size > app.resolveOptions("blockchain").state.maxLastBlocks) {
             _lastBlocks = _lastBlocks.delete(_lastBlocks.first<Blocks.Block>().data.height);
         }
     }
@@ -176,7 +175,7 @@ export class StateStorage implements Blockchain.IStateStorage {
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const limit = config.get("state.maxLastTransactionIds");
+        const limit = app.resolveOptions("blockchain").state.maxLastTransactionIds;
         if (_cachedTransactionIds.size > limit) {
             _cachedTransactionIds = _cachedTransactionIds.takeLast(limit);
         }

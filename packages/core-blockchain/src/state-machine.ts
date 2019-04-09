@@ -7,7 +7,6 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
-import { config as localConfig } from "./config";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
 import { isBlockChained } from "./utils";
@@ -296,7 +295,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = localConfig.get("databaseRollback");
+        const { maxBlockRewind, steps } = app.resolveOptions("p2p").databaseRollback;
         let blockchainAudit;
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {

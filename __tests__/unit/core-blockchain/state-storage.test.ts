@@ -1,9 +1,9 @@
 import "./mocks/";
+import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
 
 import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
-import { config } from "../../../packages/core-blockchain/src/config";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
@@ -14,13 +14,13 @@ const blocks = blocks2to100.concat(blocks101to155).map(block => Block.fromData(b
 let stateStorage;
 
 beforeAll(async () => {
-    config.init(defaults);
-
     stateStorage = require("../../../packages/core-blockchain/src").stateStorage;
 });
 
 beforeEach(() => {
     stateStorage.reset();
+
+    jest.spyOn(container.app, "resolveOptions").mockReturnValue(defaults);
 });
 
 describe("State Storage", () => {

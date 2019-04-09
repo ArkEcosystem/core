@@ -47,9 +47,9 @@ describe("Container", () => {
     });
 
     it("should resolve the options of a plugin", () => {
-        app.register("fake", asValue(dummyPlugin));
+        app.register(`pkg.${dummyPlugin.name}.opts`, asValue(dummyPlugin.options));
 
-        expect(app.resolveOptions("fake")).toEqual(dummyPlugin.options);
+        expect(app.resolveOptions(dummyPlugin.name)).toEqual(dummyPlugin.options);
     });
 
     it("should determine if a registration exists", () => {

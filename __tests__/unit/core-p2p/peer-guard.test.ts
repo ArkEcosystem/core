@@ -3,8 +3,6 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
-import { config as localConfig } from "../../../packages/core-p2p/src/config";
-import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { SocketErrors } from "../../../packages/core-p2p/src/enums";
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { PeerGuard } from "../../../packages/core-p2p/src/peer-guard";
@@ -14,11 +12,7 @@ let peerMock: P2P.IPeer;
 let guard: P2P.IPeerGuard;
 
 beforeAll(async () => {
-    localConfig.init(defaults);
-
     guard = new PeerGuard(new PeerConnector());
-
-    localConfig.set("minimumVersions", [">=2.0.0"]);
 });
 
 beforeEach(async () => {
@@ -30,8 +24,15 @@ beforeEach(async () => {
 describe("PeerGuard", () => {
     describe("isValidVersion", () => {
         it("should be a valid version", () => {
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.0.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.1.39" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.3.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.4.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.5.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.6.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.6.666" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.7.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.8.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.9.0" } })).toBeTrue();
+            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.9.934" } })).toBeTrue();
             expect(guard.isValidVersion({ ...peerMock, ...{ version: "3.0.0" } })).toBeTrue();
         });
 

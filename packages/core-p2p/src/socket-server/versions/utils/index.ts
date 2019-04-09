@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { config } from "../../../config";
 import { isWhitelisted } from "../../../utils/is-whitelisted";
 
 export const getHandlers = () => {
@@ -24,7 +23,7 @@ export const logError = (service: P2P.IPeerService, req) => {
 };
 
 export const isForgerAuthorized = (service: P2P.IPeerService, req) => {
-    return isWhitelisted(config.get("remoteAccess"), req.data.ip);
+    return isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.data.ip);
 };
 
 export const isAppReady = () => {

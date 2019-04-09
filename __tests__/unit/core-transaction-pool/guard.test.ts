@@ -2,7 +2,6 @@ import "./mocks/core-container";
 
 import { Crypto, Enums, Managers } from "@arkecosystem/crypto";
 import "jest-extended";
-import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { TransactionGuard } from "../../../packages/core-transaction-pool/src/guard";
@@ -16,9 +15,8 @@ let guard;
 let transactionPool;
 
 beforeAll(async () => {
-    localConfig.init(defaults);
-
     transactionPool = new Connection(defaults);
+
     await transactionPool.make();
 });
 

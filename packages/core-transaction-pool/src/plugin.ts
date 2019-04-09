@@ -1,5 +1,4 @@
 import { Container, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
-import { config } from "./config";
 import { Connection } from "./connection";
 import { defaults } from "./defaults";
 import { ConnectionManager } from "./manager";
@@ -9,8 +8,6 @@ export const plugin: Container.PluginDescriptor = {
     defaults,
     alias: "transaction-pool",
     async register(container: Container.IContainer, options) {
-        config.init(options);
-
         container.resolvePlugin<Logger.ILogger>("logger").info("Connecting to transaction pool");
 
         const connectionManager: ConnectionManager = new ConnectionManager();
