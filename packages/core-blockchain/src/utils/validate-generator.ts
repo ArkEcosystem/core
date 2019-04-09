@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { blocks, slots } from "@arkecosystem/crypto";
+import { Blocks, Crypto } from "@arkecosystem/crypto";
 
-export const validateGenerator = async (block: blocks.Block): Promise<boolean> => {
+export const validateGenerator = async (block: Blocks.Block): Promise<boolean> => {
     const database = app.resolvePlugin("database");
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     const delegates = await database.getActiveDelegates(block.data.height);
-    const slot = slots.getSlotNumber(block.data.timestamp);
+    const slot = Crypto.slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate = delegates[slot % delegates.length];
 
     const generatorUsername = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;

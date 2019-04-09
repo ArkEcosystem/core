@@ -80,7 +80,7 @@ class TestTransactionHandler extends TransactionHandler {
         return;
     }
 
-    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         return true;
     }
 }
@@ -122,7 +122,7 @@ describe("TransactionHandlerRegistry", () => {
         TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler);
 
         const keys = crypto.getKeys("secret");
-        const data: interfaces.ITransactionData = {
+        const data: Interfaces.ITransactionData = {
             type: TEST_TRANSACTION_TYPE,
             timestamp: slots.getTime(),
             senderPublicKey: keys.publicKey,

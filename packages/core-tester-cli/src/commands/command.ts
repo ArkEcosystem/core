@@ -1,5 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Address, Bignum, configManager, formatSatoshi, NetworkName } from "@arkecosystem/crypto";
+import { Identities, Managers, Types, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
 import { satoshiFlag } from "../flags";
@@ -89,9 +89,9 @@ export abstract class BaseCommand extends Command {
     protected makeOffline(command): any {
         const { args, flags } = this.parse(command);
 
-        configManager.setFromPreset(flags.network as NetworkName);
+        Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-        this.signer = new Signer(configManager.all());
+        this.signer = new Signer(Managers.configManager.all());
 
         return { args, flags };
     }
@@ -105,7 +105,7 @@ export abstract class BaseCommand extends Command {
             let recipientId = transaction.recipientId;
 
             if (!recipientId) {
-                recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+                recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
             }
 
             logger.info(
@@ -134,7 +134,7 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async knockBalance(address: string, expected: Bignum): Promise<void> {
+    protected async knockBalance(address: string, expected: Utils.Bignum): Promise<void> {
         const actual = await this.getWalletBalance(address);
 
         if (bignumify(expected).isEqualTo(actual)) {
@@ -144,13 +144,13 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async getWalletBalance(address: string): Promise<Bignum> {
+    protected async getWalletBalance(address: string): Promise<Utils.Bignum> {
         try {
             const { data } = await this.api.get(`wallets/${address}`);
 
             return bignumify(data.balance);
         } catch (error) {
-            return Bignum.ZERO;
+            return Utils.Bignum.ZERO;
         }
     }
 
@@ -197,7 +197,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected fromSatoshi(satoshi) {
-        return formatSatoshi(satoshi);
+        return Utils.formatSatoshi(satoshi);
     }
 
     private async setupConstants() {

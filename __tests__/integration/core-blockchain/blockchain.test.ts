@@ -158,7 +158,7 @@ describe("Blockchain", () => {
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
-        const createBlock = (generatorKeys: any, transactions: interfaces.ITransactionData[]) => {
+        const createBlock = (generatorKeys: any, transactions: Interfaces.ITransactionData[]) => {
             const transactionData = {
                 amount: Bignum.ZERO,
                 fee: Bignum.ZERO,

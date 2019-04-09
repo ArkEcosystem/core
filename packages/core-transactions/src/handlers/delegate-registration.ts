@@ -1,23 +1,17 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    constants,
-    DelegateRegistrationTransaction,
-    interfaces,
-    Transaction,
-    TransactionConstructor,
-} from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { WalletUsernameAlreadyRegisteredError, WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
-const { TransactionTypes } = constants;
+const { TransactionTypes } = Enums;
 
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return DelegateRegistrationTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.DelegateRegistrationTransaction;
     }
 
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -40,20 +34,20 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         wallet.username = data.asset.delegate.username;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         wallet.username = null;
     }
 
-    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {
+    public emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit("delegate.registered", transaction.data);
     }
 
-    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         if (this.typeFromSenderAlreadyInPool(data, guard)) {
             return false;
         }
@@ -72,7 +66,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
 
-        const delegateRegistrationsInPool: interfaces.ITransactionData[] = Array.from(
+        const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
             guard.pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
         ).map((memTx: any) => memTx.transaction.data);
 

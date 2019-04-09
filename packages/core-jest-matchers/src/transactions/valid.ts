@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 export {};
 
@@ -15,7 +15,7 @@ expect.extend({
     toBeValidTransaction: (transaction, network) => {
         return {
             message: () => "Expected value to be a valid transaction",
-            pass: crypto.verify(transaction),
+            pass: Crypto.crypto.verify(transaction),
         };
     },
 });

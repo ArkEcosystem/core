@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 export {};
 
@@ -15,7 +15,7 @@ expect.extend({
     toBeAddress: (received, argument) => {
         return {
             message: () => "Expected value to be a valid address",
-            pass: crypto.validateAddress(received, argument),
+            pass: Crypto.crypto.validateAddress(received, argument),
         };
     },
 });

@@ -1,14 +1,14 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import Joi from "joi";
 
 export const walletCreate = {
     name: "wallets.create",
     async method(params) {
-        const { publicKey } = crypto.getKeys(params.passphrase);
+        const { publicKey } = Crypto.crypto.getKeys(params.passphrase);
 
         return {
             publicKey,
-            address: crypto.getAddress(publicKey),
+            address: Crypto.crypto.getAddress(publicKey),
         };
     },
     schema: {

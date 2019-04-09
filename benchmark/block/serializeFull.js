@@ -5,5 +5,5 @@ const {
 const data = require('../helpers').getJSONFixture('block/deserialized/transactions');
 
 exports['core'] = () => {
-    return blocks.Block.serializeFull(data);
+    return Blocks.Block.serializeFull(data);
 };

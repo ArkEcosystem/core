@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 export const getCurrentRound = async () => {
     const config = app.getConfig();
@@ -14,7 +14,7 @@ export const getCurrentRound = async () => {
     const blockTime = config.getMilestone(height).blocktime;
     const reward = config.getMilestone(height).reward;
     const delegates = await databaseService.getActiveDelegates(height);
-    const timestamp = slots.getTime();
+    const timestamp = Crypto.slots.getTime();
 
     const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
     const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;

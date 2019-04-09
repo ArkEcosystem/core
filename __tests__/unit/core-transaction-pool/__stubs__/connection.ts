@@ -77,7 +77,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public hasExceededMaxTransactions(transaction: interfaces.ITransactionData): boolean {
+    public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
         return true;
     }
 
@@ -97,7 +97,7 @@ export class Connection implements TransactionPool.IConnection {
         return null;
     }
 
-    public acceptChainedBlock(block: blocks.Block): void {
+    public acceptChainedBlock(block: Blocks.Block): void {
         return;
     }
 
@@ -109,11 +109,11 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public purgeSendersWithInvalidTransactions(block: blocks.Block): void {
+    public purgeSendersWithInvalidTransactions(block: Blocks.Block): void {
         return;
     }
 
-    public purgeBlock(block: blocks.Block): void {
+    public purgeBlock(block: Blocks.Block): void {
         return;
     }
 

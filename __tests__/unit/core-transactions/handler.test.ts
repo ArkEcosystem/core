@@ -26,8 +26,8 @@ import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wal
 const { ARKTOSHI } = constants;
 
 let wallet: Wallet;
-let transaction: interfaces.ITransactionData;
-let transactionWithSecondSignature: interfaces.ITransactionData;
+let transaction: Interfaces.ITransactionData;
+let transactionWithSecondSignature: Interfaces.ITransactionData;
 let handler: TransactionHandler;
 let instance: any;
 

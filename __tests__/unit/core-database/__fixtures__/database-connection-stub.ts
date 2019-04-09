@@ -20,7 +20,7 @@ export class DatabaseConnectionStub implements Database.IConnection {
         return undefined;
     }
 
-    public deleteBlock(block: blocks.Block): Promise<any> {
+    public deleteBlock(block: Blocks.Block): Promise<any> {
         return undefined;
     }
 
@@ -28,7 +28,7 @@ export class DatabaseConnectionStub implements Database.IConnection {
         return undefined;
     }
 
-    public enqueueDeleteBlock(block: blocks.Block): any {}
+    public enqueueDeleteBlock(block: Blocks.Block): any {}
 
     public enqueueDeleteRound(height: number): any {}
 
@@ -36,7 +36,7 @@ export class DatabaseConnectionStub implements Database.IConnection {
         return this;
     }
 
-    public saveBlock(block: blocks.Block): Promise<any> {
+    public saveBlock(block: Blocks.Block): Promise<any> {
         return undefined;
     }
 }

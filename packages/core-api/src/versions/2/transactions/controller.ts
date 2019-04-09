@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { constants } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
@@ -120,7 +120,7 @@ export class TransactionsController extends Controller {
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // Remove reverse mapping from TransactionTypes enum.
-            const { TransactionTypes } = constants;
+            const { TransactionTypes } = Enums;
             const data = Object.assign({}, TransactionTypes);
             Object.values(TransactionTypes)
                 .filter(value => typeof value === "string")

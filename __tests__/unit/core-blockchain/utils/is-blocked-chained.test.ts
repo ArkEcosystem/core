@@ -12,7 +12,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -21,7 +21,7 @@ describe("isChained", () => {
                 height: 2,
                 previousBlock: "1",
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeTrue();
     });
@@ -34,7 +34,7 @@ describe("isChained", () => {
                 height: 2,
                 previousBlock: null,
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -43,7 +43,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -56,7 +56,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -65,7 +65,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -78,7 +78,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -87,7 +87,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -100,7 +100,7 @@ describe("isChained", () => {
                 height: 1,
                 previousBlock: null,
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
@@ -109,7 +109,7 @@ describe("isChained", () => {
                 height: 3,
                 previousBlock: "1",
             },
-        } as interfaces.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });

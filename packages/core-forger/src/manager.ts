@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { blocks, configManager, interfaces, slots, Transaction, types } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
 import pluralize from "pluralize";
@@ -15,7 +15,7 @@ export class ForgerManager {
     private config = app.getConfig();
 
     private secrets: string[];
-    private network: types.INetwork;
+    private network: Types.NetworkType;
     private client: Client;
     private delegates: Delegate[];
     private usernames: { [key: string]: string };
@@ -64,7 +64,7 @@ export class ForgerManager {
      * Start forging on the given node.
      */
     public async startForging(): Promise<void> {
-        return this.checkLater(slots.getTimeInMsUntilNextSlot());
+        return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
     }
 
     /**
@@ -106,7 +106,7 @@ export class ForgerManager {
                     await this.client.syncCheck();
                 }
 
-                return this.checkLater(slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
             }
 
             const networkState = await this.client.getNetworkState();
@@ -122,7 +122,7 @@ export class ForgerManager {
                 await this.forgeNewBlock(delegate, this.round, networkState);
             }
 
-            return this.checkLater(slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
         } catch (error) {
             if (error instanceof HostNoResponseError) {
                 this.logger.warn(error.message);
@@ -156,10 +156,10 @@ export class ForgerManager {
             height: networkState.nodeHeight,
         };
 
-        if (configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
+        if (Managers.configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
             previousBlock.idHex = previousBlock.id;
         } else {
-            previousBlock.idHex = blocks.Block.toBytesHex(previousBlock.id);
+            previousBlock.idHex = Blocks.Block.toBytesHex(previousBlock.id);
         }
 
         const blockOptions = {
@@ -182,10 +182,10 @@ export class ForgerManager {
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async getTransactionsForForging(): Promise<interfaces.ITransactionData[]> {
+    public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
         const response = await this.client.getTransactions();
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
+            ? response.transactions.map(serializedTx => Transactions.Transaction.fromHex(serializedTx).data)
             : [];
 
         if (isEmpty(response)) {

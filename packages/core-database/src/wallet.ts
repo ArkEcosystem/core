@@ -1,45 +1,46 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { Bignum, constants, crypto, formatSatoshi, interfaces } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 
-const { TransactionTypes } = constants;
+const { TransactionTypes } = Enums;
+const { crypto } = Crypto;
 
 export class Wallet implements Database.IWallet {
     public address: string;
     public publicKey: string | null;
     public secondPublicKey: string | null;
-    public balance: Bignum;
+    public balance: Utils.Bignum;
     public vote: string;
     public voted: boolean;
     public username: string | null;
     public lastBlock: any;
-    public voteBalance: Bignum;
-    public multisignature?: interfaces.IMultiSignatureAsset;
+    public voteBalance: Utils.Bignum;
+    public multisignature?: Interfaces.IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
-    public forgedFees: Bignum;
-    public forgedRewards: Bignum;
+    public forgedFees: Utils.Bignum;
+    public forgedRewards: Utils.Bignum;
     public rate?: number;
 
     constructor(address: string) {
         this.address = address;
         this.publicKey = null;
         this.secondPublicKey = null;
-        this.balance = Bignum.ZERO;
+        this.balance = Utils.Bignum.ZERO;
         this.vote = null;
         this.voted = false;
         this.username = null;
         this.lastBlock = null;
-        this.voteBalance = Bignum.ZERO;
+        this.voteBalance = Utils.Bignum.ZERO;
         this.multisignature = null;
         this.producedBlocks = 0;
-        this.forgedFees = Bignum.ZERO;
-        this.forgedRewards = Bignum.ZERO;
+        this.forgedFees = Utils.Bignum.ZERO;
+        this.forgedRewards = Utils.Bignum.ZERO;
     }
 
     /**
      * Add block data to this wallet.
      */
-    public applyBlock(block: interfaces.IBlockData): boolean {
+    public applyBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address
@@ -60,7 +61,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Remove block data from this wallet.
      */
-    public revertBlock(block: interfaces.IBlockData): boolean {
+    public revertBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
             crypto.getAddress(block.generatorPublicKey) === this.address
@@ -83,8 +84,8 @@ export class Wallet implements Database.IWallet {
      * Verify multi-signatures for the wallet.
      */
     public verifySignatures(
-        transaction: interfaces.ITransactionData,
-        multisignature: interfaces.IMultiSignatureAsset,
+        transaction: Interfaces.ITransactionData,
+        multisignature: Interfaces.IMultiSignatureAsset,
     ): boolean {
         if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
             return false;
@@ -113,7 +114,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Audit the specified transaction.
      */
-    public auditApply(transaction: interfaces.ITransactionData): any[] {
+    public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
         if (this.multisignature) {
@@ -178,7 +179,7 @@ export class Wallet implements Database.IWallet {
         }
 
         if (transaction.type === TransactionTypes.MultiPayment) {
-            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
+            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.Bignum.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
         }
 
@@ -197,14 +198,14 @@ export class Wallet implements Database.IWallet {
      * Get formatted wallet address and balance as string.
      */
     public toString(): string {
-        return `${this.address} (${formatSatoshi(this.balance)})`;
+        return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
     }
 
     /**
      * Goes through signatures to check if public key matches. Can also remove valid signatures.
      */
     private verifyTransactionSignatures(
-        transaction: interfaces.ITransactionData,
+        transaction: Interfaces.ITransactionData,
         signatures: string[],
         publicKey: string,
     ): string | null {
@@ -220,7 +221,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Verify the wallet.
      */
-    private verify(transaction: interfaces.ITransactionData, signature: string, publicKey: string): boolean {
+    private verify(transaction: Interfaces.ITransactionData, signature: string, publicKey: string): boolean {
         const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         return crypto.verifyHash(hash, signature, publicKey);
     }

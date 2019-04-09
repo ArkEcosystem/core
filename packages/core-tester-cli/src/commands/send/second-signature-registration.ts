@@ -1,4 +1,4 @@
-import { Address } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";
@@ -50,7 +50,7 @@ export class SecondSignatureRegistrationCommand extends SendCommand {
 
     protected async expectBalances(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
-            const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+            const recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
 
             const currentBalance = await this.getWalletBalance(recipientId);
             wallets[recipientId].expectedBalance = currentBalance.minus(transaction.fee);
@@ -62,7 +62,7 @@ export class SecondSignatureRegistrationCommand extends SendCommand {
             const wasCreated = await this.knockTransaction(transaction.id);
 
             if (wasCreated) {
-                const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+                const recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
 
                 await this.knockBalance(recipientId, wallets[recipientId].expectedBalance);
                 await this.knockSignature(recipientId, wallets[recipientId].secondPublicKey);

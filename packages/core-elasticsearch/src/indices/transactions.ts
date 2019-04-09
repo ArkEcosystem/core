@@ -1,4 +1,4 @@
-import { Transaction } from "@arkecosystem/crypto";
+import { Transactions as CryptoTransactions } from "@arkecosystem/crypto";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
@@ -21,7 +21,7 @@ export class Transactions extends Index {
 
             if (rows.length) {
                 rows = rows.map(row => {
-                    const { data } = Transaction.fromBytesUnsafe(row.serialized, row.id);
+                    const { data } = CryptoTransactions.Transaction.fromBytesUnsafe(row.serialized, row.id);
                     data.blockId = row.blockId;
 
                     return data;

@@ -390,7 +390,7 @@ describe("Transaction Guard", () => {
             const sender = delegates[21];
             const receivers = generateWallets("unitnet", 1);
 
-            const transactions: interfaces.ITransactionData[] = TransactionFactory.transfer(receivers[0].address, 50)
+            const transactions: Interfaces.ITransactionData[] = TransactionFactory.transfer(receivers[0].address, 50)
                 .withNetwork("unitnet")
                 .withPassphrase(sender.secret)
                 .create();

@@ -1,8 +1,8 @@
-import { AjvWrapper } from "@arkecosystem/crypto";
+import { Validation } from "@arkecosystem/crypto";
 import { SocketErrors } from "../../enums";
 
 export const validate = (schema, data) => {
-    const ajv = AjvWrapper.instance();
+    const ajv = Validation.AjvWrapper.instance();
     const errors = ajv.validate(schema, data) ? null : ajv.errors;
 
     if (errors) {

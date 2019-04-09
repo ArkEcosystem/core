@@ -1,4 +1,4 @@
-import { blocks, configManager, NetworkName, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -21,13 +21,13 @@ export class VerifyCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(VerifyCommand);
 
-        configManager.setFromPreset(flags.network as NetworkName);
+        Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
         let output = false;
         if (flags.type === "transaction") {
-            output = Transaction.fromHex(flags.data).verified;
+            output = Transactions.Transaction.fromHex(flags.data).verified;
         } else {
-            output = blocks.Block.fromData(blocks.Block.deserialize(flags.data)).verification.verified;
+            output = Blocks.Block.fromData(Blocks.Block.deserialize(flags.data)).verification.verified;
         }
 
         return handleOutput(flags, output);

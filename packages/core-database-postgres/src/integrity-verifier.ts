@@ -1,4 +1,4 @@
-import { Bignum } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 
 import { app } from "@arkecosystem/core-container";
@@ -60,7 +60,7 @@ export class IntegrityVerifier {
             const wallet = this.walletManager.findByAddress(transaction.recipientId);
 
             wallet
-                ? (wallet.balance = new Bignum(transaction.amount))
+                ? (wallet.balance = new Utils.Bignum(transaction.amount))
                 : logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
         }
     }

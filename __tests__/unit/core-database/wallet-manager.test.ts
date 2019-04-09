@@ -53,7 +53,7 @@ describe("Wallet Manager", () => {
 
     describe("applyBlock", () => {
         let delegateMock;
-        let block2: blocks.Block;
+        let block2: Blocks.Block;
 
         const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
@@ -408,7 +408,7 @@ describe("Wallet Manager", () => {
 
         it("should not be removed if wallet.multisignature is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.multisignature = {} as interfaces.IMultiSignatureAsset;
+            wallet.multisignature = {} as Interfaces.IMultiSignatureAsset;
 
             expect(wallet.multisignature).toEqual({});
             expect(walletManager.canBePurged(wallet)).toBeFalse();
@@ -458,7 +458,7 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.multisignature is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.multisignature = {} as interfaces.IMultiSignatureAsset;
+            wallet1.multisignature = {} as Interfaces.IMultiSignatureAsset;
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);

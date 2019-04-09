@@ -1,5 +1,5 @@
 import { Delegate } from "@arkecosystem/core-forger";
-import { configManager, interfaces, slots } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { writeFileSync } from "fs";
 import { satoshiFlag } from "../../flags";
@@ -44,19 +44,19 @@ export class BlockCommand extends BaseCommand {
         }),
     };
 
-    public async run(): Promise<interfaces.IBlockData[]> {
+    public async run(): Promise<Interfaces.IBlockData[]> {
         const { flags } = this.makeOffline(BlockCommand);
 
-        const genesisBlock = configManager.get("genesisBlock");
+        const genesisBlock = Managers.configManager.get("genesisBlock");
         const genesisWallets = genesisBlock.transactions.map(t => t.recipientId).filter(a => !!a);
 
         let previousBlock = flags.previousBlock ? JSON.parse(flags.previousBlock) : genesisBlock;
 
-        const blocks: interfaces.IBlockData[] = [];
+        const blocks: Interfaces.IBlockData[] = [];
 
         for (let i = 0; i < flags.number; i++) {
-            const milestone = configManager.getMilestone(previousBlock.height);
-            const delegate = new Delegate(flags.passphrase, configManager.get("pubKeyHash"));
+            const milestone = Managers.configManager.getMilestone(previousBlock.height);
+            const delegate = new Delegate(flags.passphrase, Managers.configManager.get("pubKeyHash"));
 
             const transactions = [];
             for (let i = 0; i < flags.transactions; i++) {
@@ -74,7 +74,7 @@ export class BlockCommand extends BaseCommand {
 
             const newBlock = await delegate.forge(transactions, {
                 previousBlock,
-                timestamp: slots.getSlotNumber(slots.getTime()) * milestone.blocktime,
+                timestamp: Crypto.slots.getSlotNumber(Crypto.slots.getTime()) * milestone.blocktime,
                 reward: milestone.reward,
             });
 

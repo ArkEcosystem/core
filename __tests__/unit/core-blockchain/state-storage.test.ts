@@ -106,7 +106,7 @@ describe("State Storage", () => {
                 stateStorage.setLastBlock(blocks[i]);
             }
 
-            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as interfaces.IBlockData[];
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as Interfaces.IBlockData[];
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
@@ -176,7 +176,7 @@ describe("State Storage", () => {
 
     describe("cacheTransactions", () => {
         it("should add transaction id", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as interfaces.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
@@ -184,11 +184,11 @@ describe("State Storage", () => {
         });
 
         it("should not add duplicate transaction ids", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as interfaces.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
-            expect(stateStorage.cacheTransactions([{ id: "1" } as interfaces.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
                 added: [],
                 notAdded: [{ id: "1" }],
             });

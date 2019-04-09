@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, P2P } from "@arkecosystem/core-interfaces";
-import { Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import { validate } from "../../../utils/validate";
 import * as schema from "../schemas";
 
 export const verifyTransaction = async (service: P2P.IPeerService, req) => {
     validate(schema.verifyTransaction, req.data);
 
-    const transaction = Transaction.fromBytes(req.data.transaction);
+    const transaction = Transactions.Transaction.fromBytes(req.data.transaction);
 
     return {
         data: {

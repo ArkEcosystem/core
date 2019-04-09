@@ -1,4 +1,4 @@
-import { blocks, configManager, NetworkName, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -22,13 +22,13 @@ export class DeserializeCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(DeserializeCommand);
 
-        configManager.setFromPreset(flags.network as NetworkName);
+        Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
         let output;
         if (flags.type === "transaction") {
-            output = Transaction.fromHex(flags.data).data;
+            output = Transactions.Transaction.fromHex(flags.data).data;
         } else {
-            const block = blocks.Block.fromHex(flags.data);
+            const block = Blocks.Block.fromHex(flags.data);
             output = { data: block.data, transactions: block.transactions.map(tx => tx.data) };
         }
 

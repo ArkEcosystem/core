@@ -2,21 +2,13 @@ import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import {
-    Bignum,
-    blocks,
-    constants,
-    crypto,
-    formatSatoshi,
-    interfaces,
-    isException,
-    Transaction,
-} from "@arkecosystem/crypto";
+import { Blocks, Crypto, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
 import { Wallet } from "./wallet";
 
-const { TransactionTypes } = constants;
+const { TransactionTypes } = Enums;
+const { crypto } = Crypto;
 
 export class WalletManager implements Database.IWalletManager {
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -251,7 +243,7 @@ export class WalletManager implements Database.IWalletManager {
             if (delegates.includes(values[0])) {
                 const mapped = values.map(v => `${v.username} (${v.publicKey})`);
                 this.logger.warn(
-                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatSatoshi(
+                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${Utils.formatSatoshi(
                         voteBalance,
                     )}`,
                 );
@@ -295,7 +287,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public applyBlock(block: blocks.Block): void {
+    public applyBlock(block: Blocks.Block): void {
         const generatorPublicKey = block.data.generatorPublicKey;
 
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
@@ -333,7 +325,7 @@ export class WalletManager implements Database.IWalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (applied && delegate.vote) {
-                const increase = (block.data.reward as Bignum).plus(block.data.totalFee);
+                const increase = (block.data.reward as Utils.Bignum).plus(block.data.totalFee);
                 const votedDelegate = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
             }
@@ -356,7 +348,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public revertBlock(block: blocks.Block): void {
+    public revertBlock(block: Blocks.Block): void {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
@@ -379,7 +371,7 @@ export class WalletManager implements Database.IWalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (reverted && delegate.vote) {
-                const decrease = (block.data.reward as Bignum).plus(block.data.totalFee);
+                const decrease = (block.data.reward as Utils.Bignum).plus(block.data.totalFee);
                 const votedDelegate = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease);
             }
@@ -395,7 +387,7 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Apply the given transaction to a delegate.
      */
-    public applyTransaction(transaction: Transaction): void {
+    public applyTransaction(transaction: Transactions.Transaction): void {
         const { data } = transaction;
         const { type, recipientId, senderPublicKey } = data;
 
@@ -410,7 +402,7 @@ export class WalletManager implements Database.IWalletManager {
         }
 
         // handle exceptions / verify that we can apply the transaction to the sender
-        if (isException(data)) {
+        if (Utils.isException(data)) {
             this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
         } else {
             try {
@@ -441,7 +433,7 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Remove the given transaction from a delegate.
      */
-    public revertTransaction(transaction: Transaction): void {
+    public revertTransaction(transaction: Transactions.Transaction): void {
         const { type, data } = transaction;
         const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
@@ -509,7 +501,7 @@ export class WalletManager implements Database.IWalletManager {
     private updateVoteBalances(
         sender: Wallet,
         recipient: Wallet,
-        transaction: interfaces.ITransactionData,
+        transaction: Interfaces.ITransactionData,
         revert = false,
     ): void {
         // TODO: multipayment?
@@ -517,7 +509,7 @@ export class WalletManager implements Database.IWalletManager {
             // Update vote balance of the sender's delegate
             if (sender.vote) {
                 const delegate = this.findByPublicKey(sender.vote);
-                const total = (transaction.amount as Bignum).plus(transaction.fee);
+                const total = (transaction.amount as Utils.Bignum).plus(transaction.fee);
                 delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
             }
 

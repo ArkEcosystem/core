@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
-import { Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
 export function transformTransactionLegacy(model) {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const { data } = Transaction.fromBytesUnsafe(model.serialized, model.id);
+    const { data } = Transactions.Transaction.fromBytesUnsafe(model.serialized, model.id);
     const senderId = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     return {

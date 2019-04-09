@@ -1,12 +1,13 @@
 import { Dato } from "@faustbrian/dato";
 
-import { blocks, constants, interfaces, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export interface IAddTransactionResponse {
     success: boolean;
 }
+
 export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
-    transaction: Transaction;
+    transaction: Transactions.Transaction;
     type: string;
     message: string;
     success: boolean;
@@ -51,23 +52,23 @@ export interface IConnection {
      * }
      */
     addTransactions(
-        transactions: Transaction[],
+        transactions: Transactions.Transaction[],
     ): {
-        added: Transaction[];
+        added: Transactions.Transaction[];
         notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: Transaction): IAddTransactionResponse;
+    addTransaction(transaction: Transactions.Transaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
-    removeTransaction(transaction: Transaction): void;
+    removeTransaction(transaction: Transactions.Transaction): void;
 
     /**
      * Remove a transaction from the pool by id.
@@ -82,7 +83,7 @@ export interface IConnection {
     /**
      * Get a transaction by transaction id.
      */
-    getTransaction(id: string): Transaction;
+    getTransaction(id: string): Transactions.Transaction;
 
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
@@ -117,7 +118,7 @@ export interface IConnection {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    hasExceededMaxTransactions(transaction: interfaces.ITransactionData): boolean;
+    hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean;
 
     /**
      * Flush the pool (delete all transactions from it).
@@ -148,7 +149,7 @@ export interface IConnection {
      * @param  {Object} block
      * @return {void}
      */
-    acceptChainedBlock(block: blocks.Block): void;
+    acceptChainedBlock(block: Blocks.Block): void;
 
     /**
      * Rebuild pool manager wallets
@@ -164,17 +165,17 @@ export interface IConnection {
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
-    purgeSendersWithInvalidTransactions(block: blocks.Block): void;
+    purgeSendersWithInvalidTransactions(block: Blocks.Block): void;
 
     /**
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
-    purgeBlock(block: blocks.Block): void;
+    purgeBlock(block: Blocks.Block): void;
 
     /**
      * Check whether a given sender has any transactions of the specified type
      * in the pool.
      */
-    senderHasTransactionsOfType(senderPublicKey: string, transactionType: constants.TransactionTypes): boolean;
+    senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean;
 }

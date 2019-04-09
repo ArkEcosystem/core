@@ -1,4 +1,4 @@
-import { NetworkManager } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import Joi from "joi";
 import { schemaNetwork } from "./schema";
 
@@ -8,7 +8,7 @@ export class Network {
      * @return {void}
      */
     public static setUp(opts: Record<string, any>) {
-        const config = NetworkManager.findByName(opts.network);
+        const config = Managers.NetworkManager.findByName(opts.network);
 
         const { error } = Joi.validate(config, schemaNetwork);
 

@@ -1,21 +1,15 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    configManager,
-    interfaces,
-    Transaction,
-    TransactionConstructor,
-    TransferTransaction,
-} from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
 
 export class TransferTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return TransferTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.TransferTransaction;
     }
 
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -26,20 +20,20 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         if (!isRecipientOnActiveNetwork(data)) {
             guard.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${configManager.get("pubKeyHash")}`,
+                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get("pubKeyHash")}`,
             );
             return false;
         }

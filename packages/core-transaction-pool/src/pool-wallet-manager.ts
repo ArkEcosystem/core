@@ -2,7 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { crypto, isException, Transaction } from "@arkecosystem/crypto";
+import { Crypto, Transactions, Utils } from "@arkecosystem/crypto";
+
+const { crypto } = Crypto;
 
 export class PoolWalletManager extends WalletManager {
     public readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -34,7 +36,7 @@ export class PoolWalletManager extends WalletManager {
     /**
      * Checks if the transaction can be applied.
      */
-    public canApply(transaction: Transaction, errors): boolean {
+    public canApply(transaction: Transactions.Transaction, errors): boolean {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         if (!this.databaseService.walletManager.exists(transaction.data.senderPublicKey)) {
@@ -49,7 +51,7 @@ export class PoolWalletManager extends WalletManager {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey);
 
-        if (isException(data)) {
+        if (Utils.isException(data)) {
             this.logger.warn(
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
@@ -70,7 +72,7 @@ export class PoolWalletManager extends WalletManager {
     /**
      * Remove the given transaction from a sender only.
      */
-    public revertTransactionForSender(transaction: Transaction) {
+    public revertTransactionForSender(transaction: Transactions.Transaction) {
         const { data } = transaction;
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist
 

@@ -1,14 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-
+import { Blocks, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
-import { PoolWalletManager } from "./pool-wallet-manager";
-
-import { Bignum, blocks, constants, interfaces, Transaction } from "@arkecosystem/crypto";
 import { Mem } from "./mem";
 import { MemPoolTransaction } from "./mem-pool-transaction";
+import { PoolWalletManager } from "./pool-wallet-manager";
 import { Storage } from "./storage";
 
 /**
@@ -118,7 +116,7 @@ export class Connection implements TransactionPool.IConnection {
      *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
      * }
      */
-    public addTransactions(transactions: Transaction[]) {
+    public addTransactions(transactions: Transactions.Transaction[]) {
         const added = [];
         const notAdded = [];
 
@@ -150,7 +148,7 @@ export class Connection implements TransactionPool.IConnection {
      * and applied to the pool or not. In case it was not successful, the type and message
      * property yield information about the error.
      */
-    public addTransaction(transaction: Transaction): TransactionPool.IAddTransactionResponse {
+    public addTransaction(transaction: Transactions.Transaction): TransactionPool.IAddTransactionResponse {
         if (this.transactionExists(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
@@ -168,8 +166,8 @@ export class Connection implements TransactionPool.IConnection {
             const all = this.mem.getTransactionsOrderedByFee();
             const lowest = all[all.length - 1].transaction;
 
-            const fee = transaction.data.fee as Bignum;
-            const lowestFee = lowest.data.fee as Bignum;
+            const fee = transaction.data.fee as Utils.Bignum;
+            const lowestFee = lowest.data.fee as Utils.Bignum;
 
             if (lowestFee.isLessThan(fee)) {
                 this.walletManager.revertTransactionForSender(lowest);
@@ -208,7 +206,7 @@ export class Connection implements TransactionPool.IConnection {
     /**
      * Remove a transaction from the pool by transaction.
      */
-    public removeTransaction(transaction: Transaction) {
+    public removeTransaction(transaction: Transactions.Transaction) {
         this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
@@ -233,7 +231,7 @@ export class Connection implements TransactionPool.IConnection {
     /**
      * Get a transaction by transaction id.
      */
-    public getTransaction(id: string): Transaction {
+    public getTransaction(id: string): Transactions.Transaction {
         this.__purgeExpired();
 
         return this.mem.getTransactionById(id);
@@ -306,7 +304,7 @@ export class Connection implements TransactionPool.IConnection {
     /**
      * Check whether sender of transaction has exceeded max transactions in queue.
      */
-    public hasExceededMaxTransactions(transaction: interfaces.ITransactionData): boolean {
+    public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
         this.__purgeExpired();
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
@@ -385,7 +383,7 @@ export class Connection implements TransactionPool.IConnection {
      * It removes block transaction from the pool and adjusts
      * pool wallets for non existing transactions.
      */
-    public acceptChainedBlock(block: blocks.Block) {
+    public acceptChainedBlock(block: Blocks.Block) {
         for (const transaction of block.transactions) {
             const { data } = transaction;
             const exists = this.transactionExists(data.id);
@@ -437,7 +435,7 @@ export class Connection implements TransactionPool.IConnection {
         // if delegate in poll wallet manager - apply rewards and fees
         if (this.walletManager.exists(block.data.generatorPublicKey)) {
             const delegateWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
-            const increase = (block.data.reward as Bignum).plus(block.data.totalFee);
+            const increase = (block.data.reward as Utils.Bignum).plus(block.data.totalFee);
             delegateWallet.balance = delegateWallet.balance.plus(increase);
         }
 
@@ -489,7 +487,7 @@ export class Connection implements TransactionPool.IConnection {
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
-    public purgeSendersWithInvalidTransactions(block: blocks.Block) {
+    public purgeSendersWithInvalidTransactions(block: Blocks.Block) {
         const publicKeys = new Set(block.transactions.filter(tx => !tx.verified).map(tx => tx.data.senderPublicKey));
 
         publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey));
@@ -499,7 +497,7 @@ export class Connection implements TransactionPool.IConnection {
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
-    public purgeBlock(block: blocks.Block) {
+    public purgeBlock(block: Blocks.Block) {
         block.transactions.forEach(tx => {
             if (this.transactionExists(tx.id)) {
                 this.removeTransaction(tx);
@@ -512,7 +510,7 @@ export class Connection implements TransactionPool.IConnection {
      * Check whether a given sender has any transactions of the specified type
      * in the pool.
      */
-    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: constants.TransactionTypes): boolean {
+    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
         this.__purgeExpired();
 
         for (const memPoolTransaction of this.mem.getBySender(senderPublicKey)) {
@@ -549,7 +547,7 @@ export class Connection implements TransactionPool.IConnection {
      * Create an error object which the TransactionGuard understands.
      */
     public __createError(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         type: string,
         message: string,
     ): TransactionPool.IAddTransactionErrorResponse {

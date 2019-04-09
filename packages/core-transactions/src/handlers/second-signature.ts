@@ -1,20 +1,15 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    interfaces,
-    SecondSignatureRegistrationTransaction,
-    Transaction,
-    TransactionConstructor,
-} from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class SecondSignatureTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return SecondSignatureRegistrationTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.SecondSignatureRegistrationTransaction;
     }
 
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -25,15 +20,15 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         wallet.secondPublicKey = null;
     }
 
-    public canEnterTransactionPool(data: interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         return !this.typeFromSenderAlreadyInPool(data, guard);
     }
 }

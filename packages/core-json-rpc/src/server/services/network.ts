@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
-import { configManager } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import isReachable from "is-reachable";
 import sample from "lodash.sample";
 
@@ -9,7 +9,7 @@ class Network {
     private peers: any;
     private server: any;
 
-    private readonly network: any = configManager.all();
+    private readonly network: any = Managers.configManager.all();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly p2p: P2P.IPeerService = app.resolvePlugin<P2P.IPeerService>("p2p");
 

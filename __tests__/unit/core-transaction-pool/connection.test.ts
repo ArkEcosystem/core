@@ -914,7 +914,7 @@ describe("Connection", () => {
                 .withPassphrase(delegatesSecrets[0])
                 .build(5);
 
-            const block = { transactions } as blocks.Block;
+            const block = { transactions } as Blocks.Block;
 
             addTransactions(block.transactions);
 

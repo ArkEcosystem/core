@@ -1,4 +1,4 @@
-import { constants, slots } from "@arkecosystem/crypto";
+import { Crypto, Enums } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
 import snakeCase from "lodash.snakecase";
@@ -170,7 +170,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      */
     public async allVotesBySender(senderPublicKey, parameters: any = {}): Promise<any> {
         return this.findAll({
-            ...{ senderPublicKey, type: constants.TransactionTypes.Vote },
+            ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
             ...parameters,
         });
     }
@@ -273,7 +273,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             .from(this.query)
             .where(
                 this.query.timestamp.gte(
-                    slots.getTime(
+                    Crypto.slots.getTime(
                         dato()
                             .addDays(30)
                             .toMilliseconds(),

@@ -239,7 +239,7 @@ describe("Blockchain", () => {
                             timestamp: slots.getTime(),
                             height: genesisBlock.height,
                         },
-                    } as interfaces.IBlock),
+                    } as Interfaces.IBlock),
                 ).toBeTrue();
             });
         });

@@ -3,4 +3,4 @@ import genesisBlockJson from "../../config/unitnet/genesisBlock.json";
 
 configManager.setFromPreset("unitnet");
 
-export const genesisBlock = blocks.Block.fromData(genesisBlockJson);
+export const genesisBlock = Blocks.Block.fromData(genesisBlockJson);

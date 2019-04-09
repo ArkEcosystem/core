@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 
 import { app } from "@arkecosystem/core-container";
-import { blocks } from "@arkecosystem/crypto";
+import { Blocks } from "@arkecosystem/crypto";
 import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
@@ -22,7 +22,7 @@ class BlockNotReadyCounter {
     private id = "";
     private attempts = 0;
 
-    public increment(block: blocks.Block): boolean {
+    public increment(block: Blocks.Block): boolean {
         const { id } = block.data;
         let attemptsLeft = false;
 
@@ -52,7 +52,7 @@ export class UnchainedHandler extends BlockHandler {
 
     public constructor(
         protected readonly blockchain: Blockchain,
-        protected readonly block: blocks.Block,
+        protected readonly block: Blocks.Block,
         private isValidGenerator: boolean,
     ) {
         super(blockchain, block);
