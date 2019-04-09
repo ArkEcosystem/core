@@ -15,9 +15,8 @@ let guard;
 let transactionPool;
 
 beforeAll(async () => {
-    localConfig.init(defaults);
-
     transactionPool = new Connection(defaults);
+
     await transactionPool.make();
 });
 

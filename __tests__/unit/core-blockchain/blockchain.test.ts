@@ -1,5 +1,6 @@
 /* tslint:disable:max-line-length */
 import "./mocks/";
+import { container } from "./mocks/container";
 
 import { models, slots } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -145,7 +146,10 @@ describe("Blockchain", () => {
 
     describe("getLastBlock", () => {
         it("should be ok", () => {
-            jest.spyOn(localConfig, "get").mockReturnValueOnce(50);
+            jest.spyOn(container.app, "resolveOptions").mockReturnValueOnce({
+                state: { maxLastBlocks: 50 },
+            });
+
             blockchain.state.setLastBlock(genesisBlock);
 
             expect(blockchain.getLastBlock()).toEqual(genesisBlock);
