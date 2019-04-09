@@ -1,4 +1,4 @@
-import { INetwork } from "../networks";
+import { NetworkType } from "../types";
 import { Keys } from "./keys";
 
 export class PrivateKey {
@@ -6,7 +6,7 @@ export class PrivateKey {
         return Keys.fromPassphrase(passphrase).privateKey;
     }
 
-    public static fromWIF(wif: string, network?: INetwork): string {
+    public static fromWIF(wif: string, network?: NetworkType): string {
         return Keys.fromWIF(wif, network).privateKey;
     }
 }

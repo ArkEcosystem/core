@@ -1,6 +1,6 @@
 import bip32 from "bip32";
 import { mnemonicToSeedSync } from "bip39";
-import { KeyPair } from "../identities/keys";
+import { IKeyPair } from "../interfaces";
 import { configManager } from "../managers";
 
 export class HDWallet {
@@ -16,7 +16,7 @@ export class HDWallet {
     /**
      * Get bip32 node from keys.
      */
-    public static fromKeys(keys: KeyPair, chainCode: Buffer): bip32.BIP32 {
+    public static fromKeys(keys: IKeyPair, chainCode: Buffer): bip32.BIP32 {
         if (!keys.compressed) {
             throw new TypeError("BIP32 only allows compressed keys.");
         }
@@ -27,7 +27,7 @@ export class HDWallet {
     /**
      * Get key pair from the given node.
      */
-    public static getKeys(node: bip32.BIP32): KeyPair {
+    public static getKeys(node: bip32.BIP32): IKeyPair {
         return {
             publicKey: node.publicKey.toString("hex"),
             privateKey: node.privateKey.toString("hex"),

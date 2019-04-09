@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { models, slots } from "@arkecosystem/crypto";
+import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { validate } from "../../utils/validate";
 import { schema } from "./schema";
 
 import pluralize from "pluralize";
 
-const { Block } = models;
+const { Block } = Blocks;
 
 const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -63,8 +63,8 @@ export const getStatus = () => {
     return {
         success: true,
         height: lastBlock ? lastBlock.data.height : 0,
-        forgingAllowed: slots.isForgingAllowed(),
-        currentSlot: slots.getSlotNumber(),
+        forgingAllowed: Crypto.slots.isForgingAllowed(),
+        currentSlot: Crypto.slots.getSlotNumber(),
         header: lastBlock ? lastBlock.getHeader() : {},
     };
 };

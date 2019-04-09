@@ -1,13 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { Bignum } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 
-/**
- * Calculate the total supply at the given height
- * @param  {Number} height
- * @return {Number}
- */
-function calculate(height) {
+export function calculate(height: number) {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
@@ -19,7 +14,7 @@ function calculate(height) {
         return genesisBlock.totalAmount;
     }
 
-    let rewards = Bignum.ZERO;
+    let rewards = Utils.Bignum.ZERO;
     let currentHeight = 0;
     let constantIndex = 0;
 
@@ -38,11 +33,9 @@ function calculate(height) {
         currentHeight += heightJump;
 
         if (currentHeight >= constants.height) {
-            rewards = rewards.plus(new Bignum(constants.reward).times(heightJump));
+            rewards = rewards.plus(new Utils.Bignum(constants.reward).times(heightJump));
         }
     }
 
-    return +new Bignum(genesisBlock.totalAmount).plus(rewards).toFixed();
+    return +new Utils.Bignum(genesisBlock.totalAmount).plus(rewards).toFixed();
 }
-
-export { calculate };

@@ -1,24 +1,23 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { configManager, ITransactionData, models, networks, slots, Transaction } from "@arkecosystem/crypto";
+import { NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
 import pluralize from "pluralize";
 
 import { Client } from "./client";
+import { Delegate } from "./delegate";
 import { HostNoResponseError } from "./errors";
-
-const { Delegate } = models;
 
 export class ForgerManager {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
     private config = app.getConfig();
 
     private secrets: string[];
-    private network: networks.INetwork;
+    private network: Types.NetworkType;
     private client: Client;
-    private delegates: models.Delegate[];
+    private delegates: Delegate[];
     private usernames: { [key: string]: string };
     private isStopped: boolean;
     private round: P2P.ICurrentRound;
@@ -37,7 +36,7 @@ export class ForgerManager {
     /**
      * Load all delegates that forge.
      */
-    public async loadDelegates(bip38: string, password: string): Promise<models.Delegate[] | null> {
+    public async loadDelegates(bip38: string, password: string): Promise<Delegate[] | null> {
         if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
             this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
             return null;
@@ -65,7 +64,7 @@ export class ForgerManager {
      * Start forging on the given node.
      */
     public async startForging(): Promise<void> {
-        return this.checkLater(slots.getTimeInMsUntilNextSlot());
+        return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
     }
 
     /**
@@ -107,7 +106,7 @@ export class ForgerManager {
                     await this.client.syncCheck();
                 }
 
-                return this.checkLater(slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
             }
 
             const networkState = await this.client.getNetworkState();
@@ -123,7 +122,7 @@ export class ForgerManager {
                 await this.forgeNewBlock(delegate, this.round, networkState);
             }
 
-            return this.checkLater(slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
         } catch (error) {
             if (error instanceof HostNoResponseError) {
                 this.logger.warn(error.message);
@@ -148,7 +147,7 @@ export class ForgerManager {
     /**
      * Creates new block by the delegate and sends it to relay node for verification and broadcast
      */
-    public async forgeNewBlock(delegate: models.Delegate, round, networkState: P2P.INetworkState) {
+    public async forgeNewBlock(delegate: Delegate, round, networkState: P2P.INetworkState) {
         const transactions = await this.getTransactionsForForging();
 
         const previousBlock = {
@@ -157,10 +156,10 @@ export class ForgerManager {
             height: networkState.nodeHeight,
         };
 
-        if (configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
+        if (Managers.configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
             previousBlock.idHex = previousBlock.id;
         } else {
-            previousBlock.idHex = models.Block.toBytesHex(previousBlock.id);
+            previousBlock.idHex = Blocks.Block.toBytesHex(previousBlock.id);
         }
 
         const blockOptions = {
@@ -183,10 +182,10 @@ export class ForgerManager {
     /**
      * Gets the unconfirmed transactions from the relay nodes transaction pool
      */
-    public async getTransactionsForForging(): Promise<ITransactionData[]> {
+    public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
         const response = await this.client.getTransactions();
         const transactions = response.transactions
-            ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
+            ? response.transactions.map(serializedTx => Transactions.Transaction.fromHex(serializedTx).data)
             : [];
 
         if (isEmpty(response)) {
@@ -205,7 +204,7 @@ export class ForgerManager {
     /**
      * Parses the given network state and decides if forging is allowed.
      */
-    public parseNetworkState(networkState: P2P.INetworkState, delegate: models.Delegate): boolean {
+    public parseNetworkState(networkState: P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
             return false;
@@ -257,7 +256,7 @@ export class ForgerManager {
     /**
      * Checks if delegate public key is in the loaded (active) delegates list
      */
-    private getDelegateByPublicKey(publicKey: string): models.Delegate | null {
+    private getDelegateByPublicKey(publicKey: string): Delegate | null {
         return this.delegates.find(delegate => delegate.publicKey === publicKey);
     }
 

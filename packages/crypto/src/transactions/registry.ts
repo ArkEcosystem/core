@@ -1,15 +1,15 @@
 import camelCase from "lodash.camelcase";
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
 import {
     MissingMilestoneFeeError,
     TransactionAlreadyRegisteredError,
     TransactionTypeInvalidRangeError,
     UnkownTransactionError,
 } from "../errors";
+import { ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { feeManager } from "../managers/fee";
 import { AjvWrapper } from "../validation";
-import { ITransactionData } from "./interfaces";
 import {
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,

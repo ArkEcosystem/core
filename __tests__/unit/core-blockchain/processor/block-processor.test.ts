@@ -1,10 +1,8 @@
 import "../mocks/";
 import { blockchain } from "../mocks/blockchain";
-import { config } from "../mocks/config";
 import { database } from "../mocks/database";
-import { logger } from "../mocks/logger";
 
-import { configManager, models } from "@arkecosystem/crypto";
+import { Blocks, Managers } from "@arkecosystem/crypto";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
 import * as handlers from "../../../../packages/core-blockchain/src/processor/handlers";
 import {
@@ -13,10 +11,10 @@ import {
 } from "../../../../packages/core-blockchain/src/processor/handlers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import "../../../utils";
-import { fixtures, generators } from "../../../utils";
+import { fixtures } from "../../../utils";
 import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 
-const { Block } = models;
+const { Block } = Blocks;
 const { delegates } = fixtures;
 
 let blockProcessor: BlockProcessor;
@@ -50,7 +48,7 @@ describe("Block processor", () => {
             const exceptionBlock = Block.fromData(blockTemplate);
             exceptionBlock.data.id = "998877";
 
-            jest.spyOn(configManager, "get").mockReturnValueOnce(["998877"]);
+            jest.spyOn(Managers.configManager, "get").mockReturnValueOnce(["998877"]);
 
             expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
         });

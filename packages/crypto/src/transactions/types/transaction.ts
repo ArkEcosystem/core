@@ -1,18 +1,18 @@
 // tslint:disable:member-ordering
 import { TransactionRegistry } from "..";
-import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
+import { TransactionTypes } from "../../enums";
 import {
     MalformedTransactionBytesError,
     NotImplementedError,
     TransactionSchemaError,
     TransactionVersionError,
 } from "../../errors";
+import { ISchemaValidationResult, ITransactionData } from "../../interfaces";
 import { Bignum, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
-import { TransactionDeserializer } from "../deserializers";
-import { ISchemaValidationResult, ITransactionData } from "../interfaces";
-import { TransactionSerializer } from "../serializers";
+import { deserializer } from "../deserializer";
+import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction {
@@ -35,7 +35,7 @@ export abstract class Transaction {
      */
     public static fromBytesUnsafe(buffer: Buffer, id?: string): Transaction {
         try {
-            const transaction = TransactionDeserializer.deserialize(buffer);
+            const transaction = deserializer.deserialize(buffer);
             transaction.data.id = id || crypto.getId(transaction.data);
             transaction.isVerified = true;
 
@@ -47,7 +47,7 @@ export abstract class Transaction {
 
     private static fromSerialized(serialized: string | Buffer): Transaction {
         try {
-            const transaction = TransactionDeserializer.deserialize(serialized);
+            const transaction = deserializer.deserialize(serialized);
             transaction.data.id = crypto.getId(transaction.data);
 
             const { value, error } = this.validateSchema(transaction.data, true);
@@ -73,8 +73,8 @@ export abstract class Transaction {
         }
 
         const transaction = TransactionRegistry.create(value);
-        TransactionDeserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
-        TransactionSerializer.serialize(transaction);
+        deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
+        Serializer.serialize(transaction);
 
         data.id = crypto.getId(data);
         transaction.isVerified = transaction.verify();
@@ -84,7 +84,7 @@ export abstract class Transaction {
 
     public static toBytes(data: ITransactionData): Buffer {
         const transaction = TransactionRegistry.create(data);
-        return TransactionSerializer.serialize(transaction);
+        return Serializer.serialize(transaction);
     }
 
     public get id(): string {

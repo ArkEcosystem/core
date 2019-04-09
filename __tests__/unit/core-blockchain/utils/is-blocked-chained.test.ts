@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { models, slots } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { isBlockChained } from "../../../../packages/core-blockchain/src/utils";
 
 describe("isChained", () => {
@@ -8,20 +8,20 @@ describe("isChained", () => {
         const previousBlock = {
             data: {
                 id: "1",
-                timestamp: slots.getSlotTime(0),
+                timestamp: Crypto.slots.getSlotTime(0),
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
                 id: "2",
-                timestamp: slots.getSlotTime(1),
+                timestamp: Crypto.slots.getSlotTime(1),
                 height: 2,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeTrue();
     });
@@ -30,20 +30,20 @@ describe("isChained", () => {
         const previousBlock = {
             data: {
                 id: "2",
-                timestamp: slots.getSlotTime(0),
+                timestamp: Crypto.slots.getSlotTime(0),
                 height: 2,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
                 id: "1",
-                timestamp: slots.getSlotTime(1),
+                timestamp: Crypto.slots.getSlotTime(1),
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -52,20 +52,20 @@ describe("isChained", () => {
         const previousBlock = {
             data: {
                 id: "1",
-                timestamp: slots.getSlotTime(0),
+                timestamp: Crypto.slots.getSlotTime(0),
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
                 id: "2",
-                timestamp: slots.getSlotTime(1),
+                timestamp: Crypto.slots.getSlotTime(1),
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -74,20 +74,20 @@ describe("isChained", () => {
         const previousBlock = {
             data: {
                 id: "1",
-                timestamp: slots.getSlotTime(0),
+                timestamp: Crypto.slots.getSlotTime(0),
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
                 id: "2",
-                timestamp: slots.getSlotTime(0),
+                timestamp: Crypto.slots.getSlotTime(0),
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });
@@ -96,20 +96,20 @@ describe("isChained", () => {
         const previousBlock = {
             data: {
                 id: "1",
-                timestamp: slots.getSlotTime(1),
+                timestamp: Crypto.slots.getSlotTime(1),
                 height: 1,
                 previousBlock: null,
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         const nextBlock = {
             data: {
                 id: "2",
-                timestamp: slots.getSlotTime(0),
+                timestamp: Crypto.slots.getSlotTime(0),
                 height: 3,
                 previousBlock: "1",
             },
-        } as models.IBlock;
+        } as Interfaces.IBlock;
 
         expect(isBlockChained(previousBlock, nextBlock)).toBeFalse();
     });

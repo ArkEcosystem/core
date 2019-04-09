@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -55,6 +55,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public isColdStartActive(): boolean {
+        if (process.env.CORE_SKIP_COLD_START) {
+            return false;
+        }
+
         return this.coldStartPeriod.isAfter(dato());
     }
 
@@ -289,7 +293,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastBlock(block: models.Block): Promise<void> {
+    public async broadcastBlock(block: Blocks.Block): Promise<void> {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
@@ -333,7 +337,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastTransactions(transactions: Transaction[]): Promise<any> {
+    public async broadcastTransactions(transactions: Transactions.Transaction[]): Promise<any> {
         const peers: P2P.IPeer[] = take(shuffle(this.storage.getPeers()), app.resolveOptions("p2p").maxPeersBroadcast);
 
         this.logger.debug(
@@ -344,9 +348,13 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             )}`,
         );
 
-        const transactionsBroadcast: ITransactionData[] = transactions.map(transaction => transaction.toJson());
+        const transactionsBroadcast: Interfaces.ITransactionData[] = transactions.map(transaction =>
+            transaction.toJson(),
+        );
 
-        return Promise.all(peers.map(peer => this.communicator.postTransactions(peer, transactionsBroadcast)));
+        return Promise.all(
+            peers.map((peer: P2P.IPeer) => this.communicator.postTransactions(peer, transactionsBroadcast)),
+        );
     }
 
     public async resetSuspendedPeers(): Promise<void> {

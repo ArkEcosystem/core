@@ -1,6 +1,6 @@
 import ByteBuffer from "bytebuffer";
-import { IMultiSignatureAsset } from "..";
-import { TransactionTypes } from "../../constants";
+import { TransactionTypes } from "../../enums";
+import { IMultiSignatureAsset } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 

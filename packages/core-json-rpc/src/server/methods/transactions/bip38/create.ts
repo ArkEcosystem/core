@@ -1,4 +1,4 @@
-import { transactionBuilder } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Joi from "joi";
 import { database } from "../../../services/database";
@@ -13,8 +13,7 @@ export const transactionBIP38Create = {
             return Boom.notFound(`User ${params.userId} could not be found.`);
         }
 
-        const transaction = transactionBuilder
-            .transfer()
+        const transaction = Transactions.BuilderFactory.transfer()
             .recipientId(params.recipientId)
             .amount(params.amount)
             .signWithWif(wallet.wif)

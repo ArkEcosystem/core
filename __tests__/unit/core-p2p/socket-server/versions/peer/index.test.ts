@@ -2,9 +2,8 @@ import "../../../mocks/core-container";
 
 import { blockchain } from "../../../mocks/blockchain";
 import { database } from "../../../mocks/database";
-import { getStorage } from "../../../mocks/p2p/peer-storage";
 
-import { slots } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import {
     acceptNewPeer,
     getBlocks,
@@ -81,8 +80,8 @@ describe("Peers handler", () => {
 
     describe("getStatus", () => {
         it("should return status", () => {
-            slots.isForgingAllowed = jest.fn().mockReturnValue(true);
-            slots.getSlotNumber = jest.fn().mockReturnValue(3);
+            Crypto.slots.isForgingAllowed = jest.fn().mockReturnValue(true);
+            Crypto.slots.getSlotNumber = jest.fn().mockReturnValue(3);
 
             const result = getStatus();
 

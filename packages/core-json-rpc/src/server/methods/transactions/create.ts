@@ -1,12 +1,11 @@
-import { transactionBuilder } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import Joi from "joi";
 import { database } from "../../services/database";
 
 export const transactionCreate = {
     name: "transactions.create",
     async method(params) {
-        const transaction = transactionBuilder
-            .transfer()
+        const transaction = Transactions.BuilderFactory.transfer()
             .recipientId(params.recipientId)
             .amount(params.amount)
             .sign(params.passphrase)

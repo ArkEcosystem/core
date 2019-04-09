@@ -1,6 +1,6 @@
 import "./mocks/core-container";
 
-import { configManager, constants, slots } from "@arkecosystem/crypto";
+import { Crypto, Enums, Managers } from "@arkecosystem/crypto";
 import "jest-extended";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
@@ -144,14 +144,14 @@ describe("Transaction Guard", () => {
             const now = 47157042; // seconds since genesis block
             const transactionExists = guard.pool.transactionExists;
             guard.pool.transactionExists = jest.fn(() => false);
-            const getTime = slots.getTime;
-            slots.getTime = jest.fn(() => now);
+            const getTime = Crypto.slots.getTime;
+            Crypto.slots.getTime = jest.fn(() => now);
 
             const secondsInFuture = 3601;
             const tx = {
                 id: "1",
                 senderPublicKey: "affe",
-                timestamp: slots.getTime() + secondsInFuture,
+                timestamp: Crypto.slots.getTime() + secondsInFuture,
             };
             guard.__filterAndTransformTransactions([tx]);
 
@@ -162,7 +162,7 @@ describe("Transaction Guard", () => {
                 },
             ]);
 
-            slots.getTime = getTime;
+            Crypto.slots.getTime = getTime;
             guard.pool.transactionExists = transactionExists;
         });
 
@@ -176,7 +176,7 @@ describe("Transaction Guard", () => {
             const tx = {
                 id: "1",
                 network: 23,
-                type: constants.TransactionTypes.Transfer,
+                type: Enums.TransactionTypes.Transfer,
                 senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
                 recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
             };
@@ -184,7 +184,9 @@ describe("Transaction Guard", () => {
 
             expect(guard.errors[tx.id]).not.toEqual([
                 {
-                    message: `Transaction network '${tx.network}' does not match '${configManager.get("pubKeyHash")}'`,
+                    message: `Transaction network '${tx.network}' does not match '${Managers.configManager.get(
+                        "pubKeyHash",
+                    )}'`,
                     type: "ERR_WRONG_NETWORK",
                 },
             ]);
@@ -202,7 +204,7 @@ describe("Transaction Guard", () => {
 
             const tx = {
                 id: "1",
-                type: constants.TransactionTypes.Transfer,
+                type: Enums.TransactionTypes.Transfer,
                 senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
                 recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
             };
@@ -230,7 +232,9 @@ describe("Transaction Guard", () => {
 
             expect(guard.errors[tx.id]).toEqual([
                 {
-                    message: `Transaction network '${tx.network}' does not match '${configManager.get("pubKeyHash")}'`,
+                    message: `Transaction network '${tx.network}' does not match '${Managers.configManager.get(
+                        "pubKeyHash",
+                    )}'`,
                     type: "ERR_WRONG_NETWORK",
                 },
             ]);
@@ -292,7 +296,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_INVALID_RECIPIENT",
                         message: `Recipient ${
                             transactions[0].data.recipientId
-                        } is not on the same network: ${configManager.get("pubKeyHash")}`,
+                        } is not on the same network: ${Managers.configManager.get("pubKeyHash")}`,
                     },
                 ],
             });
@@ -348,7 +352,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_PENDING",
                         message:
                             `Sender ${tx.data.senderPublicKey} already has a transaction of type ` +
-                            `'${constants.TransactionTypes[tx.type]}' in the pool`,
+                            `'${Enums.TransactionTypes[tx.type]}' in the pool`,
                     },
                 ]);
             }
@@ -366,11 +370,11 @@ describe("Transaction Guard", () => {
                 .build()[0];
 
             for (const transactionType of [
-                constants.TransactionTypes.MultiSignature,
-                constants.TransactionTypes.Ipfs,
-                constants.TransactionTypes.TimelockTransfer,
-                constants.TransactionTypes.MultiPayment,
-                constants.TransactionTypes.DelegateResignation,
+                Enums.TransactionTypes.MultiSignature,
+                Enums.TransactionTypes.Ipfs,
+                Enums.TransactionTypes.TimelockTransfer,
+                Enums.TransactionTypes.MultiPayment,
+                Enums.TransactionTypes.DelegateResignation,
                 99,
             ]) {
                 baseTransaction.data.type = transactionType;
@@ -383,7 +387,7 @@ describe("Transaction Guard", () => {
                     {
                         type: "ERR_UNSUPPORTED",
                         message: `Invalidating transaction of unsupported type '${
-                            constants.TransactionTypes[transactionType]
+                            Enums.TransactionTypes[transactionType]
                         }'`,
                     },
                 ]);

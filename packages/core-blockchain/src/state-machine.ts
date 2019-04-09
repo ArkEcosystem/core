@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { isException, models } from "@arkecosystem/crypto";
+import { Blocks, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
@@ -13,7 +13,7 @@ import { isBlockChained } from "./utils";
 
 import { Blockchain } from "./blockchain";
 
-const { Block } = models;
+const { Block } = Blocks;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -124,7 +124,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async init() {
         try {
-            const block: models.Block = await blockchain.database.getLastBlock();
+            const block: Blocks.Block = await blockchain.database.getLastBlock();
 
             if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
@@ -225,7 +225,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         const empty = !blocks || blocks.length === 0;
-        const chained = !empty && (isBlockChained(lastDownloadedBlock, { data: blocks[0] }) || isException(blocks[0]));
+        const chained =
+            !empty && (isBlockChained(lastDownloadedBlock, { data: blocks[0] }) || Utils.isException(blocks[0]));
 
         if (chained) {
             logger.info(

@@ -1,4 +1,4 @@
-import { ITransactionData, Transaction } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { IConnection } from "./connection";
 
 export interface ITransactionErrorResponse {
@@ -16,10 +16,10 @@ export interface IValidationResult {
 
 export interface IGuard {
     pool: IConnection;
-    transactions: ITransactionData[];
+    transactions: Interfaces.ITransactionData[];
 
-    validate(transactions: ITransactionData[]): Promise<IValidationResult>;
-    pushError(transaction: ITransactionData, type: string, message: string);
+    validate(transactions: Interfaces.ITransactionData[]): Promise<IValidationResult>;
+    pushError(transaction: Interfaces.ITransactionData, type: string, message: string);
 
-    getBroadcastTransactions(): Transaction[];
+    getBroadcastTransactions(): Transactions.Transaction[];
 }

@@ -1,8 +1,8 @@
 import secp256k1 from "secp256k1";
-import { Address, KeyPair, Keys, PublicKey, WIF } from "../identities";
+import { Address, Keys, PublicKey, WIF } from "../identities";
+import { IKeyPair, ISerializeOptions, ITransactionData } from "../interfaces";
 import { configManager, feeManager } from "../managers";
-import { ITransactionData } from "../transactions";
-import { ISerializeOptions, TransactionSerializer } from "../transactions/serializers/transaction";
+import { Serializer } from "../transactions/serializer";
 import { HashAlgorithms } from "./hash-algorithms";
 
 class Crypto {
@@ -33,14 +33,14 @@ class Crypto {
      * Get transaction hash.
      */
     public getHash(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
-        const bytes = TransactionSerializer.getBytes(transaction, options);
+        const bytes = Serializer.getBytes(transaction, options);
         return HashAlgorithms.sha256(bytes);
     }
 
     /**
      * Sign transaction.
      */
-    public sign(transaction: ITransactionData, keys: KeyPair): string {
+    public sign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         const signature = this.signHash(hash, keys);
 
@@ -54,7 +54,7 @@ class Crypto {
     /**
      * Sign transaction with second signature.
      */
-    public secondSign(transaction: ITransactionData, keys: KeyPair): string {
+    public secondSign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash = this.getHash(transaction, { excludeSecondSignature: true });
         const signature = this.signHash(hash, keys);
 
@@ -68,7 +68,7 @@ class Crypto {
     /**
      * Sign a hash
      */
-    public signHash(hash: Buffer, keys: KeyPair): string {
+    public signHash(hash: Buffer, keys: IKeyPair): string {
         const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, "hex"));
         return secp256k1.signatureExport(signature).toString("hex");
     }
@@ -117,14 +117,14 @@ class Crypto {
     /**
      * Get keys from secret.
      */
-    public getKeys(secret: string, compressed: boolean = true): KeyPair {
+    public getKeys(secret: string, compressed: boolean = true): IKeyPair {
         return Keys.fromPassphrase(secret, compressed);
     }
 
     /**
      * Get keys from a private key.
      */
-    public getKeysByPrivateKey(privateKey: Buffer | string, compressed: boolean = true): KeyPair {
+    public getKeysByPrivateKey(privateKey: Buffer | string, compressed: boolean = true): IKeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
         return Keys.fromPrivateKey(privateKey, compressed);
     }
@@ -132,14 +132,14 @@ class Crypto {
     /**
      * Get keys from WIF key.
      */
-    public getKeysFromWIF(wifKey: string, network?: { wif: number }): KeyPair {
+    public getKeysFromWIF(wifKey: string, network?: { wif: number }): IKeyPair {
         return Keys.fromWIF(wifKey, network);
     }
 
     /**
      * Get WIF key from keys
      */
-    public keysToWIF(keys: KeyPair, network?: { wif: number }): string {
+    public keysToWIF(keys: IKeyPair, network?: { wif: number }): string {
         return WIF.fromKeys(keys, network);
     }
 

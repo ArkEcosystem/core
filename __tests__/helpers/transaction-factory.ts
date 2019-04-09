@@ -1,5 +1,4 @@
-import { configManager, ITransactionData, NetworkName, Transaction, transactionBuilder } from "@arkecosystem/crypto";
-import { Address, PublicKey } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import pokemon from "pokemon";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
@@ -12,10 +11,9 @@ interface PassphrasePair {
 
 export class TransactionFactory {
     public static transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
-        const builder = transactionBuilder
-            .transfer()
+        const builder = Transactions.BuilderFactory.transfer()
             .amount(amount)
-            .recipientId(recipientId || Address.fromPassphrase(defaultPassphrase));
+            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
 
         if (vendorField) {
             builder.vendorField(vendorField);
@@ -26,28 +24,32 @@ export class TransactionFactory {
 
     public static secondSignature(secondPassphrase?: string): TransactionFactory {
         return new TransactionFactory(
-            transactionBuilder.secondSignature().signatureAsset(secondPassphrase || defaultPassphrase),
+            Transactions.BuilderFactory.secondSignature().signatureAsset(secondPassphrase || defaultPassphrase),
         );
     }
 
     public static delegateRegistration(username?: string): TransactionFactory {
-        return new TransactionFactory(transactionBuilder.delegateRegistration().usernameAsset(username));
+        return new TransactionFactory(Transactions.BuilderFactory.delegateRegistration().usernameAsset(username));
     }
 
     public static vote(publicKey?: string): TransactionFactory {
         return new TransactionFactory(
-            transactionBuilder.vote().votesAsset([`+${publicKey || PublicKey.fromPassphrase(defaultPassphrase)}`]),
+            Transactions.BuilderFactory.vote().votesAsset([
+                `+${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
+            ]),
         );
     }
 
     public static unvote(publicKey?: string): TransactionFactory {
         return new TransactionFactory(
-            transactionBuilder.vote().votesAsset([`-${publicKey || PublicKey.fromPassphrase(defaultPassphrase)}`]),
+            Transactions.BuilderFactory.vote().votesAsset([
+                `-${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
+            ]),
         );
     }
 
     private builder: any;
-    private network: NetworkName = "testnet";
+    private network: Types.NetworkName = "testnet";
     private fee: number;
     private milestone: Record<string, any>;
     private passphrase: string = defaultPassphrase;
@@ -65,14 +67,14 @@ export class TransactionFactory {
         return this;
     }
 
-    public withNetwork(network: NetworkName): TransactionFactory {
+    public withNetwork(network: Types.NetworkName): TransactionFactory {
         this.network = network;
 
         return this;
     }
 
     public withHeight(height: number): TransactionFactory {
-        this.milestone = configManager.getMilestone(height);
+        this.milestone = Managers.configManager.getMilestone(height);
 
         return this;
     }
@@ -108,12 +110,12 @@ export class TransactionFactory {
         return this;
     }
 
-    public create(quantity: number = 1): ITransactionData[] {
-        return this.make<ITransactionData>(quantity, "getStruct");
+    public create(quantity: number = 1): Interfaces.ITransactionData[] {
+        return this.make<Interfaces.ITransactionData>(quantity, "getStruct");
     }
 
-    public build(quantity: number = 1): Transaction[] {
-        return this.make<Transaction>(quantity, "build");
+    public build(quantity: number = 1): Transactions.Transaction[] {
+        return this.make<Transactions.Transaction>(quantity, "build");
     }
 
     private make<T>(quantity: number = 1, method: string): T[] {
@@ -136,7 +138,7 @@ export class TransactionFactory {
     }
 
     private sign<T>(quantity: number, method: string): T[] {
-        configManager.setFromPreset(this.network);
+        Managers.configManager.setFromPreset(this.network);
 
         const transactions: T[] = [];
 
@@ -151,7 +153,9 @@ export class TransactionFactory {
                 // @FIXME: when we use any of the "withPassphrase*" methods the builder will
                 // always remember the previous username instead generating a new one on each iteration
                 if (!this.builder.data.asset.delegate.username) {
-                    this.builder = transactionBuilder.delegateRegistration().usernameAsset(this.getRandomUsername());
+                    this.builder = Transactions.BuilderFactory.delegateRegistration().usernameAsset(
+                        this.getRandomUsername(),
+                    );
                 }
             }
 

@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Joi from "joi";
 import { database } from "../../services/database";
@@ -13,7 +13,7 @@ export const transactionBroadcast = {
             return Boom.notFound(`Transaction ${params.id} could not be found.`);
         }
 
-        if (!crypto.verify(transaction)) {
+        if (!Crypto.crypto.verify(transaction)) {
             return Boom.badData();
         }
 

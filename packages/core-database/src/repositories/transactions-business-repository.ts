@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
@@ -8,7 +8,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     public async allVotesBySender(senderPublicKey: any, parameters: any) {
         return this.findAll({
-            ...{ senderPublicKey, type: constants.TransactionTypes.Vote },
+            ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
             ...parameters,
         });
     }

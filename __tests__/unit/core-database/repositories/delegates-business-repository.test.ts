@@ -2,7 +2,7 @@ import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto } from "@arkecosystem/crypto";
+import { Crypto, Utils } from "@arkecosystem/crypto";
 import { DelegatesBusinessRepository, Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
@@ -24,7 +24,7 @@ beforeEach(async () => {
 
 function generateWallets(): Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = crypto.getAddress(transaction.data.senderPublicKey);
+        const address = Crypto.crypto.getAddress(transaction.data.senderPublicKey);
 
         return {
             address,
@@ -32,8 +32,8 @@ function generateWallets(): Wallet[] {
             secondPublicKey: `secondPublicKey-${address}`,
             vote: `vote-${address}`,
             username: `username-${address}`,
-            balance: new Bignum(100),
-            voteBalance: new Bignum(200),
+            balance: new Utils.Bignum(100),
+            voteBalance: new Utils.Bignum(200),
             rate: index + 1,
         } as Wallet;
     });
@@ -42,9 +42,9 @@ function generateWallets(): Wallet[] {
 describe("Delegate Repository", () => {
     describe("getLocalDelegates", () => {
         const delegates = [
-            { username: "delegate-0", forgedFees: new Bignum(10), forgedRewards: new Bignum(10) },
-            { username: "delegate-1", forgedFees: new Bignum(20), forgedRewards: new Bignum(20) },
-            { username: "delegate-2", forgedFees: new Bignum(30), forgedRewards: new Bignum(30) },
+            { username: "delegate-0", forgedFees: new Utils.Bignum(10), forgedRewards: new Utils.Bignum(10) },
+            { username: "delegate-1", forgedFees: new Utils.Bignum(20), forgedRewards: new Utils.Bignum(20) },
+            { username: "delegate-2", forgedFees: new Utils.Bignum(30), forgedRewards: new Utils.Bignum(30) },
         ];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 

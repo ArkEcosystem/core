@@ -1,12 +1,7 @@
 import "jest-extended";
 
-import { transactionBuilder as builder } from "../../../../packages/crypto/src/builder";
-import { crypto } from "../../../../packages/crypto/src/crypto/crypto";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { ITransactionData, Transaction } from "../../../../packages/crypto/src/transactions";
-import { transaction as transactionDataFixture } from "../fixtures/transaction";
-
-import deepmerge = require("deepmerge");
+import deepmerge from "deepmerge";
+import { crypto } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
@@ -14,7 +9,11 @@ import {
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
+import { configManager } from "../../../../packages/crypto/src/managers";
 import { devnet } from "../../../../packages/crypto/src/networks";
+import { BuilderFactory, Transaction } from "../../../../packages/crypto/src/transactions";
+import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
 let transactionData: ITransactionData;
 
@@ -24,8 +23,7 @@ const createRandomTx = type => {
     switch (type) {
         case 0: {
             // transfer
-            transaction = builder
-                .transfer()
+            transaction = BuilderFactory.transfer()
                 .recipientId("AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX")
                 .amount(1000 * 1e10)
                 .vendorField(Math.random().toString(36))
@@ -37,8 +35,7 @@ const createRandomTx = type => {
 
         case 1: {
             // second signature
-            transaction = builder
-                .secondSignature()
+            transaction = BuilderFactory.secondSignature()
                 .signatureAsset(Math.random().toString(36))
                 .sign(Math.random().toString(36))
                 .build();
@@ -47,8 +44,7 @@ const createRandomTx = type => {
 
         case 2: {
             // delegate registration
-            transaction = builder
-                .delegateRegistration()
+            transaction = BuilderFactory.delegateRegistration()
                 .usernameAsset("dummydelegate")
                 .sign(Math.random().toString(36))
                 .build();
@@ -57,8 +53,7 @@ const createRandomTx = type => {
 
         case 3: {
             // vote registration
-            transaction = builder
-                .vote()
+            transaction = BuilderFactory.vote()
                 .votesAsset(["+036928c98ee53a1f52ed01dd87db10ffe1980eb47cd7c0a7d688321f47b5d7d760"])
                 .sign(Math.random().toString(36))
                 .build();
@@ -73,8 +68,7 @@ const createRandomTx = type => {
             const max = Math.max(1, publicKeys.length);
             const minSignatures = Math.floor(Math.random() * (max - min)) + min;
 
-            const transactionBuilder = builder
-                .multiSignature()
+            const transactionBuilder = BuilderFactory.multiSignature()
                 .multiSignatureAsset({
                     keysgroup: publicKeys,
                     min: minSignatures,
@@ -97,7 +91,7 @@ const createRandomTx = type => {
     return transaction;
 };
 
-describe("Models - Transaction", () => {
+describe("Transaction", () => {
     beforeEach(() => {
         configManager.setConfig(devnet);
         transactionData = deepmerge({}, transactionDataFixture);

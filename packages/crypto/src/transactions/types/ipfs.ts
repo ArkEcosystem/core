@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../constants";
+import { TransactionTypes } from "../../enums";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 

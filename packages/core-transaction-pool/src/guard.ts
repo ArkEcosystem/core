@@ -1,28 +1,21 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import {
-    configManager,
-    constants,
-    errors as cryptoErrors,
-    ITransactionData,
-    slots,
-    Transaction,
-} from "@arkecosystem/crypto";
+import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 
 export class TransactionGuard implements TransactionPool.IGuard {
-    public transactions: ITransactionData[] = [];
+    public transactions: Interfaces.ITransactionData[] = [];
     public excess: string[] = [];
-    public accept: Map<string, Transaction> = new Map();
-    public broadcast: Map<string, Transaction> = new Map();
-    public invalid: Map<string, ITransactionData> = new Map();
+    public accept: Map<string, Transactions.Transaction> = new Map();
+    public broadcast: Map<string, Transactions.Transaction> = new Map();
+    public invalid: Map<string, Interfaces.ITransactionData> = new Map();
     public errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
     constructor(public pool: TransactionPool.IConnection) {}
 
-    public async validate(transactions: ITransactionData[]): Promise<TransactionPool.IValidationResult> {
+    public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IValidationResult> {
         this.pool.loggedAllowedSenders = [];
 
         // Cache transactions
@@ -54,7 +47,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
      * Cache the given transactions and return which got added. Already cached
      * transactions are not returned.
      */
-    public __cacheTransactions(transactions: ITransactionData[]) {
+    public __cacheTransactions(transactions: Interfaces.ITransactionData[]) {
         const { added, notAdded } = app.resolve<Blockchain.IStateStorage>("state").cacheTransactions(transactions);
 
         notAdded.forEach(transaction => {
@@ -69,7 +62,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
     /**
      * Get broadcast transactions.
      */
-    public getBroadcastTransactions(): Transaction[] {
+    public getBroadcastTransactions(): Transactions.Transaction[] {
         return Array.from(this.broadcast.values());
     }
 
@@ -84,7 +77,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
      * - transactions based on type specific restrictions
      * - not valid crypto transactions
      */
-    public __filterAndTransformTransactions(transactions: ITransactionData[]): void {
+    public __filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): void {
         transactions.forEach(transaction => {
             const exists = this.pool.transactionExists(transaction.id);
 
@@ -107,7 +100,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
             } else if (this.__validateTransaction(transaction)) {
                 try {
                     const receivedId = transaction.id;
-                    const trx = Transaction.fromData(transaction);
+                    const trx = Transactions.Transaction.fromData(transaction);
                     if (trx.verified) {
                         const applyErrors = [];
                         if (this.pool.walletManager.canApply(trx, applyErrors)) {
@@ -139,7 +132,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
                         );
                     }
                 } catch (error) {
-                    if (error instanceof cryptoErrors.TransactionSchemaError) {
+                    if (error instanceof CryptoErrors.TransactionSchemaError) {
                         this.pushError(transaction, "ERR_TRANSACTION_SCHEMA", error.message);
                     } else {
                         this.pushError(transaction, "ERR_UNKNOWN", error.message);
@@ -159,8 +152,8 @@ export class TransactionGuard implements TransactionPool.IGuard {
      *    - if sender already has another transaction of the same type, for types that
      *    - only allow one transaction at a time in the pool (e.g. vote)
      */
-    public __validateTransaction(transaction: ITransactionData): boolean {
-        const now = slots.getTime();
+    public __validateTransaction(transaction: Interfaces.ITransactionData): boolean {
+        const now = Crypto.slots.getTime();
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture = transaction.timestamp - now;
             this.pushError(
@@ -171,11 +164,13 @@ export class TransactionGuard implements TransactionPool.IGuard {
             return false;
         }
 
-        if (transaction.network && transaction.network !== configManager.get("pubKeyHash")) {
+        if (transaction.network && transaction.network !== Managers.configManager.get("pubKeyHash")) {
             this.pushError(
                 transaction,
                 "ERR_WRONG_NETWORK",
-                `Transaction network '${transaction.network}' does not match '${configManager.get("pubKeyHash")}'`,
+                `Transaction network '${transaction.network}' does not match '${Managers.configManager.get(
+                    "pubKeyHash",
+                )}'`,
             );
             return false;
         }
@@ -189,7 +184,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
                 this.pushError(
                     transaction,
                     "ERR_UNSUPPORTED",
-                    `Invalidating transaction of unsupported type '${constants.TransactionTypes[type]}'`,
+                    `Invalidating transaction of unsupported type '${Enums.TransactionTypes[type]}'`,
                 );
             } else {
                 this.pushError(transaction, "ERR_UNKNOWN", error.message);
@@ -244,7 +239,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
      * array of errors. There may be multiple errors associated with a transaction in
      * which case pushError is called multiple times.
      */
-    public pushError(transaction: ITransactionData, type: string, message: string) {
+    public pushError(transaction: Interfaces.ITransactionData, type: string, message: string) {
         if (!this.errors[transaction.id]) {
             this.errors[transaction.id] = [];
         }

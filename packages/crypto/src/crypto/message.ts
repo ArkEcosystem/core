@@ -1,13 +1,8 @@
+import { IMessage } from "../interfaces";
 import { configManager } from "../managers";
-import { INetwork } from "../networks";
+import { NetworkType } from "../types";
 import { crypto } from "./crypto";
 import { HashAlgorithms } from "./hash-algorithms";
-
-export interface IMessage {
-    readonly publicKey: string;
-    readonly signature: string;
-    readonly message: string;
-}
 
 export class Message {
     /**
@@ -26,7 +21,7 @@ export class Message {
     /**
      * Sign the given message using a WIF.
      */
-    public static signWithWif(message: string, wif: string, network?: INetwork): IMessage {
+    public static signWithWif(message: string, wif: string, network?: NetworkType): IMessage {
         if (!network) {
             network = configManager.all();
         }

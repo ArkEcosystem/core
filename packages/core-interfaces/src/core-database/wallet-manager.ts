@@ -1,24 +1,27 @@
-import { Bignum, IMultiSignatureAsset, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Logger } from "../index";
 
 export interface IWallet {
     address: string;
     publicKey: string | null;
     secondPublicKey: string | null;
-    balance: Bignum;
+    balance: Utils.Bignum;
     vote: string;
     voted: boolean;
     username: string | null;
     lastBlock: any;
-    voteBalance: Bignum;
-    multisignature?: IMultiSignatureAsset;
+    voteBalance: Utils.Bignum;
+    multisignature?: Interfaces.IMultiSignatureAsset;
     dirty: boolean;
     producedBlocks: number;
-    forgedFees: Bignum;
-    forgedRewards: Bignum;
+    forgedFees: Utils.Bignum;
+    forgedRewards: Utils.Bignum;
     rate?: number;
 
-    verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean;
+    verifySignatures(
+        transaction: Interfaces.ITransactionData,
+        multisignature: Interfaces.IMultiSignatureAsset,
+    ): boolean;
 }
 
 export type IDelegateWallet = IWallet & { rate: number; round: number };
@@ -54,13 +57,13 @@ export interface IWalletManager {
 
     buildVoteBalances(): void;
 
-    applyBlock(block: models.Block): void;
+    applyBlock(block: Blocks.Block): void;
 
-    revertBlock(block: models.Block): void;
+    revertBlock(block: Blocks.Block): void;
 
-    applyTransaction(transaction: Transaction): void;
+    applyTransaction(transaction: Transactions.Transaction): void;
 
-    revertTransaction(transaction: Transaction): void;
+    revertTransaction(transaction: Transactions.Transaction): void;
 
     isDelegate(publicKey: string): boolean;
 

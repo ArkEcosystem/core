@@ -1,14 +1,7 @@
 // tslint:disable:max-classes-per-file
 
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    configManager,
-    constants,
-    crypto,
-    ITransactionData,
-    Transaction,
-    TransactionConstructor,
-} from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import {
     InsufficientBalanceError,
@@ -19,16 +12,16 @@ import {
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
 
-const { TransactionTypes } = constants;
+const { TransactionTypes } = Enums;
 
 export abstract class TransactionHandler implements ITransactionHandler {
-    public abstract getConstructor(): TransactionConstructor;
+    public abstract getConstructor(): Transactions.TransactionConstructor;
 
     /**
      * Wallet logic
      */
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -54,14 +47,14 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         if (wallet.secondPublicKey) {
-            if (!crypto.verifySecondSignature(data, wallet.secondPublicKey)) {
+            if (!Crypto.crypto.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
         } else {
             if (data.secondSignature || data.signSignature) {
                 // Accept invalid second signature fields prior the applied patch.
                 // NOTE: only applies to devnet.
-                if (!configManager.getMilestone().ignoreInvalidSecondSignatureField) {
+                if (!Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField) {
                     throw new UnexpectedSecondSignatureError();
                 }
             }
@@ -70,51 +63,57 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return true;
     }
 
-    public applyToSender(transaction: Transaction, wallet: Database.IWallet): void {
+    public applyToSender(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
-        if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
+        if (
+            data.senderPublicKey === wallet.publicKey ||
+            Crypto.crypto.getAddress(data.senderPublicKey) === wallet.address
+        ) {
             wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
 
             this.apply(transaction, wallet);
         }
     }
 
-    public applyToRecipient(transaction: Transaction, wallet: Database.IWallet): void {
+    public applyToRecipient(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount);
         }
     }
 
-    public revertForSender(transaction: Transaction, wallet: Database.IWallet): void {
+    public revertForSender(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
-        if (data.senderPublicKey === wallet.publicKey || crypto.getAddress(data.senderPublicKey) === wallet.address) {
+        if (
+            data.senderPublicKey === wallet.publicKey ||
+            Crypto.crypto.getAddress(data.senderPublicKey) === wallet.address
+        ) {
             wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
 
             this.revert(transaction, wallet);
         }
     }
 
-    public revertForRecipient(transaction: Transaction, wallet: Database.IWallet): void {
+    public revertForRecipient(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount);
         }
     }
 
-    public abstract apply(transaction: Transaction, wallet: Database.IWallet): void;
-    public abstract revert(transaction: Transaction, wallet: Database.IWallet): void;
+    public abstract apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
+    public abstract revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
 
     /**
      * Database Service
      */
     // tslint:disable-next-line:no-empty
-    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {}
+    public emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void {}
 
     /**
      * Transaction Pool logic
      */
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         guard.pushError(
             data,
             "ERR_UNSUPPORTED",
@@ -123,7 +122,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    protected typeFromSenderAlreadyInPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    protected typeFromSenderAlreadyInPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         const { senderPublicKey, type } = data;
         if (guard.pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             guard.pushError(

@@ -1,4 +1,4 @@
-import { constants, TransactionRegistry } from "@arkecosystem/crypto";
+import { Enums, Transactions } from "@arkecosystem/crypto";
 import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "./errors";
 import { transactionHandlers } from "./handlers";
 import { TransactionHandler } from "./handlers/transaction";
@@ -6,7 +6,7 @@ import { TransactionHandler } from "./handlers/transaction";
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 
 class TransactionHandlerRegistry {
-    private readonly coreTransactionHandlers = new Map<constants.TransactionTypes, TransactionHandler>();
+    private readonly coreTransactionHandlers = new Map<Enums.TransactionTypes, TransactionHandler>();
     private readonly customTransactionHandlers = new Map<number, TransactionHandler>();
 
     constructor() {
@@ -15,7 +15,7 @@ class TransactionHandlerRegistry {
         });
     }
 
-    public get(type: constants.TransactionTypes | number): TransactionHandler {
+    public get(type: Enums.TransactionTypes | number): TransactionHandler {
         if (this.coreTransactionHandlers.has(type)) {
             return this.coreTransactionHandlers.get(type);
         }
@@ -36,7 +36,7 @@ class TransactionHandlerRegistry {
             throw new TransactionHandlerAlreadyRegisteredError(type);
         }
 
-        TransactionRegistry.registerCustomType(transactionConstructor);
+        Transactions.TransactionRegistry.registerCustomType(transactionConstructor);
 
         this.customTransactionHandlers.set(type, service);
     }
@@ -47,7 +47,7 @@ class TransactionHandlerRegistry {
         const { type } = transactionConstructor;
 
         if (this.customTransactionHandlers.has(type)) {
-            TransactionRegistry.deregisterCustomType(type);
+            Transactions.TransactionRegistry.deregisterCustomType(type);
             this.customTransactionHandlers.delete(type);
         }
     }

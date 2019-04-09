@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Transactions } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
-const { Block } = models;
+const { Block } = Blocks;
+const { crypto, HashAlgorithms } = Crypto;
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const verifyData = (context, data, prevData, verifySignatures) => {
@@ -59,7 +60,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             return true;
         }
 
-        return Transaction.fromBytes(data.serialized).verified;
+        return Transactions.Transaction.fromBytes(data.serialized).verified;
     }
 
     return false;

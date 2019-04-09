@@ -2,7 +2,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
-import { models } from "@arkecosystem/crypto";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { inspect } from "util";
 import { Severity } from "./enums";
@@ -385,14 +385,14 @@ export class PeerVerifier {
 
     /**
      * Verify a given block from the peer's chain - must be signed by one of the provided delegates.
-     * @param {models.IBlockData} blockData the block to verify
+     * @param {Interfaces.IBlockData} blockData the block to verify
      * @param {Number} expectedHeight the given block must be at this height
      * @param {Object} delegatesByPublicKey a map of { publicKey: delegate, ... }, one of these
      * delegates must have signed the block
      * @return {Boolean} true if the block is legit (signed by the appropriate delegate)
      */
     private async verifyPeerBlock(
-        blockData: models.IBlockData,
+        blockData: Interfaces.IBlockData,
         expectedHeight: number,
         delegatesByPublicKey: any[],
     ): Promise<boolean> {
@@ -405,7 +405,7 @@ export class PeerVerifier {
             return true;
         }
 
-        const block = models.Block.fromData(blockData);
+        const block = Blocks.Block.fromData(blockData);
 
         if (!block.verification.verified) {
             this.log(

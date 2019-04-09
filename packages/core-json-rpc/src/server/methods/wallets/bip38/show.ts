@@ -1,4 +1,4 @@
-import { crypto, HashAlgorithms } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Joi from "joi";
 import { database } from "../../../services/database";
@@ -7,7 +7,9 @@ import { decryptWIF } from "../../../utils/decrypt-wif";
 export const walletBIP38 = {
     name: "wallets.bip38.info",
     async method(params) {
-        const encryptedWIF = await database.get(HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"));
+        const encryptedWIF = await database.get(
+            Crypto.HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"),
+        );
 
         if (!encryptedWIF) {
             return Boom.notFound(`User ${params.userId} could not be found.`);
@@ -17,7 +19,7 @@ export const walletBIP38 = {
 
         return {
             publicKey: keys.publicKey,
-            address: crypto.getAddress(keys.publicKey),
+            address: Crypto.crypto.getAddress(keys.publicKey),
             wif,
         };
     },

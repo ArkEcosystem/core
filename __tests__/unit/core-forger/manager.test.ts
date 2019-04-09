@@ -3,16 +3,15 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
+import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
 import { testnet } from "../../../packages/crypto/src/networks";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
-
-const { Delegate } = models;
 
 jest.setTimeout(30000);
 jest.mock("../../../packages/core-forger/src/client");
@@ -103,7 +102,7 @@ describe("Forger Manager", () => {
         it("should return deserialized transactions", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: [Transaction.fromData(sampleTransaction).serialized.toString("hex")],
+                transactions: [Transactions.Transaction.fromData(sampleTransaction).serialized.toString("hex")],
             });
 
             const transactions = await forgeManager.getTransactionsForForging();

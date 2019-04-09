@@ -73,3 +73,8 @@ docker/development
 tmp
 oclif.manifest.json
 npm-shrinkwrap.json
+
+# Transaction Pool
+transaction-pool.sqlite
+transaction-pool.sqlite-shm
+transaction-pool.sqlite-wal

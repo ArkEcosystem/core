@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
 import { Transaction } from "../models";
@@ -92,7 +92,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
             // Should make this '30' figure configurable
             .where(
                 this.query.timestamp.gte(
-                    slots.getTime(
+                    Crypto.slots.getTime(
                         dato()
                             .subDays(30)
                             .toMilliseconds(),

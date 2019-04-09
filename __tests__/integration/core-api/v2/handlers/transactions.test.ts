@@ -2,11 +2,13 @@ import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../../helpers/transaction-factory";
 import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
 import { generateWallets } from "../../../../utils/generators/wallets";
+
+const { crypto } = Crypto;
 
 const transferFee = 10000000;
 

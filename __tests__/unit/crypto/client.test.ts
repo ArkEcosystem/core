@@ -1,7 +1,7 @@
 import "jest-extended";
-import { transactionBuilder } from "../../../packages/crypto/src/builder";
 import { client, Client } from "../../../packages/crypto/src/client";
 import { configManager, feeManager } from "../../../packages/crypto/src/managers";
+import { BuilderFactory } from "../../../packages/crypto/src/transactions";
 
 describe("Client", () => {
     it("should be instantiated", () => {
@@ -17,6 +17,6 @@ describe("Client", () => {
     });
 
     it("should getBuilder()", () => {
-        expect(client.getBuilder()).toBe(transactionBuilder);
+        expect(client.getBuilder()).toBe(BuilderFactory);
     });
 });

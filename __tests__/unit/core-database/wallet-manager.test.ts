@@ -3,16 +3,17 @@ import "./mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { Bignum, constants, crypto, models, transactionBuilder } from "@arkecosystem/crypto";
-import { IMultiSignatureAsset, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Constants, Crypto, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { fixtures } from "../../utils";
 
 import wallets from "./__fixtures__/wallets.json";
 
-const { Block } = models;
-const { SATOSHI, TransactionTypes } = constants;
+const { Block } = Blocks;
+const { SATOSHI } = Constants;
+const { TransactionTypes } = Enums;
+const { crypto } = Crypto;
 
 const block3 = fixtures.blocks2to100[1];
 const block = Block.fromData(block3);
@@ -53,14 +54,13 @@ describe("Wallet Manager", () => {
 
     describe("applyBlock", () => {
         let delegateMock;
-        let block2: models.Block;
+        let block2: Blocks.Block;
 
         const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
-        const txs: Transaction[] = [];
+        const txs: Transactions.Transaction[] = [];
         for (let i = 0; i < 3; i++) {
-            txs[i] = transactionBuilder
-                .vote()
+            txs[i] = Transactions.BuilderFactory.vote()
                 .sign(Math.random().toString(36))
                 .votesAsset([`+${delegatePublicKey}`])
                 .build();
@@ -180,11 +180,11 @@ describe("Wallet Manager", () => {
             .build()[0];
 
         describe.each`
-            type          | transaction    | amount               | balanceSuccess              | balanceFail
-            ${"transfer"} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(SATOSHI)}      | ${Bignum.ONE}
-            ${"delegate"} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * SATOSHI)} | ${Bignum.ONE}
-            ${"2nd sign"} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * SATOSHI)} | ${Bignum.ONE}
-            ${"vote"}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * SATOSHI)}  | ${Bignum.ONE}
+            type          | transaction    | amount                     | balanceSuccess                    | balanceFail
+            ${"transfer"} | ${transfer}    | ${new Utils.Bignum(96579)} | ${new Utils.Bignum(SATOSHI)}      | ${Utils.Bignum.ONE}
+            ${"delegate"} | ${delegateReg} | ${Utils.Bignum.ZERO}       | ${new Utils.Bignum(30 * SATOSHI)} | ${Utils.Bignum.ONE}
+            ${"2nd sign"} | ${secondSign}  | ${Utils.Bignum.ZERO}       | ${new Utils.Bignum(10 * SATOSHI)} | ${Utils.Bignum.ONE}
+            ${"vote"}     | ${vote}        | ${Utils.Bignum.ZERO}       | ${new Utils.Bignum(5 * SATOSHI)}  | ${Utils.Bignum.ONE}
         `("when the transaction is a $type", ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
             let sender;
             let recipient;
@@ -237,9 +237,9 @@ describe("Wallet Manager", () => {
 
     describe("revertTransaction", () => {
         it("should revert the transaction from the sender & recipient", async () => {
-            const transaction = Transaction.fromData({
+            const transaction = Transactions.Transaction.fromData({
                 type: TransactionTypes.Transfer,
-                amount: new Bignum(245098000000000),
+                amount: new Utils.Bignum(245098000000000),
                 fee: 0,
                 recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
                 timestamp: 0,
@@ -252,15 +252,15 @@ describe("Wallet Manager", () => {
 
             const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
             const recipient = walletManager.findByAddress(transaction.data.recipientId);
-            recipient.balance = new Bignum(transaction.data.amount);
+            recipient.balance = new Utils.Bignum(transaction.data.amount);
 
-            expect(sender.balance).toEqual(Bignum.ZERO);
+            expect(sender.balance).toEqual(Utils.Bignum.ZERO);
             expect(recipient.balance).toEqual(transaction.data.amount);
 
             await walletManager.revertTransaction(transaction);
 
             expect(sender.balance).toEqual(transaction.data.amount);
-            expect(recipient.balance).toEqual(Bignum.ZERO);
+            expect(recipient.balance).toEqual(Utils.Bignum.ZERO);
         });
 
         it("should revert vote transaction and correctly update vote balances", async () => {
@@ -269,34 +269,33 @@ describe("Wallet Manager", () => {
 
             const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
             delegate.username = "unittest";
-            delegate.balance = new Bignum(100_000_000);
+            delegate.balance = new Utils.Bignum(100_000_000);
             delegate.vote = delegate.publicKey;
-            delegate.voteBalance = new Bignum(delegate.balance);
+            delegate.voteBalance = new Utils.Bignum(delegate.balance);
             walletManager.reindex(delegate);
 
             const voter = walletManager.findByPublicKey(voterKeys.publicKey);
-            voter.balance = new Bignum(100_000);
+            voter.balance = new Utils.Bignum(100_000);
 
-            const voteTransaction = transactionBuilder
-                .vote()
+            const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
                 .fee(125)
                 .sign("secret")
                 .build();
 
-            expect(delegate.balance).toEqual(new Bignum(100_000_000));
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
-            expect(voter.balance).toEqual(new Bignum(100_000));
+            expect(delegate.balance).toEqual(new Utils.Bignum(100_000_000));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000));
+            expect(voter.balance).toEqual(new Utils.Bignum(100_000));
 
             walletManager.applyTransaction(voteTransaction);
 
-            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.data.fee));
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
+            expect(voter.balance).toEqual(new Utils.Bignum(100_000).minus(voteTransaction.data.fee));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000).plus(voter.balance));
 
             walletManager.revertTransaction(voteTransaction);
 
-            expect(voter.balance).toEqual(new Bignum(100_000));
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+            expect(voter.balance).toEqual(new Utils.Bignum(100_000));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000));
         });
 
         it("should revert unvote transaction and correctly update vote balances", async () => {
@@ -305,32 +304,30 @@ describe("Wallet Manager", () => {
 
             const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
             delegate.username = "unittest";
-            delegate.balance = new Bignum(100_000_000);
+            delegate.balance = new Utils.Bignum(100_000_000);
             delegate.vote = delegate.publicKey;
-            delegate.voteBalance = new Bignum(delegate.balance);
+            delegate.voteBalance = new Utils.Bignum(delegate.balance);
             walletManager.reindex(delegate);
 
             const voter = walletManager.findByPublicKey(voterKeys.publicKey);
-            voter.balance = new Bignum(100_000);
+            voter.balance = new Utils.Bignum(100_000);
 
-            const voteTransaction = transactionBuilder
-                .vote()
+            const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
                 .fee(125)
                 .sign("secret")
                 .build();
 
-            expect(delegate.balance).toEqual(new Bignum(100_000_000));
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
-            expect(voter.balance).toEqual(new Bignum(100_000));
+            expect(delegate.balance).toEqual(new Utils.Bignum(100_000_000));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000));
+            expect(voter.balance).toEqual(new Utils.Bignum(100_000));
 
             walletManager.applyTransaction(voteTransaction);
 
-            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.data.fee));
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
+            expect(voter.balance).toEqual(new Utils.Bignum(100_000).minus(voteTransaction.data.fee));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000).plus(voter.balance));
 
-            const unvoteTransaction = transactionBuilder
-                .vote()
+            const unvoteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`-${delegateKeys.publicKey}`])
                 .fee(125)
                 .sign("secret")
@@ -339,14 +336,14 @@ describe("Wallet Manager", () => {
             walletManager.applyTransaction(unvoteTransaction);
 
             expect(voter.balance).toEqual(
-                new Bignum(100_000).minus(voteTransaction.data.fee).minus(unvoteTransaction.data.fee),
+                new Utils.Bignum(100_000).minus(voteTransaction.data.fee).minus(unvoteTransaction.data.fee),
             );
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000));
 
             walletManager.revertTransaction(unvoteTransaction);
 
-            expect(voter.balance).toEqual(new Bignum(100_000).minus(voteTransaction.data.fee));
-            expect(delegate.voteBalance).toEqual(new Bignum(100_000_000).plus(voter.balance));
+            expect(voter.balance).toEqual(new Utils.Bignum(100_000).minus(voteTransaction.data.fee));
+            expect(delegate.voteBalance).toEqual(new Utils.Bignum(100_000_000).plus(voter.balance));
         });
     });
 
@@ -408,7 +405,7 @@ describe("Wallet Manager", () => {
 
         it("should not be removed if wallet.multisignature is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.multisignature = {} as IMultiSignatureAsset;
+            wallet.multisignature = {} as Interfaces.IMultiSignatureAsset;
 
             expect(wallet.multisignature).toEqual({});
             expect(walletManager.canBePurged(wallet)).toBeFalse();
@@ -458,7 +455,7 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.multisignature is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.multisignature = {} as IMultiSignatureAsset;
+            wallet1.multisignature = {} as Interfaces.IMultiSignatureAsset;
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
@@ -495,10 +492,10 @@ describe("Wallet Manager", () => {
                 const delegate = new Wallet(crypto.getAddress(delegateKey));
                 delegate.publicKey = delegateKey;
                 delegate.username = `delegate${i}`;
-                delegate.voteBalance = Bignum.ZERO;
+                delegate.voteBalance = Utils.Bignum.ZERO;
 
                 const voter = new Wallet(crypto.getAddress((i + 5).toString().repeat(66)));
-                voter.balance = new Bignum((i + 1) * 1000 * SATOSHI);
+                voter.balance = new Utils.Bignum((i + 1) * 1000 * SATOSHI);
                 voter.publicKey = `v${delegateKey}`;
                 voter.vote = delegateKey;
 
@@ -510,7 +507,7 @@ describe("Wallet Manager", () => {
             const delegates = walletManager.allByUsername();
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[4 - i];
-                expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * SATOSHI));
+                expect(delegate.voteBalance).toEqual(new Utils.Bignum((5 - i) * 1000 * SATOSHI));
             }
         });
     });

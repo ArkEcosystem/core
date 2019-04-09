@@ -2,7 +2,7 @@
 import "./mocks/";
 import { container } from "./mocks/container";
 
-import { models, slots } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
@@ -14,7 +14,7 @@ import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { getStorage } from "./mocks/p2p/peer-storage";
 
-const { Block } = models;
+const { Block } = Blocks;
 
 let genesisBlock;
 
@@ -127,12 +127,12 @@ describe("Blockchain", () => {
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
         });
 
-        it("should broadcast a block if (slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+        it("should broadcast a block if (Crypto.slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             blockchain.state.started = true;
 
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
-            lastBlock.data.timestamp = slots.getSlotNumber() * 8000;
+            lastBlock.data.timestamp = Crypto.slots.getSlotNumber() * 8000;
 
             const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
@@ -166,7 +166,7 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: slots.getEpochTime(),
+                timestamp: Crypto.slots.getEpochTime(),
             };
 
             blockchain.handleIncomingBlock(block);
@@ -187,7 +187,7 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: slots.getSlotTime(slots.getNextSlot()),
+                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getNextSlot()),
             };
 
             blockchain.handleIncomingBlock(block);
@@ -204,7 +204,7 @@ describe("Blockchain", () => {
             const loggerInfo = jest.spyOn(logger, "info");
 
             const mockGetSlotNumber = jest
-                .spyOn(slots, "getSlotNumber")
+                .spyOn(Crypto.slots, "getSlotNumber")
                 .mockReturnValueOnce(1)
                 .mockReturnValueOnce(1);
 
@@ -239,10 +239,10 @@ describe("Blockchain", () => {
                 expect(
                     blockchain.isSynced({
                         data: {
-                            timestamp: slots.getTime(),
+                            timestamp: Crypto.slots.getTime(),
                             height: genesisBlock.height,
                         },
-                    } as models.IBlock),
+                    } as Interfaces.IBlock),
                 ).toBeTrue();
             });
         });
@@ -253,7 +253,7 @@ describe("Blockchain", () => {
                 const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
                     // @ts-ignore
                     data: {
-                        timestamp: slots.getTime(),
+                        timestamp: Crypto.slots.getTime(),
                         height: genesisBlock.height,
                     },
                 });

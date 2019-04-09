@@ -1,4 +1,4 @@
-import { slots } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
@@ -93,7 +93,7 @@ export class DelegatesController extends Controller {
             const limit = request.query.limit || 10;
 
             const delegatesCount = this.config.getMilestone(lastBlock).activeDelegates;
-            const currentSlot = slots.getSlotNumber(lastBlock.data.timestamp);
+            const currentSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp);
 
             const activeDelegates = await this.databaseService.getActiveDelegates(lastBlock.data.height);
             const nextForgers = [];

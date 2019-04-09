@@ -1,5 +1,5 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { client } from "@arkecosystem/crypto";
+import { Client } from "@arkecosystem/crypto";
 
 export class Signer {
     protected network: Record<string, any>;
@@ -9,7 +9,7 @@ export class Signer {
     }
 
     public makeTransfer(opts: Record<string, any>): any {
-        const transaction = client
+        const transaction = Client.client
             .getBuilder()
             .transfer()
             .fee(this.toSatoshi(opts.transferFee))
@@ -31,7 +31,7 @@ export class Signer {
     }
 
     public makeDelegate(opts: Record<string, any>): any {
-        const transaction = client
+        const transaction = Client.client
             .getBuilder()
             .delegateRegistration()
             .fee(this.toSatoshi(opts.delegateFee))
@@ -47,7 +47,7 @@ export class Signer {
     }
 
     public makeSecondSignature(opts: Record<string, any>): any {
-        return client
+        return Client.client
             .getBuilder()
             .secondSignature()
             .fee(this.toSatoshi(opts.signatureFee))
@@ -58,7 +58,7 @@ export class Signer {
     }
 
     public makeVote(opts: Record<string, any>): any {
-        const transaction = client
+        const transaction = Client.client
             .getBuilder()
             .vote()
             .fee(this.toSatoshi(opts.voteFee))

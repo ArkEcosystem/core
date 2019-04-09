@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { configManager, models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
@@ -125,7 +125,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async deleteBlock(block: models.Block): Promise<void> {
+    public async deleteBlock(block: Blocks.Block): Promise<void> {
         try {
             await this.db.tx(t =>
                 t.batch([
@@ -140,7 +140,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public enqueueDeleteBlock(block: models.Block): void {
+    public enqueueDeleteBlock(block: Blocks.Block): void {
         this.enqueueQueries([
             this.transactionsRepository.deleteByBlockId(block.data.id),
             this.blocksRepository.delete(block.data.id),
@@ -155,7 +155,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async saveBlock(block: models.Block): Promise<void> {
+    public async saveBlock(block: Blocks.Block): Promise<void> {
         try {
             const queries = [this.blocksRepository.insert(block.data)];
 
@@ -227,13 +227,13 @@ export class PostgresConnection implements Database.IConnection {
         await this.query.none(migration);
 
         const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
-        const { transactionIdFixTable } = configManager.get("exceptions");
+        const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
         for (const batch of chunk(all, 20000)) {
             await this.db.task(task => {
                 const transactions = [];
                 batch.forEach((tx: { serialized: Buffer; id: string }) => {
-                    const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
+                    const transaction = Transactions.Transaction.fromBytesUnsafe(tx.serialized, tx.id);
                     if (transaction.data.asset) {
                         let transactionId = transaction.id;
 

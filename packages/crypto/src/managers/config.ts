@@ -2,17 +2,11 @@ import deepmerge from "deepmerge";
 import camelCase from "lodash.camelcase";
 import get from "lodash.get";
 import set from "lodash.set";
-
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
+import { IMilestone } from "../interfaces";
 import * as networks from "../networks";
+import { NetworkName } from "../types";
 import { feeManager } from "./fee";
-
-interface IMilestone {
-    index: number;
-    data: { [key: string]: any };
-}
-
-export type NetworkName = keyof typeof networks;
 
 export class ConfigManager {
     public config: any;

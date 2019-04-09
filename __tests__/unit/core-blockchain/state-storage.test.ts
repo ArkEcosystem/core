@@ -2,14 +2,14 @@ import "./mocks/";
 import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
 
-import { ITransactionData, models } from "@arkecosystem/crypto";
+import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 
-const { Block } = models;
+const { Block } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => Block.fromData(block));
 let stateStorage;
 
@@ -106,7 +106,7 @@ describe("State Storage", () => {
                 stateStorage.setLastBlock(blocks[i]);
             }
 
-            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as models.IBlockData[];
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as Interfaces.IBlockData[];
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
@@ -176,7 +176,7 @@ describe("State Storage", () => {
 
     describe("cacheTransactions", () => {
         it("should add transaction id", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
@@ -184,11 +184,11 @@ describe("State Storage", () => {
         });
 
         it("should not add duplicate transaction ids", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
-            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
                 added: [],
                 notAdded: [{ id: "1" }],
             });

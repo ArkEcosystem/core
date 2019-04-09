@@ -1,7 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../constants";
-import { MultiPaymentItem } from "../../interfaces";
+import { TransactionTypes } from "../../enums";
+import { IMultiPaymentItem } from "../../interfaces";
 import { Bignum } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -28,7 +28,7 @@ export class MultiPaymentTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const payments: MultiPaymentItem[] = [];
+        const payments: IMultiPaymentItem[] = [];
         const total = buf.readUint32();
 
         for (let j = 0; j < total; j++) {

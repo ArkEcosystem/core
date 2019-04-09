@@ -3,10 +3,12 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
-const { Block } = models;
+const { Block } = Blocks;
+const { configManager } = Managers;
+const { crypto, HashAlgorithms } = Crypto;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IConnection;
@@ -19,7 +21,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
-    public blocksInCurrentRound: models.Block[] = null;
+    public blocksInCurrentRound: Blocks.Block[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: Database.IDelegateWallet[] = null;
@@ -63,7 +65,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.saveBlock(Block.fromData(configManager.get("genesisBlock")));
     }
 
-    public async applyBlock(block: models.Block) {
+    public async applyBlock(block: Blocks.Block) {
         this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
@@ -126,7 +128,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.commitQueuedQueries();
     }
 
-    public async deleteBlock(block: models.Block) {
+    public async deleteBlock(block: Blocks.Block) {
         await this.connection.deleteBlock(block);
     }
 
@@ -134,7 +136,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.delete(round);
     }
 
-    public enqueueDeleteBlock(block: models.Block) {
+    public enqueueDeleteBlock(block: Blocks.Block) {
         this.connection.enqueueDeleteBlock(block);
     }
 
@@ -184,7 +186,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getBlock(id: string) {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block: models.IBlockData = await this.connection.blocksRepository.findById(id);
+        const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
 
         if (!block) {
             return null;
@@ -192,7 +194,9 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
 
-        block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
+        block.transactions = transactions.map(
+            ({ serialized, id }) => Transactions.Transaction.fromBytesUnsafe(serialized, id).data,
+        );
 
         return Block.fromData(block);
     }
@@ -315,12 +319,14 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
 
-        block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
+        block.transactions = transactions.map(
+            ({ serialized, id }) => Transactions.Transaction.fromBytesUnsafe(serialized, id).data,
+        );
 
         return Block.fromData(block);
     }
 
-    public async getCommonBlocks(ids: string[]): Promise<models.IBlockData[]> {
+    public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         const state = app.resolve("state");
         let commonBlocks = state.getCommonBlocks(ids);
         if (commonBlocks.length < ids.length) {
@@ -370,7 +376,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const { data } = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
+            const { data } = Transactions.Transaction.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;
         });
@@ -382,7 +388,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async revertBlock(block: models.Block) {
+    public async revertBlock(block: Blocks.Block) {
         await this.revertRound(block.data.height);
         await this.walletManager.revertBlock(block);
 
@@ -406,7 +412,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async saveBlock(block: models.Block) {
+    public async saveBlock(block: Blocks.Block) {
         await this.connection.saveBlock(block);
     }
 
@@ -503,7 +509,7 @@ export class DatabaseService implements Database.IDatabaseService {
         };
     }
 
-    public async verifyTransaction(transaction: Transaction): Promise<boolean> {
+    public async verifyTransaction(transaction: Transactions.Transaction): Promise<boolean> {
         const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
@@ -541,7 +547,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     private async calcPreviousActiveDelegates(
         round: number,
-        blocks?: models.Block[],
+        blocks?: Blocks.Block[],
     ): Promise<Database.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(round));
 
@@ -563,7 +569,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return tempWalletManager.loadActiveDelegateList(height);
     }
 
-    private emitTransactionEvents(transaction: Transaction): void {
+    private emitTransactionEvents(transaction: Transactions.Transaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
         const handler = TransactionHandlerRegistry.get(transaction.type);
@@ -585,7 +591,7 @@ export class DatabaseService implements Database.IDatabaseService {
                             return;
                         }
 
-                        coldWallet[key] = key !== "voteBalance" ? wallet[key] : new Bignum(wallet[key]);
+                        coldWallet[key] = key !== "voteBalance" ? wallet[key] : new Utils.Bignum(wallet[key]);
                     });
                 }
             } catch (err) {

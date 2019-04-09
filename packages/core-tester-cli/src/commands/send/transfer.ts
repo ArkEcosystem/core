@@ -1,5 +1,4 @@
 import { flags } from "@oclif/command";
-import { delay } from "bluebird";
 import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";

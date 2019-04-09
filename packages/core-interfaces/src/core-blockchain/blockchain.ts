@@ -1,4 +1,4 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { IDatabaseService } from "../core-database";
 import { IPeerService } from "../core-p2p";
 import { IConnection } from "../core-transaction-pool";
@@ -61,14 +61,14 @@ export interface IBlockchain {
      * @param  {Array}   transactions
      * @return {void}
      */
-    postTransactions(transactions: Transaction[]): Promise<void>;
+    postTransactions(transactions: Transactions.Transaction[]): Promise<void>;
 
     /**
      * Push a block to the process queue.
      * @param  {Block} block
      * @return {void}
      */
-    handleIncomingBlock(block: models.Block): void;
+    handleIncomingBlock(block: Blocks.Block): void;
 
     /**
      * Remove N number of blocks.
@@ -92,7 +92,7 @@ export interface IBlockchain {
      * @param  {Function} callback
      * @return {(Function|void)}
      */
-    processBlock(block: models.Block, callback: any): Promise<any>;
+    processBlock(block: Blocks.Block, callback: any): Promise<any>;
 
     /**
      * Called by forger to wake up and sync with the network.
@@ -108,7 +108,7 @@ export interface IBlockchain {
      * @param {Block} block
      * @returns {void}
      */
-    forkBlock(block: models.Block): void;
+    forkBlock(block: Blocks.Block): void;
 
     /**
      * Get unconfirmed transactions for the specified block size.
@@ -129,13 +129,13 @@ export interface IBlockchain {
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}
      */
-    isSynced(block?: models.Block): boolean;
+    isSynced(block?: Blocks.Block): boolean;
 
     /**
      * Get the last block of the blockchain.
      * @return {Object}
      */
-    getLastBlock(): models.Block;
+    getLastBlock(): Blocks.Block;
 
     /**
      * Get the last height of the blockchain.
@@ -147,7 +147,7 @@ export interface IBlockchain {
      * Get the last downloaded block of the blockchain.
      * @return {Object}
      */
-    getLastDownloadedBlock(): { data: models.IBlockData };
+    getLastDownloadedBlock(): { data: Interfaces.IBlockData };
 
     /**
      * Get the block ping.
@@ -159,11 +159,11 @@ export interface IBlockchain {
      * Ping a block.
      * @return {Object}
      */
-    pingBlock(incomingBlock: models.IBlockData): any;
+    pingBlock(incomingBlock: Interfaces.IBlockData): any;
 
     /**
      * Push ping block.
      * @return {Object}
      */
-    pushPingBlock(block: models.IBlockData): void;
+    pushPingBlock(block: Interfaces.IBlockData): void;
 }

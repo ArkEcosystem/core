@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
-import { Bignum, configManager } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import sumBy from "lodash.sumby";
 
 export function handler(request, h) {
@@ -13,7 +13,7 @@ export function handler(request, h) {
         delegates.map((delegate: Database.IWallet, index: number) => {
             const filteredVoters = databaseService.walletManager
                 .allByPublicKey()
-                .filter(wallet => wallet.vote === delegate.publicKey && (wallet.balance as Bignum).gt(0.1 * 1e8));
+                .filter(wallet => wallet.vote === delegate.publicKey && (wallet.balance as Utils.Bignum).gt(0.1 * 1e8));
 
             const approval = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
                 undefined,
@@ -61,12 +61,12 @@ export function handler(request, h) {
 
     const voters = databaseService.walletManager
         .allByPublicKey()
-        .filter(wallet => wallet.vote && (wallet.balance as Bignum).gt(0.1 * 1e8));
+        .filter(wallet => wallet.vote && (wallet.balance as Utils.Bignum).gt(0.1 * 1e8));
 
     const totalVotes = sumBy(voters, wallet => +wallet.balance.toFixed());
     const percentage = (totalVotes * 100) / supply;
 
-    const client = configManager.get("client");
+    const client = Managers.configManager.get("client");
 
     return h
         .view("index", {

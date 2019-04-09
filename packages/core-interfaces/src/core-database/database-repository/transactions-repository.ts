@@ -1,4 +1,4 @@
-import { Bignum } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
@@ -33,8 +33,8 @@ export interface ITransactionsRepository extends IRepository {
      */
     statistics(): Promise<{
         count: number;
-        totalFee: Bignum;
-        totalAmount: Bignum;
+        totalFee: Utils.Bignum;
+        totalAmount: Utils.Bignum;
     }>;
 
     getFeeStatistics(minFeeBroadcast: number): Promise<any>;

@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 export {};
 
@@ -16,7 +16,7 @@ expect.extend({
         let verified;
 
         try {
-            verified = crypto.verifySecondSignature(actual, expected.publicKey);
+            verified = Crypto.crypto.verifySecondSignature(actual, expected.publicKey);
         } catch (e) {} // tslint:disable-line
 
         return {

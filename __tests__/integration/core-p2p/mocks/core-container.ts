@@ -1,10 +1,10 @@
-import { configManager } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { blocks2to100 } from "../../../utils/fixtures";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
 
-configManager.setFromPreset("unitnet");
+Managers.configManager.setFromPreset("unitnet");
 
 jest.mock("@arkecosystem/core-container", () => {
     return {

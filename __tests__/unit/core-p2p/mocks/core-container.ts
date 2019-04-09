@@ -1,4 +1,4 @@
-import { configManager } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { blockchain } from "./blockchain";
 import { database } from "./database";
@@ -7,7 +7,7 @@ import { logger } from "./logger";
 import { p2p } from "./p2p";
 import { state } from "./state";
 
-configManager.setFromPreset("unitnet");
+Managers.configManager.setFromPreset("unitnet");
 
 jest.mock("@arkecosystem/core-container", () => {
     return {

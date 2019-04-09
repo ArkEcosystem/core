@@ -2,14 +2,15 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { crypto, ITransactionData, models } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { Block } = models;
+const { Block } = Blocks;
+const { crypto } = Crypto;
 
 let TransactionGuard;
 
@@ -389,7 +390,7 @@ describe("Transaction Guard", () => {
             const sender = delegates[21];
             const receivers = generateWallets("unitnet", 1);
 
-            const transactions: ITransactionData[] = TransactionFactory.transfer(receivers[0].address, 50)
+            const transactions: Interfaces.ITransactionData[] = TransactionFactory.transfer(receivers[0].address, 50)
                 .withNetwork("unitnet")
                 .withPassphrase(sender.secret)
                 .create();

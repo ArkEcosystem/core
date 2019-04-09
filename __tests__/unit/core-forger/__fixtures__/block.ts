@@ -1,8 +1,8 @@
-import { client, models } from "@arkecosystem/crypto";
+import { Blocks, Managers } from "@arkecosystem/crypto";
 
-client.getConfigManager().setFromPreset("unitnet");
+Managers.configManager.setFromPreset("unitnet");
 
-export const sampleBlock = models.Block.fromData({
+export const sampleBlock = Blocks.Block.fromData({
     id: "4398082439836560423",
     version: 0,
     timestamp: 35751416,

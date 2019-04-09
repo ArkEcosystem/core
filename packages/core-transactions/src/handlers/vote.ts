@@ -1,15 +1,15 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { ITransactionData, Transaction, TransactionConstructor, VoteTransaction } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError, VotedForNonDelegateError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class VoteTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return VoteTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.VoteTransaction;
     }
 
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -36,7 +36,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
@@ -46,7 +46,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
@@ -56,7 +56,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {
+    public emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void {
         const vote = transaction.data.asset.votes[0];
 
         emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
@@ -65,7 +65,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         });
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
         return !this.typeFromSenderAlreadyInPool(data, guard);
     }
 }

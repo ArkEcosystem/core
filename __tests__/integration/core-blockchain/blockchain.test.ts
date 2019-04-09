@@ -2,16 +2,7 @@ import "../../utils";
 
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
-import {
-    Bignum,
-    crypto,
-    HashAlgorithms,
-    ITransactionData,
-    models,
-    slots,
-    sortTransactions,
-    transactionBuilder,
-} from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
@@ -23,7 +14,7 @@ import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block } = models;
+const { Block } = Blocks;
 
 let genesisBlock;
 let configManager;
@@ -150,18 +141,18 @@ describe("Blockchain", () => {
         const getNextForger = async () => {
             const lastBlock = blockchain.state.getLastBlock();
             const activeDelegates = await blockchain.database.getActiveDelegates(lastBlock.data.height);
-            const nextSlot = slots.getSlotNumber(lastBlock.data.timestamp) + 1;
+            const nextSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1;
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
-        const createBlock = (generatorKeys: any, transactions: ITransactionData[]) => {
+        const createBlock = (generatorKeys: any, transactions: Interfaces.ITransactionData[]) => {
             const transactionData = {
-                amount: Bignum.ZERO,
-                fee: Bignum.ZERO,
+                amount: Utils.Bignum.ZERO,
+                fee: Utils.Bignum.ZERO,
                 ids: [],
             };
 
-            const sortedTransactions = sortTransactions(transactions);
+            const sortedTransactions = Utils.sortTransactions(transactions);
             sortedTransactions.forEach(transaction => {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
@@ -170,7 +161,7 @@ describe("Blockchain", () => {
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
-                timestamp: slots.getSlotTime(slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1),
                 version: 0,
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,
@@ -178,29 +169,28 @@ describe("Blockchain", () => {
                 numberOfTransactions: sortedTransactions.length,
                 totalAmount: transactionData.amount,
                 totalFee: transactionData.fee,
-                reward: Bignum.ZERO,
+                reward: Utils.Bignum.ZERO,
                 payloadLength: 32 * sortedTransactions.length,
-                payloadHash: HashAlgorithms.sha256(transactionData.ids).toString("hex"),
+                payloadHash: Crypto.HashAlgorithms.sha256(transactionData.ids).toString("hex"),
                 transactions: sortedTransactions,
             };
 
-            return Block.create(data, crypto.getKeys(generatorKeys.secret));
+            return Block.create(data, Crypto.crypto.getKeys(generatorKeys.secret));
         };
 
         it("should restore vote balances after a rollback", async () => {
             const mockCallback = jest.fn(() => true);
 
             // Create key pair for new voter
-            const keyPair = crypto.getKeys("secret");
-            const recipient = crypto.getAddress(keyPair.publicKey);
+            const keyPair = Crypto.crypto.getKeys("secret");
+            const recipient = Crypto.crypto.getAddress(keyPair.publicKey);
 
             let nextForger = await getNextForger();
             const initialVoteBalance = nextForger.voteBalance;
 
             // First send funds to new voter wallet
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
-            const transfer = transactionBuilder
-                .transfer()
+            const transfer = Transactions.BuilderFactory.transfer()
                 .recipientId(recipient)
                 .amount(125)
                 .sign(forgerKeys.passphrase)
@@ -214,12 +204,11 @@ describe("Blockchain", () => {
 
             // New wallet received funds and vote balance of delegate has been reduced by the same amount,
             // since it forged it's own transaction the fees for the transaction have been recovered.
-            expect(wallet.balance).toEqual(new Bignum(transfer.amount));
-            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(transfer.amount));
+            expect(wallet.balance).toEqual(new Utils.Bignum(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance).minus(transfer.amount));
 
             // Now vote with newly created wallet for previous forger.
-            const vote = transactionBuilder
-                .vote()
+            const vote = Transactions.BuilderFactory.vote()
                 .fee(1)
                 .votesAsset([`+${forgerKeys.publicKey}`])
                 .sign("secret")
@@ -232,16 +221,15 @@ describe("Blockchain", () => {
             await blockchain.processBlock(voteBlock, mockCallback);
 
             // Wallet paid a fee of 1 and the vote has been placed.
-            expect(wallet.balance).toEqual(new Bignum(124));
+            expect(wallet.balance).toEqual(new Utils.Bignum(124));
             expect(wallet.vote).toEqual(forgerKeys.publicKey);
 
             // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
             // since it was forged by a different delegate.
-            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(vote.fee));
+            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance).minus(vote.fee));
 
             // Now unvote again
-            const unvote = transactionBuilder
-                .vote()
+            const unvote = Transactions.BuilderFactory.vote()
                 .fee(1)
                 .votesAsset([`-${forgerKeys.publicKey}`])
                 .sign("secret")
@@ -254,18 +242,18 @@ describe("Blockchain", () => {
             await blockchain.processBlock(unvoteBlock, mockCallback);
 
             // Wallet paid a fee of 1 and no longer voted a delegate
-            expect(wallet.balance).toEqual(new Bignum(123));
+            expect(wallet.balance).toEqual(new Utils.Bignum(123));
             expect(wallet.vote).toBeNull();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
-            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance).minus(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance).minus(transfer.amount));
 
             // Now rewind 3 blocks back to the initial state
             await blockchain.removeBlocks(3);
 
             // Wallet is now a cold wallet and the initial vote balance has been restored.
-            expect(wallet.balance).toEqual(Bignum.ZERO);
-            expect(walletForger.voteBalance).toEqual(new Bignum(initialVoteBalance));
+            expect(wallet.balance).toEqual(Utils.Bignum.ZERO);
+            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance));
         });
     });
 
@@ -356,7 +344,7 @@ async function __resetToHeight1() {
         await blockchain.database.buildWallets();
 
         // Index the genesis wallet or else revert block at height 1 fails
-        const generator = crypto.getAddress(genesisBlock.data.generatorPublicKey);
+        const generator = Crypto.crypto.getAddress(genesisBlock.data.generatorPublicKey);
         const genesis = new Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
         genesis.username = "genesis";

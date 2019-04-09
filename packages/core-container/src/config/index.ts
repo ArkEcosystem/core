@@ -1,4 +1,4 @@
-import { configManager as crypto } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import get from "lodash.get";
 import set from "lodash.set";
 import { fileLoader } from "./loaders";
@@ -6,6 +6,7 @@ import { Network } from "./network";
 
 export class Config {
     private config: Record<string, any>;
+    private readonly cryptoConfig = Managers.configManager;
 
     public async setUp(opts) {
         const network = Network.setUp(opts);
@@ -31,24 +32,17 @@ export class Config {
         set(this.config, key, value);
     }
 
-    /**
-     * Get constants for the specified height.
-     */
     public getMilestone(height: number): any {
-        return crypto.getMilestone(height);
+        return this.cryptoConfig.getMilestone(height);
     }
 
-    /**
-     * Configure the @arkecosystem/crypto package.
-     * @return {void}
-     */
     private configureCrypto(value: any): void {
-        crypto.setConfig(value);
+        this.cryptoConfig.setConfig(value);
 
-        this.config.network = crypto.all();
-        this.config.exceptions = crypto.get("exceptions");
-        this.config.milestones = crypto.get("milestones");
-        this.config.genesisBlock = crypto.get("genesisBlock");
+        this.config.network = this.cryptoConfig.all();
+        this.config.exceptions = this.cryptoConfig.get("exceptions");
+        this.config.milestones = this.cryptoConfig.get("milestones");
+        this.config.genesisBlock = this.cryptoConfig.get("genesisBlock");
     }
 }
 

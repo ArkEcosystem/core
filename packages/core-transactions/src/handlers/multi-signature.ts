@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { MultiSignatureRegistrationTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
@@ -9,13 +9,13 @@ import {
 import { TransactionHandler } from "./transaction";
 
 export class MultiSignatureTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return MultiSignatureRegistrationTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.MultiSignatureRegistrationTransaction;
     }
 
     // TODO: AIP18
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Transactions.Transaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -40,11 +40,11 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         wallet.multisignature = transaction.data.asset.multisignature;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         wallet.multisignature = null;
     }
 }

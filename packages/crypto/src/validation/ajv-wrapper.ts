@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { ISchemaValidationResult } from "../transactions/interfaces";
+import { ISchemaValidationResult } from "../interfaces";
 import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
 import { formats } from "./formats";
 import { keywords } from "./keywords";

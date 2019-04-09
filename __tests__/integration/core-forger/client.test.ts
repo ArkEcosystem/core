@@ -5,7 +5,6 @@ import "jest-extended";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import delay from "delay";
 import { Client } from "../../../packages/core-forger/src/client";
-import { HostNoResponseError } from "../../../packages/core-forger/src/errors";
 import { sampleBlocks } from "./__fixtures__/blocks";
 
 import { MockSocketManager } from "../core-p2p/__support__/mock-socket-server/manager";

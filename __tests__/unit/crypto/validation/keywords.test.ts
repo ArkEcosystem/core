@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { configManager } from "../../../../packages/crypto/src";
-import { TransactionTypes } from "../../../../packages/crypto/src/constants";
+import { TransactionTypes } from "../../../../packages/crypto/src/enums";
+import { configManager } from "../../../../packages/crypto/src/managers";
 import { Bignum } from "../../../../packages/crypto/src/utils";
 import { AjvWrapper } from "../../../../packages/crypto/src/validation";
 

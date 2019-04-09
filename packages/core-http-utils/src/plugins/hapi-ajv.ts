@@ -1,4 +1,4 @@
-import { AjvWrapper } from "@arkecosystem/crypto";
+import { Validation } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 
@@ -8,7 +8,7 @@ export const hapiAjv = {
     name,
     version: "1.0.0",
     register: async (server: Hapi.Server, options: any): Promise<void> => {
-        const ajv = AjvWrapper.instance();
+        const ajv = Validation.AjvWrapper.instance();
 
         if (options.registerFormats) {
             options.registerFormats(ajv);
