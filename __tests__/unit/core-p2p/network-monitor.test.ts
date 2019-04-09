@@ -25,7 +25,6 @@ describe("NetworkMonitor", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
             const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
 
-            // jest.spyOn(localConfig, "get").mockReturnValue([]);
             jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
 
             await monitor.start({ networkStart: false });
@@ -198,8 +197,6 @@ describe("NetworkMonitor", () => {
     describe("broadcastTransactions", () => {
         it("should broadcast the transactions to peers", async () => {
             storage.setPeer(stubPeer);
-
-            // jest.spyOn(localConfig, "get").mockReturnValueOnce(4);
 
             communicator.postTransactions = jest.fn();
 

@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import delay from "delay";
+import { defaults } from "../../../../packages/core-api/src/defaults";
 import { plugin } from "../../../../packages/core-api/src/plugin";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
@@ -8,6 +9,7 @@ import { delegates } from "../../../utils/fixtures";
 import { generateRound } from "./utils/generate-round";
 
 import { sortBy } from "@arkecosystem/utils";
+import { asValue } from "awilix";
 
 const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
 
@@ -36,6 +38,8 @@ async function setUp() {
     await databaseService.connection.roundsRepository.truncate();
     await databaseService.buildWallets();
     await databaseService.saveRound(round);
+
+    app.register("pkg.api.opts", asValue({ ...defaults, ...options }));
 
     await registerWithContainer(plugin, options);
     await delay(1000); // give some more time for api server to be up
