@@ -1,8 +1,9 @@
+import "jest-extended";
+
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { crypto, ITransactionData, models } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
-import "jest-extended";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
@@ -24,8 +25,6 @@ beforeAll(async () => {
 
     transactionPool = container.resolvePlugin("transaction-pool");
     blockchain = container.resolvePlugin("blockchain");
-
-    // localConfig.init(transactionPool.options);
 });
 
 afterAll(async () => {

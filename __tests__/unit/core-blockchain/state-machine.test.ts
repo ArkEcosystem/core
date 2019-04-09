@@ -1,9 +1,10 @@
+import "../../utils";
 import "./mocks/";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { models, slots } from "@arkecosystem/crypto";
+import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
-import "../../utils";
 import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";
 import { blockchain } from "./mocks/blockchain";
 import { config } from "./mocks/config";
@@ -19,6 +20,8 @@ beforeAll(async () => {
     ({ stateMachine } = require("../../../packages/core-blockchain/src/state-machine"));
 
     process.env.CORE_ENV = "";
+
+    container.app.resolveOptions = jest.fn(() => defaults);
 });
 
 describe("State Machine", () => {

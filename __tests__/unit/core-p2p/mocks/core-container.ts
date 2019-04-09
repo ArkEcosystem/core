@@ -1,4 +1,5 @@
 import { configManager } from "@arkecosystem/crypto";
+import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { blockchain } from "./blockchain";
 import { database } from "./database";
 import { eventEmitter } from "./event-emitter";
@@ -68,6 +69,10 @@ jest.mock("@arkecosystem/core-container", () => {
                 return {};
             },
             resolveOptions: name => {
+                if (name === "p2p") {
+                    return defaults;
+                }
+
                 if (name === "transactionPool") {
                     return null;
                 }

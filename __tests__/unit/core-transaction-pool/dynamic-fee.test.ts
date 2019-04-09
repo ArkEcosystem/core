@@ -1,14 +1,16 @@
-import "./mocks/core-container";
+import { container } from "./mocks/core-container";
 
-import { config } from "../../../packages/core-transaction-pool/src";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { calculateFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
 import { transactions } from "./__fixtures__/transactions";
 
-beforeEach(() => config.init(defaults));
-
 describe("static fees", () => {
-    beforeEach(() => config.set("dynamicFees.enabled", false));
+    beforeEach(() => {
+        jest.spyOn(container.app, "resolveOptions").mockReturnValue({
+            ...defaults,
+            ...{ dynamicFees: { enabled: false } },
+        });
+    });
 
     it("should accept transactions matching the static fee for broadcast", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
@@ -30,11 +32,13 @@ describe("static fees", () => {
 });
 
 describe("dynamic fees", () => {
-    let dynamicFeeConfig;
-    beforeEach(() => {
-        config.set("dynamicFees.enabled", true);
+    const dynamicFeeConfig = defaults.dynamicFees;
 
-        dynamicFeeConfig = config.get("dynamicFees");
+    beforeEach(() => {
+        jest.spyOn(container.app, "resolveOptions").mockReturnValue({
+            ...defaults,
+            ...{ dynamicFees: { ...defaults.dynamicFees, ...{ enabled: true } } },
+        });
     });
 
     it("should broadcast transactions with high enough fee", () => {
@@ -78,15 +82,19 @@ describe("dynamic fees", () => {
 
 describe("calculateFee", () => {
     it("should correctly calculate the transaction fee based on transaction size and addonBytes", () => {
-        config.set("dynamicFees.addonBytes", {
-            transfer: 137,
+        jest.spyOn(container.app, "resolveOptions").mockReturnValue({
+            ...defaults,
+            ...{ dynamicFees: { addonBytes: { transfer: 137 } } },
         });
+
         expect(calculateFee(3, transactions.dummy1)).toBe((137 + transactions.dummy1.serialized.length / 2) * 3);
         expect(calculateFee(6, transactions.dummy1)).toBe((137 + transactions.dummy1.serialized.length / 2) * 6);
 
-        config.set("dynamicFees.addonBytes", {
-            transfer: 0,
+        jest.spyOn(container.app, "resolveOptions").mockReturnValue({
+            ...defaults,
+            ...{ dynamicFees: { addonBytes: { transfer: 0 } } },
         });
+
         expect(calculateFee(9, transactions.dummy1)).toBe((transactions.dummy1.serialized.length / 2) * 9);
     });
 

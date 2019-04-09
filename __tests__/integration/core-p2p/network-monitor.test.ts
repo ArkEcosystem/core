@@ -29,9 +29,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-    // localConfig.init(defaults);
-    // localConfig.set("port", 4000);
-
     ({ connector, monitor, storage, processor } = createPeerService());
 
     const peer = createStubPeer({

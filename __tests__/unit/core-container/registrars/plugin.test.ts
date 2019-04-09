@@ -107,7 +107,7 @@ describe("Plugin Registrar", () => {
         });
     });
 
-    describe("__castOptions", () => {
+    describe.skip("__castOptions", () => {
         it("should cast options", async () => {
             const options = {
                 number: "1",
