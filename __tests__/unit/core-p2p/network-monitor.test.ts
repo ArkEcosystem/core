@@ -25,14 +25,14 @@ beforeEach(() => {
 describe("NetworkMonitor", () => {
     describe("start", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
-            const acceptNewPeer = jest.spyOn(processor, "acceptNewPeer");
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
 
             jest.spyOn(localConfig, "get").mockReturnValue([]);
             jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
 
             await monitor.start({ networkStart: false });
 
-            expect(acceptNewPeer).toHaveBeenCalledWith(
+            expect(validateAndAcceptPeer).toHaveBeenCalledWith(
                 {
                     ip: stubPeer.ip,
                     port: stubPeer.port,
@@ -41,7 +41,7 @@ describe("NetworkMonitor", () => {
                 { lessVerbose: true, seed: true },
             );
 
-            acceptNewPeer.mockRestore();
+            validateAndAcceptPeer.mockRestore();
         });
     });
 
