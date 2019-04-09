@@ -1,6 +1,6 @@
 /* tslint:disable:no-empty */
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { blocks, interfaces } from "@arkecosystem/crypto";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 export class StateStorageStub implements Blockchain.IStateStorage {
     public cacheTransactions(

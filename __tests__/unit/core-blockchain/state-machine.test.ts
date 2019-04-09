@@ -1,7 +1,7 @@
 import "./mocks/";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { blocks, slots } from "@arkecosystem/crypto";
+import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import "../../utils";
@@ -12,7 +12,7 @@ import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 
-const { Block } = blocks;
+const { Block } = Blocks;
 
 let stateMachine;
 
@@ -270,7 +270,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     data: {
                         height: 2,
-                        timestamp: slots.getTime(),
+                        timestamp: Crypto.slots.getTime(),
                     },
                 });
                 // @ts-ignore

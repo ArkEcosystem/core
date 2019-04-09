@@ -1,6 +1,6 @@
 import "../../mocks/";
 
-import { blocks } from "@arkecosystem/crypto";
+import { Blocks } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
 import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers";
 import "../../../../utils";
@@ -8,7 +8,7 @@ import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 import { blockchain } from "../../mocks/blockchain";
 import { logger } from "../../mocks/logger";
 
-const { Block } = blocks;
+const { Block } = Blocks;
 
 describe("Exception handler", () => {
     describe("execute", () => {

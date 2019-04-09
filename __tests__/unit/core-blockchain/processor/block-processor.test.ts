@@ -2,7 +2,7 @@ import "../mocks/";
 import { blockchain } from "../mocks/blockchain";
 import { database } from "../mocks/database";
 
-import { blocks, configManager } from "@arkecosystem/crypto";
+import { Blocks, Managers } from "@arkecosystem/crypto";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
 import * as handlers from "../../../../packages/core-blockchain/src/processor/handlers";
 import {
@@ -14,7 +14,7 @@ import "../../../utils";
 import { fixtures } from "../../../utils";
 import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
 
-const { Block } = blocks;
+const { Block } = Blocks;
 const { delegates } = fixtures;
 
 let blockProcessor: BlockProcessor;
@@ -48,7 +48,7 @@ describe("Block processor", () => {
             const exceptionBlock = Block.fromData(blockTemplate);
             exceptionBlock.data.id = "998877";
 
-            jest.spyOn(configManager, "get").mockReturnValueOnce(["998877"]);
+            jest.spyOn(Managers.configManager, "get").mockReturnValueOnce(["998877"]);
 
             expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
         });

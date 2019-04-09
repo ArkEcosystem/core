@@ -1,7 +1,7 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { Dato } from "@faustbrian/dato";
 
-import { blocks, constants, interfaces, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;
@@ -29,19 +29,19 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public addTransactions(
-        transactions: Transaction[],
+        transactions: Transactions.Transaction[],
     ): {
-        added: Transaction[];
+        added: Transactions.Transaction[];
         notAdded: TransactionPool.IAddTransactionErrorResponse[];
     } {
         return { added: [], notAdded: [] };
     }
 
-    public addTransaction(transaction: Transaction): TransactionPool.IAddTransactionResponse {
+    public addTransaction(transaction: Transactions.Transaction): TransactionPool.IAddTransactionResponse {
         return null;
     }
 
-    public removeTransaction(transaction: Transaction): void {
+    public removeTransaction(transaction: Transactions.Transaction): void {
         return;
     }
 
@@ -53,7 +53,7 @@ export class Connection implements TransactionPool.IConnection {
         return [];
     }
 
-    public getTransaction(id: string): Transaction {
+    public getTransaction(id: string): Transactions.Transaction {
         return null;
     }
 
@@ -117,7 +117,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: constants.TransactionTypes): boolean {
+    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
         return true;
     }
 }

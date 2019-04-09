@@ -1,7 +1,7 @@
 import "./mocks/";
 import { logger } from "./mocks/logger";
 
-import { blocks as cBlocks, interfaces } from "@arkecosystem/crypto";
+import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { config } from "../../../packages/core-blockchain/src/config";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";

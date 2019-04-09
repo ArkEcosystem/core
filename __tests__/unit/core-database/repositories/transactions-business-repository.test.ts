@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { constants } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import { TransactionsBusinessRepository } from "../../../../packages/core-database/src/repositories/transactions-business-repository";
 import { DatabaseConnectionStub } from "../__fixtures__/database-connection-stub";
 import { MockDatabaseModel } from "../__fixtures__/mock-database-model";
@@ -86,7 +86,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: constants.TransactionTypes.Vote,
+                            value: Enums.TransactionTypes.Vote,
                         },
                     ]),
                 }),
@@ -192,7 +192,7 @@ describe("Transactions Business Repository", () => {
                 rows: [],
             }));
 
-            await transactionsBusinessRepository.findAllByType(constants.TransactionTypes.Transfer);
+            await transactionsBusinessRepository.findAllByType(Enums.TransactionTypes.Transfer);
 
             expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -200,7 +200,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: constants.TransactionTypes.Transfer,
+                            value: Enums.TransactionTypes.Transfer,
                         },
                     ],
                 }),
@@ -258,7 +258,7 @@ describe("Transactions Business Repository", () => {
                 rows: [],
             }));
 
-            await transactionsBusinessRepository.findByTypeAndId(constants.TransactionTypes.Transfer, "id");
+            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionTypes.Transfer, "id");
 
             expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -266,7 +266,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: constants.TransactionTypes.Transfer,
+                            value: Enums.TransactionTypes.Transfer,
                         },
                         {
                             field: "id",

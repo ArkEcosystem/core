@@ -4,15 +4,16 @@ import "./mocks/core-container";
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Address, Bignum, blocks, constants, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
-const { Block } = blocks;
-const { SATOSHI, TransactionTypes } = constants;
+const { Block } = Blocks;
+const { SATOSHI } = Constants;
+const { TransactionTypes } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
@@ -191,8 +192,10 @@ describe("Database Service", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                    wallet.username = Transaction.fromBytes(transaction.serialized).data.asset.delegate.username;
-                    wallet.address = Address.fromPublicKey(transaction.data.senderPublicKey);
+                    wallet.username = Transactions.Transaction.fromBytes(
+                        transaction.serialized,
+                    ).data.asset.delegate.username;
+                    wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
             }
@@ -220,8 +223,7 @@ describe("Database Service", () => {
             // reverse the current delegate order.
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
-                const transfer = transactionBuilder
-                    .transfer()
+                const transfer = Transactions.BuilderFactory.transfer()
                     .amount((i + 1) * SATOSHI)
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
@@ -238,8 +240,8 @@ describe("Database Service", () => {
                         height: initialHeight + i,
                         numberOfTransactions: 1,
                         totalAmount: transfer.data.amount,
-                        totalFee: new Bignum(0.1),
-                        reward: new Bignum(2),
+                        totalFee: new Utils.Bignum(0.1),
+                        reward: new Utils.Bignum(2),
                         payloadLength: 0,
                         payloadHash: "a".repeat(64),
                         transactions: [transfer.data],

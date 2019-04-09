@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { blocks, crypto, interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import "jest-extended";
 import { config as localConfig } from "../../../packages/core-transaction-pool/src/config";
@@ -9,7 +9,8 @@ import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fix
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { Block } = blocks;
+const { Block } = Blocks;
+const { crypto } = Crypto;
 
 let TransactionGuard;
 

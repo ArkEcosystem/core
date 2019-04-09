@@ -3,10 +3,10 @@ import "../../../../mocks/core-container";
 import { getCurrentRound } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/rounds";
 import { delegates } from "../../../../../../utils/fixtures/testnet/delegates";
 
-import { slots } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 const timestampSlots = 111;
-slots.getTime = jest.fn().mockReturnValue(timestampSlots);
+Crypto.slots.getTime = jest.fn().mockReturnValue(timestampSlots);
 
 describe("Internal handlers - rounds", () => {
     describe("getCurrentRound", () => {

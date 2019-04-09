@@ -2,7 +2,7 @@ import { blockchain } from "../../../../mocks/blockchain";
 import "../../../../mocks/core-container";
 import { database } from "../../../../mocks/database";
 
-import { Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import {
     getUnconfirmedTransactions,
     verifyTransaction,
@@ -19,7 +19,7 @@ describe("Internal handlers - transactions", () => {
             database.verifyTransaction = jest.fn().mockReturnValue(true);
             const req = {
                 data: {
-                    transaction: Transaction.toBytes(genesisBlockJSON.transactions[0]),
+                    transaction: Transactions.Transaction.toBytes(genesisBlockJSON.transactions[0]),
                 },
             };
             const result = await verifyTransaction(createPeerService().service, req);
@@ -34,7 +34,7 @@ describe("Internal handlers - transactions", () => {
             database.verifyTransaction = jest.fn().mockReturnValue(false);
             const req = {
                 data: {
-                    transaction: Transaction.toBytes(genesisBlockJSON.transactions[0]),
+                    transaction: Transactions.Transaction.toBytes(genesisBlockJSON.transactions[0]),
                 },
             };
             const result = await verifyTransaction(createPeerService().service, req);

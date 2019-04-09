@@ -3,7 +3,7 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
@@ -102,7 +102,7 @@ describe("Forger Manager", () => {
         it("should return deserialized transactions", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: [Transaction.fromData(sampleTransaction).serialized.toString("hex")],
+                transactions: [Transactions.Transaction.fromData(sampleTransaction).serialized.toString("hex")],
             });
 
             const transactions = await forgeManager.getTransactionsForForging();

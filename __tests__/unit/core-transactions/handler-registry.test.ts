@@ -1,31 +1,21 @@
 import "jest-extended";
 
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    Bignum,
-    configManager,
-    constants,
-    crypto,
-    interfaces,
-    schemas,
-    slots,
-    Transaction,
-    TransactionConstructor,
-    TransactionRegistry,
-} from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
 
-const { transactionBaseSchema, extend } = schemas;
-const { TransactionTypes } = constants;
+const { transactionBaseSchema, extend } = Transactions.schemas;
+const { TransactionTypes } = Enums;
+const { crypto, slots } = Crypto;
 
 const TEST_TRANSACTION_TYPE = 100;
 
-class TestTransaction extends Transaction {
+class TestTransaction extends Transactions.Transaction {
     public static type = TEST_TRANSACTION_TYPE;
 
-    public static getSchema(): schemas.TransactionSchema {
+    public static getSchema(): Transactions.schemas.TransactionSchema {
         return extend(transactionBaseSchema, {
             $id: "test",
             required: ["recipientId", "amount", "asset"],
@@ -58,7 +48,7 @@ class TestTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        data.amount = new Bignum(buf.readUint64().toString());
+        data.amount = new Utils.Bignum(buf.readUint64().toString());
         data.expiration = buf.readUint32();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
         data.asset = {
@@ -69,14 +59,14 @@ class TestTransaction extends Transaction {
 
 // tslint:disable-next-line:max-classes-per-file
 class TestTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor {
         return TestTransaction;
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         return;
     }
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
         return;
     }
 
@@ -86,12 +76,12 @@ class TestTransactionHandler extends TransactionHandler {
 }
 
 beforeAll(() => {
-    configManager.setFromPreset("testnet");
-    configManager.milestone.data.fees.staticFees.test = 1234;
+    Managers.configManager.setFromPreset("testnet");
+    Managers.configManager.milestone.data.fees.staticFees.test = 1234;
 });
 
 afterAll(() => {
-    delete configManager.milestone.data.fees.staticFees.test;
+    delete Managers.configManager.milestone.data.fees.staticFees.test;
 });
 
 afterEach(() => {
@@ -115,7 +105,7 @@ describe("TransactionHandlerRegistry", () => {
         ).not.toThrowError();
 
         expect(TransactionHandlerRegistry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
-        expect(TransactionRegistry.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
+        expect(Transactions.TransactionRegistry.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
 
     it("should be able to instantiate a custom transaction", () => {
@@ -137,12 +127,12 @@ describe("TransactionHandlerRegistry", () => {
         data.signature = crypto.sign(data, keys);
         data.id = crypto.getId(data);
 
-        const transaction = Transaction.fromData(data);
+        const transaction = Transactions.Transaction.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);
         expect(transaction.verified).toBeTrue();
 
-        const bytes = Transaction.toBytes(transaction.data);
-        const deserialized = Transaction.fromBytes(bytes);
+        const bytes = Transactions.Transaction.toBytes(transaction.data);
+        const deserialized = Transactions.Transaction.fromBytes(bytes);
         expect(deserialized.verified);
         expect(deserialized.data.asset.test).toBe(256);
     });

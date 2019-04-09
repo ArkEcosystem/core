@@ -1,10 +1,10 @@
-import { Bignum } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import "jest-extended";
 import { bignumify } from "../../../packages/core-utils/src/bignumify";
 
 describe("Bignumify", () => {
     it("should create a bignumber instance", () => {
-        expect(bignumify(1)).toBeInstanceOf(Bignum);
+        expect(bignumify(1)).toBeInstanceOf(Utils.Bignum);
     });
 
     it("should create a fixed number", () => {
