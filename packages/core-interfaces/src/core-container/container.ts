@@ -96,4 +96,6 @@ export interface IContainer {
      * @return {void}
      */
     setVersion(version: any): void;
+
+    getName(): string;
 }

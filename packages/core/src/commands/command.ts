@@ -1,3 +1,4 @@
+import { Container } from "@arkecosystem/core-interfaces";
 import { networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
@@ -88,7 +89,7 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected async buildApplication(app, flags: CommandFlags, config: Options) {
+    protected async buildApplication(app: Container.IContainer, flags: CommandFlags, config: Options) {
         await app.setUp(version, flags, {
             ...{ skipPlugins: flags.skipPlugins },
             ...config,

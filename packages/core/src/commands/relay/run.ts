@@ -1,8 +1,9 @@
 import { app } from "@arkecosystem/core-container";
+import { AbstractRunCommand } from "../../shared/run";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
-export class RunCommand extends BaseCommand {
+export class RunCommand extends AbstractRunCommand {
     public static description: string = "Run the relay (without pm2)";
 
     public static examples: string[] = [
@@ -32,9 +33,9 @@ $ ark relay:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const flags = await super.getFlags();
 
-        await this.buildApplication(app, flags, {
+        await super.buildApplication(app, flags, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
                 "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
@@ -43,5 +44,13 @@ $ ark relay:run --launchMode=seed
                 },
             },
         });
+    }
+
+    protected getSuffix(): string {
+        return "relay";
+    }
+
+    protected getClass() {
+        return RunCommand;
     }
 }
