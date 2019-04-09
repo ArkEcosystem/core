@@ -18,18 +18,6 @@ let communicator: P2P.IPeerCommunicator;
 beforeAll(async () => {
     socketManager = new MockSocketManager();
     await socketManager.init();
-
-    // localConfig.init({});
-    // localConfig.set("port", 4009); // we mock a peer on localhost:4009
-    // localConfig.set("blacklist", []);
-    // localConfig.set("minimumVersions", [">=2.1.0"]);
-
-    // jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-    //     databaseRollback: {
-    //         maxBlockRewind: 14,
-    //         steps: 3,
-    //     },
-    // });
 });
 
 afterAll(async () => {
