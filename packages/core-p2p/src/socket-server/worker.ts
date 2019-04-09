@@ -1,5 +1,4 @@
 import SCWorker from "socketcluster/scworker";
-import { config } from "../config";
 import { SocketErrors } from "../enums";
 import { validateHeaders } from "./utils/validate-headers";
 
@@ -9,6 +8,7 @@ export class Worker extends SCWorker {
     private rateLimit = null; // will be then initialized from config
     private banDurationMs = null; // will be then initialized from config
     private ipWhitelist = []; // will be then initialized from config
+    private config: Record<string, any>;
 
     public run() {
         this.logInfo(`Socket worker started, PID: ${process.pid}`);
@@ -26,6 +26,8 @@ export class Worker extends SCWorker {
         const config: any = await this.sendToMasterAsync({
             endpoint: "p2p.init.getConfig",
         });
+
+        this.config = config;
 
         if (config.rateLimit && config.rateLimit.enabled) {
             this.rateLimit = config.rateLimit.socketLimit;
@@ -53,7 +55,7 @@ export class Worker extends SCWorker {
     }
 
     public async middlewareHandshake(req, next): Promise<void> {
-        if (config.get("blacklist", []).includes(req.ip)) {
+        if (this.config.blacklist.includes(req.ip)) {
             req.socket.disconnect(4403, "Forbidden");
             return;
         }

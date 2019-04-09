@@ -1,5 +1,4 @@
 import { Container, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { config } from "./config";
 import { defaults } from "./defaults";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
@@ -29,8 +28,6 @@ export const plugin: Container.PluginDescriptor = {
     alias: "p2p",
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");
-
-        config.init(options);
 
         const service = makePeerService();
 
