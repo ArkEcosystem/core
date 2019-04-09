@@ -158,8 +158,8 @@
         "test-node10-functional": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -169,8 +169,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -247,8 +247,8 @@
         "test-node11-functional": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -258,8 +258,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -336,8 +336,8 @@
         "test-node10-integration-0": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -347,8 +347,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -425,8 +425,8 @@
         "test-node11-integration-0": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -436,8 +436,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
