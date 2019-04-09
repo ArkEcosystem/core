@@ -148,6 +148,8 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
+            this.connector.connect(newPeer);
+
             await this.communicator.ping(newPeer, 3000);
 
             this.storage.setPeer(newPeer);
@@ -155,8 +157,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             if (!options.lessVerbose) {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
-
-            this.connector.connect(newPeer);
 
             this.emitter.emit("peer.added", newPeer);
         } catch (error) {
