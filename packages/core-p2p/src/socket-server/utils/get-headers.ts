@@ -10,9 +10,9 @@ export const getHeaders = () => {
         height: null,
     };
 
-    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    if (blockchain) {
-        const lastBlock = blockchain.getLastBlock();
+    if (app.has("blockchain")) {
+        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+
         if (lastBlock) {
             headers.height = lastBlock.data.height;
         }

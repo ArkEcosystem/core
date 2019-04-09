@@ -1,13 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import {
-    ICurrentRound,
-    IForgingTransactions,
-    IResponse,
-    NetworkState,
-    NetworkStateStatus,
-    socketEmit,
-} from "@arkecosystem/core-p2p";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
 import { ITransactionData, models } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
@@ -106,10 +99,10 @@ export class Client {
     /**
      * Get the current round.
      */
-    public async getRound(): Promise<ICurrentRound> {
+    public async getRound(): Promise<P2P.ICurrentRound> {
         await this.selectHost();
 
-        const response = await this.emit<IResponse<ICurrentRound>>("p2p.internal.getCurrentRound", {});
+        const response = await this.emit<P2P.IResponse<P2P.ICurrentRound>>("p2p.internal.getCurrentRound", {});
 
         return response.data;
     }
@@ -117,9 +110,13 @@ export class Client {
     /**
      * Get the current network quorum.
      */
-    public async getNetworkState(): Promise<NetworkState> {
+    public async getNetworkState(): Promise<P2P.INetworkState> {
         try {
-            const response: any = await this.emit<IResponse<NetworkState>>("p2p.internal.getNetworkState", {}, 4000);
+            const response: any = await this.emit<P2P.IResponse<NetworkState>>(
+                "p2p.internal.getNetworkState",
+                {},
+                4000,
+            );
 
             return NetworkState.parse(response.data);
         } catch (e) {
@@ -133,8 +130,8 @@ export class Client {
     /**
      * Get all transactions that are ready to be forged.
      */
-    public async getTransactions(): Promise<IForgingTransactions> {
-        const response = await this.emit<IResponse<IForgingTransactions>>(
+    public async getTransactions(): Promise<P2P.IForgingTransactions> {
+        const response = await this.emit<P2P.IResponse<P2P.IForgingTransactions>>(
             "p2p.internal.getUnconfirmedTransactions",
             {},
         );
@@ -162,7 +159,7 @@ export class Client {
         try {
             await this.emit("p2p.internal.emitEvent", { event, body });
         } catch (error) {
-            this.logger.error(`Failed to emit "${event}" to "${host}"`);
+            this.logger.error(`Failed to emit "${event}" to "${host.ip}:${host.port}"`);
         }
     }
 

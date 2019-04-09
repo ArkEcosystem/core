@@ -3,9 +3,6 @@ import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-/**
- * @type {Object}
- */
 export const syncBlockchain = () => {
     logger.debug("Blockchain sync check WAKEUP requested by forger :bed:");
 

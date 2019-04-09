@@ -10,6 +10,6 @@ export function transformPeerLegacy(model) {
         height: model.height,
         status: [200, "OK"].includes(model.status) ? "OK" : "ERROR",
         os: model.os,
-        delay: model.delay,
+        delay: model.latency,
     };
 }

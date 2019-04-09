@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { ICurrentRound, NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { configManager, ITransactionData, models, networks, slots, Transaction } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
@@ -21,7 +21,7 @@ export class ForgerManager {
     private delegates: models.Delegate[];
     private usernames: { [key: string]: string };
     private isStopped: boolean;
-    private round: ICurrentRound;
+    private round: P2P.ICurrentRound;
     private initialized: boolean;
 
     /**
@@ -148,7 +148,7 @@ export class ForgerManager {
     /**
      * Creates new block by the delegate and sends it to relay node for verification and broadcast
      */
-    public async forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
+    public async forgeNewBlock(delegate: models.Delegate, round, networkState: P2P.INetworkState) {
         const transactions = await this.getTransactionsForForging();
 
         const previousBlock = {
@@ -205,7 +205,7 @@ export class ForgerManager {
     /**
      * Parses the given network state and decides if forging is allowed.
      */
-    public parseNetworkState(networkState: NetworkState, delegate: models.Delegate): boolean {
+    public parseNetworkState(networkState: P2P.INetworkState, delegate: models.Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
             return false;

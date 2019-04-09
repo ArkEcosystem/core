@@ -1,10 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, EventEmitter } from "@arkecosystem/core-interfaces";
-
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+import { Blockchain, EventEmitter, P2P } from "@arkecosystem/core-interfaces";
 
 import { validate } from "../../../utils/validate";
-import * as schema from "../schemas/utils";
+import * as schema from "../schemas";
 
 export const getUsernames = async () => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -22,8 +20,8 @@ export const getUsernames = async () => {
     return { data };
 };
 
-export const emitEvent = req => {
+export const emitEvent = (service: P2P.IPeerService, req) => {
     validate(schema.emitEvent, req.data); // this will throw if validation failed
 
-    emitter.emit(req.data.event, req.data.body);
+    app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 };

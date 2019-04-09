@@ -120,12 +120,8 @@ export class Container implements container.IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    public resolveOptions(key: string) {
-        try {
-            return this.container.resolve<container.PluginConfig<any>>(`pkg.${key}.opts`);
-        } catch (err) {
-            throw err;
-        }
+    public resolveOptions(key) {
+        return this.container.resolve<container.PluginConfig<any>>(`pkg.${key}.opts`);
     }
 
     /**

@@ -1,5 +1,5 @@
 import { bip38, crypto, HashAlgorithms } from "@arkecosystem/crypto";
-import bip39 from "bip39";
+import { generateMnemonic } from "bip39";
 import Joi from "joi";
 import { database } from "../../../services/database";
 import { getBIP38Wallet } from "../../../utils/bip38-keys";
@@ -17,7 +17,7 @@ export const walletBIP38Create = {
                 wif,
             };
         } catch (error) {
-            const { publicKey, privateKey } = crypto.getKeys(bip39.generateMnemonic());
+            const { publicKey, privateKey } = crypto.getKeys(generateMnemonic());
 
             const encryptedWIF = bip38.encrypt(Buffer.from(privateKey, "hex"), true, params.bip38 + params.userId);
             await database.set(HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"), encryptedWIF);

@@ -35,7 +35,7 @@
         "@types/boom": "^7.2.1",
         "@types/fs-extra": "^5.0.5",
         "@types/joi": "^14.3.2",
-        "@types/sequelize": "^4.27.39",
+        "@types/sequelize": "^4.27.46",
         "@types/sqlite3": "^3.1.5",
         "@types/umzug": "^2.2.0"
     },

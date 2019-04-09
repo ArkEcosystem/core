@@ -33,7 +33,7 @@
         "ajv": "^6.10.0",
         "boom": "^7.3.0",
         "delay": "^4.1.0",
-        "hapi-rate-limit": "^3.1.1",
+        "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
         "ipaddr.js": "^1.9.0",
         "joi": "^14.3.1",
@@ -51,10 +51,10 @@
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
         "scc-broker-client": "^6.1.0",
-        "semver": "^5.6.0",
+        "semver": "^6.0.0",
         "sntp": "^3.0.2",
         "socketcluster": "^14.3.3",
-        "socketcluster-client": "^14.2.1"
+        "socketcluster-client": "^14.2.2"
     },
     "devDependencies": {
         "@types/boom": "^7.2.1",
@@ -73,7 +73,7 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
-        "@types/semver": "^5.5.0",
+        "@types/semver": "^6.0.0",
         "@types/socketcluster": "^14.0.2",
         "@types/socketcluster-client": "^13.0.2",
         "@types/scc-broker-client": "^6.1.0"

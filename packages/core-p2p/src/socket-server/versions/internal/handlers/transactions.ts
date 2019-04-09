@@ -1,13 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, P2P } from "@arkecosystem/core-interfaces";
 import { Transaction } from "@arkecosystem/crypto";
 import { validate } from "../../../utils/validate";
-import * as schema from "../schemas/transactions";
+import * as schema from "../schemas";
 
-const config = app.getConfig();
-
-export const verifyTransaction = async req => {
-    validate(schema.verify, req.data); // this will throw if validation failed
+export const verifyTransaction = async (service: P2P.IPeerService, req) => {
+    validate(schema.verifyTransaction, req.data);
 
     const transaction = Transaction.fromBytes(req.data.transaction);
 
@@ -22,7 +20,7 @@ export const getUnconfirmedTransactions = () => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const height = blockchain.getLastBlock().data.height;
-    const maxTransactions = config.getMilestone(height).block.maxTransactions;
+    const maxTransactions = app.getConfig().getMilestone(height).block.maxTransactions;
 
     return {
         data: blockchain.getUnconfirmedTransactions(maxTransactions),

@@ -12,15 +12,12 @@ beforeAll(async () => {
 
     const peerMock = new Peer(mockAddress, mockPort);
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-    monitor.peers[peerMock.ip] = peerMock;
+    app.resolvePlugin("p2p")
+        .getStorage()
+        .setPeer(peerMock);
 });
 
 afterAll(async () => {
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-
     await tearDown();
 });
 
@@ -59,6 +56,7 @@ describe("API 1.0 - Peers", () => {
                 ip: mockAddress,
                 port: mockPort,
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data).toBeObject();
             expect(response.data.peer.ip).toBe(mockAddress);

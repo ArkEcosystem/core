@@ -1,5 +1,7 @@
 const {
-    models
+    models: {
+        Block
+    }
 } = require('@arkecosystem/crypto')
 
 const dataEmpty = require('../helpers').getJSONFixture('block/deserialized/no-transactions');
@@ -8,18 +10,17 @@ const serializedEmpty = require('../helpers').getFixture('block/serialized/no-tr
 const serializedFull = require('../helpers').getFixture('block/serialized/transactions.txt');
 
 exports['fromData (0)'] = () => {
-    return new models.Block(dataEmpty);
+    return Block.fromData(dataEmpty);
 };
 
 exports['fromData (150)'] = () => {
-    return new models.Block(dataFull);
+    return Block.fromData(dataFull);
 };
 
 exports['fromHex (0)'] = () => {
-    return new models.Block(serializedEmpty);
+    return Block.fromHex(serializedEmpty);
 };
 
 exports['fromHex (150)'] = () => {
-    return new models.Block(serializedFull);
+    return Block.fromHex(serializedFull);
 };
-

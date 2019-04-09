@@ -1,12 +1,27 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Container, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
-import { monitor, Monitor } from "./monitor";
+import { EventListener } from "./event-listener";
+import { NetworkMonitor } from "./network-monitor";
+import { PeerCommunicator } from "./peer-communicator";
+import { PeerConnector } from "./peer-connector";
+import { PeerGuard } from "./peer-guard";
+import { PeerProcessor } from "./peer-processors";
+import { PeerService } from "./peer-service";
+import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 
-/**
- * The struct used by the plugin container.
- * @type {Object}
- */
+export function makePeerService(): PeerService {
+    const storage = new PeerStorage();
+    const connector = new PeerConnector();
+
+    const guard = new PeerGuard(connector);
+    const communicator = new PeerCommunicator(connector);
+    const processor = new PeerProcessor({ storage, guard, connector, communicator });
+    const monitor = new NetworkMonitor({ storage, processor, communicator });
+
+    return new PeerService({ storage, processor, connector, communicator, monitor, guard });
+}
+
 export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
@@ -14,22 +29,29 @@ export const plugin: Container.PluginDescriptor = {
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");
 
+        const service = makePeerService();
+
+        // tslint:disable-next-line: no-unused-expression
+        new EventListener(service);
+
         if (!process.env.DISABLE_P2P_SERVER) {
-            monitor.server = await startSocketServer(options);
+            service.getMonitor().setServer(await startSocketServer(service, options));
         }
 
-        await monitor.start(options);
+        await service.getMonitor().start(options);
 
-        return monitor;
+        return service;
     },
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Stopping P2P Interface");
 
-        const p2p = container.resolvePlugin<Monitor>("p2p");
-        p2p.cachePeers();
+        const service = container.resolvePlugin<P2P.IPeerService>("p2p");
+        service.getStorage().savePeers();
 
-        if (p2p.server) {
-            p2p.server.destroy();
+        const server = service.getMonitor().getServer();
+        if (server) {
+            server.removeAllListeners("fail");
+            server.destroy();
         }
     },
 };

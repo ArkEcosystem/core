@@ -47,6 +47,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async init(): Promise<void> {
         await this.loadBlocksFromCurrentRound();
+        await this.createGenesisBlock();
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -59,7 +60,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.truncate();
         await this.connection.transactionsRepository.truncate();
 
-        await this.saveBlock(new Block(configManager.get("genesisBlock")));
+        await this.saveBlock(Block.fromData(configManager.get("genesisBlock")));
     }
 
     public async applyBlock(block: models.Block) {
@@ -193,7 +194,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
-        return new Block(block);
+        return Block.fromData(block);
     }
 
     public async getBlocks(offset: number, limit: number) {
@@ -293,7 +294,7 @@ export class DatabaseService implements Database.IDatabaseService {
         height = round * maxDelegates + 1;
 
         const blocks = await this.getBlocks(height - maxDelegates, maxDelegates);
-        return blocks.map(b => new Block(b));
+        return blocks.map(b => Block.fromData(b));
     }
 
     public async getForgedTransactionsIds(ids: string[]) {
@@ -316,7 +317,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
-        return new Block(block);
+        return Block.fromData(block);
     }
 
     public async getCommonBlocks(ids: string[]): Promise<models.IBlockData[]> {
@@ -519,6 +520,14 @@ export class DatabaseService implements Database.IDatabaseService {
             return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
         } catch {
             return false;
+        }
+    }
+
+    private async createGenesisBlock(): Promise<void> {
+        if (!(await this.getLastBlock())) {
+            this.logger.warn("No block found in database");
+
+            await this.saveBlock(Block.fromData(this.config.get("genesisBlock")));
         }
     }
 

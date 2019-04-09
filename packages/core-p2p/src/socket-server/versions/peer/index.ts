@@ -6,31 +6,30 @@ import { validate } from "../../utils/validate";
 import { schema } from "./schema";
 
 import pluralize from "pluralize";
-import { monitor } from "../../../monitor";
 
 const { Block } = models;
 
 const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-export const acceptNewPeer = async req => {
-    const requiredHeaders = ["nethash", "version", "port", "os"];
-
+export const acceptNewPeer = async (service: P2P.IPeerService, req) => {
     const peer = { ip: req.data.ip };
+
+    const requiredHeaders = ["nethash", "version", "port", "os"];
 
     requiredHeaders.forEach(key => {
         peer[key] = req.headers[key];
     });
 
-    // @TODO: port #2363 and #2366
-    await monitor.acceptNewPeer(peer);
+    await service.getProcessor().validateAndAcceptPeer(peer);
 };
 
-export const getPeers = () => {
-    const peers = monitor
+export const getPeers = (service: P2P.IPeerService) => {
+    const peers = service
+        .getStorage()
         .getPeers()
-        .map(peer => peer.toBroadcastInfo())
-        .sort((a, b) => a.delay - b.delay);
+        .map(peer => peer.toBroadcast())
+        .sort((a, b) => a.latency - b.latency);
 
     return {
         success: true,
@@ -38,7 +37,7 @@ export const getPeers = () => {
     };
 };
 
-export const getCommonBlocks = async req => {
+export const getCommonBlocks = async (service: P2P.IPeerService, req) => {
     if (!req.data.ids) {
         return {
             success: false,
@@ -70,7 +69,7 @@ export const getStatus = () => {
     };
 };
 
-export const postBlock = req => {
+export const postBlock = (service: P2P.IPeerService, req) => {
     validate(schema.postBlock, req.data); // this will throw if validation failed
 
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -88,7 +87,7 @@ export const postBlock = req => {
         return { success: true };
     }
 
-    const b = new Block(block);
+    const b = Block.fromData(block);
 
     if (!b.verification.verified) {
         return { success: false };
@@ -102,7 +101,7 @@ export const postBlock = req => {
     return { success: true };
 };
 
-export const postTransactions = async req => {
+export const postTransactions = async (service: P2P.IPeerService, req) => {
     validate(schema.postTransactions, req.data); // this will throw if validation failed
 
     if (!transactionPool) {
@@ -125,7 +124,7 @@ export const postTransactions = async req => {
     }
 
     if (result.broadcast.length > 0) {
-        app.resolvePlugin<P2P.IMonitor>("p2p").broadcastTransactions(guard.getBroadcastTransactions());
+        service.getMonitor().broadcastTransactions(guard.getBroadcastTransactions());
     }
 
     return {
@@ -134,7 +133,7 @@ export const postTransactions = async req => {
     };
 };
 
-export const getBlocks = async req => {
+export const getBlocks = async (service: P2P.IPeerService, req) => {
     const database = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 

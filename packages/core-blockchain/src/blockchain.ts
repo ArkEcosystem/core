@@ -33,10 +33,10 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Get the network (p2p) interface.
-     * @return {P2PInterface}
+     * @return {IPeerService}
      */
-    get p2p(): P2P.IMonitor {
-        return app.resolvePlugin<P2P.IMonitor>("p2p");
+    get p2p(): P2P.IPeerService {
+        return app.resolvePlugin<P2P.IPeerService>("p2p");
     }
 
     /**
@@ -82,7 +82,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.queue = async.queue((block: models.IBlockData, cb) => {
             try {
-                return this.processBlock(new models.Block(block), cb);
+                return this.processBlock(models.Block.fromData(block), cb);
             } catch (error) {
                 logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
                 logger.error(error.stack);
@@ -191,7 +191,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await this.p2p.updateNetworkStatus();
+        await this.p2p.getMonitor().updateNetworkStatus();
     }
 
     /**
@@ -273,7 +273,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         this.queue.push(blocks);
-        this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
+        this.state.lastDownloadedBlock = Block.fromData(blocks.slice(-1)[0]);
     }
 
     /**
@@ -300,7 +300,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = new Block(blocksToRemove.pop());
+            const newLastBlock = Block.fromData(blocksToRemove.pop());
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock;
@@ -354,7 +354,7 @@ export class Blockchain implements blockchain.IBlockchain {
         );
 
         for (let block of blocks) {
-            block = new Block(block);
+            block = Block.fromData(block);
 
             this.database.enqueueDeleteRound(block.data.height);
             this.database.enqueueDeleteBlock(block);
@@ -374,7 +374,7 @@ export class Blockchain implements blockchain.IBlockchain {
             // broadcast only current block
             const blocktime = config.getMilestone(block.data.height).blocktime;
             if (this.state.started && slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-                this.p2p.broadcastBlock(block);
+                this.p2p.getMonitor().broadcastBlock(block);
             }
         }
 
@@ -430,7 +430,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: models.IBlock): boolean {
-        if (!this.p2p.hasPeers()) {
+        if (!this.p2p.getStorage().hasPeers()) {
             return true;
         }
 

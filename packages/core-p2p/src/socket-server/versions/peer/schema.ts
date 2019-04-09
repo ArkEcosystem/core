@@ -1,9 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-const transactionPool = app.resolveOptions("transaction-pool");
 
-/**
- * @type {Object}
- */
 export const schema = {
     getStatus: {
         type: "object",
@@ -52,7 +48,9 @@ export const schema = {
             transactions: {
                 $ref: "transactions",
                 minItems: 1,
-                maxItems: transactionPool ? transactionPool.maxTransactionsPerRequest || 40 : 40,
+                maxItems: app.has("transaction-pool")
+                    ? app.resolveOptions("transaction-pool").maxTransactionsPerRequest || 40
+                    : 40,
             },
         },
     },

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { BlockCommand } from "../../../../../packages/core-tester-cli/dist/commands/make/block";
+import { BlockCommand } from "../../../../../packages/core-tester-cli/src/commands/make/block";
 
 describe("make:block", () => {
     it("should generate 1 block with default flags", async () => {

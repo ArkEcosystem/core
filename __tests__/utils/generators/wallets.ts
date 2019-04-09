@@ -1,5 +1,5 @@
 import { client, crypto } from "@arkecosystem/crypto";
-import bip39 from "bip39";
+import { generateMnemonic } from "bip39";
 
 export const generateWallets = (network, quantity = 10) => {
     network = network || "testnet";
@@ -11,7 +11,7 @@ export const generateWallets = (network, quantity = 10) => {
 
     const wallets = [];
     for (let i = 0; i < quantity; i++) {
-        const passphrase = bip39.generateMnemonic();
+        const passphrase = generateMnemonic();
         const publicKey = crypto.getKeys(passphrase).publicKey;
         const address = crypto.getAddress(publicKey);
 
