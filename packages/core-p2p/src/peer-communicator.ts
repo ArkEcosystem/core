@@ -142,7 +142,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     // @TODO: add typehint for response
     private parseHeaders(peer: P2P.IPeer, response): any {
         ["nethash", "os", "version"].forEach(key => {
-            this[key] = response.headers[key] || this[key];
+            peer[key] = response.headers[key] || peer[key];
         });
 
         if (response.headers.height) {
