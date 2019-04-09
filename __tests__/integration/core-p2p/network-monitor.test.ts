@@ -47,7 +47,7 @@ beforeEach(async () => {
 
     storage.setPeer(peer);
 
-    connector.ensureConnection(peer);
+    connector.connect(peer);
 });
 
 describe("NetworkMonitor", () => {

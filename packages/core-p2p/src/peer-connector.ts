@@ -16,18 +16,19 @@ export class PeerConnector implements P2P.IPeerConnector {
         return this.connections.get(peer.ip);
     }
 
-    public ensureConnection(peer: P2P.IPeer): SCClientSocket {
-        return this.connection(peer) || this.connect(peer);
-    }
-
     public connect(peer: P2P.IPeer): SCClientSocket {
-        this.connections.set(
-            peer.ip,
-            create({
-                port: peer.port,
-                hostname: peer.ip,
-            }),
-        );
+        let connection = this.connection(peer);
+
+        if (connection) {
+            return connection;
+        }
+
+        connection = create({
+            port: peer.port,
+            hostname: peer.ip,
+        });
+
+        this.connections.set(peer.ip, connection);
 
         this.connection(peer).on("error", err => {
             this.logger.debug(`Socket error for peer ${peer.ip}: "${err}"`);
@@ -35,11 +36,15 @@ export class PeerConnector implements P2P.IPeerConnector {
             this.emitter.emit("internal.p2p.suspendPeer", { peer });
         });
 
-        return this.connection(peer);
+        return connection;
     }
 
     public disconnect(peer: P2P.IPeer): void {
-        this.connection(peer).destroy();
+        const connection = this.connection(peer);
+
+        if (connection) {
+            connection.destroy();
+        }
     }
 
     public emit(peer: P2P.IPeer, event: string, data: any): void {
