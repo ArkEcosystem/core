@@ -97,14 +97,14 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
         punishment = punishment || this.guard.analyze(peer);
 
+        this.connector.disconnect(peer);
+
         if (!punishment) {
             return;
         }
 
         this.storage.setSuspendedPeer(new PeerSuspension(peer, punishment));
         this.storage.forgetPeer(peer);
-
-        this.connector.disconnect(peer);
 
         this.logger.debug(
             `Suspended ${peer.ip} for ${prettyMs(punishment.until.diff(dato()), {
@@ -156,16 +156,10 @@ export class PeerProcessor implements P2P.IPeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
 
-            this.connector.connect(newPeer);
-
             this.emitter.emit("peer.added", newPeer);
         } catch (error) {
-            if (error instanceof PeerStatusResponseError) {
-                this.logger.debug(error.message);
-            } else {
-                this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
-                this.suspend(newPeer);
-            }
+            this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
+            this.suspend(newPeer);
         } finally {
             this.storage.forgetPendingPeer(peer);
         }

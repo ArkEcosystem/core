@@ -14,8 +14,8 @@ export const socketEmit = async (
         headers,
     };
 
-    // if socket is not connected, we give it 1 second
-    for (let i = 0; i < 10 && socket.getState() !== socket.OPEN; i++) {
+    // if socket is not connected, we give it 2 seconds
+    for (let i = 0; i < 20 && socket.getState() !== socket.OPEN; i++) {
         await delay(100);
     }
 

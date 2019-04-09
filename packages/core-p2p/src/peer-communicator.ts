@@ -177,7 +177,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.updateHeaders(peer);
 
-            response = await socketEmit(this.connector.ensureConnection(peer), event, data, peer.headers, timeout);
+            response = await socketEmit(this.connector.connect(peer), event, data, peer.headers, timeout);
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response);
