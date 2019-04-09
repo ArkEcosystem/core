@@ -3,7 +3,6 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
-import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { SocketErrors } from "../../../packages/core-p2p/src/enums";
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
@@ -14,11 +13,11 @@ let peerMock: P2P.IPeer;
 let guard: P2P.IPeerGuard;
 
 beforeAll(async () => {
-    localConfig.init(defaults);
+    // localConfig.init(defaults);
 
     guard = new PeerGuard(new PeerConnector());
 
-    localConfig.set("minimumVersions", [">=2.0.0"]);
+    // localConfig.set("minimumVersions", [">=2.0.0"]);
 });
 
 beforeEach(async () => {

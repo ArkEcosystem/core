@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { config } from "../../../config";
 import { isWhitelisted } from "../../../utils/is-whitelisted";
 
 export const getHandlers = () => {

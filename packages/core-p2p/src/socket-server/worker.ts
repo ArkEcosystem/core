@@ -1,5 +1,5 @@
+import { app } from "@arkecosystem/core-container";
 import SCWorker from "socketcluster/scworker";
-import { config as localConfig } from "../config";
 import { SocketErrors } from "../enums";
 import { validateHeaders } from "./utils/validate-headers";
 
@@ -53,7 +53,7 @@ export class Worker extends SCWorker {
     }
 
     public async middlewareHandshake(req, next): Promise<void> {
-        if (localConfig.get("blacklist", []).includes(req.ip)) {
+        if (app.resolveOptions("p2p").blacklist.includes(req.ip)) {
             req.socket.disconnect(4403, "Forbidden");
             return;
         }

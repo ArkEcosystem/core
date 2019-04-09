@@ -3,7 +3,6 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import semver from "semver";
 import { SCClientSocket } from "socketcluster-client";
-import { config as localConfig } from "./config";
 import { SocketErrors } from "./enums";
 
 export class PeerGuard implements P2P.IPeerGuard {
@@ -114,7 +113,7 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {
-        return localConfig.get("whitelist", []).includes(peer.ip);
+        return app.resolveOptions("p2p").whitelist.includes(peer.ip);
     }
 
     public isValidVersion(peer: P2P.IPeer): boolean {
@@ -124,9 +123,9 @@ export class PeerGuard implements P2P.IPeerGuard {
             return false;
         }
 
-        return localConfig
-            .get("minimumVersions", [])
-            .some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
+        return app
+            .resolveOptions("p2p")
+            .minimumVersions.some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
     }
 
     public isValidNetwork(peer: P2P.IPeer): boolean {
@@ -136,7 +135,7 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public isValidPort(peer: P2P.IPeer): boolean {
-        return peer.port === localConfig.get("port");
+        return peer.port === app.resolveOptions("p2p").port;
     }
 
     private createPunishment(offence: P2P.IOffence): P2P.IPunishment {

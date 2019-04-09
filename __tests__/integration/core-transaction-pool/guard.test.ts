@@ -24,7 +24,8 @@ beforeAll(async () => {
 
     transactionPool = container.resolvePlugin("transaction-pool");
     blockchain = container.resolvePlugin("blockchain");
-    localConfig.init(transactionPool.options);
+
+    // localConfig.init(transactionPool.options);
 });
 
 afterAll(async () => {
