@@ -90,5 +90,12 @@ export interface IContainer {
      */
     getVersion(): string;
 
+    /**
+     * Set the application version.
+     * @param  {String} version
+     * @return {void}
+     */
+    setVersion(version: any): void;
+
     getName(): string;
 }
