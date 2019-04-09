@@ -14,7 +14,7 @@ beforeEach(() => {
     nock("http://localhost:4000")
         .get("/config")
         .twice()
-        .reply(200, { data: { network: {} } });
+        .reply(200, { data: { network: { name: "unitnet" } } });
 
     jest.spyOn(httpie, "post");
 });
