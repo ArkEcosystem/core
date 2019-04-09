@@ -2,6 +2,7 @@ import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
+import { crypto } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../../helpers/transaction-factory";
 import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
@@ -42,7 +43,7 @@ beforeAll(async () => {
     wrongType = 3;
     version = 1;
     senderPublicKey = genesisTransaction.senderPublicKey;
-    senderAddress = genesisTransaction.senderId;
+    senderAddress = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
     recipientAddress = genesisTransaction.recipientId;
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;

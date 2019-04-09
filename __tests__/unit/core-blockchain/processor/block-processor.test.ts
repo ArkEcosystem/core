@@ -47,7 +47,7 @@ describe("Block processor", () => {
 
     describe("getHandler", () => {
         it("should return ExceptionHandler if block is an exception", async () => {
-            const exceptionBlock = new Block(blockTemplate);
+            const exceptionBlock = Block.fromData(blockTemplate);
             exceptionBlock.data.id = "998877";
 
             jest.spyOn(configManager, "get").mockReturnValueOnce(["998877"]);
@@ -56,7 +56,7 @@ describe("Block processor", () => {
         });
 
         it("should return VerificationFailedHandler if block failed verification", async () => {
-            const failedVerifBlock = new Block(blockTemplate);
+            const failedVerifBlock = Block.fromData(blockTemplate);
             failedVerifBlock.verification.verified = false;
 
             expect(await blockProcessor.getHandler(failedVerifBlock)).toBeInstanceOf(VerificationFailedHandler);
@@ -80,7 +80,7 @@ describe("Block processor", () => {
                     .withPassphrase(delegates[0].passphrase)
                     .create(11);
 
-                const lastBlock = new Block(getBlock(transfers));
+                const lastBlock = Block.fromData(getBlock(transfers));
 
                 block = getBlock(transfers);
                 block.height = 3;
@@ -95,7 +95,7 @@ describe("Block processor", () => {
             });
 
             it("should not validate an already forged transaction", async () => {
-                const blockVerified = new Block(block);
+                const blockVerified = Block.fromData(block);
                 blockVerified.verification.verified = true;
 
                 const handler = await blockProcessor.getHandler(blockVerified);
@@ -108,7 +108,7 @@ describe("Block processor", () => {
             it("should not validate an already forged transaction - trying to tweak the tx id", async () => {
                 block.transactions[0].id = "5".repeat(64); // change the tx id to try to make it accept as a new transaction
 
-                const blockVerified = new Block(block);
+                const blockVerified = Block.fromData(block);
                 blockVerified.verification.verified = true;
 
                 const handler = await blockProcessor.getHandler(blockVerified);
@@ -141,7 +141,7 @@ describe("Block processor", () => {
                 "UnchainedHandler",
                 "VerificationFailedHandler",
             ])("should call resetLastDownloadedBlock when processing block fails with %s", async handler => {
-                const blockToProcess = new Block(blockTemplate);
+                const blockToProcess = Block.fromData(blockTemplate);
 
                 const getHanderBackup = blockProcessor.getHandler; // save for restoring afterwards
                 blockProcessor.getHandler = jest.fn(() => new handlers[handler](blockchain, blockToProcess));
@@ -157,7 +157,7 @@ describe("Block processor", () => {
         describe("Forging delegates", () => {
             let block;
             beforeEach(() => {
-                const lastBlock = new Block(getBlock([]));
+                const lastBlock = Block.fromData(getBlock([]));
 
                 block = getBlock([]);
                 block.height = 3;
@@ -174,7 +174,7 @@ describe("Block processor", () => {
                 const getActiveDelegatesBackup = database.getActiveDelegates; // save for restoring afterwards
                 database.getActiveDelegates = jest.fn(() => [delegates[50]]);
 
-                const blockVerified = new Block(block);
+                const blockVerified = Block.fromData(block);
                 blockVerified.verification.verified = true;
 
                 const handler = await blockProcessor.getHandler(blockVerified);
@@ -189,7 +189,7 @@ describe("Block processor", () => {
 
         describe("Unchained blocks", () => {
             beforeEach(() => {
-                const lastBlock = new Block(getBlock([]));
+                const lastBlock = Block.fromData(getBlock([]));
 
                 jest.spyOn(blockchain, "getLastBlock").mockReturnValue(lastBlock);
             });
@@ -201,7 +201,7 @@ describe("Block processor", () => {
                 /* We process a valid block then try processing the same block again.
                     Should detect as "double-forging" and reject the duplicate block. */
                 const block = getBlock([]);
-                const blockVerified = new Block(block);
+                const blockVerified = Block.fromData(block);
                 blockVerified.verification.verified = true;
 
                 // same block as last block, should be handled by UnchainedHandler
@@ -215,7 +215,7 @@ describe("Block processor", () => {
 
             it("should reject a double-forging block", async () => {
                 // new block for double-forging : same height different id
-                const blockVerified = new Block(getBlock([]));
+                const blockVerified = Block.fromData(getBlock([]));
                 blockVerified.data.id = "1111";
                 blockVerified.verification.verified = true;
 
@@ -235,7 +235,7 @@ describe("Block processor", () => {
                 const forkBlockBackup = blockchain.forkBlock;
                 blockchain.forkBlock = jest.fn();
 
-                const block = new Block(getBlock([]));
+                const block = Block.fromData(getBlock([]));
                 block.verification.verified = true;
                 block.data.timestamp -= 100;
                 block.data.height = 3;
@@ -249,7 +249,7 @@ describe("Block processor", () => {
             });
 
             it("should 'discard but broadcast' a block higher than current height + 1", async () => {
-                const blockVerified = new Block(getBlock([]));
+                const blockVerified = Block.fromData(getBlock([]));
                 blockVerified.verification.verified = true;
                 blockVerified.data.height = 4;
 
@@ -262,7 +262,7 @@ describe("Block processor", () => {
 
             it("should 'discard but broadcast' a block lower than current height", async () => {
                 // new block with height < last block
-                const blockLowerHeight = new Block(getBlock([]));
+                const blockLowerHeight = Block.fromData(getBlock([]));
                 blockLowerHeight.verification.verified = true;
                 blockLowerHeight.data.id = "123456";
                 blockLowerHeight.data.height = 1;

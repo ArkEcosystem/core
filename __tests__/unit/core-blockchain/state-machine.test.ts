@@ -1,8 +1,7 @@
 import "./mocks/";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { slots } from "@arkecosystem/crypto";
-import { Block } from "@arkecosystem/crypto/dist/models";
+import { models, slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import "../../utils";
@@ -12,6 +11,8 @@ import { config } from "./mocks/config";
 import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
+
+const { Block } = models;
 
 let stateMachine;
 
@@ -173,7 +174,7 @@ describe("State Machine", () => {
                 databaseMocks = {
                     getLastBlock: jest
                         .spyOn(blockchain.database, "getLastBlock")
-                        .mockReturnValue(new Block(genesisBlockJSON)),
+                        .mockReturnValue(Block.fromData(genesisBlockJSON)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
@@ -314,7 +315,7 @@ describe("State Machine", () => {
             });
 
             beforeEach(() => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlockJSON as any);
+                stateStorage.lastDownloadedBlock = Block.fromData(genesisBlockJSON);
             });
 
             afterEach(() => jest.resetAllMocks());

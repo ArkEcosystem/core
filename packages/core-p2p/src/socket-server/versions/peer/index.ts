@@ -87,7 +87,7 @@ export const postBlock = (service: P2P.IPeerService, req) => {
         return { success: true };
     }
 
-    const b = new Block(block);
+    const b = Block.fromData(block);
 
     if (!b.verification.verified) {
         return { success: false };
