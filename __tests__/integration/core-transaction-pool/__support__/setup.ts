@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { asValue } from "awilix";
+import { defaults as defaultsBlockchain } from "../../../../packages/core-blockchain/src/defaults";
 import { defaults as defaultsPeer } from "../../../../packages/core-p2p/src/defaults";
 import { defaults as defaultsPool } from "../../../../packages/core-transaction-pool/src/defaults";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
@@ -57,6 +58,9 @@ export const setUpFull = async () => {
         minimumNetworkReach: 5,
         coldStart: 5,
     });
+
+    app.register("pkg.blockchain.opts", asValue(defaultsBlockchain));
+
     await registerWithContainer(require("@arkecosystem/core-blockchain").plugin, {});
 
     return app;
