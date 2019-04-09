@@ -6,12 +6,9 @@ import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const config = app.getConfig();
-
-const genesisWallets = config.get("genesisBlock.transactions").map(tx => tx.senderId);
-
 export class IntegrityVerifier {
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+
     constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
 
     /**
@@ -19,32 +16,34 @@ export class IntegrityVerifier {
      * @return {Boolean}
      */
     public async run() {
-        logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
+        this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
         await this.buildReceivedTransactions();
 
-        logger.info("Integrity Verification - Step 2 of 8: Block Rewards");
+        this.logger.info("Integrity Verification - Step 2 of 8: Block Rewards");
         await this.buildBlockRewards();
 
-        logger.info("Integrity Verification - Step 3 of 8: Last Forged Blocks");
+        this.logger.info("Integrity Verification - Step 3 of 8: Last Forged Blocks");
         await this.buildLastForgedBlocks();
 
-        logger.info("Integrity Verification - Step 4 of 8: Sent Transactions");
+        this.logger.info("Integrity Verification - Step 4 of 8: Sent Transactions");
         await this.buildSentTransactions();
 
-        logger.info("Integrity Verification - Step 5 of 8: Second Signatures");
+        this.logger.info("Integrity Verification - Step 5 of 8: Second Signatures");
         await this.buildSecondSignatures();
 
-        logger.info("Integrity Verification - Step 6 of 8: Votes");
+        this.logger.info("Integrity Verification - Step 6 of 8: Votes");
         await this.buildVotes();
 
-        logger.info("Integrity Verification - Step 7 of 8: Delegates");
+        this.logger.info("Integrity Verification - Step 7 of 8: Delegates");
         await this.buildDelegates();
 
-        logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
+        this.logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
         await this.buildMultisignatures();
 
-        logger.info(`Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`);
-        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
+        this.logger.info(
+            `Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
+        );
+        this.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         return this.verifyWalletsConsistency();
     }
@@ -61,7 +60,7 @@ export class IntegrityVerifier {
 
             wallet
                 ? (wallet.balance = new Bignum(transaction.amount))
-                : logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
+                : this.logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
         }
     }
 
@@ -103,7 +102,7 @@ export class IntegrityVerifier {
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
 
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                logger.warn(`Negative balance: ${wallet}`);
+                this.logger.warn(`Negative balance: ${wallet}`);
             }
         }
     }
@@ -113,7 +112,11 @@ export class IntegrityVerifier {
      * @return {Boolean}
      */
     private isGenesis(wallet) {
-        return genesisWallets.includes(wallet.address);
+        return app
+            .getConfig()
+            .get("genesisBlock.transactions")
+            .map(tx => tx.senderId)
+            .includes(wallet.address);
     }
 
     /**
@@ -219,13 +222,13 @@ export class IntegrityVerifier {
         for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
                 detectedInconsistency = true;
-                logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+                this.logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
                 break;
             }
 
             if (wallet.voteBalance.isLessThan(0)) {
                 detectedInconsistency = true;
-                logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
+                this.logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
                 break;
             }
         }
