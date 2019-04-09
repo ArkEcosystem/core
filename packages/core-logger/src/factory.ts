@@ -1,9 +1,11 @@
+import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 
 export class LoggerFactory {
     public make(driver: Logger.ILogger): Logger.ILogger {
         const instance: Logger.ILogger = driver.make();
 
+        driver.debug(`${app.getName()} ${app.getVersion()}`);
         this.logPaths(instance);
 
         return instance;
