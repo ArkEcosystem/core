@@ -60,7 +60,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.truncate();
         await this.connection.transactionsRepository.truncate();
 
-        await this.saveBlock(new Block(configManager.get("genesisBlock")));
+        await this.saveBlock(Block.fromData(configManager.get("genesisBlock")));
     }
 
     public async applyBlock(block: blocks.Block) {
@@ -194,7 +194,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
-        return new Block(block);
+        return Block.fromData(block);
     }
 
     public async getBlocks(offset: number, limit: number) {
@@ -294,7 +294,7 @@ export class DatabaseService implements Database.IDatabaseService {
         height = round * maxDelegates + 1;
 
         const blocks = await this.getBlocks(height - maxDelegates, maxDelegates);
-        return blocks.map(b => new Block(b));
+        return blocks.map(b => Block.fromData(b));
     }
 
     public async getForgedTransactionsIds(ids: string[]) {
@@ -317,7 +317,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
-        return new Block(block);
+        return Block.fromData(block);
     }
 
     public async getCommonBlocks(ids: string[]): Promise<interfaces.IBlockData[]> {
@@ -527,7 +527,7 @@ export class DatabaseService implements Database.IDatabaseService {
         if (!(await this.getLastBlock())) {
             this.logger.warn("No block found in database");
 
-            await this.saveBlock(new Block(this.config.get("genesisBlock")));
+            await this.saveBlock(Block.fromData(this.config.get("genesisBlock")));
         }
     }
 

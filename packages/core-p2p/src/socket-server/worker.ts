@@ -26,6 +26,7 @@ export class Worker extends SCWorker {
         const config: any = await this.sendToMasterAsync({
             endpoint: "p2p.init.getConfig",
         });
+
         if (config.rateLimit && config.rateLimit.enabled) {
             this.rateLimit = config.rateLimit.socketLimit;
             this.banDurationMs = config.rateLimit.banDurationMs;
@@ -51,24 +52,25 @@ export class Worker extends SCWorker {
         }
     }
 
-    public async middlewareHandshake(req, next) {
+    public async middlewareHandshake(req, next): Promise<void> {
+        if (localConfig.get("blacklist", []).includes(req.ip)) {
+            req.socket.disconnect(4403, "Forbidden");
+            return;
+        }
+
         if (this.isBanned(req.ip)) {
             return next(new Error("Banned because exceeded rate limit"));
         }
+
         next();
     }
 
-    public async middlewareEmit(req, next) {
+    public async middlewareEmit(req, next): Promise<void> {
         const createError = (name, message) => {
             const err = new Error(message);
             err.name = name;
             return err;
         };
-
-        if (localConfig.get("blacklist", []).includes(req.socket.remoteAddress)) {
-            req.socket.disconnect(4403, "Forbidden");
-            return;
-        }
 
         if (!this.isRateLimitOk(req.socket.remoteAddress)) {
             this.banPeer(req.socket.remoteAddress);
@@ -168,7 +170,7 @@ export class Worker extends SCWorker {
         }
     }
 
-    private isRateLimitOk(peerIp) {
+    private isRateLimitOk(peerIp): boolean {
         if (!this.rateLimit || !this.banDurationMs || this.ipWhitelist.includes(peerIp)) {
             return true;
         }
@@ -184,11 +186,11 @@ export class Worker extends SCWorker {
         return this.peersMsgTimestamps[peerIp][this.rateLimit - 1] - this.peersMsgTimestamps[peerIp][0] > 1000;
     }
 
-    private banPeer(peerIp) {
+    private banPeer(peerIp): void {
         this.bannedPeers[peerIp] = new Date().getTime();
     }
 
-    private isBanned(peerIp) {
+    private isBanned(peerIp): boolean {
         if (!this.rateLimit || !this.banDurationMs) {
             return false;
         }
@@ -200,7 +202,7 @@ export class Worker extends SCWorker {
         return !!this.bannedPeers[peerIp];
     }
 
-    private async logInfo(message) {
+    private async logInfo(message): Promise<void> {
         try {
             await this.sendToMasterAsync({
                 endpoint: "p2p.utils.logInfo",
@@ -212,7 +214,7 @@ export class Worker extends SCWorker {
         }
     }
 
-    private async logError(message) {
+    private async logError(message): Promise<void> {
         try {
             await this.sendToMasterAsync({
                 endpoint: "p2p.utils.logError",

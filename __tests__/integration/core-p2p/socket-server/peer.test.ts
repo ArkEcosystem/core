@@ -35,7 +35,7 @@ beforeAll(async () => {
             socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
 
-    jest.spyOn(processor, "acceptNewPeer").mockImplementation(jest.fn());
+    jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
 
 afterAll(() => {

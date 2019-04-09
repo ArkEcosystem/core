@@ -174,7 +174,7 @@ describe("State Machine", () => {
                 databaseMocks = {
                     getLastBlock: jest
                         .spyOn(blockchain.database, "getLastBlock")
-                        .mockReturnValue(new Block(genesisBlockJSON)),
+                        .mockReturnValue(Block.fromData(genesisBlockJSON)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
@@ -315,7 +315,7 @@ describe("State Machine", () => {
             });
 
             beforeEach(() => {
-                stateStorage.lastDownloadedBlock = new Block(genesisBlockJSON as any);
+                stateStorage.lastDownloadedBlock = Block.fromData(genesisBlockJSON);
             });
 
             afterEach(() => jest.resetAllMocks());

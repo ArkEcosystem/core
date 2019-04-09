@@ -1,7 +1,7 @@
 import { blocks } from "@arkecosystem/crypto";
 
 export const sampleBlocks = [
-    new blocks.Block({
+    blocks.Block.fromData({
         id: "7686497416922799951",
         version: 0,
         timestamp: 62225384,
@@ -18,7 +18,7 @@ export const sampleBlocks = [
             // tslint:disable-next-line:max-line-length
             "304402205b5da8a3cfb28398baaa50e299d735226c4455bdfdf5cb650afb53b0f22a93c60220572c4a4652edcd1bb85720884a7b0732add4dd50e7a0984325807770c99939bd",
     }),
-    new blocks.Block({
+    blocks.Block.fromData({
         id: "341e8008227a887b2f658f9071118ebe73720b7b8f58d2ae3d24ae933888f6d7",
         version: 0,
         timestamp: 62376432,

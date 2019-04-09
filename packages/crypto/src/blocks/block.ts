@@ -22,7 +22,7 @@ export class Block implements IBlock {
         data.blockSignature = crypto.signHash(hash, keys);
         data.id = Block.getId(data);
 
-        return new Block(data);
+        return Block.fromData(data);
     }
 
     /**
@@ -46,7 +46,7 @@ export class Block implements IBlock {
         return blockSerializer.serialize(block, includeSignature);
     }
 
-    public static getIdHex(data): string {
+    public static getIdHex(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
         const payloadHash: any = Block.serialize(data);
 
@@ -69,7 +69,7 @@ export class Block implements IBlock {
         return "0".repeat(16 - temp.length) + temp;
     }
 
-    public static getId(data): string {
+    public static getId(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
         const idHex = Block.getIdHex(data);
 
@@ -80,24 +80,37 @@ export class Block implements IBlock {
         return new Bignum(idHex, 16).toFixed();
     }
 
+    public static fromHex(hex: string): Block {
+        return this.fromSerialized(hex);
+    }
+
+    public static fromBytes(buffer: Buffer): Block {
+        return this.fromSerialized(buffer.toString("hex"));
+    }
+
+    public static fromData(data: IBlockData): Block {
+        const serialized = Block.serializeFull(data).toString("hex");
+        const block = new Block({ ...blockDeserializer.deserialize(serialized), id: data.id });
+        block.serialized = serialized;
+
+        return block;
+    }
+
+    private static fromSerialized(serialized: string): Block {
+        const block = new Block(blockDeserializer.deserialize(serialized));
+        block.serialized = serialized;
+
+        return block;
+    }
+
     public serialized: string;
     public data: IBlockData;
     public transactions: Transaction[];
     public verification: IBlockVerification;
 
-    constructor(data: IBlockData | string) {
-        let deserialized;
-        if (typeof data === "string") {
-            this.serialized = data;
-        } else {
-            this.serialized = Block.serializeFull(data).toString("hex");
-        }
-
-        deserialized = blockDeserializer.deserialize(this.serialized);
-        this.data = deserialized.data;
-
-        const { value, error } = AjvWrapper.validate("block", deserialized.data);
-        if (error !== null && !(isException(value) || this.data.transactions.some(tx => isException(tx)))) {
+    private constructor({ data, transactions, id }: { data: IBlockData; transactions: Transaction[]; id?: string }) {
+        const { value, error } = AjvWrapper.validate("block", data);
+        if (error !== null && !(isException(value) || data.transactions.some(tx => isException(tx)))) {
             throw new BlockSchemaError(error);
         }
 
@@ -105,13 +118,12 @@ export class Block implements IBlock {
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
-            this.applyGenesisBlockFix(data as IBlockData);
+            this.applyGenesisBlockFix(id || data.id);
         }
 
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        const { transactions } = deserialized;
         this.transactions = transactions.map((transaction, index) => {
             transaction.data.blockId = this.data.id;
             transaction.timestamp = this.data.timestamp;
@@ -283,8 +295,8 @@ export class Block implements IBlock {
         return result;
     }
 
-    private applyGenesisBlockFix(data: IBlockData): void {
-        this.data.id = data.id;
-        this.data.idHex = Block.toBytesHex(this.data.id);
+    private applyGenesisBlockFix(id: string): void {
+        this.data.id = id;
+        this.data.idHex = Block.toBytesHex(id);
     }
 }

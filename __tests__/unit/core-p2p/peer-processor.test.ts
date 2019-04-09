@@ -17,13 +17,14 @@ beforeEach(() => {
 });
 
 describe("PeerProcessor", () => {
-    describe("acceptNewPeer", () => {
+    describe("validateAndAcceptPeer", () => {
         it("should accept the peer", async () => {
+            processor.validatePeer = jest.fn(() => true);
             communicator.ping = jest.fn();
 
             expect(storage.hasPeers()).toBeFalse();
 
-            await processor.acceptNewPeer(stubPeer, { seed: false, lessVerbose: false });
+            await processor.validateAndAcceptPeer(stubPeer, { seed: false, lessVerbose: false });
 
             expect(storage.hasPeers()).toBeTrue();
         });

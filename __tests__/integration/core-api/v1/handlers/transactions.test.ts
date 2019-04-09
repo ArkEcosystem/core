@@ -1,4 +1,6 @@
 import "../../../../utils";
+
+import { crypto } from "@arkecosystem/crypto";
 import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
@@ -196,7 +198,10 @@ describe("API 1.0 - Transactions", () => {
             expect(response.data.transaction).toHaveProperty("amount", transactionInCheck.amount);
             expect(response.data.transaction).toHaveProperty("fee", transactionInCheck.fee);
             expect(response.data.transaction).toHaveProperty("recipientId", transactionInCheck.recipientId);
-            expect(response.data.transaction).toHaveProperty("senderId", transactionInCheck.senderId);
+            expect(response.data.transaction).toHaveProperty(
+                "senderId",
+                crypto.getAddress(transactionInCheck.senderPublicKey, 23),
+            );
             expect(response.data.transaction).toHaveProperty("type", transactionInCheck.type);
         });
 

@@ -15,7 +15,7 @@ const { Block } = blocks;
 const { SATOSHI, TransactionTypes } = constants;
 
 const block3 = fixtures.blocks2to100[1];
-const block = new Block(block3);
+const block = Block.fromData(block3);
 
 const walletData1 = wallets[0];
 const walletData2 = wallets[1];
@@ -78,7 +78,7 @@ describe("Wallet Manager", () => {
             data.transactions.push(txs[0].data);
             data.transactions.push(txs[1].data);
             data.transactions.push(txs[2].data);
-            block2 = new Block(data);
+            block2 = Block.fromData(data);
 
             walletManager.reindex(delegateMock);
         });

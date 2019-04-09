@@ -39,7 +39,7 @@ describe("Blockchain", () => {
 
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
+        genesisBlock = Block.fromData(require("../../utils/config/testnet/genesisBlock.json"));
 
         configManager = container.getConfig();
 
@@ -378,7 +378,7 @@ async function __addBlocks(untilHeight) {
     const lastHeight = blockchain.getLastHeight();
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
-        const blockToProcess = new Block(allBlocks[height - 2]);
+        const blockToProcess = Block.fromData(allBlocks[height - 2]);
         await blockchain.processBlock(blockToProcess, () => null);
     }
 }
