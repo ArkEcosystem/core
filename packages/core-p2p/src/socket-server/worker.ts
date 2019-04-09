@@ -55,7 +55,8 @@ export class Worker extends SCWorker {
     }
 
     public async middlewareHandshake(req, next): Promise<void> {
-        if (this.config.blacklist.includes(req.ip)) {
+        const blacklist = this.config.blacklist || [];
+        if (blacklist.includes(req.ip)) {
             req.socket.disconnect(4403, "Forbidden");
             return;
         }
