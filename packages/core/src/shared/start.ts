@@ -8,12 +8,16 @@ export abstract class AbstractStartCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(this.getClass());
 
+        flags.suffix = this.getSuffix();
+
         return this.runProcess(flags);
     }
 
     public abstract getClass();
 
     protected abstract async runProcess(flags: CommandFlags): Promise<void>;
+
+    protected abstract getSuffix(): string;
 
     protected async runWithPm2(options: ProcessOptions, flags: CommandFlags) {
         const processName = options.name;

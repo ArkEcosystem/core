@@ -44,6 +44,10 @@ $ ark relay:start --no-daemon
         return StartCommand;
     }
 
+    protected getSuffix(): string {
+        return "relay";
+    }
+
     protected async runProcess(flags: CommandFlags): Promise<void> {
         this.abortRunningProcess(`${flags.token}-core`);
 
