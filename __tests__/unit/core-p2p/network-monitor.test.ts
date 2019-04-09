@@ -5,8 +5,6 @@ import "./mocks/core-container";
 import { state } from "./mocks/state";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
-import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
 
@@ -27,7 +25,6 @@ describe("NetworkMonitor", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
             const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
 
-            jest.spyOn(localConfig, "get").mockReturnValue([]);
             jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
 
             await monitor.start({ networkStart: false });
@@ -200,8 +197,6 @@ describe("NetworkMonitor", () => {
     describe("broadcastTransactions", () => {
         it("should broadcast the transactions to peers", async () => {
             storage.setPeer(stubPeer);
-
-            jest.spyOn(localConfig, "get").mockReturnValueOnce(4);
 
             communicator.postTransactions = jest.fn();
 

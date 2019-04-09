@@ -1,3 +1,5 @@
+import "../../utils";
+
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
 import {
@@ -14,7 +16,8 @@ import { asValue } from "awilix";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
-import "../../utils";
+import { plugin } from "../../../packages/core-blockchain/src/plugin";
+import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
@@ -26,20 +29,16 @@ let genesisBlock;
 let configManager;
 let container;
 let blockchain: Blockchain;
-let loggerDebugBackup;
 
 describe("Blockchain", () => {
-    let logger;
     beforeAll(async () => {
         container = await setUp();
 
-        // Backup logger.debug function as we are going to mock it in the test suite
-        logger = container.resolvePlugin("logger");
-        loggerDebugBackup = logger.debug;
+        blockchain = container.resolvePlugin("blockchain");
 
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = Block.fromData(require("../../utils/config/testnet/genesisBlock.json"));
+        genesisBlock = Block.fromData(genesisBlockJSON);
 
         configManager = container.getConfig();
 
@@ -47,8 +46,8 @@ describe("Blockchain", () => {
         // and otherwise don't pass validation.
         configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
 
-        // Manually register the blockchain and start it
-        await __start(false);
+        // // Manually register the blockchain and start it
+        // await __start(false);
     });
 
     afterAll(async () => {
@@ -63,9 +62,6 @@ describe("Blockchain", () => {
     });
 
     afterEach(async () => {
-        // Restore original logger.debug function
-        logger.debug = loggerDebugBackup;
-
         await __resetToHeight1();
         await __addBlocks(5);
         await __resetBlocksInCurrentRound();
@@ -314,37 +310,37 @@ describe("Blockchain", () => {
     });
 });
 
-async function __start(networkStart) {
-    process.env.CORE_SKIP_BLOCKCHAIN = "false";
-    process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
-    process.env.CORE_ENV = "false";
+// async function __start(networkStart) {
+//     process.env.CORE_SKIP_BLOCKCHAIN = "false";
+//     process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
+//     process.env.CORE_ENV = "false";
 
-    const plugin = require("../../../packages/core-blockchain/src").plugin;
+//     container.register("pkg.blockchain.opts", asValue(defaults));
 
-    blockchain = await plugin.register(container, {
-        networkStart,
-        ...defaults,
-    });
+//     blockchain = await plugin.register(container, {
+//         networkStart,
+//         ...defaults,
+//     });
 
-    await container.register(
-        "blockchain",
-        asValue({
-            name: "blockchain",
-            version: "0.1.0",
-            plugin: blockchain,
-            options: {},
-        }),
-    );
+//     await container.register(
+//         "blockchain",
+//         asValue({
+//             name: "blockchain",
+//             version: "0.1.0",
+//             plugin: blockchain,
+//             options: defaults,
+//         }),
+//     );
 
-    if (networkStart) {
-        return;
-    }
+//     if (networkStart) {
+//         return;
+//     }
 
-    await __resetToHeight1();
+//     await __resetToHeight1();
 
-    await blockchain.start();
-    await __addBlocks(5);
-}
+//     await blockchain.start();
+//     await __addBlocks(5);
+// }
 
 async function __resetBlocksInCurrentRound() {
     await blockchain.database.loadBlocksFromCurrentRound();
@@ -352,6 +348,7 @@ async function __resetBlocksInCurrentRound() {
 
 async function __resetToHeight1() {
     const lastBlock = await blockchain.database.getLastBlock();
+
     if (lastBlock) {
         // Make sure the wallet manager has been fed or else revertRound
         // cannot determine the previous delegates. This is only necessary, because

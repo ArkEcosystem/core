@@ -12,7 +12,6 @@ import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
-import { config as localConfig } from "./config";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP, restorePeers } from "./utils";
 
@@ -44,7 +43,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.processor = processor;
         this.storage = storage;
 
-        this.coldStartPeriod = dato().addSeconds(localConfig.get("coldStart"));
+        this.coldStartPeriod = dato().addSeconds(app.resolveOptions("p2p").coldStart);
     }
 
     public getServer(): any {
@@ -65,8 +64,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         await this.checkDNSConnectivity(options.dns);
         await this.checkNTPConnectivity(options.ntp);
 
-        const cachedPeers = restorePeers();
-        localConfig.set("peers", cachedPeers);
+        restorePeers();
+        // localConfig.set("peers", cachedPeers);
 
         await this.populateSeedPeers();
 
@@ -121,7 +120,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public async cleanPeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
         const peers = this.storage.getPeers();
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : localConfig.get("globalTimeout");
+        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
         const max = peers.length;
 
         this.logger.info(`Checking ${max} peers`);
@@ -335,7 +334,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     // @TODO: review and move into an appropriate class
     public async broadcastTransactions(transactions: Transaction[]): Promise<any> {
-        const peers: P2P.IPeer[] = take(shuffle(this.storage.getPeers()), localConfig.get("maxPeersBroadcast"));
+        const peers: P2P.IPeer[] = take(shuffle(this.storage.getPeers()), app.resolveOptions("p2p").maxPeersBroadcast);
 
         this.logger.debug(
             `Broadcasting ${pluralize("transaction", transactions.length, true)} to ${pluralize(
@@ -401,7 +400,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return true;
         }
 
-        return Object.keys(this.storage.getPeers()).length >= localConfig.get("minimumNetworkReach");
+        return Object.keys(this.storage.getPeers()).length >= app.resolveOptions("p2p").minimumNetworkReach;
     }
 
     // @TODO: review and move into an appropriate class
@@ -417,7 +416,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return peer;
         });
 
-        const localConfigPeers = localConfig.get("peers");
+        // @TODO
+        const localConfigPeers = app.resolveOptions("p2p").peers;
         if (localConfigPeers) {
             localConfigPeers.forEach(peerA => {
                 if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {

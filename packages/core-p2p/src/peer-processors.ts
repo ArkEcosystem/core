@@ -5,8 +5,6 @@ import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import prettyMs from "pretty-ms";
 import { SCClientSocket } from "socketcluster-client";
-import { config as localConfig } from "./config";
-import { PeerStatusResponseError } from "./errors";
 import { Peer } from "./peer";
 import { PeerSuspension } from "./peer-suspension";
 import { isValidPeer } from "./utils";
@@ -48,7 +46,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     }
 
     public validatePeer(peer, options: P2P.IAcceptNewPeerOptions = {}): boolean {
-        if (localConfig.get("disableDiscovery") && !this.storage.hasPendingPeer(peer.ip)) {
+        if (app.resolveOptions("p2p").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
         }
@@ -58,7 +56,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersions: string[] = localConfig.get("minimumVersions");
+            const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
             this.logger.debug(
                 `Rejected peer ${
@@ -89,7 +87,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return;
         }
 
-        const whitelist = localConfig.get("whitelist");
+        const whitelist = app.resolveOptions("p2p").whitelist;
 
         if (whitelist && whitelist.includes(peer.ip)) {
             return;

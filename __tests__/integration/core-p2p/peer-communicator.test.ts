@@ -10,7 +10,6 @@ import { delegates } from "../../utils/fixtures/unitnet";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 let stubPeer: P2P.IPeer;
-let localConfig;
 let socketManager: MockSocketManager;
 
 let storage: P2P.IPeerStorage;
@@ -19,13 +18,6 @@ let communicator: P2P.IPeerCommunicator;
 beforeAll(async () => {
     socketManager = new MockSocketManager();
     await socketManager.init();
-
-    localConfig = require("../../../packages/core-p2p/src/config").config;
-
-    localConfig.init({});
-    localConfig.set("port", 4009); // we mock a peer on localhost:4009
-    localConfig.set("blacklist", []);
-    localConfig.set("minimumVersions", [">=2.1.0"]);
 });
 
 afterAll(async () => {

@@ -1,4 +1,5 @@
 import { configManager } from "@arkecosystem/crypto";
+import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { blocks2to100 } from "../../../utils/fixtures";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
@@ -98,6 +99,10 @@ jest.mock("@arkecosystem/core-container", () => {
                 return {};
             },
             resolveOptions: name => {
+                if (name === "p2p") {
+                    return defaults;
+                }
+
                 if (name === "transactionPool") {
                     return {
                         maxTransactionsPerRequest: 30,

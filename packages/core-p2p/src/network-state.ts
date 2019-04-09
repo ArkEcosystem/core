@@ -3,7 +3,6 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import { models, slots } from "@arkecosystem/crypto";
-import { config as localConfig } from "./config";
 import { NetworkStateStatus } from "./enums";
 
 class QuorumDetails implements P2P.IQuorumDetails {
@@ -44,7 +43,7 @@ export class NetworkState implements P2P.INetworkState {
         const lastBlock: models.Block = app.resolvePlugin("blockchain").getLastBlock();
 
         const peers: P2P.IPeer[] = storage.getPeers();
-        const minimumNetworkReach: number = localConfig.get("minimumNetworkReach", 20);
+        const minimumNetworkReach: number = app.resolveOptions("p2p").minimumNetworkReach || 20;
 
         if (monitor.isColdStartActive()) {
             return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);

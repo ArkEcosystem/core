@@ -1,10 +1,10 @@
+import "../../utils";
 import "./mocks/";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { models, slots } from "@arkecosystem/crypto";
-import { config as localConfig } from "../../../packages/core-blockchain/src/config";
+import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
-import "../../utils";
 import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";
 import { blockchain } from "./mocks/blockchain";
 import { config } from "./mocks/config";
@@ -20,6 +20,8 @@ beforeAll(async () => {
     ({ stateMachine } = require("../../../packages/core-blockchain/src/state-machine"));
 
     process.env.CORE_ENV = "";
+
+    container.app.resolveOptions = jest.fn(() => defaults);
 });
 
 describe("State Machine", () => {
@@ -201,7 +203,7 @@ describe("State Machine", () => {
 
             it("should dispatch FAILURE if there is no last block in database and genesis block payload hash != configured nethash", async () => {
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(null);
-                const backupConfig = Object.assign({}, config);
+                const backupConfig = { ...config };
                 config["network.nethash"] = null;
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "FAILURE");
@@ -409,9 +411,11 @@ describe("State Machine", () => {
             it("should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes - and dispatch SUCCESS", async () => {
                 const loggerInfo = jest.spyOn(logger, "info");
 
-                jest.spyOn(localConfig, "get").mockReturnValue({
-                    maxBlockRewind: 14,
-                    steps: 3,
+                jest.spyOn(container.app, "resolveOptions").mockReturnValue({
+                    databaseRollback: {
+                        maxBlockRewind: 14,
+                        steps: 3,
+                    },
                 });
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
@@ -437,9 +441,11 @@ describe("State Machine", () => {
                     and dispatch FAILURE as verifyBlockchain never passed`, async () => {
                 const loggerError = jest.spyOn(logger, "error");
 
-                jest.spyOn(localConfig, "get").mockReturnValue({
-                    maxBlockRewind: 14,
-                    steps: 3,
+                jest.spyOn(container.app, "resolveOptions").mockReturnValue({
+                    databaseRollback: {
+                        maxBlockRewind: 14,
+                        steps: 3,
+                    },
                 });
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
