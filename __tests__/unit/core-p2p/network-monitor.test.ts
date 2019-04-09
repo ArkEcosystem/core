@@ -5,7 +5,6 @@ import "./mocks/core-container";
 import { state } from "./mocks/state";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { slots } from "@arkecosystem/crypto";
 import { config as localConfig } from "../../../packages/core-p2p/src/config";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
