@@ -121,11 +121,7 @@ export class Container implements container.IContainer {
      * @throws {Error}
      */
     public resolveOptions(key) {
-        try {
-            return this.container.resolve<container.PluginConfig<any>>(key).options;
-        } catch (err) {
-            throw err;
-        }
+        return this.container.resolve<container.PluginConfig<any>>(key).options;
     }
 
     /**

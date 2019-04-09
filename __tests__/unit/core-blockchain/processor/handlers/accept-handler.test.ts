@@ -22,10 +22,10 @@ beforeAll(async () => {
 describe("Accept handler", () => {
     describe("execute", () => {
         it("should log message if we recovered from fork and update state.forkedBlock", async () => {
-            const handler = new AcceptBlockHandler(blockchain as any, new Block(blocks2to100[0]));
+            const handler = new AcceptBlockHandler(blockchain as any, Block.fromData(blocks2to100[0]));
 
             const loggerInfo = jest.spyOn(logger, "info");
-            blockchain.state.forkedBlock = new Block(blocks2to100[0]);
+            blockchain.state.forkedBlock = Block.fromData(blocks2to100[0]);
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
             expect(loggerInfo).toHaveBeenCalledWith("Successfully recovered from fork");
@@ -33,7 +33,7 @@ describe("Accept handler", () => {
         });
 
         it("should log warning message if transactionPool accepChainedBlock threw an exception", async () => {
-            const handler = new AcceptBlockHandler(blockchain as any, new Block(blocks2to100[0]));
+            const handler = new AcceptBlockHandler(blockchain as any, Block.fromData(blocks2to100[0]));
 
             const loggerWarn = jest.spyOn(logger, "warn");
             jest.spyOn(blockchain.transactionPool, "acceptChainedBlock").mockImplementationOnce(() => {
@@ -45,7 +45,7 @@ describe("Accept handler", () => {
         });
 
         it("should log error message if an exception was thrown", async () => {
-            const block = new Block(blocks2to100[0]);
+            const block = Block.fromData(blocks2to100[0]);
             const handler = new AcceptBlockHandler(blockchain as any, block);
 
             jest.restoreAllMocks();

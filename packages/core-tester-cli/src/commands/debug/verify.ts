@@ -27,7 +27,7 @@ export class VerifyCommand extends BaseCommand {
         if (flags.type === "transaction") {
             output = Transaction.fromHex(flags.data).verified;
         } else {
-            output = new models.Block(models.Block.deserialize(flags.data)).verification.verified;
+            output = models.Block.fromData(models.Block.deserialize(flags.data)).verification.verified;
         }
 
         return handleOutput(flags, output);
