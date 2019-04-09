@@ -23,8 +23,10 @@ beforeAll(async () => {
     process.env.CORE_ENV = "test";
 
     const { service, processor } = createPeerService();
+
     await startSocketServer(service, { port: 4007, rateLimit });
     await delay(3000);
+
     socket = socketCluster.create({
         port: 4007,
         hostname: "127.0.0.1",
