@@ -34,6 +34,8 @@ describe("Blockchain", () => {
     beforeAll(async () => {
         container = await setUp();
 
+        blockchain = container.resolvePlugin("blockchain");
+
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
         genesisBlock = Block.fromData(genesisBlockJSON);
@@ -44,8 +46,8 @@ describe("Blockchain", () => {
         // and otherwise don't pass validation.
         configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
 
-        // Manually register the blockchain and start it
-        await __start(false);
+        // // Manually register the blockchain and start it
+        // await __start(false);
     });
 
     afterAll(async () => {
@@ -308,37 +310,37 @@ describe("Blockchain", () => {
     });
 });
 
-async function __start(networkStart) {
-    process.env.CORE_SKIP_BLOCKCHAIN = "false";
-    process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
-    process.env.CORE_ENV = "false";
+// async function __start(networkStart) {
+//     process.env.CORE_SKIP_BLOCKCHAIN = "false";
+//     process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
+//     process.env.CORE_ENV = "false";
 
-    container.register("pkg.blockchain.opts", asValue(defaults));
+//     container.register("pkg.blockchain.opts", asValue(defaults));
 
-    blockchain = await plugin.register(container, {
-        networkStart,
-        ...defaults,
-    });
+//     blockchain = await plugin.register(container, {
+//         networkStart,
+//         ...defaults,
+//     });
 
-    await container.register(
-        "blockchain",
-        asValue({
-            name: "blockchain",
-            version: "0.1.0",
-            plugin: blockchain,
-            options: defaults,
-        }),
-    );
+//     await container.register(
+//         "blockchain",
+//         asValue({
+//             name: "blockchain",
+//             version: "0.1.0",
+//             plugin: blockchain,
+//             options: defaults,
+//         }),
+//     );
 
-    if (networkStart) {
-        return;
-    }
+//     if (networkStart) {
+//         return;
+//     }
 
-    await __resetToHeight1();
+//     await __resetToHeight1();
 
-    await blockchain.start();
-    await __addBlocks(5);
-}
+//     await blockchain.start();
+//     await __addBlocks(5);
+// }
 
 async function __resetBlocksInCurrentRound() {
     await blockchain.database.loadBlocksFromCurrentRound();

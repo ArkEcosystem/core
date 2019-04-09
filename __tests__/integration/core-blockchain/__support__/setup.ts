@@ -5,7 +5,7 @@ import { registerWithContainer, setUpContainer } from "../../../utils/helpers/co
 jest.setTimeout(60000);
 
 export async function setUp() {
-    return setUpContainer({ exit: "@arkecosystem/core-p2p", exclude: ["@arkecosystem/core-blockchain"] });
+    return setUpContainer({ exit: "@arkecosystem/core-blockchain" });
 }
 
 export async function tearDown(): Promise<void> {
