@@ -1,11 +1,13 @@
 import "jest-extended";
 import "../../../utils";
 
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 // noinspection TypeScriptPreferShortImport
 import { TransactionsRepository } from "../../../../packages/core-api/src/repositories/transactions";
 import genesisBlock from "../../../utils/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../__support__/setup";
+
+const { crypto } = Crypto;
 
 let repository;
 let genesisTransaction;

@@ -1,7 +1,8 @@
+import "jest-extended";
+
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
-import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
-import "jest-extended";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import { ApiHelpers } from "../../../utils/helpers/api";
 
 class Helpers {
@@ -143,10 +144,9 @@ class Helpers {
     }
 
     public async createTransaction() {
-        client.setConfig(NetworkManager.findByName("testnet"));
+        Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
-        const transaction = transactionBuilder
-            .transfer()
+        const transaction = Transactions.BuilderFactory.transfer()
             .amount(1 * 1e8)
             .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
             .vendorField("test")

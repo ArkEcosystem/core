@@ -4,8 +4,8 @@ import { utils } from "../utils";
 
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
-import { Bignum, blocks } from "@arkecosystem/crypto";
-const { Block } = blocks;
+import { Blocks, Utils } from "@arkecosystem/crypto";
+const { Block } = Blocks;
 
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
@@ -31,10 +31,10 @@ beforeAll(async () => {
 
     const wm = app.resolvePlugin("database").walletManager;
     const wallet = wm.findByUsername("genesis_10");
-    wallet.forgedFees = new Bignum(delegate.forgedFees);
-    wallet.forgedRewards = new Bignum(delegate.forgedRewards);
+    wallet.forgedFees = new Utils.Bignum(delegate.forgedFees);
+    wallet.forgedRewards = new Utils.Bignum(delegate.forgedRewards);
     wallet.producedBlocks = 75;
-    wallet.voteBalance = new Bignum(delegate.voteBalance);
+    wallet.voteBalance = new Utils.Bignum(delegate.voteBalance);
     wm.reindex(wallet);
 });
 
@@ -59,7 +59,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all the delegates sorted by votes,asc", async () => {
                     const wm = app.resolvePlugin("database").walletManager;
                     const wallet = wm.findByUsername("genesis_51");
-                    wallet.voteBalance = new Bignum(1);
+                    wallet.voteBalance = new Utils.Bignum(1);
                     wm.reindex(wallet);
 
                     const response = await utils[request]("GET", "delegates", { orderBy: "votes:asc" });
@@ -73,7 +73,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all the delegates sorted by votes,desc", async () => {
                     const wm = app.resolvePlugin("database").walletManager;
                     const wallet = wm.findByUsername("genesis_1");
-                    wallet.voteBalance = new Bignum(12500000000000000);
+                    wallet.voteBalance = new Utils.Bignum(12500000000000000);
                     wm.reindex(wallet);
 
                     const response = await utils[request]("GET", "delegates", { orderBy: "votes:desc" });

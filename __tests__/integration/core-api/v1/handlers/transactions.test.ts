@@ -1,9 +1,11 @@
 import "../../../../utils";
 
-import { crypto } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
+
+const { crypto } = Crypto;
 
 const address1 = "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn";
 const address2 = "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri";

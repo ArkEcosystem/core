@@ -1,4 +1,4 @@
-import { blocks } from "@arkecosystem/crypto";
+import { Blocks } from "@arkecosystem/crypto";
 
 export const sampleBlocks = [
     Blocks.Block.fromData({
