@@ -1,18 +1,31 @@
-export * from "./builder";
+import * as Blocks from "./blocks";
+import * as Client from "./client";
+import * as Constants from "./constants";
+import * as Crypto from "./crypto";
+import * as Enums from "./enums";
+import * as Errors from "./errors";
+import * as Identities from "./identities";
+import * as Interfaces from "./interfaces";
+import * as Managers from "./managers";
+import * as Networks from "./networks";
+import * as Transactions from "./transactions";
+import * as Types from "./types";
+import * as Utils from "./utils";
+import * as Validation from "./validation";
 
-import * as blocks from "./blocks";
-import * as constants from "./constants";
-import * as errors from "./errors";
-import * as interfaces from "./interfaces";
-import * as networks from "./networks";
-import * as types from "./types";
-
-export * from "./transactions";
-export * from "./identities";
-export * from "./managers";
-export * from "./utils";
-export * from "./validation";
-export * from "./crypto";
-export * from "./client";
-
-export { constants, errors, networks, blocks, interfaces, types };
+export {
+    Blocks,
+    Client,
+    Constants,
+    Crypto,
+    Enums,
+    Errors,
+    Identities,
+    Interfaces,
+    Managers,
+    Networks,
+    Transactions,
+    Types,
+    Utils,
+    Validation,
+};

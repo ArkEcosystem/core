@@ -1,9 +1,9 @@
 import "jest-extended";
-import { TransactionTypes } from "../../../../packages/crypto/src/constants";
 import { crypto } from "../../../../packages/crypto/src/crypto/crypto";
+import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
+import { configManager } from "../../../../packages/crypto/src/managers";
 
 const networkMainnet = configManager.getPreset("mainnet");
 const networkDevnet = configManager.getPreset("devnet");

@@ -1,8 +1,7 @@
 import "jest-extended";
 
-import { TransactionTypes } from "../../../../packages/crypto/src/constants";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { feeManager } from "../../../../packages/crypto/src/managers/fee";
+import { TransactionTypes } from "../../../../packages/crypto/src/enums";
+import { configManager, feeManager } from "../../../../packages/crypto/src/managers";
 import { devnet, mainnet } from "../../../../packages/crypto/src/networks";
 
 beforeEach(() => configManager.setConfig(devnet));

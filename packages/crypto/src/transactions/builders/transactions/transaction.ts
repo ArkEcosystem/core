@@ -1,10 +1,10 @@
-import { crypto, slots } from "../../crypto";
-import { MissingTransactionSignatureError } from "../../errors";
-import { ITransactionData } from "../../interfaces";
-import { configManager } from "../../managers";
-import { Transaction } from "../../transactions";
-import { INetwork } from "../../types";
-import { Bignum, maxVendorFieldLength } from "../../utils";
+import { Transaction } from "../..";
+import { crypto, slots } from "../../../crypto";
+import { MissingTransactionSignatureError } from "../../../errors";
+import { ITransactionData } from "../../../interfaces";
+import { configManager } from "../../../managers";
+import { NetworkType } from "../../../types";
+import { Bignum, maxVendorFieldLength } from "../../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -111,7 +111,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     public signWithWif(wif: string, networkWif?: number): TBuilder {
         const keys = crypto.getKeysFromWIF(wif, {
             wif: networkWif || configManager.get("wif"),
-        } as INetwork);
+        } as NetworkType);
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
@@ -144,7 +144,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         if (wif) {
             const keys = crypto.getKeysFromWIF(wif, {
                 wif: networkWif || configManager.get("wif"),
-            } as INetwork);
+            } as NetworkType);
             this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
         }
 

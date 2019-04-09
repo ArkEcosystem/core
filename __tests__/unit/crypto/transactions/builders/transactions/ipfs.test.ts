@@ -1,8 +1,8 @@
 import "jest-extended";
-import { IPFSBuilder } from "../../../../../packages/crypto/src/builder/transactions/ipfs";
-import { client } from "../../../../../packages/crypto/src/client";
-import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
-import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
+import { client } from "../../../../../../packages/crypto/src/client";
+import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { IPFSBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/ipfs";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: IPFSBuilder;

@@ -1,6 +1,6 @@
-import { TransactionTypes } from "../../constants";
-import { ITransactionAsset, ITransactionData } from "../../interfaces";
-import { feeManager } from "../../managers";
+import { TransactionTypes } from "../../../enums";
+import { ITransactionAsset, ITransactionData } from "../../../interfaces";
+import { feeManager } from "../../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {

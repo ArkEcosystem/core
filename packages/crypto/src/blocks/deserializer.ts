@@ -5,7 +5,7 @@ import { Transaction } from "../transactions";
 import { Bignum } from "../utils";
 import { Block } from "./block";
 
-class BlockDeserializer {
+class Deserializer {
     public deserialize(
         serializedHex: string,
         headerOnly: boolean = false,
@@ -98,4 +98,4 @@ class BlockDeserializer {
     }
 }
 
-export const blockDeserializer = new BlockDeserializer();
+export const deserializer = new Deserializer();

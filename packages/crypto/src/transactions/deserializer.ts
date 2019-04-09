@@ -1,13 +1,13 @@
 import ByteBuffer from "bytebuffer";
 import { Transaction, TransactionRegistry } from ".";
-import { TransactionTypes } from "../constants";
 import { crypto } from "../crypto";
+import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { ITransactionData } from "../interfaces";
 import { Bignum } from "../utils";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
-class TransactionDeserializer {
+class Deserializer {
     public deserialize(serialized: string | Buffer): Transaction {
         const data = {} as ITransactionData;
 
@@ -128,4 +128,4 @@ class TransactionDeserializer {
     }
 }
 
-export const transactionDeserializer = new TransactionDeserializer();
+export const deserializer = new Deserializer();

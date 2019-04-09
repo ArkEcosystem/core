@@ -1,5 +1,5 @@
 import deepmerge = require("deepmerge");
-import { TransactionTypes } from "../../constants";
+import { TransactionTypes } from "../../enums";
 
 export const extend = (parent, properties): TransactionSchema => {
     return deepmerge(parent, properties);

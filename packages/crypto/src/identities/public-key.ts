@@ -1,5 +1,5 @@
 import { configManager } from "../managers";
-import { INetwork } from "../types";
+import { NetworkType } from "../types";
 import { Address } from "./address";
 import { Keys } from "./keys";
 
@@ -8,7 +8,7 @@ export class PublicKey {
         return Keys.fromPassphrase(passphrase).publicKey;
     }
 
-    public static fromWIF(wif: string, network?: INetwork): string {
+    public static fromWIF(wif: string, network?: NetworkType): string {
         return Keys.fromWIF(wif, network).publicKey;
     }
 

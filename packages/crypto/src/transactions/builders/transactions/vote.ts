@@ -1,6 +1,6 @@
-import { TransactionTypes } from "../../constants";
-import { ITransactionData } from "../../interfaces";
-import { feeManager } from "../../managers";
+import { TransactionTypes } from "../../../enums";
+import { ITransactionData } from "../../../interfaces";
+import { feeManager } from "../../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class VoteBuilder extends TransactionBuilder<VoteBuilder> {

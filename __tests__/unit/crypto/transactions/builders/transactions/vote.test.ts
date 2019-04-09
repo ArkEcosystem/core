@@ -1,9 +1,9 @@
 import "jest-extended";
-import { VoteBuilder } from "../../../../../packages/crypto/src/builder/transactions/vote";
-import { client } from "../../../../../packages/crypto/src/client";
-import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
-import { crypto } from "../../../../../packages/crypto/src/crypto";
-import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
+import { client } from "../../../../../../packages/crypto/src/client";
+import { crypto } from "../../../../../../packages/crypto/src/crypto";
+import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { VoteBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/vote";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: VoteBuilder;

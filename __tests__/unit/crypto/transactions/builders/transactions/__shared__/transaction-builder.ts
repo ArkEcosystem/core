@@ -1,6 +1,6 @@
-import { TransactionBuilder } from "../../../../../../packages/crypto/src/builder/transactions/transaction";
-import { crypto, slots } from "../../../../../../packages/crypto/src/crypto";
-import { Bignum } from "../../../../../../packages/crypto/src/utils";
+import { crypto, slots } from "../../../../../../../packages/crypto/src/crypto";
+import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
+import { Bignum } from "../../../../../../../packages/crypto/src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {

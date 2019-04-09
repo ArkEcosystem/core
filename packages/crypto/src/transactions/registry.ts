@@ -1,5 +1,5 @@
 import camelCase from "lodash.camelcase";
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
 import {
     MissingMilestoneFeeError,
     TransactionAlreadyRegisteredError,

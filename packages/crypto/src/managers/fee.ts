@@ -1,4 +1,4 @@
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
 import { ITransactionData } from "../interfaces";
 
 export class FeeManager {

@@ -1,10 +1,10 @@
 import "jest-extended";
-import { MultiPaymentBuilder } from "../../../../../packages/crypto/src/builder/transactions/multi-payment";
-import { client } from "../../../../../packages/crypto/src/client";
-import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
-import { MaximumPaymentCountExceededError } from "../../../../../packages/crypto/src/errors";
-import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
-import { Bignum } from "../../../../../packages/crypto/src/utils";
+import { client } from "../../../../../../packages/crypto/src/client";
+import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { MaximumPaymentCountExceededError } from "../../../../../../packages/crypto/src/errors";
+import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { MultiPaymentBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-payment";
+import { Bignum } from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiPaymentBuilder;

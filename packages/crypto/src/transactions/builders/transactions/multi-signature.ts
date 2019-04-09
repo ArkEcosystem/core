@@ -1,6 +1,6 @@
-import { TransactionTypes } from "../../constants";
-import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../interfaces";
-import { feeManager } from "../../managers";
+import { TransactionTypes } from "../../../enums";
+import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../../interfaces";
+import { feeManager } from "../../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {

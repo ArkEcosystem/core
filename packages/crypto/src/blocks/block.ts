@@ -6,8 +6,8 @@ import { configManager } from "../managers/config";
 import { Transaction } from "../transactions";
 import { Bignum, isException } from "../utils";
 import { AjvWrapper } from "../validation";
-import { blockDeserializer } from "./deserializer";
-import { blockSerializer } from "./serializer";
+import { deserializer } from "./deserializer";
+import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
     /**
@@ -29,21 +29,21 @@ export class Block implements IBlock {
      * Deserialize block from hex string.
      */
     public static deserialize(hexString, headerOnly = false): IBlockData {
-        return blockDeserializer.deserialize(hexString, headerOnly).data;
+        return deserializer.deserialize(hexString, headerOnly).data;
     }
 
     /**
      * Serialize the given block including transactions.
      */
     public static serializeFull(block: IBlockData) {
-        return blockSerializer.serializeFull(block);
+        return Serializer.serializeFull(block);
     }
 
     /**
      * Serialize the given block without transactions.
      */
     public static serialize(block: IBlockData, includeSignature: boolean = true) {
-        return blockSerializer.serialize(block, includeSignature);
+        return Serializer.serialize(block, includeSignature);
     }
 
     public static getIdHex(data: IBlockData): string {
@@ -90,14 +90,14 @@ export class Block implements IBlock {
 
     public static fromData(data: IBlockData): Block {
         const serialized = Block.serializeFull(data).toString("hex");
-        const block = new Block({ ...blockDeserializer.deserialize(serialized), id: data.id });
+        const block = new Block({ ...deserializer.deserialize(serialized), id: data.id });
         block.serialized = serialized;
 
         return block;
     }
 
     private static fromSerialized(serialized: string): Block {
-        const block = new Block(blockDeserializer.deserialize(serialized));
+        const block = new Block(deserializer.deserialize(serialized));
         block.serialized = serialized;
 
         return block;

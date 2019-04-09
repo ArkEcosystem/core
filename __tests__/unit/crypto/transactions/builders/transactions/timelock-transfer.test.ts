@@ -1,8 +1,8 @@
 import "jest-extended";
-import { TimelockTransferBuilder } from "../../../../../packages/crypto/src/builder/transactions/timelock-transfer";
-import { client } from "../../../../../packages/crypto/src/client";
-import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
-import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
+import { client } from "../../../../../../packages/crypto/src/client";
+import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { TimelockTransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/timelock-transfer";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: TimelockTransferBuilder;

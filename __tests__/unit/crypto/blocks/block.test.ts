@@ -1,15 +1,16 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { Delegate } from "../../../packages/core-forger/src/delegate";
-import { configManager, NetworkName } from "../../../packages/crypto/src";
-import { Block } from "../../../packages/crypto/src/blocks";
-import { slots } from "../../../packages/crypto/src/crypto";
-import { IBlockData } from "../../../packages/crypto/src/interfaces";
-import { testnet } from "../../../packages/crypto/src/networks";
-import { Bignum } from "../../../packages/crypto/src/utils";
-import { TransactionFactory } from "../../helpers/transaction-factory";
-import { dummyBlock, dummyBlock2 } from "./fixtures/block";
+import { Delegate } from "../../../../packages/core-forger/src/delegate";
+import { Block } from "../../../../packages/crypto/src/blocks";
+import { slots } from "../../../../packages/crypto/src/crypto";
+import { IBlockData } from "../../../../packages/crypto/src/interfaces";
+import { configManager } from "../../../../packages/crypto/src/managers";
+import { testnet } from "../../../../packages/crypto/src/networks";
+import { NetworkName } from "../../../../packages/crypto/src/types";
+import { Bignum } from "../../../../packages/crypto/src/utils";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
+import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -25,7 +26,7 @@ function expectBlock({ data }: { data: IBlockData }) {
     expect(data).toEqual(blockWithoutTransactions);
 }
 
-describe("Models - Block", () => {
+describe("Block", () => {
     const data = {
         id: "187940162505562345",
         blockSignature:

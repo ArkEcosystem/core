@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { TransactionTypes } from "../../../../packages/crypto/src/constants";
+import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
-import { feeManager } from "../../../../packages/crypto/src/managers/fee";
+import { feeManager } from "../../../../packages/crypto/src/managers";
 
 describe("Fee Manager", () => {
     it("should be instantiated", () => {

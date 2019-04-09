@@ -2,7 +2,7 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
@@ -12,7 +12,7 @@ import { Bignum } from "../utils";
 import { Transaction } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
-export class TransactionSerializer {
+export class Serializer {
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
         const version = transaction.version || 1;
 

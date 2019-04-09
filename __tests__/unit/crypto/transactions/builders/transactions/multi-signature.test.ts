@@ -1,9 +1,9 @@
 import "jest-extended";
-import { MultiSignatureBuilder } from "../../../../../packages/crypto/src/builder/transactions/multi-signature";
-import { client } from "../../../../../packages/crypto/src/client";
-import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
-import { crypto } from "../../../../../packages/crypto/src/crypto/crypto";
-import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
+import { client } from "../../../../../../packages/crypto/src/client";
+import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
+import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiSignatureBuilder;

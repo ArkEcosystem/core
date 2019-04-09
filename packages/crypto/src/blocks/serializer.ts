@@ -6,8 +6,8 @@ import { Transaction } from "../transactions";
 import { Bignum } from "../utils";
 import { Block } from "./block";
 
-class BlockSerializer {
-    public serializeFull(block: IBlockData): Buffer {
+export class Serializer {
+    public static serializeFull(block: IBlockData): Buffer {
         const transactions = block.transactions || [];
         block.numberOfTransactions = block.numberOfTransactions || transactions.length;
 
@@ -26,7 +26,7 @@ class BlockSerializer {
         return buffer.flip().toBuffer();
     }
 
-    public serialize(block: IBlockData, includeSignature: boolean = true): Buffer {
+    public static serialize(block: IBlockData, includeSignature: boolean = true): Buffer {
         const buffer = new ByteBuffer(512, true);
 
         this.serializeHeader(block, buffer);
@@ -38,7 +38,7 @@ class BlockSerializer {
         return buffer.flip().toBuffer();
     }
 
-    private serializeHeader(block: IBlockData, buffer: ByteBuffer): void {
+    private static serializeHeader(block: IBlockData, buffer: ByteBuffer): void {
         const constants = configManager.getMilestone(block.height - 1);
 
         if (constants.block.idFullSha256) {
@@ -63,11 +63,9 @@ class BlockSerializer {
         buffer.append(block.generatorPublicKey, "hex");
     }
 
-    private serializeSignature(block: IBlockData, buffer: ByteBuffer): void {
+    private static serializeSignature(block: IBlockData, buffer: ByteBuffer): void {
         if (block.blockSignature) {
             buffer.append(block.blockSignature, "hex");
         }
     }
 }
-
-export const blockSerializer = new BlockSerializer();

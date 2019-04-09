@@ -1,5 +1,5 @@
-import { blockDeserializer } from "../../../../packages/crypto/src/blocks/deserializer";
-import { blockSerializer } from "../../../../packages/crypto/src/blocks/serializer";
+import { deserializer } from "../../../../packages/crypto/src/blocks/deserializer";
+import { Serializer } from "../../../../packages/crypto/src/blocks/serializer";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { dummyBlock2, dummyBlock3 } from "../fixtures/block";
 
@@ -9,17 +9,14 @@ describe("block deserializer", () => {
             const outlookTableBlockId = "123456";
             configManager.config.exceptions.outlookTable = { [dummyBlock3.id]: outlookTableBlockId };
 
-            const deserialized = blockDeserializer.deserialize(
-                blockSerializer.serialize(dummyBlock3).toString("hex"),
-                true,
-            ).data;
+            const deserialized = deserializer.deserialize(Serializer.serialize(dummyBlock3).toString("hex"), true).data;
 
             expect(deserialized.id).toEqual(outlookTableBlockId);
             delete configManager.config.exceptions.outlookTable;
         });
 
         it("should correctly deserialize a block", () => {
-            const deserialized = blockDeserializer.deserialize(dummyBlock2.serializedFull).data;
+            const deserialized = deserializer.deserialize(dummyBlock2.serializedFull).data;
 
             const blockFields = [
                 "id",

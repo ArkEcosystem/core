@@ -1,9 +1,9 @@
 import "jest-extended";
-import { DelegateRegistrationBuilder } from "../../../../../packages/crypto/src/builder/transactions/delegate-registration";
-import { client } from "../../../../../packages/crypto/src/client";
-import { TransactionTypes } from "../../../../../packages/crypto/src/constants";
-import { crypto } from "../../../../../packages/crypto/src/crypto/crypto";
-import { feeManager } from "../../../../../packages/crypto/src/managers/fee";
+import { client } from "../../../../../../packages/crypto/src/client";
+import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
+import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { DelegateRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
 
 let builder: DelegateRegistrationBuilder;
 

@@ -1,3 +1,9 @@
-import { devnet, mainnet, testnet, unitnet } from "./networks";
+import * as networks from "./networks";
 
-export type INetwork = typeof mainnet.network | typeof devnet.network | typeof testnet.network | typeof unitnet.network;
+export type NetworkType =
+    | typeof networks.mainnet.network
+    | typeof networks.devnet.network
+    | typeof networks.testnet.network
+    | typeof networks.unitnet.network;
+
+export type NetworkName = keyof typeof networks;

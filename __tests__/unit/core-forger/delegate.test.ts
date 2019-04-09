@@ -1,9 +1,9 @@
 import "jest-extended";
 
+import { Types } from "@arkecosystem/crypto";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ITransactionData } from "../../../packages/crypto/src/interfaces";
 import { testnet } from "../../../packages/crypto/src/networks";
-import { INetwork } from "../../../packages/crypto/src/types";
 import { Bignum } from "../../../packages/crypto/src/utils";
 import { sortTransactions } from "../../../packages/crypto/src/utils";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -15,7 +15,7 @@ const dummy = {
     address: "ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo",
 };
 
-describe("Models - Delegate", () => {
+describe("Delegate", () => {
     describe("constructor", () => {
         it("should be ok with a plain text passphrase", () => {
             const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
@@ -53,7 +53,7 @@ describe("Models - Delegate", () => {
 
         it("should fail with invalid data", () => {
             expect(() => {
-                Delegate.encryptPassphrase(dummy.plainPassphrase, {} as INetwork, "bip38-password");
+                Delegate.encryptPassphrase(dummy.plainPassphrase, {} as Types.NetworkType, "bip38-password");
             }).toThrow();
         });
     });

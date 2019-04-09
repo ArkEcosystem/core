@@ -1,8 +1,8 @@
-import { TransactionTypes } from "../../constants";
-import { MaximumPaymentCountExceededError } from "../../errors";
-import { ITransactionData } from "../../interfaces";
-import { feeManager } from "../../managers";
-import { Bignum } from "../../utils";
+import { TransactionTypes } from "../../../enums";
+import { MaximumPaymentCountExceededError } from "../../../errors";
+import { ITransactionData } from "../../../interfaces";
+import { feeManager } from "../../../managers";
+import { Bignum } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {

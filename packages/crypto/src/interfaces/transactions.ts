@@ -1,15 +1,5 @@
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
 import { Bignum } from "../utils";
-
-export interface MultiPaymentItem {
-    amount: Bignum;
-    recipientId: string;
-}
-
-export interface ISerializeOptions {
-    excludeSignature?: boolean;
-    excludeSecondSignature?: boolean;
-}
 
 export interface ITransactionAsset {
     signature?: {
@@ -26,12 +16,6 @@ export interface ITransactionAsset {
     };
     payments?: any;
     [custom: string]: any;
-}
-
-export interface IMultiSignatureAsset {
-    min: number;
-    keysgroup: string[];
-    lifetime: number;
 }
 
 export interface ITransactionData {
@@ -71,4 +55,20 @@ export interface ITransactionData {
 export interface ISchemaValidationResult<T = any> {
     value: T;
     error: any;
+}
+
+export interface IMultiPaymentItem {
+    amount: Bignum;
+    recipientId: string;
+}
+
+export interface IMultiSignatureAsset {
+    min: number;
+    keysgroup: string[];
+    lifetime: number;
+}
+
+export interface ISerializeOptions {
+    excludeSignature?: boolean;
+    excludeSecondSignature?: boolean;
 }
