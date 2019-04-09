@@ -22,7 +22,7 @@ export const logError = (service: P2P.IPeerService, req) => {
     }
 };
 
-export const isForgerAuthorized = req => {
+export const isForgerAuthorized = (service: P2P.IPeerService, req) => {
     return isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.data.ip);
 };
 
