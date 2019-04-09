@@ -76,7 +76,9 @@ describe("NetworkMonitor", () => {
             const getPeersPeerMock = { ip: "1.1.1.1", port: 4000 };
             await socketManager.addMock("getPeers", { success: true, peers: [getPeersPeerMock] });
 
-            const mockAcceptNewPeer = jest.spyOn(processor, "acceptNewPeer").mockImplementationOnce(jest.fn());
+            const validateAndAcceptPeer = jest
+                .spyOn(processor, "validateAndAcceptPeer")
+                .mockImplementationOnce(jest.fn());
             jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
 
             // @ts-ignore
@@ -84,8 +86,8 @@ describe("NetworkMonitor", () => {
 
             await monitor.discoverPeers();
 
-            expect(mockAcceptNewPeer).toHaveBeenCalledTimes(1);
-            expect(mockAcceptNewPeer).toHaveBeenCalledWith(getPeersPeerMock, { lessVerbose: true });
+            expect(validateAndAcceptPeer).toHaveBeenCalledTimes(1);
+            expect(validateAndAcceptPeer).toHaveBeenCalledWith(getPeersPeerMock, { lessVerbose: true });
         });
     });
 

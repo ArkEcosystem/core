@@ -17,7 +17,7 @@ beforeEach(() => {
 });
 
 describe("PeerProcessor", () => {
-    describe("acceptNewPeer", () => {
+    describe("validateAndAcceptPeer", () => {
         it("should accept the peer", async () => {
             processor.validatePeer = jest.fn(() => true);
             communicator.ping = jest.fn();
