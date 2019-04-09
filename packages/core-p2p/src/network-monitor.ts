@@ -55,6 +55,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public isColdStartActive(): boolean {
+        if (process.env.CORE_SKIP_COLD_START) {
+            return false;
+        }
+
         return this.coldStartPeriod.isAfter(dato());
     }
 

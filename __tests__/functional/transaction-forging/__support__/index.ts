@@ -11,6 +11,8 @@ jest.setTimeout(1200000);
 
 let app;
 export async function setUp() {
+    process.env.CORE_SKIP_COLD_START = "true";
+
     app = await setUpContainer({
         include: [
             "@arkecosystem/core-event-emitter",
