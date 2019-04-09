@@ -58,6 +58,8 @@ describe("API 2.0 - Loader", () => {
                     expect(response.data.data).toBeObject();
 
                     expect(response.data.data.nethash).toBeString();
+                    expect(response.data.data.slip44).toBeString();
+                    expect(response.data.data.wif).toBeString();
                     expect(response.data.data.token).toBeString();
                     expect(response.data.data.symbol).toBeString();
                     expect(response.data.data.explorer).toBeString();

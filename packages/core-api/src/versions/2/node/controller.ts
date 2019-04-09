@@ -52,6 +52,8 @@ export class NodeController extends Controller {
             return {
                 data: {
                     nethash: network.nethash,
+                    slip44: network.slip44,
+                    wif: network.wif,
                     token: network.client.token,
                     symbol: network.client.symbol,
                     explorer: network.client.explorer,
