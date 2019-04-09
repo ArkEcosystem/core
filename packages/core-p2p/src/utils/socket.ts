@@ -3,6 +3,7 @@ import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "../enums";
 
 export const socketEmit = async (
+    host: string,
     socket: SCClientSocket,
     event: string,
     data: any,
@@ -20,7 +21,7 @@ export const socketEmit = async (
     }
 
     if (socket.getState() !== socket.OPEN) {
-        const error = new Error(`Peer ${this.ip} socket is not connected. State: ${socket.getState()}`);
+        const error = new Error(`Peer ${host} socket is not connected. State: ${socket.getState()}`);
         error.name = SocketErrors.SocketNotOpen;
         throw error;
     }

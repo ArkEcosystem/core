@@ -181,13 +181,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             /** *******************************
              * database init                 *
              ******************************* */
-            // Integrity Verification
-            const verifiedWalletsIntegrity = await blockchain.database.buildWallets();
-            if (!verifiedWalletsIntegrity && block.data.height > 1) {
-                logger.warn(
-                    "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
-                );
-            }
 
             // NOTE: if the node is shutdown between round, the round has already been applied
             if (roundCalculator.isNewRound(block.data.height + 1)) {
