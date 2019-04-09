@@ -279,9 +279,6 @@ describe("State Machine", () => {
                 jest.spyOn(blockchain.database, "buildWallets").mockReturnValue(false);
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
-                expect(loggerWarn).toHaveBeenCalledWith(
-                    "Rebuilding wallets table because of some inconsistencies. Most likely due to an unfortunate shutdown.",
-                );
             });
 
             it("should clean round data if new round starts at block.height + 1 (and dispatch STARTED)", async () => {

@@ -188,7 +188,7 @@ export class Client {
 
     private async emit<T>(event: string, data: any, timeout: number = 2000) {
         try {
-            const response: any = await socketEmit(this.host.socket, event, data, this.headers, timeout);
+            const response: any = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
             return response.data;
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.ip}:${this.host.port}<${event}>`, error.message);

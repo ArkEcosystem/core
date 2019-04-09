@@ -3,6 +3,7 @@ import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interf
 import { Interfaces } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
+import { SCClientSocket } from "socketcluster-client";
 import util from "util";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
@@ -177,7 +178,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.updateHeaders(peer);
 
-            response = await socketEmit(this.connector.connect(peer), event, data, peer.headers, timeout);
+            const connection: SCClientSocket = this.connector.connect(peer);
+            response = await socketEmit(peer.ip, connection, event, data, peer.headers, timeout);
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response);
