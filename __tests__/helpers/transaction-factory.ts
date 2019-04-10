@@ -14,7 +14,7 @@ interface PassphrasePair {
 export class TransactionFactory {
     public static transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
         const builder = Transactions.BuilderFactory.transfer()
-            .amount(bignumify(amount))
+            .amount(bignumify(amount).toFixed())
             .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
 
         if (vendorField) {
@@ -162,7 +162,7 @@ export class TransactionFactory {
             }
 
             if (this.fee) {
-                this.builder.fee(this.fee);
+                this.builder.fee(this.fee.toFixed());
             }
 
             this.builder.sign(this.passphrase);
