@@ -14,7 +14,6 @@ import {
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
-import { devnet } from "../../../../packages/crypto/src/networks";
 
 let transactionData: ITransactionData;
 
@@ -26,7 +25,7 @@ const createRandomTx = type => {
             // transfer
             transaction = builder
                 .transfer()
-                .recipientId("AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX")
+                .recipientId("DJLxkgm7JMortrGVh1ZrvDH39XALWLa83e")
                 .amount(1000 * 1e10)
                 .vendorField(Math.random().toString(36))
                 .sign(Math.random().toString(36))
@@ -99,7 +98,7 @@ const createRandomTx = type => {
 
 describe("Models - Transaction", () => {
     beforeEach(() => {
-        configManager.setConfig(devnet);
+        configManager.setFromPreset("devnet");
         transactionData = deepmerge({}, transactionDataFixture);
     });
 
