@@ -51,7 +51,8 @@
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
-        "@types/semver": "^6.0.0"
+        "@types/semver": "^6.0.0",
+        "@types/mathjs": "^5.0.1"
     },
     "publishConfig": {
         "access": "public"

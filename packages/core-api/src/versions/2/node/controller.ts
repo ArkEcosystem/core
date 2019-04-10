@@ -76,15 +76,15 @@ export class NodeController extends Controller {
 
             const resultsByDays = [];
             for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
-                const fees: number[] = transactions.map(transaction => +transaction.fee);
+                const fees = transactions.map(transaction => math.bignumber(transaction.fee));
 
                 resultsByDays.push({
                     type,
-                    min: math.min(fees),
-                    max: math.max(fees),
-                    avg: math.mean(fees),
-                    sum: math.sum(fees),
-                    median: math.median(fees),
+                    min: math.min(...fees),
+                    max: math.max(...fees),
+                    avg: math.mean(...fees),
+                    sum: math.sum(...fees),
+                    median: math.median(...fees),
                 });
             }
 
