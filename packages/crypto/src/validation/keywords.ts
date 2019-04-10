@@ -152,7 +152,7 @@ const addressOnNetwork = (ajv: Ajv) => {
     ajv.addKeyword("addressOnNetwork", {
         compile(schema) {
             return data => {
-                return schema && typeof data === "string" && Address.validate(data);
+                return schema && Address.validate(data);
             };
         },
         errors: false,
