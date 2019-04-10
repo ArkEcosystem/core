@@ -12,7 +12,7 @@ let transaction;
 let transactionSchema: TransactionSchema;
 
 describe("Transfer Transaction", () => {
-    const address = "APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi";
+    const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
     const fee = 1 * ARKTOSHI;
     const amount = 10 * ARKTOSHI;
 
@@ -204,7 +204,7 @@ describe("Transfer Transaction", () => {
         configManager.setFromPreset("mainnet");
 
         transfer = transaction
-            .recipientId(address)
+            .recipientId("APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi")
             .amount("1")
             .fee("1")
             .network(configManager.get("pubKeyHash"))
@@ -213,6 +213,8 @@ describe("Transfer Transaction", () => {
 
         expect(transfer.data.network).toBe(23);
         expect(Ajv.validate(transactionSchema.$id, transaction.getStruct()).error).toBeNull();
+
+        configManager.setFromPreset("devnet");
     });
 
     it("should be ok and turn uppercase publicKey to lowercase", () => {

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
-import { delegateCalculator, supplyCalculator } from "@arkecosystem/core-utils";
+import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import sumBy from "lodash.sumby";
 
@@ -42,7 +42,8 @@ export function handler(request, h) {
         });
 
     const lastBlock = blockchain.getLastBlock();
-    const constants = config.getMilestone(lastBlock.data.height);
+    const { maxDelegates } = roundCalculator.calculateRound(lastBlock.data.height);
+
     // @ts-ignore
     const delegateRows = request.server.app.config.delegateRows;
 
@@ -56,8 +57,8 @@ export function handler(request, h) {
         })
         .sort((a, b) => (a as any).rate - (b as any).rate);
 
-    const active = allByUsername.slice(0, constants.activeDelegates);
-    const standby = allByUsername.slice(constants.activeDelegates + 1, delegateRows);
+    const active = allByUsername.slice(0, maxDelegates);
+    const standby = allByUsername.slice(maxDelegates + 1, delegateRows);
 
     const voters = databaseService.walletManager
         .allByPublicKey()
@@ -72,7 +73,7 @@ export function handler(request, h) {
         .view("index", {
             client,
             voteHeader: `Vote ${client.token}`.padStart(10),
-            activeDelegatesCount: constants.activeDelegates,
+            activeDelegatesCount: maxDelegates,
             activeDelegates: formatDelegates(active, lastBlock.data.height),
             standbyDelegates: formatDelegates(standby, lastBlock.data.height),
             voters: voters.length.toLocaleString(undefined, {

@@ -3,6 +3,7 @@ import camelCase from "lodash.camelcase";
 import get from "lodash.get";
 import set from "lodash.set";
 import { TransactionTypes } from "../enums";
+import { InvalidMilestoneConfigurationError } from "../errors";
 import { IMilestone } from "../interfaces";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
@@ -36,6 +37,8 @@ export class ConfigManager {
         this.config.exceptions = config.exceptions;
         this.config.milestones = config.milestones;
         this.config.genesisBlock = config.genesisBlock;
+
+        this.validateMilestones();
 
         this.buildConstants();
         this.buildFees();
@@ -134,6 +137,29 @@ export class ConfigManager {
         while (lastMerged < this.milestones.length - 1) {
             this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1]);
             lastMerged++;
+        }
+    }
+
+    private validateMilestones(): void {
+        const delegateMilestones = this.config.milestones
+            .sort((a, b) => a.height - b.height)
+            .filter(milestone => milestone.activeDelegates);
+
+        for (let i = 1; i < delegateMilestones.length; i++) {
+            const previous = delegateMilestones[i - 1];
+            const current = delegateMilestones[i];
+
+            if (previous.activeDelegates === current.activeDelegates) {
+                continue;
+            }
+
+            if ((current.height - previous.height) % previous.activeDelegates !== 0) {
+                throw new InvalidMilestoneConfigurationError(
+                    `Bad milestone at height: ${
+                        current.height
+                    }. The number of delegates can only be changed at the beginning of a new round.`,
+                );
+            }
         }
     }
 

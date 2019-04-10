@@ -287,15 +287,15 @@ describe("Transaction Guard", () => {
             const transactions = TransactionFactory.transfer("DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY", 35)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
-                .build(3);
+                .create(3);
 
-            expect(guard.__validateTransaction(transactions[0].data)).toBeFalse();
+            expect(guard.__validateTransaction(transactions[0])).toBeFalse();
             expect(guard.errors).toEqual({
                 [transactions[0].id]: [
                     {
                         type: "ERR_INVALID_RECIPIENT",
                         message: `Recipient ${
-                            transactions[0].data.recipientId
+                            transactions[0].recipientId
                         } is not on the same network: ${Managers.configManager.get("pubKeyHash")}`,
                     },
                 ],

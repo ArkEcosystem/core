@@ -1,3 +1,4 @@
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
@@ -95,7 +96,8 @@ export class DelegatesController extends Controller {
             const delegatesCount = this.config.getMilestone(lastBlock).activeDelegates;
             const currentSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp);
 
-            const activeDelegates = await this.databaseService.getActiveDelegates(lastBlock.data.height);
+            const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
+            const activeDelegates = await this.databaseService.getActiveDelegates(roundInfo);
             const nextForgers = [];
 
             for (let i = 1; i <= delegatesCount && i <= limit; i++) {

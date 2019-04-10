@@ -3,9 +3,11 @@ jest.mock("@arkecosystem/core-container", () => {
         app: {
             getConfig: () => {
                 return {
+                    config: { milestones: [{ activeDelegates: 51, height: 1 }] },
                     getMilestone: () => ({
                         epoch: "2017-03-21T13:00:00.000Z",
                         activeDelegates: 51,
+                        height: 1,
                     }),
                 };
             },

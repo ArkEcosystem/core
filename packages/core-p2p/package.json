@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-p2p",
-    "description": "P2P API for Ark Core",
-    "version": "2.3.0-next.4",
+    "description": "P2P API for ARK Core",
+    "version": "2.3.0-next.5",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -23,12 +23,12 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.4",
-        "@arkecosystem/core-http-utils": "^2.3.0-next.4",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.4",
-        "@arkecosystem/core-transaction-pool": "^2.3.0-next.4",
-        "@arkecosystem/core-utils": "^2.3.0-next.4",
-        "@arkecosystem/crypto": "^2.3.0-next.4",
+        "@arkecosystem/core-container": "^2.3.0-next.5",
+        "@arkecosystem/core-http-utils": "^2.3.0-next.5",
+        "@arkecosystem/core-interfaces": "^2.3.0-next.5",
+        "@arkecosystem/core-transaction-pool": "^2.3.0-next.5",
+        "@arkecosystem/core-utils": "^2.3.0-next.5",
+        "@arkecosystem/crypto": "^2.3.0-next.5",
         "@faustbrian/dato": "^0.2.0",
         "ajv": "^6.10.0",
         "boom": "^7.3.0",

@@ -19,6 +19,7 @@ export class Container implements container.IContainer {
     public variables: Record<string, any>;
     public config: any;
 
+    private name: string;
     private readonly container = createContainer();
 
     /**
@@ -37,6 +38,8 @@ export class Container implements container.IContainer {
         this.variables = variables;
 
         this.setVersion(version);
+
+        this.name = `${this.variables.token}-${this.variables.suffix}`;
 
         // Register the environment variables
         const environment = new Environment(variables);
@@ -173,7 +176,7 @@ export class Container implements container.IContainer {
      * Get the application version.
      * @throws {String}
      */
-    public getVersion() {
+    public getVersion(): string {
         return this.version;
     }
 
@@ -182,7 +185,7 @@ export class Container implements container.IContainer {
      * @param  {String} version
      * @return {void}
      */
-    public setVersion(version) {
+    public setVersion(version: string) {
         if (!semver.valid(version)) {
             this.forceExit(
                 // tslint:disable-next-line:max-line-length
@@ -191,6 +194,10 @@ export class Container implements container.IContainer {
         }
 
         this.version = version;
+    }
+
+    public getName(): string {
+        return this.name;
     }
 
     /**

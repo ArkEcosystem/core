@@ -269,16 +269,37 @@ export class ForgerManager {
         );
 
         if (!this.initialized) {
-            const delegates = this.delegates.map(
-                delegate => `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`,
-            );
-
-            this.logger.debug(`Loaded ${pluralize("delegate", delegates.length, true)}: ${delegates.join(", ")}`);
-            this.initialized = true;
+            this.printLoadedDelegates();
         }
+
+        this.initialized = true;
     }
 
     private checkLater(timeout: number): void {
         setTimeout(() => this.__monitor(), timeout);
+    }
+
+    private printLoadedDelegates() {
+        const activeDelegates = this.delegates.filter(delegate => this.usernames.hasOwnProperty(delegate.publicKey));
+
+        if (activeDelegates.length > 0) {
+            this.logger.debug(
+                `Loaded ${pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
+                    .map(({ publicKey }) => `${this.usernames[publicKey]} (${publicKey})`)
+                    .join(", ")}`,
+            );
+        }
+
+        if (this.delegates.length > activeDelegates.length) {
+            const inactiveDelegates = this.delegates
+                .filter(delegate => !activeDelegates.includes(delegate))
+                .map(delegate => delegate.publicKey);
+
+            this.logger.debug(
+                `Loaded ${pluralize("inactive delegate", inactiveDelegates.length, true)}: ${inactiveDelegates.join(
+                    ", ",
+                )}`,
+            );
+        }
     }
 }

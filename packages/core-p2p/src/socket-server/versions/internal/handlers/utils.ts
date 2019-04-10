@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, P2P } from "@arkecosystem/core-interfaces";
-
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { validate } from "../../../utils/validate";
 import * as schema from "../schemas";
 
@@ -10,7 +10,9 @@ export const getUsernames = async () => {
     const walletManager = database.walletManager;
 
     const lastBlock = blockchain.getLastBlock();
-    const delegates = await database.getActiveDelegates(lastBlock ? lastBlock.data.height + 1 : 1);
+    const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
+
+    const delegates = await database.getActiveDelegates(roundInfo);
 
     const data = {};
     for (const delegate of delegates) {

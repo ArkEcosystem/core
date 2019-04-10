@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { flags } from "@oclif/command";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
@@ -30,6 +31,10 @@ $ ark core:run --launchMode=seed
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
         ...BaseCommand.flagsForger,
+        suffix: flags.string({
+            hidden: true,
+            default: "core",
+        }),
     };
 
     public async run(): Promise<void> {

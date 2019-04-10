@@ -5,5 +5,6 @@ import * as EventEmitter from "./core-event-emitter";
 import * as Logger from "./core-logger";
 import * as P2P from "./core-p2p";
 import * as TransactionPool from "./core-transaction-pool";
+import * as Shared from "./shared";
 
-export { Container, Logger, Blockchain, TransactionPool, EventEmitter, P2P, Database };
+export { Container, Logger, Blockchain, TransactionPool, EventEmitter, P2P, Database, Shared };

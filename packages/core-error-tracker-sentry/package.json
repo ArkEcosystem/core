@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-sentry",
-    "description": "Sentry error tracker integration for Ark Core.",
-    "version": "2.3.0-next.4",
+    "description": "Sentry error tracker integration for ARK Core.",
+    "version": "2.3.0-next.5",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,7 +18,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.4",
+        "@arkecosystem/core-container": "^2.3.0-next.5",
         "@sentry/node": "^5.0.5"
     },
     "publishConfig": {

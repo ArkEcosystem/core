@@ -1,4 +1,4 @@
-# Ark Core Docker
+# ARK Core Docker
 
 <p align="center">
     <img src="./ark-core-docker.png" width="100%" height="100%" />

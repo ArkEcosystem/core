@@ -11,6 +11,7 @@ jest.mock("@arkecosystem/core-container", () => {
         app: {
             getConfig: () => {
                 return {
+                    config: Managers.configManager.all(),
                     get: key => {
                         switch (key) {
                             case "network.nethash":

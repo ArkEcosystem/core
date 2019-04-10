@@ -30,7 +30,7 @@ export class PoolWalletManager extends WalletManager {
 
     public deleteWallet(publicKey) {
         this.forgetByPublicKey(publicKey);
-        this.forgetByAddress(crypto.getAddress(publicKey, this.networkId));
+        this.forgetByAddress(crypto.getAddress(publicKey));
     }
 
     /**
@@ -40,7 +40,7 @@ export class PoolWalletManager extends WalletManager {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         if (!this.databaseService.walletManager.exists(transaction.data.senderPublicKey)) {
-            const senderAddress = crypto.getAddress(transaction.data.senderPublicKey, this.networkId);
+            const senderAddress = crypto.getAddress(transaction.data.senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
                 errors.push("Cold wallet is not allowed to send until receiving transaction is confirmed.");

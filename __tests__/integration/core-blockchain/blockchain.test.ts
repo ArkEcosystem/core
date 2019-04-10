@@ -2,7 +2,7 @@ import "../../utils";
 
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
-import { bignumify } from "@arkecosystem/core-utils";
+import { bignumify, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
@@ -34,9 +34,6 @@ describe("Blockchain", () => {
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
         configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
-
-        // // Manually register the blockchain and start it
-        // await __start(false);
     });
 
     afterAll(async () => {
@@ -108,8 +105,9 @@ describe("Blockchain", () => {
             await __addBlocks(55);
 
             // Pretend blockchain just started
+            const roundInfo = roundCalculator.calculateRound(blockchain.getLastHeight());
             await blockchain.database.restoreCurrentRound(blockchain.getLastHeight());
-            const forgingDelegates = await blockchain.database.getActiveDelegates(blockchain.getLastHeight());
+            const forgingDelegates = await blockchain.database.getActiveDelegates(roundInfo);
             expect(forgingDelegates).toHaveLength(51);
 
             // Reset again and replay to round 2. In both cases the forging delegates
@@ -138,7 +136,8 @@ describe("Blockchain", () => {
 
         const getNextForger = async () => {
             const lastBlock = blockchain.state.getLastBlock();
-            const activeDelegates = await blockchain.database.getActiveDelegates(lastBlock.data.height);
+            const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
+            const activeDelegates = await blockchain.database.getActiveDelegates(roundInfo);
             const nextSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1;
             return activeDelegates[nextSlot % activeDelegates.length];
         };
@@ -202,8 +201,8 @@ describe("Blockchain", () => {
 
             // New wallet received funds and vote balance of delegate has been reduced by the same amount,
             // since it forged it's own transaction the fees for the transaction have been recovered.
-            expect(wallet.balance).toEqual(new Utils.Bignum(transfer.amount));
-            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance).minus(transfer.amount));
+            expect(wallet.balance).toEqual(bignumify(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance).minus(transfer.amount));
 
             // Now vote with newly created wallet for previous forger.
             const vote = Transactions.BuilderFactory.vote()
@@ -219,12 +218,12 @@ describe("Blockchain", () => {
             await blockchain.processBlock(voteBlock, mockCallback);
 
             // Wallet paid a fee of 1 and the vote has been placed.
-            expect(wallet.balance).toEqual(new Utils.Bignum(124));
+            expect(wallet.balance).toEqual(bignumify(124));
             expect(wallet.vote).toEqual(forgerKeys.publicKey);
 
             // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
             // since it was forged by a different delegate.
-            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance).minus(vote.fee));
+            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance).minus(vote.fee));
 
             // Now unvote again
             const unvote = Transactions.BuilderFactory.vote()
@@ -240,18 +239,18 @@ describe("Blockchain", () => {
             await blockchain.processBlock(unvoteBlock, mockCallback);
 
             // Wallet paid a fee of 1 and no longer voted a delegate
-            expect(wallet.balance).toEqual(new Utils.Bignum(123));
+            expect(wallet.balance).toEqual(bignumify(123));
             expect(wallet.vote).toBeNull();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
-            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance).minus(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance).minus(transfer.amount));
 
             // Now rewind 3 blocks back to the initial state
             await blockchain.removeBlocks(3);
 
             // Wallet is now a cold wallet and the initial vote balance has been restored.
             expect(wallet.balance).toEqual(Utils.Bignum.ZERO);
-            expect(walletForger.voteBalance).toEqual(new Utils.Bignum(initialVoteBalance));
+            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance));
         });
     });
 
@@ -295,38 +294,6 @@ describe("Blockchain", () => {
         });
     });
 });
-
-// async function __start(networkStart) {
-//     process.env.CORE_SKIP_BLOCKCHAIN = "false";
-//     process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
-//     process.env.CORE_ENV = "false";
-
-//     container.register("pkg.blockchain.opts", asValue(defaults));
-
-//     blockchain = await plugin.register(container, {
-//         networkStart,
-//         ...defaults,
-//     });
-
-//     await container.register(
-//         "blockchain",
-//         asValue({
-//             name: "blockchain",
-//             version: "0.1.0",
-//             plugin: blockchain,
-//             options: defaults,
-//         }),
-//     );
-
-//     if (networkStart) {
-//         return;
-//     }
-
-//     await __resetToHeight1();
-
-//     await blockchain.start();
-//     await __addBlocks(5);
-// }
 
 async function __resetBlocksInCurrentRound() {
     await blockchain.database.loadBlocksFromCurrentRound();

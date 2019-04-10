@@ -1,3 +1,4 @@
+import { Container } from "@arkecosystem/core-interfaces";
 import { Networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
@@ -58,6 +59,10 @@ export abstract class BaseCommand extends Command {
             description: "the password for the encrypted bip38",
             dependsOn: ["bip38"],
         }),
+        suffix: flags.string({
+            hidden: true,
+            default: "forger",
+        }),
     };
 
     public static flagsSnapshot: Record<string, object> = {
@@ -67,6 +72,10 @@ export abstract class BaseCommand extends Command {
         }),
         trace: flags.boolean({
             description: "dumps generated queries and settings to console",
+        }),
+        suffix: flags.string({
+            hidden: true,
+            default: "snapshot",
         }),
     };
 
@@ -88,7 +97,7 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected async buildApplication(app, flags: CommandFlags, config: Options) {
+    protected async buildApplication(app: Container.IContainer, flags: CommandFlags, config: Options) {
         await app.setUp(version, flags, {
             ...{ skipPlugins: flags.skipPlugins },
             ...config,

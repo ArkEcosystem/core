@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Logger, Shared } from "@arkecosystem/core-interfaces";
 
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-class Database {
+export class Database {
     public db: any;
     public pgp: any;
     public blocksColumnSet: any;
@@ -48,12 +48,9 @@ class Database {
         }
     }
 
-    public async rollbackChain(height) {
-        const config = app.getConfig();
-        const maxDelegates = config.getMilestone(height).activeDelegates;
-        const currentRound = Math.floor(height / maxDelegates);
-        const lastBlockHeight = currentRound * maxDelegates;
-        const lastRemainingBlock = await this.getBlockByHeight(lastBlockHeight);
+    public async rollbackChain(roundInfo: Shared.IRoundInfo) {
+        const { round, roundHeight } = roundInfo;
+        const lastRemainingBlock = await this.getBlockByHeight(roundHeight);
 
         try {
             if (lastRemainingBlock) {
@@ -64,7 +61,7 @@ class Database {
                     this.db.none(queries.blocks.deleteFromHeight, {
                         height: lastRemainingBlock.height,
                     }),
-                    this.db.none(queries.rounds.deleteFromRound, { round: currentRound }),
+                    this.db.none(queries.rounds.deleteFromRound, { round }),
                 ]);
             }
         } catch (error) {

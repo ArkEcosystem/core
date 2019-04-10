@@ -81,6 +81,8 @@ export abstract class BaseCommand extends Command {
         await this.setupConstants();
         await this.setupNetwork();
 
+        Managers.configManager.setFromPreset(this.network.name);
+
         this.signer = new Signer(this.network);
 
         return { args, flags };

@@ -26,7 +26,7 @@ const createRandomTx = type => {
         case 0: {
             // transfer
             transaction = BuilderFactory.transfer()
-                .recipientId("AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX")
+                .recipientId("DJLxkgm7JMortrGVh1ZrvDH39XALWLa83e")
                 .amount("10000000000000")
                 .vendorField(Math.random().toString(36))
                 .sign(Math.random().toString(36))
@@ -95,7 +95,7 @@ const createRandomTx = type => {
 
 describe("Transaction", () => {
     beforeEach(() => {
-        configManager.setConfig(devnet);
+        configManager.setFromPreset("devnet");
 
         transactionData = { ...transactionDataFixture };
         transactionDataJSON = {

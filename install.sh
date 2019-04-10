@@ -199,14 +199,14 @@ fi
 
 success "Installed system updates!"
 
-heading "Installing Ark Core..."
+heading "Installing ARK Core..."
 
 yarn global add @arkecosystem/core
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
 ark config:publish
 
-success "Installed Ark Core!"
+success "Installed ARK Core!"
 
 # setup postgres username, password and database
 read -p "Would you like to configure the database? [y/N]: " choice

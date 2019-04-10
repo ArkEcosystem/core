@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import { WriteStream } from "fs";
@@ -74,15 +75,21 @@ export class PinoLogger extends AbstractLogger {
     private getFileStream(): WriteStream {
         const createFileName = (time: Date, index: number) => {
             if (!time) {
-                return new Date().toISOString().slice(0, 10) + ".log";
+                return `${app.getName()}-current.log`;
             }
 
-            return `${time.toISOString().slice(0, 10)}.${index}.log.gz`;
+            let filename = time.toISOString().slice(0, 10);
+            if (index > 1) {
+                filename += `.${index}`;
+            }
+
+            return `${app.getName()}-${filename}.log.gz`;
         };
 
         return rfs(createFileName, {
             path: process.env.CORE_PATH_LOG,
-            interval: "1d",
+            initialRotation: true,
+            interval: this.options.fileRotator ? this.options.fileRotator.interval : "1d",
             maxSize: "100M",
             maxFiles: 10,
             compress: "gzip",

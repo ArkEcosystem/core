@@ -119,7 +119,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     exitApp() {
-        app.forceExit("Failed to startup blockchain. Exiting Ark Core!");
+        app.forceExit("Failed to startup blockchain. Exiting ARK Core!");
     },
 
     async init() {
@@ -159,6 +159,17 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 
+            // NOTE: if the node is shutdown between round, the round has already been applied
+            if (roundCalculator.isNewRound(block.data.height + 1)) {
+                const { round } = roundCalculator.calculateRound(block.data.height + 1);
+
+                logger.info(
+                    `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
+                );
+
+                await blockchain.database.deleteRound(round);
+            }
+
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets();
                 await blockchain.database.applyRound(block.data.height);
@@ -183,17 +194,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
              ******************************* */
             // Integrity Verification
             await blockchain.database.buildWallets();
-
-            // NOTE: if the node is shutdown between round, the round has already been applied
-            if (roundCalculator.isNewRound(block.data.height + 1)) {
-                const { round } = roundCalculator.calculateRound(block.data.height + 1);
-
-                logger.info(
-                    `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
-                );
-
-                await blockchain.database.deleteRound(round);
-            }
 
             await blockchain.database.restoreCurrentRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
