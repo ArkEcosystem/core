@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
-import { Stats } from "fast-stats";
 import Hapi from "hapi";
 import groupBy from "lodash.groupby";
+import median from "median";
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {
@@ -78,13 +78,15 @@ export class NodeController extends Controller {
                 const results = await transactionsBusinessRepository.getFeeStatistics(days);
 
                 for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
-                    const stats: Stats = new Stats().push(transactions.map(transaction => transaction.fee));
+                    const fees: number[] = transactions.map(transaction => +transaction.fee);
 
                     resultsByDays[days].push({
                         type,
-                        amean: stats.amean().toFixed(2),
-                        gmean: stats.gmean().toFixed(2),
-                        median: stats.median().toFixed(2),
+                        min: Math.min(...fees),
+                        max: Math.max(...fees),
+                        sum: fees.reduce((a, b) => a + b, 0),
+                        avg: fees.reduce((a, b) => a + b, 0) / fees.length,
+                        median: median(fees),
                     });
                 }
             }
