@@ -27,7 +27,7 @@ const createRandomTx = type => {
             // transfer
             transaction = BuilderFactory.transfer()
                 .recipientId("AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX")
-                .amount(bignumify(1000).times(1e10))
+                .amount("10000000000000")
                 .vendorField(Math.random().toString(36))
                 .sign(Math.random().toString(36))
                 .secondSign(Math.random().toString(36))

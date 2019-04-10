@@ -45,9 +45,9 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     /**
      * Set transaction fee.
      */
-    public fee(fee: Bignum): TBuilder {
+    public fee(fee: string): TBuilder {
         if (fee !== null) {
-            this.data.fee = fee;
+            this.data.fee = new Bignum(fee);
         }
 
         return this.instance();
@@ -56,8 +56,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     /**
      * Set amount to transfer.
      */
-    public amount(amount: Bignum): TBuilder {
-        this.data.amount = amount;
+    public amount(amount: string): TBuilder {
+        this.data.amount = new Bignum(amount);
         return this.instance();
     }
 

@@ -148,7 +148,7 @@ class Helpers {
         Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
         const transaction = Transactions.BuilderFactory.transfer()
-            .amount(bignumify(1).times(1e8))
+            .amount("100000000")
             .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
             .vendorField("test")
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")

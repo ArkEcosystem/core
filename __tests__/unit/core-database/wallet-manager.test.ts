@@ -279,7 +279,7 @@ describe("Wallet Manager", () => {
 
             const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
-                .fee(bignumify(125))
+                .fee("125")
                 .sign("secret")
                 .build();
 
@@ -314,7 +314,7 @@ describe("Wallet Manager", () => {
 
             const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
-                .fee(bignumify(125))
+                .fee("125")
                 .sign("secret")
                 .build();
 
@@ -329,7 +329,7 @@ describe("Wallet Manager", () => {
 
             const unvoteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`-${delegateKeys.publicKey}`])
-                .fee(bignumify(125))
+                .fee("125")
                 .sign("secret")
                 .build();
 

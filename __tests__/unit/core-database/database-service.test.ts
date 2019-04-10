@@ -225,7 +225,11 @@ describe("Database Service", () => {
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
                 const transfer = Transactions.BuilderFactory.transfer()
-                    .amount(bignumify(i + 1).times(SATOSHI))
+                    .amount(
+                        bignumify(i + 1)
+                            .times(SATOSHI)
+                            .toFixed(),
+                    )
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();

@@ -38,7 +38,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee))
+            .fee(bignumify(fee).toFixed())
             .vendorField("Ahoy")
             .sign("passphrase");
 
@@ -50,7 +50,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee))
+            .fee(bignumify(fee).toFixed())
             .vendorField("a".repeat(64))
             .sign("passphrase");
         let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -59,7 +59,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee))
+            .fee(bignumify(fee).toFixed())
             .vendorField("⊁".repeat(21))
             .sign("passphrase");
 
@@ -71,7 +71,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee));
+            .fee(bignumify(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.data.vendorField = "a".repeat(65);
@@ -83,7 +83,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee));
+            .fee(bignumify(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.vendorField("⊁".repeat(22));
@@ -134,8 +134,8 @@ describe("Transfer Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(0))
+            .amount("1")
+            .fee("0")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -153,8 +153,8 @@ describe("Transfer Transaction", () => {
     it("should be valid due to missing network byte", () => {
         transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(1))
+            .amount("1")
+            .fee("1")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -164,8 +164,8 @@ describe("Transfer Transaction", () => {
     it("should be valid due to correct network byte", () => {
         transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(1))
+            .amount("1")
+            .fee("1")
             .network(configManager.get("pubKeyHash"))
             .sign("passphrase");
 
@@ -176,8 +176,8 @@ describe("Transfer Transaction", () => {
     it("should be invalid due to wrong network byte", () => {
         transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(1))
+            .amount("1")
+            .fee("1")
             .network(1)
             .sign("passphrase");
 
@@ -190,8 +190,8 @@ describe("Transfer Transaction", () => {
 
         let transfer = transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(1))
+            .amount("1")
+            .fee("1")
             .network(configManager.get("pubKeyHash"))
             .sign("passphrase")
             .build();
@@ -205,8 +205,8 @@ describe("Transfer Transaction", () => {
 
         transfer = transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(1))
+            .amount("1")
+            .fee("1")
             .network(configManager.get("pubKeyHash"))
             .sign("passphrase")
             .build();
@@ -218,8 +218,8 @@ describe("Transfer Transaction", () => {
     it("should be ok and turn uppercase publicKey to lowercase", () => {
         const transfer = transaction
             .recipientId(address)
-            .amount(bignumify(1))
-            .fee(bignumify(1))
+            .amount("1")
+            .fee("1")
             .network(configManager.get("pubKeyHash"))
             .sign("passphrase")
             .build();
@@ -254,7 +254,7 @@ describe("Second Signature Transaction", () => {
     it("should be valid with correct data", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(bignumify(1 * ARKTOSHI))
+            .fee("100000000")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -269,7 +269,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .signatureAsset("second passphrase")
-            .amount(10 * ARKTOSHI)
+            .amount("1000000000")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -279,7 +279,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(bignumify(0))
+            .fee("0")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -289,7 +289,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to second signature", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(bignumify(1))
+            .fee("1")
             .sign("passphrase")
             .secondSign("second passphrase");
 
@@ -440,7 +440,7 @@ describe("Vote Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .votesAsset(votes)
-            .fee(bignumify(0))
+            .fee("0")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -559,7 +559,7 @@ describe.skip("Multi Signature Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .multiSignatureAsset(multiSignatureAsset)
-            .fee(bignumify(0))
+            .fee("0")
             .sign("passphrase");
         signTransaction(transaction, passphrases);
 

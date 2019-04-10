@@ -190,7 +190,7 @@ describe("Blockchain", () => {
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
             const transfer = Transactions.BuilderFactory.transfer()
                 .recipientId(recipient)
-                .amount(bignumify(125))
+                .amount("125")
                 .sign(forgerKeys.passphrase)
                 .getStruct();
 
@@ -207,7 +207,7 @@ describe("Blockchain", () => {
 
             // Now vote with newly created wallet for previous forger.
             const vote = Transactions.BuilderFactory.vote()
-                .fee(bignumify(1))
+                .fee("1")
                 .votesAsset([`+${forgerKeys.publicKey}`])
                 .sign("secret")
                 .getStruct();
@@ -228,7 +228,7 @@ describe("Blockchain", () => {
 
             // Now unvote again
             const unvote = Transactions.BuilderFactory.vote()
-                .fee(bignumify(1))
+                .fee("1")
                 .votesAsset([`-${forgerKeys.publicKey}`])
                 .sign("secret")
                 .getStruct();

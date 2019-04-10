@@ -78,7 +78,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 it("should set the fee", () => {
                     const builder = provider();
 
-                    builder.fee(bignumify(255));
+                    builder.fee("255");
                     expect(builder.data.fee).toEqual(bignumify(255));
                 });
             });
@@ -87,7 +87,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 it("should set the amount", () => {
                     const builder = provider();
 
-                    builder.amount(bignumify(255));
+                    builder.amount("255");
                     expect(builder.data.amount).toEqual(bignumify(255));
                 });
             });

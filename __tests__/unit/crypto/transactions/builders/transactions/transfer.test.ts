@@ -19,7 +19,7 @@ describe("Transfer Transaction", () => {
         it("should be valid with a signature", () => {
             const actual = builder
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(bignumify(1))
+                .amount("1")
                 .vendorField("dummy")
                 .sign("dummy passphrase");
 
@@ -30,7 +30,7 @@ describe("Transfer Transaction", () => {
         it("should be valid with a second signature", () => {
             const actual = builder
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(bignumify(1))
+                .amount("1")
                 .vendorField("dummy")
                 .sign("dummy passphrase")
                 .secondSign("dummy passphrase");
@@ -48,8 +48,8 @@ describe("Transfer Transaction", () => {
             const wif = crypto.keysToWIF(keys, { wif: 170 });
 
             const wifTransaction = builder
-                .amount(bignumify(10))
-                .fee(bignumify(10))
+                .amount("10")
+                .fee("10")
                 .network(network);
 
             const passphraseTransaction = client.getBuilder().transfer();
@@ -71,8 +71,8 @@ describe("Transfer Transaction", () => {
             const wif = crypto.keysToWIF(keys, { wif: 170 });
 
             const wifTransaction = builder
-                .amount(bignumify(10))
-                .fee(bignumify(10))
+                .amount("10")
+                .fee("10")
                 .network(network)
                 .sign(passphrase);
 
