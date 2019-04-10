@@ -59,6 +59,10 @@ export abstract class BaseCommand extends Command {
             description: "the password for the encrypted bip38",
             dependsOn: ["bip38"],
         }),
+        suffix: flags.string({
+            hidden: true,
+            default: "forger",
+        }),
     };
 
     public static flagsSnapshot: Record<string, object> = {
@@ -68,6 +72,10 @@ export abstract class BaseCommand extends Command {
         }),
         trace: flags.boolean({
             description: "dumps generated queries and settings to console",
+        }),
+        suffix: flags.string({
+            hidden: true,
+            default: "snapshot",
         }),
     };
 

@@ -32,10 +32,6 @@ $ ark forger:start --no-daemon
         return StartCommand;
     }
 
-    protected getSuffix(): string {
-        return "forger";
-    }
-
     protected async runProcess(flags: CommandFlags): Promise<void> {
         this.abortRunningProcess(`${flags.token}-core`);
 
