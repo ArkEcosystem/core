@@ -1,5 +1,4 @@
 import { bignumify } from "@arkecosystem/core-utils";
-import { Blocks } from "@arkecosystem/crypto/src";
 
 export const genesisBlock = {
     version: 0,

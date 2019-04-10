@@ -1,7 +1,7 @@
 import "jest-extended";
 import "../mocks/core-container";
 
-import { Blocks } from "@arkecosystem/crypto/src";
+import { Blocks, Managers } from "@arkecosystem/crypto/src";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
@@ -9,6 +9,8 @@ import { createPeerService } from "../../../helpers/peers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";
 import { wallets } from "../../../utils/fixtures/unitnet/wallets";
+
+Managers.configManager.setFromPreset("unitnet");
 
 let socket;
 let emit;
@@ -76,6 +78,7 @@ describe("Peer socket endpoint", () => {
                     data: { block: Blocks.Block.fromData(genesisBlock).toJson() },
                     headers,
                 });
+
                 expect(status.data.success).toBeTrue();
             });
 
