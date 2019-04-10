@@ -79,21 +79,20 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return new Transaction(this.pgp);
     }
 
-    public async getFeeStatistics(minFeeBroadcast?: number): Promise<any> {
+    public async getFeeStatistics(days: number, minFeeBroadcast?: number): Promise<any> {
         const query = this.query
             .select(this.query.type, this.query.fee, this.query.timestamp)
             .from(this.query)
-            // Should make this '30' figure configurable
             .where(
                 this.query.timestamp.gte(
                     Crypto.slots.getTime(
                         dato()
-                            .subDays(30)
+                            .subDays(days)
                             .toMilliseconds(),
                     ),
                 ),
             )
-            .and(this.query.fee.gte(minFeeBroadcast))
+            // .and(this.query.fee.gte(minFeeBroadcast))
             .order('"timestamp" DESC');
 
         return this.findMany(query);

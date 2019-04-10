@@ -1,7 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class LoaderController extends Controller {
@@ -45,8 +43,6 @@ export class LoaderController extends Controller {
 
     public async autoconfigure(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const feeStatisticsData = await transactionsRepository.getFeeStatistics();
-
             const network = this.config.get("network");
 
             return super.respondWith({
@@ -57,7 +53,6 @@ export class LoaderController extends Controller {
                     explorer: network.client.explorer,
                     version: network.pubKeyHash,
                     ports: super.toResource(request, this.config, "ports"),
-                    feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
                 },
             });
         } catch (error) {

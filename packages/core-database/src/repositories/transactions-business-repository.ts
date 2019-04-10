@@ -73,8 +73,9 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return this.mapBlocksToTransactions(rows);
     }
 
-    public async getFeeStatistics() {
+    public async getFeeStatistics(days: number) {
         return this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
+            days,
             app.resolveOptions("transaction-pool").dynamicFees.minFeeBroadcast,
         );
     }

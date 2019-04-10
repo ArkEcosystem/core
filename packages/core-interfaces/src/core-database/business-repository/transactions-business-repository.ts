@@ -23,7 +23,7 @@ export interface ITransactionsBusinessRepository {
 
     findByTypeAndId(type: any, id: string): Promise<any>;
 
-    getFeeStatistics(): Promise<any>;
+    getFeeStatistics(days: number): Promise<any>;
 
     search(params: IParameters): Promise<any>;
 }

@@ -44,10 +44,6 @@ export class NodeController extends Controller {
 
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const transactionsBusinessRepository = app.resolvePlugin<Database.IDatabaseService>("database")
-                .transactionsBusinessRepository;
-            const feeStatisticsData = await transactionsBusinessRepository.getFeeStatistics();
-
             const network = this.config.get("network");
             const dynamicFees = app.resolveOptions("transaction-pool").dynamicFees;
 
@@ -60,7 +56,6 @@ export class NodeController extends Controller {
                     version: network.pubKeyHash,
                     ports: super.toResource(request, this.config, "ports"),
                     constants: this.config.getMilestone(this.blockchain.getLastHeight()),
-                    feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
                     transactionPool: {
                         maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
                         dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
@@ -76,21 +71,25 @@ export class NodeController extends Controller {
         try {
             const { transactionsBusinessRepository } = app.resolvePlugin<Database.IDatabaseService>("database");
 
-            const results = await transactionsBusinessRepository.getFeeStatistics();
+            const resultsByDays = {};
+            for (const days of [7, 14, 30]) {
+                resultsByDays[days] = [];
 
-            const resultsByType = [];
-            for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
-                const stats: Stats = new Stats().push(transactions.map(transaction => transaction.fee));
+                const results = await transactionsBusinessRepository.getFeeStatistics(days);
 
-                resultsByType.push({
-                    type,
-                    amean: stats.amean().toFixed(2),
-                    gmean: stats.gmean().toFixed(2),
-                    median: stats.median().toFixed(2),
-                });
+                for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
+                    const stats: Stats = new Stats().push(transactions.map(transaction => transaction.fee));
+
+                    resultsByDays[days].push({
+                        type,
+                        amean: stats.amean().toFixed(2),
+                        gmean: stats.gmean().toFixed(2),
+                        median: stats.median().toFixed(2),
+                    });
+                }
             }
 
-            return { data: resultsByType };
+            return { data: resultsByDays };
         } catch (error) {
             return Boom.badImplementation(error);
         }
