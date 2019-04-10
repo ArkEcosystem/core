@@ -5,7 +5,7 @@ import "./mocks/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
-import genesisBlockJSON from "../../utils/config/unitnet/genesisBlock.json";
+import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
 import { delegates } from "../../utils/fixtures/unitnet";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
@@ -38,7 +38,7 @@ describe("PeerCommunicator", () => {
     describe("postBlock", () => {
         it("should get back success when posting genesis block", async () => {
             await socketManager.addMock("postBlock", { success: true });
-            const response = await communicator.postBlock(stubPeer, genesisBlockJSON);
+            const response = await communicator.postBlock(stubPeer, genesisBlock);
 
             expect(response).toBeObject();
             expect(response).toHaveProperty("success");
@@ -75,15 +75,15 @@ describe("PeerCommunicator", () => {
         });
 
         it("should return the blocks with status 200", async () => {
-            await socketManager.addMock("getBlocks", { blocks: [genesisBlockJSON] });
+            await socketManager.addMock("getBlocks", { blocks: [genesisBlock] });
             const response = await communicator.downloadBlocks(stubPeer, 1);
 
             expect(response).toBeArrayOfSize(1);
-            expect(response[0].id).toBe(genesisBlockJSON.id);
+            expect(response[0].id).toBe(genesisBlock.id);
         });
 
         it("should update the height after download", async () => {
-            await socketManager.addMock("getBlocks", { blocks: [genesisBlockJSON] });
+            await socketManager.addMock("getBlocks", { blocks: [genesisBlock] });
 
             stubPeer.state.height = null;
             await communicator.downloadBlocks(stubPeer, 1);
@@ -163,18 +163,20 @@ describe("PeerCommunicator", () => {
         it("should return false when peer has no common block", async () => {
             await socketManager.addMock("getCommonBlocks", { success: true, common: null });
 
-            const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlockJSON.id]);
+            const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 
             expect(commonBlocks).toBeFalse();
         });
 
         it("should return true when peer has common block", async () => {
             await socketManager.resetAllMocks();
-            await socketManager.addMock("getCommonBlocks", { success: true, common: genesisBlockJSON });
+            await socketManager.addMock("getCommonBlocks", { success: true, common: genesisBlock });
 
-            const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlockJSON.id]);
+            const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 
-            expect(commonBlocks).toEqual(genesisBlockJSON);
+            expect(commonBlocks.id).toBe(genesisBlock.id);
+            expect(commonBlocks.height).toBe(genesisBlock.height);
+            expect(commonBlocks.transactions).toHaveLength(255);
         });
     });
 });

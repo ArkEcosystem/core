@@ -7,6 +7,7 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { bignumify } from "../../../packages/core-utils/dist";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
@@ -224,7 +225,11 @@ describe("Database Service", () => {
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
                 const transfer = Transactions.BuilderFactory.transfer()
-                    .amount((i + 1) * SATOSHI)
+                    .amount(
+                        bignumify(i + 1)
+                            .times(SATOSHI)
+                            .toFixed(),
+                    )
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();

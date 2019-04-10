@@ -8,12 +8,12 @@ import { Crypto, Managers } from "@arkecosystem/crypto";
 Managers.configManager.setFromPreset("unitnet");
 
 import { secrets } from "../../config/unitnet/delegates.json";
-import { transactions as genesisTransactions } from "../../config/unitnet/genesisBlock.json";
+import { genesisBlock } from "../../config/unitnet/genesisBlock";
 
 export const delegates: any = secrets.map(secret => {
     const publicKey = Crypto.crypto.getKeys(secret).publicKey;
     const address = Crypto.crypto.getAddress(publicKey);
-    const balance = genesisTransactions.find(
+    const balance = genesisBlock.transactions.find(
         transaction => transaction.recipientId === address && transaction.type === 0,
     ).amount;
     return {

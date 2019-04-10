@@ -5,6 +5,7 @@ import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkec
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
+import { bignumify } from "../../../packages/core-utils/src";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
@@ -116,8 +117,8 @@ describe("TransactionHandlerRegistry", () => {
             type: TEST_TRANSACTION_TYPE,
             timestamp: slots.getTime(),
             senderPublicKey: keys.publicKey,
-            fee: "10000000",
-            amount: "200000000",
+            fee: bignumify("10000000"),
+            amount: bignumify("200000000"),
             recipientId: "APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq",
             asset: {
                 test: 256,

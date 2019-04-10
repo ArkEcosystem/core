@@ -9,7 +9,7 @@ import {
 } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/transactions";
 
 import { createPeerService } from "../../../../../../helpers/peers";
-import genesisBlockJSON from "../../../../../../utils/config/unitnet/genesisBlock.json";
+import { genesisBlock } from "../../../../../../utils/config/unitnet/genesisBlock";
 
 jest.mock("../../../../../../../packages/core-p2p/src/socket-server/utils/validate");
 
@@ -19,7 +19,7 @@ describe("Internal handlers - transactions", () => {
             database.verifyTransaction = jest.fn().mockReturnValue(true);
             const req = {
                 data: {
-                    transaction: Transactions.Transaction.toBytes(genesisBlockJSON.transactions[0]),
+                    transaction: Transactions.Transaction.toBytes(genesisBlock.transactions[0]),
                 },
             };
             const result = await verifyTransaction(createPeerService().service, req);
@@ -34,7 +34,7 @@ describe("Internal handlers - transactions", () => {
             database.verifyTransaction = jest.fn().mockReturnValue(false);
             const req = {
                 data: {
-                    transaction: Transactions.Transaction.toBytes(genesisBlockJSON.transactions[0]),
+                    transaction: Transactions.Transaction.toBytes(genesisBlock.transactions[0]),
                 },
             };
             const result = await verifyTransaction(createPeerService().service, req);

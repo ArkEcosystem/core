@@ -2,6 +2,7 @@ import { container } from "./mocks/core-container";
 
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { calculateFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
+import { bignumify } from "../../../packages/core-utils/src";
 import { transactions } from "./__fixtures__/transactions";
 
 describe("static fees", () => {
@@ -45,8 +46,10 @@ describe("dynamic fees", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
 
-        transactions.dynamicFeeNormalDummy1.data.fee =
-            calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dynamicFeeNormalDummy1) + 100;
+        transactions.dynamicFeeNormalDummy1.data.fee = calculateFee(
+            dynamicFeeConfig.minFeeBroadcast,
+            transactions.dynamicFeeNormalDummy1,
+        ).plus(100);
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeTrue();
 
         // testing with transaction fee === min fee for transaction broadcast
@@ -60,8 +63,10 @@ describe("dynamic fees", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).enterPool).toBeTrue();
 
-        transactions.dynamicFeeNormalDummy1.data.fee =
-            calculateFee(dynamicFeeConfig.minFeePool, transactions.dynamicFeeNormalDummy1) + 100;
+        transactions.dynamicFeeNormalDummy1.data.fee = calculateFee(
+            dynamicFeeConfig.minFeePool,
+            transactions.dynamicFeeNormalDummy1,
+        ).plus(100);
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeTrue();
 
         // testing with transaction fee === min fee for transaction enter pool
@@ -87,19 +92,25 @@ describe("calculateFee", () => {
             ...{ dynamicFees: { addonBytes: { transfer: 137 } } },
         });
 
-        expect(calculateFee(3, transactions.dummy1)).toBe((137 + transactions.dummy1.serialized.length / 2) * 3);
-        expect(calculateFee(6, transactions.dummy1)).toBe((137 + transactions.dummy1.serialized.length / 2) * 6);
+        expect(calculateFee(3, transactions.dummy1)).toEqual(
+            bignumify(137 + transactions.dummy1.serialized.length / 2).times(3),
+        );
+        expect(calculateFee(6, transactions.dummy1)).toEqual(
+            bignumify(137 + transactions.dummy1.serialized.length / 2).times(6),
+        );
 
         jest.spyOn(container.app, "resolveOptions").mockReturnValue({
             ...defaults,
             ...{ dynamicFees: { addonBytes: { transfer: 0 } } },
         });
 
-        expect(calculateFee(9, transactions.dummy1)).toBe((transactions.dummy1.serialized.length / 2) * 9);
+        expect(calculateFee(9, transactions.dummy1)).toEqual(
+            bignumify(transactions.dummy1.serialized.length / 2).times(9),
+        );
     });
 
     it("should default satoshiPerByte to 1 if value provided is <= 0", () => {
-        expect(calculateFee(-50, transactions.dummy1)).toBe(calculateFee(1, transactions.dummy1));
-        expect(calculateFee(0, transactions.dummy1)).toBe(calculateFee(1, transactions.dummy1));
+        expect(calculateFee(-50, transactions.dummy1)).toEqual(calculateFee(1, transactions.dummy1));
+        expect(calculateFee(0, transactions.dummy1)).toEqual(calculateFee(1, transactions.dummy1));
     });
 });

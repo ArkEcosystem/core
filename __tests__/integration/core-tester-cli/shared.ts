@@ -8,10 +8,7 @@ export const toFlags = (opts: object): string[] => {
         .reduce((a, b) => a.concat(b), defaultOpts);
 };
 
-export const arkToSatoshi = value =>
-    bignumify(value)
-        .times(1e8)
-        .toFixed();
+export const arkToSatoshi = value => bignumify(value).times(1e8);
 
 export const expectTransactions = (transactions, obj) =>
     expect(transactions).toEqual(expect.arrayContaining([expect.objectContaining(obj)]));

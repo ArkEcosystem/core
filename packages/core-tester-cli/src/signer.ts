@@ -73,7 +73,7 @@ export class Signer {
         return transaction.getStruct();
     }
 
-    private toSatoshi(value) {
+    private toSatoshi(value): string {
         return bignumify(value)
             .times(1e8)
             .toFixed();

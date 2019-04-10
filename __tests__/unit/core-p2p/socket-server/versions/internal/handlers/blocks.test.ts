@@ -1,9 +1,11 @@
-import { blockchain } from "../../../../mocks/blockchain";
 import "../../../../mocks/core-container";
 
+import { blockchain } from "../../../../mocks/blockchain";
+
+import { Blocks } from "@arkecosystem/crypto";
 import { storeBlock } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/blocks";
 import { createPeerService } from "../../../../../../helpers/peers";
-import genesisBlockJSON from "../../../../../../utils/config/unitnet/genesisBlock.json";
+import { genesisBlock } from "../../../../../../utils/config/unitnet/genesisBlock";
 
 describe("Internal handlers - blocks", () => {
     describe("storeBlock", () => {
@@ -11,7 +13,7 @@ describe("Internal handlers - blocks", () => {
             const req = {
                 headers: { remoteAddress: "0.0.0.0" },
                 data: {
-                    block: genesisBlockJSON,
+                    block: Blocks.Block.fromData(genesisBlock).toJson(),
                 },
             };
 
