@@ -3,7 +3,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
 import Hapi from "hapi";
 import groupBy from "lodash.groupby";
-import median from "median";
+import math from "mathjs";
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {
@@ -67,31 +67,28 @@ export class NodeController extends Controller {
         }
     }
 
-    public async fees() {
+    public async fees(request: Hapi.Request) {
         try {
             const { transactionsBusinessRepository } = app.resolvePlugin<Database.IDatabaseService>("database");
 
-            const resultsByDays = {};
-            for (const days of [7, 14, 30]) {
-                resultsByDays[days] = [];
+            // @ts-ignore
+            const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);
 
-                const results = await transactionsBusinessRepository.getFeeStatistics(days);
+            const resultsByDays = [];
+            for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
+                const fees: number[] = transactions.map(transaction => +transaction.fee);
 
-                for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
-                    const fees: number[] = transactions.map(transaction => +transaction.fee);
-
-                    resultsByDays[days].push({
-                        type,
-                        min: Math.min(...fees),
-                        max: Math.max(...fees),
-                        sum: fees.reduce((a, b) => a + b, 0),
-                        avg: fees.reduce((a, b) => a + b, 0) / fees.length,
-                        median: median(fees),
-                    });
-                }
+                resultsByDays.push({
+                    type,
+                    min: math.min(fees),
+                    max: math.max(fees),
+                    sum: math.sum(fees),
+                    mean: math.mean(fees),
+                    median: math.median(fees),
+                });
             }
 
-            return { data: resultsByDays };
+            return { meta: { days: request.query.days }, data: resultsByDays };
         } catch (error) {
             return Boom.badImplementation(error);
         }

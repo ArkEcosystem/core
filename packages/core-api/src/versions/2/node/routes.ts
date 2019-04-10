@@ -1,5 +1,6 @@
 import Hapi from "hapi";
 import { NodeController } from "./controller";
+import * as Schema from "./schema";
 
 export function registerRoutes(server: Hapi.Server): void {
     const controller = new NodeController();
@@ -27,5 +28,8 @@ export function registerRoutes(server: Hapi.Server): void {
         method: "GET",
         path: "/node/fees",
         handler: controller.fees,
+        options: {
+            validate: Schema.fees,
+        },
     });
 }
