@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-interfaces",
-    "description": "Interface types for essential Ark core modules",
+    "description": "Interface types for essential ARK Core modules",
     "version": "2.3.0-next.5",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
