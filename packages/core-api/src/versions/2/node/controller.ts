@@ -1,7 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
+import { Stats } from "fast-stats";
 import Hapi from "hapi";
+import groupBy from "lodash.groupby";
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {
@@ -65,6 +67,30 @@ export class NodeController extends Controller {
                     },
                 },
             };
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
+    public async fees() {
+        try {
+            const { transactionsBusinessRepository } = app.resolvePlugin<Database.IDatabaseService>("database");
+
+            const results = await transactionsBusinessRepository.getFeeStatistics();
+
+            const resultsByType = [];
+            for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
+                const stats: Stats = new Stats().push(transactions.map(transaction => transaction.fee));
+
+                resultsByType.push({
+                    type,
+                    amean: stats.amean().toFixed(2),
+                    gmean: stats.gmean().toFixed(2),
+                    median: stats.median().toFixed(2),
+                });
+            }
+
+            return { data: resultsByType };
         } catch (error) {
             return Boom.badImplementation(error);
         }

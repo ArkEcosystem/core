@@ -22,4 +22,10 @@ export function registerRoutes(server: Hapi.Server): void {
         path: "/node/configuration",
         handler: controller.configuration,
     });
+
+    server.route({
+        method: "GET",
+        path: "/node/fees",
+        handler: controller.fees,
+    });
 }
