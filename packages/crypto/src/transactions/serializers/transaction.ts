@@ -15,7 +15,7 @@ export interface ISerializeOptions {
     excludeSecondSignature?: boolean;
 }
 
-// Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
+// Reference: https://github.com/ARKEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class TransactionSerializer {
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
         const version = transaction.version || 1;

@@ -1,7 +1,7 @@
-# Ark Core - GraphQL
+# ARK Core - GraphQL
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/ArkEcosystem/core/master/banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png?sanitize=true" />
 </p>
 
 ## Deprecated
@@ -24,4 +24,4 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## License
 
-[MIT](LICENSE) © [ArkEcosystem](https://ark.io)
+[MIT](LICENSE) © [ARK Ecosystem](https://ark.io)

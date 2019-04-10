@@ -299,9 +299,9 @@ describe("Blockchain", () => {
             const blockchainNetworkStart = new Blockchain({ networkStart: true });
 
             expect(loggerWarn).toHaveBeenCalledWith(
-                "Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
+                "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
-            expect(loggerInfo).toHaveBeenCalledWith("Starting Ark Core for a new world, welcome aboard");
+            expect(loggerInfo).toHaveBeenCalledWith("Starting ARK Core for a new world, welcome aboard");
         });
     });
 });

@@ -1,7 +1,7 @@
 {
     "private": true,
     "name": "core",
-    "description": "The packages that make up the Ark Core",
+    "description": "The packages that make up the ARK Core",
     "scripts": {
         "lerna": "./node_modules/lerna/cli.js",
         "setup": "yarn && yarn bootstrap && yarn build",

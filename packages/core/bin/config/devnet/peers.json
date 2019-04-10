@@ -21,5 +21,5 @@
             "port": 4002
         }
     ],
-    "sources": ["https://raw.githubusercontent.com/ArkEcosystem/peers/master/devnet.json"]
+    "sources": ["https://raw.githubusercontent.com/ARKEcosystem/peers/master/devnet.json"]
 }
