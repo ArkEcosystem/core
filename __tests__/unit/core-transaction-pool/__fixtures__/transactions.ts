@@ -7,7 +7,7 @@ export const transactions = {
         .withPassphrase(delegates[0].passphrase)
         .build()[0],
 
-    dummy2: TransactionFactory.transfer("DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8", 10000000)
+    dummy2: TransactionFactory.transfer("AJ5eV59hu4xrbRCpoP3of7fEYWUteSVa8k", 10000000)
         .withNetwork("unitnet")
         .withPassphrase(delegates[0].passphrase)
         .build()[0],
@@ -47,7 +47,7 @@ export const transactions = {
         .withPassphrase(delegates[0].passphrase)
         .build()[0],
 
-    dummy10: TransactionFactory.transfer("DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8")
+    dummy10: TransactionFactory.transfer("AJ5eV59hu4xrbRCpoP3of7fEYWUteSVa8k")
         .withNetwork("unitnet")
         .withPassphrase(delegates[1].passphrase)
         .build()[0],
@@ -57,7 +57,7 @@ export const transactions = {
         .withPassphrase(delegates[1].passphrase)
         .build()[0],
 
-    dummyLarge2: TransactionFactory.transfer("DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8")
+    dummyLarge2: TransactionFactory.transfer("AJ5eV59hu4xrbRCpoP3of7fEYWUteSVa8k")
         .withNetwork("unitnet")
         .withPassphrase(delegates[1].passphrase)
         .build()[0],
