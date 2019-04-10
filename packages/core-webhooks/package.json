@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-webhooks",
-    "description": "Webhooks for Ark Core",
+    "description": "Webhooks for ARK Core",
     "version": "2.3.0-next.5",
     "contributors": [
         "Brian Faust <brian@ark.io>"

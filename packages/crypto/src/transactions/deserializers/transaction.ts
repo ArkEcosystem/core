@@ -6,7 +6,7 @@ import { TransactionVersionError } from "../../errors";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
 
-// Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
+// Reference: https://github.com/ARKEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class TransactionDeserializer {
     public deserialize(serialized: string | Buffer): Transaction {
         const data = {} as ITransactionData;

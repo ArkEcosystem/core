@@ -33,7 +33,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 export const plugin = {
-    name: "Ark P2P API - Internal",
+    name: "ARK P2P API - Internal",
     version: "0.1.0",
     register,
 };

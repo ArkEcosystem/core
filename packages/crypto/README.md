@@ -1,4 +1,4 @@
-# Ark - Crypto
+# ARK - Crypto
 
 <p align="center">
     <img src="./banner.png?sanitize=true" />
@@ -18,4 +18,4 @@ This project exists thanks to all the people who [contribute](../../../../contri
 
 ## License
 
-[MIT](LICENSE) © [ArkEcosystem](https://ark.io)
+[MIT](LICENSE) © [ARK Ecosystem](https://ark.io)

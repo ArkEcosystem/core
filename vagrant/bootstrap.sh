@@ -199,11 +199,11 @@ fi
 
 success "Installed system updates!"
 
-heading "Installing Ark Core..."
+heading "Installing ARK Core..."
 
 cd /home/vagrant
-git clone https://github.com/ArkEcosystem/core.git ark-core -b develop
+git clone https://github.com/ARKEcosystem/core.git ark-core -b develop
 cd ark-core
 yarn setup
 
-success "Installed Ark Core!"
+success "Installed ARK Core!"
