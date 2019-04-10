@@ -70,7 +70,7 @@ describe("Forger Manager", () => {
             expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
                 expect.objectContaining({
                     height: round.lastBlock.height + 1,
-                    reward: round.reward,
+                    reward: round.reward.toFixed(),
                 }),
             );
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("block.forged", expect.any(Object));

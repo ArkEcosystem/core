@@ -193,9 +193,9 @@ describe("Block", () => {
             expect(actual.height).toBe(dummyBlock2.data.height);
             expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
             expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
-            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
-            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
-            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.totalAmount).toBe(dummyBlock2.data.totalAmount.toFixed());
+            expect(actual.totalFee).toBe(dummyBlock2.data.totalFee.toFixed());
+            expect(actual.reward).toBe(dummyBlock2.data.reward.toFixed());
             expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
             expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
             expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
@@ -212,9 +212,9 @@ describe("Block", () => {
             expect(actual.height).toBe(dummyBlock2.data.height);
             expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
             expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
-            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
-            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
-            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.totalAmount).toBe(dummyBlock2.data.totalAmount.toFixed());
+            expect(actual.totalFee).toBe(dummyBlock2.data.totalFee.toFixed());
+            expect(actual.reward).toBe(dummyBlock2.data.reward.toFixed());
             expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
             expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
             expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
