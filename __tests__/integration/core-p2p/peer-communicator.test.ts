@@ -174,7 +174,9 @@ describe("PeerCommunicator", () => {
 
             const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 
-            expect(commonBlocks).toEqual(genesisBlock);
+            expect(commonBlocks.id).toBe(genesisBlock.id);
+            expect(commonBlocks.height).toBe(genesisBlock.height);
+            expect(commonBlocks.transactions).toHaveLength(255);
         });
     });
 });
