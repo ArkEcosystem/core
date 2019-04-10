@@ -82,8 +82,8 @@ export class NodeController extends Controller {
                     type,
                     min: math.min(fees),
                     max: math.max(fees),
+                    avg: math.mean(fees),
                     sum: math.sum(fees),
-                    mean: math.mean(fees),
                     median: math.median(fees),
                 });
             }
