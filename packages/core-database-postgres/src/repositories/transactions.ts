@@ -92,7 +92,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     ),
                 ),
             )
-            // .and(this.query.fee.gte(minFeeBroadcast))
+            .and(this.query.fee.gte(minFeeBroadcast))
             .order('"timestamp" DESC');
 
         return this.findMany(query);
