@@ -8,8 +8,11 @@ function encodeBlock(block) {
 
 function decodeBlock(buffer) {
     const block = Blocks.Block.deserialize(buffer.toString("hex"), true);
+    // @ts-ignore
     block.totalAmount = (block.totalAmount as Utils.Bignum).toFixed();
+    // @ts-ignore
     block.totalFee = (block.totalFee as Utils.Bignum).toFixed();
+    // @ts-ignore
     block.reward = (block.reward as Utils.Bignum).toFixed();
 
     return decamelizeKeys(block);

@@ -1,3 +1,4 @@
+import { bignumify } from "@arkecosystem/core-utils";
 import { Blocks, Managers } from "@arkecosystem/crypto";
 
 Managers.configManager.setFromPreset("unitnet");
@@ -9,9 +10,9 @@ export const sampleBlock = Blocks.Block.fromData({
     height: 3342573,
     previousBlock: "14909996519459393858",
     numberOfTransactions: 0,
-    totalAmount: 0,
-    totalFee: 0,
-    reward: 200000000,
+    totalAmount: bignumify(0),
+    totalFee: bignumify(0),
+    reward: bignumify(200000000),
     payloadLength: 0,
     payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     generatorPublicKey: "03806036bc1bb470144184b10f815431c580ae2b806d5fd0ba2118dca823c5c4a6",

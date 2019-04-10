@@ -6,7 +6,7 @@ import camelCase from "lodash.camelcase";
 /**
  * Calculate minimum fee of a transaction for entering the pool.
  */
-export function calculateFee(satoshiPerByte: number, transaction: Transactions.Transaction): number {
+export function calculateFee(satoshiPerByte: number, transaction: Transactions.Transaction): Utils.Bignum {
     if (satoshiPerByte <= 0) {
         satoshiPerByte = 1;
     }
@@ -23,7 +23,7 @@ export function calculateFee(satoshiPerByte: number, transaction: Transactions.T
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2;
 
-    return (addonBytes + transactionSizeInBytes) * satoshiPerByte;
+    return new Utils.Bignum(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
 }
 
 /**
@@ -35,8 +35,8 @@ export function calculateFee(satoshiPerByte: number, transaction: Transactions.T
 export function dynamicFeeMatcher(transaction: Transactions.Transaction): { broadcast: boolean; enterPool: boolean } {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    const fee = +(transaction.data.fee as Utils.Bignum).toFixed();
-    const id = transaction.id;
+    const fee: Utils.Bignum = transaction.data.fee;
+    const id: string = transaction.id;
 
     const { dynamicFees } = app.resolveOptions("transaction-pool");
 
@@ -46,15 +46,17 @@ export function dynamicFeeMatcher(transaction: Transactions.Transaction): { broa
     if (dynamicFees.enabled) {
         const minFeeBroadcast = calculateFee(dynamicFees.minFeeBroadcast, transaction);
 
-        if (fee >= minFeeBroadcast) {
+        if (fee.isGreaterThanOrEqualTo(minFeeBroadcast)) {
             broadcast = true;
+
             logger.debug(
                 `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee === minFeeBroadcast ? "equal to" : "greater than"
+                    fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
             );
         } else {
             broadcast = false;
+
             logger.debug(
                 `Transaction ${id} not eligible for broadcast - fee of ${Utils.formatSatoshi(
                     fee,
@@ -62,16 +64,19 @@ export function dynamicFeeMatcher(transaction: Transactions.Transaction): { broa
             );
         }
 
-        const minFeePool = calculateFee(dynamicFees.minFeePool, transaction);
-        if (fee >= minFeePool) {
+        const minFeePool: Utils.Bignum = calculateFee(dynamicFees.minFeePool, transaction);
+
+        if (fee.isGreaterThanOrEqualTo(minFeePool)) {
             enterPool = true;
+
             logger.debug(
                 `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee === minFeePool ? "equal to" : "greater than"
+                    fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
             );
         } else {
             enterPool = false;
+
             logger.debug(
                 `Transaction ${id} not eligible to enter pool - fee of ${Utils.formatSatoshi(
                     fee,
@@ -80,11 +85,12 @@ export function dynamicFeeMatcher(transaction: Transactions.Transaction): { broa
         }
     } else {
         // Static fees
-        const staticFee = Managers.feeManager.getForTransaction(transaction.data);
+        const staticFee: Utils.Bignum = Managers.feeManager.getForTransaction(transaction.data);
 
-        if (fee === staticFee) {
+        if (fee.isEqualTo(staticFee)) {
             broadcast = true;
             enterPool = true;
+
             logger.debug(
                 `Transaction ${id} eligible for broadcast and to enter pool - fee of ${Utils.formatSatoshi(
                     fee,
@@ -93,6 +99,7 @@ export function dynamicFeeMatcher(transaction: Transactions.Transaction): { broa
         } else {
             broadcast = false;
             enterPool = false;
+
             logger.debug(
                 `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${Utils.formatSatoshi(
                     fee,

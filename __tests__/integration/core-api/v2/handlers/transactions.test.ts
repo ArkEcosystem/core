@@ -4,7 +4,7 @@ import { utils } from "../utils";
 
 import { Crypto } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../../helpers/transaction-factory";
-import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
 import { generateWallets } from "../../../../utils/generators/wallets";
 
@@ -50,10 +50,10 @@ beforeAll(async () => {
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
     timestampTo = timestamp;
-    amount = genesisTransaction.amount;
+    amount = +genesisTransaction.amount.toFixed();
     amountFrom = amount;
     amountTo = amount;
-    fee = genesisTransaction.fee;
+    fee = +genesisTransaction.fee.toFixed();
     feeFrom = fee;
     feeTo = fee;
 });

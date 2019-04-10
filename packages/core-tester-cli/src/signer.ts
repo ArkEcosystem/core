@@ -74,8 +74,6 @@ export class Signer {
     }
 
     private toSatoshi(value) {
-        return bignumify(value)
-            .times(1e8)
-            .toFixed();
+        return bignumify(value).times(1e8);
     }
 }

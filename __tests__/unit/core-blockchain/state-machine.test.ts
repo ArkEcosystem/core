@@ -5,7 +5,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
-import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 import { blockchain } from "./mocks/blockchain";
 import { config } from "./mocks/config";
 import { container } from "./mocks/container";
@@ -167,7 +167,7 @@ describe("State Machine", () => {
 
             beforeEach(() => {
                 const config = container.app.getConfig();
-                jest.spyOn(config, "get").mockImplementation(key => (key === "genesisBlock" ? genesisBlockJSON : ""));
+                jest.spyOn(config, "get").mockImplementation(key => (key === "genesisBlock" ? genesisBlock : ""));
 
                 loggerInfo = jest.spyOn(logger, "info");
                 loggerError = jest.spyOn(logger, "error");
@@ -176,7 +176,7 @@ describe("State Machine", () => {
                 databaseMocks = {
                     getLastBlock: jest
                         .spyOn(blockchain.database, "getLastBlock")
-                        .mockReturnValue(Block.fromData(genesisBlockJSON)),
+                        .mockReturnValue(Block.fromData(genesisBlock)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
@@ -314,7 +314,7 @@ describe("State Machine", () => {
             });
 
             beforeEach(() => {
-                stateStorage.lastDownloadedBlock = Block.fromData(genesisBlockJSON);
+                stateStorage.lastDownloadedBlock = Block.fromData(genesisBlock);
             });
 
             afterEach(() => jest.resetAllMocks());
@@ -330,9 +330,9 @@ describe("State Machine", () => {
                 jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([
                     {
                         numberOfTransactions: 2,
-                        previousBlock: genesisBlockJSON.id,
+                        previousBlock: genesisBlock.id,
                         height: 2,
-                        timestamp: genesisBlockJSON.timestamp + 115,
+                        timestamp: genesisBlock.timestamp + 115,
                     },
                 ]);
                 // @ts-ignore
@@ -350,9 +350,9 @@ describe("State Machine", () => {
             it("should dispatch NOBLOCK if new blocks downloaded are not chained", async () => {
                 const downloadedBlock = {
                     numberOfTransactions: 2,
-                    previousBlock: genesisBlockJSON.id,
+                    previousBlock: genesisBlock.id,
                     height: 3,
-                    timestamp: genesisBlockJSON.timestamp + 115,
+                    timestamp: genesisBlock.timestamp + 115,
                 };
                 jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([downloadedBlock]);
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");

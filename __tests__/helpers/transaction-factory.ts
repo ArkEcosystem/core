@@ -1,5 +1,7 @@
 import { Identities, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto/src";
 import pokemon from "pokemon";
+import { bignumify } from "../../packages/core-utils/src";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -12,7 +14,7 @@ interface PassphrasePair {
 export class TransactionFactory {
     public static transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
         const builder = Transactions.BuilderFactory.transfer()
-            .amount(amount)
+            .amount(bignumify(amount))
             .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
 
         if (vendorField) {
@@ -50,7 +52,7 @@ export class TransactionFactory {
 
     private builder: any;
     private network: Types.NetworkName = "testnet";
-    private fee: number;
+    private fee: Utils.Bignum;
     private milestone: Record<string, any>;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
@@ -62,7 +64,7 @@ export class TransactionFactory {
     }
 
     public withFee(fee: number): TransactionFactory {
-        this.fee = fee;
+        this.fee = bignumify(fee);
 
         return this;
     }

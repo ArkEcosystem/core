@@ -2,6 +2,7 @@ import "../mocks/";
 import { blockchain } from "../mocks/blockchain";
 import { database } from "../mocks/database";
 
+import { bignumify } from "@arkecosystem/core-utils";
 import { Blocks, Managers } from "@arkecosystem/crypto";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
 import * as handlers from "../../../../packages/core-blockchain/src/processor/handlers";
@@ -12,7 +13,7 @@ import {
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import "../../../utils";
 import { fixtures } from "../../../utils";
-import genesisBlockTestnet from "../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 
 const { Block } = Blocks;
 const { delegates } = fixtures;
@@ -29,14 +30,14 @@ describe("Block processor", () => {
         version: 0,
         timestamp: 46583330,
         height: 2,
-        reward: 0,
-        previousBlock: genesisBlockTestnet.id,
+        reward: bignumify(0),
+        previousBlock: genesisBlock.id,
         numberOfTransactions: 1,
         transactions: [],
-        totalAmount: 0,
-        totalFee: 0,
+        totalAmount: bignumify(0),
+        totalFee: bignumify(0),
         payloadLength: 0,
-        payloadHash: genesisBlockTestnet.payloadHash,
+        payloadHash: genesisBlock.payloadHash,
         generatorPublicKey: delegates[0].publicKey,
         blockSignature:
             "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",

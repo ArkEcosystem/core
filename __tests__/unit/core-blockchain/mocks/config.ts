@@ -1,4 +1,4 @@
-import genesisBlock from "../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 
 export const config = {
     "network.nethash": genesisBlock.payloadHash,

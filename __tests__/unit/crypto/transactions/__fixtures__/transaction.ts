@@ -1,4 +1,4 @@
-import { Bignum } from "../../../../../packages/crypto/src/utils";
+import { bignumify } from "@arkecosystem/core-utils";
 
 export const transaction = {
     version: 1,
@@ -6,8 +6,8 @@ export const transaction = {
     blockid: "11233167632577333611",
     type: 0,
     timestamp: 36482198,
-    amount: new Bignum(100000000),
-    fee: new Bignum(10000000),
+    amount: bignumify(100000000),
+    fee: bignumify(10000000),
     senderId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
     recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
     senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",

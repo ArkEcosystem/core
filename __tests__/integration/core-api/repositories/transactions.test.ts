@@ -4,7 +4,7 @@ import "../../../utils";
 import { Crypto } from "@arkecosystem/crypto";
 // noinspection TypeScriptPreferShortImport
 import { TransactionsRepository } from "../../../../packages/core-api/src/repositories/transactions";
-import genesisBlock from "../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "../__support__/setup";
 
 const { crypto } = Crypto;
@@ -315,8 +315,8 @@ describe("Transaction Repository", () => {
             await expectSearch(
                 {
                     amount: {
-                        from: genesisTransaction.amount,
-                        to: genesisTransaction.amount,
+                        from: genesisTransaction.amount.toFixed(),
+                        to: genesisTransaction.amount.toFixed(),
                     },
                 },
                 50,
@@ -327,8 +327,8 @@ describe("Transaction Repository", () => {
             await expectSearch(
                 {
                     fee: {
-                        from: genesisTransaction.fee,
-                        to: genesisTransaction.fee,
+                        from: genesisTransaction.fee.toFixed(),
+                        to: genesisTransaction.fee.toFixed(),
                     },
                 },
                 153,

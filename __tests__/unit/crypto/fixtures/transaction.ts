@@ -1,10 +1,12 @@
+import { bignumify } from "@arkecosystem/core-utils";
+
 export const transaction = {
     id: "0db225779a7da86bdeaf3a24494fcf3cae7bfe74451fdc3bcb866f62319badeb",
     timestamp: 60093626,
     version: 1,
     type: 0,
-    fee: 10000000,
-    amount: 1000,
+    fee: bignumify(10000000),
+    amount: bignumify(1000),
     expiration: 0,
     network: 30,
     recipientId: "DJLxkgm7JMortrGVh1ZrvDH39XALWLa83e",
