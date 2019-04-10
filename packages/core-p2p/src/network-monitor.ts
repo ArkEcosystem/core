@@ -46,11 +46,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.coldStartPeriod = dato().addSeconds(app.resolveOptions("p2p").coldStart);
     }
 
-    public getServer(): any {
+    public getServer(): SocketCluster {
         return this.server;
     }
 
-    public setServer(server: any): void {
+    public setServer(server: SocketCluster): void {
         this.server = server;
     }
 
@@ -278,10 +278,13 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             );
 
             if (peersFiltered.length === 0) {
-                throw new Error(
-                    `Failed to pick a random peer from our list of ${peersAll.length} peers: ` +
-                        `all are either banned or on a different chain than us`,
+                this.logger.error(
+                    `Could not download blocks: Failed to pick a random peer from our list of ${
+                        peersAll.length
+                    } peers: all are either banned or on a different chain than us`,
                 );
+
+                return [];
             }
 
             return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
