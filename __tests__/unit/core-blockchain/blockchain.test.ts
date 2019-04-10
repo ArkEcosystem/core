@@ -7,6 +7,7 @@ import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import "../../utils";
+import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { config } from "./mocks/config";
@@ -24,7 +25,7 @@ describe("Blockchain", () => {
     beforeAll(async () => {
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = Block.fromData(require("../../utils/config/testnet/genesisBlock.json"));
+        genesisBlock = Block.fromData(GB);
 
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.

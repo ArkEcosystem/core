@@ -3,14 +3,13 @@ import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
 import { Blocks } from "@arkecosystem/crypto";
-import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { blocks2to100 } from "../../../../utils/fixtures";
 import { resetBlockchain } from "../../../../utils/helpers";
 
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 
-const container = app;
 const { Block } = Blocks;
 
 beforeAll(async () => {
@@ -167,7 +166,7 @@ describe("API 2.0 - Blocks", () => {
                 it("should POST a search for blocks with the exact specified previousBlock", async () => {
                     // save a new block so that we can make the request with previousBlock
                     const block2 = Block.fromData(blocks2to100[0]);
-                    const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
+                    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
                     await databaseService.saveBlock(block2);
 
                     const response = await utils[request]("POST", "blocks/search", {
@@ -429,7 +428,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.fee).toBe(genesisBlock.totalFee);
+                    expect(+block.forged.fee).toBe(+genesisBlock.totalFee.toFixed());
                 });
             },
         );
@@ -450,7 +449,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.fee).toBe(genesisBlock.totalFee);
+                    expect(+block.forged.fee).toBe(+genesisBlock.totalFee.toFixed());
                 });
             },
         );
@@ -474,7 +473,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.reward).toBe(genesisBlock.reward);
+                    expect(+block.forged.reward).toBe(+genesisBlock.reward.toFixed());
                 });
             },
         );
@@ -498,7 +497,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.reward).toBe(genesisBlock.reward);
+                    expect(+block.forged.reward).toBe(+genesisBlock.reward.toFixed());
                 });
             },
         );

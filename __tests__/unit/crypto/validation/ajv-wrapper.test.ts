@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import ajv = require("ajv");
+import ajv from "ajv";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { TransactionRegistry } from "../../../../packages/crypto/src/transactions/index";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";

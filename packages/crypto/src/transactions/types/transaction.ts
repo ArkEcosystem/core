@@ -127,9 +127,9 @@ export abstract class Transaction {
     }
 
     public toJson() {
-        const data = Object.assign({}, this.data);
-        data.amount = +(data.amount as Bignum).toFixed();
-        data.fee = +(data.fee as Bignum).toFixed();
+        const data = JSON.parse(JSON.stringify(this.data));
+        data.amount = this.data.amount.toFixed();
+        data.fee = this.data.fee.toFixed();
 
         if (data.vendorFieldHex === null) {
             delete data.vendorFieldHex;

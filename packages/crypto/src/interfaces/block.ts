@@ -20,9 +20,9 @@ export interface IBlockData {
     previousBlockHex?: string;
     previousBlock: string;
     numberOfTransactions: number;
-    totalAmount: Bignum | number | string;
-    totalFee: Bignum | number | string;
-    reward: Bignum | number | string;
+    totalAmount: Bignum;
+    totalFee: Bignum;
+    reward: Bignum;
     payloadLength: number;
     payloadHash: string;
     generatorPublicKey: string;

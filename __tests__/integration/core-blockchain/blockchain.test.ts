@@ -2,13 +2,11 @@ import "../../utils";
 
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
-import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { asValue } from "awilix";
+import { bignumify } from "@arkecosystem/core-utils";
+import { Blocks, Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
-import { defaults } from "../../../packages/core-blockchain/src/defaults";
-import { plugin } from "../../../packages/core-blockchain/src/plugin";
-import genesisBlockJSON from "../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
@@ -29,7 +27,7 @@ describe("Blockchain", () => {
 
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = Block.fromData(genesisBlockJSON);
+        genesisBlock = Blocks.Block.fromData(GB);
 
         configManager = container.getConfig();
 
@@ -192,7 +190,7 @@ describe("Blockchain", () => {
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
             const transfer = Transactions.BuilderFactory.transfer()
                 .recipientId(recipient)
-                .amount(125)
+                .amount("125")
                 .sign(forgerKeys.passphrase)
                 .getStruct();
 
@@ -209,7 +207,7 @@ describe("Blockchain", () => {
 
             // Now vote with newly created wallet for previous forger.
             const vote = Transactions.BuilderFactory.vote()
-                .fee(1)
+                .fee("1")
                 .votesAsset([`+${forgerKeys.publicKey}`])
                 .sign("secret")
                 .getStruct();
@@ -230,7 +228,7 @@ describe("Blockchain", () => {
 
             // Now unvote again
             const unvote = Transactions.BuilderFactory.vote()
-                .fee(1)
+                .fee("1")
                 .votesAsset([`-${forgerKeys.publicKey}`])
                 .sign("secret")
                 .getStruct();

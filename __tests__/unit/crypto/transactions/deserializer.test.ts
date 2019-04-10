@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { bignumify } from "@arkecosystem/core-utils";
 import ByteBuffer from "bytebuffer";
 import { client } from "../../../../packages/crypto/src/client";
 import {
@@ -26,8 +27,8 @@ describe("Transaction serializer / deserializer", () => {
             .getBuilder()
             .transfer()
             .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-            .amount(10000)
-            .fee(50000000)
+            .amount("10000")
+            .fee("50000000")
             .vendorField("yo")
             .version(1)
             .network(30)
@@ -65,8 +66,8 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(10000)
-                .fee(50000000)
+                .amount("10000")
+                .fee("50000000")
                 .vendorField("y".repeat(255))
                 .version(1)
                 .network(30)
@@ -89,8 +90,8 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(10000)
-                .fee(50000000)
+                .amount("10000")
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .sign("dummy passphrase")
@@ -110,7 +111,7 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .secondSignature()
                 .signatureAsset("signature")
-                .fee(50000000)
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .sign("dummy passphrase")
@@ -151,7 +152,7 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .vote()
                 .votesAsset(["+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9"])
-                .fee(50000000)
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .sign("dummy passphrase")
@@ -214,7 +215,7 @@ describe("Transaction serializer / deserializer", () => {
             const ipfs = client
                 .getBuilder()
                 .ipfs()
-                .fee(50000000)
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .dag("da304502")
@@ -236,8 +237,8 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .timelockTransfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(10000)
-                .fee(50000000)
+                .amount("10000")
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .timelock(12, 0x00)
@@ -260,7 +261,7 @@ describe("Transaction serializer / deserializer", () => {
             const multiPayment = client
                 .getBuilder()
                 .multiPayment()
-                .fee(50000000)
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
@@ -282,7 +283,7 @@ describe("Transaction serializer / deserializer", () => {
             const delegateResignation = client
                 .getBuilder()
                 .delegateResignation()
-                .fee(50000000)
+                .fee("50000000")
                 .version(1)
                 .network(30)
                 .sign("dummy passphrase")
@@ -315,8 +316,8 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(10000)
-                .fee(50000000)
+                .amount("10000")
+                .fee("50000000")
                 .vendorField("yo")
                 .version(1)
                 .network(30)
@@ -335,8 +336,8 @@ describe("Transaction serializer / deserializer", () => {
                 .getBuilder()
                 .transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(10000)
-                .fee(50000000)
+                .amount("10000")
+                .fee("50000000")
                 .vendorField("yo")
                 .version(1)
                 .network(30)
@@ -371,8 +372,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should return Buffer of simply transaction and buffer must be 202 length", () => {
             const transaction = {
                 type: 0,
-                amount: 1000,
-                fee: 2000,
+                amount: bignumify(1000),
+                fee: bignumify(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},
@@ -412,8 +413,8 @@ describe("Transaction serializer / deserializer", () => {
             const transaction = {
                 version: 1,
                 type: 0,
-                amount: 1000,
-                fee: 2000,
+                amount: bignumify(1000),
+                fee: bignumify(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},
@@ -437,8 +438,8 @@ describe("Transaction serializer / deserializer", () => {
             const transaction = {
                 version: 110,
                 type: 0,
-                amount: 1000,
-                fee: 2000,
+                amount: bignumify(1000),
+                fee: bignumify(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},

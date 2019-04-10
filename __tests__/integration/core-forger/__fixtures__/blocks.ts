@@ -1,3 +1,4 @@
+import { bignumify } from "@arkecosystem/core-utils";
 import { Blocks } from "@arkecosystem/crypto";
 
 export const sampleBlocks = [
@@ -8,9 +9,9 @@ export const sampleBlocks = [
         height: 1760011,
         previousBlock: "1111111111111111111",
         numberOfTransactions: 0,
-        totalAmount: 0,
-        totalFee: 0,
-        reward: 200000000,
+        totalAmount: bignumify(0),
+        totalFee: bignumify(0),
+        reward: bignumify(200000000),
         payloadLength: 0,
         payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
@@ -25,9 +26,9 @@ export const sampleBlocks = [
         height: 1000000001,
         previousBlock: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         numberOfTransactions: 0,
-        totalAmount: 0,
-        totalFee: 0,
-        reward: 200000000,
+        totalAmount: bignumify(0),
+        totalFee: bignumify(0),
+        reward: bignumify(200000000),
         payloadLength: 0,
         payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",

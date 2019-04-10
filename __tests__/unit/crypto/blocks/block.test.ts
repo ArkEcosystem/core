@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { bignumify } from "@arkecosystem/core-utils";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block } from "../../../../packages/crypto/src/blocks";
@@ -8,7 +9,6 @@ import { IBlockData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { NetworkName } from "../../../../packages/crypto/src/types";
-import { Bignum } from "../../../../packages/crypto/src/utils";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
@@ -18,9 +18,9 @@ function expectBlock({ data }: { data: IBlockData }) {
     delete data.idHex;
 
     const blockWithoutTransactions: IBlockData = { ...dummyBlock };
-    blockWithoutTransactions.reward = new Bignum(blockWithoutTransactions.reward);
-    blockWithoutTransactions.totalAmount = new Bignum(blockWithoutTransactions.totalAmount);
-    blockWithoutTransactions.totalFee = new Bignum(blockWithoutTransactions.totalFee);
+    blockWithoutTransactions.reward = bignumify(blockWithoutTransactions.reward);
+    blockWithoutTransactions.totalAmount = bignumify(blockWithoutTransactions.totalAmount);
+    blockWithoutTransactions.totalFee = bignumify(blockWithoutTransactions.totalFee);
     delete blockWithoutTransactions.transactions;
 
     expect(data).toEqual(blockWithoutTransactions);
@@ -37,10 +37,10 @@ describe("Block", () => {
         payloadHash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
         payloadLength: 1,
         previousBlock: "12123",
-        reward: 1,
         timestamp: 111150,
-        totalAmount: 10,
-        totalFee: 1,
+        reward: bignumify(1),
+        totalAmount: bignumify(10),
+        totalFee: bignumify(1),
         transactions: [],
         version: 6,
     };
@@ -66,9 +66,9 @@ describe("Block", () => {
             expect(block.data.height).toBe(dummyBlock.height);
             expect(block.data.numberOfTransactions).toBe(dummyBlock.numberOfTransactions);
             expect(block.data.payloadLength).toBe(dummyBlock.payloadLength);
-            expect((block.data.reward as Bignum).toFixed()).toBe(dummyBlock.reward);
+            expect(block.data.reward).toEqual(dummyBlock.reward);
             expect(block.data.timestamp).toBe(dummyBlock.timestamp);
-            expect((block.data.totalFee as Bignum).toFixed()).toBe(dummyBlock.totalFee);
+            expect(block.data.totalFee).toEqual(dummyBlock.totalFee);
             expect(block.data.version).toBe(dummyBlock.version);
         });
 
@@ -114,7 +114,7 @@ describe("Block", () => {
                     idHex: "11111111",
                     height: 2,
                 },
-                reward: new Bignum(0),
+                reward: bignumify(0),
             };
             const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
@@ -138,7 +138,7 @@ describe("Block", () => {
                     idHex: "11111111",
                     height: 2,
                 },
-                reward: new Bignum(0),
+                reward: bignumify(0),
             };
             const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
@@ -193,9 +193,9 @@ describe("Block", () => {
             expect(actual.height).toBe(dummyBlock2.data.height);
             expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
             expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
-            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
-            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
-            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.totalAmount).toBe(dummyBlock2.data.totalAmount.toFixed());
+            expect(actual.totalFee).toBe(dummyBlock2.data.totalFee.toFixed());
+            expect(actual.reward).toBe(dummyBlock2.data.reward.toFixed());
             expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
             expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
             expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
@@ -212,9 +212,9 @@ describe("Block", () => {
             expect(actual.height).toBe(dummyBlock2.data.height);
             expect(actual.previousBlock).toBe(dummyBlock2.data.previousBlock);
             expect(actual.numberOfTransactions).toBe(dummyBlock2.data.numberOfTransactions);
-            expect(actual.totalAmount).toBe(+dummyBlock2.data.totalAmount);
-            expect(actual.totalFee).toBe(+dummyBlock2.data.totalFee);
-            expect(actual.reward).toBe(+dummyBlock2.data.reward);
+            expect(actual.totalAmount).toBe(dummyBlock2.data.totalAmount.toFixed());
+            expect(actual.totalFee).toBe(dummyBlock2.data.totalFee.toFixed());
+            expect(actual.reward).toBe(dummyBlock2.data.reward.toFixed());
             expect(actual.payloadLength).toBe(dummyBlock2.data.payloadLength);
             expect(actual.payloadHash).toBe(dummyBlock2.data.payloadHash);
             expect(actual.generatorPublicKey).toBe(dummyBlock2.data.generatorPublicKey);
@@ -235,7 +235,7 @@ describe("Block", () => {
             Object.keys(data).forEach(key => {
                 if (key !== "transactions") {
                     if (bignumProperties.includes(key)) {
-                        expect(header[key]).toEqual(new Bignum(data2[key]));
+                        expect(header[key]).toEqual(bignumify(data2[key]));
                     } else {
                         expect(header[key]).toEqual(data2[key]);
                     }
@@ -412,9 +412,9 @@ describe("Block", () => {
             previousBlockHex: "63b315f3663e4299",
             previousBlock: "7184109965722665625",
             numberOfTransactions: 2,
-            totalAmount: 0,
-            totalFee: 600000000,
-            reward: 200000000,
+            totalAmount: bignumify(0),
+            totalFee: bignumify(600000000),
+            reward: bignumify(200000000),
             payloadLength: 64,
             payloadHash: "c2fa2d400b4c823873d476f6e0c9e423cf925e9b48f1b5706c7e2771d4095538",
             generatorPublicKey: "02fa6902e91e127d6d3410f6abc271a79ae24029079caa0db5819757e3c1c1c5a4",
@@ -427,8 +427,8 @@ describe("Block", () => {
                     network: 0x17,
                     timestamp: 25028325,
                     senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
-                    fee: 100000000,
-                    amount: 0,
+                    fee: bignumify(100000000),
+                    amount: bignumify(0),
                     asset: {
                         votes: ["+020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92"],
                     },
@@ -442,8 +442,8 @@ describe("Block", () => {
                     network: 0x17,
                     type: 1,
                     timestamp: 25028279,
-                    fee: 500000000,
-                    amount: 0,
+                    fee: bignumify(500000000),
+                    amount: bignumify(0),
                     senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
                     signature:
                         "3044022071f4f5281ba7be76e43df4ea9e74f820da761e1f9f3b168b3a6e42c55ccf343a02203629d94845709e31be20943e2cd26637f0d8ccfb4a59764d45c161a942def069",
@@ -521,10 +521,10 @@ describe("Block", () => {
                     payloadHash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
                     payloadLength: 1,
                     previousBlock: "12123",
-                    reward: 1,
                     timestamp: 111150,
-                    totalAmount: 10,
-                    totalFee: 1,
+                    reward: bignumify(1),
+                    totalAmount: bignumify(10),
+                    totalFee: bignumify(1),
                     transactions: [],
                     version: 6,
                 };
@@ -543,10 +543,10 @@ describe("Block", () => {
                     payloadHash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
                     payloadLength: 1,
                     previousBlock: "12123",
-                    reward: 1,
                     timestamp: 111150,
-                    totalAmount: 10,
-                    totalFee: 1,
+                    reward: bignumify(1),
+                    totalAmount: bignumify(10),
+                    totalFee: bignumify(1),
                     transactions: [],
                     version: 6,
                 };

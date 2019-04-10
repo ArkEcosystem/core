@@ -1,20 +1,13 @@
-import BigNumber from "bignumber.js";
-import { SATOSHI } from "./constants";
-import { IBlockData } from "./interfaces";
-import { ITransactionData } from "./interfaces";
-import { configManager } from "./managers";
-
-class Bignum extends BigNumber {
-    public static readonly ZERO = new BigNumber(0);
-    public static readonly ONE = new BigNumber(1);
-}
-
-Bignum.config({ DECIMAL_PLACES: 0 });
+import { SATOSHI } from "../constants";
+import { IBlockData } from "../interfaces";
+import { ITransactionData } from "../interfaces";
+import { configManager } from "../managers";
+import { Bignum } from "./bignum";
 
 /**
  * Get human readable string from satoshis
  */
-export function formatSatoshi(amount: Bignum | number | string): string {
+export function formatSatoshi(amount: Bignum): string {
     const localeString = (+amount / SATOSHI).toLocaleString("en", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,

@@ -179,13 +179,13 @@ export class Block implements IBlock {
     }
 
     public toJson(): IBlockData {
-        const blockData = Object.assign({}, this.data) as IBlockData;
-        ["reward", "totalAmount", "totalFee"].forEach((key: string) => {
-            blockData[key] = +(blockData[key] as Bignum).toFixed();
-        });
+        const data = JSON.parse(JSON.stringify(this.data));
+        data.reward = this.data.reward.toFixed();
+        data.totalAmount = this.data.totalAmount.toFixed();
+        data.totalFee = this.data.totalFee.toFixed();
+        data.transactions = this.transactions.map(transaction => transaction.toJson());
 
-        blockData.transactions = this.transactions.map(transaction => transaction.toJson());
-        return blockData;
+        return data;
     }
 
     /**

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { Blocks } from "@arkecosystem/crypto";
-import genesisBlock from "../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "./__support__/setup";
 
 const { Block } = Blocks;

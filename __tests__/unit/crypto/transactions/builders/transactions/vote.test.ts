@@ -1,4 +1,5 @@
 import "jest-extended";
+import { bignumify } from "../../../../../../packages/core-utils/src";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
@@ -39,7 +40,7 @@ describe("Vote Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Vote);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Vote));
-        expect(builder).toHaveProperty("data.amount", 0);
+        expect(builder).toHaveProperty("data.amount", bignumify(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.asset");

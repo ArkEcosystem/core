@@ -1,4 +1,6 @@
 import "jest-extended";
+
+import { bignumify } from "@arkecosystem/core-utils";
 import { crypto } from "../../../../packages/crypto/src/crypto/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
@@ -15,8 +17,8 @@ describe("crypto.ts", () => {
         const transaction = {
             version: 1,
             type: 0,
-            amount: 1000,
-            fee: 2000,
+            amount: bignumify(1000),
+            fee: bignumify(2000),
             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
             timestamp: 141738,
             asset: {},
@@ -42,8 +44,8 @@ describe("crypto.ts", () => {
     describe("getId", () => {
         const transaction = {
             type: 0,
-            amount: 1000,
-            fee: 2000,
+            amount: bignumify(1000),
+            fee: bignumify(2000),
             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
             timestamp: 141738,
             asset: {},
@@ -67,9 +69,7 @@ describe("crypto.ts", () => {
 
     describe("getFee", () => {
         it("should return 10000000", () => {
-            const fee = crypto.getFee({ type: TransactionTypes.Transfer } as ITransactionData);
-            expect(fee).toBeNumber();
-            expect(fee).toBe(10000000);
+            expect(crypto.getFee({ type: TransactionTypes.Transfer } as ITransactionData)).toEqual(bignumify(10000000));
         });
     });
 
@@ -77,8 +77,8 @@ describe("crypto.ts", () => {
         const keys = crypto.getKeys("secret");
         const transaction = {
             type: 0,
-            amount: 1000,
-            fee: 2000,
+            amount: bignumify(1000),
+            fee: bignumify(2000),
             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
             timestamp: 141738,
             asset: {},
@@ -104,8 +104,8 @@ describe("crypto.ts", () => {
         const keys = crypto.getKeys("secret");
         const transaction: any = {
             type: 0,
-            amount: 1000,
-            fee: 2000,
+            amount: bignumify(1000),
+            fee: bignumify(2000),
             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
             timestamp: 141738,
             asset: {},
@@ -136,8 +136,8 @@ describe("crypto.ts", () => {
         const keys2 = crypto.getKeys("secret too");
         const transaction: any = {
             type: 0,
-            amount: 1000,
-            fee: 2000,
+            amount: bignumify(1000),
+            fee: bignumify(2000),
             recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
             timestamp: 141738,
             asset: {},

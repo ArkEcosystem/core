@@ -1,4 +1,6 @@
 import "jest-extended";
+
+import { bignumify } from "@arkecosystem/core-utils";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
@@ -17,7 +19,7 @@ describe("Transfer Transaction", () => {
         it("should be valid with a signature", () => {
             const actual = builder
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(1)
+                .amount("1")
                 .vendorField("dummy")
                 .sign("dummy passphrase");
 
@@ -28,7 +30,7 @@ describe("Transfer Transaction", () => {
         it("should be valid with a second signature", () => {
             const actual = builder
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount(1)
+                .amount("1")
                 .vendorField("dummy")
                 .sign("dummy passphrase")
                 .secondSign("dummy passphrase");
@@ -46,8 +48,8 @@ describe("Transfer Transaction", () => {
             const wif = crypto.keysToWIF(keys, { wif: 170 });
 
             const wifTransaction = builder
-                .amount(10)
-                .fee(10)
+                .amount("10")
+                .fee("10")
                 .network(network);
 
             const passphraseTransaction = client.getBuilder().transfer();
@@ -69,8 +71,8 @@ describe("Transfer Transaction", () => {
             const wif = crypto.keysToWIF(keys, { wif: 170 });
 
             const wifTransaction = builder
-                .amount(10)
-                .fee(10)
+                .amount("10")
+                .fee("10")
                 .network(network)
                 .sign(passphrase);
 
@@ -89,7 +91,7 @@ describe("Transfer Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Transfer));
-        expect(builder).toHaveProperty("data.amount", 0);
+        expect(builder).toHaveProperty("data.amount", bignumify(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.expiration", 0);

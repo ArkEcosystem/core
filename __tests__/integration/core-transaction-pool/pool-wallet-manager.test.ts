@@ -1,5 +1,6 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { bignumify } from "@arkecosystem/core-utils";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -10,7 +11,7 @@ import { setUpFull, tearDownFull } from "./__support__/setup";
 const { Block } = Blocks;
 const { crypto } = Crypto;
 
-const satoshi = 10 ** 8;
+const satoshi = 1e8;
 let container: Container.IContainer;
 let PoolWalletManager;
 let poolWalletManager;
@@ -195,12 +196,12 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
             version: 0,
             timestamp: 46583330,
             height: 2,
-            reward,
+            reward: bignumify(reward),
             previousBlock: genesisBlock.id,
             numberOfTransactions: 1,
             transactions: [transfer],
-            totalAmount: transfer.amount,
-            totalFee,
+            totalAmount: bignumify(transfer.amount),
+            totalFee: bignumify(totalFee),
             payloadLength: 0,
             payloadHash: genesisBlock.payloadHash,
             generatorPublicKey,

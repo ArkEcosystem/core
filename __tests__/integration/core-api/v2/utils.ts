@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
+import { bignumify } from "@arkecosystem/core-utils";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 import { ApiHelpers } from "../../../utils/helpers/api";
 
@@ -147,7 +148,7 @@ class Helpers {
         Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
         const transaction = Transactions.BuilderFactory.transfer()
-            .amount(1 * 1e8)
+            .amount("100000000")
             .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
             .vendorField("test")
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")

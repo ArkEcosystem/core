@@ -1,4 +1,5 @@
 import "jest-extended";
+import { bignumify } from "../../../../../../packages/core-utils/src";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
@@ -39,8 +40,8 @@ describe("Multi Signature Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
-        expect(builder).toHaveProperty("data.fee", 0);
-        expect(builder).toHaveProperty("data.amount", 0);
+        expect(builder).toHaveProperty("data.fee", bignumify(0));
+        expect(builder).toHaveProperty("data.amount", bignumify(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.asset");
@@ -62,7 +63,7 @@ describe("Multi Signature Transaction", () => {
 
         it("calculates and establish the fee", () => {
             builder.multiSignatureAsset(multisignature);
-            expect(builder.data.fee).toBe(4 * multiSignatureFee);
+            expect(builder.data.fee).toEqual(bignumify(4).times(multiSignatureFee));
         });
     });
 

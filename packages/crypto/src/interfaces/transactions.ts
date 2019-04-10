@@ -26,8 +26,8 @@ export interface ITransactionData {
     timestamp: number;
     senderPublicKey: string;
 
-    fee: Bignum | number | string;
-    amount: Bignum | number | string;
+    fee: Bignum;
+    amount: Bignum;
 
     expiration?: number;
     recipientId?: string;
