@@ -11,7 +11,6 @@ import {
     VerificationFailedHandler,
 } from "../../../../packages/core-blockchain/src/processor/handlers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
-import "../../../utils";
 import { fixtures } from "../../../utils";
 import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 
@@ -63,13 +62,15 @@ describe("Block processor", () => {
     });
 
     describe("process", () => {
-        const getBlock = transactions =>
-            Object.assign({}, blockTemplate, {
+        const getBlock = transactions => ({
+            ...blockTemplate,
+            ...{
                 transactions,
-                totalAmount: transactions.reduce((acc, curr) => acc + curr.amount, 0),
-                totalFee: transactions.reduce((acc, curr) => acc + curr.fee, 0),
+                totalAmount: transactions.reduce((acc, curr) => bignumify(acc).plus(curr.amount), 0),
+                totalFee: transactions.reduce((acc, curr) => bignumify(acc).plus(curr.fee), 0),
                 numberOfTransactions: transactions.length,
-            });
+            },
+        });
 
         describe("should not accept replay transactions", () => {
             let block;
@@ -79,9 +80,9 @@ describe("Block processor", () => {
                     .withPassphrase(delegates[0].passphrase)
                     .create(11);
 
-                const lastBlock = Block.fromData(getBlock(transfers));
-
                 block = getBlock(transfers);
+                const lastBlock = Block.fromData(block);
+
                 block.height = 3;
                 block.previousBlock = lastBlock.data.id;
                 block.timestamp += 1000;
@@ -89,6 +90,7 @@ describe("Block processor", () => {
                 jest.spyOn(blockchain, "getLastBlock").mockReturnValue(lastBlock);
                 jest.spyOn(database, "getForgedTransactionsIds").mockReturnValue([blockTemplate.id]);
             });
+
             afterEach(() => {
                 jest.restoreAllMocks();
             });
