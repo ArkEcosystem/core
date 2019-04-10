@@ -298,7 +298,7 @@ describe("Transactions Business Repository", () => {
     describe("getFeeStatistics", () => {
         it("should invoke getFeeStatistics on db repository", async () => {
             databaseService.connection.transactionsRepository = {
-                getFeeStatistics: async minFeeBroadcast => minFeeBroadcast,
+                getFeeStatistics: async (days, minFeeBroadcast) => minFeeBroadcast,
                 getModel: () => new MockDatabaseModel(),
             } as Database.ITransactionsRepository;
             jest.spyOn(databaseService.connection.transactionsRepository, "getFeeStatistics").mockImplementation(
@@ -310,9 +310,9 @@ describe("Transactions Business Repository", () => {
                 },
             });
 
-            await transactionsBusinessRepository.getFeeStatistics();
+            await transactionsBusinessRepository.getFeeStatistics(7);
 
-            expect(databaseService.connection.transactionsRepository.getFeeStatistics).toHaveBeenCalledWith(100);
+            expect(databaseService.connection.transactionsRepository.getFeeStatistics).toHaveBeenCalledWith(7, 100);
         });
     });
 

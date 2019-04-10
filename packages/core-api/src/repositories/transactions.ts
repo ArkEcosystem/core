@@ -258,36 +258,6 @@ export class TransactionsRepository extends Repository implements IRepository {
     }
 
     /**
-     * Calculates min, max and average fee statistics based on transactions table
-     * @return {Object}
-     */
-    public async getFeeStatistics(): Promise<any> {
-        const query = this.query
-            .select(
-                this.query.type,
-                this.query.fee.min("minFee"),
-                this.query.fee.max("maxFee"),
-                this.query.fee.avg("avgFee"),
-                this.query.timestamp.max("timestamp"),
-            )
-            .from(this.query)
-            .where(
-                this.query.timestamp.gte(
-                    Crypto.slots.getTime(
-                        dato()
-                            .addDays(30)
-                            .toMilliseconds(),
-                    ),
-                ),
-            )
-            .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
-            .group(this.query.type)
-            .order('"timestamp" DESC');
-
-        return this._findMany(query);
-    }
-
-    /**
      * Search all transactions.
      *
      * @param  {Object} parameters

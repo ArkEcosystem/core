@@ -37,7 +37,7 @@ export interface ITransactionsRepository extends IRepository {
         totalAmount: Utils.Bignum;
     }>;
 
-    getFeeStatistics(minFeeBroadcast: number): Promise<any>;
+    getFeeStatistics(days: number, minFeeBroadcast: number): Promise<any>;
 
     /**
      * Delete transactions with blockId
