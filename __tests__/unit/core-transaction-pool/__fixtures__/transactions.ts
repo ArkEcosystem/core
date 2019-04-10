@@ -79,7 +79,7 @@ export const transactions = {
         .withPassphrase(delegates[1].passphrase)
         .build()[0],
 
-    dummyExp2: TransactionFactory.transfer("DFyDKsyvR4x9D9zrfEaPmeJxSniT5N5qY8")
+    dummyExp2: TransactionFactory.transfer("AabMvWPVKbdTHRcGBpATq9TEMiMD5xeJh9")
         .withNetwork("unitnet")
         .withPassphrase(delegates[1].passphrase)
         .build()[0],
