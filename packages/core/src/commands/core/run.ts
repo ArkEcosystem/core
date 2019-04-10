@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractRunCommand } from "../../shared/run";
+import { flags } from "@oclif/command";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
-export class RunCommand extends AbstractRunCommand {
+export class RunCommand extends BaseCommand {
     public static description: string = "Run the core (without pm2)";
 
     public static examples: string[] = [
@@ -31,10 +31,14 @@ $ ark core:run --launchMode=seed
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
         ...BaseCommand.flagsForger,
+        suffix: flags.string({
+            hidden: true,
+            default: "core",
+        }),
     };
 
     public async run(): Promise<void> {
-        const flags = await super.getFlags();
+        const { flags } = await this.parseWithNetwork(RunCommand);
 
         await this.buildApplication(app, flags, {
             options: {
@@ -45,13 +49,5 @@ $ ark core:run --launchMode=seed
                 "@arkecosystem/core-forger": await this.buildBIP38(flags),
             },
         });
-    }
-
-    protected getClass() {
-        return RunCommand;
-    }
-
-    protected getSuffix(): string {
-        return "forger";
     }
 }

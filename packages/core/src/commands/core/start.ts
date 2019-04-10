@@ -39,14 +39,14 @@ $ ark core:start --no-daemon
             default: true,
             allowNo: true,
         }),
+        suffix: flags.string({
+            hidden: true,
+            default: "core",
+        }),
     };
 
     public getClass() {
         return StartCommand;
-    }
-
-    protected getSuffix(): string {
-        return "core";
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {

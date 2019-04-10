@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
-import { AbstractRunCommand } from "../../shared/run";
+import { flags } from "@oclif/command";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
-export class RunCommand extends AbstractRunCommand {
+export class RunCommand extends BaseCommand {
     public static description: string = "Run the relay (without pm2)";
 
     public static examples: string[] = [
@@ -30,10 +30,14 @@ $ ark relay:run --launchMode=seed
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
+        suffix: flags.string({
+            hidden: true,
+            default: "relay",
+        }),
     };
 
     public async run(): Promise<void> {
-        const flags = await super.getFlags();
+        const { flags } = await this.parseWithNetwork(RunCommand);
 
         await super.buildApplication(app, flags, {
             exclude: ["@arkecosystem/core-forger"],
@@ -44,13 +48,5 @@ $ ark relay:run --launchMode=seed
                 },
             },
         });
-    }
-
-    protected getSuffix(): string {
-        return "relay";
-    }
-
-    protected getClass() {
-        return RunCommand;
     }
 }
