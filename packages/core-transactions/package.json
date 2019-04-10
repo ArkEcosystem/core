@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-transactions",
-    "description": "Transaction Services for Ark Core",
+    "description": "Transaction Services for ARK Core",
     "version": "2.3.0-next.5",
     "contributors": [
         "Joshua Noack <joshua@ark.io>"

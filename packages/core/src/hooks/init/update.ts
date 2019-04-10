@@ -32,7 +32,7 @@ export const init: Hook<"init"> = async function({ id, config }) {
 
         await cli.url(
             `Click here to read the changelog for ${state.currentVersion}.`,
-            `https://github.com/ArkEcosystem/core/blob/${branch}/CHANGELOG.md`,
+            `https://github.com/ARKEcosystem/core/blob/${branch}/CHANGELOG.md`,
         );
     }
 };

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-http-utils",
-    "description": "Http Utilities for Ark Core",
+    "description": "Http Utilities for ARK Core",
     "version": "2.3.0-next.5",
     "contributors": [
         "Brian Faust <brian@ark.io>"

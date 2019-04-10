@@ -11,7 +11,7 @@ pm2 delete core-forger > /dev/null 2>&1
 node ./scripts/upgrade/upgrade.js
 
 # Sometimes the upgrade script doesn't properly replace ARK_ with CORE_
-# https://github.com/ArkEcosystem/core/blob/develop/scripts/upgrade/upgrade.js#L206
+# https://github.com/ARKEcosystem/core/blob/develop/scripts/upgrade/upgrade.js#L206
 cd ~
 
 if [ -f .config/ark-core/devnet/.env ]; then
