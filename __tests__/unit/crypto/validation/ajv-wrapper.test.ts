@@ -44,6 +44,11 @@ describe("AjvWrapper", () => {
                 expect(AjvWrapper.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).toBeNull();
             });
 
+            it("should not validate if address is not on the same network", () => {
+                configManager.setFromPreset("unitnet");
+                expect(AjvWrapper.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeNull();
+            });
+
             it("should not be ok", () => {
                 expect(AjvWrapper.validate("address", "€TRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeNull();
                 expect(AjvWrapper.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9").error).not.toBeNull();
