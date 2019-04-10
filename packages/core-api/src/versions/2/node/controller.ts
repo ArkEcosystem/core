@@ -80,11 +80,11 @@ export class NodeController extends Controller {
 
                 resultsByDays.push({
                     type,
-                    min: math.min(...fees),
-                    max: math.max(...fees),
-                    avg: math.mean(...fees),
-                    sum: math.sum(...fees),
-                    median: math.median(...fees),
+                    min: math.min(...fees).toFixed(0),
+                    max: math.max(...fees).toFixed(0),
+                    avg: math.mean(...fees).toFixed(0),
+                    sum: math.sum(...fees).toFixed(0),
+                    median: math.median(...fees).toFixed(0),
                 });
             }
 
