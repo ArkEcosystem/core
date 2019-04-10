@@ -19,7 +19,11 @@ export class EventEmitter {
         this.emitter.once(event, listener);
     }
 
-    private ensureMaxListenerCount(event): void {
+    public off(event: string | symbol, listener: (...args: any) => void): void {
+        this.emitter.off(event, listener);
+    }
+
+    private ensureMaxListenerCount(event: string | symbol): void {
         const maxListeners = this.emitter.getMaxListeners();
         const listenerCount = this.emitter.listenerCount(event);
 
