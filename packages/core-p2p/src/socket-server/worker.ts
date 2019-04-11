@@ -11,7 +11,7 @@ export class Worker extends SCWorker {
     private config: Record<string, any>;
 
     public run() {
-        this.logInfo(`Socket worker started, PID: ${process.pid}`);
+        this.log(`Socket worker started, PID: ${process.pid}`);
 
         const scServer = this.scServer;
 
@@ -77,9 +77,16 @@ export class Worker extends SCWorker {
 
         if (!this.isRateLimitOk(req.socket.remoteAddress)) {
             this.banPeer(req.socket.remoteAddress);
+
             next(createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
-            this.logError(`Rate limit exceeded from ${req.socket.remoteAddress} : banning and disconnecting socket.`);
+
+            this.log(
+                `Rate limit exceeded from ${req.socket.remoteAddress} : banning and disconnecting socket.`,
+                "error",
+            );
+
             req.socket.disconnect(4429, "Rate limit exceeded");
+
             return;
         }
 
@@ -145,16 +152,15 @@ export class Worker extends SCWorker {
             // which is like this { endpoint, data, headers }
             req.data.headers.remoteAddress = req.socket.remoteAddress;
         } catch (e) {
-            // Log explicit error, return unknown error
-            this.logError(e.message);
+            this.log(e.message, "error");
 
-            // return explicit error when data validation error
             if (e.name === SocketErrors.Validation) {
                 return next(e);
             }
+
             return next(createError(SocketErrors.Unknown, "Unknown error"));
         }
-        next(); // Allow
+        next();
     }
 
     public async sendToMasterAsync(data) {
@@ -180,10 +186,13 @@ export class Worker extends SCWorker {
 
         this.peersMsgTimestamps[peerIp] = this.peersMsgTimestamps[peerIp] || [];
         this.peersMsgTimestamps[peerIp].push(new Date().getTime());
+
         const tsLength = this.peersMsgTimestamps[peerIp].length;
+
         if (tsLength < this.rateLimit) {
             return true;
         }
+
         this.peersMsgTimestamps[peerIp] = this.peersMsgTimestamps[peerIp].slice(tsLength - this.rateLimit);
 
         return this.peersMsgTimestamps[peerIp][this.rateLimit - 1] - this.peersMsgTimestamps[peerIp][0] > 1000;
@@ -205,27 +214,14 @@ export class Worker extends SCWorker {
         return !!this.bannedPeers[peerIp];
     }
 
-    private async logInfo(message): Promise<void> {
+    private async log(message: string, level: string = "info"): Promise<void> {
         try {
             await this.sendToMasterAsync({
-                endpoint: "p2p.utils.logInfo",
-                data: { message },
+                endpoint: "p2p.utils.log",
+                data: { level, message },
             });
         } catch (e) {
-            // Fallback to console.error if we catched an error sending message to master
-            console.error(`Error while trying to log the following message : ${message}`);
-        }
-    }
-
-    private async logError(message): Promise<void> {
-        try {
-            await this.sendToMasterAsync({
-                endpoint: "p2p.utils.logError",
-                data: { message },
-            });
-        } catch (e) {
-            // Fallback to console.error if we catched an error sending message to master
-            console.error(`Error while trying to log the following error : ${message}`);
+            console.error(`Error while trying to log the following message: ${message}`);
         }
     }
 }

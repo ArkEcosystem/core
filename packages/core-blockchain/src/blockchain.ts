@@ -394,6 +394,7 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public forceWakeup(): void {
         this.state.clearWakeUpTimeout();
+
         this.dispatch("WAKEUP");
     }
 
