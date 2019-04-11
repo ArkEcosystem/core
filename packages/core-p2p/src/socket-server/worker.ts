@@ -179,7 +179,7 @@ export class Worker extends SCWorker {
 
         const requestCount = this.peersMsgTimestamps[remoteAddress].length;
 
-        if (requestCount <= this.config.rateLimit) {
+        if (requestCount < this.config.rateLimit) {
             return false;
         }
 

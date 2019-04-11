@@ -15,14 +15,6 @@ Managers.configManager.setFromPreset("unitnet");
 let socket;
 let emit;
 
-const headers = {
-    version: "2.1.0",
-    port: "4009",
-    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
-    height: 1,
-    "Content-Type": "application/json",
-};
-
 beforeAll(async () => {
     process.env.CORE_ENV = "test";
 
@@ -38,7 +30,7 @@ beforeAll(async () => {
 
     emit = (event, data) =>
         new Promise((resolve, reject) => {
-            socket.emit(event, data, (err, res) => (err ? reject(err) : resolve(res)));
+            socket.emit(event, data, (err, val) => (err ? reject(err) : resolve(val)));
         });
 
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
@@ -48,32 +40,39 @@ afterAll(() => {
     socket.destroy();
 });
 
+const headers = {
+    version: "2.1.0",
+    port: "4009",
+    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
+    height: 1,
+    "Content-Type": "application/json",
+};
+
 describe("Peer socket endpoint", () => {
     describe("socket endpoints", () => {
         it("should getPeers", async () => {
-            const { peers } = await emit("p2p.peer.getPeers", {
+            const peers = await emit("p2p.peer.getPeers", {
                 headers,
             });
-
-            expect(peers).toBeArray();
+            expect(peers.data.peers).toBeArray();
         });
 
         it("should getStatus", async () => {
-            const { success, height } = await emit("p2p.peer.getStatus", {
+            const status = await emit("p2p.peer.getStatus", {
                 headers,
             });
-            expect(success).toBeTrue();
-            expect(height).toBe(1);
+            expect(status.data.success).toBeTrue();
+            expect(status.data.height).toBe(1);
         });
 
         describe("postBlock", () => {
             it("should postBlock successfully", async () => {
-                const { success } = await emit("p2p.peer.postBlock", {
+                const status = await emit("p2p.peer.postBlock", {
                     data: { block: Blocks.Block.fromData(genesisBlock).toJson() },
                     headers,
                 });
 
-                expect(success).toBeTrue();
+                expect(status.data.success).toBeTrue();
             });
 
             it("should throw validation error when sending wrong data", async () => {
@@ -93,17 +92,15 @@ describe("Peer socket endpoint", () => {
                     .withPassphrase("one two three")
                     .create(15);
 
-                const data = await emit("p2p.peer.postTransactions", {
+                const status = await emit("p2p.peer.postTransactions", {
                     data: { transactions },
                     headers,
                 });
-
-                expect(data).toEqual({
+                expect(status.data).toEqual({
                     error: "Transactions list is not conform",
                     message: "Transactions list is not conform",
                     success: false,
                 });
-
                 // because our mocking makes all transactions to be invalid (already in cache)
             });
 
@@ -126,7 +123,7 @@ describe("Peer socket endpoint", () => {
     describe("Socket errors", () => {
         it("should send back an error if no data.headers", async () => {
             try {
-                await emit("p2p.peer.getPeers", {});
+                const peers = await emit("p2p.peer.getPeers", {});
             } catch (e) {
                 expect(e.name).toEqual("CoreHeadersRequiredError");
                 expect(e.message).toEqual("Request data and data.headers is mandatory");
@@ -135,21 +132,18 @@ describe("Peer socket endpoint", () => {
 
         it("should not be disconnected / banned when below rate limit", async () => {
             await delay(1100);
-
-            for (let i = 0; i < 20; i++) {
-                const { success } = await emit("p2p.peer.getStatus", {
+            for (let i = 0; i < 18; i++) {
+                const status = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(success).toBeTrue();
+                expect(status.data.success).toBeTrue();
             }
-
             await delay(1100);
-
             for (let i = 0; i < 10; i++) {
-                const { success } = await emit("p2p.peer.getStatus", {
+                const status = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(success).toBeTrue();
+                expect(status.data.success).toBeTrue();
             }
         });
 
@@ -158,18 +152,16 @@ describe("Peer socket endpoint", () => {
             socket.on("error", onSocketError);
 
             await delay(1100);
-
-            for (let i = 0; i < 20; i++) {
-                const { success } = await emit("p2p.peer.getStatus", {
+            for (let i = 0; i < 19; i++) {
+                const status = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(success).toBeTrue();
+                expect(status.data.success).toBeTrue();
             }
-
-            // 21st call, should throw CoreRateLimitExceededError
+            // 20th call, should throw CoreRateLimitExceededError
             await expect(
                 emit("p2p.peer.postBlock", {
-                    data: { block: Blocks.Block.fromData(genesisBlock).toJson() },
+                    data: {},
                     headers,
                 }),
             ).rejects.toHaveProperty("name", "CoreRateLimitExceededError");
