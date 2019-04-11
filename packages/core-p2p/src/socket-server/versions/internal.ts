@@ -61,12 +61,6 @@ export async function getNetworkState({ service }: { service: P2P.IPeerService }
     return service.getMonitor().getNetworkState();
 }
 
-export function storeBlock({ req }): void {
-    req.data.block.ip = req.headers.remoteAddress;
-
-    app.resolvePlugin<Blockchain.IBlockchain>("blockchain").handleIncomingBlock(req.data.block);
-}
-
 export function syncBlockchain(): void {
     app.resolvePlugin<Logger.ILogger>("logger").debug("Blockchain sync check WAKEUP requested by forger");
 

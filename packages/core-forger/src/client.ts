@@ -73,13 +73,11 @@ export class Client {
             } transactions to ${this.host.ip}`,
         );
 
-        let response;
         try {
-            response = this.emit("p2p.internal.storeBlock", { block });
+            await this.emit("p2p.peer.postBlock", { block });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }
-        return response;
     }
 
     /**

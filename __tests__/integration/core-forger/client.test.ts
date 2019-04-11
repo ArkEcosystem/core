@@ -61,7 +61,7 @@ describe("Client", () => {
         describe("when the host is available", () => {
             it("should be truthy if broadcasts", async () => {
                 await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
-                await socketManager.addMock("p2p.internal.storeBlock", {});
+                await socketManager.addMock("p2p.peer.postBlock", {});
 
                 await client.selectHost();
 

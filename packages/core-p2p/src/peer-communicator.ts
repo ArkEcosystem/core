@@ -22,12 +22,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             const blocks = await this.getPeerBlocks(peer, fromBlockHeight);
 
-            if (blocks.length === 100 || blocks.length === 400) {
-                peer.downloadSize = blocks.length;
-            }
-
-            blocks.forEach(block => (block.ip = peer.ip));
-
             return blocks;
         } catch (error) {
             this.logger.error(`Could not download blocks from ${peer.url}: ${error.message}`);
