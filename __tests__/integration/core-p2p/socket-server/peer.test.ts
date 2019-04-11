@@ -16,13 +16,6 @@ Managers.configManager.setFromPreset("unitnet");
 let socket;
 let emit;
 
-const rateLimit = {
-    enabled: true,
-    socketLimit: 32, // max number of messages per second per socket connection
-    ipWhitelist: [],
-    banDurationMs: 10 * 60 * 1000, // 10min ban for peer exceeding rate limit
-};
-
 const headers = {
     version: "2.1.0",
     port: "4009",
@@ -36,7 +29,7 @@ beforeAll(async () => {
 
     const { service, processor } = createPeerService();
 
-    await startSocketServer(service, { server: { port: 4007 }, rateLimit });
+    await startSocketServer(service, { server: { port: 4007 } });
     await delay(3000);
 
     socket = socketCluster.create({
@@ -138,7 +131,7 @@ describe("Peer socket endpoint", () => {
 
         it("should not be disconnected / banned when below rate limit", async () => {
             await delay(1100);
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 18; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
@@ -158,13 +151,13 @@ describe("Peer socket endpoint", () => {
             socket.on("error", onSocketError);
 
             await delay(1100);
-            for (let i = 0; i < 31; i++) {
+            for (let i = 0; i < 19; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
                 expect(data.height).toBeNumber();
             }
-            // 32nd call, should throw CoreRateLimitExceededError
+            // 20th call, should throw CoreRateLimitExceededError
             await expect(
                 emit("p2p.peer.postBlock", {
                     data: {},
