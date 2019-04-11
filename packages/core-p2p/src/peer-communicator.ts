@@ -57,11 +57,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const body: any = await this.emit(peer, "p2p.peer.getStatus", null, timeoutMsec);
 
         if (!body) {
-            throw new Error(`Peer ${peer.ip}: could not get status response`);
-        }
-
-        if (!body.success) {
-            throw new PeerStatusResponseError(JSON.stringify(body));
+            throw new PeerStatusResponseError(peer.ip);
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
@@ -86,34 +82,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     public async getPeers(peer: P2P.IPeer): Promise<any> {
         this.logger.info(`Fetching a fresh peer list from ${peer.url}`);
 
-        const body: any = await this.emit(peer, "p2p.peer.getPeers", null);
-
-        if (!body) {
-            return [];
-        }
-
-        return body.peers;
+        return this.emit(peer, "p2p.peer.getPeers");
     }
 
     public async hasCommonBlocks(peer: P2P.IPeer, ids: string[], timeoutMsec?: number): Promise<any> {
-        const errorMessage = `Could not determine common blocks with ${peer.ip}`;
-
         try {
             const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
 
-            if (!body) {
-                return false;
-            }
-
-            if (!body.success) {
-                const bodyStr = util.inspect(body, { depth: 2 });
-
-                this.logger.error(`${errorMessage}: unsuccessful response: ${bodyStr}`);
-
-                return false;
-            }
-
-            if (!body.common) {
+            if (!body || !body.common) {
                 return false;
             }
 
@@ -170,7 +146,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data: any, timeout?: number) {
+    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
         let response;
         try {
             peer.socketError = null; // reset socket error between each call
