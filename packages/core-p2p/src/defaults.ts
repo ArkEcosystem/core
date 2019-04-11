@@ -1,7 +1,9 @@
 export const defaults = {
-    host: process.env.CORE_P2P_HOST || "0.0.0.0",
-    port: process.env.CORE_P2P_PORT || 4002,
-    workers: 2,
+    // https://socketcluster.io/#!/docs/api-socketcluster
+    server: {
+        port: process.env.CORE_P2P_PORT || 4002,
+        logLevel: process.env.CORE_NETWORK_NAME === "testnet" ? 1 : 0,
+    },
     /**
      * The minimum peer version we expect
      */

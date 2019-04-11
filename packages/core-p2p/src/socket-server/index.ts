@@ -1,23 +1,28 @@
 import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
 import { SocketErrors } from "../enums";
 import { getHeaders } from "./utils/get-headers";
 import * as handlers from "./versions";
 
-export const startSocketServer = async (service: P2P.IPeerService, config): Promise<any> => {
+export const startSocketServer = async (service: P2P.IPeerService, config: Record<string, any>): Promise<any> => {
     // when testing we also need to get socket files from dist folder
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
-    const server = new SocketCluster({
-        workers: config.workers || 1,
-        brokers: 1,
-        port: config.port,
-        appName: "core-p2p",
-        wsEngine: "ws",
-        workerController: __dirname + `${relativeSocketPath}/worker.js`,
-        rebootWorkerOnCrash: true,
+    const server: SocketCluster = new SocketCluster({
+        ...{
+            appName: "core-p2p",
+            brokers: 1,
+            environment: process.env.CORE_NETWORK_NAME === "testnet" ? "dev" : "prod",
+            rebootWorkerOnCrash: true,
+            workerController: __dirname + `${relativeSocketPath}/worker.js`,
+            workers: 2,
+            wsEngine: "ws",
+        },
+        ...config.server,
     });
+
+    server.on("fail", data => app.resolvePlugin<Logger.ILogger>("logger").error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -34,8 +39,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config): Prom
                 headers: getHeaders(),
             });
         } catch (e) {
-            const logger = app.resolvePlugin("logger");
-            logger.error(e);
+            app.resolvePlugin<Logger.ILogger>("logger").error(e);
 
             // return explicit error when data validation error
             if (e.name === SocketErrors.Validation) {
