@@ -6,7 +6,7 @@ class SCWorker {
         MIDDLEWARE_EMIT: null,
     };
 
-    public sendToMaster = jest.fn();
+    public sendToMaster = jest.fn().mockImplementation((data, cb) => cb(null, {}));
 }
 
 jest.mock("socketcluster/scworker", () => SCWorker);

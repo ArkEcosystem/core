@@ -3,11 +3,7 @@ import "../mocks/scworker";
 import delay from "delay";
 import { Worker } from "../../../../packages/core-p2p/src/socket-server/worker";
 
-let worker;
-
-beforeAll(() => {
-    worker = new Worker();
-});
+const worker = new Worker();
 
 describe("Worker", () => {
     describe("run", () => {
