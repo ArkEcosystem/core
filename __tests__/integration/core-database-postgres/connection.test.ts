@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { Blocks } from "@arkecosystem/crypto";
@@ -23,18 +25,13 @@ afterAll(async () => {
 describe("Connection", () => {
     describe("verifyBlockchain", () => {
         it("should be valid - no errors - when verifying blockchain", async () => {
-            expect(await databaseService.verifyBlockchain()).toEqual({
-                valid: true,
-                errors: [],
-            });
+            await expect(databaseService.verifyBlockchain()).resolves.toBeTrue();
         });
     });
 
     describe("getLastBlock", () => {
         it("should get the genesis block as last block", async () => {
-            const lastBlock = await databaseService.getLastBlock();
-
-            expect(lastBlock).toEqual(Block.fromData(genesisBlock));
+            await expect(databaseService.getLastBlock()).resolves.toEqual(Block.fromData(genesisBlock));
         });
     });
 });
