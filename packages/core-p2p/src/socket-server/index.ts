@@ -3,9 +3,7 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
 import { SocketErrors } from "../enums";
 import { getHeaders } from "./utils/get-headers";
-import * as internalHandlers from "./versions/internal";
-import * as peerHandlers from "./versions/peer";
-import * as utilsHandlers from "./versions/utils";
+import * as handlers from "./versions";
 
 export const startSocketServer = async (service: P2P.IPeerService, config): Promise<any> => {
     // when testing we also need to get socket files from dist folder
@@ -28,21 +26,13 @@ export const startSocketServer = async (service: P2P.IPeerService, config): Prom
             return res(null, config);
         }
 
-        const handlers = {
-            peer: peerHandlers,
-            internal: internalHandlers,
-            utils: utilsHandlers, // not publicly exposed, only used between worker / master
-        };
-
         const [prefix, version, method] = req.endpoint.split(".");
 
         try {
-            const result = {
-                data: (await handlers[version][method](service, req)) || {},
+            return res(null, {
+                data: (await handlers[version][method]({ service, req })) || {},
                 headers: getHeaders(),
-            };
-
-            return res(null, result);
+            });
         } catch (e) {
             const logger = app.resolvePlugin("logger");
             logger.error(e);
