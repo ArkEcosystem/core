@@ -3,7 +3,7 @@ import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/c
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { validate } from "../utils/validate";
-import { schema } from "./peer/schema";
+import * as schemas from "./schemas";
 
 export function emitEvent({ req }): void {
     validate(
@@ -77,7 +77,7 @@ export async function getNetworkState({ service }: { service: P2P.IPeerService }
 }
 
 export function storeBlock({ req }): void {
-    validate(schema.postBlock, req.data);
+    validate(schemas.postBlock, req.data);
 
     req.data.block.ip = req.headers.remoteAddress;
 

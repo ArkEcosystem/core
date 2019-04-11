@@ -8,9 +8,9 @@ import {
     InvalidTransactionsError,
     MissingTransactionIdsError,
     UnchainedBlockError,
-} from "../../errors";
-import { validate } from "../../utils/validate";
-import { schema } from "./schema";
+} from "../errors";
+import { validate } from "../utils/validate";
+import * as schemas from "./schemas";
 
 const { Block } = Blocks;
 
@@ -72,7 +72,7 @@ export async function getStatus(): Promise<{
 }
 
 export async function postBlock({ req }): Promise<void> {
-    validate(schema.postBlock, req.data);
+    validate(schemas.postBlock, req.data);
 
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
@@ -102,7 +102,7 @@ export async function postBlock({ req }): Promise<void> {
 }
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
-    validate(schema.postTransactions, req.data);
+    validate(schemas.postTransactions, req.data);
 
     const guard: TransactionPool.IGuard = new TransactionGuard(transactionPool);
     const result: TransactionPool.IValidationResult = await guard.validate(req.data.transactions);
