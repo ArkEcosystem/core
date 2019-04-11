@@ -27,7 +27,7 @@ beforeAll(async () => {
 
     const { service, processor } = createPeerService();
 
-    await startSocketServer(service, { port: 4007, rateLimit });
+    await startSocketServer(service, { server: { port: 4007 }, rateLimit });
     await delay(3000);
 
     socket = socketCluster.create({
