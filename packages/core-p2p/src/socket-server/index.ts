@@ -32,10 +32,12 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
         const [prefix, version, method] = req.endpoint.split(".");
 
         try {
-            const requestSchema = requestSchemas[version][method];
+            if (requestSchemas[version]) {
+                const requestSchema = requestSchemas[version][method];
 
-            if (requestSchema) {
-                validate(requestSchema, req.data);
+                if (requestSchema) {
+                    validate(requestSchema, req.data);
+                }
             }
 
             return res(null, {

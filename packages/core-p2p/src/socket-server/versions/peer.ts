@@ -1,8 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Validation } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { MissingCommonBlockError } from "../../errors";
 import { InvalidBlockReceivedError, InvalidTransactionsError, UnchainedBlockError } from "../errors";
 
 const { Block } = Blocks;
@@ -35,11 +36,14 @@ export async function getCommonBlocks({
     lastBlockHeight: number;
 }> {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    const ids: string[] = req.data.ids.slice(0, 9).filter(id => id.match(/^\d+$/));
-    const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(ids);
+    const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids.split(","));
+
+    if (!commonBlocks.length) {
+        throw new MissingCommonBlockError();
+    }
 
     return {
-        common: commonBlocks.length ? commonBlocks[0] : null,
+        common: commonBlocks[0],
         lastBlockHeight: blockchain.getLastBlock().data.height,
     };
 }

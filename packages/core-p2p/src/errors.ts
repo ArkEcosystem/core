@@ -32,6 +32,12 @@ export class PeerPingTimeoutError extends P2PError {
 
 export class PeerVerificationFailedError extends P2PError {
     constructor() {
-        super(`Peer verification failed.`);
+        super("Peer verification failed.");
+    }
+}
+
+export class MissingCommonBlockError extends P2PError {
+    constructor() {
+        super("Couldn't find any common blocks.");
     }
 }
