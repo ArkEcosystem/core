@@ -57,7 +57,7 @@ export class WalletManager implements Database.IWalletManager {
      * Find a wallet by the given address.
      */
     public findByAddress(address: string): Wallet {
-        if (!this.byAddress[address]) {
+        if (address && !this.byAddress[address]) {
             this.byAddress[address] = new Wallet(address);
         }
 
@@ -83,7 +83,7 @@ export class WalletManager implements Database.IWalletManager {
      * @return {Wallet}
      */
     public findByPublicKey(publicKey: string): Wallet {
-        if (!this.byPublicKey[publicKey]) {
+        if (publicKey && !this.byPublicKey[publicKey]) {
             const address = crypto.getAddress(publicKey);
 
             const wallet = this.findByAddress(address);
@@ -109,7 +109,9 @@ export class WalletManager implements Database.IWalletManager {
      * @param {Wallet} wallet
      */
     public setByAddress(address: string, wallet: Wallet): void {
-        this.byAddress[address] = wallet;
+        if (address && wallet) {
+            this.byAddress[address] = wallet;
+        }
     }
 
     /**
@@ -118,7 +120,9 @@ export class WalletManager implements Database.IWalletManager {
      * @param {Wallet} wallet
      */
     public setByPublicKey(publicKey: string, wallet: Wallet): void {
-        this.byPublicKey[publicKey] = wallet;
+        if (publicKey && wallet) {
+            this.byPublicKey[publicKey] = wallet;
+        }
     }
 
     /**
@@ -127,7 +131,9 @@ export class WalletManager implements Database.IWalletManager {
      * @param {Wallet} wallet
      */
     public setByUsername(username: string, wallet: Wallet): void {
-        this.byUsername[username] = wallet;
+        if (username && wallet) {
+            this.byUsername[username] = wallet;
+        }
     }
 
     /**
