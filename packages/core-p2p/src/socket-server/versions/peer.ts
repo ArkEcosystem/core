@@ -1,12 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { Blocks, Crypto, Interfaces, Validation } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { MissingCommonBlockError } from "../../errors";
-import { InvalidBlockReceivedError, InvalidTransactionsError, UnchainedBlockError } from "../errors";
-
-const { Block } = Blocks;
+import { isLocalHost } from "../../utils";
+import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 
 const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -69,14 +68,16 @@ export async function postBlock({ req }): Promise<void> {
 
     const block: Interfaces.IBlockData = req.data.block;
 
-    if (blockchain.pingBlock(block)) {
-        return;
-    }
+    if (!isLocalHost(req.headers.remoteAddress)) {
+        if (blockchain.pingBlock(block)) {
+            return;
+        }
 
-    const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
+        const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
-    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
-        throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
+        if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
+            throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
+        }
     }
 
     blockchain.handleIncomingBlock(block, req.headers.remoteAddress);
