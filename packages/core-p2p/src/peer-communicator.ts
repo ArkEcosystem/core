@@ -21,7 +21,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         try {
             this.logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
 
-            const { blocks } = await this.getPeerBlocks(peer, fromBlockHeight);
+            const blocks = await this.getPeerBlocks(peer, fromBlockHeight);
 
             if (blocks.length === 100 || blocks.length === 400) {
                 peer.downloadSize = blocks.length;
