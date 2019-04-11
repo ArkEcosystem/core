@@ -35,7 +35,7 @@ export interface IDatabaseService {
 
     restoredDatabaseIntegrity: boolean;
 
-    verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
+    verifyBlockchain(): Promise<boolean>;
 
     getActiveDelegates(roundInfo: IRoundInfo, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
 
