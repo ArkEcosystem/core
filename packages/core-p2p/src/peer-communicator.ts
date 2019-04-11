@@ -131,7 +131,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     private validateReply(peer: P2P.IPeer, reply: any, endpoint: string): boolean {
         const schema = replySchemas[endpoint];
         if (schema === undefined) {
-            this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined ` + `schemas matches.`);
+            this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined schemas matches.`);
             return false;
         }
 
@@ -139,7 +139,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const errors = ajv.validate(schema, reply) ? null : ajv.errorsText();
 
         if (errors) {
-            this.logger.error(`Got unexpected reply from ${peer.url}${endpoint}: ${errors}`);
+            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${errors}`);
             return false;
         }
 

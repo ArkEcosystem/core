@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 
+// @TODO: adjust those schemas
 export const schema = {
     getStatus: {
         type: "object",

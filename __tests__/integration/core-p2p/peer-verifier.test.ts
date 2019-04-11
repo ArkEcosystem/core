@@ -41,7 +41,7 @@ describe("Peer Verifier", () => {
         });
 
         it("different chains, including the genesis block", async () => {
-            await socketManager.addMock("getCommonBlocks", { success: true, common: null });
+            await socketManager.addMock("getCommonBlocks", { common: null });
 
             const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
             const state = { header: { height: 1, id: "123" } };
@@ -60,7 +60,7 @@ describe("Peer Verifier", () => {
 
             for (const commonBlockReply of commonBlockReplies) {
                 await socketManager.resetMock("getCommonBlocks");
-                await socketManager.addMock("getCommonBlocks", { success: true, common: commonBlockReply });
+                await socketManager.addMock("getCommonBlocks", { common: commonBlockReply });
 
                 const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
                 const state = { header: { height: 1, id: "123" } };
@@ -71,7 +71,6 @@ describe("Peer Verifier", () => {
 
         it("higher than our chain (invalid)", async () => {
             await socketManager.addMock("getCommonBlocks", {
-                success: true,
                 common: { id: `${genesisBlock.data.id}`, height: 1 },
             });
 
@@ -88,7 +87,7 @@ describe("Peer Verifier", () => {
                 const block2 = Object.assign({}, blocks2to100Json[0], override);
 
                 await socketManager.resetMock("getBlocks");
-                await socketManager.addMock("getBlocks", { blocks: [block2] });
+                await socketManager.addMock("getBlocks", [block2]);
 
                 const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
                 const state = { header: { height: 2, id: block2.id } };
@@ -99,11 +98,10 @@ describe("Peer Verifier", () => {
 
         it("higher than our chain (legit)", async () => {
             await socketManager.addMock("getCommonBlocks", {
-                success: true,
                 common: { id: `${genesisBlock.data.id}`, height: 1 },
             });
 
-            await socketManager.addMock("getBlocks", { blocks: [blocks2to100Json[0]] });
+            await socketManager.addMock("getBlocks", [blocks2to100Json[0]]);
 
             const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
             const state = { header: { height: 2, id: blocks2to100Json[0].id } };

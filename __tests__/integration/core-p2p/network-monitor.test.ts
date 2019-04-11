@@ -1,10 +1,8 @@
-/* tslint:disable:max-line-length  */
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { defaults } from "../../../packages/core-p2p/src/defaults";
 import { Peer } from "../../../packages/core-p2p/src/peer";
-import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
+import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
 let socketManager: MockSocketManager;
@@ -61,7 +59,6 @@ describe("NetworkMonitor", () => {
     describe("discoverPeers", () => {
         it("should be ok", async () => {
             await socketManager.addMock("getStatus", {
-                success: true,
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 1,
@@ -69,7 +66,7 @@ describe("NetworkMonitor", () => {
             });
 
             const getPeersPeerMock = { ip: "1.1.1.1", port: 4000 };
-            await socketManager.addMock("getPeers", { success: true, peers: [getPeersPeerMock] });
+            await socketManager.addMock("getPeers", [getPeersPeerMock]);
 
             const validateAndAcceptPeer = jest
                 .spyOn(processor, "validateAndAcceptPeer")

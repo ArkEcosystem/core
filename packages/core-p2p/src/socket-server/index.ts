@@ -31,7 +31,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
 
         try {
             return res(null, {
-                data: await handlers[version][method]({ service, req }),
+                data: (await handlers[version][method]({ service, req })) || {},
                 headers: getHeaders(),
             });
         } catch (error) {
