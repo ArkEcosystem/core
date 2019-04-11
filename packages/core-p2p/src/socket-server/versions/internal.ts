@@ -2,23 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
-import { requestSchemas } from "../../schemas";
-import { validate } from "../utils/validate";
 
 export function emitEvent({ req }): void {
-    validate(
-        {
-            type: "object",
-            required: ["event", "body"],
-            additionalProperties: false,
-            properties: {
-                event: { type: "string" },
-                body: { type: "object" },
-            },
-        },
-        req.data,
-    );
-
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 }
 
@@ -77,8 +62,6 @@ export async function getNetworkState({ service }: { service: P2P.IPeerService }
 }
 
 export function storeBlock({ req }): void {
-    validate(requestSchemas.postBlock, req.data);
-
     req.data.block.ip = req.headers.remoteAddress;
 
     app.resolvePlugin<Blockchain.IBlockchain>("blockchain").handleIncomingBlock(req.data.block);

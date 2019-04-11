@@ -20,12 +20,6 @@ export class ServerError extends Error {
     }
 }
 
-export class MissingTransactionIdsError extends ServerError {
-    constructor() {
-        super("No transaction IDs were provided.");
-    }
-}
-
 export class InvalidBlockReceivedError extends ServerError {
     constructor(block: Interfaces.IBlockData) {
         super(`Received block ${block.id} at height ${block.height} failed to be verified.`);

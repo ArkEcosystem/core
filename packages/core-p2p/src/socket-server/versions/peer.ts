@@ -3,14 +3,7 @@ import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosyste
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { requestSchemas } from "../../schemas";
-import {
-    InvalidBlockReceivedError,
-    InvalidTransactionsError,
-    MissingTransactionIdsError,
-    UnchainedBlockError,
-} from "../errors";
-import { validate } from "../utils/validate";
+import { InvalidBlockReceivedError, InvalidTransactionsError, UnchainedBlockError } from "../errors";
 
 const { Block } = Blocks;
 
@@ -41,10 +34,6 @@ export async function getCommonBlocks({
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
 }> {
-    if (!req.data.ids) {
-        throw new MissingTransactionIdsError();
-    }
-
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const ids: string[] = req.data.ids.slice(0, 9).filter(id => id.match(/^\d+$/));
     const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(ids);
@@ -72,8 +61,6 @@ export async function getStatus(): Promise<{
 }
 
 export async function postBlock({ req }): Promise<void> {
-    validate(requestSchemas.postBlock, req.data);
-
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     // @TODO: update crypto interface for blocks
@@ -102,8 +89,6 @@ export async function postBlock({ req }): Promise<void> {
 }
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
-    validate(requestSchemas.postTransactions, req.data);
-
     const guard: TransactionPool.IGuard = new TransactionGuard(transactionPool);
     const result: TransactionPool.IValidationResult = await guard.validate(req.data.transactions);
 
