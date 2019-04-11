@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { validate } from "../utils/validate";
 import { schema } from "./peer/schema";
 
@@ -20,24 +20,6 @@ export function emitEvent({ req }): void {
     );
 
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
-}
-
-export async function verifyTransaction({ req }): Promise<boolean> {
-    validate(
-        {
-            type: "object",
-            required: ["transaction"],
-            additionalProperties: false,
-            properties: {
-                transaction: { $ref: "transaction" },
-            },
-        },
-        req.data,
-    );
-
-    return app
-        .resolvePlugin<Database.IDatabaseService>("database")
-        .verifyTransaction(Transactions.Transaction.fromBytes(req.data.transaction));
 }
 
 export function getUnconfirmedTransactions(): {
