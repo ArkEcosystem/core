@@ -12,11 +12,13 @@ export class Client {
         ip: string;
         socket: socketCluster.SCClientSocket;
     }>;
+
     private host: {
         port: number;
         ip: string;
         socket: socketCluster.SCClientSocket;
     };
+
     private headers: {
         version: string;
         port: number;
@@ -24,7 +26,7 @@ export class Client {
         "Content-Type": "application/json";
     };
 
-    private logger: Logger.ILogger;
+    private logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Create a new client instance.
@@ -32,7 +34,6 @@ export class Client {
      */
     constructor(hosts) {
         this.hosts = Array.isArray(hosts) ? hosts : [hosts];
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
 
         const { port, ip } = this.hosts[0];
 
@@ -186,10 +187,10 @@ export class Client {
         throw new HostNoResponseError(this.hosts.map(h => h.ip).join());
     }
 
-    private async emit<T>(event: string, data: any, timeout: number = 2000) {
+    private async emit<T>(event: string, data: any, timeout: number = 2000): Promise<any> {
         try {
-            const response: any = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
-            return response.data;
+            const response = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
+            return response;
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.ip}:${this.host.port}<${event}>`, error.message);
         }

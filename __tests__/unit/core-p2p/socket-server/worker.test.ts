@@ -12,13 +12,14 @@ beforeAll(() => {
 describe("Worker", () => {
     describe("run", () => {
         it("should init the worker", async () => {
-            worker.run();
+            await worker.run();
+
             await delay(500);
 
             // initRateLimit calls sendToMaster
             expect(worker.sendToMaster).toHaveBeenCalledWith(
                 {
-                    endpoint: "p2p.init.getConfig",
+                    endpoint: "p2p.utils.getConfig",
                 },
                 expect.any(Function),
             );
