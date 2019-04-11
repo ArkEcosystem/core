@@ -66,7 +66,7 @@ export class Client {
     /**
      * Send the given block to the relay.
      */
-    public async broadcast(block: Interfaces.IBlockData): Promise<void> {
+    public async broadcast(block: Interfaces.IBlockData): Promise<any> {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
@@ -74,7 +74,7 @@ export class Client {
         );
 
         try {
-            await this.emit("p2p.peer.postBlock", { block });
+            return await this.emit("p2p.peer.postBlock", { block });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }
