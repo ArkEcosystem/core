@@ -28,7 +28,7 @@ beforeAll(async () => {
 
     const { service, processor } = createPeerService();
 
-    await startSocketServer(service, { server: { port: 4007 }, rateLimit: 32 });
+    await startSocketServer(service, { server: { port: 4007 } });
     await delay(3000);
 
     socket = socketCluster.create({
@@ -136,7 +136,7 @@ describe("Peer socket endpoint", () => {
         it("should not be disconnected / banned when below rate limit", async () => {
             await delay(1100);
 
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 20; i++) {
                 const { success } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
@@ -159,14 +159,14 @@ describe("Peer socket endpoint", () => {
 
             await delay(1100);
 
-            for (let i = 0; i < 31; i++) {
+            for (let i = 0; i < 20; i++) {
                 const { success } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
                 expect(success).toBeTrue();
             }
 
-            // 32nd call, should throw CoreRateLimitExceededError
+            // 21st call, should throw CoreRateLimitExceededError
             await expect(
                 emit("p2p.peer.postBlock", {
                     data: { block: Blocks.Block.fromData(genesisBlock).toJson() },

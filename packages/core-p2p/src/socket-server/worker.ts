@@ -57,7 +57,7 @@ export class Worker extends SCWorker {
 
     private async handleEmit(req, next): Promise<void> {
         if (this.hasExceededRateLimit(req.socket.remoteAddress)) {
-            this.suspendPeer(req.socket.remoteAddress, "tooManyRequests");
+            await this.suspendPeer(req.socket.remoteAddress, "tooManyRequests");
 
             next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
 
@@ -92,9 +92,7 @@ export class Worker extends SCWorker {
 
             for (const [plugin, ready] of Object.entries(isAppReady.data)) {
                 if (!ready) {
-                    return next(
-                        this.createError(SocketErrors.AppNotReady, `Application is not ready : ${plugin} is not ready`),
-                    );
+                    return next(this.createError(SocketErrors.AppNotReady, `${plugin} isn't ready!`));
                 }
             }
 
@@ -181,8 +179,8 @@ export class Worker extends SCWorker {
 
         const requestCount = this.peersMsgTimestamps[remoteAddress].length;
 
-        if (requestCount > this.config.rateLimit) {
-            return true;
+        if (requestCount <= this.config.rateLimit) {
+            return false;
         }
 
         this.peersMsgTimestamps[remoteAddress] = this.peersMsgTimestamps[remoteAddress].slice(
