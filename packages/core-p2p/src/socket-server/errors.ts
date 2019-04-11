@@ -37,3 +37,9 @@ export class InvalidTransactionsError extends ServerError {
         super("No transaction IDs were provided.");
     }
 }
+
+export class UnchainedBlockError extends ServerError {
+    constructor(lastHeight: number, nextHeight: number) {
+        super(`Last received block ${nextHeight} cannot be chained to ${lastHeight}.`);
+    }
+}

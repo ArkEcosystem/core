@@ -3,7 +3,12 @@ import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosyste
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { InvalidBlockReceivedError, InvalidTransactionsError, MissingTransactionIdsError } from "../../errors";
+import {
+    InvalidBlockReceivedError,
+    InvalidTransactionsError,
+    MissingTransactionIdsError,
+    UnchainedBlockError,
+} from "../../errors";
 import { validate } from "../../utils/validate";
 import { schema } from "./schema";
 
@@ -22,7 +27,7 @@ export async function acceptNewPeer({ service, req }: { service: P2P.IPeerServic
     await service.getProcessor().validateAndAcceptPeer(peer);
 }
 
-export async function getPeers({ service }: { service: P2P.IPeerService }) {
+export function getPeers({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] {
     return service
         .getStorage()
         .getPeers()
@@ -78,12 +83,10 @@ export async function postBlock({ req }): Promise<void> {
         return;
     }
 
-    // already got it?
     const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
-    // Are we ready to get it?
     if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
-        return;
+        throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
     }
 
     const b = Block.fromData(block);

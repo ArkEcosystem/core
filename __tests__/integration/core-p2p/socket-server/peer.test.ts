@@ -5,6 +5,7 @@ import { Blocks, Managers } from "@arkecosystem/crypto/src";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
+import { InvalidTransactionsError } from "../../../../packages/core-p2p/src/socket-server/errors";
 import { createPeerService } from "../../../helpers/peers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";
@@ -20,6 +21,14 @@ const rateLimit = {
     socketLimit: 32, // max number of messages per second per socket connection
     ipWhitelist: [],
     banDurationMs: 10 * 60 * 1000, // 10min ban for peer exceeding rate limit
+};
+
+const headers = {
+    version: "2.1.0",
+    port: "4009",
+    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
+    height: 1,
+    "Content-Type": "application/json",
 };
 
 beforeAll(async () => {
@@ -47,39 +56,31 @@ afterAll(() => {
     socket.destroy();
 });
 
-const headers = {
-    version: "2.1.0",
-    port: "4009",
-    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
-    height: 1,
-    "Content-Type": "application/json",
-};
-
 describe("Peer socket endpoint", () => {
     describe("socket endpoints", () => {
         it("should getPeers", async () => {
-            const peers = await emit("p2p.peer.getPeers", {
+            const { data } = await emit("p2p.peer.getPeers", {
                 headers,
             });
-            expect(peers.data.peers).toBeArray();
+
+            expect(data).toBeArray();
         });
 
         it("should getStatus", async () => {
-            const status = await emit("p2p.peer.getStatus", {
+            const { data } = await emit("p2p.peer.getStatus", {
                 headers,
             });
-            expect(status.data.success).toBeTrue();
-            expect(status.data.height).toBe(1);
+            expect(data.height).toBe(1);
         });
 
         describe("postBlock", () => {
             it("should postBlock successfully", async () => {
-                const status = await emit("p2p.peer.postBlock", {
+                const { data } = await emit("p2p.peer.postBlock", {
                     data: { block: Blocks.Block.fromData(genesisBlock).toJson() },
                     headers,
                 });
 
-                expect(status.data.success).toBeTrue();
+                expect(data).toEqual({});
             });
 
             it("should throw validation error when sending wrong data", async () => {
@@ -99,15 +100,13 @@ describe("Peer socket endpoint", () => {
                     .withPassphrase("one two three")
                     .create(15);
 
-                const status = await emit("p2p.peer.postTransactions", {
-                    data: { transactions },
-                    headers,
-                });
-                expect(status.data).toEqual({
-                    error: "Transactions list is not conform",
-                    message: "Transactions list is not conform",
-                    success: false,
-                });
+                await expect(
+                    emit("p2p.peer.postTransactions", {
+                        data: { transactions },
+                        headers,
+                    }),
+                ).rejects.toThrow();
+
                 // because our mocking makes all transactions to be invalid (already in cache)
             });
 
@@ -130,7 +129,7 @@ describe("Peer socket endpoint", () => {
     describe("Socket errors", () => {
         it("should send back an error if no data.headers", async () => {
             try {
-                const peers = await emit("p2p.peer.getPeers", {});
+                await emit("p2p.peer.getPeers", {});
             } catch (e) {
                 expect(e.name).toEqual("CoreHeadersRequiredError");
                 expect(e.message).toEqual("Request data and data.headers is mandatory");
@@ -140,17 +139,17 @@ describe("Peer socket endpoint", () => {
         it("should not be disconnected / banned when below rate limit", async () => {
             await delay(1100);
             for (let i = 0; i < 30; i++) {
-                const status = await emit("p2p.peer.getStatus", {
+                const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(status.data.success).toBeTrue();
+                expect(data.height).toBeNumber();
             }
             await delay(1100);
             for (let i = 0; i < 10; i++) {
-                const status = await emit("p2p.peer.getStatus", {
+                const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(status.data.success).toBeTrue();
+                expect(data.height).toBeNumber();
             }
         });
 
@@ -160,10 +159,10 @@ describe("Peer socket endpoint", () => {
 
             await delay(1100);
             for (let i = 0; i < 31; i++) {
-                const status = await emit("p2p.peer.getStatus", {
+                const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(status.data.success).toBeTrue();
+                expect(data.height).toBeNumber();
             }
             // 32nd call, should throw CoreRateLimitExceededError
             await expect(
