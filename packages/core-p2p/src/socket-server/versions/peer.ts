@@ -1,8 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { isBlockChained } from "../../../../core-utils/dist";
 import { MissingCommonBlockError } from "../../errors";
 import { isLocalHost } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
@@ -75,7 +76,7 @@ export async function postBlock({ req }): Promise<void> {
 
         const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
-        if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
+        if (!isBlockChained(lastDownloadedBlock, { data: block })) {
             throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
         }
     }

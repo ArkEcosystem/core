@@ -4,6 +4,7 @@ import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
 import { httpie, IHttpieResponse } from "./httpie";
+import { isBlockChained } from "./is-block-chained";
 import { NSect } from "./nsect";
 import { calculateRound, isNewRound } from "./round-calculator";
 import { calculate } from "./supply-calculator";
@@ -13,14 +14,15 @@ const roundCalculator = { calculateRound, isNewRound };
 const supplyCalculator = { calculate };
 
 export {
-    CappedSet,
-    NSect,
     bignumify,
+    CappedSet,
     delegateCalculator,
     formatTimestamp,
-    IHttpieResponse,
-    httpie,
     hasSomeProperty,
+    httpie,
+    IHttpieResponse,
+    isBlockChained,
+    NSect,
     roundCalculator,
     supplyCalculator,
 };
