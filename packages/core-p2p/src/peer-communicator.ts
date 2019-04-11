@@ -4,11 +4,10 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
-import util from "util";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
-import { replySchemas } from "./reply-schemas";
+import { replySchemas } from "./schemas";
 import { socketEmit } from "./utils";
 
 export class PeerCommunicator implements P2P.IPeerCommunicator {

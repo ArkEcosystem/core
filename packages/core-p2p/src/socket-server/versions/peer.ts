@@ -3,6 +3,7 @@ import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosyste
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { requestSchemas } from "../../schemas";
 import {
     InvalidBlockReceivedError,
     InvalidTransactionsError,
@@ -10,7 +11,6 @@ import {
     UnchainedBlockError,
 } from "../errors";
 import { validate } from "../utils/validate";
-import * as schemas from "./schemas";
 
 const { Block } = Blocks;
 
@@ -72,7 +72,7 @@ export async function getStatus(): Promise<{
 }
 
 export async function postBlock({ req }): Promise<void> {
-    validate(schemas.postBlock, req.data);
+    validate(requestSchemas.postBlock, req.data);
 
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
@@ -102,7 +102,7 @@ export async function postBlock({ req }): Promise<void> {
 }
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
-    validate(schemas.postTransactions, req.data);
+    validate(requestSchemas.postTransactions, req.data);
 
     const guard: TransactionPool.IGuard = new TransactionGuard(transactionPool);
     const result: TransactionPool.IValidationResult = await guard.validate(req.data.transactions);

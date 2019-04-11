@@ -1,4 +1,32 @@
-export const replySchemas: any = {
+import { app } from "@arkecosystem/core-container";
+
+export const requestSchemas = {
+    postBlock: {
+        type: "object",
+        required: ["block"],
+        additionalProperties: false,
+        properties: {
+            block: { $ref: "block" },
+        },
+    },
+
+    postTransactions: {
+        type: "object",
+        required: ["transactions"],
+        additionalProperties: false,
+        properties: {
+            transactions: {
+                $ref: "transactions",
+                minItems: 1,
+                maxItems: app.has("transaction-pool")
+                    ? app.resolveOptions("transaction-pool").maxTransactionsPerRequest || 40
+                    : 40,
+            },
+        },
+    },
+};
+
+export const replySchemas = {
     "p2p.peer.getBlocks": {
         type: "array",
         items: {
