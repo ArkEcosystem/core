@@ -23,8 +23,9 @@ module.exports = {
         },
     },
     "@arkecosystem/core-p2p": {
-        host: process.env.CORE_P2P_HOST || "0.0.0.0",
-        port: process.env.CORE_P2P_PORT || 4000,
+        socketCluster: {
+            port: process.env.CORE_P2P_PORT || 4000
+        },
         minimumVersions: [">=2.0.0"],
         minimumNetworkReach: 5,
         coldStart: 5,
@@ -45,12 +46,10 @@ module.exports = {
         },
     },
     "@arkecosystem/core-forger": {
-        hosts: [
-            {
-                ip: "127.0.0.1",
-                port: process.env.CORE_P2P_PORT || 4000,
-            },
-        ],
+        hosts: [{
+            ip: "127.0.0.1",
+            port: process.env.CORE_P2P_PORT || 4000,
+        }, ],
     },
     "@arkecosystem/core-json-rpc": {
         enabled: process.env.CORE_JSON_RPC_ENABLED,
