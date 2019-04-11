@@ -180,10 +180,7 @@ describe("State Machine", () => {
                         .mockReturnValue(Block.fromData(genesisBlock)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
-                    verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
-                        // @ts-ignore
-                        valid: true,
-                    }),
+                    verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(true),
                     // @ts-ignore
                     deleteRound: jest.spyOn(blockchain.database, "deleteRound").mockReturnValue(true),
                     // @ts-ignore
@@ -225,13 +222,9 @@ describe("State Machine", () => {
             it("should dispatch ROLLBACK if database recovery was not successful and verifyBlockchain failed", async () => {
                 blockchain.database.restoredDatabaseIntegrity = false;
 
-                jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({
-                    // @ts-ignore
-                    valid: false,
-                });
+                jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(false);
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "ROLLBACK");
-                expect(loggerError).nthCalledWith(1, "FATAL: The database is corrupted");
 
                 blockchain.database.restoredDatabaseIntegrity = true;
             });
@@ -419,9 +412,9 @@ describe("State Machine", () => {
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 jest.spyOn(blockchain.database, "verifyBlockchain")
                     // @ts-ignore
-                    .mockReturnValue({ valid: true }) // default
-                    .mockReturnValueOnce({ valid: false }) // first call
-                    .mockReturnValueOnce({ valid: false }); // 2nd call
+                    .mockReturnValue(true) // default
+                    .mockReturnValueOnce(false) // first call
+                    .mockReturnValueOnce(false); // 2nd call
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
                     // @ts-ignore
                     data: {
@@ -437,8 +430,6 @@ describe("State Machine", () => {
 
             it(`should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes
                     and dispatch FAILURE as verifyBlockchain never passed`, async () => {
-                const loggerError = jest.spyOn(logger, "error");
-
                 jest.spyOn(container.app, "resolveOptions").mockReturnValue({
                     databaseRollback: {
                         maxBlockRewind: 14,
@@ -448,7 +439,7 @@ describe("State Machine", () => {
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 // @ts-ignore
-                jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue({ valid: false });
+                jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(false);
                 jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue({
                     // @ts-ignore
                     data: {
@@ -458,7 +449,6 @@ describe("State Machine", () => {
 
                 await expect(() => actionMap.rollbackDatabase()).toDispatch(blockchain, "FAILURE");
 
-                expect(loggerError).toHaveBeenCalledWith("FATAL: Failed to restore database integrity");
                 expect(removeTopBlocks).toHaveBeenCalledTimes(5); // because after 5 times we get past maxBlockRewind
             });
         });

@@ -129,11 +129,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
 
-                const blockchainAudit = await blockchain.database.verifyBlockchain();
-                if (!blockchainAudit.valid) {
-                    logger.error("FATAL: The database is corrupted");
-                    logger.error(JSON.stringify(blockchainAudit.errors, null, 4));
-
+                if (!(await blockchain.database.verifyBlockchain())) {
                     return blockchain.dispatch("ROLLBACK");
                 }
 
@@ -291,21 +287,17 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         logger.info("Trying to restore database integrity");
 
         const { maxBlockRewind, steps } = app.resolveOptions("p2p").databaseRollback;
-        let blockchainAudit;
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);
 
-            blockchainAudit = await blockchain.database.verifyBlockchain();
-            if (blockchainAudit.valid) {
+            if (await blockchain.database.verifyBlockchain()) {
                 break;
             }
         }
 
-        if (!blockchainAudit.valid) {
+        if (!(await blockchain.database.verifyBlockchain())) {
             // TODO: multiple attempts? rewind further? restore snapshot?
-            logger.error("FATAL: Failed to restore database integrity");
-            logger.error(JSON.stringify(blockchainAudit.errors, null, 4));
             blockchain.dispatch("FAILURE");
             return;
         }

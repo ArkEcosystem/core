@@ -458,7 +458,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }> {
+    public async verifyBlockchain(): Promise<boolean> {
         const errors = [];
 
         const lastBlock = await this.getLastBlock();
@@ -507,10 +507,14 @@ export class DatabaseService implements Database.IDatabaseService {
             );
         }
 
-        return {
-            valid: !errors.length,
-            errors,
-        };
+        const hasErrors: boolean = errors.length > 0;
+
+        if (hasErrors) {
+            this.logger.error("FATAL: The database is corrupted");
+            this.logger.error(JSON.stringify(errors, null, 4));
+        }
+
+        return !hasErrors;
     }
 
     public async verifyTransaction(transaction: Transactions.Transaction): Promise<boolean> {
