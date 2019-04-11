@@ -105,7 +105,7 @@ export class Client {
 
         const response = await this.emit<P2P.IResponse<P2P.ICurrentRound>>("p2p.internal.getCurrentRound", {});
 
-        return response.data;
+        return response;
     }
 
     /**
@@ -119,7 +119,7 @@ export class Client {
                 4000,
             );
 
-            return NetworkState.parse(response.data);
+            return NetworkState.parse(response);
         } catch (e) {
             this.logger.error(
                 `Could not retrieve network state: ${this.host.ip} p2p.internal.getNetworkState : ${e.message}`,
@@ -137,7 +137,7 @@ export class Client {
             {},
         );
 
-        return response.data;
+        return response;
     }
 
     /**
@@ -189,8 +189,8 @@ export class Client {
 
     private async emit<T>(event: string, data: any, timeout: number = 2000): Promise<any> {
         try {
-            const response = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
-            return response;
+            const response: any = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
+            return response.data;
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.ip}:${this.host.port}<${event}>`, error.message);
         }

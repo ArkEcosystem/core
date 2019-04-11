@@ -164,7 +164,7 @@ export class Worker extends SCWorker {
                     ...{ endpoint },
                     ...data,
                 },
-                (err, res) => (err ? reject(err) : resolve(res.data)),
+                (err, res) => (err ? reject(err) : resolve(res)),
             );
         });
     }

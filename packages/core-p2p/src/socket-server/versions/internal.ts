@@ -22,7 +22,7 @@ export function emitEvent({ req }): void {
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 }
 
-export async function verifyTransaction({ req }): Promise<{ data: { valid: boolean } }> {
+export async function verifyTransaction({ req }): Promise<boolean> {
     validate(
         {
             type: "object",
@@ -35,41 +35,31 @@ export async function verifyTransaction({ req }): Promise<{ data: { valid: boole
         req.data,
     );
 
-    return {
-        data: {
-            valid: await app
-                .resolvePlugin<Database.IDatabaseService>("database")
-                .verifyTransaction(Transactions.Transaction.fromBytes(req.data.transaction)),
-        },
-    };
+    return app
+        .resolvePlugin<Database.IDatabaseService>("database")
+        .verifyTransaction(Transactions.Transaction.fromBytes(req.data.transaction));
 }
 
 export function getUnconfirmedTransactions(): {
-    data: {
-        transactions: string[];
-        poolSize: number;
-        count: number;
-    };
+    transactions: string[];
+    poolSize: number;
+    count: number;
 } {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const { maxTransactions } = app.getConfig().getMilestone(blockchain.getLastBlock().data.height).block;
 
-    return {
-        data: blockchain.getUnconfirmedTransactions(maxTransactions),
-    };
+    return blockchain.getUnconfirmedTransactions(maxTransactions);
 }
 
 export async function getCurrentRound(): Promise<{
-    data: {
-        current: number;
-        reward: string;
-        timestamp: number;
-        delegates: Database.IDelegateWallet[];
-        currentForger: Database.IDelegateWallet;
-        nextForger: Database.IDelegateWallet;
-        lastBlock: Interfaces.IBlockData;
-        canForge: boolean;
-    };
+    current: number;
+    reward: string;
+    timestamp: number;
+    delegates: Database.IDelegateWallet[];
+    currentForger: Database.IDelegateWallet;
+    nextForger: Database.IDelegateWallet;
+    lastBlock: Interfaces.IBlockData;
+    canForge: boolean;
 }> {
     const config = app.getConfig();
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -89,27 +79,19 @@ export async function getCurrentRound(): Promise<{
     const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
 
     return {
-        data: {
-            current: +(height / maxActive),
-            reward,
-            timestamp,
-            delegates,
-            currentForger: delegates[currentForger],
-            nextForger: delegates[nextForger],
-            lastBlock: lastBlock.data,
-            canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
-        },
+        current: +(height / maxActive),
+        reward,
+        timestamp,
+        delegates,
+        currentForger: delegates[currentForger],
+        nextForger: delegates[nextForger],
+        lastBlock: lastBlock.data,
+        canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
     };
 }
 
-export async function getNetworkState({
-    service,
-}: {
-    service: P2P.IPeerService;
-}): Promise<{ data: P2P.INetworkState }> {
-    return {
-        data: await service.getMonitor().getNetworkState(),
-    };
+export async function getNetworkState({ service }: { service: P2P.IPeerService }): Promise<P2P.INetworkState> {
+    return service.getMonitor().getNetworkState();
 }
 
 export function storeBlock({ req }): void {
