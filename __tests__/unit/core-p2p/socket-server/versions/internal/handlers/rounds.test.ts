@@ -1,6 +1,6 @@
 import "../../../../mocks/core-container";
 
-import { getCurrentRound } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/rounds";
+import { getCurrentRound } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 import { delegates } from "../../../../../../utils/fixtures/testnet/delegates";
 
 import { Crypto } from "@arkecosystem/crypto";

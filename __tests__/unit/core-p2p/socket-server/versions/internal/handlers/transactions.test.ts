@@ -6,9 +6,7 @@ import { Transactions } from "@arkecosystem/crypto";
 import {
     getUnconfirmedTransactions,
     verifyTransaction,
-} from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/transactions";
-
-import { createPeerService } from "../../../../../../helpers/peers";
+} from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 import { genesisBlock } from "../../../../../../utils/config/unitnet/genesisBlock";
 
 jest.mock("../../../../../../../packages/core-p2p/src/socket-server/utils/validate");
@@ -22,7 +20,7 @@ describe("Internal handlers - transactions", () => {
                     transaction: Transactions.Transaction.toBytes(genesisBlock.transactions[0]),
                 },
             };
-            const result = await verifyTransaction(createPeerService().service, req);
+            const result = await verifyTransaction({ req });
             expect(result).toEqual({
                 data: {
                     valid: true,
@@ -37,7 +35,7 @@ describe("Internal handlers - transactions", () => {
                     transaction: Transactions.Transaction.toBytes(genesisBlock.transactions[0]),
                 },
             };
-            const result = await verifyTransaction(createPeerService().service, req);
+            const result = await verifyTransaction({ req });
             expect(result).toEqual({
                 data: {
                     valid: false,

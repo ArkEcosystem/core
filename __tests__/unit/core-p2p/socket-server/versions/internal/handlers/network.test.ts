@@ -1,6 +1,6 @@
 import "../../../../mocks/core-container";
 
-import { getNetworkState } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/network";
+import { getNetworkState } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 import { createPeerService } from "../../../../../../helpers/peers";
 
 describe("Internal handlers - network", () => {
@@ -10,7 +10,7 @@ describe("Internal handlers - network", () => {
 
             monitor.getNetworkState = jest.fn();
 
-            getNetworkState(service);
+            getNetworkState({ service });
 
             expect(monitor.getNetworkState).toHaveBeenCalledTimes(1);
         });

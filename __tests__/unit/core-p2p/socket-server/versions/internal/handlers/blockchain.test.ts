@@ -1,7 +1,8 @@
-import { blockchain } from "../../../../mocks/blockchain";
 import "../../../../mocks/core-container";
 
-import { syncBlockchain } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal/handlers/blockchain";
+import { blockchain } from "../../../../mocks/blockchain";
+
+import { syncBlockchain } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 
 describe("Internal handlers - blockchain", () => {
     describe("syncBlockchain", () => {

@@ -39,9 +39,12 @@ describe("Peers handler", () => {
             const { service, processor } = createPeerService();
             processor.validateAndAcceptPeer = jest.fn();
 
-            await acceptNewPeer(service, {
-                data: { ip: "0.0.0.0" },
-                headers: {},
+            await acceptNewPeer({
+                service,
+                req: {
+                    data: { ip: "0.0.0.0" },
+                    headers: {},
+                },
             });
 
             expect(processor.validateAndAcceptPeer).toHaveBeenCalledTimes(1);
@@ -56,7 +59,7 @@ describe("Peers handler", () => {
                     toBroadcast: jest.fn().mockReturnValue({ latency: 1 }),
                 },
             ]);
-            const result = getPeers(service);
+            const result = getPeers({ service });
             expect(result).toEqual({
                 success: true,
                 peers: [{ latency: 1 }],
@@ -67,9 +70,13 @@ describe("Peers handler", () => {
     describe("getCommonBlocks", () => {
         it("should return common blocks", async () => {
             database.getCommonBlocks = jest.fn().mockReturnValue(["12345"]);
-            const result = await getCommonBlocks(createPeerService().service, {
-                data: { ids: ["12345"] },
+
+            const result = await getCommonBlocks({
+                req: {
+                    data: { ids: ["12345"] },
+                },
             });
+
             expect(result).toEqual({
                 success: true,
                 common: "12345",
@@ -97,10 +104,12 @@ describe("Peers handler", () => {
 
     describe("postBlock", () => {
         it("should handle the incoming block", () => {
-            const result = postBlock(createPeerService().service, {
-                headers: { remoteAddress: "0.0.0.0" },
-                data: {
-                    block: block2,
+            const result = postBlock({
+                req: {
+                    headers: { remoteAddress: "0.0.0.0" },
+                    data: {
+                        block: block2,
+                    },
                 },
             });
 
@@ -112,9 +121,12 @@ describe("Peers handler", () => {
 
     describe("postTransactions", () => {
         it("should handle the incoming transactions", async () => {
-            const result = await postTransactions(createPeerService().service, {
-                data: {
-                    transactions: [{}],
+            const result = await postTransactions({
+                service: createPeerService().service,
+                req: {
+                    data: {
+                        transactions: [{}],
+                    },
                 },
             });
 
@@ -128,9 +140,11 @@ describe("Peers handler", () => {
     describe("getBlocks", () => {
         // TODO also test with something like {lastBlockHeight: 1}
         it("should return the blocks", async () => {
-            const result = await getBlocks(createPeerService().service, {
-                data: {},
-                headers: { remoteAddress: "0.0.0.0" },
+            const result = await getBlocks({
+                req: {
+                    data: {},
+                    headers: { remoteAddress: "0.0.0.0" },
+                },
             });
 
             expect(result).toEqual({
