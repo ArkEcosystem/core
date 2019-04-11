@@ -48,7 +48,7 @@ describe("PeerCommunicator", () => {
 
     describe("postTransactions", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("postTransactions", { success: true, transactionsIds: [] });
+            await socketManager.addMock("postTransactions", { transactionsIds: [] });
             const transactions = TransactionFactory.transfer(delegates[2].address, 1000)
                 .withNetwork("testnet")
                 .withPassphrase(delegates[1].passphrase)
@@ -151,7 +151,7 @@ describe("PeerCommunicator", () => {
         it("should return the list of peers", async () => {
             const peersMock = [{ ip: "1.1.1.1" }];
 
-            await socketManager.addMock("getPeers", { success: true, peers: peersMock });
+            await socketManager.addMock("getPeers", peersMock);
 
             const peers = await communicator.getPeers(stubPeer);
 
@@ -161,7 +161,7 @@ describe("PeerCommunicator", () => {
 
     describe("hasCommonBlocks", () => {
         it("should return false when peer has no common block", async () => {
-            await socketManager.addMock("getCommonBlocks", { success: true, common: null });
+            await socketManager.addMock("getCommonBlocks", { common: null });
 
             const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 
@@ -170,7 +170,7 @@ describe("PeerCommunicator", () => {
 
         it("should return true when peer has common block", async () => {
             await socketManager.resetAllMocks();
-            await socketManager.addMock("getCommonBlocks", { success: true, common: genesisBlock });
+            await socketManager.addMock("getCommonBlocks", { common: genesisBlock });
 
             const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 

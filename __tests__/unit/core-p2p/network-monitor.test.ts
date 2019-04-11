@@ -146,7 +146,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks from random peer", async () => {
             const mockBlock = { id: "123456" };
 
-            communicator.getPeerBlocks = jest.fn().mockReturnValue({ blocks: [mockBlock] });
+            communicator.getPeerBlocks = jest.fn().mockReturnValue([mockBlock]);
 
             storage.setPeer(
                 createStubPeer({
