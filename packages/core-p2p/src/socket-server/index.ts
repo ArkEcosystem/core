@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
 import { SocketErrors } from "../enums";
+import { ServerError } from "./errors";
 import { getHeaders } from "./utils/get-headers";
 import * as handlers from "./versions";
 
@@ -38,14 +39,18 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 data: (await handlers[version][method]({ service, req })) || {},
                 headers: getHeaders(),
             });
-        } catch (e) {
-            app.resolvePlugin<Logger.ILogger>("logger").error(e);
+        } catch (error) {
+            app.resolvePlugin<Logger.ILogger>("logger").error(error);
 
-            // return explicit error when data validation error
-            if (e.name === SocketErrors.Validation) {
-                return res(e);
+            if (error instanceof ServerError) {
+                return res(error);
             }
-            return res(new Error(`Socket call to ${req.endpoint} failed.`));
+
+            if (error.name === SocketErrors.Validation) {
+                return res(error);
+            }
+
+            return res(new Error(`${req.endpoint} resonded with ${error.message}`));
         }
     });
 

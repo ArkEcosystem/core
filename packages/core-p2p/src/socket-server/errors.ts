@@ -34,7 +34,7 @@ export class InvalidBlockReceivedError extends ServerError {
 
 export class InvalidTransactionsError extends ServerError {
     constructor() {
-        super("No transaction IDs were provided.");
+        super("The payload contains invalid transaction.");
     }
 }
 

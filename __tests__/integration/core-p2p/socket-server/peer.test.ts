@@ -105,7 +105,7 @@ describe("Peer socket endpoint", () => {
                         data: { transactions },
                         headers,
                     }),
-                ).rejects.toThrow();
+                ).rejects.toThrowError("The payload contains invalid transaction.");
 
                 // because our mocking makes all transactions to be invalid (already in cache)
             });
