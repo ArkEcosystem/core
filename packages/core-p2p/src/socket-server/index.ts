@@ -21,7 +21,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             workers: 2,
             wsEngine: "ws",
         },
-        ...config.socketCluster,
+        ...config.server,
     });
 
     server.on("fail", data => app.resolvePlugin<Logger.ILogger>("logger").error(data.message));

@@ -23,7 +23,7 @@ module.exports = {
         },
     },
     "@arkecosystem/core-p2p": {
-        socketCluster: {
+        server: {
             port: process.env.CORE_P2P_PORT || 4000
         },
         minimumVersions: [">=2.0.0"],

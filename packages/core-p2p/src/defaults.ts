@@ -1,6 +1,6 @@
 export const defaults = {
     // https://socketcluster.io/#!/docs/api-socketcluster
-    socketCluster: {
+    server: {
         port: process.env.CORE_P2P_PORT || 4002,
         logLevel: process.env.CORE_NETWORK_NAME === "testnet" ? 1 : 0,
     },

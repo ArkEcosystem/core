@@ -32,7 +32,7 @@ module.exports = {
         },
     },
     "@arkecosystem/core-p2p": {
-        socketCluster: {
+        server: {
             port: process.env.CORE_P2P_PORT || 4002
         },
         minimumNetworkReach: 5,
