@@ -77,7 +77,7 @@ describe("Client", () => {
                 const expectedResponse = { foo: "bar" };
 
                 await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
-                await socketManager.addMock("p2p.internal.getCurrentRound", { data: expectedResponse });
+                await socketManager.addMock("p2p.internal.getCurrentRound", expectedResponse);
 
                 const response = await client.getRound();
 
@@ -90,7 +90,7 @@ describe("Client", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = { transactions: [] };
-                await socketManager.addMock("p2p.internal.getUnconfirmedTransactions", { data: expectedResponse });
+                await socketManager.addMock("p2p.internal.getUnconfirmedTransactions", expectedResponse);
 
                 const response = await client.getTransactions();
 
@@ -103,7 +103,7 @@ describe("Client", () => {
         describe("when the host is available", () => {
             it("should be ok", async () => {
                 const expectedResponse = new NetworkState(NetworkStateStatus.Test);
-                await socketManager.addMock("p2p.internal.getNetworkState", { data: expectedResponse });
+                await socketManager.addMock("p2p.internal.getNetworkState", expectedResponse);
 
                 const response = await client.getNetworkState();
 

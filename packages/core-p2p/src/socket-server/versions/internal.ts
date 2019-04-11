@@ -1,12 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Transactions } from "@arkecosystem/crypto";
-import { Crypto } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { validate } from "../utils/validate";
 import { schema } from "./peer/schema";
 
-export function emitEvent({ req }) {
+export function emitEvent({ req }): void {
     validate(
         {
             type: "object",
@@ -23,40 +22,27 @@ export function emitEvent({ req }) {
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 }
 
-export async function verifyTransaction({ req }) {
-    validate(
-        {
-            type: "object",
-            required: ["transaction"],
-            additionalProperties: false,
-            properties: {
-                transaction: { $ref: "transaction" },
-            },
-        },
-        req.data,
-    );
-
-    const transaction = Transactions.Transaction.fromBytes(req.data.transaction);
-
-    return {
-        data: {
-            valid: await app.resolvePlugin<Database.IDatabaseService>("database").verifyTransaction(transaction),
-        },
-    };
-}
-
-export function getUnconfirmedTransactions() {
+export function getUnconfirmedTransactions(): {
+    transactions: string[];
+    poolSize: number;
+    count: number;
+} {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    const { maxTransactions } = app.getConfig().getMilestone(blockchain.getLastBlock().data.height).block;
 
-    const height = blockchain.getLastBlock().data.height;
-    const maxTransactions = app.getConfig().getMilestone(height).block.maxTransactions;
-
-    return {
-        data: blockchain.getUnconfirmedTransactions(maxTransactions),
-    };
+    return blockchain.getUnconfirmedTransactions(maxTransactions);
 }
 
-export async function getCurrentRound() {
+export async function getCurrentRound(): Promise<{
+    current: number;
+    reward: string;
+    timestamp: number;
+    delegates: Database.IDelegateWallet[];
+    currentForger: Database.IDelegateWallet;
+    nextForger: Database.IDelegateWallet;
+    lastBlock: Interfaces.IBlockData;
+    canForge: boolean;
+}> {
     const config = app.getConfig();
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -75,26 +61,22 @@ export async function getCurrentRound() {
     const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
 
     return {
-        data: {
-            current: +(height / maxActive),
-            reward,
-            timestamp,
-            delegates,
-            currentForger: delegates[currentForger],
-            nextForger: delegates[nextForger],
-            lastBlock: lastBlock.data,
-            canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
-        },
+        current: +(height / maxActive),
+        reward,
+        timestamp,
+        delegates,
+        currentForger: delegates[currentForger],
+        nextForger: delegates[nextForger],
+        lastBlock: lastBlock.data,
+        canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
     };
 }
 
-export async function getNetworkState({ service }: { service: P2P.IPeerService }) {
-    return {
-        data: await service.getMonitor().getNetworkState(),
-    };
+export async function getNetworkState({ service }: { service: P2P.IPeerService }): Promise<P2P.INetworkState> {
+    return service.getMonitor().getNetworkState();
 }
 
-export function storeBlock({ req }) {
+export function storeBlock({ req }): void {
     validate(schema.postBlock, req.data);
 
     req.data.block.ip = req.headers.remoteAddress;
@@ -102,7 +84,7 @@ export function storeBlock({ req }) {
     app.resolvePlugin<Blockchain.IBlockchain>("blockchain").handleIncomingBlock(req.data.block);
 }
 
-export function syncBlockchain() {
+export function syncBlockchain(): void {
     app.resolvePlugin<Logger.ILogger>("logger").debug("Blockchain sync check WAKEUP requested by forger");
 
     app.resolvePlugin<Blockchain.IBlockchain>("blockchain").forceWakeup();
