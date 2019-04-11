@@ -17,16 +17,14 @@ describe("Internal handlers - rounds", () => {
             const nextForger = (parseInt((timestampSlots / 8) as any) + 1) % 51;
 
             expect(round).toEqual({
-                data: {
-                    current: 2 / 51,
-                    reward: 0,
-                    timestamp: timestampSlots,
-                    delegates,
-                    currentForger: delegates[currentForger],
-                    nextForger: delegates[nextForger],
-                    lastBlock: { height: 1, timestamp: 222 },
-                    canForge: parseInt((1 + 222 / 8) as any) * 8 < timestampSlots - 1,
-                },
+                current: 2 / 51,
+                reward: 0,
+                timestamp: timestampSlots,
+                delegates,
+                currentForger: delegates[currentForger],
+                nextForger: delegates[nextForger],
+                lastBlock: { height: 1, timestamp: 222 },
+                canForge: parseInt((1 + 222 / 8) as any) * 8 < timestampSlots - 1,
             });
         });
     });

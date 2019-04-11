@@ -1,6 +1,7 @@
 export const defaults = {
     // https://socketcluster.io/#!/docs/api-socketcluster
     server: {
+        hostname: process.env.CORE_P2P_HOST || "0.0.0.0",
         port: process.env.CORE_P2P_PORT || 4002,
         logLevel: process.env.CORE_NETWORK_NAME === "testnet" ? 1 : 0,
     },
@@ -61,10 +62,5 @@ export const defaults = {
     /**
      * Rate limit config, used in socket-server worker / master
      */
-    rateLimit: {
-        enabled: true,
-        socketLimit: 20, // max number of messages per second per socket connection
-        ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-        banDurationMs: 10 * 60 * 1000, // 10 minute ban for peer exceeding rate limit
-    },
+    rateLimit: 20, // max number of messages per second per socket connection
 };

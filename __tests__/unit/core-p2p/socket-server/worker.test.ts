@@ -3,22 +3,19 @@ import "../mocks/scworker";
 import delay from "delay";
 import { Worker } from "../../../../packages/core-p2p/src/socket-server/worker";
 
-let worker;
-
-beforeAll(() => {
-    worker = new Worker();
-});
+const worker = new Worker();
 
 describe("Worker", () => {
     describe("run", () => {
         it("should init the worker", async () => {
-            worker.run();
+            await worker.run();
+
             await delay(500);
 
             // initRateLimit calls sendToMaster
             expect(worker.sendToMaster).toHaveBeenCalledWith(
                 {
-                    endpoint: "p2p.init.getConfig",
+                    endpoint: "p2p.utils.getConfig",
                 },
                 expect.any(Function),
             );

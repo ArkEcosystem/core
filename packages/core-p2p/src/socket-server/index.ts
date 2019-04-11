@@ -26,25 +26,20 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
-        // special endpoint for worker init, when need to get plugin config
-        if (req.endpoint === "p2p.init.getConfig") {
-            return res(null, config);
-        }
-
         const [prefix, version, method] = req.endpoint.split(".");
 
         try {
             return res(null, {
-                data: (await handlers[version][method]({ service, req })) || {},
+                data: await handlers[version][method]({ service, req }),
                 headers: getHeaders(),
             });
         } catch (e) {
             app.resolvePlugin<Logger.ILogger>("logger").error(e);
 
-            // return explicit error when data validation error
             if (e.name === SocketErrors.Validation) {
                 return res(e);
             }
+
             return res(new Error(`Socket call to ${req.endpoint} failed.`));
         }
     });
