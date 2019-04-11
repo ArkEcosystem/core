@@ -33,22 +33,23 @@ export async function getCurrentRound(): Promise<{
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const lastBlock = blockchain.getLastBlock();
-    const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
 
     const height = lastBlock.data.height + 1;
-    const maxActive = config.getMilestone(height).activeDelegates;
+    const roundInfo = roundCalculator.calculateRound(height);
+    const { maxDelegates } = roundInfo;
+
     const blockTime = config.getMilestone(height).blocktime;
     const reward = config.getMilestone(height).reward;
     const delegates = await databaseService.getActiveDelegates(roundInfo);
     const timestamp = Crypto.slots.getTime();
-
-    const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
-    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
+    const blockTimestamp = Crypto.slots.getSlotNumber(timestamp) * blockTime;
+    const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
+    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
 
     return {
-        current: +(height / maxActive),
+        current: roundInfo.round,
         reward,
-        timestamp,
+        timestamp: blockTimestamp,
         delegates,
         currentForger: delegates[currentForger],
         nextForger: delegates[nextForger],
