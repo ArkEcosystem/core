@@ -67,7 +67,7 @@ export async function getStatus(): Promise<{
 export async function postBlock({ req }): Promise<void> {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const block: Interfaces.IBlock = req.data.block;
+    const block: Interfaces.IBlockData = req.data.block;
 
     if (blockchain.pingBlock(req.data.block)) {
         return;
@@ -75,11 +75,11 @@ export async function postBlock({ req }): Promise<void> {
 
     const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
-    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.data.height) {
-        throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.data.height);
+    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
+        throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
     }
 
-    blockchain.handleIncomingBlock(block.data, req.headers.remoteAddress);
+    blockchain.handleIncomingBlock(block, req.headers.remoteAddress);
 }
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
