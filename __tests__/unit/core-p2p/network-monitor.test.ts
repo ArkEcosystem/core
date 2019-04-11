@@ -161,7 +161,7 @@ describe("NetworkMonitor", () => {
                 }),
             );
 
-            expect(await monitor.syncWithNetwork(1)).toEqual([{ ...mockBlock, ip: "1.1.1.1" }]);
+            expect(await monitor.syncWithNetwork(1)).toEqual([mockBlock]);
         });
     });
 

@@ -36,7 +36,7 @@ export async function getCommonBlocks({
     lastBlockHeight: number;
 }> {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids.split(","));
+    const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
 
     if (!commonBlocks.length) {
         throw new MissingCommonBlockError();
@@ -69,7 +69,7 @@ export async function postBlock({ req }): Promise<void> {
 
     const block: Interfaces.IBlockData = req.data.block;
 
-    if (blockchain.pingBlock(req.data.block)) {
+    if (blockchain.pingBlock(block)) {
         return;
     }
 
