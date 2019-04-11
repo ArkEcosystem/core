@@ -3,6 +3,7 @@ import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosyste
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { InvalidBlockReceivedError, InvalidTransactionsError, MissingTransactionIdsError } from "../../errors";
 import { validate } from "../../utils/validate";
 import { schema } from "./schema";
 
@@ -30,17 +31,12 @@ export const getPeers = ({ service }: { service: P2P.IPeerService }) => {
         .map(peer => peer.toBroadcast())
         .sort((a, b) => a.latency - b.latency);
 
-    return {
-        success: true,
-        peers,
-    };
+    return peers;
 };
 
 export async function getCommonBlocks({ req }) {
     if (!req.data.ids) {
-        return {
-            success: false,
-        };
+        throw new MissingTransactionIdsError();
     }
 
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
@@ -50,7 +46,6 @@ export async function getCommonBlocks({ req }) {
     const commonBlocks = await blockchain.database.getCommonBlocks(ids);
 
     return {
-        success: true,
         common: commonBlocks.length ? commonBlocks[0] : null,
         lastBlockHeight: blockchain.getLastBlock().data.height,
     };
@@ -60,7 +55,6 @@ export const getStatus = () => {
     const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
-        success: true,
         height: lastBlock ? lastBlock.data.height : 0,
         forgingAllowed: Crypto.slots.isForgingAllowed(),
         currentSlot: Crypto.slots.getSlotNumber(),
@@ -69,67 +63,52 @@ export const getStatus = () => {
 };
 
 export const postBlock = ({ req }) => {
-    validate(schema.postBlock, req.data); // this will throw if validation failed
+    validate(schema.postBlock, req.data);
 
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const block = req.data.block;
 
     if (blockchain.pingBlock(block)) {
-        return { success: true };
+        return;
     }
+
     // already got it?
     const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
 
     // Are we ready to get it?
     if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
-        return { success: true };
+        return;
     }
 
     const b = Block.fromData(block);
 
     if (!b.verification.verified) {
-        return { success: false };
+        throw new InvalidBlockReceivedError(b.data);
     }
 
     blockchain.pushPingBlock(b.data);
 
     block.ip = req.headers.remoteAddress;
     blockchain.handleIncomingBlock(block);
-
-    return { success: true };
 };
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }) {
-    validate(schema.postTransactions, req.data); // this will throw if validation failed
-
-    if (!transactionPool) {
-        return {
-            success: false,
-            message: "Transaction pool not available",
-        };
-    }
+    validate(schema.postTransactions, req.data);
 
     const guard = new TransactionGuard(transactionPool);
 
     const result = await guard.validate(req.data.transactions);
 
     if (result.invalid.length > 0) {
-        return {
-            success: false,
-            message: "Transactions list is not conform",
-            error: "Transactions list is not conform",
-        };
+        throw new InvalidTransactionsError();
     }
 
     if (result.broadcast.length > 0) {
         service.getMonitor().broadcastTransactions(guard.getBroadcastTransactions());
     }
 
-    return {
-        success: true,
-        transactionIds: result.accept,
-    };
+    return result.accept;
 }
 
 export async function getBlocks({ req }) {
@@ -141,8 +120,9 @@ export async function getBlocks({ req }) {
 
     if (!req.data.lastBlockHeight || isNaN(reqBlockHeight)) {
         const lastBlock = blockchain.getLastBlock();
+
         if (lastBlock) {
-            blocks.push(lastBlock.data); // lastBlock is a Block, we want its data
+            blocks.push(lastBlock.data);
         }
     } else {
         blocks = await database.getBlocks(reqBlockHeight, 400);
@@ -157,5 +137,5 @@ export async function getBlocks({ req }) {
         ).toLocaleString()}`,
     );
 
-    return { success: true, blocks: blocks || [] };
+    return { blocks };
 }
