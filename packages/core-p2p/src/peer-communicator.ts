@@ -182,7 +182,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return;
         }
 
-        this.connector.setError(peer, error);
+        this.connector.setError(peer, error.name);
 
         switch (error.name) {
             case SocketErrors.Validation:

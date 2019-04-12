@@ -60,8 +60,8 @@ export class PeerConnector implements P2P.IPeerConnector {
         return this.errors.get(peer.ip);
     }
 
-    public setError(peer: P2P.IPeer, error: Error): void {
-        this.errors.set(peer.ip, error.name);
+    public setError(peer: P2P.IPeer, error: string): void {
+        this.errors.set(peer.ip, error);
     }
 
     public hasError(peer: P2P.IPeer, error: string): boolean {
