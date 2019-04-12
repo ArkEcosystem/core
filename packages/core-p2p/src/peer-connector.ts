@@ -7,6 +7,7 @@ export class PeerConnector implements P2P.IPeerConnector {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private readonly connections: PeerRepository<SCClientSocket> = new PeerRepository<SCClientSocket>();
+    private readonly errors: Map<string, string> = new Map<string, string>();
 
     public all(): SCClientSocket[] {
         return this.connections.values();
@@ -53,5 +54,21 @@ export class PeerConnector implements P2P.IPeerConnector {
 
     public emit(peer: P2P.IPeer, event: string, data: any): void {
         return this.connection(peer).emit(event, data);
+    }
+
+    public getError(peer: P2P.IPeer): string {
+        return this.errors.get(peer.ip);
+    }
+
+    public setError(peer: P2P.IPeer, error: Error): void {
+        this.errors.set(peer.ip, error.name);
+    }
+
+    public hasError(peer: P2P.IPeer, error: string): boolean {
+        return this.getError(peer) === error;
+    }
+
+    public forgetError(peer: P2P.IPeer): void {
+        this.errors.delete(peer.ip);
     }
 }

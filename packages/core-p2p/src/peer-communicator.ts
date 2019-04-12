@@ -142,7 +142,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
         let response;
         try {
-            peer.socketError = null; // reset socket error between each call
+            this.connector.forgetError(peer);
+
             const timeBeforeSocketCall = new Date().getTime();
 
             this.updateHeaders(peer);
@@ -181,8 +182,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return;
         }
 
-        // guard will then be able to determine offence / punishment based on socketError
-        peer.socketError = error.name;
+        this.connector.setError(peer, error);
 
         switch (error.name) {
             case SocketErrors.Validation:

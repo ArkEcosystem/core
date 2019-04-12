@@ -70,15 +70,15 @@ export async function postBlock({ req }): Promise<void> {
     const block: Interfaces.IBlockData = req.data.block;
 
     if (!isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress)) {
-        if (blockchain.pingBlock(block)) {
-            return;
-        }
-
-        const lastDownloadedBlock = blockchain.getLastDownloadedBlock();
+        const lastDownloadedBlock: Interfaces.IBlock = blockchain.getLastDownloadedBlock();
 
         if (!isBlockChained(lastDownloadedBlock, { data: block })) {
             throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
         }
+    }
+
+    if (blockchain.pingBlock(block)) {
+        return;
     }
 
     blockchain.handleIncomingBlock(block, req.headers.remoteAddress);
