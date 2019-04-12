@@ -14,8 +14,6 @@ export class Peer implements P2P.IPeer {
     public lastPinged: Dato | null;
     public verificationResult: PeerVerificationResult | null;
 
-    // @TODO: review and remove them where appropriate
-    public status: any;
     public commonBlocks: any;
     public socketError: any;
 

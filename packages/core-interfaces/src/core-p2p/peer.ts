@@ -18,8 +18,6 @@ export interface IPeer {
     lastPinged: Dato | null;
     verificationResult: IPeerVerificationResult | null;
 
-    // @TODO: review and remove them where appropriate
-    status: any;
     commonBlocks: any;
     socketError: any; // @TODO: store errors in the PeerConnector
 
