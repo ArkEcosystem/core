@@ -17,9 +17,6 @@ export interface IPeer {
     lastPinged: Dato | null;
     verificationResult: IPeerVerificationResult | null;
 
-    // @TODO: review and remove them where appropriate
-    status: any;
-
     setHeaders(headers: Record<string, string>): void;
 
     isVerified(): boolean;

@@ -13,9 +13,6 @@ export class Peer implements P2P.IPeer {
     public lastPinged: Dato | null;
     public verificationResult: PeerVerificationResult | null;
 
-    // @TODO: review and remove them where appropriate
-    public status: any;
-
     constructor(readonly ip: string, readonly port: number) {
         this.headers = {
             version: app.getVersion(),
