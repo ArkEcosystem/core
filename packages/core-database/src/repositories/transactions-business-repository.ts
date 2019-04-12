@@ -100,7 +100,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     private async mapBlocksToTransactions(rows) {
         if (!Array.isArray(rows)) {
-            rows = [rows];
+            rows = rows ? [rows] : [];
         }
 
         // 1. get heights from cache
