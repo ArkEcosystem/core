@@ -74,12 +74,6 @@ export class PeerGuard implements P2P.IPeerGuard {
             }
         }
 
-        if (peer.commonBlocks === false) {
-            delete peer.commonBlocks;
-
-            return this.createPunishment(this.offences.noCommonBlocks);
-        }
-
         const connection: SCClientSocket = this.connector.connection(peer);
 
         if (connection && connection.getState() !== connection.OPEN) {

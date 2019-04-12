@@ -20,7 +20,6 @@ export interface IPeer {
 
     // @TODO: review and remove them where appropriate
     status: any;
-    commonBlocks: any;
 
     setHeaders(headers: Record<string, string>): void;
 
