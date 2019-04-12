@@ -12,9 +12,8 @@ export interface IPeer {
     os: string;
 
     latency: number;
-    downloadSize: number;
     headers: Record<string, string | number>;
-    state: any; // @TODO: add an interface/type
+    state: IPeerState;
     lastPinged: Dato | null;
     verificationResult: IPeerVerificationResult | null;
 
@@ -35,4 +34,11 @@ export interface IPeerBroadcast {
     os: string;
     height: number;
     latency: number;
+}
+
+export interface IPeerState {
+    height: number;
+    forgingAllowed: boolean;
+    currentSlot: number;
+    header: Record<string, any>;
 }

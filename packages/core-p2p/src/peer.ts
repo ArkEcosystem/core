@@ -8,11 +8,15 @@ export class Peer implements P2P.IPeer {
     public version: string;
     public os: string;
     public latency: number;
-    public downloadSize: number;
     public headers: Record<string, string | number>;
-    public state: any = {}; // @TODO: add an interface/type
     public lastPinged: Dato | null;
     public verificationResult: PeerVerificationResult | null;
+    public state: P2P.IPeerState = {
+        height: null,
+        forgingAllowed: null,
+        currentSlot: null,
+        header: {},
+    };
 
     constructor(readonly ip: string, readonly port: number) {
         this.headers = {
