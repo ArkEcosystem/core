@@ -36,7 +36,7 @@ export async function getCurrentRound(): Promise<{
 
     const height = lastBlock.data.height + 1;
     const roundInfo = roundCalculator.calculateRound(height);
-    const { maxDelegates } = roundInfo;
+    const { maxDelegates, round } = roundInfo;
 
     const blockTime = config.getMilestone(height).blocktime;
     const reward = config.getMilestone(height).reward;
@@ -47,7 +47,7 @@ export async function getCurrentRound(): Promise<{
     const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
 
     return {
-        current: roundInfo.round,
+        current: round,
         reward,
         timestamp: blockTimestamp,
         delegates,

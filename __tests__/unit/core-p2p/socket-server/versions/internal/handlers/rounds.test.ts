@@ -5,7 +5,7 @@ import { delegates } from "../../../../../../utils/fixtures/testnet/delegates";
 
 import { Crypto } from "@arkecosystem/crypto";
 
-const timestampSlots = 111;
+const timestampSlots = 104;
 Crypto.slots.getTime = jest.fn().mockReturnValue(timestampSlots);
 
 describe("Internal handlers - rounds", () => {
@@ -17,7 +17,7 @@ describe("Internal handlers - rounds", () => {
             const nextForger = (parseInt((timestampSlots / 8) as any) + 1) % 51;
 
             expect(round).toEqual({
-                current: 2 / 51,
+                current: 1,
                 reward: 0,
                 timestamp: timestampSlots,
                 delegates,
