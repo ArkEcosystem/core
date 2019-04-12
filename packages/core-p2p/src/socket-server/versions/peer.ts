@@ -48,12 +48,7 @@ export async function getCommonBlocks({
     };
 }
 
-export async function getStatus(): Promise<{
-    height: number;
-    forgingAllowed: boolean;
-    currentSlot: number;
-    header: Record<string, any>;
-}> {
+export async function getStatus(): Promise<P2P.IPeerState> {
     const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
