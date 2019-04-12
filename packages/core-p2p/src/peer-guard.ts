@@ -80,7 +80,7 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.socketNotOpen);
         }
 
-        if (peer.socketError === SocketErrors.AppNotReady) {
+        if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {
             return this.createPunishment(this.offences.applicationNotReady);
         }
 

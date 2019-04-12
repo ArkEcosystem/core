@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
@@ -10,9 +11,11 @@ import { createStubPeer } from "../../helpers/peers";
 
 let peerMock: P2P.IPeer;
 let guard: P2P.IPeerGuard;
+let connector: P2P.IPeerConnector;
 
 beforeAll(async () => {
-    guard = new PeerGuard(new PeerConnector());
+    connector = new PeerConnector();
+    guard = new PeerGuard(connector);
 });
 
 beforeEach(async () => {
@@ -103,10 +106,9 @@ describe("PeerGuard", () => {
         });
 
         it('should return a 30 seconds suspension for "Application not ready"', () => {
-            const { until, reason } = guard.analyze({
-                ...dummy,
-                socketError: SocketErrors.AppNotReady,
-            });
+            connector.getError = jest.fn(() => SocketErrors.AppNotReady);
+
+            const { until, reason } = guard.analyze(dummy);
 
             expect(reason).toBe("Application is not ready");
             expect(convertToMinutes(until)).toBe(0.5);

@@ -16,7 +16,6 @@ export class Peer implements P2P.IPeer {
 
     // @TODO: review and remove them where appropriate
     public status: any;
-    public socketError: any;
 
     constructor(readonly ip: string, readonly port: number) {
         this.headers = {
