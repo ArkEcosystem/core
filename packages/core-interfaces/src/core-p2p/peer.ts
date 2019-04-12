@@ -19,8 +19,6 @@ export interface IPeer {
 
     // @TODO: review and remove them where appropriate
     status: any;
-    commonBlocks: any;
-    socketError: any; // @TODO: store errors in the PeerConnector
 
     setHeaders(headers: Record<string, string>): void;
 

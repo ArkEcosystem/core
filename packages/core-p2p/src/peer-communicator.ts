@@ -92,9 +92,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            peer.commonBlocks = false;
-
-            this.emitter.emit("internal.p2p.suspendPeer", { peer });
+            this.emitter.emit("internal.p2p.suspendPeer", { peer, punishment: "noCommonBlocks" });
         }
 
         return false;
@@ -142,7 +140,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
         let response;
         try {
-            peer.socketError = null; // reset socket error between each call
+            this.connector.forgetError(peer);
+
             const timeBeforeSocketCall = new Date().getTime();
 
             this.updateHeaders(peer);
@@ -181,8 +180,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return;
         }
 
-        // guard will then be able to determine offence / punishment based on socketError
-        peer.socketError = error.name;
+        this.connector.setError(peer, error.name);
 
         switch (error.name) {
             case SocketErrors.Validation:
