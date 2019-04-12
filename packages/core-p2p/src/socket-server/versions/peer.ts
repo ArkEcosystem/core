@@ -1,11 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { isBlockChained } from "../../../../core-utils/dist";
 import { MissingCommonBlockError } from "../../errors";
-import { isLocalHost } from "../../utils";
+import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 
 const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
@@ -69,7 +69,7 @@ export async function postBlock({ req }): Promise<void> {
 
     const block: Interfaces.IBlockData = req.data.block;
 
-    if (!isLocalHost(req.headers.remoteAddress)) {
+    if (!isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress)) {
         if (blockchain.pingBlock(block)) {
             return;
         }
