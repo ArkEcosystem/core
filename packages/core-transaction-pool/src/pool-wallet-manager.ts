@@ -16,7 +16,7 @@ export class PoolWalletManager extends WalletManager {
      * @return {(Wallet|null)}
      */
     public findByAddress(address) {
-        if (!this.byAddress[address]) {
+        if (address && !this.byAddress[address]) {
             const blockchainWallet = this.databaseService.walletManager.findByAddress(address);
             const wallet = Object.assign(new Wallet(address), blockchainWallet); // do not modify
 
