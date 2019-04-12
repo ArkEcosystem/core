@@ -92,9 +92,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            peer.commonBlocks = false;
-
-            this.emitter.emit("internal.p2p.suspendPeer", { peer });
+            this.emitter.emit("internal.p2p.suspendPeer", { peer, punishment: "noCommonBlocks" });
         }
 
         return false;
