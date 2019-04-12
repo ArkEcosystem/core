@@ -42,7 +42,7 @@ describe("Peers handler", () => {
             await acceptNewPeer({
                 service,
                 req: {
-                    data: { ip: "0.0.0.0" },
+                    data: { ip: "127.0.0.1" },
                     headers: {},
                 },
             });
@@ -99,10 +99,23 @@ describe("Peers handler", () => {
     });
 
     describe("postBlock", () => {
-        it("should handle the incoming block", async () => {
+        it("should handle the incoming block with ipv4", async () => {
             const result = await postBlock({
                 req: {
-                    headers: { remoteAddress: "0.0.0.0" },
+                    headers: { remoteAddress: "127.0.0.1" },
+                    data: {
+                        block: block2,
+                    },
+                },
+            });
+
+            expect(result).toBeUndefined();
+        });
+
+        it("should handle the incoming block with ipv6", async () => {
+            const result = await postBlock({
+                req: {
+                    headers: { remoteAddress: "::ffff:127.0.0.1" },
                     data: {
                         block: block2,
                     },
@@ -134,7 +147,7 @@ describe("Peers handler", () => {
             const result = await getBlocks({
                 req: {
                     data: {},
-                    headers: { remoteAddress: "0.0.0.0" },
+                    headers: { remoteAddress: "127.0.0.1" },
                 },
             });
 
