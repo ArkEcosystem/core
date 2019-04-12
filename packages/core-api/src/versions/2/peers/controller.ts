@@ -15,11 +15,6 @@ export class PeersController extends Controller {
                   result.filter(peer => peer.os === (request.query as any).os)
                 : result;
             // @ts-ignore
-            result = request.query.status
-                ? // @ts-ignore
-                  result.filter(peer => peer.status === (request.query as any).status)
-                : result;
-            // @ts-ignore
             result = request.query.port
                 ? // @ts-ignore
                   result.filter(peer => peer.port === (request.query as any).port)

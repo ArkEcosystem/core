@@ -15,22 +15,11 @@ export class PeersController extends Controller {
                 return super.respondWith("No peers found", true);
             }
 
-            let peers = allPeers
-                .map(peer => {
-                    // just use 'OK' status for API instead of p2p http status codes
-                    peer.status = peer.status === 200 ? "OK" : peer.status;
-                    return peer;
-                })
-                .sort((a, b) => a.latency - b.latency);
+            let peers = allPeers.sort((a, b) => a.latency - b.latency);
             // @ts-ignore
             peers = request.query.os
                 ? // @ts-ignore
                   allPeers.filter(peer => peer.os === (request.query as any).os)
-                : peers;
-            // @ts-ignore
-            peers = request.query.status
-                ? // @ts-ignore
-                  allPeers.filter(peer => peer.status === (request.query as any).status)
                 : peers;
             // @ts-ignore
             peers = request.query.port
