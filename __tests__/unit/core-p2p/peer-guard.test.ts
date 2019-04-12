@@ -69,12 +69,7 @@ describe("PeerGuard", () => {
         });
 
         it('should return a 5 minutes suspension for "No Common Blocks"', () => {
-            const { until, reason } = guard.analyze({
-                ...dummy,
-                ...{
-                    commonBlocks: false,
-                },
-            });
+            const { until, reason } = guard.punishment("noCommonBlocks");
 
             expect(reason).toBe("No Common Blocks");
             expect(convertToMinutes(until)).toBe(5);

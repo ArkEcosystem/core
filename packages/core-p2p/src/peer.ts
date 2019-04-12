@@ -14,8 +14,6 @@ export class Peer implements P2P.IPeer {
     public lastPinged: Dato | null;
     public verificationResult: PeerVerificationResult | null;
 
-    public commonBlocks: any;
-
     constructor(readonly ip: string, readonly port: number) {
         this.headers = {
             version: app.getVersion(),
