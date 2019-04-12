@@ -19,7 +19,6 @@ export interface IPeer {
     verificationResult: IPeerVerificationResult | null;
 
     commonBlocks: any;
-    socketError: any; // @TODO: store errors in the PeerConnector
 
     setHeaders(headers: Record<string, string>): void;
 
