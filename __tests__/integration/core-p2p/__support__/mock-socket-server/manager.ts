@@ -11,6 +11,7 @@ export class MockSocketManager {
         this.serverProcess = fork(__dirname + "/index.js");
 
         await delay(2000);
+
         // client socket so we can send mocking instructions to our mock server
         this.clientSocket = socketCluster.create({
             port: 4009,

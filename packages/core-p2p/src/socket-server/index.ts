@@ -2,7 +2,10 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
 import { SocketErrors } from "../enums";
+import { requestSchemas } from "../schemas";
+import { ServerError } from "./errors";
 import { getHeaders } from "./utils/get-headers";
+import { validate } from "./utils/validate";
 import * as handlers from "./versions";
 
 export const startSocketServer = async (service: P2P.IPeerService, config: Record<string, any>): Promise<any> => {
@@ -29,18 +32,30 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
         const [prefix, version, method] = req.endpoint.split(".");
 
         try {
-            return res(null, {
-                data: await handlers[version][method]({ service, req }),
-                headers: getHeaders(),
-            });
-        } catch (e) {
-            app.resolvePlugin<Logger.ILogger>("logger").error(e);
+            if (requestSchemas[version]) {
+                const requestSchema = requestSchemas[version][method];
 
-            if (e.name === SocketErrors.Validation) {
-                return res(e);
+                if (requestSchema) {
+                    validate(requestSchema, req.data);
+                }
             }
 
-            return res(new Error(`Socket call to ${req.endpoint} failed.`));
+            return res(null, {
+                data: (await handlers[version][method]({ service, req })) || {},
+                headers: getHeaders(),
+            });
+        } catch (error) {
+            app.resolvePlugin<Logger.ILogger>("logger").error(error);
+
+            if (error instanceof ServerError) {
+                return res(error);
+            }
+
+            if (error.name === SocketErrors.Validation) {
+                return res(error);
+            }
+
+            return res(new Error(`${req.endpoint} resonded with ${error.message}`));
         }
     });
 

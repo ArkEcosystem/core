@@ -75,7 +75,7 @@ export class Client {
 
         let response;
         try {
-            response = this.emit("p2p.internal.storeBlock", { block });
+            response = this.emit("p2p.peer.postBlock", { block });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }

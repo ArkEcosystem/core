@@ -170,7 +170,8 @@ describe("Blockchain", () => {
                 timestamp: Crypto.slots.getEpochTime(),
             };
 
-            blockchain.handleIncomingBlock(block);
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, "127.0.0.1");
 
             expect(blockchain.dispatch).toHaveBeenCalled();
             expect(blockchain.enqueueBlocks).toHaveBeenCalled();
@@ -191,7 +192,8 @@ describe("Blockchain", () => {
                 timestamp: Crypto.slots.getSlotTime(Crypto.slots.getNextSlot()),
             };
 
-            blockchain.handleIncomingBlock(block);
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, "127.0.0.1");
 
             expect(blockchain.dispatch).not.toHaveBeenCalled();
             expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
@@ -209,7 +211,7 @@ describe("Blockchain", () => {
                 .mockReturnValueOnce(1)
                 .mockReturnValueOnce(1);
 
-            await blockchain.handleIncomingBlock(blocks101to155[54]);
+            await blockchain.handleIncomingBlock(blocks101to155[54], "127.0.0.1");
 
             expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready");
             blockchain.state.started = true;

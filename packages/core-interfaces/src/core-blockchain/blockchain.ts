@@ -65,10 +65,8 @@ export interface IBlockchain {
 
     /**
      * Push a block to the process queue.
-     * @param  {Block} block
-     * @return {void}
      */
-    handleIncomingBlock(block: Blocks.Block): void;
+    handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string): void;
 
     /**
      * Remove N number of blocks.

@@ -2,9 +2,9 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { isBlockChained } from "@arkecosystem/core-utils";
 import { Blocks, Utils } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
-import { isBlockChained } from "../utils/is-block-chained";
 import { validateGenerator } from "../utils/validate-generator";
 
 import {

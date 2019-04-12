@@ -233,20 +233,21 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Push a block to the process queue.
-     * @param  {Block} block
-     * @return {void}
      */
-    public handleIncomingBlock(block): void {
+    public handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string): void {
+        this.pushPingBlock(block);
+
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
                 "transaction",
                 block.numberOfTransactions,
                 true,
-            )} from ${block.ip}`,
+            )} from ${remoteAddress}`,
         );
 
         const currentSlot = Crypto.slots.getSlotNumber();
         const receivedSlot = Crypto.slots.getSlotNumber(block.timestamp);
+
         if (receivedSlot > currentSlot) {
             logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
             return;

@@ -42,7 +42,7 @@ describe("Peers handler", () => {
             await acceptNewPeer({
                 service,
                 req: {
-                    data: { ip: "0.0.0.0" },
+                    data: { ip: "127.0.0.1" },
                     headers: {},
                 },
             });
@@ -54,16 +54,14 @@ describe("Peers handler", () => {
     describe("getPeers", () => {
         it("should return the peers", () => {
             const { service, storage } = createPeerService();
+
             storage.getPeers = jest.fn().mockReturnValue([
                 {
                     toBroadcast: jest.fn().mockReturnValue({ latency: 1 }),
                 },
             ]);
-            const result = getPeers({ service });
-            expect(result).toEqual({
-                success: true,
-                peers: [{ latency: 1 }],
-            });
+
+            expect(getPeers({ service })).toEqual([{ latency: 1 }]);
         });
     });
 
@@ -78,7 +76,6 @@ describe("Peers handler", () => {
             });
 
             expect(result).toEqual({
-                success: true,
                 common: "12345",
                 lastBlockHeight: 1,
             });
@@ -86,14 +83,13 @@ describe("Peers handler", () => {
     });
 
     describe("getStatus", () => {
-        it("should return status", () => {
+        it("should return status", async () => {
             Crypto.slots.isForgingAllowed = jest.fn().mockReturnValue(true);
             Crypto.slots.getSlotNumber = jest.fn().mockReturnValue(3);
 
-            const result = getStatus();
+            const result = await getStatus();
 
             expect(result).toEqual({
-                success: true,
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 3,
@@ -103,19 +99,30 @@ describe("Peers handler", () => {
     });
 
     describe("postBlock", () => {
-        it("should handle the incoming block", () => {
-            const result = postBlock({
+        it("should handle the incoming block with ipv4", async () => {
+            const result = await postBlock({
                 req: {
-                    headers: { remoteAddress: "0.0.0.0" },
+                    headers: { remoteAddress: "127.0.0.1" },
                     data: {
                         block: block2,
                     },
                 },
             });
 
-            expect(result).toEqual({
-                success: true,
+            expect(result).toBeUndefined();
+        });
+
+        it("should handle the incoming block with ipv6", async () => {
+            const result = await postBlock({
+                req: {
+                    headers: { remoteAddress: "::ffff:127.0.0.1" },
+                    data: {
+                        block: block2,
+                    },
+                },
             });
+
+            expect(result).toBeUndefined();
         });
     });
 
@@ -130,10 +137,7 @@ describe("Peers handler", () => {
                 },
             });
 
-            expect(result).toEqual({
-                success: true,
-                transactionIds: [],
-            });
+            expect(result).toEqual([]);
         });
     });
 
@@ -143,14 +147,11 @@ describe("Peers handler", () => {
             const result = await getBlocks({
                 req: {
                     data: {},
-                    headers: { remoteAddress: "0.0.0.0" },
+                    headers: { remoteAddress: "127.0.0.1" },
                 },
             });
 
-            expect(result).toEqual({
-                success: true,
-                blocks: [blockchain.getLastBlock().data],
-            });
+            expect(result).toEqual([blockchain.getLastBlock().data]);
         });
     });
 });

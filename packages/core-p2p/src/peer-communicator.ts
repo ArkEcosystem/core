@@ -4,11 +4,10 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
-import util from "util";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
-import { replySchemas } from "./reply-schemas";
+import { replySchemas } from "./schemas";
 import { socketEmit } from "./utils";
 
 export class PeerCommunicator implements P2P.IPeerCommunicator {
@@ -21,13 +20,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         try {
             this.logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
 
-            const { blocks } = await this.getPeerBlocks(peer, fromBlockHeight);
-
-            if (blocks.length === 100 || blocks.length === 400) {
-                peer.downloadSize = blocks.length;
-            }
-
-            blocks.forEach(block => (block.ip = peer.ip));
+            const blocks = await this.getPeerBlocks(peer, fromBlockHeight);
 
             return blocks;
         } catch (error) {
@@ -57,11 +50,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const body: any = await this.emit(peer, "p2p.peer.getStatus", null, timeoutMsec);
 
         if (!body) {
-            throw new Error(`Peer ${peer.ip}: could not get status response`);
-        }
-
-        if (!body.success) {
-            throw new PeerStatusResponseError(JSON.stringify(body));
+            throw new PeerStatusResponseError(peer.ip);
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
@@ -86,34 +75,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     public async getPeers(peer: P2P.IPeer): Promise<any> {
         this.logger.info(`Fetching a fresh peer list from ${peer.url}`);
 
-        const body: any = await this.emit(peer, "p2p.peer.getPeers", null);
-
-        if (!body) {
-            return [];
-        }
-
-        return body.peers;
+        return this.emit(peer, "p2p.peer.getPeers");
     }
 
     public async hasCommonBlocks(peer: P2P.IPeer, ids: string[], timeoutMsec?: number): Promise<any> {
-        const errorMessage = `Could not determine common blocks with ${peer.ip}`;
-
         try {
             const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
 
-            if (!body) {
-                return false;
-            }
-
-            if (!body.success) {
-                const bodyStr = util.inspect(body, { depth: 2 });
-
-                this.logger.error(`${errorMessage}: unsuccessful response: ${bodyStr}`);
-
-                return false;
-            }
-
-            if (!body.common) {
+            if (!body || !body.common) {
                 return false;
             }
 
@@ -155,7 +124,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     private validateReply(peer: P2P.IPeer, reply: any, endpoint: string): boolean {
         const schema = replySchemas[endpoint];
         if (schema === undefined) {
-            this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined ` + `schemas matches.`);
+            this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined schemas matches.`);
             return false;
         }
 
@@ -163,14 +132,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const errors = ajv.validate(schema, reply) ? null : ajv.errorsText();
 
         if (errors) {
-            this.logger.error(`Got unexpected reply from ${peer.url}${endpoint}: ${errors}`);
+            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${errors}`);
             return false;
         }
 
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data: any, timeout?: number) {
+    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
         let response;
         try {
             peer.socketError = null; // reset socket error between each call

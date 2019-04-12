@@ -37,18 +37,16 @@ afterEach(() => socketManager.resetAllMocks());
 describe("PeerCommunicator", () => {
     describe("postBlock", () => {
         it("should get back success when posting genesis block", async () => {
-            await socketManager.addMock("postBlock", { success: true });
+            await socketManager.addMock("postBlock", {});
             const response = await communicator.postBlock(stubPeer, genesisBlock);
 
             expect(response).toBeObject();
-            expect(response).toHaveProperty("success");
-            expect(response.success).toBeTrue();
         });
     });
 
     describe("postTransactions", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("postTransactions", { success: true, transactionsIds: [] });
+            await socketManager.addMock("postTransactions", []);
             const transactions = TransactionFactory.transfer(delegates[2].address, 1000)
                 .withNetwork("testnet")
                 .withPassphrase(delegates[1].passphrase)
@@ -56,17 +54,13 @@ describe("PeerCommunicator", () => {
 
             const response = await communicator.postTransactions(stubPeer, transactions);
 
-            expect(response).toBeObject();
-            expect(response).toHaveProperty("success");
-            expect(response.success).toBeTrue();
+            expect(response).toBeArray();
         });
     });
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("getBlocks", {
-                blocks: [{ height: 1, id: "1" }, { height: 2, id: "2" }],
-            });
+            await socketManager.addMock("getBlocks", [{ height: 1, id: "1" }, { height: 2, id: "2" }]);
 
             const blocks = await communicator.downloadBlocks(stubPeer, 1);
 
@@ -75,7 +69,7 @@ describe("PeerCommunicator", () => {
         });
 
         it("should return the blocks with status 200", async () => {
-            await socketManager.addMock("getBlocks", { blocks: [genesisBlock] });
+            await socketManager.addMock("getBlocks", [genesisBlock]);
             const response = await communicator.downloadBlocks(stubPeer, 1);
 
             expect(response).toBeArrayOfSize(1);
@@ -83,7 +77,7 @@ describe("PeerCommunicator", () => {
         });
 
         it("should update the height after download", async () => {
-            await socketManager.addMock("getBlocks", { blocks: [genesisBlock] });
+            await socketManager.addMock("getBlocks", [genesisBlock]);
 
             stubPeer.state.height = null;
             await communicator.downloadBlocks(stubPeer, 1);
@@ -95,7 +89,6 @@ describe("PeerCommunicator", () => {
     describe("ping", () => {
         it("should be ok", async () => {
             const mockStatus = {
-                success: true,
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 1,
@@ -124,7 +117,6 @@ describe("PeerCommunicator", () => {
     describe("recentlyPinged", () => {
         it("should return true after a ping", async () => {
             await socketManager.addMock("getStatus", {
-                success: true,
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 1,
@@ -141,8 +133,6 @@ describe("PeerCommunicator", () => {
             const response = await communicator.ping(stubPeer, 5000);
 
             expect(response).toBeObject();
-            expect(response).toHaveProperty("success");
-            expect(response.success).toBeTrue();
             expect(stubPeer.recentlyPinged()).toBeTrue();
         });
     });
@@ -151,7 +141,7 @@ describe("PeerCommunicator", () => {
         it("should return the list of peers", async () => {
             const peersMock = [{ ip: "1.1.1.1" }];
 
-            await socketManager.addMock("getPeers", { success: true, peers: peersMock });
+            await socketManager.addMock("getPeers", peersMock);
 
             const peers = await communicator.getPeers(stubPeer);
 
@@ -161,7 +151,7 @@ describe("PeerCommunicator", () => {
 
     describe("hasCommonBlocks", () => {
         it("should return false when peer has no common block", async () => {
-            await socketManager.addMock("getCommonBlocks", { success: true, common: null });
+            await socketManager.addMock("getCommonBlocks", { common: null });
 
             const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 
@@ -170,7 +160,7 @@ describe("PeerCommunicator", () => {
 
         it("should return true when peer has common block", async () => {
             await socketManager.resetAllMocks();
-            await socketManager.addMock("getCommonBlocks", { success: true, common: genesisBlock });
+            await socketManager.addMock("getCommonBlocks", { common: genesisBlock });
 
             const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 

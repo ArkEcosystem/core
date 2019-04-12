@@ -6,8 +6,9 @@ export const validate = (schema, data) => {
     const errors = ajv.validate(schema, data) ? null : ajv.errors;
 
     if (errors) {
-        const error = new Error(`Data validation error : ${JSON.stringify(errors, null, 2)}`);
+        const error = new Error(`Data validation error : ${JSON.stringify(errors, null, 4)}`);
         error.name = SocketErrors.Validation;
+
         throw error;
     }
 };

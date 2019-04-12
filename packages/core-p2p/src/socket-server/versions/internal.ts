@@ -2,23 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
-import { validate } from "../utils/validate";
-import { schema } from "./peer/schema";
 
 export function emitEvent({ req }): void {
-    validate(
-        {
-            type: "object",
-            required: ["event", "body"],
-            additionalProperties: false,
-            properties: {
-                event: { type: "string" },
-                body: { type: "object" },
-            },
-        },
-        req.data,
-    );
-
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 }
 
@@ -48,22 +33,23 @@ export async function getCurrentRound(): Promise<{
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const lastBlock = blockchain.getLastBlock();
-    const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
 
     const height = lastBlock.data.height + 1;
-    const maxActive = config.getMilestone(height).activeDelegates;
+    const roundInfo = roundCalculator.calculateRound(height);
+    const { maxDelegates, round } = roundInfo;
+
     const blockTime = config.getMilestone(height).blocktime;
     const reward = config.getMilestone(height).reward;
     const delegates = await databaseService.getActiveDelegates(roundInfo);
     const timestamp = Crypto.slots.getTime();
-
-    const currentForger = parseInt((timestamp / blockTime) as any) % maxActive;
-    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxActive;
+    const blockTimestamp = Crypto.slots.getSlotNumber(timestamp) * blockTime;
+    const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
+    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
 
     return {
-        current: +(height / maxActive),
+        current: round,
         reward,
-        timestamp,
+        timestamp: blockTimestamp,
         delegates,
         currentForger: delegates[currentForger],
         nextForger: delegates[nextForger],
@@ -74,14 +60,6 @@ export async function getCurrentRound(): Promise<{
 
 export async function getNetworkState({ service }: { service: P2P.IPeerService }): Promise<P2P.INetworkState> {
     return service.getMonitor().getNetworkState();
-}
-
-export function storeBlock({ req }): void {
-    validate(schema.postBlock, req.data);
-
-    req.data.block.ip = req.headers.remoteAddress;
-
-    app.resolvePlugin<Blockchain.IBlockchain>("blockchain").handleIncomingBlock(req.data.block);
 }
 
 export function syncBlockchain(): void {

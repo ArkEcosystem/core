@@ -3,13 +3,12 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
 import { stateStorage } from "./state-storage";
-import { isBlockChained } from "./utils";
 
 import { Blockchain } from "./blockchain";
 

@@ -368,7 +368,7 @@ export class PeerVerifier {
             return false;
         }
 
-        if (response.blocks.length === 0) {
+        if (response.length === 0) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
@@ -377,8 +377,8 @@ export class PeerVerifier {
             return false;
         }
 
-        for (let i = 0; i < response.blocks.length; i++) {
-            blocksByHeight[height + i] = response.blocks[i];
+        for (let i = 0; i < response.length; i++) {
+            blocksByHeight[height + i] = response[i];
         }
 
         return true;

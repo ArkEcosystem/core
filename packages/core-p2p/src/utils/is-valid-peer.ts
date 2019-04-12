@@ -29,6 +29,10 @@ export const isLocalHost = (ip: string): boolean => {
             return true;
         }
 
+        if (["127.0.0.1", "::ffff:127.0.0.1"].includes(ip)) {
+            return true;
+        }
+
         const interfaces = os.networkInterfaces();
         return Object.keys(interfaces).some(ifname => interfaces[ifname].some(iface => iface.address === ip));
     } catch (error) {
