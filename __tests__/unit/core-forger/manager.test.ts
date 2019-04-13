@@ -67,7 +67,7 @@ describe("Forger Manager", () => {
                 nodeHeight: round.lastBlock.height,
             });
 
-            expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
+            expect(forgeManager.client.broadcastBlock).toHaveBeenCalledWith(
                 expect.objectContaining({
                     height: round.lastBlock.height + 1,
                     reward: round.reward.toFixed(),
