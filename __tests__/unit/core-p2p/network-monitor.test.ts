@@ -1,12 +1,15 @@
 import "jest-extended";
 
-import { blockchain } from "./mocks/blockchain";
 import "./mocks/core-container";
+
+import { blockchain } from "./mocks/blockchain";
 import { state } from "./mocks/state";
 
 import { P2P } from "@arkecosystem/core-interfaces";
+import { Blocks, Transactions } from "@arkecosystem/crypto";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
+import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
 
 let monitor: P2P.INetworkMonitor;
 let processor: P2P.IPeerProcessor;
@@ -171,7 +174,7 @@ describe("NetworkMonitor", () => {
 
             blockchain.getBlockPing = jest.fn().mockReturnValue({
                 block: {
-                    id: "123",
+                    id: genesisBlock.id,
                 },
                 last: 1110,
                 first: 800,
@@ -182,13 +185,7 @@ describe("NetworkMonitor", () => {
 
             communicator.postBlock = jest.fn();
 
-            await monitor.broadcastBlock({
-                data: {
-                    height: 3,
-                    id: "123",
-                },
-                toJson: jest.fn(),
-            });
+            await monitor.broadcastBlock(Blocks.Block.fromData(genesisBlock));
 
             expect(communicator.postBlock).toHaveBeenCalled();
         });
@@ -200,11 +197,7 @@ describe("NetworkMonitor", () => {
 
             communicator.postTransactions = jest.fn();
 
-            await monitor.broadcastTransactions([
-                {
-                    toJson: jest.fn(),
-                },
-            ]);
+            await monitor.broadcastTransactions([Transactions.Transaction.fromData(genesisBlock.transactions[0])]);
 
             expect(communicator.postTransactions).toHaveBeenCalled();
         });
