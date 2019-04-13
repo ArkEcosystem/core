@@ -121,9 +121,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create(210);
 
-            const blockForged: IBlock = delegate.forge(transactions, optionsDefault);
-
-            const block: IBlock = Block.fromData(blockForged.toJson());
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain("Transactions length is too high");
@@ -145,9 +143,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const blockForged = delegate.forge([transactions[0], transactions[0]], optionsDefault);
-
-            const block = Block.fromData(blockForged.toJson());
+            const block: IBlock = delegate.forge([transactions[0], transactions[0]], optionsDefault);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered duplicate transaction: ${transactions[0].id}`);
