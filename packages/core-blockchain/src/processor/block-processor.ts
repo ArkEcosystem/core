@@ -45,7 +45,7 @@ export class BlockProcessor {
         }
 
         const isValidGenerator = await validateGenerator(block);
-        const isChained = isBlockChained(this.blockchain.getLastBlock(), block);
+        const isChained = isBlockChained(this.blockchain.getLastBlock().data, block.data);
         if (!isChained) {
             return new UnchainedHandler(this.blockchain, block, isValidGenerator);
         }

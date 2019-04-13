@@ -215,9 +215,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         const empty = !blocks || blocks.length === 0;
-        const chained =
-            // @ts-ignore - @TODO: second argument has to be an IBlock
-            !empty && (isBlockChained(lastDownloadedBlock, { data: blocks[0] }) || Utils.isException(blocks[0]));
+        const chained = !empty && (isBlockChained(lastDownloadedBlock.data, blocks[0]) || Utils.isException(blocks[0]));
 
         if (chained) {
             logger.info(
