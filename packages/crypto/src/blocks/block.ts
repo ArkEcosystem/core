@@ -138,14 +138,6 @@ export class Block implements IBlock {
         }
     }
 
-    public toString(): string {
-        return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
-            "transaction",
-            this.data.numberOfTransactions,
-            true,
-        )}, verified: ${this.verification.verified}, errors: ${this.verification.errors}`;
-    }
-
     public getHeader(): IBlockData {
         const header = Object.assign({}, this.data);
         delete header.transactions;
@@ -157,6 +149,14 @@ export class Block implements IBlock {
         const hash = HashAlgorithms.sha256(bytes);
 
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
+    }
+
+    public toString(): string {
+        return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
+            "transaction",
+            this.data.numberOfTransactions,
+            true,
+        )}, verified: ${this.verification.verified}, errors: ${this.verification.errors}`;
     }
 
     public toJson(): IBlockJson {

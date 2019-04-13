@@ -13,9 +13,10 @@ export interface IBlock {
     transactions: ITransaction[];
     verification: IBlockVerification;
 
-    toString(): string;
     getHeader(): IBlockData;
     verifySignature(): boolean;
+
+    toString(): string;
     toJson(): IBlockJson;
 }
 

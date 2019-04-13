@@ -3,9 +3,11 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
+import { Transactions } from "@arkecosystem/crypto";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
+import genesisBlockJSON from "../../utils/config/unitnet/genesisBlock.json";
 import { delegates } from "../../utils/fixtures/unitnet";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
 
@@ -38,7 +40,7 @@ describe("PeerCommunicator", () => {
     describe("postBlock", () => {
         it("should get back success when posting genesis block", async () => {
             await socketManager.addMock("postBlock", {});
-            const response = await communicator.postBlock(stubPeer, genesisBlock);
+            const response = await communicator.postBlock(stubPeer, genesisBlockJSON);
 
             expect(response).toBeObject();
         });
@@ -52,7 +54,10 @@ describe("PeerCommunicator", () => {
                 .withPassphrase(delegates[1].passphrase)
                 .create(1);
 
-            const response = await communicator.postTransactions(stubPeer, transactions);
+            const response = await communicator.postTransactions(
+                stubPeer,
+                transactions.map(t => Transactions.Transaction.fromData(t).toJson()),
+            );
 
             expect(response).toBeArray();
         });
