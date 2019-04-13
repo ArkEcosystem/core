@@ -458,7 +458,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the last downloaded block of the blockchain.
      */
-    public getLastDownloadedBlock(): { data: Interfaces.IBlockData } {
+    public getLastDownloadedBlock(): Interfaces.IBlock {
         return this.state.lastDownloadedBlock;
     }
 

@@ -69,11 +69,9 @@ export async function postBlock({ req }): Promise<void> {
             return;
         }
 
-        // @ts-ignore - @TODO: has to be an IBlock
         const lastDownloadedBlock: Interfaces.IBlock = blockchain.getLastDownloadedBlock();
 
-        // @ts-ignore - @TODO: second argument has to be an IBlock
-        if (!isBlockChained(lastDownloadedBlock, { data: block })) {
+        if (!isBlockChained(lastDownloadedBlock.data, block)) {
             throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
         }
     }
