@@ -67,7 +67,7 @@ describe("Forger Manager", () => {
                 nodeHeight: round.lastBlock.height,
             });
 
-            expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
+            expect(forgeManager.client.broadcastBlock).toHaveBeenCalledWith(
                 expect.objectContaining({
                     height: round.lastBlock.height + 1,
                     reward: round.reward.toFixed(),
@@ -78,12 +78,12 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("__monitor", () => {
+    describe("monitor", () => {
         it("should emit failed event if error while monitoring", async () => {
             forgeManager.client.getRound.mockRejectedValue(new Error("oh bollocks"));
 
             setTimeout(() => forgeManager.stop(), 1000);
-            await forgeManager.__monitor();
+            await forgeManager.monitor();
 
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("forger.failed", "oh bollocks");
         });
@@ -114,12 +114,12 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("parseNetworkState", () => {
+    describe("isForgingAllowed", () => {
         it("should be TRUE when quorum > 0.66", async () => {
             const networkState = new NetworkState(NetworkStateStatus.Default);
             Object.assign(networkState, { getQuorum: () => 0.9, nodeHeight: 100, lastBlockId: "1233443" });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeTrue();
         });
@@ -128,7 +128,7 @@ describe("Forger Manager", () => {
             const networkState = new NetworkState(NetworkStateStatus.Unknown);
             Object.assign(networkState, { getQuorum: () => 1, nodeHeight: 100, lastBlockId: "1233443" });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
@@ -137,21 +137,21 @@ describe("Forger Manager", () => {
             const networkState = new NetworkState(NetworkStateStatus.Default);
             Object.assign(networkState, { getQuorum: () => 0.65, nodeHeight: 100, lastBlockId: "1233443" });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
         it("should be FALSE when coldStart is active", async () => {
             const networkState = new NetworkState(NetworkStateStatus.ColdStart);
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
         it("should be FALSE when minimumNetworkReach is not sufficient", async () => {
             const networkState = new NetworkState(NetworkStateStatus.BelowMinimumPeers);
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
@@ -175,7 +175,7 @@ describe("Forger Manager", () => {
                 },
             });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
             expect(canForge).toBeFalse();
         });
     });

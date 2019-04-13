@@ -172,7 +172,7 @@ describe("Blockchain", () => {
                 transactions: sortedTransactions,
             };
 
-            return Block.create(data, Crypto.crypto.getKeys(generatorKeys.secret));
+            return Block.createFromData(data, Crypto.crypto.getKeys(generatorKeys.secret));
         };
 
         it("should restore vote balances after a rollback", async () => {

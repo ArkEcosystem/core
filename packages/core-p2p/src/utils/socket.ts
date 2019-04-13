@@ -2,14 +2,14 @@ import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "../enums";
 
-export const socketEmit = async (
+export async function socketEmit(
     host: string,
     socket: SCClientSocket,
     event: string,
     data: any,
     headers: Record<string, any>,
     timeout?: number,
-) => {
+) {
     const req = {
         data: data || {},
         headers,
@@ -42,4 +42,4 @@ export const socketEmit = async (
     const allPromises = timeout ? [socketEmitPromise, new Promise(timeoutPromiseFn)] : [socketEmitPromise];
 
     return Promise.race(allPromises);
-};
+}

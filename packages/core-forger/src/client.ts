@@ -5,20 +5,12 @@ import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
+import { IRelaySocket } from "./interfaces";
 
 export class Client {
-    public hosts: Array<{
-        port: number;
-        ip: string;
-        socket: socketCluster.SCClientSocket;
-    }>;
-
-    private host: {
-        port: number;
-        ip: string;
-        socket: socketCluster.SCClientSocket;
-    };
-
+    public hosts: IRelaySocket[];
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private host: IRelaySocket;
     private headers: {
         version: string;
         port: number;
@@ -26,12 +18,6 @@ export class Client {
         "Content-Type": "application/json";
     };
 
-    private logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-
-    /**
-     * Create a new client instance.
-     * @param  {(Array|String)} hosts - Host or Array of hosts
-     */
     constructor(hosts) {
         this.hosts = Array.isArray(hosts) ? hosts : [hosts];
 
@@ -47,10 +33,7 @@ export class Client {
                 hostname: host.ip,
             });
 
-            host.socket.on("error", err => {
-                // don't do anything but we need this error handler so that socket errors don't crash the app
-                // (typically we catch here socket disconnection errors)
-            });
+            host.socket.on("error", err => this.logger.error(err.message));
         });
 
         this.host = this.hosts[0];
@@ -63,57 +46,41 @@ export class Client {
         };
     }
 
-    /**
-     * Send the given block to the relay.
-     */
-    public async broadcast(block: Interfaces.IBlockData): Promise<any> {
+    public async broadcastBlock(block: Interfaces.IBlockData): Promise<void> {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions
             } transactions to ${this.host.ip}`,
         );
 
-        let response;
         try {
-            response = this.emit("p2p.peer.postBlock", { block });
+            await this.emit("p2p.peer.postBlock", { block });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }
-        return response;
     }
 
-    /**
-     * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
-     */
-    public async syncCheck(): Promise<void> {
+    public async syncWithNetwork(): Promise<void> {
         await this.selectHost();
 
         this.logger.debug(`Sending wake-up check to relay node ${this.host.ip}`);
 
         try {
-            await this.emit("p2p.internal.syncBlockchain", {});
+            await this.emit("p2p.internal.syncBlockchain");
         } catch (error) {
             this.logger.error(`Could not sync check: ${error.message}`);
         }
     }
 
-    /**
-     * Get the current round.
-     */
     public async getRound(): Promise<P2P.ICurrentRound> {
         await this.selectHost();
 
-        const response = await this.emit<P2P.IResponse<P2P.ICurrentRound>>("p2p.internal.getCurrentRound", {});
-
-        return response;
+        return this.emit<P2P.IResponse<P2P.ICurrentRound>>("p2p.internal.getCurrentRound");
     }
 
-    /**
-     * Get the current network quorum.
-     */
     public async getNetworkState(): Promise<P2P.INetworkState> {
         try {
-            const response: any = await this.emit<P2P.IResponse<NetworkState>>(
+            const response: P2P.IResponse<NetworkState> = await this.emit<P2P.IResponse<NetworkState>>(
                 "p2p.internal.getNetworkState",
                 {},
                 4000,
@@ -124,25 +91,15 @@ export class Client {
             this.logger.error(
                 `Could not retrieve network state: ${this.host.ip} p2p.internal.getNetworkState : ${e.message}`,
             );
+
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
 
-    /**
-     * Get all transactions that are ready to be forged.
-     */
     public async getTransactions(): Promise<P2P.IForgingTransactions> {
-        const response = await this.emit<P2P.IResponse<P2P.IForgingTransactions>>(
-            "p2p.internal.getUnconfirmedTransactions",
-            {},
-        );
-
-        return response;
+        return this.emit<P2P.IResponse<P2P.IForgingTransactions>>("p2p.internal.getUnconfirmedTransactions");
     }
 
-    /**
-     * Emit the given event and payload to the local host.
-     */
     public async emitEvent(
         event: string,
         body: string | Interfaces.IBlockData | Interfaces.ITransactionData,
@@ -151,7 +108,7 @@ export class Client {
         // actions on a remote host based on events you should be using webhooks
         // that get triggered by the events you wish to react to.
 
-        const allowedHosts = ["localhost", "127.0.0.1", "::ffff:127.0.0.1", "192.168.*"];
+        const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
         const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.ip.includes(allowedHost)));
 
@@ -167,9 +124,6 @@ export class Client {
         }
     }
 
-    /**
-     * Chose a responsive host.
-     */
     public async selectHost(): Promise<void> {
         // if no socket is connected, we give it 1 second
         for (let i = 0; i < 10; i++) {
@@ -179,15 +133,16 @@ export class Client {
                     return;
                 }
             }
+
             await delay(100);
         }
 
-        this.logger.debug(`No open socket connection to any host : ${this.hosts.map(h => h.ip).join()}.`);
+        this.logger.debug(`No open socket connection to any host : ${this.hosts.map(host => host.ip).join()}.`);
 
-        throw new HostNoResponseError(this.hosts.map(h => h.ip).join());
+        throw new HostNoResponseError(this.hosts.map(host => host.ip).join());
     }
 
-    private async emit<T>(event: string, data: any, timeout: number = 2000): Promise<any> {
+    private async emit<T>(event: string, data: Record<string, any> = {}, timeout: number = 2000): Promise<any> {
         try {
             const response: any = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
             return response.data;

@@ -10,10 +10,7 @@ import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
-    /**
-     * Create block from data.
-     */
-    public static create(data, keys): Block {
+    public static createFromData(data, keys): Block {
         data.generatorPublicKey = keys.publicKey;
 
         const payloadHash: Buffer = Block.serialize(data, false);
@@ -25,23 +22,14 @@ export class Block implements IBlock {
         return Block.fromData(data);
     }
 
-    /**
-     * Deserialize block from hex string.
-     */
     public static deserialize(hexString, headerOnly = false): IBlockData {
         return deserializer.deserialize(hexString, headerOnly).data;
     }
 
-    /**
-     * Serialize the given block including transactions.
-     */
     public static serializeFull(block: IBlockData) {
         return Serializer.serializeFull(block);
     }
 
-    /**
-     * Serialize the given block without transactions.
-     */
     public static serialize(block: IBlockData, includeSignature: boolean = true) {
         return Serializer.serialize(block, includeSignature);
     }

@@ -239,7 +239,7 @@ describe("Database Service", () => {
                 walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
                 // walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey;
 
-                const block = Block.create(
+                const block = Block.createFromData(
                     {
                         version: 0,
                         timestamp: 0,
