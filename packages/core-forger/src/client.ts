@@ -5,45 +5,35 @@ import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
-import { IRelaySocket } from "./interfaces";
+import { IRelayHost } from "./interfaces";
 
 export class Client {
-    public hosts: IRelaySocket[];
+    public hosts: IRelayHost[];
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private host: IRelaySocket;
+    private host: IRelayHost;
     private headers: {
         version: string;
         port: number;
         nethash: string;
         "Content-Type": "application/json";
+    } = {
+        version: app.getVersion(),
+        nethash: app.getConfig().get("network.nethash"),
+        port: null,
+        "Content-Type": "application/json",
     };
 
-    constructor(hosts) {
-        this.hosts = Array.isArray(hosts) ? hosts : [hosts];
-
-        const { port, ip } = this.hosts[0];
-
-        if (!port || !ip) {
-            throw new Error("Failed to determine the P2P communication port / ip.");
-        }
-
-        this.hosts.forEach(host => {
-            host.socket = socketCluster.create({
-                port: host.port,
-                hostname: host.ip,
-            });
-
+    constructor(hosts: IRelayHost[]) {
+        this.hosts = hosts.map(host => {
+            host.socket = socketCluster.create(host);
             host.socket.on("error", err => this.logger.error(err.message));
+
+            return host;
         });
 
         this.host = this.hosts[0];
 
-        this.headers = {
-            version: app.getVersion(),
-            port: +port,
-            nethash: app.getConfig().get("network.nethash"),
-            "Content-Type": "application/json",
-        };
+        this.headers.port = this.host.port;
     }
 
     public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
@@ -75,18 +65,12 @@ export class Client {
     public async getRound(): Promise<P2P.ICurrentRound> {
         await this.selectHost();
 
-        return this.emit<P2P.IResponse<P2P.ICurrentRound>>("p2p.internal.getCurrentRound");
+        return this.emit<P2P.ICurrentRound>("p2p.internal.getCurrentRound");
     }
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
         try {
-            const response: P2P.IResponse<NetworkState> = await this.emit<P2P.IResponse<NetworkState>>(
-                "p2p.internal.getNetworkState",
-                {},
-                4000,
-            );
-
-            return NetworkState.parse(response);
+            return NetworkState.parse(await this.emit<P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000));
         } catch (e) {
             this.logger.error(
                 `Could not retrieve network state: ${this.host.ip} p2p.internal.getNetworkState : ${e.message}`,
@@ -97,7 +81,7 @@ export class Client {
     }
 
     public async getTransactions(): Promise<P2P.IForgingTransactions> {
-        return this.emit<P2P.IResponse<P2P.IForgingTransactions>>("p2p.internal.getUnconfirmedTransactions");
+        return this.emit<P2P.IForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
     }
 
     public async emitEvent(
@@ -142,9 +126,17 @@ export class Client {
         throw new HostNoResponseError(this.hosts.map(host => host.ip).join());
     }
 
-    private async emit<T>(event: string, data: Record<string, any> = {}, timeout: number = 2000): Promise<any> {
+    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 2000): Promise<T> {
         try {
-            const response: any = await socketEmit(this.host.ip, this.host.socket, event, data, this.headers, timeout);
+            const response: P2P.IResponse<T> = await socketEmit(
+                this.host.ip,
+                this.host.socket,
+                event,
+                data,
+                this.headers,
+                timeout,
+            );
+
             return response.data;
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.ip}:${this.host.port}<${event}>`, error.message);

@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
-import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
 import { blockchainMachine } from "./machines/blockchain";
