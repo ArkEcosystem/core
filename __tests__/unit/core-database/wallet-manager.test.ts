@@ -54,7 +54,7 @@ describe("Wallet Manager", () => {
 
     describe("applyBlock", () => {
         let delegateMock;
-        let block2: Blocks.Block;
+        let block2: Interfaces.IBlock;
 
         const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
