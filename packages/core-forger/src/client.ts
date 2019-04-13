@@ -46,7 +46,7 @@ export class Client {
         };
     }
 
-    public async broadcastBlock(block: Interfaces.IBlockData): Promise<void> {
+    public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
         this.logger.debug(
             `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
                 block.numberOfTransactions

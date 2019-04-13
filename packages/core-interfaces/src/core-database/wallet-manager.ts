@@ -1,4 +1,4 @@
-import { Blocks, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Logger } from "../index";
 import { IRoundInfo } from "../shared";
 
@@ -58,13 +58,13 @@ export interface IWalletManager {
 
     buildVoteBalances(): void;
 
-    applyBlock(block: Blocks.Block): void;
+    applyBlock(block: Interfaces.IBlock): void;
 
-    revertBlock(block: Blocks.Block): void;
+    revertBlock(block: Interfaces.IBlock): void;
 
-    applyTransaction(transaction: Transactions.Transaction): void;
+    applyTransaction(transaction: Interfaces.ITransaction): void;
 
-    revertTransaction(transaction: Transactions.Transaction): void;
+    revertTransaction(transaction: Interfaces.ITransaction): void;
 
     isDelegate(publicKey: string): boolean;
 

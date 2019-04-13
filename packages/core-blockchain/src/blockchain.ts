@@ -225,7 +225,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Hand the given transactions to the transaction handler.
      */
-    public async postTransactions(transactions: Transactions.Transaction[]): Promise<void> {
+    public async postTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
         logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
 
         await this.transactionPool.addTransactions(transactions);
@@ -368,7 +368,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block: Blocks.Block, callback): Promise<any> {
+    public async processBlock(block: Interfaces.IBlock, callback): Promise<any> {
         const result = await this.blockProcessor.process(block);
 
         if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
@@ -402,7 +402,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Fork the chain at the given block.
      */
-    public forkBlock(block: Blocks.Block, numberOfBlockToRollback?: number): void {
+    public forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
 
         if (numberOfBlockToRollback) {
@@ -444,7 +444,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the last block of the blockchain.
      */
-    public getLastBlock(): Blocks.Block {
+    public getLastBlock(): Interfaces.IBlock {
         return this.state.getLastBlock();
     }
 

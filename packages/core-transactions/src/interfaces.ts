@@ -5,17 +5,17 @@ export interface ITransactionHandler {
     getConstructor(): Transactions.TransactionConstructor;
 
     canBeApplied(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean;
-    applyToSender(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
-    applyToRecipient(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
-    revertForSender(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
-    revertForRecipient(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
-    apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
-    revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
+    applyToSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    applyToRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    revertForSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    revertForRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
 
     canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean;
-    emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void;
+    emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void;
 }

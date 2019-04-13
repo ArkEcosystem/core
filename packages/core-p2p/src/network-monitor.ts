@@ -296,7 +296,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastBlock(block: Blocks.Block): Promise<void> {
+    public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
@@ -340,7 +340,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async broadcastTransactions(transactions: Transactions.Transaction[]): Promise<any> {
+    public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
         const peers: P2P.IPeer[] = take(shuffle(this.storage.getPeers()), app.resolveOptions("p2p").maxPeersBroadcast);
 
         this.logger.debug(
@@ -351,7 +351,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             )}`,
         );
 
-        const transactionsBroadcast: Interfaces.ITransactionData[] = transactions.map(transaction =>
+        const transactionsBroadcast: Interfaces.ITransactionJson[] = transactions.map(transaction =>
             transaction.toJson(),
         );
 

@@ -30,7 +30,7 @@ export class SerializeCommand extends BaseCommand {
         const serialized =
             flags.type === "transaction"
                 ? Transactions.Transaction.fromData(JSON.parse(flags.data)).serialized
-                : Blocks.Block[flags.full ? "serializeFull" : "serialize"](JSON.parse(flags.data));
+                : Blocks.Block[flags.full ? "serializeWithTransactions" : "serialize"](JSON.parse(flags.data));
 
         return handleOutput(flags, serialized.toString("hex"));
     }

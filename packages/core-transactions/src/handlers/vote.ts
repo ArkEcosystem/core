@@ -9,7 +9,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     }
 
     public canBeApplied(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -36,7 +36,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
@@ -46,7 +46,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
@@ -56,7 +56,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         const vote = transaction.data.asset.votes[0];
 
         emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {

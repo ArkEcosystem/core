@@ -7,7 +7,7 @@ import { Bignum } from "../utils";
 import { Block } from "./block";
 
 export class Serializer {
-    public static serializeFull(block: IBlockData): Buffer {
+    public static serializeWithTransactions(block: IBlockData): Buffer {
         const transactions = block.transactions || [];
         block.numberOfTransactions = block.numberOfTransactions || transactions.length;
 

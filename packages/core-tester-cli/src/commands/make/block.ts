@@ -44,7 +44,7 @@ export class BlockCommand extends BaseCommand {
         }),
     };
 
-    public async run(): Promise<Interfaces.IBlockData[]> {
+    public async run(): Promise<Interfaces.IBlockJson[]> {
         const { flags } = this.makeOffline(BlockCommand);
 
         const genesisBlock = Managers.configManager.get("genesisBlock");
@@ -52,7 +52,7 @@ export class BlockCommand extends BaseCommand {
 
         let previousBlock = flags.previousBlock ? JSON.parse(flags.previousBlock) : genesisBlock;
 
-        const blocks: Interfaces.IBlockData[] = [];
+        const blocks: Interfaces.IBlockJson[] = [];
 
         for (let i = 0; i < flags.number; i++) {
             const milestone = Managers.configManager.getMilestone(previousBlock.height);
@@ -78,7 +78,7 @@ export class BlockCommand extends BaseCommand {
                 reward: milestone.reward,
             });
 
-            const blockPayload = newBlock.data;
+            const blockPayload: Interfaces.IBlockJson = newBlock.toJson();
             blockPayload.transactions = newBlock.transactions.map(tx => ({
                 ...tx.toJson(),
                 serialized: tx.serialized.toString("hex"),

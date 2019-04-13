@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { NetworkStateStatus } from "./enums";
 
 class QuorumDetails implements P2P.IQuorumDetails {
@@ -26,7 +26,7 @@ export class NetworkState implements P2P.INetworkState {
     public lastBlockId: string;
     private quorumDetails: QuorumDetails;
 
-    public constructor(readonly status: NetworkStateStatus, lastBlock?: Blocks.Block) {
+    public constructor(readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
         this.quorumDetails = new QuorumDetails();
 
         if (lastBlock) {
@@ -34,13 +34,13 @@ export class NetworkState implements P2P.INetworkState {
         }
     }
 
-    public setLastBlock(lastBlock: Blocks.Block): void {
+    public setLastBlock(lastBlock: Interfaces.IBlock): void {
         this.nodeHeight = lastBlock.data.height;
         this.lastBlockId = lastBlock.data.id;
     }
 
     public static analyze(monitor: P2P.INetworkMonitor, storage: P2P.IPeerStorage): P2P.INetworkState {
-        const lastBlock: Blocks.Block = app.resolvePlugin("blockchain").getLastBlock();
+        const lastBlock: Interfaces.IBlock = app.resolvePlugin("blockchain").getLastBlock();
 
         const peers: P2P.IPeer[] = storage.getPeers();
         const minimumNetworkReach: number = app.resolveOptions("p2p").minimumNetworkReach || 20;

@@ -11,7 +11,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public canBeApplied(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -34,16 +34,16 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         wallet.username = data.asset.delegate.username;
     }
 
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         wallet.username = null;
     }
 
-    public emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit("delegate.registered", transaction.data);
     }
 

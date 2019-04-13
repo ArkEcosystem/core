@@ -9,7 +9,7 @@ export class TransferTransactionHandler extends TransactionHandler {
     }
 
     public canBeApplied(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -20,11 +20,11 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         return;
     }
 

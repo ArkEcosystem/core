@@ -289,7 +289,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public applyBlock(block: Blocks.Block): void {
+    public applyBlock(block: Interfaces.IBlock): void {
         const generatorPublicKey = block.data.generatorPublicKey;
 
         let delegate = this.byPublicKey[block.data.generatorPublicKey];
@@ -350,7 +350,7 @@ export class WalletManager implements Database.IWalletManager {
      * @param  {Block} block
      * @return {void}
      */
-    public revertBlock(block: Blocks.Block): void {
+    public revertBlock(block: Interfaces.IBlock): void {
         const delegate = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
@@ -389,7 +389,7 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Apply the given transaction to a delegate.
      */
-    public applyTransaction(transaction: Transactions.Transaction): void {
+    public applyTransaction(transaction: Interfaces.ITransaction): void {
         const { data } = transaction;
         const { type, recipientId, senderPublicKey } = data;
 
@@ -435,7 +435,7 @@ export class WalletManager implements Database.IWalletManager {
     /**
      * Remove the given transaction from a delegate.
      */
-    public revertTransaction(transaction: Transactions.Transaction): void {
+    public revertTransaction(transaction: Interfaces.ITransaction): void {
         const { type, data } = transaction;
         const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender = this.findByPublicKey(data.senderPublicKey); // Should exist

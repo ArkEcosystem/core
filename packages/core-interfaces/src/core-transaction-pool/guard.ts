@@ -21,5 +21,5 @@ export interface IGuard {
     validate(transactions: Interfaces.ITransactionData[]): Promise<IValidationResult>;
     pushError(transaction: Interfaces.ITransactionData, type: string, message: string);
 
-    getBroadcastTransactions(): Transactions.Transaction[];
+    getBroadcastTransactions(): Interfaces.ITransaction[];
 }

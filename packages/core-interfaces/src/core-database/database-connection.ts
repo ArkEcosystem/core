@@ -1,4 +1,4 @@
-import { Blocks } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { IBlocksRepository } from "./database-repository";
 import { IRoundsRepository } from "./database-repository";
 import { ITransactionsRepository } from "./database-repository";
@@ -20,11 +20,11 @@ export interface IConnection {
 
     buildWallets(): Promise<boolean>;
 
-    saveBlock(block: Blocks.Block): Promise<void>;
+    saveBlock(block: Interfaces.IBlock): Promise<void>;
 
-    deleteBlock(block: Blocks.Block): Promise<void>;
+    deleteBlock(block: Interfaces.IBlock): Promise<void>;
 
-    enqueueDeleteBlock(block: Blocks.Block): void;
+    enqueueDeleteBlock(block: Interfaces.IBlock): void;
 
     enqueueDeleteRound(height: number): void;
 

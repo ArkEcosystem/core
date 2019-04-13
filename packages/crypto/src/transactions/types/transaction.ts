@@ -8,14 +8,14 @@ import {
     TransactionSchemaError,
     TransactionVersionError,
 } from "../../errors";
-import { ISchemaValidationResult, ITransactionData } from "../../interfaces";
+import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { Bignum, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
 import { deserializer } from "../deserializer";
 import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 
-export abstract class Transaction {
+export abstract class Transaction implements ITransaction {
     public static type: TransactionTypes = null;
 
     public static fromHex(hex: string): Transaction {
@@ -51,11 +51,13 @@ export abstract class Transaction {
             transaction.data.id = crypto.getId(transaction.data);
 
             const { value, error } = this.validateSchema(transaction.data, true);
+
             if (error !== null && !isException(value)) {
                 throw new TransactionSchemaError(error);
             }
 
             transaction.isVerified = transaction.verify();
+
             return transaction;
         } catch (error) {
             if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
@@ -68,6 +70,7 @@ export abstract class Transaction {
 
     public static fromData(data: ITransactionData, strict: boolean = true): Transaction {
         const { value, error } = this.validateSchema(data, strict);
+
         if (error !== null && !isException(value)) {
             throw new TransactionSchemaError(error);
         }
@@ -104,17 +107,12 @@ export abstract class Transaction {
     public serialized: Buffer;
     public timestamp: number;
 
-    /**
-     * Serde
-     */
     public abstract serialize(): ByteBuffer;
     public abstract deserialize(buf: ByteBuffer): void;
 
-    /**
-     * Misc
-     */
     protected verify(): boolean {
         const { data } = this;
+
         if (isException(data)) {
             return true;
         }
@@ -126,8 +124,8 @@ export abstract class Transaction {
         return crypto.verify(data);
     }
 
-    public toJson() {
-        const data = JSON.parse(JSON.stringify(this.data));
+    public toJson(): ITransactionJson {
+        const data: ITransactionJson = JSON.parse(JSON.stringify(this.data));
         data.amount = this.data.amount.toFixed();
         data.fee = this.data.fee.toFixed();
 
@@ -142,9 +140,6 @@ export abstract class Transaction {
         return false;
     }
 
-    /**
-     * Schema
-     */
     public static getSchema(): TransactionSchema {
         throw new NotImplementedError();
     }
@@ -158,6 +153,7 @@ export abstract class Transaction {
         }
 
         const { $id } = TransactionRegistry.get(data.type).getSchema();
+
         return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 }

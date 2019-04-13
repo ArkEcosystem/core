@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
@@ -125,7 +125,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async deleteBlock(block: Blocks.Block): Promise<void> {
+    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
         try {
             await this.db.tx(t =>
                 t.batch([
@@ -140,7 +140,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public enqueueDeleteBlock(block: Blocks.Block): void {
+    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
         this.enqueueQueries([
             this.transactionsRepository.deleteByBlockId(block.data.id),
             this.blocksRepository.delete(block.data.id),
@@ -155,7 +155,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async saveBlock(block: Blocks.Block): Promise<void> {
+    public async saveBlock(block: Interfaces.IBlock): Promise<void> {
         try {
             const queries = [this.blocksRepository.insert(block.data)];
 

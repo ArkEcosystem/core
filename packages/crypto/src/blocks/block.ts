@@ -1,7 +1,7 @@
 import pluralize from "pluralize";
 import { crypto, HashAlgorithms, slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
-import { IBlock, IBlockData, IBlockVerification } from "../interfaces";
+import { IBlock, IBlockData, IBlockJson, IBlockVerification } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Transaction } from "../transactions";
 import { Bignum, isException } from "../utils";
@@ -10,11 +10,11 @@ import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
-    public static createFromData(data, keys): Block {
+    public static createFromData(data, keys): IBlock {
         data.generatorPublicKey = keys.publicKey;
 
         const payloadHash: Buffer = Block.serialize(data, false);
-        const hash = HashAlgorithms.sha256(payloadHash);
+        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
         data.blockSignature = crypto.signHash(hash, keys);
         data.id = Block.getId(data);
@@ -22,12 +22,12 @@ export class Block implements IBlock {
         return Block.fromData(data);
     }
 
-    public static deserialize(hexString, headerOnly = false): IBlockData {
+    public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
         return deserializer.deserialize(hexString, headerOnly).data;
     }
 
-    public static serializeFull(block: IBlockData) {
-        return Serializer.serializeFull(block);
+    public static serializeWithTransactions(block: IBlockData) {
+        return Serializer.serializeWithTransactions(block);
     }
 
     public static serialize(block: IBlockData, includeSignature: boolean = true) {
@@ -36,24 +36,26 @@ export class Block implements IBlock {
 
     public static getIdHex(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
-        const payloadHash: any = Block.serialize(data);
+        const payloadHash: Buffer = Block.serialize(data);
 
-        const hash = HashAlgorithms.sha256(payloadHash);
+        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
         if (constants.block.idFullSha256) {
             return hash.toString("hex");
         }
 
-        const temp = Buffer.alloc(8);
+        const temp: Buffer = Buffer.alloc(8);
 
         for (let i = 0; i < 8; i++) {
             temp[i] = hash[7 - i];
         }
+
         return temp.toString("hex");
     }
 
     public static toBytesHex(data): string {
         const temp = data ? new Bignum(data).toString(16) : "";
+
         return "0".repeat(16 - temp.length) + temp;
     }
 
@@ -68,24 +70,24 @@ export class Block implements IBlock {
         return new Bignum(idHex, 16).toFixed();
     }
 
-    public static fromHex(hex: string): Block {
+    public static fromHex(hex: string): IBlock {
         return this.fromSerialized(hex);
     }
 
-    public static fromBytes(buffer: Buffer): Block {
+    public static fromBytes(buffer: Buffer): IBlock {
         return this.fromSerialized(buffer.toString("hex"));
     }
 
-    public static fromData(data: IBlockData): Block {
-        const serialized = Block.serializeFull(data).toString("hex");
-        const block = new Block({ ...deserializer.deserialize(serialized), id: data.id });
+    public static fromData(data: IBlockData): IBlock {
+        const serialized = Block.serializeWithTransactions(data).toString("hex");
+        const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
         block.serialized = serialized;
 
         return block;
     }
 
-    private static fromSerialized(serialized: string): Block {
-        const block = new Block(deserializer.deserialize(serialized));
+    private static fromSerialized(serialized: string): IBlock {
+        const block: IBlock = new Block(deserializer.deserialize(serialized));
         block.serialized = serialized;
 
         return block;
@@ -136,9 +138,19 @@ export class Block implements IBlock {
         }
     }
 
-    /**
-     * Return block as string.
-     */
+    public getHeader(): IBlockData {
+        const header = Object.assign({}, this.data);
+        delete header.transactions;
+        return header;
+    }
+
+    public verifySignature(): boolean {
+        const bytes: any = Block.serialize(this.data, false);
+        const hash = HashAlgorithms.sha256(bytes);
+
+        return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
+    }
+
     public toString(): string {
         return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
             "transaction",
@@ -147,27 +159,8 @@ export class Block implements IBlock {
         )}, verified: ${this.verification.verified}, errors: ${this.verification.errors}`;
     }
 
-    /**
-     * Get header from block.
-     */
-    public getHeader(): IBlockData {
-        const header = Object.assign({}, this.data);
-        delete header.transactions;
-        return header;
-    }
-
-    /**
-     * Verify signature associated with this block.
-     */
-    public verifySignature(): boolean {
-        const bytes: any = Block.serialize(this.data, false);
-        const hash = HashAlgorithms.sha256(bytes);
-
-        return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
-    }
-
-    public toJson(): IBlockData {
-        const data = JSON.parse(JSON.stringify(this.data));
+    public toJson(): IBlockJson {
+        const data: IBlockJson = JSON.parse(JSON.stringify(this.data));
         data.reward = this.data.reward.toFixed();
         data.totalAmount = this.data.totalAmount.toFixed();
         data.totalFee = this.data.totalFee.toFixed();
@@ -176,9 +169,6 @@ export class Block implements IBlock {
         return data;
     }
 
-    /**
-     * Verify this block.
-     */
     private verify(): IBlockVerification {
         const block = this.data;
         const result: IBlockVerification = {
