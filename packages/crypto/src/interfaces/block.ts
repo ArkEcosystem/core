@@ -1,4 +1,5 @@
 import { ITransactionData } from "../interfaces";
+import { Transaction } from "../transactions";
 import { Bignum } from "../utils";
 
 export interface IBlockVerification {
@@ -6,10 +7,16 @@ export interface IBlockVerification {
     errors: string[];
 }
 
+// @TODO: fill out the whole interface
 export interface IBlock {
+    serialized: string;
     data: IBlockData;
+    // @TODO: map this to an interface
+    transactions: Transaction[];
+    verification: IBlockVerification;
 
-    toJson(): IBlockData;
+    // @TODO: make this required in another PR
+    toJson?(): IBlockData;
 }
 
 export interface IBlockData {
