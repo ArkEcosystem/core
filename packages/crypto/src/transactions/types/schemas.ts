@@ -133,6 +133,30 @@ export const multiSignature = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["multiSignature"],
+            properties: {
+                multiSignature: {
+                    type: "object",
+                    required: ["min", "publicKeys"],
+                    properties: {
+                        min: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: { $data: "1/publicKeys/length" },
+                        },
+                        publicKeys: {
+                            type: "array",
+                            minItems: 1,
+                            maxItems: 16, // TODO: find sensible limit for max participants
+                            additionalItems: false,
+                            items: { $ref: "publicKey" },
+                        },
+                    },
+                },
+            },
+        },
     },
 });
 
