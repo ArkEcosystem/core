@@ -3613,10 +3613,10 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-bcrypto@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/bcrypto/-/bcrypto-3.1.0.tgz#58a150c364cc77a96494ec3f1c1b557913dfc8dc"
-  integrity sha512-0ZLVyKwBi6UEfRKmIT6V4mhzQ5BhjKWb91GkIhTeaKa4R62Sf87wI/KB9q34IpjSaiH2y9wJO9fDkchvsMTT6A==
+bcrypto@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/bcrypto/-/bcrypto-3.1.4.tgz#754235b0c4e364d2797c7a4c136356a4ba7dd191"
+  integrity sha512-zVCO7RFcF2cfqVWU778CIcYrdy4SUYHhsiTadIZzeEx6u2eNp5Gpu/egFsDM8JWaDiL7pEjEN88KvwOXwzRruA==
   dependencies:
     bsert "~0.0.10"
     bufio "~1.0.6"
