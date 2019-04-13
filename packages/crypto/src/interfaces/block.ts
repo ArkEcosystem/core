@@ -8,6 +8,8 @@ export interface IBlockVerification {
 
 export interface IBlock {
     data: IBlockData;
+
+    toJson(): IBlockData;
 }
 
 export interface IBlockData {

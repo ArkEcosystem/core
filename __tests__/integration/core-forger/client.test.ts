@@ -29,97 +29,81 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-    client.hosts.forEach(host => {
-        host.socket.destroy();
-    });
+    client.hosts.forEach(host => host.socket.destroy());
+
     socketManager.stopServer();
 });
 
 afterEach(async () => socketManager.resetAllMocks());
 
+const mockPeerStatus = {
+    success: true,
+    height: 1,
+    forgingAllowed: true,
+    currentSlot: 1,
+    header: {},
+};
+
 describe("Client", () => {
-    const mockPeerStatus = {
-        success: true,
-        height: 1,
-        forgingAllowed: true,
-        currentSlot: 1,
-        header: {},
-    };
+    it("should accept multiple hosts as constructor parameter", () => {
+        const hosts = [
+            {
+                port: 4000,
+                ip: "127.0.0.1",
+            },
+            {
+                port: 4000,
+                ip: "127.0.0.2",
+            },
+        ];
 
-    /*describe("constructor", () => {
-        // TODO
-        it("accepts 1 or more hosts as parameter", () => {
-            expect(new Client(host).hosts).toEqual([host]);
-
-            const hosts = [host, "http://localhost:4000"];
-
-            expect(new Client(hosts).hosts).toEqual(hosts);
-        });
-    });*/
-
-    describe("broadcast", () => {
-        describe("when the host is available", () => {
-            it("should be truthy if broadcasts", async () => {
-                await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
-                await socketManager.addMock("p2p.peer.postBlock", {});
-
-                await client.selectHost();
-
-                const wasBroadcasted = await client.broadcast(sampleBlocks[0].toJson());
-                expect(wasBroadcasted).toBeTruthy();
-            });
-        });
+        expect(new Client(hosts).hosts).toEqual(hosts);
     });
 
-    describe("getRound", () => {
-        describe("when the host is available", () => {
-            it("should be ok", async () => {
-                const expectedResponse = { foo: "bar" };
+    it("should broadcast a block without any errors", async () => {
+        await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+        await socketManager.addMock("p2p.peer.postBlock", {});
 
-                await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
-                await socketManager.addMock("p2p.internal.getCurrentRound", expectedResponse);
+        await client.selectHost();
 
-                const response = await client.getRound();
-
-                expect(response).toEqual(expectedResponse);
-            });
-        });
+        await expect(client.broadcastBlock(sampleBlocks[0].toJson())).resolves.not.toThrow();
     });
 
-    describe("getTransactions", () => {
-        describe("when the host is available", () => {
-            it("should be ok", async () => {
-                const expectedResponse = { transactions: [] };
-                await socketManager.addMock("p2p.internal.getUnconfirmedTransactions", expectedResponse);
+    it("should request the state of the current round to determine if it is time to forge", async () => {
+        const expectedResponse = { foo: "bar" };
 
-                const response = await client.getTransactions();
+        await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+        await socketManager.addMock("p2p.internal.getCurrentRound", expectedResponse);
 
-                expect(response).toEqual(expectedResponse);
-            });
-        });
+        const response = await client.getRound();
+
+        expect(response).toEqual(expectedResponse);
     });
 
-    describe("getNetworkState", () => {
-        describe("when the host is available", () => {
-            it("should be ok", async () => {
-                const expectedResponse = new NetworkState(NetworkStateStatus.Test);
-                await socketManager.addMock("p2p.internal.getNetworkState", expectedResponse);
+    it("should request unconfirmed transactions from the transaction pool", async () => {
+        const expectedResponse = { transactions: [] };
+        await socketManager.addMock("p2p.internal.getUnconfirmedTransactions", expectedResponse);
 
-                const response = await client.getNetworkState();
+        const response = await client.getTransactions();
 
-                expect(response).toEqual(expectedResponse);
-            });
-        });
+        expect(response).toEqual(expectedResponse);
     });
 
-    describe("syncCheck", () => {
-        it("should induce network sync", async () => {
-            await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
-            await socketManager.addMock("p2p.internal.syncBlockchain", {});
+    it("should request the state of the network for quorum", async () => {
+        const expectedResponse = new NetworkState(NetworkStateStatus.Test);
+        await socketManager.addMock("p2p.internal.getNetworkState", expectedResponse);
 
-            const response = await client.syncCheck();
+        const response = await client.getNetworkState();
 
-            expect(response).toBeUndefined();
-        });
+        expect(response).toEqual(expectedResponse);
+    });
+
+    it("should request a sync with the network", async () => {
+        await socketManager.addMock("p2p.peer.getStatus", mockPeerStatus);
+        await socketManager.addMock("p2p.internal.syncBlockchain", {});
+
+        const response = await client.syncWithNetwork();
+
+        expect(response).toBeUndefined();
     });
 });

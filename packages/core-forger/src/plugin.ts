@@ -32,7 +32,7 @@ export const plugin: Container.PluginDescriptor = {
 
         if (forger) {
             container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Forger Manager");
-            return forger.stop();
+            return forger.stopForging();
         }
     },
 };

@@ -18,16 +18,7 @@ export function getUnconfirmedTransactions(): {
     return blockchain.getUnconfirmedTransactions(maxTransactions);
 }
 
-export async function getCurrentRound(): Promise<{
-    current: number;
-    reward: string;
-    timestamp: number;
-    delegates: Database.IDelegateWallet[];
-    currentForger: Database.IDelegateWallet;
-    nextForger: Database.IDelegateWallet;
-    lastBlock: Interfaces.IBlockData;
-    canForge: boolean;
-}> {
+export async function getCurrentRound(): Promise<P2P.ICurrentRound> {
     const config = app.getConfig();
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
