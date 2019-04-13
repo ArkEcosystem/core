@@ -16,19 +16,19 @@ export interface IStateStorage {
     /**
      * Get the last block.
      */
-    getLastBlock(): Blocks.Block | null;
+    getLastBlock(): Interfaces.IBlock | null;
 
     /**
      * Sets the last block.
      * @returns {void}
      */
-    setLastBlock(block: Blocks.Block): void;
+    setLastBlock(block: Interfaces.IBlock): void;
 
     /**
      * Get the last blocks.
      * @returns {Array}
      */
-    getLastBlocks(): Blocks.Block[];
+    getLastBlocks(): Interfaces.IBlock[];
 
     /**
      * Get the last block ids.

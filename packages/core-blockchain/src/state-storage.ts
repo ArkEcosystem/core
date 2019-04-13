@@ -11,14 +11,16 @@ const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 // Stores the last n blocks in ascending height. The amount of last blocks
 // can be configured with the option `state.maxLastBlocks`.
-let _lastBlocks: immutable.OrderedMap<number, Blocks.Block> = immutable.OrderedMap<number, Blocks.Block>();
+let _lastBlocks: immutable.OrderedMap<number, Interfaces.IBlock> = immutable.OrderedMap<number, Interfaces.IBlock>();
 
 // Stores the last n incoming transaction ids. The amount of transaction ids
 // can be configred with the option `state.maxLastTransactionIds`.
 let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet();
 
 // Map Block instances to block data.
-const _mapToBlockData = (blocks: immutable.Seq<number, Blocks.Block>): immutable.Seq<number, Interfaces.IBlockData> =>
+const _mapToBlockData = (
+    blocks: immutable.Seq<number, Interfaces.IBlock>,
+): immutable.Seq<number, Interfaces.IBlockData> =>
     blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
 
 /**
@@ -29,7 +31,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     public lastDownloadedBlock: Interfaces.IBlock | null;
     public blockPing: any;
     public started: boolean;
-    public forkedBlock: Blocks.Block | null;
+    public forkedBlock: Interfaces.IBlock | null;
     public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
@@ -79,17 +81,17 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Get the last block.
      */
-    public getLastBlock(): Blocks.Block | null {
+    public getLastBlock(): Interfaces.IBlock | null {
         return _lastBlocks.last() || null;
     }
 
     /**
      * Sets the last block.
      */
-    public setLastBlock(block: Blocks.Block): void {
+    public setLastBlock(block: Interfaces.IBlock): void {
         // Only keep blocks which are below the new block height (i.e. rollback)
-        if (_lastBlocks.last() && _lastBlocks.last<Blocks.Block>().data.height !== block.data.height - 1) {
-            assert(block.data.height - 1 <= _lastBlocks.last<Blocks.Block>().data.height);
+        if (_lastBlocks.last() && _lastBlocks.last<Interfaces.IBlock>().data.height !== block.data.height - 1) {
+            assert(block.data.height - 1 <= _lastBlocks.last<Interfaces.IBlock>().data.height);
             _lastBlocks = _lastBlocks.filter(b => b.data.height < block.data.height);
         }
 
@@ -99,14 +101,14 @@ export class StateStorage implements Blockchain.IStateStorage {
 
         // Delete oldest block if size exceeds the maximum
         if (_lastBlocks.size > app.resolveOptions("blockchain").state.maxLastBlocks) {
-            _lastBlocks = _lastBlocks.delete(_lastBlocks.first<Blocks.Block>().data.height);
+            _lastBlocks = _lastBlocks.delete(_lastBlocks.first<Interfaces.IBlock>().data.height);
         }
     }
 
     /**
      * Get the last blocks.
      */
-    public getLastBlocks(): Blocks.Block[] {
+    public getLastBlocks(): Interfaces.IBlock[] {
         return _lastBlocks
             .valueSeq()
             .reverse()

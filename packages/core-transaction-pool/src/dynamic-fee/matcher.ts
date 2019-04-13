@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { Enums, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import camelCase from "lodash.camelcase";
 
 /**
  * Calculate minimum fee of a transaction for entering the pool.
  */
-export function calculateFee(satoshiPerByte: number, transaction: Transactions.Transaction): Utils.Bignum {
+export function calculateFee(satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.Bignum {
     if (satoshiPerByte <= 0) {
         satoshiPerByte = 1;
     }
@@ -32,7 +32,7 @@ export function calculateFee(satoshiPerByte: number, transaction: Transactions.T
  * @param {Transaction} Transaction - transaction to check
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
-export function dynamicFeeMatcher(transaction: Transactions.Transaction): { broadcast: boolean; enterPool: boolean } {
+export function dynamicFeeMatcher(transaction: Interfaces.ITransaction): { broadcast: boolean; enterPool: boolean } {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     const fee: Utils.Bignum = transaction.data.fee;

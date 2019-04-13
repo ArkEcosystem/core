@@ -21,7 +21,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
-    public blocksInCurrentRound: Blocks.Block[] = null;
+    public blocksInCurrentRound: Interfaces.IBlock[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: Database.IDelegateWallet[] = null;
@@ -65,7 +65,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.saveBlock(Block.fromData(configManager.get("genesisBlock")));
     }
 
-    public async applyBlock(block: Blocks.Block) {
+    public async applyBlock(block: Interfaces.IBlock) {
         this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
@@ -79,7 +79,8 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async applyRound(height: number) {
-        const nextHeight = height === 1 ? 1 : height + 1;
+        const nextHeight: number = height === 1 ? 1 : height + 1;
+
         if (roundCalculator.isNewRound(nextHeight)) {
             const roundInfo = roundCalculator.calculateRound(nextHeight);
             const { round } = roundInfo;
@@ -130,23 +131,23 @@ export class DatabaseService implements Database.IDatabaseService {
         return false;
     }
 
-    public async commitQueuedQueries() {
+    public async commitQueuedQueries(): Promise<void> {
         await this.connection.commitQueuedQueries();
     }
 
-    public async deleteBlock(block: Blocks.Block) {
+    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
         await this.connection.deleteBlock(block);
     }
 
-    public async deleteRound(round: number) {
+    public async deleteRound(round: number): Promise<void> {
         await this.connection.roundsRepository.delete(round);
     }
 
-    public enqueueDeleteBlock(block: Blocks.Block) {
+    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
         this.connection.enqueueDeleteBlock(block);
     }
 
-    public enqueueDeleteRound(height: number) {
+    public enqueueDeleteRound(height: number): void {
         this.connection.enqueueDeleteRound(height);
     }
 
@@ -188,7 +189,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return forgingDelegates;
     }
 
-    public async getBlock(id: string) {
+    public async getBlock(id: string): Promise<Interfaces.IBlock | null> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
 
@@ -209,8 +210,8 @@ export class DatabaseService implements Database.IDatabaseService {
         let blocks = [];
 
         // The functions below return matches in the range [start, end], including both ends.
-        const start = offset;
-        const end = offset + limit - 1;
+        const start: number = offset;
+        const end: number = offset + limit - 1;
 
         if (app.has("state")) {
             blocks = app.resolve("state").getLastBlocksByHeight(start, end);
@@ -253,10 +254,8 @@ export class DatabaseService implements Database.IDatabaseService {
         // from app/state and need to get from the database.
         const toGetFromDB = {};
 
-        const hasState = app.has("state");
-
         for (const [i, height] of heights.entries()) {
-            if (hasState) {
+            if (app.has("state")) {
                 const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
                 if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
                     blocks[i] = stateBlocks[0];
@@ -268,7 +267,7 @@ export class DatabaseService implements Database.IDatabaseService {
             }
         }
 
-        const heightsToGetFromDB = Object.keys(toGetFromDB).map(height => +height);
+        const heightsToGetFromDB: number[] = Object.keys(toGetFromDB).map(height => +height);
         if (heightsToGetFromDB.length > 0) {
             const blocksByHeights = await this.connection.blocksRepository.findByHeights(heightsToGetFromDB);
 
@@ -281,27 +280,20 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
-    public async getBlocksForRound(roundInfo?: Shared.IRoundInfo) {
-        let lastBlock;
-        if (app.has("state")) {
-            lastBlock = app.resolve<Blockchain.IStateStorage>("state").getLastBlock();
-        } else {
-            lastBlock = await this.getLastBlock();
-        }
+    public async getBlocksForRound(roundInfo?: Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
+        const lastBlock = app.has("state")
+            ? app.resolve<Blockchain.IStateStorage>("state").getLastBlock()
+            : await this.getLastBlock();
 
         if (!lastBlock) {
             return [];
         }
 
-        const height = +lastBlock.data.height;
         if (!roundInfo) {
-            roundInfo = roundCalculator.calculateRound(height);
+            roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
         }
 
-        const { maxDelegates, roundHeight } = roundInfo;
-
-        const blocks = await this.getBlocks(roundHeight, maxDelegates);
-        return blocks.map(b => Blocks.Block.fromData(b));
+        return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map(b => Blocks.Block.fromData(b));
     }
 
     public async getForgedTransactionsIds(ids: string[]) {
@@ -309,11 +301,10 @@ export class DatabaseService implements Database.IDatabaseService {
             return [];
         }
 
-        const txs = await this.connection.transactionsRepository.forged(ids);
-        return txs.map(tx => tx.id);
+        return (await this.connection.transactionsRepository.forged(ids)).map(transaction => transaction.id);
     }
 
-    public async getLastBlock() {
+    public async getLastBlock(): Promise<Interfaces.IBlock> {
         const block = await this.connection.blocksRepository.latest();
 
         if (!block) {
@@ -330,8 +321,8 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        const state = app.resolve("state");
-        let commonBlocks = state.getCommonBlocks(ids);
+        let commonBlocks = app.resolve("state").getCommonBlocks(ids);
+
         if (commonBlocks.length < ids.length) {
             commonBlocks = await this.connection.blocksRepository.common(ids);
         }
@@ -340,8 +331,8 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getRecentBlockIds() {
-        const state = app.resolve("state");
-        let blocks = state
+        let blocks = app
+            .resolve("state")
             .getLastBlockIds()
             .reverse()
             .slice(0, 10);
@@ -366,7 +357,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return this.connection.transactionsRepository.findById(id);
     }
 
-    public async loadBlocksFromCurrentRound() {
+    public async loadBlocksFromCurrentRound(): Promise<void> {
         this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
@@ -375,7 +366,7 @@ export class DatabaseService implements Database.IDatabaseService {
             return;
         }
 
-        const ids = blocks.map(block => block.id);
+        const ids: string[] = blocks.map(block => block.id);
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
@@ -391,7 +382,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async revertBlock(block: Blocks.Block) {
+    public async revertBlock(block: Interfaces.IBlock) {
         await this.revertRound(block.data.height);
         await this.walletManager.revertBlock(block);
 
@@ -400,7 +391,7 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("block.reverted", block.data);
     }
 
-    public async revertRound(height: number) {
+    public async revertRound(height: number): Promise<void> {
         const roundInfo = roundCalculator.calculateRound(height);
         const { round, nextRound, maxDelegates } = roundInfo;
 
@@ -416,11 +407,11 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async saveBlock(block: Blocks.Block) {
+    public async saveBlock(block: Interfaces.IBlock): Promise<void> {
         await this.connection.saveBlock(block);
     }
 
-    public async saveRound(activeDelegates: Database.IDelegateWallet[]) {
+    public async saveRound(activeDelegates: Database.IDelegateWallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
 
         await this.connection.roundsRepository.insert(activeDelegates);
@@ -517,7 +508,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return !hasErrors;
     }
 
-    public async verifyTransaction(transaction: Transactions.Transaction): Promise<boolean> {
+    public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
         const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
@@ -563,7 +554,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     private async calcPreviousActiveDelegates(
         roundInfo: Shared.IRoundInfo,
-        blocks?: Blocks.Block[],
+        blocks?: Interfaces.IBlock[],
     ): Promise<Database.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
@@ -585,7 +576,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return tempWalletManager.loadActiveDelegateList(roundInfo);
     }
 
-    private emitTransactionEvents(transaction: Transactions.Transaction): void {
+    private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
         const handler = TransactionHandlerRegistry.get(transaction.type);

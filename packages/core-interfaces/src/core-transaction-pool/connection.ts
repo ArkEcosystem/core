@@ -7,7 +7,7 @@ export interface IAddTransactionResponse {
 }
 
 export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
-    transaction: Transactions.Transaction;
+    transaction: Interfaces.ITransaction;
     type: string;
     message: string;
     success: boolean;
@@ -52,23 +52,23 @@ export interface IConnection {
      * }
      */
     addTransactions(
-        transactions: Transactions.Transaction[],
+        transactions: Interfaces.ITransaction[],
     ): {
-        added: Transactions.Transaction[];
+        added: Interfaces.ITransaction[];
         notAdded: IAddTransactionErrorResponse[];
     };
 
     /**
      * Add a transaction to the pool.
      */
-    addTransaction(transaction: Transactions.Transaction): IAddTransactionResponse;
+    addTransaction(transaction: Interfaces.ITransaction): IAddTransactionResponse;
 
     /**
      * Remove a transaction from the pool by transaction object.
      * @param  {Transaction} transaction
      * @return {void}
      */
-    removeTransaction(transaction: Transactions.Transaction): void;
+    removeTransaction(transaction: Interfaces.ITransaction): void;
 
     /**
      * Remove a transaction from the pool by id.
@@ -83,7 +83,7 @@ export interface IConnection {
     /**
      * Get a transaction by transaction id.
      */
-    getTransaction(id: string): Transactions.Transaction;
+    getTransaction(id: string): Interfaces.ITransaction;
 
     /**
      * Get all transactions within the specified range [start, start + size), ordered by fee.
@@ -149,7 +149,7 @@ export interface IConnection {
      * @param  {Object} block
      * @return {void}
      */
-    acceptChainedBlock(block: Blocks.Block): void;
+    acceptChainedBlock(block: Interfaces.IBlock): void;
 
     /**
      * Rebuild pool manager wallets
@@ -165,13 +165,13 @@ export interface IConnection {
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
-    purgeSendersWithInvalidTransactions(block: Blocks.Block): void;
+    purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void;
 
     /**
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
-    purgeBlock(block: Blocks.Block): void;
+    purgeBlock(block: Interfaces.IBlock): void;
 
     /**
      * Check whether a given sender has any transactions of the specified type

@@ -3,7 +3,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { isBlockChained } from "@arkecosystem/core-utils";
-import { Blocks, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { validateGenerator } from "../utils/validate-generator";
 
@@ -30,12 +30,12 @@ export class BlockProcessor {
         this.logger = app.resolvePlugin<Logger.ILogger>("logger");
     }
 
-    public async process(block: Blocks.Block): Promise<BlockProcessorResult> {
+    public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         const handler = await this.getHandler(block);
         return handler.execute();
     }
 
-    public async getHandler(block: Blocks.Block): Promise<BlockHandler> {
+    public async getHandler(block: Interfaces.IBlock): Promise<BlockHandler> {
         if (Utils.isException(block.data)) {
             return new ExceptionHandler(this.blockchain, block);
         }
@@ -65,7 +65,7 @@ export class BlockProcessor {
     /**
      * Checks if the given block is verified or an exception.
      */
-    private verifyBlock(block: Blocks.Block): boolean {
+    private verifyBlock(block: Interfaces.IBlock): boolean {
         const verified = block.verification.verified;
         if (!verified) {
             this.logger.warn(
@@ -83,7 +83,7 @@ export class BlockProcessor {
     /**
      * Checks if the given block contains an already forged transaction.
      */
-    private async checkBlockContainsForgedTransactions(block: Blocks.Block): Promise<boolean> {
+    private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds = await this.blockchain.database.getForgedTransactionsIds(
                 block.transactions.map(tx => tx.id),

@@ -9,7 +9,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     }
 
     public canBeApplied(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -20,11 +20,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
     }
 
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         wallet.secondPublicKey = null;
     }
 

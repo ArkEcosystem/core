@@ -32,11 +32,11 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
-    public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockData) {
+    public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockJson) {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
     }
 
-    public async postTransactions(peer: P2P.IPeer, transactions: Interfaces.ITransactionData[]): Promise<any> {
+    public async postTransactions(peer: P2P.IPeer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions });
     }
 

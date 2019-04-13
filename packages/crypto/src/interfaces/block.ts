@@ -1,22 +1,21 @@
 import { ITransactionData } from "../interfaces";
-import { Transaction } from "../transactions";
 import { Bignum } from "../utils";
+import { ITransaction, ITransactionJson } from "./transactions";
 
 export interface IBlockVerification {
     verified: boolean;
     errors: string[];
 }
 
-// @TODO: fill out the whole interface
 export interface IBlock {
     serialized: string;
     data: IBlockData;
-    // @TODO: map this to an interface
-    transactions: Transaction[];
+    transactions: ITransaction[];
     verification: IBlockVerification;
 
-    // @TODO: make this required in another PR
-    toJson?(): IBlockData;
+    getHeader(): IBlockData;
+    verifySignature(): boolean;
+    toJson(): IBlockJson;
 }
 
 export interface IBlockData {
@@ -39,4 +38,26 @@ export interface IBlockData {
     blockSignature?: string;
     serialized?: string;
     transactions?: ITransactionData[];
+}
+
+export interface IBlockJson {
+    id?: string;
+    idHex?: string;
+
+    timestamp: number;
+    version: number;
+    height: number;
+    previousBlockHex?: string;
+    previousBlock: string;
+    numberOfTransactions: number;
+    totalAmount: string;
+    totalFee: string;
+    reward: string;
+    payloadLength: number;
+    payloadHash: string;
+    generatorPublicKey: string;
+
+    blockSignature?: string;
+    serialized?: string;
+    transactions?: ITransactionJson[];
 }

@@ -62,7 +62,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
     /**
      * Get broadcast transactions.
      */
-    public getBroadcastTransactions(): Transactions.Transaction[] {
+    public getBroadcastTransactions(): Interfaces.ITransaction[] {
         return Array.from(this.broadcast.values());
     }
 

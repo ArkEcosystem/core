@@ -21,7 +21,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
      * Wallet logic
      */
     public canBeApplied(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -63,7 +63,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return true;
     }
 
-    public applyToSender(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public applyToSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (
             data.senderPublicKey === wallet.publicKey ||
@@ -75,14 +75,14 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
     }
 
-    public applyToRecipient(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public applyToRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.plus(data.amount);
         }
     }
 
-    public revertForSender(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revertForSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (
             data.senderPublicKey === wallet.publicKey ||
@@ -94,21 +94,21 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
     }
 
-    public revertForRecipient(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revertForRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         const { data } = transaction;
         if (data.recipientId === wallet.address) {
             wallet.balance = wallet.balance.minus(data.amount);
         }
     }
 
-    public abstract apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
-    public abstract revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void;
+    public abstract apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    public abstract revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
 
     /**
      * Database Service
      */
     // tslint:disable-next-line:no-empty
-    public emitEvents(transaction: Transactions.Transaction, emitter: EventEmitter.EventEmitter): void {}
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {}
 
     /**
      * Transaction Pool logic

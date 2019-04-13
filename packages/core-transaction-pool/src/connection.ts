@@ -116,7 +116,7 @@ export class Connection implements TransactionPool.IConnection {
      *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
      * }
      */
-    public addTransactions(transactions: Transactions.Transaction[]) {
+    public addTransactions(transactions: Interfaces.ITransaction[]) {
         const added = [];
         const notAdded = [];
 
@@ -148,7 +148,7 @@ export class Connection implements TransactionPool.IConnection {
      * and applied to the pool or not. In case it was not successful, the type and message
      * property yield information about the error.
      */
-    public addTransaction(transaction: Transactions.Transaction): TransactionPool.IAddTransactionResponse {
+    public addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
         if (this.transactionExists(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
@@ -206,7 +206,7 @@ export class Connection implements TransactionPool.IConnection {
     /**
      * Remove a transaction from the pool by transaction.
      */
-    public removeTransaction(transaction: Transactions.Transaction) {
+    public removeTransaction(transaction: Interfaces.ITransaction) {
         this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
@@ -231,7 +231,7 @@ export class Connection implements TransactionPool.IConnection {
     /**
      * Get a transaction by transaction id.
      */
-    public getTransaction(id: string): Transactions.Transaction {
+    public getTransaction(id: string): Interfaces.ITransaction {
         this.__purgeExpired();
 
         return this.mem.getTransactionById(id);
@@ -383,7 +383,7 @@ export class Connection implements TransactionPool.IConnection {
      * It removes block transaction from the pool and adjusts
      * pool wallets for non existing transactions.
      */
-    public acceptChainedBlock(block: Blocks.Block) {
+    public acceptChainedBlock(block: Interfaces.IBlock) {
         for (const transaction of block.transactions) {
             const { data } = transaction;
             const exists = this.transactionExists(data.id);
@@ -487,7 +487,7 @@ export class Connection implements TransactionPool.IConnection {
      * Purges all transactions from senders with at least one
      * invalid transaction.
      */
-    public purgeSendersWithInvalidTransactions(block: Blocks.Block) {
+    public purgeSendersWithInvalidTransactions(block: Interfaces.IBlock) {
         const publicKeys = new Set(block.transactions.filter(tx => !tx.verified).map(tx => tx.data.senderPublicKey));
 
         publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey));
@@ -497,7 +497,7 @@ export class Connection implements TransactionPool.IConnection {
      * Purges all transactions from the block.
      * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
      */
-    public purgeBlock(block: Blocks.Block) {
+    public purgeBlock(block: Interfaces.IBlock) {
         block.transactions.forEach(tx => {
             if (this.transactionExists(tx.id)) {
                 this.removeTransaction(tx);
@@ -547,7 +547,7 @@ export class Connection implements TransactionPool.IConnection {
      * Create an error object which the TransactionGuard understands.
      */
     public __createError(
-        transaction: Transactions.Transaction,
+        transaction: Interfaces.ITransaction,
         type: string,
         message: string,
     ): TransactionPool.IAddTransactionErrorResponse {

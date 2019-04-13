@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
@@ -23,7 +23,7 @@ class BlockNotReadyCounter {
     private id = "";
     private attempts = 0;
 
-    public increment(block: Blocks.Block): boolean {
+    public increment(block: Interfaces.IBlock): boolean {
         const { id } = block.data;
         let attemptsLeft = false;
 
@@ -53,7 +53,7 @@ export class UnchainedHandler extends BlockHandler {
 
     public constructor(
         protected readonly blockchain: Blockchain,
-        protected readonly block: Blocks.Block,
+        protected readonly block: Interfaces.IBlock,
         private isValidGenerator: boolean,
     ) {
         super(blockchain, block);

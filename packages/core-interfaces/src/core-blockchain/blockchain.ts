@@ -61,7 +61,7 @@ export interface IBlockchain {
      * @param  {Array}   transactions
      * @return {void}
      */
-    postTransactions(transactions: Transactions.Transaction[]): Promise<void>;
+    postTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
 
     /**
      * Push a block to the process queue.
@@ -90,7 +90,7 @@ export interface IBlockchain {
      * @param  {Function} callback
      * @return {(Function|void)}
      */
-    processBlock(block: Blocks.Block, callback: any): Promise<any>;
+    processBlock(block: Interfaces.IBlock, callback: any): Promise<any>;
 
     /**
      * Called by forger to wake up and sync with the network.
@@ -106,7 +106,7 @@ export interface IBlockchain {
      * @param {Block} block
      * @returns {void}
      */
-    forkBlock(block: Blocks.Block): void;
+    forkBlock(block: Interfaces.IBlock): void;
 
     /**
      * Get unconfirmed transactions for the specified block size.
@@ -127,13 +127,13 @@ export interface IBlockchain {
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}
      */
-    isSynced(block?: Blocks.Block): boolean;
+    isSynced(block?: Interfaces.IBlock): boolean;
 
     /**
      * Get the last block of the blockchain.
      * @return {Object}
      */
-    getLastBlock(): Blocks.Block;
+    getLastBlock(): Interfaces.IBlock;
 
     /**
      * Get the last height of the blockchain.

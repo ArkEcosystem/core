@@ -1,6 +1,24 @@
 import { TransactionTypes } from "../enums";
 import { Bignum } from "../utils";
 
+export interface ITransaction {
+    readonly id: string;
+
+    readonly type: TransactionTypes;
+    readonly verified: boolean;
+
+    data: ITransactionData;
+    serialized: Buffer;
+    timestamp: number;
+
+    serialize(): ByteBuffer;
+    deserialize(buf: ByteBuffer): void;
+
+    toJson(): ITransactionJson;
+
+    hasVendorField(): boolean;
+}
+
 export interface ITransactionAsset {
     signature?: {
         publicKey: string;
@@ -28,6 +46,40 @@ export interface ITransactionData {
 
     fee: Bignum;
     amount: Bignum;
+
+    expiration?: number;
+    recipientId?: string;
+
+    asset?: ITransactionAsset;
+    vendorField?: string;
+    vendorFieldHex?: string;
+
+    id?: string;
+    signature?: string;
+    secondSignature?: string;
+    signSignature?: string;
+    signatures?: string[];
+
+    blockId?: string;
+    sequence?: number;
+
+    timelock?: any;
+    timelockType?: number;
+
+    ipfsHash?: string;
+    payments?: { [key: string]: any };
+}
+
+export interface ITransactionJson {
+    version?: number;
+    network?: number;
+
+    type: TransactionTypes;
+    timestamp: number;
+    senderPublicKey: string;
+
+    fee: string;
+    amount: string;
 
     expiration?: number;
     recipientId?: string;

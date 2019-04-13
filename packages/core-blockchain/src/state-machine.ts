@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Utils } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
@@ -123,7 +123,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async init() {
         try {
-            const block: Blocks.Block = await blockchain.database.getLastBlock();
+            const block: Interfaces.IBlock = await blockchain.database.getLastBlock();
 
             if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");

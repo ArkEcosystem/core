@@ -1,4 +1,4 @@
-import { Crypto, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import { MemPoolTransaction } from "./mem-pool-transaction";
 
@@ -239,7 +239,7 @@ export class Mem {
     /**
      * Get a transaction, given its id.
      */
-    public getTransactionById(id: string): Transactions.Transaction | undefined {
+    public getTransactionById(id: string): Interfaces.ITransaction | undefined {
         if (this.byId[id] === undefined) {
             return undefined;
         }
@@ -280,7 +280,7 @@ export class Mem {
     /**
      * Get the expired transactions.
      */
-    public getExpired(maxTransactionAge: number): Transactions.Transaction[] {
+    public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => a.expireAt(maxTransactionAge) - b.expireAt(maxTransactionAge));
             this.byExpirationIsSorted = true;

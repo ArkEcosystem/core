@@ -1,6 +1,6 @@
 // tslint:disable:variable-name
 
-import { Enums, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
 const { TransactionTypes } = Enums;
@@ -12,14 +12,13 @@ const { TransactionTypes } = Enums;
  * + a get-expiration-time method used to remove old transactions from the pool
  */
 export class MemPoolTransaction {
-    private _transaction: Transactions.Transaction;
+    private _transaction: Interfaces.ITransaction;
     private _sequence: number;
 
     /**
      * Construct a MemPoolTransaction object.
      */
-    constructor(transaction: Transactions.Transaction, sequence?: number) {
-        assert(transaction instanceof Transactions.Transaction);
+    constructor(transaction: Interfaces.ITransaction, sequence?: number) {
         this._transaction = transaction;
 
         if (sequence !== undefined) {
@@ -28,7 +27,7 @@ export class MemPoolTransaction {
         }
     }
 
-    get transaction(): Transactions.Transaction {
+    get transaction(): Interfaces.ITransaction {
         return this._transaction;
     }
 

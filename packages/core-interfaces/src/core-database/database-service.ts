@@ -43,21 +43,21 @@ export interface IDatabaseService {
 
     buildWallets(): Promise<boolean>;
 
-    saveBlock(block: Blocks.Block): Promise<void>;
+    saveBlock(block: Interfaces.IBlock): Promise<void>;
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
-    enqueueDeleteBlock(block: Blocks.Block): void;
+    enqueueDeleteBlock(block: Interfaces.IBlock): void;
 
     enqueueDeleteRound(height: number): void;
 
     commitQueuedQueries(): Promise<void>;
 
-    deleteBlock(block: Blocks.Block): Promise<void>;
+    deleteBlock(block: Interfaces.IBlock): Promise<void>;
 
-    getBlock(id: string): Promise<Blocks.Block>;
+    getBlock(id: string): Promise<Interfaces.IBlock>;
 
-    getLastBlock(): Promise<Blocks.Block>;
+    getLastBlock(): Promise<Interfaces.IBlock>;
 
     getBlocks(offset: number, limit: number): Promise<any[]>;
 
@@ -107,13 +107,13 @@ export interface IDatabaseService {
 
     revertRound(height: number): Promise<void>;
 
-    applyBlock(block: Blocks.Block): Promise<boolean>;
+    applyBlock(block: Interfaces.IBlock): Promise<boolean>;
 
-    revertBlock(block: Blocks.Block): Promise<void>;
+    revertBlock(block: Interfaces.IBlock): Promise<void>;
 
-    verifyTransaction(transaction: Transactions.Transaction): Promise<boolean>;
+    verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean>;
 
-    getBlocksForRound(roundInfo?: IRoundInfo): Promise<Blocks.Block[]>;
+    getBlocksForRound(roundInfo?: IRoundInfo): Promise<Interfaces.IBlock[]>;
 
     getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]>;
 }
