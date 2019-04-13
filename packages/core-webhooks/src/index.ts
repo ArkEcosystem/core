@@ -1,7 +1,7 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { database } from "./database";
 import { defaults } from "./defaults";
-import { WebhookManager } from "./manager";
+import { startListeners } from "./listener";
 import { startServer } from "./server";
 
 export const plugin: Container.PluginDescriptor = {
@@ -16,8 +16,7 @@ export const plugin: Container.PluginDescriptor = {
 
         database.make();
 
-        const manager = new WebhookManager();
-        await manager.setUp();
+        startListeners();
 
         return startServer(options.server);
     },
@@ -25,7 +24,7 @@ export const plugin: Container.PluginDescriptor = {
         if (options.server.enabled) {
             container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Webhook API");
 
-            return container.resolvePlugin("webhooks").stop();
+            await container.resolvePlugin("webhooks").stop();
         }
     },
 };

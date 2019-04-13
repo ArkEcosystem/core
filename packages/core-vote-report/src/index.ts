@@ -9,7 +9,7 @@ export const plugin: Container.PluginDescriptor = {
     async register(container: Container.IContainer, options) {
         return startServer(options);
     },
-    async deregister(container: Container.IContainer, options) {
-        return container.resolvePlugin("vote-report").stop();
+    async deregister(container: Container.IContainer) {
+        await container.resolvePlugin("vote-report").stop();
     },
 };
