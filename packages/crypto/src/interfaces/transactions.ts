@@ -121,8 +121,7 @@ export interface IMultiPaymentItem {
 
 export interface IMultiSignatureAsset {
     min: number;
-    keysgroup: string[];
-    lifetime: number;
+    publicKeys: string[];
 }
 
 export interface ISerializeOptions {

@@ -1,11 +1,6 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import {
-    InvalidMultiSignatureError,
-    MultiSignatureAlreadyRegisteredError,
-    MultiSignatureKeyCountMismatchError,
-    MultiSignatureMinimumKeysError,
-} from "../errors";
+import { InvalidMultiSignatureError, MultiSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class MultiSignatureTransactionHandler extends TransactionHandler {
@@ -13,7 +8,6 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return Transactions.MultiSignatureRegistrationTransaction;
     }
 
-    // TODO: AIP18
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
@@ -24,14 +18,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new MultiSignatureAlreadyRegisteredError();
         }
 
-        const { keysgroup, min } = data.asset.multisignature;
-        if (keysgroup.length < min) {
-            throw new MultiSignatureMinimumKeysError();
-        }
-
-        if (keysgroup.length !== data.signatures.length) {
-            throw new MultiSignatureKeyCountMismatchError();
-        }
+        const { publicKeys, min } = data.asset.multisignature;
 
         if (!wallet.verifySignatures(data, data.asset.multisignature)) {
             throw new InvalidMultiSignatureError();
