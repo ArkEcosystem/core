@@ -37,5 +37,6 @@ export function calculate(height: number) {
         }
     }
 
+    // @TODO: return bignum or string
     return +new Utils.Bignum(genesisBlock.totalAmount).plus(rewards).toFixed();
 }

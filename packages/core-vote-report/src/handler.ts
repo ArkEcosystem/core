@@ -4,7 +4,16 @@ import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosy
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import sumBy from "lodash.sumby";
 
-function formatDelegates(delegates: Database.IWallet[], lastHeight: number) {
+function formatDelegates(
+    delegates: Database.IWallet[],
+    lastHeight: number,
+): Array<{
+    rank: string;
+    username: string;
+    approval: string;
+    votes: string;
+    voterCount: string;
+}> {
     const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     return delegates.map((delegate: Database.IWallet) => {
