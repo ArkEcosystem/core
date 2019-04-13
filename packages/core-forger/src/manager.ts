@@ -256,7 +256,9 @@ export class ForgerManager {
     }
 
     private printLoadedDelegates() {
-        const activeDelegates = this.delegates.filter(delegate => this.usernames.hasOwnProperty(delegate.publicKey));
+        const activeDelegates: Delegate[] = this.delegates.filter(delegate =>
+            this.usernames.hasOwnProperty(delegate.publicKey),
+        );
 
         if (activeDelegates.length > 0) {
             this.logger.debug(
@@ -267,7 +269,7 @@ export class ForgerManager {
         }
 
         if (this.delegates.length > activeDelegates.length) {
-            const inactiveDelegates = this.delegates
+            const inactiveDelegates: string[] = this.delegates
                 .filter(delegate => !activeDelegates.includes(delegate))
                 .map(delegate => delegate.publicKey);
 

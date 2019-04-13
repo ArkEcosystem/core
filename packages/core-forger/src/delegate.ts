@@ -16,8 +16,8 @@ export class Delegate {
         network: Types.NetworkType,
         password: string,
     ): Interfaces.IKeyPair {
-        const decryptedWif = Crypto.bip38.decrypt(passphrase, password);
-        const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed);
+        const decryptedWif: Interfaces.IDecryptResult = Crypto.bip38.decrypt(passphrase, password);
+        const wifKey: string = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed);
 
         return Crypto.crypto.getKeysFromWIF(wifKey, network);
     }
@@ -78,12 +78,12 @@ export class Delegate {
 
     public forge(transactions: Interfaces.ITransactionData[], options: any): Interfaces.IBlock | null {
         if (!options.version && (this.encryptedKeys || !this.bip38)) {
-            const transactionData = {
+            const transactionData: { amount: Utils.Bignum; fee: Utils.Bignum } = {
                 amount: Utils.Bignum.ZERO,
                 fee: Utils.Bignum.ZERO,
             };
 
-            const payloadBuffers = [];
+            const payloadBuffers: Buffer[] = [];
             const sortedTransactions = Utils.sortTransactions(transactions);
             sortedTransactions.forEach(transaction => {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
@@ -125,8 +125,10 @@ export class Delegate {
     }
 
     private encryptDataWithOtp(content: string, password: string): string {
-        const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize);
-        const cipher: forge.cipher.BlockCipher = forge.cipher.createCipher("AES-CBC", derivedKey);
+        const cipher: forge.cipher.BlockCipher = forge.cipher.createCipher(
+            "AES-CBC",
+            forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
+        );
         cipher.start({ iv: forge.util.decode64(this.otp) });
         cipher.update(forge.util.createBuffer(content));
         cipher.finish();
@@ -135,8 +137,10 @@ export class Delegate {
     }
 
     private decryptDataWithOtp(cipherText: string, password: string): string {
-        const derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize);
-        const decipher: forge.cipher.BlockCipher = forge.cipher.createDecipher("AES-CBC", derivedKey);
+        const decipher: forge.cipher.BlockCipher = forge.cipher.createDecipher(
+            "AES-CBC",
+            forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
+        );
         decipher.start({ iv: forge.util.decode64(this.otp) });
         decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
         decipher.finish();

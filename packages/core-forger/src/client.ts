@@ -38,9 +38,9 @@ export class Client {
 
     public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
         this.logger.debug(
-            `Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${
+            `Broadcasting block ${block.height.toLocaleString()} (${block.id}) with ${
                 block.numberOfTransactions
-            } transactions to ${this.host.ip}`,
+            } transactions to ${this.host.hostname}`,
         );
 
         try {
@@ -53,7 +53,7 @@ export class Client {
     public async syncWithNetwork(): Promise<void> {
         await this.selectHost();
 
-        this.logger.debug(`Sending wake-up check to relay node ${this.host.ip}`);
+        this.logger.debug(`Sending wake-up check to relay node ${this.host.hostname}`);
 
         try {
             await this.emit("p2p.internal.syncBlockchain");
@@ -71,10 +71,8 @@ export class Client {
     public async getNetworkState(): Promise<P2P.INetworkState> {
         try {
             return NetworkState.parse(await this.emit<P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000));
-        } catch (e) {
-            this.logger.error(
-                `Could not retrieve network state: ${this.host.ip} p2p.internal.getNetworkState : ${e.message}`,
-            );
+        } catch (err) {
+            this.logger.error(`Could not retrieve network state: ${this.host.hostname}: ${err.message}`);
 
             return new NetworkState(NetworkStateStatus.Unknown);
         }
@@ -94,7 +92,7 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.ip.includes(allowedHost)));
+        const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)));
 
         if (!host) {
             this.logger.error("emitEvent: unable to find any local hosts.");
@@ -104,7 +102,7 @@ export class Client {
         try {
             await this.emit("p2p.internal.emitEvent", { event, body });
         } catch (error) {
-            this.logger.error(`Failed to emit "${event}" to "${host.ip}:${host.port}"`);
+            this.logger.error(`Failed to emit "${event}" to "${host.hostname}:${host.port}"`);
         }
     }
 
@@ -121,15 +119,15 @@ export class Client {
             await delay(100);
         }
 
-        this.logger.debug(`No open socket connection to any host : ${this.hosts.map(host => host.ip).join()}.`);
+        this.logger.debug(`No open socket connection to any host : ${this.hosts.map(host => host.hostname).join()}.`);
 
-        throw new HostNoResponseError(this.hosts.map(host => host.ip).join());
+        throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
     }
 
     private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 2000): Promise<T> {
         try {
             const response: P2P.IResponse<T> = await socketEmit(
-                this.host.ip,
+                this.host.hostname,
                 this.host.socket,
                 event,
                 data,
@@ -139,7 +137,7 @@ export class Client {
 
             return response.data;
         } catch (error) {
-            throw new RelayCommunicationError(`${this.host.ip}:${this.host.port}<${event}>`, error.message);
+            throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
         }
     }
 }
