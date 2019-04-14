@@ -2,10 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import prettyMs from "pretty-ms";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 let tracker = null;
 
-export function tickSyncTracker(blockCount, count) {
+export function tickSyncTracker(blockCount, count): void {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),
@@ -46,7 +45,9 @@ export function tickSyncTracker(blockCount, count) {
             secDecimalDigits: 0,
         });
 
-        logger.info(`Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`);
+        app.resolvePlugin<Logger.ILogger>("logger").info(
+            `Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`,
+        );
     }
 
     if (tracker.percent === 100) {

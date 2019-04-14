@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+import SocketCluster from "socketcluster";
 import { INetworkState } from "./network-state";
 
 export interface INetworkStatus {
@@ -16,10 +17,10 @@ export interface INetworkMonitor {
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<INetworkStatus>;
     isColdStartActive(): boolean;
-    syncWithNetwork(fromBlockHeight: number): Promise<any>;
+    syncWithNetwork(fromBlockHeight: number): Promise<Interfaces.IBlockData[]>;
     broadcastBlock(block: Interfaces.IBlock): Promise<void>;
-    broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any>;
-    getServer(): any;
-    setServer(server: any): void;
+    broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
+    getServer(): SocketCluster;
+    setServer(server: SocketCluster): void;
     resetSuspendedPeers(): Promise<void>;
 }

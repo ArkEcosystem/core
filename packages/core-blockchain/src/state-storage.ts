@@ -138,7 +138,7 @@ export class StateStorage implements Blockchain.IStateStorage {
      * @param {Number} start
      * @param {Number} end
      */
-    public getLastBlocksByHeight(start, end?): Interfaces.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[] {
         end = end || start;
 
         const blocks = _lastBlocks.valueSeq().filter(block => block.data.height >= start && block.data.height <= end);
@@ -149,9 +149,11 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Get common blocks for the given IDs.
      */
-    public getCommonBlocks(ids): Interfaces.IBlockData[] {
+    public getCommonBlocks(ids: string[]): Interfaces.IBlockData[] {
         const idsHash = {};
+
         ids.forEach(id => (idsHash[id] = true));
+
         return this.getLastBlocksData()
             .filter(block => idsHash[block.id])
             .toArray() as Interfaces.IBlockData[];
@@ -163,8 +165,8 @@ export class StateStorage implements Blockchain.IStateStorage {
     public cacheTransactions(
         transactions: Interfaces.ITransactionData[],
     ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
-        const notAdded = [];
-        const added = transactions.filter(tx => {
+        const notAdded: Interfaces.ITransactionData[] = [];
+        const added: Interfaces.ITransactionData[] = transactions.filter(tx => {
             if (_cachedTransactionIds.has(tx.id)) {
                 notAdded.push(tx);
                 return false;
@@ -220,7 +222,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: Interfaces.IBlockData) {
+    public pushPingBlock(block: Interfaces.IBlockData): void {
         // logging for stats about network health
         if (this.blockPing) {
             logger.info(

@@ -245,8 +245,8 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from ${remoteAddress}`,
         );
 
-        const currentSlot = Crypto.slots.getSlotNumber();
-        const receivedSlot = Crypto.slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = Crypto.slots.getSlotNumber();
+        const receivedSlot: number = Crypto.slots.getSlotNumber(block.timestamp);
 
         if (receivedSlot > currentSlot) {
             logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -268,7 +268,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Enqueue blocks in process queue and set last downloaded block to last item in list.
      */
-    public enqueueBlocks(blocks: any[]): void {
+    public enqueueBlocks(blocks: Interfaces.IBlockData[]): void {
         if (blocks.length === 0) {
             return;
         }
@@ -287,11 +287,14 @@ export class Blockchain implements blockchain.IBlockchain {
 
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks);
+        const blocksToRemove: Interfaces.IBlockData[] = await this.database.getBlocks(
+            this.state.getLastBlock().data.height - nblocks,
+            nblocks,
+        );
 
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable
-            const lastBlock = this.state.getLastBlock();
+            const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
             await this.database.revertBlock(lastBlock);
@@ -319,12 +322,13 @@ export class Blockchain implements blockchain.IBlockchain {
             await __removeBlocks(numberOfBlocks - 1);
         };
 
-        const lastBlock = this.state.getLastBlock();
+        const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
+
         if (nblocks >= lastBlock.data.height) {
             nblocks = lastBlock.data.height - 1;
         }
 
-        const resetHeight = lastBlock.data.height - nblocks;
+        const resetHeight: number = lastBlock.data.height - nblocks;
         logger.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
 
         this.state.lastDownloadedBlock = lastBlock;
@@ -344,7 +348,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public async removeTopBlocks(count: number): Promise<void> {
-        const blocks = await this.database.getTopBlocks(count);
+        const blocks: Interfaces.IBlockData[] = await this.database.getTopBlocks(count);
 
         logger.info(
             `Removing ${pluralize(
@@ -354,11 +358,9 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from height ${(blocks[0] as any).height.toLocaleString()}`,
         );
 
-        for (let block of blocks) {
-            block = Block.fromData(block);
-
-            this.database.enqueueDeleteRound(block.data.height);
-            this.database.enqueueDeleteBlock(block);
+        for (const block of blocks) {
+            this.database.enqueueDeleteRound(block.height);
+            this.database.enqueueDeleteBlock(Block.fromData(block));
         }
 
         await this.database.commitQueuedQueries();
@@ -369,11 +371,12 @@ export class Blockchain implements blockchain.IBlockchain {
      * Process the given block.
      */
     public async processBlock(block: Interfaces.IBlock, callback): Promise<any> {
-        const result = await this.blockProcessor.process(block);
+        const result: BlockProcessorResult = await this.blockProcessor.process(block);
 
         if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
             // broadcast only current block
-            const blocktime = config.getMilestone(block.data.height).blocktime;
+            const blocktime: number = config.getMilestone(block.data.height).blocktime;
+
             if (this.state.started && Crypto.slots.getSlotNumber() * blocktime <= block.data.timestamp) {
                 this.p2p.getMonitor().broadcastBlock(block);
             }
@@ -419,7 +422,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {Object}
      */
     public getUnconfirmedTransactions(blockSize: number): { transactions: string[]; poolSize: number; count: number } {
-        const transactions = this.transactionPool.getTransactionsForForging(blockSize);
+        const transactions: string[] = this.transactionPool.getTransactionsForForging(blockSize);
 
         return {
             transactions,

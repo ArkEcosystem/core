@@ -1,18 +1,18 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
-export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
-    const database = app.resolvePlugin("database");
-    const logger = app.resolvePlugin<Logger.ILogger>("logger");
+export async function validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
+    const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    const logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    const roundInfo = roundCalculator.calculateRound(block.data.height);
-    const delegates = await database.getActiveDelegates(roundInfo);
-    const slot = Crypto.slots.getSlotNumber(block.data.timestamp);
-    const forgingDelegate = delegates[slot % delegates.length];
+    const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
+    const delegates: Database.IDelegateWallet[] = await database.getActiveDelegates(roundInfo);
+    const slot: number = Crypto.slots.getSlotNumber(block.data.timestamp);
+    const forgingDelegate: Database.IDelegateWallet = delegates[slot % delegates.length];
 
-    const generatorUsername = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
+    const generatorUsername: string = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
 
     if (!forgingDelegate) {
         logger.debug(
@@ -39,4 +39,4 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
     );
 
     return true;
-};
+}
