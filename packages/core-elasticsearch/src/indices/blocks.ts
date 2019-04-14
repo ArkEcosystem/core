@@ -1,10 +1,11 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
 
 export class Blocks extends Index {
-    public async index() {
-        const iterations = await this.getIterations();
+    public async index(): Promise<void> {
+        const iterations: number = await this.getIterations();
 
         for (let i = 0; i < iterations; i++) {
             const modelQuery = this.createQuery();
@@ -35,8 +36,8 @@ export class Blocks extends Index {
         }
     }
 
-    public listen() {
-        this.registerListener("create", "block.applied");
-        this.registerListener("delete", "block.reverted");
+    public listen(): void {
+        this.registerListener("create", ApplicationEvents.BlockApplied);
+        this.registerListener("delete", ApplicationEvents.BlockReceived);
     }
 }

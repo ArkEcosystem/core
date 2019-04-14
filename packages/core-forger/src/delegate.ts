@@ -76,7 +76,8 @@ export class Delegate {
         this.encryptedKeys = null;
     }
 
-    public forge(transactions: Interfaces.ITransactionData[], options: any): Interfaces.IBlock | null {
+    // @TODO: reduce nesting
+    public forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock | null {
         if (!options.version && (this.encryptedKeys || !this.bip38)) {
             const transactionData: { amount: Utils.Bignum; fee: Utils.Bignum } = {
                 amount: Utils.Bignum.ZERO,

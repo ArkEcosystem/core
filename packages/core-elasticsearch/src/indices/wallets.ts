@@ -2,8 +2,8 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Index } from "./base";
 
 export class Wallets extends Index {
-    public async index() {
-        const iterations = await this.getIterations();
+    public async index(): Promise<void> {
+        const iterations: number = await this.getIterations();
 
         for (let i = 0; i < iterations; i++) {
             const modelQuery = this.createQuery();
@@ -32,7 +32,7 @@ export class Wallets extends Index {
         }
     }
 
-    public listen() {
+    public listen(): void {
         this.emitter.on(ApplicationEvents.RoundApplied, () => this.index());
     }
 }
