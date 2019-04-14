@@ -199,7 +199,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
             previousBlock: genesisBlock.id,
             numberOfTransactions: 1,
             transactions: [transfer],
-            totalAmount: Utils.BigNumber.make(transfer.amount),
+            totalAmount: transfer.amount,
             totalFee: Utils.BigNumber.make(totalFee),
             payloadLength: 0,
             payloadHash: genesisBlock.payloadHash,

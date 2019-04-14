@@ -12,7 +12,6 @@ import { configManager } from "../../../../packages/crypto/src/managers";
 import { Transaction } from "../../../../packages/crypto/src/transactions";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
-import { Bignum } from "../../../../packages/crypto/src/utils";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: Transaction, expected) => {
@@ -307,7 +306,7 @@ describe("Transaction serializer / deserializer", () => {
                 buffer.writeByte(transaction.type);
                 buffer.writeUint32(transaction.timestamp);
                 buffer.append(transaction.senderPublicKey, "hex");
-                buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
+                buffer.writeUint64(+Utils.BigNumber.make(transaction.fee).toFixed());
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());

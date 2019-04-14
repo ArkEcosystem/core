@@ -13,7 +13,7 @@ describe("Fee Manager", () => {
     it("should set the fee", () => {
         feeManager.set(TransactionTypes.Transfer, 1);
 
-        expect(feeManager.get(TransactionTypes.Transfer)).toEqual(Utils.BigNumber.make(1));
+        expect(feeManager.get(TransactionTypes.Transfer)).toEqual(Utils.BigNumber.ONE);
     });
 
     it("should get transaction fee", () => {

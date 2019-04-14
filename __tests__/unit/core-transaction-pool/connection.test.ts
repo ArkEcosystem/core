@@ -3,8 +3,7 @@ import "./mocks/core-container";
 
 import { Wallet } from "@arkecosystem/core-database";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Utils } from "@arkecosystem/crypto";
-import { Blocks, Constants, Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Crypto, Enums, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -17,7 +16,6 @@ import { block2, delegates } from "../../utils/fixtures/unitnet";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { database as databaseService } from "./mocks/database";
 
-const { Bignum } = Utils;
 const { Block } = Blocks;
 const { SATOSHI } = Constants;
 const { slots } = Crypto;
@@ -568,7 +566,7 @@ describe("Connection", () => {
             jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
 
             mockWallet = new Wallet(block2.transactions[0].recipientId);
-            mockWallet.balance = new Bignum(1e12);
+            mockWallet.balance = Utils.BigNumber.make(1e12);
             jest.spyOn(connection.walletManager, "exists").mockReturnValue(true);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementation(publicKey => {
                 if (publicKey === block2.generatorPublicKey) {
@@ -709,7 +707,7 @@ describe("Connection", () => {
             const voteTx = Transactions.Transaction.fromData(cloneDeep(tx.data));
             voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             voteTx.data.type = TransactionTypes.Vote;
-            voteTx.data.amount = Utils.BigNumber.make(0);
+            voteTx.data.amount = Utils.BigNumber.ZERO;
             voteTx.data.asset = { votes: [`+${tx.data.senderPublicKey}`] };
 
             const transactions = [tx, voteTx, mockData.dummy2];

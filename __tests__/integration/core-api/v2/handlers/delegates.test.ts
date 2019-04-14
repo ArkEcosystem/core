@@ -59,7 +59,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all the delegates sorted by votes,asc", async () => {
                     const wm = app.resolvePlugin("database").walletManager;
                     const wallet = wm.findByUsername("genesis_51");
-                    wallet.voteBalance = Utils.BigNumber.make(1);
+                    wallet.voteBalance = Utils.BigNumber.ONE;
                     wm.reindex(wallet);
 
                     const response = await utils[request]("GET", "delegates", { orderBy: "votes:asc" });
