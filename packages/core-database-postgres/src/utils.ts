@@ -5,7 +5,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import path from "path";
 import { QueryFile } from "pg-promise";
 
-export function camelizeColumns(pgp, data) {
+export function camelizeColumns(pgp, data): void {
     const tmp = data[0];
 
     for (const prop in tmp) {
@@ -21,17 +21,13 @@ export function camelizeColumns(pgp, data) {
     }
 }
 
-export function loadQueryFile(directory, file) {
-    const fullPath = path.join(directory, file);
-
-    const options = {
+export function loadQueryFile(directory, file): QueryFile {
+    const query: QueryFile = new QueryFile(path.join(directory, file), {
         minify: true,
         params: {
             schema: "public",
         },
-    };
-
-    const query = new QueryFile(fullPath, options);
+    });
 
     if (query.error) {
         app.resolvePlugin<Logger.ILogger>("logger").error(query.error.toString());

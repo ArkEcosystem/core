@@ -5,6 +5,7 @@ import { Repository } from "./repository";
 
 const { rounds: sql } = queries;
 
+// @TODO: add database round interface
 export class RoundsRepository extends Repository implements Database.IRoundsRepository {
     /**
      * Find a round by its ID.

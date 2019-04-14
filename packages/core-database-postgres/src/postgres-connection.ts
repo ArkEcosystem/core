@@ -14,7 +14,6 @@ import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IConnection {
-    public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public models: { [key: string]: Model } = {};
     public query: QueryExecutor;
     public db: any;
@@ -23,12 +22,16 @@ export class PostgresConnection implements Database.IConnection {
     public transactionsRepository: Database.ITransactionsRepository;
     public walletsRepository: Database.IWalletsRepository;
     public pgp: IMain;
-    private emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
-    public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
+    public constructor(
+        private readonly options: Record<string, any>,
+        private readonly walletManager: Database.IWalletManager,
+    ) {}
 
     public async make(): Promise<Database.IConnection> {
         if (this.db) {
@@ -60,29 +63,31 @@ export class PostgresConnection implements Database.IConnection {
     public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
 
-        const initialization = {
-            receive(data) {
-                camelizeColumns(pgp, data);
+        this.pgp = pgPromise({
+            ...this.options.initialization,
+            ...{
+                receive(data) {
+                    camelizeColumns(pgp, data);
+                },
+                extend(object) {
+                    for (const repository of Object.keys(repositories)) {
+                        object[repository] = new repositories[repository](object, pgp);
+                    }
+                },
             },
-            extend(object) {
-                for (const repository of Object.keys(repositories)) {
-                    object[repository] = new repositories[repository](object, pgp);
-                }
-            },
-        };
+        });
 
-        const pgp = pgPromise({ ...this.options.initialization, ...initialization });
-
-        this.pgp = pgp;
         this.db = this.pgp(this.options.connection);
     }
 
     public async disconnect(): Promise<void> {
         this.logger.debug("Disconnecting from database");
+
         this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
 
         try {
             await this.commitQueuedQueries();
+
             this.cache.clear();
         } catch (error) {
             this.logger.warn("Issue in commiting blocks, database might be corrupted");
@@ -90,21 +95,21 @@ export class PostgresConnection implements Database.IConnection {
         }
 
         await this.pgp.end();
+
         this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
         this.logger.debug("Disconnected from database");
     }
 
     public async buildWallets(): Promise<boolean> {
         try {
-            const result = await new IntegrityVerifier(this.query, this.walletManager).run();
-
-            return result;
+            return await new IntegrityVerifier(this.query, this.walletManager).run();
         } catch (error) {
             this.logger.error(error.stack);
-            app.forceExit("Failed to build wallets. This indicates a problem with the database.");
-        }
 
-        return false;
+            app.forceExit("Failed to build wallets. This indicates a problem with the database.");
+
+            return false;
+        }
     }
 
     public async commitQueuedQueries(): Promise<void> {
@@ -191,8 +196,10 @@ export class PostgresConnection implements Database.IConnection {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
                 const row = await this.migrationsRepository.findByName(name);
+
                 if (row === null) {
                     this.logger.debug(`Migrating ${name}`);
+
                     await this.query.none(migration);
                     await this.migrationsRepository.insert({ name });
                 }
@@ -256,20 +263,12 @@ export class PostgresConnection implements Database.IConnection {
         await this.migrationsRepository.insert({ name });
     }
 
-    /**
-     * Register all models.
-     * @return {void}
-     */
     private async registerModels(): Promise<void> {
         for (const [key, Value] of Object.entries(require("./models"))) {
             this.models[key.toLowerCase()] = new (Value as any)(this.pgp);
         }
     }
 
-    /**
-     * Register the query builder.
-     * @return {void}
-     */
     private registerQueryExecutor(): void {
         this.query = new QueryExecutor(this);
     }
