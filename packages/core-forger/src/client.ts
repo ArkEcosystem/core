@@ -92,7 +92,9 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host = this.hosts.find(item => allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)));
+        const host: IRelayHost = this.hosts.find(item =>
+            allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)),
+        );
 
         if (!host) {
             this.logger.error("emitEvent: unable to find any local hosts.");
