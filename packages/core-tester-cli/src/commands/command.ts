@@ -1,4 +1,3 @@
-import { Utils } from "@arkecosystem/crypto";
 import { Identities, Managers, Types, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
@@ -139,7 +138,7 @@ export abstract class BaseCommand extends Command {
     protected async knockBalance(address: string, expected: Utils.BigNumber): Promise<void> {
         const actual = await this.getWalletBalance(address);
 
-        if (Utils.BigNumber.make(expected).isEqualTo(actual)) {
+        if (expected.isEqualTo(actual)) {
             logger.info(`[W] ${address} (${this.fromSatoshi(actual)})`);
         } else {
             logger.error(`[W] ${address} (${this.fromSatoshi(expected)} / ${this.fromSatoshi(actual)})`);
