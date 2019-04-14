@@ -16,7 +16,8 @@ export class TimelockTransferTransaction extends Transaction {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(4 + 1 + 4 + 24, true);
 
-        buffer.writeUint64(+data.amount.toFixed());
+        // @TODO: remove the BigNumber.make
+        buffer.writeUint64(+BigNumber.make(data.amount).toFixed());
         buffer.writeByte(data.timelockType);
         buffer.writeUint64(data.timelock);
         buffer.append(bs58check.decode(data.recipientId));
