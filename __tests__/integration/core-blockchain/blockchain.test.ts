@@ -201,8 +201,8 @@ describe("Blockchain", () => {
 
             // New wallet received funds and vote balance of delegate has been reduced by the same amount,
             // since it forged it's own transaction the fees for the transaction have been recovered.
-            expect(wallet.balance).toEqual(Utils.BigNumber.make(transfer.amount));
-            expect(walletForger.voteBalance).toEqual(Utils.BigNumber.make(initialVoteBalance).minus(transfer.amount));
+            expect(wallet.balance).toEqual(transfer.amount);
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
 
             // Now vote with newly created wallet for previous forger.
             const vote = Transactions.BuilderFactory.vote()
@@ -223,7 +223,7 @@ describe("Blockchain", () => {
 
             // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
             // since it was forged by a different delegate.
-            expect(walletForger.voteBalance).toEqual(Utils.BigNumber.make(initialVoteBalance).minus(vote.fee));
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(vote.fee));
 
             // Now unvote again
             const unvote = Transactions.BuilderFactory.vote()
@@ -243,14 +243,14 @@ describe("Blockchain", () => {
             expect(wallet.vote).toBeNull();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
-            expect(walletForger.voteBalance).toEqual(Utils.BigNumber.make(initialVoteBalance).minus(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
 
             // Now rewind 3 blocks back to the initial state
             await blockchain.removeBlocks(3);
 
             // Wallet is now a cold wallet and the initial vote balance has been restored.
             expect(wallet.balance).toEqual(Utils.BigNumber.ZERO);
-            expect(walletForger.voteBalance).toEqual(Utils.BigNumber.make(initialVoteBalance));
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance);
         });
     });
 
