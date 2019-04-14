@@ -18,9 +18,6 @@ export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransfer
         this.data.asset = {};
     }
 
-    /**
-     * Set the timelock and the timelock type
-     */
     public timelock(timelock: number, timelockType: number): TimelockTransferBuilder {
         this.data.timelock = timelock;
         this.data.timelockType = timelockType;
@@ -28,7 +25,7 @@ export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransfer
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.vendorFieldHex = this.data.vendorFieldHex;

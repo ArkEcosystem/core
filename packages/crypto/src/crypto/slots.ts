@@ -3,6 +3,7 @@ import { configManager } from "../managers";
 
 class Slots {
     public height: number;
+
     /**
      * Create a new Slot instance.
      */
@@ -39,7 +40,7 @@ class Slots {
             time = dato().toMilliseconds();
         }
 
-        const start = this.beginEpochTime().toMilliseconds();
+        const start: number = this.beginEpochTime().toMilliseconds();
 
         return Math.floor((time - start) / 1000);
     }
@@ -66,7 +67,7 @@ class Slots {
             epochTime = this.getTime();
         }
 
-        const start = Math.floor(this.beginEpochTime().toMilliseconds() / 1000) * 1000;
+        const start: number = Math.floor(this.beginEpochTime().toMilliseconds() / 1000) * 1000;
 
         return start + epochTime * 1000;
     }
@@ -75,8 +76,9 @@ class Slots {
      * Time left until next slot.
      */
     public getTimeInMsUntilNextSlot(): number {
-        const nextSlotTime = this.getSlotTime(this.getNextSlot());
-        const now = this.getTime();
+        const nextSlotTime: number = this.getSlotTime(this.getNextSlot());
+        const now: number = this.getTime();
+
         return (nextSlotTime - now) * 1000;
     }
 
@@ -113,7 +115,7 @@ class Slots {
             epochTime = this.getTime();
         }
 
-        const blockTime = this.getMilestone("blocktime");
+        const blockTime: number = this.getMilestone("blocktime");
 
         return epochTime % blockTime < blockTime / 2;
     }

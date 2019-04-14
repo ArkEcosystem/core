@@ -18,12 +18,9 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         this.signWithSenderAsRecipient = true;
     }
 
-    /**
-     * Establish the multi-signature on the asset and updates the fee.
-     */
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
         this.data.asset.multisignature = multiSignature;
-        this.data.fee = new BigNumber(multiSignature.keysgroup.length + 1).times(
+        this.data.fee = BigNumber.make(multiSignature.keysgroup.length + 1).times(
             feeManager.get(TransactionTypes.MultiSignature),
         );
 
@@ -31,7 +28,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;

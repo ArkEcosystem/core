@@ -16,18 +16,12 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
         this.data.asset = {};
     }
 
-    /**
-     * Set the IPFS hash.
-     */
     public ipfsHash(ipfsHash: string): IPFSBuilder {
         this.data.ipfsHash = ipfsHash;
         return this;
     }
 
-    /**
-     * Set vendor field from hash.
-     * TODO: revise
-     */
+    // @TODO: revise
     public vendorField(type: string): IPFSBuilder {
         this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString("hex");
 
@@ -54,7 +48,7 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.vendorFieldHex = this.data.vendorFieldHex;
         struct.asset = this.data.asset;

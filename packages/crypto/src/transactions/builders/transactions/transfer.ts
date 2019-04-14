@@ -17,7 +17,7 @@ export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;

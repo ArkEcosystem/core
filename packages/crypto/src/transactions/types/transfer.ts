@@ -18,7 +18,7 @@ export class TransferTransaction extends Transaction {
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(24, true);
+        const buffer: ByteBuffer = new ByteBuffer(24, true);
         buffer.writeUint64(+data.amount);
         buffer.writeUint32(data.expiration || 0);
         buffer.append(bs58check.decode(data.recipientId));
@@ -28,7 +28,7 @@ export class TransferTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        data.amount = new BigNumber(buf.readUint64().toString());
+        data.amount = BigNumber.make(buf.readUint64().toString());
         data.expiration = buf.readUint32();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
     }

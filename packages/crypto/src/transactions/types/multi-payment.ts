@@ -15,11 +15,11 @@ export class MultiPaymentTransaction extends Transaction {
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(64, true);
+        const buffer: ByteBuffer = new ByteBuffer(64, true);
 
         buffer.writeUint32(data.asset.payments.length);
         data.asset.payments.forEach(p => {
-            buffer.writeUint64(+new BigNumber(p.amount).toFixed());
+            buffer.writeUint64(+BigNumber.make(p.amount).toFixed());
             buffer.append(bs58check.decode(p.recipientId));
         });
 
@@ -29,11 +29,11 @@ export class MultiPaymentTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
         const payments: IMultiPaymentItem[] = [];
-        const total = buf.readUint32();
+        const total: number = buf.readUint32();
 
         for (let j = 0; j < total; j++) {
             payments.push({
-                amount: new BigNumber(buf.readUint64().toString()),
+                amount: BigNumber.make(buf.readUint64().toString()),
                 recipientId: bs58check.encode(buf.readBytes(21).toBuffer()),
             });
         }

@@ -6,7 +6,7 @@ import {
     TransactionTypeInvalidRangeError,
     UnkownTransactionError,
 } from "../errors";
-import { ITransactionData } from "../interfaces";
+import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { feeManager } from "../managers/fee";
 import { AjvWrapper } from "../validation";
@@ -26,8 +26,11 @@ import {
 export type TransactionConstructor = typeof Transaction;
 
 class TransactionRegistry {
-    private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
-    private readonly customTypes = new Map<number, TransactionConstructor>();
+    private readonly coreTypes: Map<TransactionTypes, TransactionConstructor> = new Map<
+        TransactionTypes,
+        TransactionConstructor
+    >();
+    private readonly customTypes: Map<number, TransactionConstructor> = new Map<number, TransactionConstructor>();
 
     constructor() {
         this.registerCoreType(TransferTransaction);
@@ -41,8 +44,8 @@ class TransactionRegistry {
         this.registerCoreType(DelegateResignationTransaction);
     }
 
-    public create(data: ITransactionData): Transaction {
-        const instance = new (this.get(data.type) as any)() as Transaction;
+    public create(data: ITransactionData): ITransaction {
+        const instance: ITransaction = new (this.get(data.type) as any)() as Transaction;
         instance.data = data;
 
         return instance;
@@ -100,7 +103,7 @@ class TransactionRegistry {
         }
     }
 
-    private registerCoreType(constructor: TransactionConstructor) {
+    private registerCoreType(constructor: TransactionConstructor): void {
         const { type } = constructor;
         if (this.coreTypes.has(type)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
@@ -110,7 +113,7 @@ class TransactionRegistry {
         this.updateSchemas(constructor);
     }
 
-    private updateSchemas(transaction: TransactionConstructor, remove?: boolean) {
+    private updateSchemas(transaction: TransactionConstructor, remove?: boolean): void {
         AjvWrapper.extendTransaction(transaction.getSchema(), remove);
     }
 }

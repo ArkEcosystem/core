@@ -98,7 +98,7 @@ export abstract class Transaction implements ITransaction {
         return this.data.type;
     }
 
-    private isVerified: boolean;
+    public isVerified: boolean;
     public get verified(): boolean {
         return this.isVerified;
     }
@@ -110,7 +110,7 @@ export abstract class Transaction implements ITransaction {
     public abstract serialize(): ByteBuffer;
     public abstract deserialize(buf: ByteBuffer): void;
 
-    protected verify(): boolean {
+    public verify(): boolean {
         const { data } = this;
 
         if (isException(data)) {
@@ -147,8 +147,10 @@ export abstract class Transaction implements ITransaction {
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
         // FIXME: legacy type 4 need special treatment
         if (data.type === TransactionTypes.MultiSignature) {
-            data.amount = new BigNumber(data.amount);
-            data.fee = new BigNumber(data.fee);
+            // @TODO: remove the BigNumber.make
+            data.amount = BigNumber.make(data.amount);
+            // @TODO: remove the BigNumber.make
+            data.fee = BigNumber.make(data.fee);
             return { value: data, error: null };
         }
 

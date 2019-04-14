@@ -3,18 +3,18 @@ import { Transaction, TransactionRegistry } from ".";
 import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
-import { ITransactionData } from "../interfaces";
+import { ITransaction, ITransactionData } from "../interfaces";
 import { BigNumber } from "../utils";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class Deserializer {
-    public deserialize(serialized: string | Buffer): Transaction {
+    public deserialize(serialized: string | Buffer): ITransaction {
         const data = {} as ITransactionData;
 
-        const buffer = this.getByteBuffer(serialized);
+        const buffer: ByteBuffer = this.getByteBuffer(serialized);
         this.deserializeCommon(data, buffer);
 
-        const instance = TransactionRegistry.create(data);
+        const instance: ITransaction = TransactionRegistry.create(data);
         this.deserializeVendorField(instance, buffer);
 
         // Deserialize type specific parts
@@ -42,17 +42,17 @@ class Deserializer {
         transaction.type = buf.readUint8();
         transaction.timestamp = buf.readUint32();
         transaction.senderPublicKey = buf.readBytes(33).toString("hex");
-        transaction.fee = new BigNumber(buf.readUint64().toString());
+        transaction.fee = BigNumber.make(buf.readUint64().toString());
         transaction.amount = BigNumber.ZERO;
     }
 
-    private deserializeVendorField(transaction: Transaction, buf: ByteBuffer): void {
+    private deserializeVendorField(transaction: ITransaction, buf: ByteBuffer): void {
         if (!transaction.hasVendorField()) {
             buf.skip(1);
             return;
         }
 
-        const vendorFieldLength = buf.readUint8();
+        const vendorFieldLength: number = buf.readUint8();
         if (vendorFieldLength > 0) {
             transaction.data.vendorFieldHex = buf.readBytes(vendorFieldLength).toString("hex");
         }
@@ -61,10 +61,12 @@ class Deserializer {
     private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
         const currentSignatureLength = (): number => {
             buf.mark();
-            const lengthHex = buf
+
+            const lengthHex: string = buf
                 .skip(1)
                 .readBytes(1)
                 .toString("hex");
+
             buf.reset();
 
             return parseInt(lengthHex, 16) + 2;
@@ -72,27 +74,30 @@ class Deserializer {
 
         // Signature
         if (buf.remaining()) {
-            const signatureLength = currentSignatureLength();
+            const signatureLength: number = currentSignatureLength();
             transaction.signature = buf.readBytes(signatureLength).toString("hex");
         }
 
         const beginningMultiSignature = () => {
             buf.mark();
-            const marker = buf.readUint8();
+
+            const marker: number = buf.readUint8();
+
             buf.reset();
+
             return marker === 255;
         };
 
         // Second Signature
         if (buf.remaining() && !beginningMultiSignature()) {
-            const secondSignatureLength = currentSignatureLength();
+            const secondSignatureLength: number = currentSignatureLength();
             transaction.secondSignature = buf.readBytes(secondSignatureLength).toString("hex");
         }
 
         // Multi Signatures
         if (buf.remaining() && beginningMultiSignature()) {
             buf.skip(1);
-            const multiSignature = buf.readBytes(buf.limit - buf.offset).toString("hex");
+            const multiSignature: string = buf.readBytes(buf.limit - buf.offset).toString("hex");
             transaction.signatures = [multiSignature];
         }
     }

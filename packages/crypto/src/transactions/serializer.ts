@@ -14,7 +14,7 @@ import { Transaction } from "./types";
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer {
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
-        const version = transaction.version || 1;
+        const version: number = transaction.version || 1;
 
         switch (version) {
             case 1:
@@ -28,18 +28,18 @@ export class Serializer {
      * Serializes the given transaction according to AIP11.
      */
     public static serialize(transaction: Transaction): Buffer {
-        const buffer = new ByteBuffer(512, true);
+        const buffer: ByteBuffer = new ByteBuffer(512, true);
         const { data } = transaction;
 
         this.serializeCommon(data, buffer);
         this.serializeVendorField(transaction, buffer);
 
-        const typeBuffer = transaction.serialize().flip();
+        const typeBuffer: ByteBuffer = transaction.serialize().flip();
         buffer.append(typeBuffer);
 
         this.serializeSignatures(data, buffer);
 
-        const flippedBuffer = buffer.flip().toBuffer();
+        const flippedBuffer: Buffer = buffer.flip().toBuffer();
         transaction.serialized = flippedBuffer;
 
         return flippedBuffer;
@@ -49,8 +49,8 @@ export class Serializer {
      * Serializes the given transaction prior to AIP11 (legacy).
      */
     private static getBytesV1(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
-        let assetSize = 0;
-        let assetBytes = null;
+        let assetSize: number = 0;
+        let assetBytes: Buffer | Uint8Array = null;
 
         switch (transaction.type) {
             case TransactionTypes.SecondSignature: {
@@ -102,11 +102,11 @@ export class Serializer {
             }
         }
 
-        const bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true);
+        const bb: ByteBuffer = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true);
         bb.writeByte(transaction.type);
         bb.writeInt(transaction.timestamp);
 
-        const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, "hex");
+        const senderPublicKeyBuffer: Buffer = Buffer.from(transaction.senderPublicKey, "hex");
         for (const byte of senderPublicKeyBuffer) {
             bb.writeByte(byte);
         }
@@ -114,7 +114,7 @@ export class Serializer {
         // Apply fix for broken type 1 and 4 transactions, which were
         // erroneously calculated with a recipient id.
         const { transactionIdFixTable } = configManager.get("exceptions");
-        const isBrokenTransaction =
+        const isBrokenTransaction: boolean =
             transactionIdFixTable && Object.values(transactionIdFixTable).includes(transaction.id);
         if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
             const recipientId =
@@ -130,8 +130,8 @@ export class Serializer {
         }
 
         if (transaction.vendorFieldHex) {
-            const vf = Buffer.from(transaction.vendorFieldHex, "hex");
-            const fillstart = vf.length;
+            const vf: Buffer = Buffer.from(transaction.vendorFieldHex, "hex");
+            const fillstart: number = vf.length;
             for (let i = 0; i < fillstart; i++) {
                 bb.writeByte(vf[i]);
             }
@@ -139,8 +139,8 @@ export class Serializer {
                 bb.writeByte(0);
             }
         } else if (transaction.vendorField) {
-            const vf = Buffer.from(transaction.vendorField);
-            const fillstart = vf.length;
+            const vf: Buffer = Buffer.from(transaction.vendorField);
+            const fillstart: number = vf.length;
             for (let i = 0; i < fillstart; i++) {
                 bb.writeByte(vf[i]);
             }
@@ -153,8 +153,10 @@ export class Serializer {
             }
         }
 
-        bb.writeInt64(+new BigNumber(transaction.amount).toFixed());
-        bb.writeInt64(+new BigNumber(transaction.fee).toFixed());
+        // @TODO: remove the BigNumber.make
+        bb.writeInt64(+BigNumber.make(transaction.amount).toFixed());
+        // @TODO: remove the BigNumber.make
+        bb.writeInt64(+BigNumber.make(transaction.fee).toFixed());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {
@@ -177,8 +179,8 @@ export class Serializer {
         }
 
         bb.flip();
-        const arrayBuffer = new Uint8Array(bb.toArrayBuffer());
-        const buffer = [];
+        const arrayBuffer: Uint8Array = new Uint8Array(bb.toArrayBuffer());
+        const buffer: number[] = [];
 
         for (let i = 0; i < arrayBuffer.length; i++) {
             buffer[i] = arrayBuffer[i];
@@ -201,7 +203,7 @@ export class Serializer {
         if (transaction.hasVendorField()) {
             const { data } = transaction;
             if (data.vendorField) {
-                const vf = Buffer.from(data.vendorField, "utf8");
+                const vf: Buffer = Buffer.from(data.vendorField, "utf8");
                 buffer.writeByte(vf.length);
                 buffer.append(vf);
             } else if (data.vendorFieldHex) {

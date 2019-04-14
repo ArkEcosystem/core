@@ -14,9 +14,9 @@ export class TimelockTransferTransaction extends Transaction {
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(4 + 1 + 4 + 24, true);
+        const buffer: ByteBuffer = new ByteBuffer(4 + 1 + 4 + 24, true);
 
-        buffer.writeUint64(+new BigNumber(data.amount).toFixed());
+        buffer.writeUint64(+data.amount.toFixed());
         buffer.writeByte(data.timelockType);
         buffer.writeUint64(data.timelock);
         buffer.append(bs58check.decode(data.recipientId));
@@ -25,7 +25,7 @@ export class TimelockTransferTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        data.amount = new BigNumber(buf.readUint64().toString());
+        data.amount = BigNumber.make(buf.readUint64().toString());
         data.timelockType = buf.readUint8();
         data.timelock = buf.readUint64().toNumber();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());

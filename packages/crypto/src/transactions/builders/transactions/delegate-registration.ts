@@ -16,16 +16,13 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
         this.data.asset = { delegate: {} } as ITransactionAsset;
     }
 
-    /**
-     * Establish the delegate username on the asset.
-     */
     public usernameAsset(username: string): DelegateRegistrationBuilder {
         this.data.asset.delegate.username = username;
         return this;
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;

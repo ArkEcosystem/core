@@ -17,20 +17,13 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
         this.data.asset = { signature: {} } as ITransactionAsset;
     }
 
-    /**
-     * Establish the signature on the asset, which is the one that would be that
-     * would be register on the blockchain, when creating a second passphrase.
-     */
     public signatureAsset(secondPassphrase: string): SecondSignatureBuilder {
         this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey;
         return this;
     }
 
-    /**
-     * Overrides the inherited method to return the additional required by this.
-     */
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
