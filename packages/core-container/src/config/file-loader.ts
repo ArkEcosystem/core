@@ -2,20 +2,15 @@ import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import got from "got";
 import Joi from "joi";
 import { basename, extname, resolve } from "path";
-import { schemaConfig } from "../schema";
+import { schemaConfig } from "./schema";
 
 class FileLoader {
-    /**
-     * Make the config instance.
-     * @param  {Object} opts
-     * @return {Loader}
-     */
-    public async setUp(opts) {
+    public async setUp(opts): Promise<{ config: Record<string, any>; files: Record<string, string> }> {
         if (!opts) {
             throw new Error("Invalid network configuration provided.");
         }
 
-        const files = await this.createFromDirectory();
+        const files: Record<string, string> = await this.createFromDirectory();
 
         const { value, error } = Joi.validate(files, schemaConfig);
 
@@ -26,11 +21,7 @@ class FileLoader {
         return { config: value, files };
     }
 
-    /**
-     * Load and bind the config.
-     * @return {void}
-     */
-    private async createFromDirectory() {
+    private async createFromDirectory(): Promise<Record<string, string>> {
         const files: Record<string, string> = this.getFiles();
 
         for (const [key, value] of Object.entries(files)) {
@@ -42,12 +33,8 @@ class FileLoader {
         return files;
     }
 
-    /**
-     * Get all config files.
-     * @return {Object}
-     */
     private getFiles(): Record<string, string> {
-        const basePath = resolve(process.env.CORE_PATH_CONFIG);
+        const basePath: string = resolve(process.env.CORE_PATH_CONFIG);
 
         if (!existsSync(basePath)) {
             throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
@@ -61,7 +48,7 @@ class FileLoader {
             }
         }
 
-        const configTree = {};
+        const configTree: Record<string, string> = {};
         for (const file of readdirSync(basePath)) {
             if ([".js", ".json"].includes(extname(file))) {
                 configTree[basename(file, extname(file))] = resolve(basePath, file);
@@ -71,9 +58,6 @@ class FileLoader {
         return configTree;
     }
 
-    /**
-     * Build the peer list either from a local file, remote file or object.
-     */
     private async buildPeers(configFile: any): Promise<void> {
         let fetchedList: Array<{ ip: string; port: number }>;
 
