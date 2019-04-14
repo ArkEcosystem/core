@@ -1,10 +1,10 @@
 import "jest-extended";
-import { bignumify } from "../../../../../../packages/core-utils/src";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
+import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiSignatureBuilder;
@@ -40,8 +40,8 @@ describe("Multi Signature Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
-        expect(builder).toHaveProperty("data.fee", bignumify(0));
-        expect(builder).toHaveProperty("data.amount", bignumify(0));
+        expect(builder).toHaveProperty("data.fee", Utils.BigNumber.make(0));
+        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.asset");
@@ -63,7 +63,7 @@ describe("Multi Signature Transaction", () => {
 
         it("calculates and establish the fee", () => {
             builder.multiSignatureAsset(multisignature);
-            expect(builder.data.fee).toEqual(bignumify(4).times(multiSignatureFee));
+            expect(builder.data.fee).toEqual(Utils.BigNumber.make(4).times(multiSignatureFee));
         });
     });
 

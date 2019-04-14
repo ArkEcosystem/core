@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { genesisBlock } from "../../config/unitnet/genesisBlock";
 
 export { genesisBlock };
@@ -16,14 +16,14 @@ export const block2 = {
     previousBlock: "4881670189836572019",
     previousBlockHex: "43bf2d2c67d29573",
     timestamp: 1,
-    reward: bignumify(0),
-    totalAmount: bignumify(20),
-    totalFee: bignumify(100000000),
+    reward: Utils.BigNumber.make(0),
+    totalAmount: Utils.BigNumber.make(20),
+    totalFee: Utils.BigNumber.make(100000000),
     transactions: [
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "2a4fb2f25eb201a989d5f3634c1b0d15336d9580b58dfdcbaa133c963a390d67",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -37,9 +37,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "2a64b5fe72fb061c91ecb159e1d8d40176e06e9292d85492c8a49971add6b849",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -53,9 +53,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "37ae8d0517fb5e65c27d85cd4c7211e4238854bf115f9b94879ddd63901276fd",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -69,9 +69,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "40562743b6826a054809e9ab7924f67a3e58d5cf4beed80d3e5cfa344f59bb70",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -85,9 +85,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "6430c39e8716c94cfa86c615e8cfede4e734e5722c454b7cc46833ff2e27898b",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -101,9 +101,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "84654b97e5e1de1f750e98cb0f9b54561326d95c8ebd385579d28dbaf6b6f22c",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -117,9 +117,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "8780a5028b92d7978c135be25abc0f7feb5e4c3c6b921e350d2efae74bc93b20",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -133,9 +133,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "927ffb96dbc41f5ca986961393b148d30b8824d807d182d86d5e902325dd31d0",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -149,9 +149,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "bb80344684fb879bd11f162525618c72cea2e2aa9b09244dd7d07ea1121f550a",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",
@@ -165,9 +165,9 @@ export const block2 = {
             version: 1,
         },
         {
-            amount: bignumify(2),
+            amount: Utils.BigNumber.make(2),
             expiration: 0,
-            fee: bignumify(10000000),
+            fee: Utils.BigNumber.make(10000000),
             id: "d0920f9e20f3946ea2530db4d9342b66848e759dc0d0ed9e4c9d3db035ffdb51",
             network: 23,
             recipientId: "AJJqpHNtEs26scVRiwiLgnR4PSFKxjBmB9",

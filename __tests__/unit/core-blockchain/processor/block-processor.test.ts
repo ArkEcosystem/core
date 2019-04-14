@@ -2,8 +2,7 @@ import "../mocks/";
 import { blockchain } from "../mocks/blockchain";
 import { database } from "../mocks/database";
 
-import { bignumify } from "@arkecosystem/core-utils";
-import { Blocks, Managers } from "@arkecosystem/crypto";
+import { Blocks, Managers, Utils } from "@arkecosystem/crypto";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
 import * as handlers from "../../../../packages/core-blockchain/src/processor/handlers";
 import {
@@ -29,12 +28,12 @@ describe("Block processor", () => {
         version: 0,
         timestamp: 46583330,
         height: 2,
-        reward: bignumify(0),
+        reward: Utils.BigNumber.make(0),
         previousBlock: genesisBlock.id,
         numberOfTransactions: 1,
         transactions: [],
-        totalAmount: bignumify(0),
-        totalFee: bignumify(0),
+        totalAmount: Utils.BigNumber.make(0),
+        totalFee: Utils.BigNumber.make(0),
         payloadLength: 0,
         payloadHash: genesisBlock.payloadHash,
         generatorPublicKey: delegates[0].publicKey,
@@ -66,8 +65,8 @@ describe("Block processor", () => {
             ...blockTemplate,
             ...{
                 transactions,
-                totalAmount: transactions.reduce((acc, curr) => bignumify(acc).plus(curr.amount), 0),
-                totalFee: transactions.reduce((acc, curr) => bignumify(acc).plus(curr.fee), 0),
+                totalAmount: transactions.reduce((acc, curr) => Utils.BigNumber.make(acc).plus(curr.amount), 0),
+                totalFee: transactions.reduce((acc, curr) => Utils.BigNumber.make(acc).plus(curr.fee), 0),
                 numberOfTransactions: transactions.length,
             },
         });

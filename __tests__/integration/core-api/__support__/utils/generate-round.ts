@@ -1,9 +1,9 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 
 export function generateRound(delegates, round) {
     return delegates.map(delegate => ({
         round,
         publicKey: delegate,
-        voteBalance: bignumify("245098000000000"),
+        voteBalance: Utils.BigNumber.make("245098000000000"),
     }));
 }

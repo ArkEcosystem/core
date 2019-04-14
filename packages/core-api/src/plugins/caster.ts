@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import Hapi from "hapi";
 
 function isBoolean(value) {
@@ -31,7 +31,9 @@ const register = async (server: Hapi.Server, options: object): Promise<void> => 
                     query[key] =
                         // @ts-ignore
                         // tslint:disable-next-line triple-equals
-                        query[key] == Number(query[key]) ? Number(query[key]) : bignumify(query[key]).toString();
+                        query[key] == Number(query[key])
+                            ? Number(query[key])
+                            : Utils.BigNumber.make(query[key]).toString();
                 } else {
                     query[key] = query[key];
                 }

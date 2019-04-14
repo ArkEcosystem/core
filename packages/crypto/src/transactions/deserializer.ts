@@ -4,7 +4,7 @@ import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { ITransactionData } from "../interfaces";
-import { Bignum } from "../utils";
+import { BigNumber } from "../utils";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class Deserializer {
@@ -42,8 +42,8 @@ class Deserializer {
         transaction.type = buf.readUint8();
         transaction.timestamp = buf.readUint32();
         transaction.senderPublicKey = buf.readBytes(33).toString("hex");
-        transaction.fee = new Bignum(buf.readUint64().toString());
-        transaction.amount = Bignum.ZERO;
+        transaction.fee = new BigNumber(buf.readUint64().toString());
+        transaction.amount = BigNumber.ZERO;
     }
 
     private deserializeVendorField(transaction: Transaction, buf: ByteBuffer): void {

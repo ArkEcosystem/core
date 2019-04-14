@@ -4,7 +4,7 @@ import { MissingTransactionSignatureError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
-import { Bignum, maxVendorFieldLength } from "../../../utils";
+import { BigNumber, maxVendorFieldLength } from "../../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -47,7 +47,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
      */
     public fee(fee: string): TBuilder {
         if (fee !== null) {
-            this.data.fee = new Bignum(fee);
+            this.data.fee = new BigNumber(fee);
         }
 
         return this.instance();
@@ -57,7 +57,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
      * Set amount to transfer.
      */
     public amount(amount: string): TBuilder {
-        this.data.amount = new Bignum(amount);
+        this.data.amount = new BigNumber(amount);
         return this.instance();
     }
 

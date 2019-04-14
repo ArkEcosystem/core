@@ -5,7 +5,6 @@ import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkec
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
-import { bignumify } from "../../../packages/core-utils/src";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
@@ -49,7 +48,7 @@ class TestTransaction extends Transactions.Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        data.amount = new Utils.Bignum(buf.readUint64().toString());
+        data.amount = Utils.BigNumber.make(buf.readUint64().toString());
         data.expiration = buf.readUint32();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
         data.asset = {
@@ -117,8 +116,8 @@ describe("TransactionHandlerRegistry", () => {
             type: TEST_TRANSACTION_TYPE,
             timestamp: slots.getTime(),
             senderPublicKey: keys.publicKey,
-            fee: bignumify("10000000"),
-            amount: bignumify("200000000"),
+            fee: Utils.BigNumber.make("10000000"),
+            amount: Utils.BigNumber.make("200000000"),
             recipientId: "APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq",
             asset: {
                 test: 256,

@@ -1,8 +1,8 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 
 export function transformRoundDelegate(model) {
     return {
         publicKey: model.publicKey,
-        votes: +bignumify(model.balance).toFixed(),
+        votes: +Utils.BigNumber.make(model.balance).toFixed(),
     };
 }

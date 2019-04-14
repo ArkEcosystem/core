@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
-import { Bignum } from "../../../utils";
+import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {
@@ -10,7 +10,7 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
 
         this.data.type = TransactionTypes.DelegateRegistration;
         this.data.fee = feeManager.get(TransactionTypes.DelegateRegistration);
-        this.data.amount = Bignum.ZERO;
+        this.data.amount = BigNumber.ZERO;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
         this.data.asset = { delegate: {} } as ITransactionAsset;

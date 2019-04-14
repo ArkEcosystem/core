@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
@@ -19,7 +19,7 @@ describe("Timelock Transfer Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.TimelockTransfer);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.TimelockTransfer));
-        expect(builder).toHaveProperty("data.amount", bignumify(0));
+        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.timelockType", 0x00);

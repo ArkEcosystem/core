@@ -7,7 +7,7 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
-import { bignumify, roundCalculator } from "../../../packages/core-utils/dist";
+import { roundCalculator } from "../../../packages/core-utils/dist";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
@@ -227,7 +227,7 @@ describe("Database Service", () => {
             for (let i = 0; i < 51; i++) {
                 const transfer = Transactions.BuilderFactory.transfer()
                     .amount(
-                        bignumify(i + 1)
+                        Utils.BigNumber.make(i + 1)
                             .times(SATOSHI)
                             .toFixed(),
                     )
@@ -246,8 +246,8 @@ describe("Database Service", () => {
                         height: initialHeight + i,
                         numberOfTransactions: 1,
                         totalAmount: transfer.data.amount,
-                        totalFee: new Utils.Bignum(0.1),
-                        reward: new Utils.Bignum(2),
+                        totalFee: Utils.BigNumber.make(0.1),
+                        reward: Utils.BigNumber.make(2),
                         payloadLength: 0,
                         payloadHash: "a".repeat(64),
                         transactions: [transfer.data],

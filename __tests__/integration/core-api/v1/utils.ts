@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
-import { bignumify } from "@arkecosystem/core-utils";
 import { httpie } from "@arkecosystem/core-utils";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 import { ApiHelpers } from "../../../utils/helpers/api";

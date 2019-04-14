@@ -1,10 +1,10 @@
 import "jest-extended";
-import { bignumify } from "../../../../../../packages/core-utils/src";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { VoteBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/vote";
+import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: VoteBuilder;
@@ -40,7 +40,7 @@ describe("Vote Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Vote);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Vote));
-        expect(builder).toHaveProperty("data.amount", bignumify(0));
+        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.asset");

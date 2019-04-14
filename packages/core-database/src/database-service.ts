@@ -489,16 +489,16 @@ export class DatabaseService implements Database.IDatabaseService {
         // @TODO: add block stats interface
         const blockStats: {
             numberOfTransactions: number;
-            totalFee: Utils.Bignum;
-            totalAmount: Utils.Bignum;
+            totalFee: Utils.BigNumber;
+            totalAmount: Utils.BigNumber;
             count: number;
         } = await this.connection.blocksRepository.statistics();
 
         // @TODO: add transacttion stats interface
         const transactionStats: {
             count: number;
-            totalFee: Utils.Bignum;
-            totalAmount: Utils.Bignum;
+            totalFee: Utils.BigNumber;
+            totalAmount: Utils.BigNumber;
         } = await this.connection.transactionsRepository.statistics();
 
         // Number of stored transactions equals the sum of block.numberOfTransactions in the database
@@ -633,7 +633,7 @@ export class DatabaseService implements Database.IDatabaseService {
                             return;
                         }
 
-                        coldWallet[key] = key !== "voteBalance" ? wallet[key] : new Utils.Bignum(wallet[key]);
+                        coldWallet[key] = key !== "voteBalance" ? wallet[key] : Utils.BigNumber.make(wallet[key]);
                     });
                 }
             } catch (err) {

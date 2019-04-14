@@ -254,8 +254,8 @@ export class Mem {
     public getTransactionsOrderedByFee(): MemPoolTransaction[] {
         if (!this.allIsSorted) {
             this.all.sort((a, b) => {
-                const feeA = a.transaction.data.fee as Utils.Bignum;
-                const feeB = b.transaction.data.fee as Utils.Bignum;
+                const feeA = a.transaction.data.fee as Utils.BigNumber;
+                const feeB = b.transaction.data.fee as Utils.BigNumber;
                 if (feeA.isGreaterThan(feeB)) {
                     return -1;
                 }

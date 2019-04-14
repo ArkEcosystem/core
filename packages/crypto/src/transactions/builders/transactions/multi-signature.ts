@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
-import { Bignum } from "../../../utils";
+import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
@@ -9,8 +9,8 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         super();
 
         this.data.type = TransactionTypes.MultiSignature;
-        this.data.fee = Bignum.ZERO;
-        this.data.amount = Bignum.ZERO;
+        this.data.fee = BigNumber.ZERO;
+        this.data.amount = BigNumber.ZERO;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
         this.data.asset = { multisignature: {} } as ITransactionAsset;
@@ -23,7 +23,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
      */
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
         this.data.asset.multisignature = multiSignature;
-        this.data.fee = new Bignum(multiSignature.keysgroup.length + 1).times(
+        this.data.fee = new BigNumber(multiSignature.keysgroup.length + 1).times(
             feeManager.get(TransactionTypes.MultiSignature),
         );
 

@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
-import { Bignum } from "../../../utils";
+import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
@@ -10,7 +10,7 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
 
         this.data.type = TransactionTypes.Ipfs;
         this.data.fee = feeManager.get(TransactionTypes.Ipfs);
-        this.data.amount = Bignum.ZERO;
+        this.data.amount = BigNumber.ZERO;
         this.data.vendorFieldHex = null;
         this.data.senderPublicKey = null;
         this.data.asset = {};

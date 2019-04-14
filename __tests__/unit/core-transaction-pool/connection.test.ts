@@ -3,7 +3,7 @@ import "./mocks/core-container";
 
 import { Wallet } from "@arkecosystem/core-database";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { Blocks, Constants, Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
@@ -179,7 +179,7 @@ describe("Connection", () => {
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
             const highFeeTransaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy3.data));
-            highFeeTransaction.data.fee = bignumify(1e9 * SATOSHI);
+            highFeeTransaction.data.fee = Utils.BigNumber.make(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
             highFeeTransaction.data.senderPublicKey =
                 "000000000000000000000000000000000000000420000000000000000000000000";
@@ -709,7 +709,7 @@ describe("Connection", () => {
             const voteTx = Transactions.Transaction.fromData(cloneDeep(tx.data));
             voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             voteTx.data.type = TransactionTypes.Vote;
-            voteTx.data.amount = bignumify(0);
+            voteTx.data.amount = Utils.BigNumber.make(0);
             voteTx.data.asset = { votes: [`+${tx.data.senderPublicKey}`] };
 
             const transactions = [tx, voteTx, mockData.dummy2];
@@ -846,7 +846,7 @@ describe("Connection", () => {
             for (let i = 0; i < nAdd; i++) {
                 const transaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
-                transaction.data.fee = bignumify(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
+                transaction.data.fee = Utils.BigNumber.make(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
                 transaction.serialized = Transactions.Transaction.toBytes(transaction.data);
                 allTransactions.push(transaction);
             }

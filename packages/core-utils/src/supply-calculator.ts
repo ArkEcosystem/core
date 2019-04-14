@@ -15,7 +15,7 @@ export function calculate(height: number): number {
         return genesisBlock.totalAmount;
     }
 
-    let rewards: Utils.Bignum = Utils.Bignum.ZERO;
+    let rewards: Utils.BigNumber = Utils.BigNumber.ZERO;
     let currentHeight: number = 0;
     let constantIndex: number = 0;
 
@@ -33,9 +33,11 @@ export function calculate(height: number): number {
         currentHeight += heightJump;
 
         if (currentHeight >= constants.height) {
-            rewards = rewards.plus(new Utils.Bignum(constants.reward).times(heightJump));
+            rewards = rewards.plus(Utils.BigNumber.make(constants.reward).times(heightJump));
         }
     }
 
-    return +new Utils.Bignum(genesisBlock.totalAmount).plus(rewards).toFixed();
+    return +Utils.BigNumber.make(genesisBlock.totalAmount)
+        .plus(rewards)
+        .toFixed();
 }

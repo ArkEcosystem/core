@@ -4,7 +4,7 @@ import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Transaction } from "../transactions";
-import { Bignum, isException } from "../utils";
+import { BigNumber, isException } from "../utils";
 import { AjvWrapper } from "../validation";
 import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
@@ -54,7 +54,7 @@ export class Block implements IBlock {
     }
 
     public static toBytesHex(data): string {
-        const temp = data ? new Bignum(data).toString(16) : "";
+        const temp = data ? new BigNumber(data).toString(16) : "";
 
         return "0".repeat(16 - temp.length) + temp;
     }
@@ -67,7 +67,7 @@ export class Block implements IBlock {
             return idHex;
         }
 
-        return new Bignum(idHex, 16).toFixed();
+        return new BigNumber(idHex, 16).toFixed();
     }
 
     public static fromHex(hex: string): IBlock {
@@ -185,7 +185,7 @@ export class Block implements IBlock {
                 }
             }
 
-            if (!(block.reward as Bignum).isEqualTo(constants.reward)) {
+            if (!(block.reward as BigNumber).isEqualTo(constants.reward)) {
                 result.errors.push(["Invalid block reward:", block.reward, "expected:", constants.reward].join(" "));
             }
 
@@ -230,8 +230,8 @@ export class Block implements IBlock {
 
             // Checking if transactions of the block adds up to block values.
             const appliedTransactions = {};
-            let totalAmount = Bignum.ZERO;
-            let totalFee = Bignum.ZERO;
+            let totalAmount = BigNumber.ZERO;
+            let totalFee = BigNumber.ZERO;
             const payloadBuffers = [];
             this.transactions.forEach(transaction => {
                 const bytes = Buffer.from(transaction.data.id, "hex");

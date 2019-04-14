@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
-import { Bignum } from "../../../utils";
+import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
@@ -10,7 +10,7 @@ export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
 
         this.data.type = TransactionTypes.Transfer;
         this.data.fee = feeManager.get(TransactionTypes.Transfer);
-        this.data.amount = Bignum.ZERO;
+        this.data.amount = BigNumber.ZERO;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
         this.data.expiration = 0;

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
@@ -91,7 +91,7 @@ describe("Transfer Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Transfer));
-        expect(builder).toHaveProperty("data.amount", bignumify(0));
+        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.expiration", 0);

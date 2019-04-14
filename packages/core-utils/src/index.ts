@@ -1,4 +1,3 @@
-import { bignumify } from "./bignumify";
 import { CappedSet } from "./capped-set";
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { formatTimestamp } from "./format-timestamp";
@@ -9,20 +8,8 @@ import { NSect } from "./nsect";
 import { calculateRound, isNewRound } from "./round-calculator";
 import { calculate } from "./supply-calculator";
 
-const delegateCalculator = { calculateApproval, calculateForgedTotal };
-const roundCalculator = { calculateRound, isNewRound };
-const supplyCalculator = { calculate };
+export const delegateCalculator = { calculateApproval, calculateForgedTotal };
+export const roundCalculator = { calculateRound, isNewRound };
+export const supplyCalculator = { calculate };
 
-export {
-    bignumify,
-    CappedSet,
-    delegateCalculator,
-    formatTimestamp,
-    hasSomeProperty,
-    httpie,
-    IHttpieResponse,
-    isBlockChained,
-    NSect,
-    roundCalculator,
-    supplyCalculator,
-};
+export { CappedSet, formatTimestamp, hasSomeProperty, httpie, IHttpieResponse, isBlockChained, NSect };

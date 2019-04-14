@@ -1,8 +1,8 @@
 import { container } from "./mocks/core-container";
 
+import { Utils } from "crypto";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { calculateFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
-import { bignumify } from "../../../packages/core-utils/src";
 import { transactions } from "./__fixtures__/transactions";
 
 describe("static fees", () => {
@@ -93,10 +93,10 @@ describe("calculateFee", () => {
         });
 
         expect(calculateFee(3, transactions.dummy1)).toEqual(
-            bignumify(137 + transactions.dummy1.serialized.length / 2).times(3),
+            Utils.BigNumber.make(137 + transactions.dummy1.serialized.length / 2).times(3),
         );
         expect(calculateFee(6, transactions.dummy1)).toEqual(
-            bignumify(137 + transactions.dummy1.serialized.length / 2).times(6),
+            Utils.BigNumber.make(137 + transactions.dummy1.serialized.length / 2).times(6),
         );
 
         jest.spyOn(container.app, "resolveOptions").mockReturnValue({
@@ -105,7 +105,7 @@ describe("calculateFee", () => {
         });
 
         expect(calculateFee(9, transactions.dummy1)).toEqual(
-            bignumify(transactions.dummy1.serialized.length / 2).times(9),
+            Utils.BigNumber.make(transactions.dummy1.serialized.length / 2).times(9),
         );
     });
 

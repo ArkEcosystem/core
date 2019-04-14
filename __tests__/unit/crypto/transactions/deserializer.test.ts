@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { client } from "../../../../packages/crypto/src/client";
 import {
@@ -372,8 +372,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should return Buffer of simply transaction and buffer must be 202 length", () => {
             const transaction = {
                 type: 0,
-                amount: bignumify(1000),
-                fee: bignumify(2000),
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},
@@ -413,8 +413,8 @@ describe("Transaction serializer / deserializer", () => {
             const transaction = {
                 version: 1,
                 type: 0,
-                amount: bignumify(1000),
-                fee: bignumify(2000),
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},
@@ -438,8 +438,8 @@ describe("Transaction serializer / deserializer", () => {
             const transaction = {
                 version: 110,
                 type: 0,
-                amount: bignumify(1000),
-                fee: bignumify(2000),
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},

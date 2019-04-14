@@ -166,8 +166,8 @@ export class Connection implements TransactionPool.IConnection {
             const all = this.mem.getTransactionsOrderedByFee();
             const lowest = all[all.length - 1].transaction;
 
-            const fee = transaction.data.fee as Utils.Bignum;
-            const lowestFee = lowest.data.fee as Utils.Bignum;
+            const fee = transaction.data.fee as Utils.BigNumber;
+            const lowestFee = lowest.data.fee as Utils.BigNumber;
 
             if (lowestFee.isLessThan(fee)) {
                 this.walletManager.revertTransactionForSender(lowest);
@@ -435,7 +435,7 @@ export class Connection implements TransactionPool.IConnection {
         // if delegate in poll wallet manager - apply rewards and fees
         if (this.walletManager.exists(block.data.generatorPublicKey)) {
             const delegateWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
-            const increase = (block.data.reward as Utils.Bignum).plus(block.data.totalFee);
+            const increase = (block.data.reward as Utils.BigNumber).plus(block.data.totalFee);
             delegateWallet.balance = delegateWallet.balance.plus(increase);
         }
 

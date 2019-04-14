@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { Model } from "./model";
 
 export class Round extends Model {
@@ -14,7 +14,7 @@ export class Round extends Model {
             {
                 name: "balance",
                 prop: "voteBalance",
-                init: col => bignumify(col.value).toFixed(),
+                init: col => Utils.BigNumber.make(col.value).toFixed(),
                 supportedOperators: [
                     Database.SearchOperator.OP_EQ,
                     Database.SearchOperator.OP_LTE,

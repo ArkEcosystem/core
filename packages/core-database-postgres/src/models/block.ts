@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { Model } from "./model";
 
 export class Block extends Model {
@@ -42,18 +42,18 @@ export class Block extends Model {
             {
                 name: "total_amount",
                 prop: "totalAmount",
-                init: col => bignumify(col.value).toFixed(),
+                init: col => Utils.BigNumber.make(col.value).toFixed(),
                 supportedOperators: [Database.SearchOperator.OP_LTE, Database.SearchOperator.OP_GTE],
             },
             {
                 name: "total_fee",
                 prop: "totalFee",
-                init: col => bignumify(col.value).toFixed(),
+                init: col => Utils.BigNumber.make(col.value).toFixed(),
                 supportedOperators: [Database.SearchOperator.OP_LTE, Database.SearchOperator.OP_GTE],
             },
             {
                 name: "reward",
-                init: col => bignumify(col.value).toFixed(),
+                init: col => Utils.BigNumber.make(col.value).toFixed(),
                 supportedOperators: [Database.SearchOperator.OP_LTE, Database.SearchOperator.OP_GTE],
             },
             {

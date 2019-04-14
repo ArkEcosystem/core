@@ -50,7 +50,7 @@ export class IntegrityVerifier {
             const wallet = this.walletManager.findByAddress(transaction.recipientId);
 
             wallet
-                ? (wallet.balance = new Utils.Bignum(transaction.amount))
+                ? (wallet.balance = Utils.BigNumber.make(transaction.amount))
                 : this.logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
         }
     }

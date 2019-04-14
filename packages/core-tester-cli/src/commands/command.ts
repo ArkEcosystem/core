@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { Identities, Managers, Types, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
@@ -136,23 +136,23 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    protected async knockBalance(address: string, expected: Utils.Bignum): Promise<void> {
+    protected async knockBalance(address: string, expected: Utils.BigNumber): Promise<void> {
         const actual = await this.getWalletBalance(address);
 
-        if (bignumify(expected).isEqualTo(actual)) {
+        if (Utils.BigNumber.make(expected).isEqualTo(actual)) {
             logger.info(`[W] ${address} (${this.fromSatoshi(actual)})`);
         } else {
             logger.error(`[W] ${address} (${this.fromSatoshi(expected)} / ${this.fromSatoshi(actual)})`);
         }
     }
 
-    protected async getWalletBalance(address: string): Promise<Utils.Bignum> {
+    protected async getWalletBalance(address: string): Promise<Utils.BigNumber> {
         try {
             const { data } = await this.api.get(`wallets/${address}`);
 
-            return bignumify(data.balance);
+            return Utils.BigNumber.make(data.balance);
         } catch (error) {
-            return Utils.Bignum.ZERO;
+            return Utils.BigNumber.ZERO;
         }
     }
 
@@ -193,7 +193,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected toSatoshi(value) {
-        return bignumify(value)
+        return Utils.BigNumber.make(value)
             .times(1e8)
             .toFixed();
     }

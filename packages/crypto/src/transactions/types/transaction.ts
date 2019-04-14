@@ -9,7 +9,7 @@ import {
     TransactionVersionError,
 } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
-import { Bignum, isException } from "../../utils";
+import { BigNumber, isException } from "../../utils";
 import { AjvWrapper } from "../../validation";
 import { deserializer } from "../deserializer";
 import { Serializer } from "../serializer";
@@ -147,8 +147,8 @@ export abstract class Transaction implements ITransaction {
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
         // FIXME: legacy type 4 need special treatment
         if (data.type === TransactionTypes.MultiSignature) {
-            data.amount = new Bignum(data.amount);
-            data.fee = new Bignum(data.fee);
+            data.amount = new BigNumber(data.amount);
+            data.fee = new BigNumber(data.fee);
             return { value: data, error: null };
         }
 

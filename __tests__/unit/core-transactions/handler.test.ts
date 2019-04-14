@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Wallet } from "@arkecosystem/core-database";
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { Constants, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
@@ -36,7 +36,7 @@ let instance: any;
 beforeEach(() => {
     wallet = {
         address: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
-        balance: bignumify(4527654310),
+        balance: Utils.BigNumber.make(4527654310),
         publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
     } as Wallet;
 
@@ -46,9 +46,9 @@ beforeEach(() => {
             "304402206974568da7c363155decbc20ddc17746a2e7e663901c426f5a41411374cc6d18022052f4353ec93227713f9907f2bb2549e6bc42584b736aa5f9ff36e2c239154648",
         timestamp: 54836734,
         type: 0,
-        fee: bignumify(10000000),
+        fee: Utils.BigNumber.make(10000000),
         senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-        amount: bignumify(10000000),
+        amount: Utils.BigNumber.make(10000000),
         recipientId: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
     };
 
@@ -60,9 +60,9 @@ beforeEach(() => {
             "304402202d0ae57c6a0afb225443b56c6e049cb08df48b5813362f7e11574b96f225738f0220055b5a941cc70100404a7788c57b37e2e806acf58c4284c567dc53477f546540",
         timestamp: 54836734,
         type: 0,
-        fee: bignumify(10000000),
+        fee: Utils.BigNumber.make(10000000),
         senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-        amount: bignumify(10000000),
+        amount: Utils.BigNumber.make(10000000),
         recipientId: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
     };
 });
@@ -102,7 +102,7 @@ describe("General Tests", () => {
 
         it("should be false if wallet has not enough balance", () => {
             // 1 arktoshi short
-            wallet.balance = bignumify(transaction.amount)
+            wallet.balance = Utils.BigNumber.make(transaction.amount)
                 .plus(transaction.fee)
                 .minus(1);
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
@@ -119,10 +119,10 @@ describe("General Tests", () => {
     describe("applyTransactionToSender", () => {
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
             handler.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(
-                bignumify(initialBalance)
+                Utils.BigNumber.make(initialBalance)
                     .minus(transaction.amount)
                     .minus(transaction.fee),
             );
@@ -130,16 +130,16 @@ describe("General Tests", () => {
 
         it("should not be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
             instance.data.senderPublicKey = "a".repeat(66);
 
             handler.applyToSender(instance, wallet);
-            expect(wallet.balance).toEqual(bignumify(initialBalance));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(initialBalance));
         });
 
         it("should not fail due to case mismatch", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
 
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             const instance = Transactions.Transaction.fromData(transaction);
@@ -147,7 +147,7 @@ describe("General Tests", () => {
 
             handler.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(
-                bignumify(initialBalance)
+                Utils.BigNumber.make(initialBalance)
                     .minus(transaction.amount)
                     .minus(transaction.fee),
             );
@@ -157,11 +157,11 @@ describe("General Tests", () => {
     describe("revertTransactionForSender", () => {
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
 
             handler.revertForSender(instance, wallet);
             expect(wallet.balance).toEqual(
-                bignumify(initialBalance)
+                Utils.BigNumber.make(initialBalance)
                     .plus(transaction.amount)
                     .plus(transaction.fee),
             );
@@ -169,50 +169,50 @@ describe("General Tests", () => {
 
         it("should not be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
             transaction.senderPublicKey = "a".repeat(66);
 
             handler.revertForSender(instance, wallet);
-            expect(wallet.balance).toEqual(bignumify(initialBalance));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(initialBalance));
         });
     });
 
     describe("applyTransactionToRecipient", () => {
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
 
             handler.applyToRecipient(instance, wallet);
-            expect(wallet.balance).toEqual(bignumify(initialBalance).plus(transaction.amount));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(initialBalance).plus(transaction.amount));
         });
 
         it("should not be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
             transaction.recipientId = "invalid-recipientId";
 
             handler.applyToRecipient(instance, wallet);
-            expect(wallet.balance).toEqual(bignumify(initialBalance));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(initialBalance));
         });
     });
 
     describe("revertTransactionForRecipient", () => {
         it("should be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
 
             handler.revertForRecipient(instance, wallet);
-            expect(wallet.balance).toEqual(bignumify(initialBalance).minus(transaction.amount));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(initialBalance).minus(transaction.amount));
         });
 
         it("should not be ok", () => {
             const initialBalance = 1000 * ARKTOSHI;
-            wallet.balance = bignumify(initialBalance);
+            wallet.balance = Utils.BigNumber.make(initialBalance);
 
             transaction.recipientId = "invalid-recipientId";
 
             handler.revertForRecipient(instance, wallet);
-            expect(wallet.balance).toEqual(bignumify(initialBalance));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(initialBalance));
         });
     });
 });
@@ -241,7 +241,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
     beforeEach(() => {
         wallet = {
             address: "DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj",
-            balance: bignumify("6453530000000"),
+            balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9",
             secondPublicKey: null,
         } as Wallet;
@@ -252,7 +252,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             type: 1,
             timestamp: 53995738,
             senderPublicKey: "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9",
-            fee: bignumify(500000000),
+            fee: Utils.BigNumber.make(500000000),
             asset: {
                 signature: {
                     publicKey: "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8",
@@ -260,7 +260,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             },
             signature:
                 "3044022064e7abe87c186b201eaeeb9587097432816c94b52b85520a70da1d78b93456aa0220205e263a278c64771d46038f116c37dc16c86e73664e7e829951d7c5544c6d3e",
-            amount: Utils.Bignum.ZERO,
+            amount: Utils.BigNumber.ZERO,
             recipientId: "DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj",
             id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
         };
@@ -281,7 +281,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
 
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
@@ -328,8 +328,8 @@ describe("DelegateRegistrationTransaction", () => {
             id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
             type: 2,
             timestamp: 36482198,
-            amount: Utils.Bignum.ZERO,
-            fee: bignumify(10000000),
+            amount: Utils.BigNumber.ZERO,
+            fee: Utils.BigNumber.make(10000000),
             recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
             senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
             signature:
@@ -359,7 +359,7 @@ describe("DelegateRegistrationTransaction", () => {
 
         it("should be false if wallet has insufficient funds", () => {
             wallet.username = "";
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
 
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
@@ -387,7 +387,7 @@ describe("VoteTransaction", () => {
     beforeEach(() => {
         wallet = {
             address: "DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh",
-            balance: bignumify("6453530000000"),
+            balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
             vote: null,
         } as Wallet;
@@ -398,9 +398,9 @@ describe("VoteTransaction", () => {
                 "3045022100f53da6eb18ca7954bb7c620ceeaf5cb3433685d173401146aea35ee8e5f5c95002204ea57f573745c8f5c57b256e38397d3e1977bdbfac295128320401c6117bb2f3",
             timestamp: 54833694,
             type: 3,
-            fee: bignumify(100000000),
+            fee: Utils.BigNumber.make(100000000),
             senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-            amount: Utils.Bignum.ZERO,
+            amount: Utils.BigNumber.ZERO,
             recipientId: "DLvBAvLePTJ9DfDzby5AAkqPqwCVDCT647",
             asset: {
                 votes: ["+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
@@ -413,9 +413,9 @@ describe("VoteTransaction", () => {
                 "3045022100957106a924eb40df6ff530cff80fede0195c30284fdb5671e736c7d0b57696f6022072b0fd80af235d79701e9aea74ef48366ef9f5aecedbb5d502e6392569c059c8",
             timestamp: 54833718,
             type: 3,
-            fee: bignumify(100000000),
+            fee: Utils.BigNumber.make(100000000),
             senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-            amount: Utils.Bignum.ZERO,
+            amount: Utils.BigNumber.ZERO,
             recipientId: "DLvBAvLePTJ9DfDzby5AAkqPqwCVDCT647",
             asset: {
                 votes: ["-02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
@@ -454,7 +454,7 @@ describe("VoteTransaction", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
@@ -524,7 +524,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
 
     beforeEach(() => {
         wallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
-        wallet.balance = bignumify(100390000000);
+        wallet.balance = Utils.BigNumber.make(100390000000);
         wallet.publicKey = "026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202";
         wallet.secondPublicKey = "0380728436880a0a11eadf608c4d4e7f793719e044ee5151074a5f2d5d43cb9066";
         wallet.multisignature = multisignatureTest;
@@ -534,8 +534,8 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             id: "e22ddd7385b42c00f79b9c6ecd253333ddef6e0bf955341ace2e63dad1f4bd70",
             type: 4,
             timestamp: 48059808,
-            amount: Utils.Bignum.ZERO,
-            fee: bignumify(8000000000),
+            amount: Utils.BigNumber.ZERO,
+            fee: Utils.BigNumber.make(8000000000),
             recipientId: "DGN48KSVFx88chiSu7JbqkAXstqtM1uLJQ",
             senderPublicKey: "026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202",
             signature:
@@ -659,7 +659,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
 
         it("should be false if wallet has insufficient funds", () => {
             delete wallet.multisignature;
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
 
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
@@ -690,7 +690,7 @@ describe.skip("IpfsTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
         wallet = walletFixture;
-        wallet.balance = bignumify(transaction.amount).plus(transaction.fee);
+        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -706,7 +706,7 @@ describe.skip("IpfsTransaction", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
@@ -716,7 +716,7 @@ describe.skip("TimelockTransferTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
         wallet = walletFixture;
-        wallet.balance = bignumify(transaction.amount).plus(transaction.fee);
+        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -732,7 +732,7 @@ describe.skip("TimelockTransferTransaction", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
@@ -745,8 +745,8 @@ describe.skip("MultiPaymentTransaction", () => {
             id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
             type: 7,
             timestamp: 36482198,
-            amount: bignumify(0),
-            fee: bignumify(10000000),
+            amount: Utils.BigNumber.make(0),
+            fee: Utils.BigNumber.make(10000000),
             recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
             senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
             signature:
@@ -754,23 +754,23 @@ describe.skip("MultiPaymentTransaction", () => {
             asset: {
                 payments: [
                     {
-                        amount: bignumify(10),
+                        amount: Utils.BigNumber.make(10),
                         recipientId: "a",
                     },
                     {
-                        amount: bignumify(20),
+                        amount: Utils.BigNumber.make(20),
                         recipientId: "b",
                     },
                     {
-                        amount: bignumify(30),
+                        amount: Utils.BigNumber.make(30),
                         recipientId: "c",
                     },
                     {
-                        amount: bignumify(40),
+                        amount: Utils.BigNumber.make(40),
                         recipientId: "d",
                     },
                     {
-                        amount: bignumify(50),
+                        amount: Utils.BigNumber.make(50),
                         recipientId: "e",
                     },
                 ],
@@ -778,7 +778,7 @@ describe.skip("MultiPaymentTransaction", () => {
         };
 
         wallet = walletFixture;
-        wallet.balance = bignumify(transaction.amount).plus(transaction.fee);
+        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -789,12 +789,12 @@ describe.skip("MultiPaymentTransaction", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
 
         it("should be false if wallet has insufficient funds send all payouts", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });
@@ -804,7 +804,7 @@ describe.skip("DelegateResignationTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
         wallet = walletFixture;
-        wallet.balance = bignumify(transaction.amount).plus(transaction.fee);
+        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -821,7 +821,7 @@ describe.skip("DelegateResignationTransaction", () => {
         });
 
         it("should be false if wallet has insufficient funds", () => {
-            wallet.balance = Utils.Bignum.ZERO;
+            wallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
     });

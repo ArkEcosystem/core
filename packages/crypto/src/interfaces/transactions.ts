@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../enums";
-import { Bignum } from "../utils";
+import { BigNumber } from "../utils";
 
 export interface ITransaction {
     readonly id: string;
@@ -44,8 +44,8 @@ export interface ITransactionData {
     timestamp: number;
     senderPublicKey: string;
 
-    fee: Bignum;
-    amount: Bignum;
+    fee: BigNumber;
+    amount: BigNumber;
 
     expiration?: number;
     recipientId?: string;
@@ -110,7 +110,7 @@ export interface ISchemaValidationResult<T = any> {
 }
 
 export interface IMultiPaymentItem {
-    amount: Bignum;
+    amount: BigNumber;
     recipientId: string;
 }
 
