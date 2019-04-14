@@ -1,11 +1,13 @@
 import chalk from "chalk";
+// @TODO: replace this with dato
 import dayjs from "dayjs-ext";
+import { Format } from "logform";
 import { format } from "winston";
 
-const { colorize, combine, timestamp, printf } = format;
+export function formatter(colorOutput: boolean = true): Format {
+    const { colorize, combine, timestamp, printf } = format;
 
-const formatter = (colorOutput: boolean = true) =>
-    combine(
+    return combine(
         colorize(),
         timestamp(),
         printf(info => {
@@ -38,5 +40,4 @@ const formatter = (colorOutput: boolean = true) =>
             return `[${dateTime}][${level}]: ${message}`;
         }),
     );
-
-export { formatter };
+}
