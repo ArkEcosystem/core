@@ -41,7 +41,7 @@ export interface IDatabaseService {
 
     restoreCurrentRound(height: number): Promise<void>;
 
-    buildWallets(): Promise<boolean>;
+    buildWallets(): Promise<void>;
 
     saveBlock(block: Interfaces.IBlock): Promise<void>;
 
@@ -59,7 +59,7 @@ export interface IDatabaseService {
 
     getLastBlock(): Promise<Interfaces.IBlock>;
 
-    getBlocks(offset: number, limit: number): Promise<any[]>;
+    getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]>;
 
     /**
      * Get the blocks at the given heights.
@@ -79,9 +79,9 @@ export interface IDatabaseService {
      * the height of our blockchain), then that element will be `undefined` in the resulting array
      * @throws Error
      */
-    getBlocksByHeight(heights: number[]): Promise<any[]>;
+    getBlocksByHeight(heights: number[]): Promise<Interfaces.IBlockData[]>;
 
-    getTopBlocks(count: number): Promise<any[]>;
+    getTopBlocks(count: number): Promise<Interfaces.IBlockData[]>;
 
     getRecentBlockIds(): Promise<string[]>;
 
@@ -107,7 +107,7 @@ export interface IDatabaseService {
 
     revertRound(height: number): Promise<void>;
 
-    applyBlock(block: Interfaces.IBlock): Promise<boolean>;
+    applyBlock(block: Interfaces.IBlock): Promise<void>;
 
     revertBlock(block: Interfaces.IBlock): Promise<void>;
 

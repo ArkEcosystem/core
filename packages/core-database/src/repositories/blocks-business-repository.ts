@@ -1,6 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
+// @TODO: add database block interface
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
     constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 

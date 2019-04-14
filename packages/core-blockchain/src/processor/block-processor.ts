@@ -24,15 +24,12 @@ export enum BlockProcessorResult {
 }
 
 export class BlockProcessor {
-    private logger: Logger.ILogger;
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    public constructor(private blockchain: Blockchain) {
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
-    }
+    public constructor(private readonly blockchain: Blockchain) {}
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        const handler = await this.getHandler(block);
-        return handler.execute();
+        return (await this.getHandler(block)).execute();
     }
 
     public async getHandler(block: Interfaces.IBlock): Promise<BlockHandler> {
@@ -44,8 +41,8 @@ export class BlockProcessor {
             return new VerificationFailedHandler(this.blockchain, block);
         }
 
-        const isValidGenerator = await validateGenerator(block);
-        const isChained = isBlockChained(this.blockchain.getLastBlock().data, block.data);
+        const isValidGenerator: boolean = await validateGenerator(block);
+        const isChained: boolean = isBlockChained(this.blockchain.getLastBlock().data, block.data);
         if (!isChained) {
             return new UnchainedHandler(this.blockchain, block, isValidGenerator);
         }
@@ -54,7 +51,7 @@ export class BlockProcessor {
             return new InvalidGeneratorHandler(this.blockchain, block);
         }
 
-        const containsForgedTransactions = await this.checkBlockContainsForgedTransactions(block);
+        const containsForgedTransactions: boolean = await this.checkBlockContainsForgedTransactions(block);
         if (containsForgedTransactions) {
             return new AlreadyForgedHandler(this.blockchain, block);
         }
@@ -66,14 +63,17 @@ export class BlockProcessor {
      * Checks if the given block is verified or an exception.
      */
     private verifyBlock(block: Interfaces.IBlock): boolean {
-        const verified = block.verification.verified;
+        const verified: boolean = block.verification.verified;
+
         if (!verified) {
             this.logger.warn(
                 `Block ${block.data.height.toLocaleString()} (${
                     block.data.id
                 }) disregarded because verification failed`,
             );
+
             this.logger.warn(JSON.stringify(block.verification, null, 4));
+
             return false;
         }
 
@@ -85,14 +85,17 @@ export class BlockProcessor {
      */
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
-            const forgedIds = await this.blockchain.database.getForgedTransactionsIds(
+            const forgedIds: string[] = await this.blockchain.database.getForgedTransactionsIds(
                 block.transactions.map(tx => tx.id),
             );
+
             if (forgedIds.length > 0) {
                 this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
+
                 this.logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
+
                 return true;
             }
         }

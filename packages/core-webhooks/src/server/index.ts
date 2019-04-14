@@ -1,6 +1,8 @@
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
+import Boom from "boom";
 import { randomBytes } from "crypto";
 import { database } from "../database";
+import { IWebhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
@@ -59,13 +61,19 @@ export async function startServer(config) {
         method: "POST",
         path: "/api/webhooks",
         handler(request: any, h) {
-            const token = randomBytes(32).toString("hex");
-            request.payload.token = token.substring(0, 32);
+            const token: string = randomBytes(32).toString("hex");
 
-            const webhook: any = database.create(request.payload);
-            webhook.token = token;
-
-            return h.response(utils.respondWithResource(webhook)).code(201);
+            return h
+                .response(
+                    utils.respondWithResource({
+                        ...database.create({
+                            ...request.payload,
+                            ...{ token: token.substring(0, 32) },
+                        }),
+                        ...{ token },
+                    }),
+                )
+                .code(201);
         },
         options: {
             plugins: {
@@ -81,7 +89,7 @@ export async function startServer(config) {
         method: "GET",
         path: "/api/webhooks/{id}",
         async handler(request) {
-            const webhook: any = database.findById(request.params.id);
+            const webhook: IWebhook = database.findById(request.params.id);
             delete webhook.token;
 
             return utils.respondWithResource(webhook);
@@ -95,7 +103,7 @@ export async function startServer(config) {
         method: "PUT",
         path: "/api/webhooks/{id}",
         handler: (request, h) => {
-            database.update(request.params.id, request.payload);
+            database.update(request.params.id, request.payload as IWebhook);
 
             return h.response(null).code(204);
         },
@@ -108,9 +116,13 @@ export async function startServer(config) {
         method: "DELETE",
         path: "/api/webhooks/{id}",
         handler: (request, h) => {
-            database.destroy(request.params.id);
+            try {
+                database.destroy(request.params.id);
 
-            return h.response(null).code(204);
+                return h.response(null).code(204);
+            } catch (error) {
+                return Boom.notFound();
+            }
         },
         options: {
             validate: schema.destroy,

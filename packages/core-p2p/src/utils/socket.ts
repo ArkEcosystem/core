@@ -9,7 +9,7 @@ export async function socketEmit(
     data: any,
     headers: Record<string, any>,
     timeout?: number,
-) {
+): Promise<any> {
     const req = {
         data: data || {},
         headers,

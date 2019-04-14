@@ -3,26 +3,14 @@ import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
+// @TODO: add return types
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    /**
-     * Create a new wallet repository instance.
-     * @param databaseServiceProvider
-     */
     public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    /**
-     * Get all local wallets.
-     * @return {Array}
-     */
     public all() {
         return this.databaseServiceProvider().walletManager.allByAddress();
     }
 
-    /**
-     * Find all wallets.
-     * @param  {{ orderBy?: string }} params
-     * @return {Object}
-     */
     public findAll(params: Database.IParameters = {}) {
         this.applyOrder(params);
 
@@ -34,12 +22,6 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    /**
-     * Find all wallets for the given vote.
-     * @param  {String} publicKey
-     * @param  {Object} params
-     * @return {Object}
-     */
     public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
         this.applyOrder(params);
 
@@ -51,23 +33,14 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    /**
-     * Find a wallet by address, public key or username.
-     */
     public findById(id: string) {
         return this.all().find(wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id);
     }
 
-    /**
-     * Count all wallets.
-     */
     public count() {
         return this.all().length;
     }
 
-    /**
-     * Find all wallets sorted by balance.
-     */
     public top(params: Database.IParameters = {}) {
         this.applyOrder(params);
 

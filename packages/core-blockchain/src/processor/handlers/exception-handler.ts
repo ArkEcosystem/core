@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../block-processor";
 import { AcceptBlockHandler } from "./accept-block-handler";
 import { BlockHandler } from "./block-handler";
@@ -6,7 +7,8 @@ export class ExceptionHandler extends BlockHandler {
     public async execute(): Promise<BlockProcessorResult> {
         // Ensure the block has not been forged yet, as an exceptional
         // block bypasses all other checks.
-        const forgedBlock = await this.blockchain.database.getBlock(this.block.data.id);
+        const forgedBlock: Interfaces.IBlock = await this.blockchain.database.getBlock(this.block.data.id);
+
         if (forgedBlock) {
             return super.execute();
         }

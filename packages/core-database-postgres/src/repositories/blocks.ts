@@ -5,6 +5,7 @@ import { Repository } from "./repository";
 
 const { blocks: sql } = queries;
 
+// @TODO: add database block interface
 export class BlocksRepository extends Repository implements Database.IBlocksRepository {
     /**
      * Find a block by its ID.

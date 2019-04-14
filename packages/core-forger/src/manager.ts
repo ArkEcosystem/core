@@ -186,20 +186,23 @@ export class ForgerManager {
     public isForgingAllowed(networkState: P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
+
             return false;
         }
 
         if (networkState.status === NetworkStateStatus.ColdStart) {
             this.logger.info("Will not forge during the cold start period. Check peers.json for coldStart setting.");
+
             return false;
         }
 
         if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum. Will not forge.");
+
             return false;
         }
 
-        const overHeightBlockHeaders = networkState.getOverHeightBlockHeaders();
+        const overHeightBlockHeaders: Array<{ [id: string]: any }> = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
             this.logger.info(
                 `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
@@ -211,13 +214,16 @@ export class ForgerManager {
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
                 if (overHeightBlockHeader.generatorPublicKey === delegate.publicKey) {
-                    const username = this.usernames[delegate.publicKey];
+                    const username: string = this.usernames[delegate.publicKey];
+
                     this.logger.warn(
                         `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${
                             overHeightBlockHeader.id
                         }. Will not forge.`,
                     );
+
                     this.logger.debug(`Network State: ${networkState.toJson()}`);
+
                     return false;
                 }
             }
@@ -226,6 +232,7 @@ export class ForgerManager {
         if (networkState.getQuorum() < 0.66) {
             this.logger.info("Fork 6 - Not enough quorum to forge next block. Will not forge.");
             this.logger.debug(`Network State: ${networkState.toJson()}`);
+
             return false;
         }
 
@@ -255,8 +262,10 @@ export class ForgerManager {
         setTimeout(() => this.monitor(), timeout);
     }
 
-    private printLoadedDelegates() {
-        const activeDelegates = this.delegates.filter(delegate => this.usernames.hasOwnProperty(delegate.publicKey));
+    private printLoadedDelegates(): void {
+        const activeDelegates: Delegate[] = this.delegates.filter(delegate =>
+            this.usernames.hasOwnProperty(delegate.publicKey),
+        );
 
         if (activeDelegates.length > 0) {
             this.logger.debug(
@@ -267,7 +276,7 @@ export class ForgerManager {
         }
 
         if (this.delegates.length > activeDelegates.length) {
-            const inactiveDelegates = this.delegates
+            const inactiveDelegates: string[] = this.delegates
                 .filter(delegate => !activeDelegates.includes(delegate))
                 .map(delegate => delegate.publicKey);
 

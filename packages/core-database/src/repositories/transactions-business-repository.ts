@@ -3,6 +3,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { Enums } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
+// @TODO: add database transaction interface
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
     constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 

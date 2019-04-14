@@ -8,15 +8,13 @@ import { MemPoolTransaction } from "./mem-pool-transaction";
  * by the transaction pool.
  */
 export class Storage {
-    private table: string;
+    private readonly table: string = "pool";
     private db: BetterSqlite3.Database;
 
     /**
      * Construct the storage.
      */
     constructor(file: string) {
-        this.table = "pool";
-
         fs.ensureFileSync(file);
 
         this.db = new BetterSqlite3(file);
@@ -34,7 +32,7 @@ export class Storage {
     /**
      * Close the storage.
      */
-    public close() {
+    public close(): void {
         this.db.close();
         this.db = null;
     }
@@ -42,7 +40,7 @@ export class Storage {
     /**
      * Add a bunch of new entries to the storage.
      */
-    public bulkAdd(data: MemPoolTransaction[]) {
+    public bulkAdd(data: MemPoolTransaction[]): void {
         if (data.length === 0) {
             return;
         }
@@ -73,7 +71,7 @@ export class Storage {
     /**
      * Remove a bunch of entries, given their ids.
      */
-    public bulkRemoveById(ids: string[]) {
+    public bulkRemoveById(ids: string[]): void {
         if (ids.length === 0) {
             return;
         }
@@ -102,7 +100,7 @@ export class Storage {
     /**
      * Delete all entries.
      */
-    public deleteAll() {
+    public deleteAll(): void {
         this.db.exec(`DELETE FROM ${this.table};`);
     }
 }

@@ -8,6 +8,7 @@ import { Repository } from "./repository";
 
 const { transactions: sql } = queries;
 
+// @TODO: add database transaction interface
 export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
     /**
      * Find a transactions by its ID.

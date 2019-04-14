@@ -1,7 +1,7 @@
 import { SCClientSocket } from "socketcluster-client";
 
-export interface IRelaySocket {
+export interface IRelayHost {
+    hostname: string;
     port: number;
-    ip: string;
-    socket: SCClientSocket;
+    socket?: SCClientSocket;
 }

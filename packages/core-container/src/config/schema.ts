@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// @TODO: replace Joi with AJV
 export const schemaNetwork = Joi.object({
     milestones: Joi.array()
         .items(Joi.object())

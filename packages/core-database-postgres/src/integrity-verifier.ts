@@ -1,8 +1,7 @@
-import { Utils } from "@arkecosystem/crypto";
-import { sortBy } from "@arkecosystem/utils";
-
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Utils } from "@arkecosystem/crypto";
+import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
@@ -11,11 +10,7 @@ export class IntegrityVerifier {
 
     constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
 
-    /**
-     * Perform the State & Integrity Verification.
-     * @return {Boolean}
-     */
-    public async run() {
+    public async run(): Promise<boolean> {
         this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
         await this.buildReceivedTransactions();
 
@@ -48,11 +43,7 @@ export class IntegrityVerifier {
         return this.verifyWalletsConsistency();
     }
 
-    /**
-     * Load and apply received transactions to wallets.
-     * @return {void}
-     */
-    private async buildReceivedTransactions() {
+    private async buildReceivedTransactions(): Promise<void> {
         const transactions = await this.query.many(queries.integrityVerifier.receivedTransactions);
 
         for (const transaction of transactions) {
@@ -64,11 +55,7 @@ export class IntegrityVerifier {
         }
     }
 
-    /**
-     * Load and apply block rewards to wallets.
-     * @return {void}
-     */
-    private async buildBlockRewards() {
+    private async buildBlockRewards(): Promise<void> {
         const blocks = await this.query.many(queries.integrityVerifier.blockRewards);
 
         for (const block of blocks) {
@@ -77,11 +64,7 @@ export class IntegrityVerifier {
         }
     }
 
-    /**
-     * Load and apply last forged blocks to wallets.
-     * @return {void}
-     */
-    private async buildLastForgedBlocks() {
+    private async buildLastForgedBlocks(): Promise<void> {
         const blocks = await this.query.many(queries.integrityVerifier.lastForgedBlocks);
 
         for (const block of blocks) {
@@ -90,11 +73,7 @@ export class IntegrityVerifier {
         }
     }
 
-    /**
-     * Load and apply sent transactions to wallets.
-     * @return {void}
-     */
-    private async buildSentTransactions() {
+    private async buildSentTransactions(): Promise<void> {
         const transactions = await this.query.many(queries.integrityVerifier.sentTransactions);
 
         for (const transaction of transactions) {
@@ -107,11 +86,7 @@ export class IntegrityVerifier {
         }
     }
 
-    /**
-     * Used to determine if a wallet is a Genesis wallet.
-     * @return {Boolean}
-     */
-    private isGenesis(wallet) {
+    private isGenesis(wallet): boolean {
         return app
             .getConfig()
             .get("genesisBlock.transactions")
@@ -119,10 +94,6 @@ export class IntegrityVerifier {
             .includes(wallet.address);
     }
 
-    /**
-     * Load and apply second signature transactions to wallets.
-     * @return {void}
-     */
     private async buildSecondSignatures() {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.secondSignatures);
 
@@ -132,11 +103,7 @@ export class IntegrityVerifier {
         }
     }
 
-    /**
-     * Load and apply votes to wallets.
-     * @return {void}
-     */
-    private async buildVotes() {
+    private async buildVotes(): Promise<void> {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.votes);
 
         for (const transaction of transactions) {
@@ -159,11 +126,7 @@ export class IntegrityVerifier {
         this.walletManager.buildVoteBalances();
     }
 
-    /**
-     * Load and apply delegate usernames to wallets.
-     * @return {void}
-     */
-    private async buildDelegates() {
+    private async buildDelegates(): Promise<void> {
         // Register...
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.delegates);
 
@@ -182,7 +145,7 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        const delegateWallets = this.walletManager
+        const delegateWallets: Database.IWallet[] = this.walletManager
             .allByUsername()
             .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
 
@@ -194,11 +157,7 @@ export class IntegrityVerifier {
         });
     }
 
-    /**
-     * Load and apply multisignatures to wallets.
-     * @return {void}
-     */
-    private async buildMultisignatures() {
+    private async buildMultisignatures(): Promise<void> {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
 
         for (const transaction of transactions) {
@@ -216,7 +175,7 @@ export class IntegrityVerifier {
      * NOTE: This is faster than rebuilding the entire table from scratch each time.
      * @returns {Boolean}
      */
-    private async verifyWalletsConsistency() {
+    private async verifyWalletsConsistency(): Promise<boolean> {
         let detectedInconsistency = false;
 
         for (const wallet of this.walletManager.allByAddress()) {

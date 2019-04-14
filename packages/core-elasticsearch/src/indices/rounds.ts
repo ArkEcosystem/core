@@ -4,8 +4,8 @@ import { first, last } from "../utils";
 import { Index } from "./base";
 
 export class Rounds extends Index {
-    public async index() {
-        const iterations = await this.getIterations();
+    public async index(): Promise<void> {
+        const iterations: number = await this.getIterations();
 
         for (let i = 0; i < iterations; i++) {
             const modelQuery = this.createQuery();
@@ -36,7 +36,7 @@ export class Rounds extends Index {
         }
     }
 
-    public listen() {
+    public listen(): void {
         this.emitter.on(ApplicationEvents.RoundCreated, () => this.index());
     }
 }

@@ -11,8 +11,7 @@ export const databaseServiceFactory = async (
     walletManager: Database.IWalletManager,
     connection: Database.IConnection,
 ): Promise<Database.IDatabaseService> => {
-    let databaseService: DatabaseService;
-    databaseService = new DatabaseService(
+    const databaseService: Database.IDatabaseService = new DatabaseService(
         opts,
         connection,
         walletManager,
@@ -21,6 +20,8 @@ export const databaseServiceFactory = async (
         new TransactionsBusinessRepository(() => databaseService),
         new BlocksBusinessRepository(() => databaseService),
     );
+
     await databaseService.init();
+
     return databaseService;
 };

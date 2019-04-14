@@ -6,8 +6,11 @@ import { TransactionHandler } from "./handlers/transaction";
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 
 class TransactionHandlerRegistry {
-    private readonly coreTransactionHandlers = new Map<Enums.TransactionTypes, TransactionHandler>();
-    private readonly customTransactionHandlers = new Map<number, TransactionHandler>();
+    private readonly coreTransactionHandlers: Map<Enums.TransactionTypes, TransactionHandler> = new Map<
+        Enums.TransactionTypes,
+        TransactionHandler
+    >();
+    private readonly customTransactionHandlers: Map<number, TransactionHandler> = new Map<number, TransactionHandler>();
 
     constructor() {
         transactionHandlers.forEach((service: TransactionHandlerConstructor) => {
@@ -28,7 +31,7 @@ class TransactionHandlerRegistry {
     }
 
     public registerCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
-        const service = new constructor();
+        const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 
@@ -42,7 +45,7 @@ class TransactionHandlerRegistry {
     }
 
     public deregisterCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
-        const service = new constructor();
+        const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 
@@ -53,7 +56,7 @@ class TransactionHandlerRegistry {
     }
 
     private registerCoreTransactionHandler(constructor: TransactionHandlerConstructor) {
-        const service = new constructor();
+        const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 

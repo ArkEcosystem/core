@@ -11,6 +11,7 @@ export abstract class BlockHandler {
 
     public async execute(): Promise<BlockProcessorResult> {
         this.blockchain.resetLastDownloadedBlock();
+
         return BlockProcessorResult.Rejected;
     }
 }

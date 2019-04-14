@@ -20,10 +20,12 @@ beforeAll(async () => {
     socketManager = new MockSocketManager();
     await socketManager.init();
 
-    client = new Client({
-        port: 4009,
-        ip: "127.0.0.1",
-    });
+    client = new Client([
+        {
+            hostname: "127.0.0.1",
+            port: 4009,
+        },
+    ]);
 
     await delay(1000);
 });
@@ -48,12 +50,12 @@ describe("Client", () => {
     it("should accept multiple hosts as constructor parameter", () => {
         const hosts = [
             {
+                hostname: "127.0.0.1",
                 port: 4000,
-                ip: "127.0.0.1",
             },
             {
+                hostname: "127.0.0.2",
                 port: 4000,
-                ip: "127.0.0.2",
             },
         ];
 

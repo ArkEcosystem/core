@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -270,7 +270,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     // @TODO: review and move into an appropriate class
-    public async syncWithNetwork(fromBlockHeight: number): Promise<any> {
+    public async syncWithNetwork(fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: P2P.IPeer[] = this.storage.getPeers();
             const peersFiltered: P2P.IPeer[] = peersAll.filter(

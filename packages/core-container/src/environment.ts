@@ -5,61 +5,40 @@ import { ensureDirSync, existsSync } from "fs-extra";
 import { resolve } from "path";
 
 export class Environment {
-    /**
-     * Create a new environment instance.
-     * @param  {Object} variables
-     * @return {void}
-     */
     constructor(private readonly variables: Record<string, any>) {}
 
-    /**
-     * Set up the environment variables.
-     */
-    public setUp() {
+    public setUp(): void {
         this.exportPaths();
         this.exportVariables();
     }
 
-    /**
-     * Merge the given variables into the environment.
-     */
-    public merge(variables: object) {
+    public merge(variables: object): void {
         for (const [key, value] of Object.entries(variables)) {
             process.env[key] = value;
         }
     }
 
-    /**
-     * Export all path variables for the core environment.
-     * @return {void}
-     */
     private exportPaths(): void {
-        const allowedKeys = ["data", "config", "cache", "log", "temp"];
+        const allowedKeys: string[] = ["data", "config", "cache", "log", "temp"];
+        const paths: envPaths.Paths = envPaths(this.variables.token, { suffix: "core" });
 
-        const createPathVariables = (values, namespace?) =>
-            allowedKeys.forEach(key => {
-                if (values[key]) {
-                    const name = `CORE_PATH_${key.toUpperCase()}`;
-                    let path = resolve(expandHomeDir(values[key]));
+        for (const key of allowedKeys) {
+            if (paths[key]) {
+                const name = `CORE_PATH_${key.toUpperCase()}`;
+                let path = resolve(expandHomeDir(paths[key]));
 
-                    if (namespace) {
-                        path += `/${this.variables.network}`;
-                    }
-
-                    if (process.env[name] === undefined) {
-                        process.env[name] = path;
-                        ensureDirSync(path);
-                    }
+                if (this.variables.network) {
+                    path += `/${this.variables.network}`;
                 }
-            });
 
-        createPathVariables(envPaths(this.variables.token, { suffix: "core" }), this.variables.network);
+                if (process.env[name] === undefined) {
+                    process.env[name] = path;
+                    ensureDirSync(path);
+                }
+            }
+        }
     }
 
-    /**
-     * Export all additional variables for the core environment.
-     * @return {void}
-     */
     private exportVariables(): void {
         process.env.CORE_TOKEN = this.variables.token;
 
@@ -68,7 +47,7 @@ export class Environment {
             return;
         }
 
-        const envPath = expandHomeDir(`${process.env.CORE_PATH_CONFIG}/.env`);
+        const envPath: string = expandHomeDir(`${process.env.CORE_PATH_CONFIG}/.env`);
 
         if (existsSync(envPath)) {
             this.merge(envfile.parseFileSync(envPath));

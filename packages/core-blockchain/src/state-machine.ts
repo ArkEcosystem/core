@@ -202,8 +202,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async downloadBlocks() {
-        const lastDownloadedBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
-        const blocks = await blockchain.p2p.getMonitor().syncWithNetwork(lastDownloadedBlock.data.height);
+        const lastDownloadedBlock: Interfaces.IBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
+        const blocks: Interfaces.IBlockData[] = await blockchain.p2p
+            .getMonitor()
+            .syncWithNetwork(lastDownloadedBlock.data.height);
 
         if (blockchain.isStopped) {
             return;
@@ -214,8 +216,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             return;
         }
 
-        const empty = !blocks || blocks.length === 0;
-        const chained = !empty && (isBlockChained(lastDownloadedBlock.data, blocks[0]) || Utils.isException(blocks[0]));
+        const empty: boolean = !blocks || blocks.length === 0;
+        const chained: boolean =
+            !empty && (isBlockChained(lastDownloadedBlock.data, blocks[0]) || Utils.isException(blocks[0]));
 
         if (chained) {
             logger.info(
@@ -237,7 +240,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 blockchain.dispatch("DOWNLOADED");
             } catch (error) {
                 logger.warn(`Failed to enqueue downloaded block.`);
+
                 blockchain.dispatch("NOBLOCK");
+
                 return;
             }
         } else {
@@ -246,6 +251,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
+
                 blockchain.clearQueue();
             }
 
@@ -264,11 +270,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async startForkRecovery() {
         logger.info("Starting fork recovery");
+
         blockchain.clearAndStopQueue();
 
         await blockchain.database.commitQueuedQueries();
 
-        const random = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
+        const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
         await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
         stateStorage.numberOfBlocksToRollback = null;
@@ -297,12 +304,13 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         if (!(await blockchain.database.verifyBlockchain())) {
             // TODO: multiple attempts? rewind further? restore snapshot?
             blockchain.dispatch("FAILURE");
+
             return;
         }
 
         blockchain.database.restoredDatabaseIntegrity = true;
 
-        const lastBlock = await blockchain.database.getLastBlock();
+        const lastBlock: Interfaces.IBlock = await blockchain.database.getLastBlock();
         logger.info(
             `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()}`,
         );

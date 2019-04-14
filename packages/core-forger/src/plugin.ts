@@ -1,6 +1,7 @@
 import { Container, Logger } from "@arkecosystem/core-interfaces";
 import pluralize from "pluralize";
 import { defaults } from "./defaults";
+import { Delegate } from "./delegate";
 import { ForgerManager } from "./manager";
 
 export const plugin: Container.PluginDescriptor = {
@@ -8,12 +9,14 @@ export const plugin: Container.PluginDescriptor = {
     defaults,
     alias: "forger",
     async register(container: Container.IContainer, options) {
-        const forgerManager = new ForgerManager(options);
-        const forgers = await forgerManager.loadDelegates(options.bip38 as string, options.password as string);
-        const logger = container.resolvePlugin<Logger.ILogger>("logger");
+        const forgerManager: ForgerManager = new ForgerManager(options);
+        const forgers: Delegate[] = await forgerManager.loadDelegates(
+            options.bip38 as string,
+            options.password as string,
+        );
 
         if (!forgers) {
-            logger.info("Forger is disabled");
+            container.resolvePlugin<Logger.ILogger>("logger").info("Forger is disabled");
             return false;
         }
 
@@ -21,13 +24,15 @@ export const plugin: Container.PluginDescriptor = {
         delete options.bip38;
         delete options.password;
 
-        logger.info(`Forger Manager started with ${pluralize("forger", forgers.length, true)}`);
+        container
+            .resolvePlugin<Logger.ILogger>("logger")
+            .info(`Forger Manager started with ${pluralize("forger", forgers.length, true)}`);
 
         forgerManager.startForging();
 
         return forgerManager;
     },
-    async deregister(container: Container.IContainer, options) {
+    async deregister(container: Container.IContainer) {
         const forger = container.resolvePlugin("forger");
 
         if (forger) {

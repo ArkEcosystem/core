@@ -4,6 +4,7 @@ import { Repository } from "./repository";
 
 const { migrations: sql } = queries;
 
+// @TODO: add database migration interface
 export class MigrationsRepository extends Repository {
     /**
      * Find a migration by its name.

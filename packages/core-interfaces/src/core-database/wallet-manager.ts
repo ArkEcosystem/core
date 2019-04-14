@@ -19,6 +19,12 @@ export interface IWallet {
     forgedRewards: Utils.Bignum;
     rate?: number;
 
+    applyBlock(block: Interfaces.IBlockData): boolean;
+    revertBlock(block: Interfaces.IBlockData): boolean;
+
+    auditApply(transaction: Interfaces.ITransactionData): any[];
+    toString(): string;
+
     verifySignatures(
         transaction: Interfaces.ITransactionData,
         multisignature: Interfaces.IMultiSignatureAsset,
@@ -81,6 +87,12 @@ export interface IWalletManager {
     setByPublicKey(publicKey: string, wallet: IWallet): void;
 
     setByUsername(username: string, wallet: IWallet): void;
+
+    hasByAddress(address: string): boolean;
+
+    hasByPublicKey(publicKey: string): boolean;
+
+    hasByUsername(username: string): boolean;
 
     purgeEmptyNonDelegates(): void;
 }

@@ -1,14 +1,14 @@
 import { Managers } from "@arkecosystem/crypto";
 import get from "lodash.get";
 import set from "lodash.set";
-import { fileLoader } from "./loaders";
+import { fileLoader } from "./file-loader";
 import { Network } from "./network";
 
 export class Config {
     private config: Record<string, any>;
     private readonly cryptoConfig = Managers.configManager;
 
-    public async setUp(opts) {
+    public async setUp(opts): Promise<Config> {
         const network = Network.setUp(opts);
 
         const { files } = await fileLoader.setUp(network);
