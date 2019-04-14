@@ -1,8 +1,9 @@
 import "jest-extended";
-import { client } from "../../../../../../packages/crypto/src/client";
+
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { MaximumPaymentCountExceededError } from "../../../../../../packages/crypto/src/errors";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { MultiPaymentBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-payment";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -10,7 +11,7 @@ import { transactionBuilder } from "./__shared__/transaction-builder";
 let builder: MultiPaymentBuilder;
 
 beforeEach(() => {
-    builder = client.getBuilder().multiPayment();
+    builder = BuilderFactory.multiPayment();
 });
 
 describe("Multi Payment Transaction", () => {

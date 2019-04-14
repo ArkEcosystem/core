@@ -1,16 +1,16 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { client } from "../../../../../../packages/crypto/src/client";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { TimelockTransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/timelock-transfer";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: TimelockTransferBuilder;
 
 beforeEach(() => {
-    builder = client.getBuilder().timelockTransfer();
+    builder = BuilderFactory.timelockTransfer();
 });
 
 describe("Timelock Transfer Transaction", () => {

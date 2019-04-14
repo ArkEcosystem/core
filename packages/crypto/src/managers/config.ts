@@ -44,59 +44,35 @@ export class ConfigManager {
         this.buildFees();
     }
 
-    /**
-     * Set the configuration based on a preset.
-     */
-    public setFromPreset(network: NetworkName) {
+    public setFromPreset(network: NetworkName): void {
         this.setConfig(this.getPreset(network));
     }
 
-    /**
-     * Get the configuration for a preset.
-     */
     public getPreset(network: NetworkName) {
         return networks[network.toLowerCase()];
     }
 
-    /**
-     * Get all config data.
-     */
     public all() {
         return this.config;
     }
 
-    /**
-     * Set individual config value.
-     */
-    public set(key: string, value: any) {
+    public set(key: string, value: any): void {
         set(this.config, key, value);
     }
 
-    /**
-     * Get specific config value.
-     */
     public get<T = any>(key): T {
         return get(this.config, key) as T;
     }
 
-    /**
-     * Set config manager height.
-     */
     public setHeight(value: number): void {
         this.height = value;
         this.buildFees();
     }
 
-    /**
-     * Get config manager height.
-     */
     public getHeight(): number {
         return this.height;
     }
 
-    /**
-     * Get all config constants based on height.
-     */
     public getMilestone(height?: number): { [key: string]: any } {
         if (!height && this.height) {
             height = this.height;
@@ -122,9 +98,6 @@ export class ConfigManager {
         return this.milestone.data;
     }
 
-    /**
-     * Build constant data based on active heights.
-     */
     private buildConstants(): void {
         this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
         this.milestone = {
@@ -163,9 +136,6 @@ export class ConfigManager {
         }
     }
 
-    /**
-     * Build fees from config constants.
-     */
     private buildFees(): void {
         for (const key of Object.keys(TransactionTypes)) {
             const type = TransactionTypes[key];

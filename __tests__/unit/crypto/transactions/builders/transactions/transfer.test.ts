@@ -1,17 +1,17 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { client } from "../../../../../../packages/crypto/src/client";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { TransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: TransferBuilder;
 
 beforeEach(() => {
-    builder = client.getBuilder().transfer();
+    builder = BuilderFactory.transfer();
 });
 
 describe("Transfer Transaction", () => {
@@ -52,7 +52,7 @@ describe("Transfer Transaction", () => {
                 .fee("10")
                 .network(network);
 
-            const passphraseTransaction = client.getBuilder().transfer();
+            const passphraseTransaction = BuilderFactory.transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
             wifTransaction.signWithWif(wif, 170);
@@ -76,7 +76,7 @@ describe("Transfer Transaction", () => {
                 .network(network)
                 .sign(passphrase);
 
-            const passphraseTransaction = client.getBuilder().transfer();
+            const passphraseTransaction = BuilderFactory.transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
             wifTransaction.secondSignWithWif(wif, 170);
