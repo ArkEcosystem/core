@@ -1,12 +1,14 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
+import { IBlockJson } from "@arkecosystem/crypto/dist/interfaces";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block } from "../../../../packages/crypto/src/blocks";
 import { slots } from "../../../../packages/crypto/src/crypto";
 import { IBlock, IBlockData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
+import * as networks from "../../../../packages/crypto/src/networks";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { NetworkName } from "../../../../packages/crypto/src/types";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
@@ -373,11 +375,12 @@ describe("Block", () => {
                 "%s",
                 (network: NetworkName, length: number) => {
                     configManager.setFromPreset(network);
-                    const genesis = require(`@arkecosystem/crypto/src/networks/${network}/genesisBlock.json`);
-                    const serialized = Block.serializeWithTransactions(genesis).toString("hex");
-                    const genesisBlock = Block.fromData(Block.deserialize(serialized));
+
+                    const serialized: string = Block.serializeWithTransactions(networks[network]
+                        .genesisBlock as any).toString("hex");
+
                     expect(serialized).toHaveLength(length);
-                    expect(genesisBlock.verifySignature()).toBeTrue();
+                    expect(Block.fromData(Block.deserialize(serialized)).verifySignature()).toBeTrue();
                 },
             );
 

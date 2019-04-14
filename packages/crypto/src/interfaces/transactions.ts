@@ -3,9 +3,10 @@ import { BigNumber } from "../utils";
 
 export interface ITransaction {
     readonly id: string;
-
     readonly type: TransactionTypes;
     readonly verified: boolean;
+
+    isVerified: boolean;
 
     data: ITransactionData;
     serialized: Buffer;
@@ -13,6 +14,8 @@ export interface ITransaction {
 
     serialize(): ByteBuffer;
     deserialize(buf: ByteBuffer): void;
+
+    verify(): boolean;
 
     toJson(): ITransactionJson;
 

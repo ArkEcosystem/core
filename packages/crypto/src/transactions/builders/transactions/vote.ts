@@ -18,16 +18,13 @@ export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
         this.signWithSenderAsRecipient = true;
     }
 
-    /**
-     * Establish the votes on the asset.
-     */
     public votesAsset(votes: string[]): VoteBuilder {
         this.data.asset.votes = votes;
         return this;
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;

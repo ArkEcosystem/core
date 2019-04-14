@@ -63,7 +63,7 @@ const bignumber = (ajv: Ajv) => {
                 const minimum = typeof schema.minimum !== "undefined" ? schema.minimum : 0;
                 const maximum = typeof schema.maximum !== "undefined" ? schema.maximum : Number.MAX_SAFE_INTEGER;
 
-                const bignum = new BigNumber(data);
+                const bignum = BigNumber.make(data);
 
                 if (!bignum.isInteger()) {
                     return false;

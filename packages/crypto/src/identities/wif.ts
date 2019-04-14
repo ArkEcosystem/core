@@ -6,7 +6,7 @@ import { Keys } from "./keys";
 
 export class WIF {
     public static fromPassphrase(passphrase: string, network?: NetworkType): string {
-        const keys = Keys.fromPassphrase(passphrase);
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
 
         if (!network) {
             network = configManager.all();

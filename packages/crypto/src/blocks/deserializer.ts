@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { IBlockData } from "../interfaces";
+import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { Transaction } from "../transactions";
 import { BigNumber } from "../utils";
@@ -9,9 +9,9 @@ class Deserializer {
     public deserialize(
         serializedHex: string,
         headerOnly: boolean = false,
-    ): { data: IBlockData; transactions: Transaction[] } {
+    ): { data: IBlockData; transactions: ITransaction[] } {
         const block = {} as IBlockData;
-        let transactions: Transaction[] = [];
+        let transactions: ITransaction[] = [];
 
         const buf = ByteBuffer.fromHex(serializedHex, true);
 
@@ -26,8 +26,10 @@ class Deserializer {
         block.id = Block.getId(block);
 
         const { outlookTable } = configManager.config.exceptions;
+
         if (outlookTable && outlookTable[block.id]) {
             const constants = configManager.getMilestone(block.height);
+
             if (constants.block.idFullSha256) {
                 block.id = outlookTable[block.id];
                 block.idHex = block.id;
@@ -53,23 +55,25 @@ class Deserializer {
             block.previousBlock = block.previousBlockHex;
         } else {
             block.previousBlockHex = buf.readBytes(8).toString("hex");
-            block.previousBlock = new BigNumber(block.previousBlockHex, 16).toFixed();
+            block.previousBlock = BigNumber.make(block.previousBlockHex, 16).toFixed();
         }
 
         block.numberOfTransactions = buf.readUint32();
-        block.totalAmount = new BigNumber(buf.readUint64().toString());
-        block.totalFee = new BigNumber(buf.readUint64().toString());
-        block.reward = new BigNumber(buf.readUint64().toString());
+        block.totalAmount = BigNumber.make(buf.readUint64().toString());
+        block.totalFee = BigNumber.make(buf.readUint64().toString());
+        block.reward = BigNumber.make(buf.readUint64().toString());
         block.payloadLength = buf.readUint32();
         block.payloadHash = buf.readBytes(32).toString("hex");
         block.generatorPublicKey = buf.readBytes(33).toString("hex");
 
         const signatureLength = (): number => {
             buf.mark();
-            const lengthHex = buf
+
+            const lengthHex: string = buf
                 .skip(1)
                 .readBytes(1)
                 .toString("hex");
+
             buf.reset();
 
             return parseInt(lengthHex, 16) + 2;
@@ -78,14 +82,14 @@ class Deserializer {
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
 
-    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): Transaction[] {
+    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): ITransaction[] {
         const transactionLengths = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());
         }
 
-        const transactions: Transaction[] = [];
+        const transactions: ITransaction[] = [];
         block.transactions = [];
         transactionLengths.forEach(length => {
             const transactionBytes = buf.readBytes(length).toBuffer();

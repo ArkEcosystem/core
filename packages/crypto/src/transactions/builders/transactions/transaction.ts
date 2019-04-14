@@ -1,7 +1,7 @@
 import { Transaction } from "../..";
 import { crypto, slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
-import { ITransactionData } from "../../../interfaces";
+import { IKeyPair, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
@@ -19,67 +19,48 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         } as ITransactionData;
     }
 
-    /**
-     * Build a new Transaction instance.
-     */
     public build(data: Partial<ITransactionData> = {}): Transaction {
         return Transaction.fromData({ ...this.data, ...data }, false);
     }
 
-    /**
-     * Set transaction version.
-     */
     public version(version: number): TBuilder {
         this.data.version = version;
+
         return this.instance();
     }
 
-    /**
-     * Set transaction network.
-     */
     public network(network: number): TBuilder {
         this.data.network = network;
+
         return this.instance();
     }
 
-    /**
-     * Set transaction fee.
-     */
     public fee(fee: string): TBuilder {
         if (fee !== null) {
-            this.data.fee = new BigNumber(fee);
+            this.data.fee = BigNumber.make(fee);
         }
 
         return this.instance();
     }
 
-    /**
-     * Set amount to transfer.
-     */
     public amount(amount: string): TBuilder {
-        this.data.amount = new BigNumber(amount);
+        this.data.amount = BigNumber.make(amount);
+
         return this.instance();
     }
 
-    /**
-     * Set recipient id.
-     */
     public recipientId(recipientId: string): TBuilder {
         this.data.recipientId = recipientId;
+
         return this.instance();
     }
 
-    /**
-     * Set sender public key.
-     */
     public senderPublicKey(publicKey: string): TBuilder {
         this.data.senderPublicKey = publicKey;
+
         return this.instance();
     }
 
-    /**
-     * Set vendor field.
-     */
     public vendorField(vendorField: string): TBuilder {
         if (vendorField && Buffer.from(vendorField).length <= maxVendorFieldLength()) {
             this.data.vendorField = vendorField;
@@ -88,11 +69,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return this.instance();
     }
 
-    /**
-     * Sign transaction using passphrase.
-     */
     public sign(passphrase: string): TBuilder {
-        const keys = crypto.getKeys(passphrase);
+        const keys: IKeyPair = crypto.getKeys(passphrase);
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
@@ -105,13 +83,11 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return this.instance();
     }
 
-    /**
-     * Sign transaction using wif.
-     */
     public signWithWif(wif: string, networkWif?: number): TBuilder {
-        const keys = crypto.getKeysFromWIF(wif, {
+        const keys: IKeyPair = crypto.getKeysFromWIF(wif, {
             wif: networkWif || configManager.get("wif"),
         } as NetworkType);
+
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
@@ -125,61 +101,44 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return this.instance();
     }
 
-    /**
-     * Sign transaction with second passphrase.
-     */
     public secondSign(secondPassphrase: string): TBuilder {
-        if (secondPassphrase) {
-            const keys = crypto.getKeys(secondPassphrase);
-            this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
-        }
+        this.data.secondSignature = crypto.secondSign(this.getSigningObject(), crypto.getKeys(secondPassphrase));
 
         return this.instance();
     }
 
-    /**
-     * Sign transaction with wif.
-     */
     public secondSignWithWif(wif: string, networkWif?: number): TBuilder {
-        if (wif) {
-            const keys = crypto.getKeysFromWIF(wif, {
-                wif: networkWif || configManager.get("wif"),
-            } as NetworkType);
-            this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
-        }
+        const keys = crypto.getKeysFromWIF(wif, {
+            wif: networkWif || configManager.get("wif"),
+        } as NetworkType);
+
+        this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
-    /**
-     * Sign transaction for multi-signature wallets.
-     */
     public multiSignatureSign(passphrase: string): TBuilder {
-        const keys = crypto.getKeys(passphrase);
+        const keys: IKeyPair = crypto.getKeys(passphrase);
+
         if (!this.data.signatures) {
             this.data.signatures = [];
         }
+
         this.data.signatures.push(crypto.sign(this.getSigningObject(), keys));
 
         return this.instance();
     }
 
-    /**
-     * Verify the transaction.
-     */
     public verify(): boolean {
         return crypto.verify(this.data);
     }
 
-    /**
-     * Get structure of transaction
-     */
     public getStruct(): ITransactionData {
         if (!this.data.senderPublicKey || !this.data.signature) {
             throw new MissingTransactionSignatureError();
         }
 
-        const struct = {
+        const struct: ITransactionData = {
             id: crypto.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
@@ -200,11 +159,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     protected abstract instance(): TBuilder;
 
-    /**
-     * Get a valid object used to sign a transaction.
-     */
     private getSigningObject(): ITransactionData {
-        const data = Object.assign({}, this.data) as ITransactionData;
+        const data: ITransactionData = { ...this.data };
 
         Object.keys(data).forEach(key => {
             if (["model", "network", "id"].includes(key)) {

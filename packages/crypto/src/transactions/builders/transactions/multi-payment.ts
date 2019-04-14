@@ -16,19 +16,16 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.asset = {
             payments: [],
         };
-        this.data.amount = new BigNumber(0);
+        this.data.amount = BigNumber.make(0);
     }
 
-    /**
-     * Add payment to the multipayment collection.
-     */
     public addPayment(recipientId: string, amount: number): MultiPaymentBuilder {
         if (this.data.asset.payments.length >= 2258) {
             throw new MaximumPaymentCountExceededError(this.data.asset.payments.length);
         }
 
         this.data.asset.payments.push({
-            amount: new BigNumber(amount),
+            amount: BigNumber.make(amount),
             recipientId,
         });
         this.data.amount = (this.data.amount as BigNumber).plus(amount);
@@ -37,7 +34,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     }
 
     public getStruct(): ITransactionData {
-        const struct = super.getStruct();
+        const struct: ITransactionData = super.getStruct();
         struct.senderPublicKey = this.data.senderPublicKey;
         struct.vendorFieldHex = this.data.vendorFieldHex;
         struct.amount = this.data.amount;

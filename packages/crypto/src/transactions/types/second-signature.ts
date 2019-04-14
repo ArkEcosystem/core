@@ -12,7 +12,7 @@ export class SecondSignatureRegistrationTransaction extends Transaction {
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(33, true);
+        const buffer: ByteBuffer = new ByteBuffer(33, true);
 
         buffer.append(data.asset.signature.publicKey, "hex");
 
@@ -21,6 +21,7 @@ export class SecondSignatureRegistrationTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
+
         data.asset = {
             signature: {
                 publicKey: buf.readBytes(33).toString("hex"),

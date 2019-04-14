@@ -10,22 +10,18 @@ import { NetworkName } from "../types";
 import { feeManager } from "./fee";
 
 export class ConfigManager {
+    // @TODO: add an interface/type and make it private
     public config: any;
+    // @TODO: make it private
     public milestone: IMilestone;
+    // @TODO: add an interface/type and make it private
     public milestones: any;
     private height: number;
 
-    /**
-     * @constructor
-     */
     constructor() {
         this.setConfig(networks.devnet);
     }
 
-    /**
-     * Set config data.
-     * @param {Object} config
-     */
     public setConfig(config: any) {
         this.config = {};
 
@@ -56,11 +52,11 @@ export class ConfigManager {
         return this.config;
     }
 
-    public set(key: string, value: any): void {
+    public set<T = any>(key: string, value: T): void {
         set(this.config, key, value);
     }
 
-    public get<T = any>(key): T {
+    public get<T = any>(key: string): T {
         return get(this.config, key) as T;
     }
 
@@ -138,10 +134,7 @@ export class ConfigManager {
 
     private buildFees(): void {
         for (const key of Object.keys(TransactionTypes)) {
-            const type = TransactionTypes[key];
-            if (typeof type === "number") {
-                feeManager.set(type, this.getMilestone().fees.staticFees[camelCase(key)]);
-            }
+            feeManager.set(TransactionTypes[key], this.getMilestone().fees.staticFees[camelCase(key)]);
         }
     }
 }

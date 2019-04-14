@@ -3,10 +3,10 @@ import { ITransactionData } from "../interfaces";
 import { BigNumber } from "../utils/bignum";
 
 export class FeeManager {
-    public fees: { [key: number]: BigNumber } = {};
+    public fees: Record<number, BigNumber> = {};
 
     public set(type: TransactionTypes | number, value: number) {
-        this.fees[type] = new BigNumber(value);
+        this.fees[type] = BigNumber.make(value);
     }
 
     public get(type: TransactionTypes | number): BigNumber {

@@ -12,7 +12,9 @@ export class HashAlgorithms {
     public static sha256(buffer: Buffer | string | Buffer[]): Buffer {
         if (Array.isArray(buffer)) {
             let sha256 = SHA256.ctx;
+
             sha256.init();
+
             buffer.forEach(element => {
                 sha256 = sha256.update(element);
             });

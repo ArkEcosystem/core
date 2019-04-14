@@ -1,9 +1,8 @@
 import pluralize from "pluralize";
 import { crypto, HashAlgorithms, slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
-import { IBlock, IBlockData, IBlockJson, IBlockVerification } from "../interfaces";
+import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
-import { Transaction } from "../transactions";
 import { BigNumber, isException } from "../utils";
 import { AjvWrapper } from "../validation";
 import { deserializer } from "./deserializer";
@@ -54,20 +53,16 @@ export class Block implements IBlock {
     }
 
     public static toBytesHex(data): string {
-        const temp = data ? new BigNumber(data).toString(16) : "";
+        const temp: string = data ? BigNumber.make(data).toString(16) : "";
 
         return "0".repeat(16 - temp.length) + temp;
     }
 
     public static getId(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
-        const idHex = Block.getIdHex(data);
+        const idHex: string = Block.getIdHex(data);
 
-        if (constants.block.idFullSha256) {
-            return idHex;
-        }
-
-        return new BigNumber(idHex, 16).toFixed();
+        return constants.block.idFullSha256 ? idHex : BigNumber.make(idHex, 16).toFixed();
     }
 
     public static fromHex(hex: string): IBlock {
@@ -79,7 +74,7 @@ export class Block implements IBlock {
     }
 
     public static fromData(data: IBlockData): IBlock {
-        const serialized = Block.serializeWithTransactions(data).toString("hex");
+        const serialized: string = Block.serializeWithTransactions(data).toString("hex");
         const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
         block.serialized = serialized;
 
@@ -95,12 +90,16 @@ export class Block implements IBlock {
 
     public serialized: string;
     public data: IBlockData;
-    public transactions: Transaction[];
+    public transactions: ITransaction[];
     public verification: IBlockVerification;
 
-    private constructor({ data, transactions, id }: { data: IBlockData; transactions: Transaction[]; id?: string }) {
+    private constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
         const { value, error } = AjvWrapper.validate("block", data);
-        if (error !== null && !(isException(value) || data.transactions.some(tx => isException(tx)))) {
+
+        if (
+            error !== null &&
+            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
+        ) {
             throw new BlockSchemaError(error);
         }
 
@@ -139,18 +138,20 @@ export class Block implements IBlock {
     }
 
     public getHeader(): IBlockData {
-        const header = Object.assign({}, this.data);
+        const header: IBlockData = Object.assign({}, this.data);
         delete header.transactions;
+
         return header;
     }
 
     public verifySignature(): boolean {
-        const bytes: any = Block.serialize(this.data, false);
-        const hash = HashAlgorithms.sha256(bytes);
+        const bytes: Buffer = Block.serialize(this.data, false);
+        const hash: Buffer = HashAlgorithms.sha256(bytes);
 
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
+    // @TODO: clean this up or remove it
     public toString(): string {
         return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
             "transaction",
@@ -170,7 +171,7 @@ export class Block implements IBlock {
     }
 
     private verify(): IBlockVerification {
-        const block = this.data;
+        const block: IBlockData = this.data;
         const result: IBlockVerification = {
             verified: false,
             errors: [],
@@ -203,6 +204,7 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block timestamp");
             }
 
+            // @TODO: remove this
             // Disabling to allow orphanedBlocks?
             // if(previousBlock){
             //   const lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
@@ -211,8 +213,8 @@ export class Block implements IBlock {
             //   }
             // }
 
-            let size = 0;
-            const invalidTransactions = this.transactions.filter(tx => !tx.verified);
+            let size: number = 0;
+            const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
                 invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
@@ -229,12 +231,14 @@ export class Block implements IBlock {
             }
 
             // Checking if transactions of the block adds up to block values.
-            const appliedTransactions = {};
-            let totalAmount = BigNumber.ZERO;
-            let totalFee = BigNumber.ZERO;
-            const payloadBuffers = [];
+            const appliedTransactions: Record<string, ITransactionData> = {};
+
+            let totalAmount: BigNumber = BigNumber.ZERO;
+            let totalFee: BigNumber = BigNumber.ZERO;
+
+            const payloadBuffers: Buffer[] = [];
             this.transactions.forEach(transaction => {
-                const bytes = Buffer.from(transaction.data.id, "hex");
+                const bytes: Buffer = Buffer.from(transaction.data.id, "hex");
 
                 if (appliedTransactions[transaction.data.id]) {
                     result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
