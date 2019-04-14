@@ -108,7 +108,7 @@ export class NSect {
     private calcProbes(low: number, high: number): number[] {
         assert(low <= high, `${low} <= ${high}`);
         const diff: number = high - low;
-        const p = new Set<number>();
+        const p: Set<number> = new Set<number>();
 
         for (let i = 0; i < this.nAry + 1; i++) {
             const h: number = low + Math.round((diff * i) / this.nAry);

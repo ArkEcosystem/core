@@ -2,7 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 
-export function calculate(height: number) {
+// @TODO: satoshi value so we need to return bignum
+export function calculate(height: number): number {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
@@ -14,20 +15,19 @@ export function calculate(height: number) {
         return genesisBlock.totalAmount;
     }
 
-    let rewards = Utils.Bignum.ZERO;
-    let currentHeight = 0;
-    let constantIndex = 0;
+    let rewards: Utils.Bignum = Utils.Bignum.ZERO;
+    let currentHeight: number = 0;
+    let constantIndex: number = 0;
 
     while (currentHeight < height) {
         const constants = milestones[constantIndex];
         const nextConstants = milestones[constantIndex + 1];
 
-        let heightJump = 0;
+        let heightJump: number = height - currentHeight;
+
         if (nextConstants && height >= nextConstants.height && currentHeight < nextConstants.height - 1) {
             heightJump = nextConstants.height - 1 - currentHeight;
             constantIndex += 1;
-        } else {
-            heightJump = height - currentHeight;
         }
 
         currentHeight += heightJump;
@@ -37,6 +37,5 @@ export function calculate(height: number) {
         }
     }
 
-    // @TODO: return bignum or string
     return +new Utils.Bignum(genesisBlock.totalAmount).plus(rewards).toFixed();
 }

@@ -1,22 +1,23 @@
 import { app } from "@arkecosystem/core-container";
 import { Shared } from "@arkecosystem/core-interfaces";
 
-export const calculateRound = (height: number): Shared.IRoundInfo => {
+export function calculateRound(height: number): Shared.IRoundInfo {
     const config = app.getConfig();
     const { milestones } = config.config;
 
-    let round = 0;
-    let roundHeight = 1;
-    let nextRound = 0;
-    let maxDelegates = 0;
+    let round: number = 0;
+    let roundHeight: number = 1;
+    let nextRound: number = 0;
+    let maxDelegates: number = 0;
 
-    let milestoneHeight = height;
+    let milestoneHeight: number = height;
     let milestone = null;
 
     for (let i = 0, j = 0; i < milestones.length; i++) {
         if (!milestone || milestone.activeDelegates !== milestones[i].activeDelegates) {
             milestone = milestones[i];
         }
+
         maxDelegates = milestone.activeDelegates;
 
         let delegateCountChanged = false;
@@ -61,9 +62,9 @@ export const calculateRound = (height: number): Shared.IRoundInfo => {
     }
 
     return { round, roundHeight, nextRound, maxDelegates };
-};
+}
 
-export const isNewRound = (height: number): boolean => {
+export function isNewRound(height: number): boolean {
     const { config } = app.getConfig();
 
     // Since milestones are merged, find the first milestone to introduce the delegate count.
@@ -82,4 +83,4 @@ export const isNewRound = (height: number): boolean => {
     }
 
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
-};
+}

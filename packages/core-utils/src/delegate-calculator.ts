@@ -4,6 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
 
 const BignumMod = Utils.Bignum.clone({ DECIMAL_PLACES: 2 });
 
+// @TODO: satoshi value so we need to return bignum
 export function calculateApproval(delegate, height: number = null): number {
     const config = app.getConfig();
 
@@ -23,6 +24,7 @@ export function calculateApproval(delegate, height: number = null): number {
         .toFixed(2);
 }
 
+// @TODO: satoshi value so we need to return bignum
 export function calculateForgedTotal(delegate): number {
     const forgedFees = new Utils.Bignum(delegate.forgedFees);
     const forgedRewards = new Utils.Bignum(delegate.forgedRewards);

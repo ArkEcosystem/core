@@ -1,16 +1,14 @@
 import { app } from "@arkecosystem/core-container";
-import { dato } from "@faustbrian/dato";
+import { dato, Dato } from "@faustbrian/dato";
 
 export function formatTimestamp(
-    epochStamp: string,
+    epochStamp: number,
 ): {
-    epoch: string;
+    epoch: number;
     unix: number;
     human: string;
 } {
-    const constants = app.getConfig().getMilestone(1);
-    // @ts-ignore
-    const timestamp = dato(constants.epoch).addSeconds(epochStamp);
+    const timestamp: Dato = dato(app.getConfig().getMilestone().epoch).addSeconds(epochStamp);
 
     return {
         epoch: epochStamp,
