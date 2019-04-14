@@ -1,14 +1,10 @@
-import got from "got";
 import "jest-extended";
+
+import got from "got";
 import { setUp, tearDown } from "./__support__/setup";
 
-beforeAll(async () => {
-    await setUp();
-});
-
-afterAll(async () => {
-    await tearDown();
-});
+beforeAll(async () => await setUp());
+afterAll(async () => await tearDown());
 
 describe("Server", () => {
     it("should render the page", async () => {
