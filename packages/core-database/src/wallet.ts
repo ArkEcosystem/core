@@ -8,33 +8,33 @@ export class Wallet implements Database.IWallet {
     public address: string;
     public publicKey: string | null;
     public secondPublicKey: string | null;
-    public balance: Utils.Bignum;
+    public balance: Utils.BigNumber;
     public vote: string;
     public voted: boolean;
     public username: string | null;
     public lastBlock: any;
-    public voteBalance: Utils.Bignum;
+    public voteBalance: Utils.BigNumber;
     public multisignature?: Interfaces.IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
-    public forgedFees: Utils.Bignum;
-    public forgedRewards: Utils.Bignum;
+    public forgedFees: Utils.BigNumber;
+    public forgedRewards: Utils.BigNumber;
     public rate?: number;
 
     constructor(address: string) {
         this.address = address;
         this.publicKey = null;
         this.secondPublicKey = null;
-        this.balance = Utils.Bignum.ZERO;
+        this.balance = Utils.BigNumber.ZERO;
         this.vote = null;
         this.voted = false;
         this.username = null;
         this.lastBlock = null;
-        this.voteBalance = Utils.Bignum.ZERO;
+        this.voteBalance = Utils.BigNumber.ZERO;
         this.multisignature = null;
         this.producedBlocks = 0;
-        this.forgedFees = Utils.Bignum.ZERO;
-        this.forgedRewards = Utils.Bignum.ZERO;
+        this.forgedFees = Utils.BigNumber.ZERO;
+        this.forgedRewards = Utils.BigNumber.ZERO;
     }
 
     /**
@@ -179,7 +179,7 @@ export class Wallet implements Database.IWallet {
         }
 
         if (transaction.type === TransactionTypes.MultiPayment) {
-            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.Bignum.ZERO);
+            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
         }
 

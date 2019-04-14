@@ -1,7 +1,6 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { bignumify } from "@arkecosystem/core-utils";
-import { Blocks, Crypto } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
@@ -196,12 +195,12 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
             version: 0,
             timestamp: 46583330,
             height: 2,
-            reward: bignumify(reward),
+            reward: Utils.BigNumber.make(reward),
             previousBlock: genesisBlock.id,
             numberOfTransactions: 1,
             transactions: [transfer],
-            totalAmount: bignumify(transfer.amount),
-            totalFee: bignumify(totalFee),
+            totalAmount: transfer.amount,
+            totalFee: Utils.BigNumber.make(totalFee),
             payloadLength: 0,
             payloadHash: genesisBlock.payloadHash,
             generatorPublicKey,

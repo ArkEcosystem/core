@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../enums";
 import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
-import { Bignum } from "../../../utils";
+import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
@@ -16,7 +16,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.asset = {
             payments: [],
         };
-        this.data.amount = new Bignum(0);
+        this.data.amount = new BigNumber(0);
     }
 
     /**
@@ -28,10 +28,10 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         }
 
         this.data.asset.payments.push({
-            amount: new Bignum(amount),
+            amount: new BigNumber(amount),
             recipientId,
         });
-        this.data.amount = (this.data.amount as Bignum).plus(amount);
+        this.data.amount = (this.data.amount as BigNumber).plus(amount);
 
         return this;
     }

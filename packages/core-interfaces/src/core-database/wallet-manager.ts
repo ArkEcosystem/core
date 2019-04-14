@@ -6,17 +6,17 @@ export interface IWallet {
     address: string;
     publicKey: string | null;
     secondPublicKey: string | null;
-    balance: Utils.Bignum;
+    balance: Utils.BigNumber;
     vote: string;
     voted: boolean;
     username: string | null;
     lastBlock: any;
-    voteBalance: Utils.Bignum;
+    voteBalance: Utils.BigNumber;
     multisignature?: Interfaces.IMultiSignatureAsset;
     dirty: boolean;
     producedBlocks: number;
-    forgedFees: Utils.Bignum;
-    forgedRewards: Utils.Bignum;
+    forgedFees: Utils.BigNumber;
+    forgedRewards: Utils.BigNumber;
     rate?: number;
 
     applyBlock(block: Interfaces.IBlockData): boolean;

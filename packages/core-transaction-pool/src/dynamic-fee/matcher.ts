@@ -6,7 +6,7 @@ import camelCase from "lodash.camelcase";
 /**
  * Calculate minimum fee of a transaction for entering the pool.
  */
-export function calculateFee(satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.Bignum {
+export function calculateFee(satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber {
     if (satoshiPerByte <= 0) {
         satoshiPerByte = 1;
     }
@@ -23,7 +23,7 @@ export function calculateFee(satoshiPerByte: number, transaction: Interfaces.ITr
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2;
 
-    return new Utils.Bignum(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
+    return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
 }
 
 /**
@@ -35,7 +35,7 @@ export function calculateFee(satoshiPerByte: number, transaction: Interfaces.ITr
 export function dynamicFeeMatcher(transaction: Interfaces.ITransaction): { broadcast: boolean; enterPool: boolean } {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    const fee: Utils.Bignum = transaction.data.fee;
+    const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
     const { dynamicFees } = app.resolveOptions("transaction-pool");
@@ -64,7 +64,7 @@ export function dynamicFeeMatcher(transaction: Interfaces.ITransaction): { broad
             );
         }
 
-        const minFeePool: Utils.Bignum = calculateFee(dynamicFees.minFeePool, transaction);
+        const minFeePool: Utils.BigNumber = calculateFee(dynamicFees.minFeePool, transaction);
 
         if (fee.isGreaterThanOrEqualTo(minFeePool)) {
             enterPool = true;
@@ -85,7 +85,7 @@ export function dynamicFeeMatcher(transaction: Interfaces.ITransaction): { broad
         }
     } else {
         // Static fees
-        const staticFee: Utils.Bignum = Managers.feeManager.getForTransaction(transaction.data);
+        const staticFee: Utils.BigNumber = Managers.feeManager.getForTransaction(transaction.data);
 
         if (fee.isEqualTo(staticFee)) {
             broadcast = true;

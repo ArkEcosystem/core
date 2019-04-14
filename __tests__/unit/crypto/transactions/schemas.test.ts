@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
 import { crypto } from "../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
@@ -38,7 +38,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee).toFixed())
+            .fee(Utils.BigNumber.make(fee).toFixed())
             .vendorField("Ahoy")
             .sign("passphrase");
 
@@ -50,7 +50,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee).toFixed())
+            .fee(Utils.BigNumber.make(fee).toFixed())
             .vendorField("a".repeat(64))
             .sign("passphrase");
         let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -59,7 +59,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee).toFixed())
+            .fee(Utils.BigNumber.make(fee).toFixed())
             .vendorField("⊁".repeat(21))
             .sign("passphrase");
 
@@ -71,7 +71,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee).toFixed());
+            .fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.data.vendorField = "a".repeat(65);
@@ -83,7 +83,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(bignumify(fee).toFixed());
+            .fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.vendorField("⊁".repeat(22));

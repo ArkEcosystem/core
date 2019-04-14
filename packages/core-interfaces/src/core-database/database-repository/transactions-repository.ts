@@ -33,8 +33,8 @@ export interface ITransactionsRepository extends IRepository {
      */
     statistics(): Promise<{
         count: number;
-        totalFee: Utils.Bignum;
-        totalAmount: Utils.Bignum;
+        totalFee: Utils.BigNumber;
+        totalAmount: Utils.BigNumber;
     }>;
 
     getFeeStatistics(days: number, minFeeBroadcast: number): Promise<any>;

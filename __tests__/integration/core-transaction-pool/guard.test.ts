@@ -2,8 +2,7 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { bignumify } from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
@@ -656,12 +655,12 @@ describe("Transaction Guard", () => {
                     version: 0,
                     timestamp: 46583330,
                     height: 2,
-                    reward: bignumify(0),
+                    reward: Utils.BigNumber.make(0),
                     previousBlock: genesisBlock.id,
                     numberOfTransactions: 1,
                     transactions,
-                    totalAmount: bignumify(transactions.reduce((acc, curr) => acc + curr.amount)),
-                    totalFee: bignumify(transactions.reduce((acc, curr) => acc + curr.fee)),
+                    totalAmount: Utils.BigNumber.make(transactions.reduce((acc, curr) => acc + curr.amount)),
+                    totalFee: Utils.BigNumber.make(transactions.reduce((acc, curr) => acc + curr.fee)),
                     payloadLength: 0,
                     payloadHash: genesisBlock.payloadHash,
                     generatorPublicKey: delegates[0].publicKey,

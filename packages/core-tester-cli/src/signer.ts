@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { Client } from "@arkecosystem/crypto";
 
 export class Signer {
@@ -74,7 +74,7 @@ export class Signer {
     }
 
     private toSatoshi(value): string {
-        return bignumify(value)
+        return Utils.BigNumber.make(value)
             .times(1e8)
             .toFixed();
     }

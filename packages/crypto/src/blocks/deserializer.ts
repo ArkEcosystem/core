@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { IBlockData } from "../interfaces";
 import { configManager } from "../managers";
 import { Transaction } from "../transactions";
-import { Bignum } from "../utils";
+import { BigNumber } from "../utils";
 import { Block } from "./block";
 
 class Deserializer {
@@ -53,13 +53,13 @@ class Deserializer {
             block.previousBlock = block.previousBlockHex;
         } else {
             block.previousBlockHex = buf.readBytes(8).toString("hex");
-            block.previousBlock = new Bignum(block.previousBlockHex, 16).toFixed();
+            block.previousBlock = new BigNumber(block.previousBlockHex, 16).toFixed();
         }
 
         block.numberOfTransactions = buf.readUint32();
-        block.totalAmount = new Bignum(buf.readUint64().toString());
-        block.totalFee = new Bignum(buf.readUint64().toString());
-        block.reward = new Bignum(buf.readUint64().toString());
+        block.totalAmount = new BigNumber(buf.readUint64().toString());
+        block.totalFee = new BigNumber(buf.readUint64().toString());
+        block.reward = new BigNumber(buf.readUint64().toString());
         block.payloadLength = buf.readUint32();
         block.payloadHash = buf.readBytes(32).toString("hex");
         block.generatorPublicKey = buf.readBytes(33).toString("hex");

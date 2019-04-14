@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { client } from "../../../../packages/crypto/src/client";
 import {
@@ -12,7 +12,6 @@ import { configManager } from "../../../../packages/crypto/src/managers";
 import { Transaction } from "../../../../packages/crypto/src/transactions";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
-import { Bignum } from "../../../../packages/crypto/src/utils";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: Transaction, expected) => {
@@ -307,7 +306,7 @@ describe("Transaction serializer / deserializer", () => {
                 buffer.writeByte(transaction.type);
                 buffer.writeUint32(transaction.timestamp);
                 buffer.append(transaction.senderPublicKey, "hex");
-                buffer.writeUint64(+new Bignum(transaction.fee).toFixed());
+                buffer.writeUint64(+Utils.BigNumber.make(transaction.fee).toFixed());
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());
@@ -372,8 +371,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should return Buffer of simply transaction and buffer must be 202 length", () => {
             const transaction = {
                 type: 0,
-                amount: bignumify(1000),
-                fee: bignumify(2000),
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},
@@ -413,8 +412,8 @@ describe("Transaction serializer / deserializer", () => {
             const transaction = {
                 version: 1,
                 type: 0,
-                amount: bignumify(1000),
-                fee: bignumify(2000),
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},
@@ -438,8 +437,8 @@ describe("Transaction serializer / deserializer", () => {
             const transaction = {
                 version: 110,
                 type: 0,
-                amount: bignumify(1000),
-                fee: bignumify(2000),
+                amount: Utils.BigNumber.make(1000),
+                fee: Utils.BigNumber.make(2000),
                 recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
                 timestamp: 141738,
                 asset: {},

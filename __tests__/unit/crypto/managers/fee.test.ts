@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { feeManager } from "../../../../packages/crypto/src/managers";
@@ -13,7 +13,7 @@ describe("Fee Manager", () => {
     it("should set the fee", () => {
         feeManager.set(TransactionTypes.Transfer, 1);
 
-        expect(feeManager.get(TransactionTypes.Transfer)).toEqual(bignumify(1));
+        expect(feeManager.get(TransactionTypes.Transfer)).toEqual(Utils.BigNumber.ONE);
     });
 
     it("should get transaction fee", () => {
@@ -23,7 +23,7 @@ describe("Fee Manager", () => {
 
         feeManager.set(TransactionTypes.Transfer, 111);
 
-        expect(feeManager.getForTransaction(transaction)).toEqual(bignumify(111));
+        expect(feeManager.getForTransaction(transaction)).toEqual(Utils.BigNumber.make(111));
     });
 
     it("should get multisignature fee (keysgroup length + 1)", () => {
@@ -38,6 +38,6 @@ describe("Fee Manager", () => {
 
         feeManager.set(TransactionTypes.MultiSignature, 1);
 
-        expect(feeManager.getForTransaction(transaction)).toEqual(bignumify(4));
+        expect(feeManager.getForTransaction(transaction)).toEqual(Utils.BigNumber.make(4));
     });
 });

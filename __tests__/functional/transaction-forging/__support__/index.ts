@@ -1,7 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
-import { Identities, Managers } from "@arkecosystem/crypto";
+import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { RestClient } from "../../../helpers";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
@@ -33,7 +32,7 @@ export async function setUp() {
         secrets.map(secret => ({
             round: 1,
             publicKey: Identities.PublicKey.fromPassphrase(secret),
-            voteBalance: bignumify("245098000000000"),
+            voteBalance: Utils.BigNumber.make("245098000000000"),
         })),
     );
 }

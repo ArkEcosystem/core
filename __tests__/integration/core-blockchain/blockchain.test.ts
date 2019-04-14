@@ -2,7 +2,7 @@ import "../../utils";
 
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
-import { bignumify, roundCalculator } from "@arkecosystem/core-utils";
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
@@ -144,8 +144,8 @@ describe("Blockchain", () => {
 
         const createBlock = (generatorKeys: any, transactions: Interfaces.ITransactionData[]) => {
             const transactionData = {
-                amount: Utils.Bignum.ZERO,
-                fee: Utils.Bignum.ZERO,
+                amount: Utils.BigNumber.ZERO,
+                fee: Utils.BigNumber.ZERO,
                 ids: [],
             };
 
@@ -166,7 +166,7 @@ describe("Blockchain", () => {
                 numberOfTransactions: sortedTransactions.length,
                 totalAmount: transactionData.amount,
                 totalFee: transactionData.fee,
-                reward: Utils.Bignum.ZERO,
+                reward: Utils.BigNumber.ZERO,
                 payloadLength: 32 * sortedTransactions.length,
                 payloadHash: Crypto.HashAlgorithms.sha256(transactionData.ids).toString("hex"),
                 transactions: sortedTransactions,
@@ -201,8 +201,8 @@ describe("Blockchain", () => {
 
             // New wallet received funds and vote balance of delegate has been reduced by the same amount,
             // since it forged it's own transaction the fees for the transaction have been recovered.
-            expect(wallet.balance).toEqual(bignumify(transfer.amount));
-            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance).minus(transfer.amount));
+            expect(wallet.balance).toEqual(transfer.amount);
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
 
             // Now vote with newly created wallet for previous forger.
             const vote = Transactions.BuilderFactory.vote()
@@ -218,12 +218,12 @@ describe("Blockchain", () => {
             await blockchain.processBlock(voteBlock, mockCallback);
 
             // Wallet paid a fee of 1 and the vote has been placed.
-            expect(wallet.balance).toEqual(bignumify(124));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(124));
             expect(wallet.vote).toEqual(forgerKeys.publicKey);
 
             // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
             // since it was forged by a different delegate.
-            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance).minus(vote.fee));
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(vote.fee));
 
             // Now unvote again
             const unvote = Transactions.BuilderFactory.vote()
@@ -239,18 +239,18 @@ describe("Blockchain", () => {
             await blockchain.processBlock(unvoteBlock, mockCallback);
 
             // Wallet paid a fee of 1 and no longer voted a delegate
-            expect(wallet.balance).toEqual(bignumify(123));
+            expect(wallet.balance).toEqual(Utils.BigNumber.make(123));
             expect(wallet.vote).toBeNull();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
-            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance).minus(transfer.amount));
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
 
             // Now rewind 3 blocks back to the initial state
             await blockchain.removeBlocks(3);
 
             // Wallet is now a cold wallet and the initial vote balance has been restored.
-            expect(wallet.balance).toEqual(Utils.Bignum.ZERO);
-            expect(walletForger.voteBalance).toEqual(bignumify(initialVoteBalance));
+            expect(wallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(walletForger.voteBalance).toEqual(initialVoteBalance);
         });
     });
 

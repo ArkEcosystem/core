@@ -4,7 +4,7 @@ import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { MaximumPaymentCountExceededError } from "../../../../../../packages/crypto/src/errors";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { MultiPaymentBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-payment";
-import { Bignum } from "../../../../../../packages/crypto/src/utils";
+import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiPaymentBuilder;
@@ -39,15 +39,15 @@ describe("Multi Payment Transaction", () => {
 
             expect(builder.data.asset.payments).toEqual([
                 {
-                    amount: new Bignum(1),
+                    amount: BigNumber.ONE,
                     recipientId: "address",
                 },
                 {
-                    amount: new Bignum(2),
+                    amount: BigNumber.make(2),
                     recipientId: "address",
                 },
                 {
-                    amount: new Bignum(3),
+                    amount: BigNumber.make(3),
                     recipientId: "address",
                 },
             ]);

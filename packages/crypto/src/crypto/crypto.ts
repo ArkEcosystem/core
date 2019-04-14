@@ -3,14 +3,14 @@ import { Address, Keys, PublicKey, WIF } from "../identities";
 import { IKeyPair, ISerializeOptions, ITransactionData } from "../interfaces";
 import { configManager, feeManager } from "../managers";
 import { Serializer } from "../transactions/serializer";
-import { Bignum } from "../utils";
+import { BigNumber } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
 
 class Crypto {
     /**
      * Get transaction fee.
      */
-    public getFee(transaction: ITransactionData): Bignum {
+    public getFee(transaction: ITransactionData): BigNumber {
         return feeManager.get(transaction.type);
     }
 

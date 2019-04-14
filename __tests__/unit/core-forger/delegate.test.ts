@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { Types } from "@arkecosystem/crypto";
+import { Types, Utils } from "@arkecosystem/crypto";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ITransactionData } from "../../../packages/crypto/src/interfaces";
 import { testnet } from "../../../packages/crypto/src/networks";
-import { Bignum } from "../../../packages/crypto/src/utils";
 import { sortTransactions } from "../../../packages/crypto/src/utils";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 
@@ -155,7 +154,7 @@ describe("Delegate", () => {
                 idHex: "11111111",
                 height: 1,
             },
-            reward: new Bignum(0),
+            reward: Utils.BigNumber.ZERO,
         };
         const transactions = TransactionFactory.secondSignature(dummy.plainPassphrase)
             .withPassphrase(dummy.plainPassphrase)
@@ -166,9 +165,9 @@ describe("Delegate", () => {
             previousBlock: optionsDefault.previousBlock.id,
             height: optionsDefault.previousBlock.height + 1,
             numberOfTransactions: 1,
-            totalAmount: new Bignum(transactions[0].amount),
-            totalFee: new Bignum(transactions[0].fee),
-            reward: new Bignum(optionsDefault.reward),
+            totalAmount: transactions[0].amount,
+            totalFee: transactions[0].fee,
+            reward: optionsDefault.reward,
         };
 
         it("should forge a block", () => {

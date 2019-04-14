@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import Hapi from "hapi";
 
 function isBoolean(value) {
@@ -28,10 +28,14 @@ const register = async (server: Hapi.Server, options: object): Promise<void> => 
                     query[key] = query[key].toLowerCase() === "true";
                 } else if (isNumber(query[key])) {
                     // @ts-ignore
-                    query[key] =
+                    // tslint:disable-next-line triple-equals
+                    if (query[key] == Number(query[key])) {
                         // @ts-ignore
-                        // tslint:disable-next-line triple-equals
-                        query[key] == Number(query[key]) ? Number(query[key]) : bignumify(query[key]).toString();
+                        query[key] = Number(query[key]);
+                    } else {
+                        // @ts-ignore
+                        query[key] = Utils.BigNumber.make(query[key]).toString();
+                    }
                 } else {
                     query[key] = query[key];
                 }

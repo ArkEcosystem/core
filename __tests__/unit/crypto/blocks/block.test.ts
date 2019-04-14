@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block } from "../../../../packages/crypto/src/blocks";
@@ -18,9 +18,9 @@ function expectBlock({ data }: { data: IBlockData }) {
     delete data.idHex;
 
     const blockWithoutTransactions: IBlockData = { ...dummyBlock };
-    blockWithoutTransactions.reward = bignumify(blockWithoutTransactions.reward);
-    blockWithoutTransactions.totalAmount = bignumify(blockWithoutTransactions.totalAmount);
-    blockWithoutTransactions.totalFee = bignumify(blockWithoutTransactions.totalFee);
+    blockWithoutTransactions.reward = blockWithoutTransactions.reward;
+    blockWithoutTransactions.totalAmount = blockWithoutTransactions.totalAmount;
+    blockWithoutTransactions.totalFee = blockWithoutTransactions.totalFee;
     delete blockWithoutTransactions.transactions;
 
     expect(data).toEqual(blockWithoutTransactions);
@@ -38,9 +38,9 @@ describe("Block", () => {
         payloadLength: 1,
         previousBlock: "12123",
         timestamp: 111150,
-        reward: bignumify(1),
-        totalAmount: bignumify(10),
-        totalFee: bignumify(1),
+        reward: Utils.BigNumber.ONE,
+        totalAmount: Utils.BigNumber.make(10),
+        totalFee: Utils.BigNumber.ONE,
         transactions: [],
         version: 6,
     };
@@ -114,7 +114,7 @@ describe("Block", () => {
                     idHex: "11111111",
                     height: 2,
                 },
-                reward: bignumify(0),
+                reward: Utils.BigNumber.make(0),
             };
             const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
@@ -136,7 +136,7 @@ describe("Block", () => {
                     idHex: "11111111",
                     height: 2,
                 },
-                reward: bignumify(0),
+                reward: Utils.BigNumber.make(0),
             };
             const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
@@ -231,7 +231,7 @@ describe("Block", () => {
             Object.keys(data).forEach(key => {
                 if (key !== "transactions") {
                     if (bignumProperties.includes(key)) {
-                        expect(header[key]).toEqual(bignumify(data2[key]));
+                        expect(header[key]).toEqual(Utils.BigNumber.make(data2[key]));
                     } else {
                         expect(header[key]).toEqual(data2[key]);
                     }
@@ -408,9 +408,9 @@ describe("Block", () => {
             previousBlockHex: "63b315f3663e4299",
             previousBlock: "7184109965722665625",
             numberOfTransactions: 2,
-            totalAmount: bignumify(0),
-            totalFee: bignumify(600000000),
-            reward: bignumify(200000000),
+            totalAmount: Utils.BigNumber.make(0),
+            totalFee: Utils.BigNumber.make(600000000),
+            reward: Utils.BigNumber.make(200000000),
             payloadLength: 64,
             payloadHash: "c2fa2d400b4c823873d476f6e0c9e423cf925e9b48f1b5706c7e2771d4095538",
             generatorPublicKey: "02fa6902e91e127d6d3410f6abc271a79ae24029079caa0db5819757e3c1c1c5a4",
@@ -423,8 +423,8 @@ describe("Block", () => {
                     network: 0x17,
                     timestamp: 25028325,
                     senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
-                    fee: bignumify(100000000),
-                    amount: bignumify(0),
+                    fee: Utils.BigNumber.make(100000000),
+                    amount: Utils.BigNumber.make(0),
                     asset: {
                         votes: ["+020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92"],
                     },
@@ -438,8 +438,8 @@ describe("Block", () => {
                     network: 0x17,
                     type: 1,
                     timestamp: 25028279,
-                    fee: bignumify(500000000),
-                    amount: bignumify(0),
+                    fee: Utils.BigNumber.make(500000000),
+                    amount: Utils.BigNumber.make(0),
                     senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
                     signature:
                         "3044022071f4f5281ba7be76e43df4ea9e74f820da761e1f9f3b168b3a6e42c55ccf343a02203629d94845709e31be20943e2cd26637f0d8ccfb4a59764d45c161a942def069",
@@ -518,9 +518,9 @@ describe("Block", () => {
                     payloadLength: 1,
                     previousBlock: "12123",
                     timestamp: 111150,
-                    reward: bignumify(1),
-                    totalAmount: bignumify(10),
-                    totalFee: bignumify(1),
+                    reward: Utils.BigNumber.ONE,
+                    totalAmount: Utils.BigNumber.make(10),
+                    totalFee: Utils.BigNumber.ONE,
                     transactions: [],
                     version: 6,
                 };
@@ -540,9 +540,9 @@ describe("Block", () => {
                     payloadLength: 1,
                     previousBlock: "12123",
                     timestamp: 111150,
-                    reward: bignumify(1),
-                    totalAmount: bignumify(10),
-                    totalFee: bignumify(1),
+                    reward: Utils.BigNumber.ONE,
+                    totalAmount: Utils.BigNumber.make(10),
+                    totalFee: Utils.BigNumber.ONE,
                     transactions: [],
                     version: 6,
                 };

@@ -1,5 +1,5 @@
 import { ITransactionData } from "../interfaces";
-import { Bignum } from "../utils";
+import { BigNumber } from "../utils";
 import { ITransaction, ITransactionJson } from "./transactions";
 
 export interface IBlockVerification {
@@ -30,9 +30,9 @@ export interface IBlockData {
     previousBlockHex?: string;
     previousBlock: string;
     numberOfTransactions: number;
-    totalAmount: Bignum;
-    totalFee: Bignum;
-    reward: Bignum;
+    totalAmount: BigNumber;
+    totalFee: BigNumber;
+    reward: BigNumber;
     payloadLength: number;
     payloadHash: string;
     generatorPublicKey: string;

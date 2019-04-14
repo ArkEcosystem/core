@@ -1,4 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import "jest-extended";
 import { client } from "../../../../../../packages/crypto/src/client";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
@@ -18,7 +18,7 @@ describe("IPFS Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Ipfs);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Ipfs));
-        expect(builder).toHaveProperty("data.amount", bignumify(0));
+        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.vendorFieldHex", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.asset", {});

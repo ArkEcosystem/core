@@ -1,6 +1,6 @@
-import { bignumify } from "../../../../../../../packages/core-utils/src";
 import { crypto, slots } from "../../../../../../../packages/crypto/src/crypto";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
+import * as Utils from "../../../../../../../packages/crypto/src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {
@@ -25,8 +25,8 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
 
                     data = {
                         id: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8dae1a1f",
-                        amount: bignumify(1),
-                        fee: bignumify(1),
+                        amount: Utils.BigNumber.ONE,
+                        fee: Utils.BigNumber.ONE,
                         recipientId: "DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42",
                         senderPublicKey: "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
                         timestamp,
@@ -43,8 +43,8 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     const transaction = builder.build();
 
                     expect(transaction.type).toBe(0);
-                    expect(transaction.data.amount).toEqual(bignumify(1));
-                    expect(transaction.data.fee).toEqual(bignumify(1));
+                    expect(transaction.data.amount).toEqual(Utils.BigNumber.ONE);
+                    expect(transaction.data.fee).toEqual(Utils.BigNumber.ONE);
                     expect(transaction.data.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
                     expect(transaction.data.senderPublicKey).toBe(
                         "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
@@ -59,12 +59,12 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     builder.data = data;
 
                     const transaction = builder.build({
-                        amount: bignumify(33),
-                        fee: bignumify(1000),
+                        amount: Utils.BigNumber.make(33),
+                        fee: Utils.BigNumber.make(1000),
                     });
 
-                    expect(transaction.data.amount).toEqual(bignumify(33));
-                    expect(transaction.data.fee).toEqual(bignumify(1000));
+                    expect(transaction.data.amount).toEqual(Utils.BigNumber.make(33));
+                    expect(transaction.data.fee).toEqual(Utils.BigNumber.make(1000));
                     expect(transaction.data.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
                     expect(transaction.data.senderPublicKey).toBe(
                         "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
@@ -79,7 +79,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     const builder = provider();
 
                     builder.fee("255");
-                    expect(builder.data.fee).toEqual(bignumify(255));
+                    expect(builder.data.fee).toEqual(Utils.BigNumber.make(255));
                 });
             });
 
@@ -88,7 +88,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     const builder = provider();
 
                     builder.amount("255");
-                    expect(builder.data.amount).toEqual(bignumify(255));
+                    expect(builder.data.amount).toEqual(Utils.BigNumber.make(255));
                 });
             });
 

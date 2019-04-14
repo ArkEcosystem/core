@@ -32,8 +32,8 @@ function generateWallets(): Wallet[] {
             secondPublicKey: `secondPublicKey-${address}`,
             vote: `vote-${address}`,
             username: `username-${address}`,
-            balance: new Utils.Bignum(100),
-            voteBalance: new Utils.Bignum(200),
+            balance: Utils.BigNumber.make(100),
+            voteBalance: Utils.BigNumber.make(200),
             rate: index + 1,
         } as Wallet;
     });
@@ -42,9 +42,9 @@ function generateWallets(): Wallet[] {
 describe("Delegate Repository", () => {
     describe("getLocalDelegates", () => {
         const delegates = [
-            { username: "delegate-0", forgedFees: new Utils.Bignum(10), forgedRewards: new Utils.Bignum(10) },
-            { username: "delegate-1", forgedFees: new Utils.Bignum(20), forgedRewards: new Utils.Bignum(20) },
-            { username: "delegate-2", forgedFees: new Utils.Bignum(30), forgedRewards: new Utils.Bignum(30) },
+            { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
+            { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
+            { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
         ];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 

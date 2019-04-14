@@ -194,7 +194,7 @@ export class WalletManager implements Database.IWalletManager {
 
                 this.logger.warn(
                     `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${Utils.formatSatoshi(
-                        new Utils.Bignum(voteBalance),
+                        Utils.BigNumber.make(voteBalance),
                     )}`,
                 );
             }
@@ -275,7 +275,7 @@ export class WalletManager implements Database.IWalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (applied && delegate.vote) {
-                const increase: Utils.Bignum = block.data.reward.plus(block.data.totalFee);
+                const increase: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
                 const votedDelegate: Database.IWallet = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
             }
@@ -325,7 +325,7 @@ export class WalletManager implements Database.IWalletManager {
             // by reward + totalFee. In which case the vote balance of the
             // delegate's delegate has to be updated.
             if (reverted && delegate.vote) {
-                const decrease: Utils.Bignum = block.data.reward.plus(block.data.totalFee);
+                const decrease: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
                 const votedDelegate: Database.IWallet = this.byPublicKey[delegate.vote];
                 votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease);
             }
@@ -461,7 +461,7 @@ export class WalletManager implements Database.IWalletManager {
             // Update vote balance of the sender's delegate
             if (sender.vote) {
                 const delegate: Database.IWallet = this.findByPublicKey(sender.vote);
-                const total: Utils.Bignum = transaction.amount.plus(transaction.fee);
+                const total: Utils.BigNumber = transaction.amount.plus(transaction.fee);
                 delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
             }
 

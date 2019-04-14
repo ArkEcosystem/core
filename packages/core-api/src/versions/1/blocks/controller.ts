@@ -1,5 +1,5 @@
 import { supplyCalculator } from "@arkecosystem/core-utils";
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
@@ -118,7 +118,7 @@ export class BlocksController extends Controller {
         try {
             const lastBlock = this.blockchain.getLastBlock();
             const constants = this.config.getMilestone(lastBlock.data.height);
-            const rewards = bignumify(constants.reward).times(lastBlock.data.height - constants.height);
+            const rewards = Utils.BigNumber.make(constants.reward).times(lastBlock.data.height - constants.height);
 
             return super.respondWith({
                 epoch: constants.epoch,
@@ -127,7 +127,7 @@ export class BlocksController extends Controller {
                 milestone: Math.floor(lastBlock.data.height / 3000000),
                 nethash: this.config.get("network.nethash"),
                 reward: constants.reward,
-                supply: +bignumify(this.config.get("genesisBlock.totalAmount"))
+                supply: +Utils.BigNumber.make(this.config.get("genesisBlock.totalAmount"))
                     .plus(rewards)
                     .toFixed(),
             });

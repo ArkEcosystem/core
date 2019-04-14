@@ -5,7 +5,7 @@ import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { DelegateRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
-import { Bignum } from "../../../../../../packages/crypto/src/utils";
+import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 
 let builder: DelegateRegistrationBuilder;
 
@@ -40,7 +40,7 @@ describe("Delegate Registration Transaction", () => {
 
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);
-            expect(builder).toHaveProperty("data.amount", new Bignum(0));
+            expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
             expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.DelegateRegistration));
             expect(builder).toHaveProperty("data.recipientId", null);
             expect(builder).toHaveProperty("data.senderPublicKey", null);

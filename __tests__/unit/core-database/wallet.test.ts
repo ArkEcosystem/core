@@ -16,7 +16,7 @@ describe("Models - Wallet", () => {
             const address = "Abcde";
             const wallet = new Wallet(address);
             const balance = +(Math.random() * 1000).toFixed(8);
-            wallet.balance = new Utils.Bignum(balance * SATOSHI);
+            wallet.balance = Utils.BigNumber.make(balance * SATOSHI);
             expect(wallet.toString()).toBe(`${address} (${balance} ${Managers.configManager.config.client.symbol})`);
         });
     });
@@ -28,17 +28,17 @@ describe("Models - Wallet", () => {
         beforeEach(() => {
             testWallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
             testWallet.publicKey = "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece";
-            testWallet.balance = Utils.Bignum.ZERO;
+            testWallet.balance = Utils.BigNumber.ZERO;
             testWallet.producedBlocks = 0;
-            testWallet.forgedFees = Utils.Bignum.ZERO;
-            testWallet.forgedRewards = Utils.Bignum.ZERO;
+            testWallet.forgedFees = Utils.BigNumber.ZERO;
+            testWallet.forgedRewards = Utils.BigNumber.ZERO;
             testWallet.lastBlock = null;
 
             block = {
                 id: 1,
                 generatorPublicKey: testWallet.publicKey,
-                reward: new Utils.Bignum(1000000000),
-                totalFee: new Utils.Bignum(1000000000),
+                reward: Utils.BigNumber.make(1000000000),
+                totalFee: Utils.BigNumber.make(1000000000),
             };
         });
 
@@ -65,9 +65,9 @@ describe("Models - Wallet", () => {
 
     describe("revert block", () => {
         const walletInit = {
-            balance: new Utils.Bignum(1000 * SATOSHI),
-            forgedFees: new Utils.Bignum(10 * SATOSHI),
-            forgedRewards: new Utils.Bignum(50 * SATOSHI),
+            balance: Utils.BigNumber.make(1000 * SATOSHI),
+            forgedFees: Utils.BigNumber.make(10 * SATOSHI),
+            forgedRewards: Utils.BigNumber.make(50 * SATOSHI),
             producedBlocks: 1,
             dirty: false,
             lastBlock: { id: 1234856 },
@@ -77,8 +77,8 @@ describe("Models - Wallet", () => {
         const block = {
             id: 1,
             generatorPublicKey: walletInit.publicKey,
-            reward: new Utils.Bignum(2 * SATOSHI),
-            totalFee: new Utils.Bignum(1 * SATOSHI),
+            reward: Utils.BigNumber.make(2 * SATOSHI),
+            totalFee: Utils.BigNumber.make(1 * SATOSHI),
         };
         let testWallet;
 
@@ -124,9 +124,9 @@ describe("Models - Wallet", () => {
 
     describe("audit transaction - auditApply", () => {
         const walletInit = {
-            balance: new Utils.Bignum(1000 * SATOSHI),
-            forgedFees: new Utils.Bignum(10 * SATOSHI),
-            forgedRewards: new Utils.Bignum(50 * SATOSHI),
+            balance: Utils.BigNumber.make(1000 * SATOSHI),
+            forgedFees: Utils.BigNumber.make(10 * SATOSHI),
+            forgedRewards: Utils.BigNumber.make(50 * SATOSHI),
             producedBlocks: 1,
             dirty: false,
             lastBlock: { id: 1234856 },
@@ -269,7 +269,7 @@ describe("Models - Wallet", () => {
 
         it("should return correct audit data for multipayment type", () => {
             const asset = {
-                payments: [{ amount: new Utils.Bignum(10) }, { amount: new Utils.Bignum(20) }],
+                payments: [{ amount: Utils.BigNumber.make(10) }, { amount: Utils.BigNumber.make(20) }],
             };
             const transaction = generateTransactionType(TransactionTypes.MultiPayment, asset);
             const audit = testWallet.auditApply(transaction);
@@ -279,7 +279,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": false },
-                { "Multipayment remaining amount": new Utils.Bignum(30) },
+                { "Multipayment remaining amount": Utils.BigNumber.make(30) },
             ]);
         });
 
