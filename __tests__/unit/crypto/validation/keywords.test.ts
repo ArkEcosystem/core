@@ -91,7 +91,7 @@ describe("keyword blockId", () => {
         expect(validate(null)).toBeFalse();
         expect(validate(undefined)).toBeFalse();
         expect(validate(1243)).toBeFalse();
-        expect(validate(Utils.BigNumber.make(0))).toBeFalse();
+        expect(validate(BigNumber.make(0))).toBeFalse();
     });
 
     it("should be ok (genesis)", () => {
@@ -162,13 +162,13 @@ describe("keyword bignumber", () => {
         [100, 1e2, 1020.0, 500, 2000].forEach(value => {
             expect(validate(value)).toBeTrue();
             expect(validate(String(value))).toBeTrue();
-            expect(validate(Utils.BigNumber.make(value))).toBeTrue();
+            expect(validate(BigNumber.make(value))).toBeTrue();
         });
 
         [1e8, 1999.000001, 1 / 1e8, -100, -500, -2000.1].forEach(value => {
             expect(validate(value)).toBeFalse();
             expect(validate(String(value))).toBeFalse();
-            expect(validate(Utils.BigNumber.make(value))).toBeFalse();
+            expect(validate(BigNumber.make(value))).toBeFalse();
         });
     });
 

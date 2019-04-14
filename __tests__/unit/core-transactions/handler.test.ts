@@ -102,9 +102,7 @@ describe("General Tests", () => {
 
         it("should be false if wallet has not enough balance", () => {
             // 1 arktoshi short
-            wallet.balance = Utils.BigNumber.make(transaction.amount)
-                .plus(transaction.fee)
-                .minus(1);
+            wallet.balance = transaction.amount.plus(transaction.fee).minus(1);
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(InsufficientBalanceError);
         });
 
@@ -690,7 +688,7 @@ describe.skip("IpfsTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
         wallet = walletFixture;
-        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
+        wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -716,7 +714,7 @@ describe.skip("TimelockTransferTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
         wallet = walletFixture;
-        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
+        wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -778,7 +776,7 @@ describe.skip("MultiPaymentTransaction", () => {
         };
 
         wallet = walletFixture;
-        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
+        wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });
@@ -804,7 +802,7 @@ describe.skip("DelegateResignationTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
         wallet = walletFixture;
-        wallet.balance = Utils.BigNumber.make(transaction.amount).plus(transaction.fee);
+        wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.Transaction.fromData(transaction);
     });

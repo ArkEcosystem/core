@@ -18,9 +18,9 @@ function expectBlock({ data }: { data: IBlockData }) {
     delete data.idHex;
 
     const blockWithoutTransactions: IBlockData = { ...dummyBlock };
-    blockWithoutTransactions.reward = Utils.BigNumber.make(blockWithoutTransactions.reward);
-    blockWithoutTransactions.totalAmount = Utils.BigNumber.make(blockWithoutTransactions.totalAmount);
-    blockWithoutTransactions.totalFee = Utils.BigNumber.make(blockWithoutTransactions.totalFee);
+    blockWithoutTransactions.reward = blockWithoutTransactions.reward;
+    blockWithoutTransactions.totalAmount = blockWithoutTransactions.totalAmount;
+    blockWithoutTransactions.totalFee = blockWithoutTransactions.totalFee;
     delete blockWithoutTransactions.transactions;
 
     expect(data).toEqual(blockWithoutTransactions);
