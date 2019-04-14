@@ -82,5 +82,11 @@ export interface IWalletManager {
 
     setByUsername(username: string, wallet: IWallet): void;
 
+    hasByAddress(address: string): boolean;
+
+    hasByPublicKey(publicKey: string): boolean;
+
+    hasByUsername(username: string): boolean;
+
     purgeEmptyNonDelegates(): void;
 }

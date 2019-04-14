@@ -1,6 +1,6 @@
 // A Set that is capped in size and acts like a FIFO.
 export class CappedSet<T> {
-    private readonly data: Set<T> = new Set();
+    private readonly data: Set<T> = new Set<T>();
     private maxSize: number;
 
     constructor(maxSize: number = 16384) {

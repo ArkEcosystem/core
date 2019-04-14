@@ -4,9 +4,5 @@ import bs58check from "bs58check";
 export function isRecipientOnActiveNetwork(transaction: Interfaces.ITransactionData): boolean {
     const recipientPrefix = bs58check.decode(transaction.recipientId).readUInt8(0);
 
-    if (recipientPrefix === Managers.configManager.get("pubKeyHash")) {
-        return true;
-    }
-
-    return false;
+    return recipientPrefix === Managers.configManager.get("pubKeyHash");
 }

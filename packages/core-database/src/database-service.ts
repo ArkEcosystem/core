@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -28,7 +28,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public cache: Map<any, any> = new Map();
 
     constructor(
-        options: any,
+        options: Record<string, any>,
         connection: Database.IConnection,
         walletManager: Database.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
@@ -65,7 +65,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.saveBlock(Block.fromData(configManager.get("genesisBlock")));
     }
 
-    public async applyBlock(block: Interfaces.IBlock) {
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
@@ -73,16 +73,17 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         await this.applyRound(block.data.height);
-        block.transactions.forEach(tx => this.emitTransactionEvents(tx));
+
+        block.transactions.forEach((transaction: Interfaces.ITransaction) => this.emitTransactionEvents(transaction));
+
         this.emitter.emit("block.applied", block.data);
-        return true;
     }
 
-    public async applyRound(height: number) {
+    public async applyRound(height: number): Promise<void> {
         const nextHeight: number = height === 1 ? 1 : height + 1;
 
         if (roundCalculator.isNewRound(nextHeight)) {
-            const roundInfo = roundCalculator.calculateRound(nextHeight);
+            const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(nextHeight);
             const { round } = roundInfo;
 
             if (
@@ -98,15 +99,18 @@ export class DatabaseService implements Database.IDatabaseService {
                         this.updateDelegateStats(this.forgingDelegates);
                     }
 
-                    const delegates = this.walletManager.loadActiveDelegateList(roundInfo);
+                    const delegates: Database.IDelegateWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+
                     await this.saveRound(delegates);
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
+
                     this.blocksInCurrentRound.length = 0;
 
                     this.emitter.emit("round.applied");
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
+
                     throw error;
                 }
             } else {
@@ -118,17 +122,15 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async buildWallets(): Promise<boolean> {
+    // @TODO: make this throw an error
+    public async buildWallets(): Promise<void> {
         this.walletManager.reset();
 
         try {
-            const result = await this.connection.buildWallets();
-            return result;
-        } catch (e) {
-            this.logger.error(e.stack);
+            await this.connection.buildWallets();
+        } catch (err) {
+            this.logger.error(err.stack);
         }
-
-        return false;
     }
 
     public async commitQueuedQueries(): Promise<void> {
@@ -156,6 +158,7 @@ export class DatabaseService implements Database.IDatabaseService {
         delegates?: Database.IDelegateWallet[],
     ): Promise<Database.IDelegateWallet[]> {
         const { round } = roundInfo;
+
         if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
             return this.forgingDelegates;
         }
@@ -167,8 +170,8 @@ export class DatabaseService implements Database.IDatabaseService {
             )) as unknown) as Database.IDelegateWallet[];
         }
 
-        const seedSource = round.toString();
-        let currentSeed = HashAlgorithms.sha256(seedSource);
+        const seedSource: string = round.toString();
+        let currentSeed: Buffer = HashAlgorithms.sha256(seedSource);
 
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -180,7 +183,7 @@ export class DatabaseService implements Database.IDatabaseService {
             currentSeed = HashAlgorithms.sha256(currentSeed);
         }
 
-        const forgingDelegates = delegates.map(delegate => {
+        const forgingDelegates: Database.IDelegateWallet[] = delegates.map(delegate => {
             delegate.round = +delegate.round;
             delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
@@ -189,6 +192,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return forgingDelegates;
     }
 
+    // @TODO: add interface for database transactions
     public async getBlock(id: string): Promise<Interfaces.IBlock | null> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
@@ -197,7 +201,10 @@ export class DatabaseService implements Database.IDatabaseService {
             return null;
         }
 
-        const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
+        const transactions: Array<{
+            serialized: Buffer;
+            id: string;
+        }> = await this.connection.transactionsRepository.findByBlockId(block.id);
 
         block.transactions = transactions.map(
             ({ serialized, id }) => Transactions.Transaction.fromBytesUnsafe(serialized, id).data,
@@ -206,8 +213,8 @@ export class DatabaseService implements Database.IDatabaseService {
         return Block.fromData(block);
     }
 
-    public async getBlocks(offset: number, limit: number) {
-        let blocks = [];
+    public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
+        let blocks: Interfaces.IBlockData[] = [];
 
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
@@ -281,7 +288,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocksForRound(roundInfo?: Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
-        const lastBlock = app.has("state")
+        const lastBlock: Interfaces.IBlock = app.has("state")
             ? app.resolve<Blockchain.IStateStorage>("state").getLastBlock()
             : await this.getLastBlock();
 
@@ -293,25 +300,32 @@ export class DatabaseService implements Database.IDatabaseService {
             roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
         }
 
-        return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map(b => Blocks.Block.fromData(b));
+        return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map((b: Interfaces.IBlockData) =>
+            Blocks.Block.fromData(b),
+        );
     }
 
-    public async getForgedTransactionsIds(ids: string[]) {
+    public async getForgedTransactionsIds(ids: string[]): Promise<string[]> {
         if (!ids.length) {
             return [];
         }
 
-        return (await this.connection.transactionsRepository.forged(ids)).map(transaction => transaction.id);
+        return (await this.connection.transactionsRepository.forged(ids)).map(
+            (transaction: Interfaces.ITransactionData) => transaction.id,
+        );
     }
 
     public async getLastBlock(): Promise<Interfaces.IBlock> {
-        const block = await this.connection.blocksRepository.latest();
+        const block: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
 
         if (!block) {
             return null;
         }
 
-        const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
+        const transactions: Array<{
+            serialized: Buffer;
+            id: string;
+        }> = await this.connection.transactionsRepository.latestByBlock(block.id);
 
         block.transactions = transactions.map(
             ({ serialized, id }) => Transactions.Transaction.fromBytesUnsafe(serialized, id).data,
@@ -321,7 +335,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        let commonBlocks = app.resolve("state").getCommonBlocks(ids);
+        let commonBlocks: Interfaces.IBlockData[] = app.resolve("state").getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
             commonBlocks = await this.connection.blocksRepository.common(ids);
@@ -330,8 +344,8 @@ export class DatabaseService implements Database.IDatabaseService {
         return commonBlocks;
     }
 
-    public async getRecentBlockIds() {
-        let blocks = app
+    public async getRecentBlockIds(): Promise<string[]> {
+        let blocks: Interfaces.IBlockData[] = app
             .resolve("state")
             .getLastBlockIds()
             .reverse()
@@ -339,20 +353,20 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (blocks.length < 10) {
             blocks = await this.connection.blocksRepository.recent(10);
-            blocks = blocks.map(block => block.id);
         }
 
-        return blocks;
+        return blocks.map(block => block.id);
     }
 
-    public async getTopBlocks(count: any) {
-        const blocks = await this.connection.blocksRepository.top(count);
+    public async getTopBlocks(count: number): Promise<Interfaces.IBlockData[]> {
+        const blocks: Interfaces.IBlockData[] = await this.connection.blocksRepository.top(count);
 
         await this.loadTransactionsForBlocks(blocks);
 
         return blocks;
     }
 
+    // @TODO: add interface for database transactions
     public async getTransaction(id: string) {
         return this.connection.transactionsRepository.findById(id);
     }
@@ -361,12 +375,12 @@ export class DatabaseService implements Database.IDatabaseService {
         this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
-    public async loadTransactionsForBlocks(blocks) {
+    public async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         if (!blocks.length) {
             return;
         }
 
-        const ids: string[] = blocks.map(block => block.id);
+        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
@@ -382,7 +396,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    public async revertBlock(block: Interfaces.IBlock) {
+    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
         await this.walletManager.revertBlock(block);
 
@@ -392,7 +406,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async revertRound(height: number): Promise<void> {
-        const roundInfo = roundCalculator.calculateRound(height);
+        const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(height);
         const { round, nextRound, maxDelegates } = roundInfo;
 
         if (nextRound === round + 1 && height >= maxDelegates) {
@@ -400,8 +414,10 @@ export class DatabaseService implements Database.IDatabaseService {
 
             this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
 
-            const delegates = await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound);
-            await this.setForgingDelegatesOfRound(roundInfo, delegates);
+            await this.setForgingDelegatesOfRound(
+                roundInfo,
+                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
+            );
 
             await this.deleteRound(nextRound);
         }
@@ -431,34 +447,36 @@ export class DatabaseService implements Database.IDatabaseService {
         this.logger.debug("Updating delegate statistics");
 
         try {
-            delegates.forEach(delegate => {
-                const producedBlocks = this.blocksInCurrentRound.filter(
+            for (const delegate of delegates) {
+                const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
                     blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
                 );
-                const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                 if (producedBlocks.length === 0) {
+                    const wallet: Database.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
+
                     this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
+
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,
                     });
                 }
-            });
+            }
         } catch (error) {
             this.logger.error(error.stack);
         }
     }
 
     public async verifyBlockchain(): Promise<boolean> {
-        const errors = [];
+        const errors: string[] = [];
 
-        const lastBlock = await this.getLastBlock();
+        const lastBlock: Interfaces.IBlock = await this.getLastBlock();
 
         // Last block is available
         if (!lastBlock) {
             errors.push("Last block is not available");
         } else {
-            const numberOfBlocks = await this.connection.blocksRepository.count();
+            const numberOfBlocks: number = await this.connection.blocksRepository.count();
 
             // Last block height equals the number of stored blocks
             if (lastBlock.data.height !== +numberOfBlocks) {
@@ -468,8 +486,20 @@ export class DatabaseService implements Database.IDatabaseService {
             }
         }
 
-        const blockStats = await this.connection.blocksRepository.statistics();
-        const transactionStats = await this.connection.transactionsRepository.statistics();
+        // @TODO: add block stats interface
+        const blockStats: {
+            numberOfTransactions: number;
+            totalFee: Utils.Bignum;
+            totalAmount: Utils.Bignum;
+            count: number;
+        } = await this.connection.blocksRepository.statistics();
+
+        // @TODO: add transacttion stats interface
+        const transactionStats: {
+            count: number;
+            totalFee: Utils.Bignum;
+            totalAmount: Utils.Bignum;
+        } = await this.connection.transactionsRepository.statistics();
 
         // Number of stored transactions equals the sum of block.numberOfTransactions in the database
         if (blockStats.numberOfTransactions !== transactionStats.count) {
@@ -509,16 +539,21 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
-        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
+        const senderId: string = crypto.getAddress(
+            transaction.data.senderPublicKey,
+            this.config.get("network.pubKeyHash"),
+        );
 
-        const sender = this.walletManager.findByAddress(senderId); // should exist
-        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const sender: Database.IWallet = this.walletManager.findByAddress(senderId); // should exist
+        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
+
             this.walletManager.reindex(sender);
         }
 
+        // @TODO: add database transaction interface
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {
@@ -539,17 +574,16 @@ export class DatabaseService implements Database.IDatabaseService {
     private async initializeActiveDelegates(height: number): Promise<void> {
         this.forgingDelegates = null;
 
-        const roundInfo = roundCalculator.calculateRound(height);
-        const delegates = await this.calcPreviousActiveDelegates(roundInfo);
-        await this.setForgingDelegatesOfRound(roundInfo, delegates);
+        const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(height);
+
+        await this.setForgingDelegatesOfRound(roundInfo, await this.calcPreviousActiveDelegates(roundInfo));
     }
 
     private async setForgingDelegatesOfRound(
         roundInfo: Shared.IRoundInfo,
         delegates?: Database.IDelegateWallet[],
     ): Promise<void> {
-        const activeDelegates = await this.getActiveDelegates(roundInfo, delegates);
-        this.forgingDelegates = activeDelegates;
+        this.forgingDelegates = await this.getActiveDelegates(roundInfo, delegates);
     }
 
     private async calcPreviousActiveDelegates(
@@ -561,10 +595,12 @@ export class DatabaseService implements Database.IDatabaseService {
         const tempWalletManager = this.walletManager.cloneDelegateWallets();
 
         // Revert all blocks in reverse order
-        const index = blocks.length - 1;
-        let height = 0;
+        const index: number = blocks.length - 1;
+
+        let height: number = 0;
         for (let i = index; i >= 0; i--) {
             height = blocks[i].data.height;
+
             if (height === 1) {
                 break;
             }
@@ -579,8 +615,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        const handler = TransactionHandlerRegistry.get(transaction.type);
-        handler.emitEvents(transaction, this.emitter);
+        TransactionHandlerRegistry.get(transaction.type).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

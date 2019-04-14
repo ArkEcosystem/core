@@ -6,18 +6,10 @@ import { sortEntries } from "./utils/sort-entries";
 
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
+// @TODO: add return types
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
-    /**
-     * Create a new delegate repository instance.
-     * @param databaseServiceProvider
-     */
     public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    /**
-     * Get all local delegates.
-     * @param  {Object} params
-     * @return {Object}
-     */
     public getLocalDelegates(params: Database.IParameters = {}) {
         // TODO: What's the diff between this and just calling 'allByUsername'
         let delegates = this.databaseServiceProvider()
@@ -44,11 +36,6 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         return delegates;
     }
 
-    /**
-     * Find all delegates.
-     * @param  {Object} params
-     * @return {Object}
-     */
     public findAll(params: Database.IParameters = {}) {
         this.applyOrder(params);
 
