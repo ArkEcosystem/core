@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Wallet } from "@arkecosystem/core-database";
-import { Utils } from "@arkecosystem/crypto";
 import { Constants, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
