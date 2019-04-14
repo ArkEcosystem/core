@@ -57,7 +57,7 @@ describe("Wallet Manager", () => {
 
         const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
-        const txs: Transactions.Transaction[] = [];
+        const txs: Interfaces.ITransaction[] = [];
         for (let i = 0; i < 3; i++) {
             txs[i] = Transactions.BuilderFactory.vote()
                 .sign(Math.random().toString(36))

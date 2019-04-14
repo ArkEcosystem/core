@@ -21,7 +21,7 @@ export class StateStorageStub implements Blockchain.IStateStorage {
         return [];
     }
 
-    public getLastBlock(): Blocks.Block | null {
+    public getLastBlock(): Interfaces.IBlock | null {
         return undefined;
     }
 
@@ -29,7 +29,7 @@ export class StateStorageStub implements Blockchain.IStateStorage {
         return [];
     }
 
-    public getLastBlocks(): Blocks.Block[] {
+    public getLastBlocks(): Interfaces.IBlock[] {
         return [];
     }
 

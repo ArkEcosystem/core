@@ -114,8 +114,8 @@ export class TransactionFactory {
         return this.make<Interfaces.ITransactionData>(quantity, "getStruct");
     }
 
-    public build(quantity: number = 1): Transactions.Transaction[] {
-        return this.make<Transactions.Transaction>(quantity, "build");
+    public build(quantity: number = 1): Interfaces.ITransaction[] {
+        return this.make<Interfaces.ITransaction>(quantity, "build");
     }
 
     private make<T>(quantity: number = 1, method: string): T[] {

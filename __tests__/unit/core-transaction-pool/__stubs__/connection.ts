@@ -29,19 +29,19 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public addTransactions(
-        transactions: Transactions.Transaction[],
+        transactions: Interfaces.ITransaction[],
     ): {
-        added: Transactions.Transaction[];
+        added: Interfaces.ITransaction[];
         notAdded: TransactionPool.IAddTransactionErrorResponse[];
     } {
         return { added: [], notAdded: [] };
     }
 
-    public addTransaction(transaction: Transactions.Transaction): TransactionPool.IAddTransactionResponse {
+    public addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
         return null;
     }
 
-    public removeTransaction(transaction: Transactions.Transaction): void {
+    public removeTransaction(transaction: Interfaces.ITransaction): void {
         return;
     }
 
@@ -53,7 +53,7 @@ export class Connection implements TransactionPool.IConnection {
         return [];
     }
 
-    public getTransaction(id: string): Transactions.Transaction {
+    public getTransaction(id: string): Interfaces.ITransaction {
         return null;
     }
 
