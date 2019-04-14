@@ -54,8 +54,8 @@ class Database {
         return this.findById(data.id);
     }
 
-    public update(id: string, data: IWebhook): void {
-        this.database
+    public update(id: string, data: IWebhook): IWebhook {
+        return this.database
             .get("webhooks")
             .find({ id })
             .assign(data)
