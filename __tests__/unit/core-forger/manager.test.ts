@@ -23,7 +23,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    defaults.hosts = [{ ip: "127.0.0.1", port: 4000 }];
+    defaults.hosts = [{ hostname: "127.0.0.1", port: 4000 }];
     forgeManager = new ForgerManager(defaults);
 });
 
@@ -82,7 +82,7 @@ describe("Forger Manager", () => {
         it("should emit failed event if error while monitoring", async () => {
             forgeManager.client.getRound.mockRejectedValue(new Error("oh bollocks"));
 
-            setTimeout(() => forgeManager.stop(), 1000);
+            setTimeout(() => forgeManager.stopForging(), 1000);
             await forgeManager.monitor();
 
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("forger.failed", "oh bollocks");
