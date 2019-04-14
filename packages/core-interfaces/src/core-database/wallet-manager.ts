@@ -19,6 +19,12 @@ export interface IWallet {
     forgedRewards: Utils.Bignum;
     rate?: number;
 
+    applyBlock(block: Interfaces.IBlockData): boolean;
+    revertBlock(block: Interfaces.IBlockData): boolean;
+
+    auditApply(transaction: Interfaces.ITransactionData): any[];
+    toString(): string;
+
     verifySignatures(
         transaction: Interfaces.ITransactionData,
         multisignature: Interfaces.IMultiSignatureAsset,

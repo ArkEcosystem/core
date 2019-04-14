@@ -107,7 +107,7 @@ export interface IDatabaseService {
 
     revertRound(height: number): Promise<void>;
 
-    applyBlock(block: Interfaces.IBlock): Promise<boolean>;
+    applyBlock(block: Interfaces.IBlock): Promise<void>;
 
     revertBlock(block: Interfaces.IBlock): Promise<void>;
 

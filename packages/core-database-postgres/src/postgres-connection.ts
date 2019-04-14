@@ -29,7 +29,7 @@ export class PostgresConnection implements Database.IConnection {
     private queuedQueries: any[];
 
     public constructor(
-        private readonly options: Record<string, any>,
+        readonly options: Record<string, any>,
         private readonly walletManager: Database.IWalletManager,
     ) {}
 
@@ -63,7 +63,7 @@ export class PostgresConnection implements Database.IConnection {
     public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
 
-        this.pgp = pgPromise({
+        const pgp: pgPromise.IMain = pgPromise({
             ...this.options.initialization,
             ...{
                 receive(data) {
@@ -77,6 +77,7 @@ export class PostgresConnection implements Database.IConnection {
             },
         });
 
+        this.pgp = pgp;
         this.db = this.pgp(this.options.connection);
     }
 
