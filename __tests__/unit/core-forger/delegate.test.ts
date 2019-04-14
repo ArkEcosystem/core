@@ -165,9 +165,9 @@ describe("Delegate", () => {
             previousBlock: optionsDefault.previousBlock.id,
             height: optionsDefault.previousBlock.height + 1,
             numberOfTransactions: 1,
-            totalAmount: Utils.BigNumber.make(transactions[0].amount),
-            totalFee: Utils.BigNumber.make(transactions[0].fee),
-            reward: Utils.BigNumber.make(optionsDefault.reward),
+            totalAmount: transactions[0].amount,
+            totalFee: transactions[0].fee,
+            reward: optionsDefault.reward,
         };
 
         it("should forge a block", () => {

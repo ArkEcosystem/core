@@ -270,7 +270,7 @@ describe("Wallet Manager", () => {
             delegate.username = "unittest";
             delegate.balance = Utils.BigNumber.make(100_000_000);
             delegate.vote = delegate.publicKey;
-            delegate.voteBalance = Utils.BigNumber.make(delegate.balance);
+            delegate.voteBalance = delegate.balance;
             walletManager.reindex(delegate);
 
             const voter = walletManager.findByPublicKey(voterKeys.publicKey);
@@ -305,7 +305,7 @@ describe("Wallet Manager", () => {
             delegate.username = "unittest";
             delegate.balance = Utils.BigNumber.make(100_000_000);
             delegate.vote = delegate.publicKey;
-            delegate.voteBalance = Utils.BigNumber.make(delegate.balance);
+            delegate.voteBalance = delegate.balance;
             walletManager.reindex(delegate);
 
             const voter = walletManager.findByPublicKey(voterKeys.publicKey);
