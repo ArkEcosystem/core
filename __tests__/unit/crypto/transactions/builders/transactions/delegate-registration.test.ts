@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { client } from "../../../../../../packages/crypto/src/client";
-import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
+import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
 import { DelegateRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 
@@ -12,7 +12,7 @@ let builder: DelegateRegistrationBuilder;
 describe("Delegate Registration Transaction", () => {
     describe("verify", () => {
         beforeEach(() => {
-            builder = client.getBuilder().delegateRegistration();
+            builder = BuilderFactory.delegateRegistration();
         });
 
         it("should be valid with a signature", () => {
@@ -35,7 +35,7 @@ describe("Delegate Registration Transaction", () => {
 
     describe("properties", () => {
         beforeEach(() => {
-            builder = client.getBuilder().delegateRegistration();
+            builder = BuilderFactory.delegateRegistration();
         });
 
         it("should have its specific properties", () => {
@@ -54,7 +54,7 @@ describe("Delegate Registration Transaction", () => {
 
     describe("usernameAsset", () => {
         beforeEach(() => {
-            builder = client.getBuilder().delegateRegistration();
+            builder = BuilderFactory.delegateRegistration();
         });
         it("establishes the username of the asset", () => {
             builder.usernameAsset("homer");
@@ -65,10 +65,7 @@ describe("Delegate Registration Transaction", () => {
     // FIXME problems with ark-js V1
     describe("getStruct", () => {
         beforeEach(() => {
-            builder = client
-                .getBuilder()
-                .delegateRegistration()
-                .usernameAsset("homer");
+            builder = BuilderFactory.delegateRegistration().usernameAsset("homer");
         });
 
         it("should fail if the transaction is not signed", () => {

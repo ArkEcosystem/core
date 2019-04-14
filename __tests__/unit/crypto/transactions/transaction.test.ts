@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import deepmerge from "deepmerge";
 import { crypto } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
@@ -12,7 +11,6 @@ import {
 } from "../../../../packages/crypto/src/errors";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { devnet } from "../../../../packages/crypto/src/networks";
 import { BuilderFactory, Transaction } from "../../../../packages/crypto/src/transactions";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 

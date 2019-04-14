@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../packages/crypto/src/crypto/crypto";
+import { crypto } from "../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";

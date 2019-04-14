@@ -1,5 +1,4 @@
 import * as Blocks from "./blocks";
-import * as Client from "./client";
 import * as Constants from "./constants";
 import * as Crypto from "./crypto";
 import * as Enums from "./enums";
@@ -15,7 +14,6 @@ import * as Validation from "./validation";
 
 export {
     Blocks,
-    Client,
     Constants,
     Crypto,
     Enums,

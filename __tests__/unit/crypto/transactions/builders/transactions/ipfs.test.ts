@@ -1,15 +1,16 @@
-import { Utils } from "@arkecosystem/crypto";
 import "jest-extended";
-import { client } from "../../../../../../packages/crypto/src/client";
+
+import { Utils } from "@arkecosystem/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { IPFSBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/ipfs";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: IPFSBuilder;
 
 beforeEach(() => {
-    builder = client.getBuilder().ipfs();
+    builder = BuilderFactory.ipfs();
 });
 
 describe("IPFS Transaction", () => {

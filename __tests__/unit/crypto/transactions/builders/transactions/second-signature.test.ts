@@ -1,17 +1,17 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { client } from "../../../../../../packages/crypto/src/client";
-import { crypto } from "../../../../../../packages/crypto/src/crypto/crypto";
+import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { SecondSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: SecondSignatureBuilder;
 
 beforeEach(() => {
-    builder = client.getBuilder().secondSignature();
+    builder = BuilderFactory.secondSignature();
 });
 
 describe("Second Signature Transaction", () => {

@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { client } from "../../../../packages/crypto/src/client";
 import {
     TransactionSchemaError,
     TransactionVersionError,
@@ -10,6 +9,7 @@ import {
 } from "../../../../packages/crypto/src/errors";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Transaction } from "../../../../packages/crypto/src/transactions";
+import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 
@@ -22,9 +22,7 @@ describe("Transaction serializer / deserializer", () => {
     };
 
     describe("ser/deserialize - transfer", () => {
-        const transfer = client
-            .getBuilder()
-            .transfer()
+        const transfer = BuilderFactory.transfer()
             .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
             .amount("10000")
             .fee("50000000")
@@ -61,9 +59,7 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize with long vendorfield when vendorFieldLength=255 milestone is active", () => {
             configManager.getMilestone().vendorFieldLength = 255;
 
-            const transferWithLongVendorfield = client
-                .getBuilder()
-                .transfer()
+            const transferWithLongVendorfield = BuilderFactory.transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
@@ -85,9 +81,7 @@ describe("Transaction serializer / deserializer", () => {
         });
 
         it("should not ser/deserialize long vendorfield when vendorFieldLength=255 milestone is not active", () => {
-            const transferWithLongVendorfield = client
-                .getBuilder()
-                .transfer()
+            const transferWithLongVendorfield = BuilderFactory.transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
@@ -106,9 +100,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("ser/deserialize - second signature", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const secondSignature = client
-                .getBuilder()
-                .secondSignature()
+            const secondSignature = BuilderFactory.secondSignature()
                 .signatureAsset("signature")
                 .fee("50000000")
                 .version(1)
@@ -127,9 +119,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("ser/deserialize - delegate registration", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const delegateRegistration = client
-                .getBuilder()
-                .delegateRegistration()
+            const delegateRegistration = BuilderFactory.delegateRegistration()
                 .usernameAsset("homer")
                 .version(1)
                 .network(30)
@@ -147,9 +137,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("ser/deserialize - vote", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const vote = client
-                .getBuilder()
-                .vote()
+            const vote = BuilderFactory.vote()
                 .votesAsset(["+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9"])
                 .fee("50000000")
                 .version(1)
@@ -167,9 +155,7 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe.skip("ser/deserialize - multi signature", () => {
-        const multiSignature = client
-            .getBuilder()
-            .multiSignature()
+        const multiSignature = BuilderFactory.multiSignature()
             .multiSignatureAsset({
                 keysgroup: [
                     "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
@@ -211,9 +197,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe.skip("ser/deserialize - ipfs", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const ipfs = client
-                .getBuilder()
-                .ipfs()
+            const ipfs = BuilderFactory.ipfs()
                 .fee("50000000")
                 .version(1)
                 .network(30)
@@ -232,9 +216,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe.skip("ser/deserialize - timelock transfer", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const timelockTransfer = client
-                .getBuilder()
-                .timelockTransfer()
+            const timelockTransfer = BuilderFactory.timelockTransfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
@@ -257,9 +239,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe.skip("ser/deserialize - multi payment", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const multiPayment = client
-                .getBuilder()
-                .multiPayment()
+            const multiPayment = BuilderFactory.multiPayment()
                 .fee("50000000")
                 .version(1)
                 .network(30)
@@ -279,9 +259,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe.skip("ser/deserialize - delegate resignation", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const delegateResignation = client
-                .getBuilder()
-                .delegateResignation()
+            const delegateResignation = BuilderFactory.delegateResignation()
                 .fee("50000000")
                 .version(1)
                 .network(30)
@@ -311,9 +289,7 @@ describe("Transaction serializer / deserializer", () => {
 
                 return Buffer.from(buffer.flip().toBuffer());
             };
-            const transactionWrongType = client
-                .getBuilder()
-                .transfer()
+            const transactionWrongType = BuilderFactory.transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
@@ -331,9 +307,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("serialize - others", () => {
         it("should throw if type is not supported", () => {
-            const transactionWrongType = client
-                .getBuilder()
-                .transfer()
+            const transactionWrongType = BuilderFactory.transfer()
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")

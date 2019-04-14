@@ -7,21 +7,17 @@ import { configManager } from "../managers";
 
 export class Keys {
     public static fromPassphrase(passphrase: string, compressed: boolean = true): IKeyPair {
-        const privateKey = HashAlgorithms.sha256(Buffer.from(passphrase, "utf8"));
-        return Keys.fromPrivateKey(privateKey, compressed);
+        return Keys.fromPrivateKey(HashAlgorithms.sha256(Buffer.from(passphrase, "utf8")), compressed);
     }
 
     public static fromPrivateKey(privateKey: Buffer | string, compressed: boolean = true): IKeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
 
-        const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
-        const IKeyPair = {
-            publicKey: publicKey.toString("hex"),
+        return {
+            publicKey: secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
             compressed,
         };
-
-        return IKeyPair;
     }
 
     public static fromWIF(wifKey: string, network?: { wif: number }): IKeyPair {
@@ -29,21 +25,16 @@ export class Keys {
             network = configManager.all();
         }
 
-        // @ts-ignore
-        const { version, compressed, privateKey } = wif.decode(wifKey);
+        const { version, compressed, privateKey } = wif.decode(wifKey, network.wif);
 
         if (version !== network.wif) {
             throw new NetworkVersionError(network.wif, version);
         }
 
-        const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
-
-        const IKeyPair = {
-            publicKey: publicKey.toString("hex"),
+        return {
+            publicKey: secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
             compressed,
         };
-
-        return IKeyPair;
     }
 }
