@@ -57,7 +57,13 @@ export const update: object = {
         event: Joi.string(),
         target: Joi.string().uri(),
         enabled: Joi.boolean(),
-        conditions: store.payload.conditions,
+        conditions: Joi.array().items(
+            Joi.object({
+                key: Joi.string(),
+                value: Joi.any(),
+                condition: Joi.string().valid(conditions),
+            }),
+        ),
     },
 };
 
