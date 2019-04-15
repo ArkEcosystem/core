@@ -1,3 +1,5 @@
+import "jest-extended";
+
 let filterRows;
 
 beforeAll(() => {

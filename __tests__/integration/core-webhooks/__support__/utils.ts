@@ -1,4 +1,5 @@
 import { httpie } from "@arkecosystem/core-utils";
+import "jest-extended";
 
 export async function request(method, path, params = {}) {
     const url = `http://localhost:4004/api/${path}`;

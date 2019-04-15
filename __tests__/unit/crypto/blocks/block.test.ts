@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";

@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import "./mocks/core-container";
 
 import { blockchain } from "./mocks/blockchain";

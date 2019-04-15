@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { slots } from "../../../../packages/crypto/src/crypto/slots";
 import { configManager } from "../../../../packages/crypto/src/managers/config";
 import { devnet } from "../../../../packages/crypto/src/networks";

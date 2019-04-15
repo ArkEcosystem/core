@@ -1,3 +1,4 @@
+import "jest-extended";
 import { AbstractLogger, LoggerManager } from "../../../packages/core-logger/src";
 import { LoggerFactory } from "../../../packages/core-logger/src/factory";
 import { Logger } from "./__stubs__/logger";

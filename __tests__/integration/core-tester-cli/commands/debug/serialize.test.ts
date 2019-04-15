@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { SerializeCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/serialize";
 
 describe("Commands - Serialize", () => {

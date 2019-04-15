@@ -1,5 +1,5 @@
 import { httpie } from "@arkecosystem/core-utils";
-
+import "jest-extended";
 import nock from "nock";
 import pokemon from "pokemon";
 import { DelegateRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/delegate-registration";

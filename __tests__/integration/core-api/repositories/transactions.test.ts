@@ -1,3 +1,4 @@
+import "jest-extended";
 import "../../../utils";
 
 import { Crypto } from "@arkecosystem/crypto";

@@ -1,3 +1,4 @@
+import "jest-extended";
 import {
     between,
     contains,

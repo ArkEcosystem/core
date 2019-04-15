@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { PublicKey } from "../../../../packages/crypto/src/identities/public-key";
 import { data, passphrase } from "./fixture.json";
 

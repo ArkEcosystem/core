@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import "./mocks/core-container";
 
 import { PeerVerificationResult } from "../../../packages/core-p2p/src/peer-verifier";

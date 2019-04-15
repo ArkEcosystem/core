@@ -1,3 +1,5 @@
+import "jest-extended";
+
 export class ApiHelpers {
     public static async request(server, method, url, headers, params = {}) {
         // Build URL params from _params_ object for GET / DELETE requests

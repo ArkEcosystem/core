@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import got from "got";
 import { setUp, tearDown } from "./__support__/setup";
 

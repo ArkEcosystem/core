@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { DeserializeCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/deserialize";
 
 describe("Commands - Deserialize", () => {

@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { BuilderFactory } from "../../../../../packages/crypto/src/transactions";
 import { DelegateRegistrationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { DelegateResignationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";

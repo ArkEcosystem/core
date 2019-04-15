@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { VerifyCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/verify";
 
 describe("Commands - Verify", () => {

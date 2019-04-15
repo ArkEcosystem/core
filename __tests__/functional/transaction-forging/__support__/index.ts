@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { RestClient } from "../../../helpers";

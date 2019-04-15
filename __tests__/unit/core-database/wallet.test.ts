@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Constants, Enums, Managers, Utils } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
 import { TransactionFactory } from "../../helpers/transaction-factory";

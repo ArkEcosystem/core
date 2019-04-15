@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { AjvWrapper } from "../../../../packages/crypto/src/validation";
 

@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Wallet } from "@arkecosystem/core-database";
 import { Constants, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {

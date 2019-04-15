@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { IdentityCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/identity";
 
 describe("Commands - Identity", () => {

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-
+import "jest-extended";
 import { calculate } from "../../../packages/core-utils/src/supply-calculator";
 
 let config;

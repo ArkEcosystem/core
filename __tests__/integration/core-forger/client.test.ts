@@ -1,5 +1,7 @@
 import "./mocks/core-container";
 
+import "jest-extended";
+
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import delay from "delay";
 import { Client } from "../../../packages/core-forger/src/client";

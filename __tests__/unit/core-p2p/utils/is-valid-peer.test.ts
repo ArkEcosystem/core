@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import os from "os";
 import { isValidPeer } from "../../../../packages/core-p2p/src/utils";
 

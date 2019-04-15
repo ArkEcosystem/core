@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
 import { Managers, Transactions } from "@arkecosystem/crypto";

@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { parse } from "path";
 import tg from "tiny-glob/sync";
 

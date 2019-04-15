@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
