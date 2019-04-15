@@ -149,7 +149,7 @@ export class IntegrityVerifier {
             .allByUsername()
             .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
 
-        sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
+        sortBy(delegateWallets, "publicKey").forEach((delegate: Database.IDelegateWallet, i) => {
             const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
             wallet.rate = i + 1;
             this.walletManager.reindex(wallet);
