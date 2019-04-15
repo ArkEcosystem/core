@@ -3,13 +3,6 @@ import { IBlocksPaginated } from "../business-repository";
 import { SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
-export interface IBlockCommon {
-    height: number;
-    id: string;
-    previous_block: string;
-    timestamp: number;
-}
-
 export interface IBlocksRepository extends IRepository {
     findById(id: string): Promise<Interfaces.IBlockData>;
     findByIds(id: string[]): Promise<Interfaces.IBlockData[]>;
@@ -18,10 +11,10 @@ export interface IBlocksRepository extends IRepository {
     findByHeights(heights: number[]): Promise<Interfaces.IBlockData[]>;
 
     count(): Promise<number>;
-    common(ids: string[]): Promise<IBlockCommon[]>;
+    common(ids: string[]): Promise<Interfaces.IBlockData[]>;
     heightRange(start: number, end: number): Promise<Interfaces.IBlockData[]>;
     latest(): Promise<Interfaces.IBlockData>;
-    recent(count: number): Promise<Array<{ id: string }>>;
+    recent(count: number): Promise<Interfaces.IBlockData[]>;
 
     statistics(): Promise<{
         numberOfTransactions: number;

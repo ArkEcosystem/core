@@ -52,7 +52,10 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return this.findAll({ type, ...parameters });
     }
 
-    public async findAllByWallet(wallet: Database.IWallet, parameters: any): Promise<Interfaces.ITransactionData[]> {
+    public async findAllByWallet(
+        wallet: Database.IWallet,
+        parameters?: Database.IParameters,
+    ): Promise<Database.ITransactionsPaginated> {
         const { transactionsRepository } = this.databaseServiceProvider().connection;
         const searchParameters = new SearchParameterConverter(transactionsRepository.getModel()).convert(parameters);
 
@@ -61,8 +64,9 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             searchParameters.paginate,
             searchParameters.orderBy,
         );
+        result.rows = await this.mapBlocksToTransactions(result.rows);
 
-        return this.mapBlocksToTransactions(result.rows);
+        return result;
     }
 
     public async findAllLegacy(parameters: Database.IParameters): Promise<void> {

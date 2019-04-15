@@ -12,7 +12,7 @@ export interface ITransactionsRepository extends IRepository {
     ): Promise<
         Array<{
             id: string;
-            serialized: string;
+            serialized: Buffer;
         }>
     >;
 
@@ -21,7 +21,7 @@ export interface ITransactionsRepository extends IRepository {
     ): Promise<
         Array<{
             id: string;
-            serialized: string;
+            serialized: Buffer;
         }>
     >;
 
@@ -30,12 +30,12 @@ export interface ITransactionsRepository extends IRepository {
     ): Promise<
         Array<{
             id: string;
-            block_id: string;
-            serialized: string;
+            blockId: string;
+            serialized: Buffer;
         }>
     >;
 
-    forged(ids: string[]): Promise<string[]>;
+    forged(ids: string[]): Promise<Interfaces.ITransactionData[]>;
 
     statistics(): Promise<{
         count: number;

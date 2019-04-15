@@ -381,8 +381,13 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
 
-        let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
-        transactions = transactions.map(tx => {
+        const dbTransactions: Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }> = await this.connection.transactionsRepository.latestByBlocks(ids);
+
+        const transactions = dbTransactions.map(tx => {
             const { data } = Transactions.Transaction.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;

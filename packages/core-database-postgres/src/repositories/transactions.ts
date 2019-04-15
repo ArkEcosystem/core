@@ -16,7 +16,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
     ): Promise<
         Array<{
             id: string;
-            serialized: string;
+            serialized: Buffer;
         }>
     > {
         return this.db.manyOrNone(queries.transactions.findByBlock, { id });
@@ -27,7 +27,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
     ): Promise<
         Array<{
             id: string;
-            serialized: string;
+            serialized: Buffer;
         }>
     > {
         return this.db.manyOrNone(queries.transactions.latestByBlock, { id });
@@ -38,14 +38,14 @@ export class TransactionsRepository extends Repository implements Database.ITran
     ): Promise<
         Array<{
             id: string;
-            block_id: string;
-            serialized: string;
+            blockId: string;
+            serialized: Buffer;
         }>
     > {
         return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
     }
 
-    public async forged(ids: string[]): Promise<string[]> {
+    public async forged(ids: string[]): Promise<Interfaces.ITransactionData[]> {
         return this.db.manyOrNone(queries.transactions.forged, { ids });
     }
 

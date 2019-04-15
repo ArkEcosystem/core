@@ -31,16 +31,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return (await this.db.one(queries.blocks.count)).count;
     }
 
-    public async common(
-        ids: string[],
-    ): Promise<
-        Array<{
-            height: number;
-            id: string;
-            previous_block: string;
-            timestamp: number;
-        }>
-    > {
+    public async common(ids: string[]): Promise<Interfaces.IBlockData[]> {
         return this.db.manyOrNone(queries.blocks.common, { ids });
     }
 
@@ -56,7 +47,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.oneOrNone(queries.blocks.latest);
     }
 
-    public async recent(): Promise<Array<{ id: string }>> {
+    public async recent(): Promise<Interfaces.IBlockData[]> {
         return this.db.many(queries.blocks.recent);
     }
 
