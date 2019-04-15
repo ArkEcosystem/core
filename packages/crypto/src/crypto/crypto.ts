@@ -32,7 +32,7 @@ class Crypto {
 
     public sign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        const signature: string = this.signHash(hash, keys);
+        const signature: string = this.signECDSA(hash, keys);
 
         if (!transaction.signature) {
             transaction.signature = signature;
@@ -43,7 +43,7 @@ class Crypto {
 
     public secondSign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = this.getHash(transaction, { excludeSecondSignature: true });
-        const signature: string = this.signHash(hash, keys);
+        const signature: string = this.signECDSA(hash, keys);
 
         if (!transaction.secondSignature) {
             transaction.secondSignature = signature;
@@ -52,7 +52,7 @@ class Crypto {
         return signature;
     }
 
-    public signHash(hash: Buffer, keys: IKeyPair): string {
+    public signECDSA(hash: Buffer, keys: IKeyPair): string {
         return secp256k1
             .signatureExport(secp256k1.sign(hash, Buffer.from(keys.privateKey, "hex")).signature)
             .toString("hex");
@@ -68,7 +68,7 @@ class Crypto {
             return false;
         }
 
-        return this.verifyHash(
+        return this.verifyECDSA(
             this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true }),
             transaction.signature,
             transaction.senderPublicKey,
@@ -84,10 +84,14 @@ class Crypto {
             return false;
         }
 
-        return this.verifyHash(this.getHash(transaction, { excludeSecondSignature: true }), secondSignature, publicKey);
+        return this.verifyECDSA(
+            this.getHash(transaction, { excludeSecondSignature: true }),
+            secondSignature,
+            publicKey,
+        );
     }
 
-    public verifyHash(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
+    public verifyECDSA(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
         return secp256k1.verify(
             hash,
             secp256k1.signatureImport(signature instanceof Buffer ? signature : Buffer.from(signature, "hex")),

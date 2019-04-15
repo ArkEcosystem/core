@@ -14,7 +14,7 @@ export class Block implements IBlock {
         const payloadHash: Buffer = Block.serialize(data, false);
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
-        data.blockSignature = crypto.signHash(hash, keys);
+        data.blockSignature = crypto.signECDSA(hash, keys);
         data.id = Block.getId(data);
 
         return Block.fromData(data);
@@ -147,7 +147,7 @@ export class Block implements IBlock {
         const bytes: Buffer = Block.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
 
-        return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
+        return crypto.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
     public toJson(): IBlockJson {

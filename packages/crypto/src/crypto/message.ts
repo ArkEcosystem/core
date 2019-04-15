@@ -10,7 +10,7 @@ export class Message {
 
         return {
             publicKey: keys.publicKey,
-            signature: crypto.signHash(this.createHash(message), keys),
+            signature: crypto.signECDSA(this.createHash(message), keys),
             message,
         };
     }
@@ -24,13 +24,13 @@ export class Message {
 
         return {
             publicKey: keys.publicKey,
-            signature: crypto.signHash(this.createHash(message), keys),
+            signature: crypto.signECDSA(this.createHash(message), keys),
             message,
         };
     }
 
     public static verify({ message, publicKey, signature }: IMessage): boolean {
-        return crypto.verifyHash(this.createHash(message), signature, publicKey);
+        return crypto.verifyECDSA(this.createHash(message), signature, publicKey);
     }
 
     private static createHash(message: string): Buffer {
