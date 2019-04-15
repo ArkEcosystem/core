@@ -7,20 +7,20 @@ class Database {
         this.database = new Keyv(options);
     }
 
-    public async get(id) {
+    public async get<T = any>(id: string): Promise<T> {
         return this.database.get(id);
     }
 
-    public async set(id, value) {
-        return this.database.set(id, value);
+    public async set<T = any>(id: string, value: T): Promise<void> {
+        this.database.set(id, value);
     }
 
-    public async delete(id) {
-        return this.database.delete(id);
+    public async delete(id: string): Promise<void> {
+        this.database.delete(id);
     }
 
-    public async clear() {
-        return this.database.clear();
+    public async clear(): Promise<void> {
+        this.database.clear();
     }
 }
 

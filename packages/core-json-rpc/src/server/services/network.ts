@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Peer } from "@arkecosystem/core-p2p";
 import { httpie } from "@arkecosystem/core-utils";
 import { Managers } from "@arkecosystem/crypto";
 import isReachable from "is-reachable";
@@ -19,35 +20,35 @@ class Network {
         timeout: 3000,
     };
 
-    public async init() {
+    public async init(): Promise<void> {
         this.loadRemotePeers();
     }
 
-    public setServer() {
+    public setServer(): void {
         this.server = this.getRandomPeer();
     }
 
-    public async sendRequest(url, query = {}) {
+    public async sendRequest<T = any>({ url, query = {} }: { url: string; query?: Record<string, any> }): Promise<T> {
         if (!this.server) {
             this.setServer();
         }
 
-        const peer = await this.selectResponsivePeer(this.server);
-        const uri = `http://${peer.ip}:${peer.port}/api/${url}`;
-
         try {
+            const peer: P2P.IPeer = await this.selectResponsivePeer(this.server);
+            const uri: string = `http://${peer.ip}:${peer.port}/api/${url}`;
+
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
-            const response = await httpie.get(uri, { query, ...this.requestOpts });
-
-            return response.body;
+            return (await httpie.get(uri, { query, ...this.requestOpts })).body;
         } catch (error) {
             this.logger.error(error.message);
         }
+
+        return undefined;
     }
 
-    public async broadcast(transaction) {
-        return httpie.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
+    public async broadcast(transaction): Promise<void> {
+        await httpie.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
             body: {
                 transactions: [transaction],
             },
@@ -55,22 +56,22 @@ class Network {
         });
     }
 
-    public async connect(): Promise<any> {
+    public async connect(): Promise<void> {
         if (this.server) {
-            // this.logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
-            return true;
+            return;
         }
 
         this.setServer();
 
         try {
-            const peerPort = app.resolveOptions("p2p").port;
+            const peerPort: number = app.resolveOptions("p2p").port;
+            // @FIXME: this endpoint no longer exists
             const response = await httpie.get(`http://${this.server.ip}:${peerPort}/config`);
 
             const plugin = response.body.data.plugins["@arkecosystem/core-api"];
 
             if (!plugin.enabled) {
-                const index = this.peers.findIndex(peer => peer.ip === this.server.ip);
+                const index: number = this.peers.findIndex(peer => peer.ip === this.server.ip);
                 this.peers.splice(index, 1);
 
                 if (!this.peers.length) {
@@ -86,7 +87,7 @@ class Network {
         }
     }
 
-    private getRandomPeer() {
+    private getRandomPeer(): P2P.IPeer {
         this.loadRemotePeers();
 
         return sample(this.peers);
@@ -94,19 +95,17 @@ class Network {
 
     private loadRemotePeers(): void {
         if (this.network.name === "testnet") {
-            // @ts-ignore - @TODO: make this a peer instance
-            this.peers = [{ ip: "localhost", port: app.resolveOptions("api").port }];
+            this.peers = [new Peer("127.0.0.1", app.resolveOptions("api").port)];
         } else {
             this.peers = this.p2p.getStorage().getPeers();
         }
 
         if (!this.peers.length) {
-            this.logger.error("No peers found. Shutting down...");
-            process.exit();
+            app.forceExit("No peers found. Shutting down...");
         }
     }
 
-    private async selectResponsivePeer(peer) {
+    private async selectResponsivePeer(peer): Promise<P2P.IPeer> {
         if (!(await isReachable(`${peer.ip}:${peer.port}`))) {
             this.logger.warn(`${peer} is unresponsive. Choosing new peer.`);
 
