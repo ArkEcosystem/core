@@ -28,32 +28,13 @@ export async function startServer(config) {
         },
     });
 
-    await server.register({
-        plugin: require("hapi-pagination"),
-        options: {
-            meta: {
-                baseUri: "",
-            },
-            query: {
-                limit: {
-                    default: 100,
-                },
-            },
-            results: {
-                name: "data",
-            },
-            routes: {
-                include: ["/api/webhooks"],
-                exclude: ["*"],
-            },
-        },
-    });
-
     server.route({
         method: "GET",
         path: "/api/webhooks",
         handler: request => {
-            return utils.toPagination(database.paginate(utils.paginate(request)));
+            return {
+                data: database.all(),
+            };
         },
     });
 

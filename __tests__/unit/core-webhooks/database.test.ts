@@ -24,13 +24,10 @@ beforeEach(() => database.make());
 afterEach(() => database.reset());
 
 describe("Conditions - between", () => {
-    it("should paginate all webhooks", () => {
+    it("should return all webhooks", () => {
         database.create(dummyWebhook);
 
-        const { count, rows } = database.paginate({ offset: 0, limit: 1 });
-
-        expect(count).toBe(1);
-        expect(rows).toHaveLength(1);
+        expect(database.all()).toHaveLength(1);
     });
 
     it("should find a webhook by its id", () => {
@@ -42,18 +39,14 @@ describe("Conditions - between", () => {
     it("should find webhooks by their event", () => {
         const webhook: IWebhook = database.create(dummyWebhook);
 
-        const { count, rows } = database.findByEvent("event");
+        const rows = database.findByEvent("event");
 
-        expect(count).toBe(1);
         expect(rows).toHaveLength(1);
         expect(rows[0]).toEqual(webhook);
     });
 
     it("should return an empty array if there are no webhooks for an event", () => {
-        const { count, rows } = database.findByEvent("event");
-
-        expect(count).toBe(0);
-        expect(rows).toHaveLength(0);
+        expect(database.findByEvent("event")).toHaveLength(0);
     });
 
     it("should create a new webhook", () => {

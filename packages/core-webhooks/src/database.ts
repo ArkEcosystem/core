@@ -18,13 +18,8 @@ class Database {
         this.database.defaults({ webhooks: [] }).write();
     }
 
-    public paginate(params: { offset: number; limit: number }): { rows: IWebhook[]; count: number } {
-        const rows: IWebhook[] = this.database
-            .get("webhooks", [])
-            .slice(params.offset, params.offset + params.limit)
-            .value();
-
-        return { rows, count: rows.length };
+    public all(): IWebhook[] {
+        return this.database.get("webhooks", []).value();
     }
 
     public findById(id: string): IWebhook {
@@ -34,13 +29,11 @@ class Database {
             .value();
     }
 
-    public findByEvent(event: string): { rows: IWebhook[]; count: number } {
-        const rows: IWebhook[] = this.database
+    public findByEvent(event: string): IWebhook[] {
+        return this.database
             .get("webhooks")
             .filter({ event })
             .value();
-
-        return { rows, count: rows.length };
     }
 
     public create(data: IWebhook): IWebhook {
