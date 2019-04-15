@@ -1,7 +1,7 @@
 import { BlockRepository } from "./blocks";
 import { TransactionsRepository } from "./transactions";
 
-const blocksRepository = new BlockRepository();
-const transactionsRepository = new TransactionsRepository();
+export const blocksRepository = new BlockRepository();
+export const transactionsRepository = new TransactionsRepository();
 
-export { blocksRepository, transactionsRepository, BlockRepository, TransactionsRepository };
+export { BlockRepository, TransactionsRepository };

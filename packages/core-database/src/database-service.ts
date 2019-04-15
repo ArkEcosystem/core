@@ -366,7 +366,6 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
-    // @TODO: add interface for database transactions
     public async getTransaction(id: string) {
         return this.connection.transactionsRepository.findById(id);
     }
@@ -553,7 +552,6 @@ export class DatabaseService implements Database.IDatabaseService {
             this.walletManager.reindex(sender);
         }
 
-        // @TODO: add database transaction interface
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {

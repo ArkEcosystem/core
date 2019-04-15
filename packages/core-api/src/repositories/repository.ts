@@ -12,7 +12,7 @@ export abstract class Repository implements IRepository {
     public query = this.model.query();
     public columns: string[] = [];
 
-    protected constructor() {
+    public constructor() {
         this.__mapColumns();
     }
 

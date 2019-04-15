@@ -97,6 +97,7 @@ describe("Blocks Business Repository", () => {
                 findAll: async params => params,
                 getModel: () => new MockDatabaseModel(),
             } as Database.IBlocksRepository;
+
             jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => true);
 
             await blocksBusinessRepository.findAllByGenerator("pubKey", { limit: 50, offset: 13 });
@@ -114,30 +115,6 @@ describe("Blocks Business Repository", () => {
                         offset: 13,
                         limit: 50,
                     },
-                }),
-            );
-        });
-    });
-
-    describe("findLastByPublicKey", () => {
-        it("should search by publicKey", async () => {
-            databaseService.connection.blocksRepository = {
-                findAll: async params => params,
-                getModel: () => new MockDatabaseModel(),
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => true);
-
-            await blocksBusinessRepository.findLastByPublicKey("pubKey");
-
-            expect(databaseService.connection.blocksRepository.findAll).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "generatorPublicKey",
-                            operator: expect.anything(),
-                            value: "pubKey",
-                        },
-                    ],
                 }),
             );
         });

@@ -6,7 +6,6 @@ import { Transaction } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-// @TODO: add database transaction interface
 export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
     public async findById(id: string): Promise<Interfaces.ITransactionData> {
         return this.db.oneOrNone(queries.transactions.findById, { id });
@@ -85,10 +84,10 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findAllByWallet(
-        wallet: any,
+        wallet: Database.IWallet,
         paginate?: Database.SearchPaginate,
         orderBy?: Database.SearchOrderBy[],
-    ): Promise<{ rows: Interfaces.ITransactionData[]; count: number }> {
+    ): Promise<Database.ITransactionsPaginated> {
         return this.findManyWithCount(
             this.query
                 .select()
@@ -100,19 +99,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
         );
     }
 
-    public async findWithVendorField(): Promise<Interfaces.ITransactionData[]> {
-        const selectQuery = this.query
-            .select()
-            .from(this.query)
-            .where(this.query.vendor_field_hex.isNotNull());
-
-        return this.findMany(selectQuery);
-    }
-
     // TODO: Remove with v1
-    public async findAll(
-        parameters: Database.SearchParameters,
-    ): Promise<{ rows: Interfaces.ITransactionData[]; count: number }> {
+    public async findAll(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
@@ -162,9 +150,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
     }
 
-    public async search(
-        parameters: Database.SearchParameters,
-    ): Promise<{ rows: Interfaces.ITransactionData[]; count: number }> {
+    public async search(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,

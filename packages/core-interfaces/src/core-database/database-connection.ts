@@ -5,7 +5,7 @@ import { ITransactionsRepository } from "./database-repository";
 import { IWalletsRepository } from "./database-repository";
 
 export interface IConnection {
-    options: any;
+    options: Record<string, any>;
 
     blocksRepository: IBlocksRepository;
     walletsRepository: IWalletsRepository;

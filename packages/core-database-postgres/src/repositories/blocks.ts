@@ -4,7 +4,6 @@ import { Block } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-// @TODO: add database block interface
 export class BlocksRepository extends Repository implements Database.IBlocksRepository {
     public async findById(id: string): Promise<Interfaces.IBlockData> {
         return this.db.oneOrNone(queries.blocks.findById, { id });

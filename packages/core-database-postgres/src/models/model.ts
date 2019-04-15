@@ -7,7 +7,7 @@ export abstract class Model implements Database.IModel {
     protected columnsDescriptor: ColumnDescriptor[];
     protected columnSet: ColumnSet;
 
-    protected constructor(protected readonly pgp: IMain) {}
+    public constructor(protected readonly pgp: IMain) {}
 
     public abstract getTable(): string;
 

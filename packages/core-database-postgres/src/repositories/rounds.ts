@@ -3,7 +3,6 @@ import { Round } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-// @TODO: add database round interface
 export class RoundsRepository extends Repository implements Database.IRoundsRepository {
     public async findById(round: number): Promise<Database.IRound[]> {
         return this.db.manyOrNone(queries.rounds.find, { round });
