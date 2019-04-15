@@ -9,9 +9,7 @@ import { IWebhook } from "./interfaces";
 export function startListeners(): void {
     for (const event of Object.values(ApplicationEvents)) {
         app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").on(event, async payload => {
-            const { rows } = await database.findByEvent(event);
-
-            const webhooks: IWebhook[] = rows.filter((webhook: IWebhook) => {
+            const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
                 if (!webhook.enabled) {
                     return false;
                 }

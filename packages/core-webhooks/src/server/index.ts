@@ -33,10 +33,7 @@ export async function startServer(config) {
         path: "/api/webhooks",
         handler: request => {
             return {
-                data: database.paginate({
-                    offset: (+request.query.page - 1) * +request.query.limit,
-                    limit: +request.query.limit,
-                }),
+                data: database.all(),
             };
         },
     });
