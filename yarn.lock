@@ -6704,16 +6704,6 @@ handlebars@^4.1.1:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-hapi-pagination@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/hapi-pagination/-/hapi-pagination-2.1.0.tgz#c8036b779ef12a9172101fd999c5ef619ef3b5a6"
-  integrity sha512-kESI1xiLKfhxh8gS88fXO6juqbPIwllnjXyQyDWMMRlvHMv03XDZQwj6nMdwru7epWy77/dVljQ8/CNY/YfmHQ==
-  dependencies:
-    boom "^7.1.1"
-    hapi "^17.1.1"
-    hoek "^5.0.2"
-    joi "^13.0.2"
-
 "hapi-pagination@https://github.com/faustbrian/hapi-pagination":
   version "2.0.0"
   resolved "https://github.com/faustbrian/hapi-pagination#c3a666ee2404be11bab879f316239ad352329ca1"

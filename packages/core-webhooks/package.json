@@ -26,7 +26,6 @@
         "@arkecosystem/core-utils": "^2.3.0-next.6",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
-        "hapi-pagination": "^2.1.0",
         "joi": "^14.3.1",
         "lowdb": "^1.0.0",
         "uuid": "^3.3.2"
