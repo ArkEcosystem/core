@@ -1,5 +1,4 @@
-import { Crypto, Enums } from "@arkecosystem/crypto";
-import { dato } from "@faustbrian/dato";
+import { Enums } from "@arkecosystem/crypto";
 import partition from "lodash.partition";
 import snakeCase from "lodash.snakecase";
 import { IRepository } from "../interfaces";

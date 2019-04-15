@@ -1,4 +1,4 @@
-import { Blocks, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStorage {
     reset(): void;

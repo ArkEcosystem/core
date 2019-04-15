@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { Transaction, TransactionRegistry } from ".";
+import { TransactionRegistry } from ".";
 import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";

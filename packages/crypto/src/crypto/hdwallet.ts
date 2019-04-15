@@ -10,7 +10,7 @@ export class HDWallet {
      * Get root node from the given mnemonic with an optional passphrase.
      */
     public static fromMnemonic(mnemonic: string, passphrase?: string): bip32.BIP32 {
-        return bip32.fromSeed(mnemonicToSeedSync(mnemonic, passphrase), configManager.config);
+        return bip32.fromSeed(mnemonicToSeedSync(mnemonic, passphrase), configManager.get("network"));
     }
 
     /**
@@ -21,7 +21,7 @@ export class HDWallet {
             throw new TypeError("BIP32 only allows compressed keys.");
         }
 
-        return bip32.fromPrivateKey(Buffer.from(keys.privateKey, "hex"), chainCode, configManager.config);
+        return bip32.fromPrivateKey(Buffer.from(keys.privateKey, "hex"), chainCode, configManager.get("network"));
     }
 
     /**
@@ -46,6 +46,6 @@ export class HDWallet {
      * Derives a node from the network as specified by AIP20.
      */
     public static deriveNetwork(root: bip32.BIP32): bip32.BIP32 {
-        return this.deriveSlip44(root).deriveHardened(configManager.config.aip20 || 1);
+        return this.deriveSlip44(root).deriveHardened(configManager.get("network.aip20") || 1);
     }
 }

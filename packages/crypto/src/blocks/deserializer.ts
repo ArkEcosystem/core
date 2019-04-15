@@ -13,7 +13,7 @@ class Deserializer {
         const block = {} as IBlockData;
         let transactions: ITransaction[] = [];
 
-        const buf = ByteBuffer.fromHex(serializedHex, true);
+        const buf: ByteBuffer = ByteBuffer.fromHex(serializedHex, true);
 
         this.deserializeHeader(block, buf);
 
@@ -25,7 +25,7 @@ class Deserializer {
         block.idHex = Block.getIdHex(block);
         block.id = Block.getId(block);
 
-        const { outlookTable } = configManager.config.exceptions;
+        const { outlookTable } = configManager.get("exceptions");
 
         if (outlookTable && outlookTable[block.id]) {
             const constants = configManager.getMilestone(block.height);

@@ -8,7 +8,7 @@ import {
     P2P,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import async from "async";
 import delay from "delay";

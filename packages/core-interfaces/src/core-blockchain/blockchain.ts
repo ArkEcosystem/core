@@ -1,4 +1,4 @@
-import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { IDatabaseService } from "../core-database";
 import { IPeerService } from "../core-p2p";
 import { IConnection } from "../core-transaction-pool";

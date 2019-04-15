@@ -7,12 +7,13 @@ describe("block deserializer", () => {
     describe("deserialize", () => {
         it("should get block id from outlook table", () => {
             const outlookTableBlockId = "123456";
-            configManager.config.exceptions.outlookTable = { [dummyBlock3.id]: outlookTableBlockId };
+            configManager.set("exceptions.outlookTable", { [dummyBlock3.id]: outlookTableBlockId });
 
             const deserialized = deserializer.deserialize(Serializer.serialize(dummyBlock3).toString("hex"), true).data;
 
             expect(deserialized.id).toEqual(outlookTableBlockId);
-            delete configManager.config.exceptions.outlookTable;
+
+            configManager.set("exceptions.outlookTable", {});
         });
 
         it("should correctly deserialize a block", () => {

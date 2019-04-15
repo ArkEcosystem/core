@@ -85,7 +85,7 @@ export function handler(request, h) {
         token: string;
         symbol: string;
         explorer: string;
-    } = Managers.configManager.get("client");
+    } = Managers.configManager.get("network.client");
 
     return h
         .view("index", {

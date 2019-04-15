@@ -8,7 +8,8 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "strict": false,
-        "noUnusedLocals": false,
+        "alwaysStrict": false,
+        "noUnusedLocals": true,
         "noUnusedParameters": false,
         "resolveJsonModule": true,
         "incremental": true

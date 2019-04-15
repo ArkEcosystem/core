@@ -16,25 +16,25 @@ class Worker extends SCWorker {
     }
 
     registerEndpoints(socket) {
-        socket.on('mock.add', async (data, res) => {
+        socket.on("mock.add", async (data, res) => {
             this.mocks.push(data.endpoint);
             socket.on(data.endpoint, async (d, r) => r(null, data.value));
             res();
         });
 
-        socket.on('mock.timeout', async (data, res) => {
+        socket.on("mock.timeout", async (data, res) => {
             socket.on(data.endpoint, async (d, r) => {
                 setTimeout(() => r(new Error("Timeout")), data.timeout);
             });
             res();
         });
 
-        socket.on('mock.reset', async (data, res) => {
+        socket.on("mock.reset", async (data, res) => {
             socket.off(data.endpoint);
             res();
         });
 
-        socket.on('mock.resetAll', async (data, res) => {
+        socket.on("mock.resetAll", async (data, res) => {
             for (const mockEndpoint of this.mocks) {
                 socket.off(mockEndpoint);
             }

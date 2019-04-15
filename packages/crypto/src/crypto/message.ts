@@ -1,6 +1,6 @@
 import { IKeyPair, IMessage } from "../interfaces";
+import { INetwork } from "../interfaces/networks";
 import { configManager } from "../managers";
-import { NetworkType } from "../types";
 import { crypto } from "./crypto";
 import { HashAlgorithms } from "./hash-algorithms";
 
@@ -15,9 +15,9 @@ export class Message {
         };
     }
 
-    public static signWithWif(message: string, wif: string, network?: NetworkType): IMessage {
+    public static signWithWif(message: string, wif: string, network?: INetwork): IMessage {
         if (!network) {
-            network = configManager.all();
+            network = configManager.get("network");
         }
 
         const keys: IKeyPair = crypto.getKeysFromWIF(wif, network);

@@ -1,6 +1,6 @@
 {
     "version": 0,
-    "totalAmount": 12500000000000000,
+    "totalAmount": "12500000000000000",
     "totalFee": "0",
     "reward": "0",
     "payloadHash": "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
@@ -12,7 +12,7 @@
     "transactions": [
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
             "timestamp": 0,
@@ -23,7 +23,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1",
             "timestamp": 0,
@@ -34,7 +34,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
             "timestamp": 0,
@@ -45,7 +45,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ARAibxGqLQJTo1bWMJfu5fCc88rdWWjqgv",
             "timestamp": 0,
@@ -56,7 +56,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ASEJEDLfTxy6upQDWTuYucoVwMUcmhSGhp",
             "timestamp": 0,
@@ -67,7 +67,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
             "timestamp": 0,
@@ -78,7 +78,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AdXbS4GKvV6TZVHrNzcYSQKfpenQnFGTxK",
             "timestamp": 0,
@@ -89,7 +89,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "Ac9dCo9dFgAkkBdEBsoRAN4Mm6xMsgYdZx",
             "timestamp": 0,
@@ -100,7 +100,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AReCSCQRssLGF4XyhTjxhQm6mBFAWTaDTz",
             "timestamp": 0,
@@ -111,7 +111,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AV6GP5qhhsZG6MHb4gShy22doUnVjEKHcN",
             "timestamp": 0,
@@ -122,7 +122,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AdWRsk7Lbo97jxGBKzLAFwevVHbqVbW1Cj",
             "timestamp": 0,
@@ -133,7 +133,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AaUgne8txmQB1iBboiFVLVHwLaYChZiFVA",
             "timestamp": 0,
@@ -144,7 +144,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo",
             "timestamp": 0,
@@ -155,7 +155,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AFyf2qVpX2JbpKcy29XbusedCpFDeYFX8Q",
             "timestamp": 0,
@@ -166,7 +166,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AW8n3yvSAqUJkyfcG5u3bgRxsNKzXYPamN",
             "timestamp": 0,
@@ -177,7 +177,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AZuvQC5WuVpPE9jwMCJcA28X5e7Ni32WY2",
             "timestamp": 0,
@@ -188,7 +188,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AHysG9CfbXvHtxev9eziTK8WUbnFKKLFR8",
             "timestamp": 0,
@@ -199,7 +199,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AMfyf9iRjXiKNcLQVTUE9oCESUPzmQ6iUT",
             "timestamp": 0,
@@ -210,7 +210,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ANRNMPjQjJGVsVbyeqwShcxKTidYJ2S1Hm",
             "timestamp": 0,
@@ -221,7 +221,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AH39inbLsUBhC3k29NcvQP3zKZWnsQksvA",
             "timestamp": 0,
@@ -232,7 +232,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ASqzCDRS5cTBwCmC5moQ34W4QZhtrj4pT1",
             "timestamp": 0,
@@ -243,7 +243,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AeooqGMJPE5UWRPkKW6kgLGZu3898vcLPV",
             "timestamp": 0,
@@ -254,7 +254,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AWHGbGaz5FgvyChuAfWFmKY2LsbcwqPYL9",
             "timestamp": 0,
@@ -265,7 +265,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AWtD9W5LCv2TH3VcdzbGQBGaJBwvbzZNDQ",
             "timestamp": 0,
@@ -276,7 +276,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AJPicaX6vmokoK3x8abBMDpi8GMPc7rLiW",
             "timestamp": 0,
@@ -287,7 +287,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             "timestamp": 0,
@@ -298,7 +298,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AQBo4exLwyapRiDoDteh1fF2ctWWdxofSf",
             "timestamp": 0,
@@ -309,7 +309,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ARMEiPQE55CfHfR8WmosiFykTAPGYUyYJv",
             "timestamp": 0,
@@ -320,7 +320,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ALHDQyTm7wALtwjmKwEejZjq7f6u6w5xCv",
             "timestamp": 0,
@@ -331,7 +331,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AcmXmomxpP8NahbbFivq32QmLuKFkTkqRg",
             "timestamp": 0,
@@ -342,7 +342,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "Aa3mWTMFTXeTJukUgpeihQLBYDHBzdpWZX",
             "timestamp": 0,
@@ -353,7 +353,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AGqSC7M137ctKtkAjd3J1haCEWNfayXnuJ",
             "timestamp": 0,
@@ -364,7 +364,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AcATpmcMU1tmLDX7TzR3wXop4tfLFR21Lf",
             "timestamp": 0,
@@ -375,7 +375,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AZeX3qaqdU8iCebAKYoLMR2QkiuG5CffgU",
             "timestamp": 0,
@@ -386,7 +386,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AcFWyJRk5sRKagThYhk5e1jdkx3wzhL5cW",
             "timestamp": 0,
@@ -397,7 +397,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AdT9FrWUksf99Lhkr9JGb8f2HLSg14kTqr",
             "timestamp": 0,
@@ -408,7 +408,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AJQuCRxeJpzkoGSBMXtmuRMYg9mtCb4qHf",
             "timestamp": 0,
@@ -419,7 +419,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AJRf2oWusRmm8QEiZuwvMg3qLbMxpd7BJ2",
             "timestamp": 0,
@@ -430,7 +430,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AWdRZPxQQvG1TP6hdxvQCn2t3skerq9Ky9",
             "timestamp": 0,
@@ -441,7 +441,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ALJVm7EYiMtc1JJDG6BupFw3ttRR6Yewej",
             "timestamp": 0,
@@ -452,7 +452,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AJv5ZFmu6fuugsdTZNi6ukPgptbCmdW4AW",
             "timestamp": 0,
@@ -463,7 +463,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ALs933qA9Cm3caRDei4ZXxnzXexpXNem8U",
             "timestamp": 0,
@@ -474,7 +474,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "Aa4M1zL3a74L51f1AvEsLmBTsKLKrkRScU",
             "timestamp": 0,
@@ -485,7 +485,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AMv3iLrvyvpi6d4wEfLqX8kzMxaRvxAcHT",
             "timestamp": 0,
@@ -496,7 +496,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AX1M38eZC6TB1mzz33PxZBYBGrmE2zPdFK",
             "timestamp": 0,
@@ -507,7 +507,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ALiMCXj25VkGEAbj5PNbNez5NagZZJxLsy",
             "timestamp": 0,
@@ -518,7 +518,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AeenH7EKK4Fo8Ebotorr9NrVfudukkXhof",
             "timestamp": 0,
@@ -529,7 +529,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "ARJWp8VJEieDA8h8YDiHq5LqU9vWcpWGG9",
             "timestamp": 0,
@@ -540,7 +540,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t",
             "timestamp": 0,
@@ -551,7 +551,7 @@
         },
         {
             "type": 0,
-            "amount": 245098000000000,
+            "amount": "245098000000000",
             "fee": "0",
             "recipientId": "AHXuTrYMxsdSvYJvRoBkM3kH8pS4QSq9i7",
             "timestamp": 0,

@@ -15,10 +15,7 @@ describe("Configuration", () => {
     it("should be set on runtime", () => {
         configManager.setConfig(mainnet);
 
-        expect(configManager.all()).toContainAllKeys([
-            ...Object.keys(mainnet.network),
-            ...["milestones", "exceptions", "genesisBlock"],
-        ]);
+        expect(configManager.all()).toContainAllKeys(["network", "milestones", "exceptions", "genesisBlock"]);
     });
 
     it('key should be "set"', () => {
@@ -28,11 +25,13 @@ describe("Configuration", () => {
     });
 
     it('key should be "get"', () => {
-        expect(configManager.get("nethash")).toBe("2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867");
+        expect(configManager.get("network.nethash")).toBe(
+            "2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867",
+        );
     });
 
     it("should build milestones", () => {
-        expect(configManager.milestones).toEqual(devnet.milestones);
+        expect(configManager.getMilestones()).toEqual(devnet.milestones);
     });
 
     it("should build fees", () => {

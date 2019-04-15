@@ -1,6 +1,7 @@
 import secp256k1 from "secp256k1";
 import { Address, Keys, PublicKey, WIF } from "../identities";
 import { IKeyPair, ISerializeOptions, ITransactionData } from "../interfaces";
+import { INetwork } from "../interfaces/networks";
 import { configManager, feeManager } from "../managers";
 import { Serializer } from "../transactions/serializer";
 import { BigNumber } from "../utils";
@@ -105,11 +106,11 @@ class Crypto {
         );
     }
 
-    public getKeysFromWIF(wifKey: string, network?: { wif: number }): IKeyPair {
+    public getKeysFromWIF(wifKey: string, network?: INetwork): IKeyPair {
         return Keys.fromWIF(wifKey, network);
     }
 
-    public keysToWIF(keys: IKeyPair, network?: { wif: number }): string {
+    public keysToWIF(keys: IKeyPair, network?: INetwork): string {
         return WIF.fromKeys(keys, network);
     }
 

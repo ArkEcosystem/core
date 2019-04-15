@@ -33,7 +33,7 @@ module.exports = {
     },
     "@arkecosystem/core-p2p": {
         server: {
-            port: process.env.CORE_P2P_PORT || 4001
+            port: process.env.CORE_P2P_PORT || 4001,
         },
     },
     "@arkecosystem/core-blockchain": {},

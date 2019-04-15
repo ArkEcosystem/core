@@ -520,8 +520,6 @@ describe("Transaction Guard", () => {
                     );
                 }
 
-                // console.log(delegateRegs.map(d => ({ id: d.id, username: d.asset.delegate })));
-
                 // modify transaction fields and try to validate
                 const modifiedTransactions = [
                     ...modifiedFieldsDelReg.map((objField, index) => Object.assign({}, delegateRegs[index], objField)),

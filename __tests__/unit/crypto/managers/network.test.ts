@@ -14,7 +14,6 @@ describe("Network Manager", () => {
     });
 
     it("should get all networks", () => {
-        const all = NetworkManager.getAll();
-        expect(all).toEqual(networks);
+        expect(NetworkManager.all()).toEqual(networks);
     });
 });

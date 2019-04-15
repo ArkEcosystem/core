@@ -33,7 +33,9 @@ export class TransferTransactionHandler extends TransactionHandler {
             guard.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get("pubKeyHash")}`,
+                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
+                    "network.pubKeyHash",
+                )}`,
             );
             return false;
         }

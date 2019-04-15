@@ -4,6 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { devnet } from "../../../../../../packages/crypto/src/networks";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { TransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -45,7 +46,7 @@ describe("Transfer Transaction", () => {
             const passphrase = "sample passphrase";
             const network = 23;
             const keys = crypto.getKeys(passphrase);
-            const wif = crypto.keysToWIF(keys, { wif: 170 });
+            const wif = crypto.keysToWIF(keys, devnet.network);
 
             const wifTransaction = builder
                 .amount("10")
@@ -68,7 +69,7 @@ describe("Transfer Transaction", () => {
             const secondPassphrase = "second passphrase";
             const network = 23;
             const keys = crypto.getKeys(secondPassphrase);
-            const wif = crypto.keysToWIF(keys, { wif: 170 });
+            const wif = crypto.keysToWIF(keys, devnet.network);
 
             const wifTransaction = builder
                 .amount("10")

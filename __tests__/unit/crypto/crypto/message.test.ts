@@ -2,9 +2,10 @@ import "jest-extended";
 
 import { crypto } from "../../../../packages/crypto/src/crypto";
 import { Message } from "../../../../packages/crypto/src/crypto/message";
+import { devnet } from "../../../../packages/crypto/src/networks";
 
 const passphrase = "sample passphrase";
-const wif = crypto.keysToWIF(crypto.getKeys(passphrase), { wif: 170 });
+const wif = crypto.keysToWIF(crypto.getKeys(passphrase), devnet.network);
 const signedMessageEntries: any = [
     ["publicKey", "03bb51bbf5bf84759452e33dd97cf72cc8904be07df07a946a0d84939400f17e87"],
     [

@@ -164,7 +164,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
             return false;
         }
 
-        if (transaction.network && transaction.network !== Managers.configManager.get("pubKeyHash")) {
+        if (transaction.network && transaction.network !== Managers.configManager.get("network.pubKeyHash")) {
             this.pushError(
                 transaction,
                 "ERR_WRONG_NETWORK",

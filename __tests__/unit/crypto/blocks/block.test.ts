@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { IBlockJson } from "@arkecosystem/crypto/dist/interfaces";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block } from "../../../../packages/crypto/src/blocks";
@@ -27,6 +26,8 @@ function expectBlock({ data }: { data: IBlockData }) {
 
     expect(data).toEqual(blockWithoutTransactions);
 }
+
+beforeEach(() => configManager.setFromPreset("devnet"));
 
 describe("Block", () => {
     const data = {
@@ -371,7 +372,7 @@ describe("Block", () => {
 
     describe("serializeWithTransactions", () => {
         describe("genesis block", () => {
-            describe.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])(
+            it.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])(
                 "%s",
                 (network: NetworkName, length: number) => {
                     configManager.setFromPreset(network);
@@ -383,11 +384,9 @@ describe("Block", () => {
                     expect(Block.fromData(Block.deserialize(serialized)).verifySignature()).toBeTrue();
                 },
             );
-
-            configManager.setFromPreset("devnet");
         });
 
-        describe("should validate hash", () => {
+        it("should validate hash", () => {
             // @ts-ignore
             const s = Block.serializeWithTransactions(dummyBlock).toString("hex");
             const serialized =
@@ -401,7 +400,7 @@ describe("Block", () => {
         });
     });
 
-    describe("should reorder correctly transactions in deserialization", () => {
+    it("should reorder correctly transactions in deserialization", () => {
         configManager.setFromPreset("mainnet");
 
         const issue = {

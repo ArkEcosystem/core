@@ -29,7 +29,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
-        const [prefix, version, method] = req.endpoint.split(".");
+        const [, version, method] = req.endpoint.split(".");
 
         try {
             if (requestSchemas[version]) {

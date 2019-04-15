@@ -51,7 +51,6 @@ export class TransactionFactory {
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private fee: Utils.BigNumber;
-    private milestone: Record<string, any>;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
     private passphraseList: string[];
@@ -74,7 +73,7 @@ export class TransactionFactory {
     }
 
     public withHeight(height: number): TransactionFactory {
-        this.milestone = Managers.configManager.getMilestone(height);
+        Managers.configManager.setHeight(height);
 
         return this;
     }
