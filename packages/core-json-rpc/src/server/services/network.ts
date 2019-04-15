@@ -26,7 +26,6 @@ class Network {
 
     public setServer(): void {
         this.server = this.getRandomPeer();
-        this.server.port = app.resolveOptions("api").port;
     }
 
     public async sendRequest<T = any>({ url, query = {} }: { url: string; query?: Record<string, any> }): Promise<T> {
@@ -65,7 +64,7 @@ class Network {
         this.setServer();
 
         try {
-            await httpie.get(`http://${this.server.ip}:${app.resolveOptions("api").port}/api/loader/autoconfigure`);
+            await httpie.get(`http://${this.server.ip}:${this.server.port}/api/loader/autoconfigure`);
         } catch (error) {
             this.peers.splice(this.peers.findIndex(peer => peer.ip === this.server.ip), 1);
 
@@ -80,7 +79,10 @@ class Network {
     private getRandomPeer(): P2P.IPeer {
         this.loadRemotePeers();
 
-        return sample(this.peers);
+        const peer: P2P.IPeer = sample(this.peers);
+        peer.port = app.resolveOptions("api").port;
+
+        return peer;
     }
 
     private loadRemotePeers(): void {
