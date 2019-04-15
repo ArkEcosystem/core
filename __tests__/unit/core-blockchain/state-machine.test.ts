@@ -164,7 +164,6 @@ describe("State Machine", () => {
             let databaseMocks: any = {};
             let loggerInfo;
             let loggerError;
-            let loggerWarn;
 
             beforeEach(() => {
                 const config = container.app.getConfig();
@@ -172,7 +171,6 @@ describe("State Machine", () => {
 
                 loggerInfo = jest.spyOn(logger, "info");
                 loggerError = jest.spyOn(logger, "error");
-                loggerWarn = jest.spyOn(logger, "warn");
 
                 databaseMocks = {
                     getLastBlock: jest

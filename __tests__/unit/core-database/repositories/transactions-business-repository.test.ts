@@ -467,7 +467,6 @@ describe("Transactions Business Repository", () => {
             jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
                 rows: [],
             }));
-            const expectedWallet = {};
             databaseService.walletManager = {
                 exists: addressOrPublicKey => false,
             } as Database.IWalletManager;

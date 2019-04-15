@@ -1,7 +1,6 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { Blocks, Enums, Interfaces } from "@arkecosystem/crypto";
 import { Dato } from "@faustbrian/dato";
-
-import { Blocks, Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;

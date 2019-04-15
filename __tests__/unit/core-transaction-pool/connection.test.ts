@@ -186,7 +186,7 @@ describe("Connection", () => {
                 errors.push("Some error in canApply");
                 return false;
             });
-            const { added, notAdded } = connection.addTransactions([highFeeTransaction]);
+            const { notAdded } = connection.addTransactions([highFeeTransaction]);
             expect(notAdded[0]).toEqual({
                 message: '["Some error in canApply"]',
                 transaction: highFeeTransaction,

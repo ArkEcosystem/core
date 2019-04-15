@@ -304,7 +304,8 @@ describe("Blockchain", () => {
             const loggerWarn = jest.spyOn(logger, "warn");
             const loggerInfo = jest.spyOn(logger, "info");
 
-            const blockchainNetworkStart = new Blockchain({ networkStart: true });
+            // tslint:disable-next-line: no-unused-expression
+            new Blockchain({ networkStart: true });
 
             expect(loggerWarn).toHaveBeenCalledWith(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
