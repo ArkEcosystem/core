@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import partition from "lodash.partition";
 import snakeCase from "lodash.snakecase";
 import { IRepository } from "../interfaces";
