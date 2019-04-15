@@ -366,7 +366,6 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
-    // @TODO: add interface for database transactions
     public async getTransaction(id: string) {
         return this.connection.transactionsRepository.findById(id);
     }
@@ -382,8 +381,13 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
 
-        let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
-        transactions = transactions.map(tx => {
+        const dbTransactions: Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }> = await this.connection.transactionsRepository.latestByBlocks(ids);
+
+        const transactions = dbTransactions.map(tx => {
             const { data } = Transactions.Transaction.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;
@@ -553,7 +557,6 @@ export class DatabaseService implements Database.IDatabaseService {
             this.walletManager.reindex(sender);
         }
 
-        // @TODO: add database transaction interface
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {

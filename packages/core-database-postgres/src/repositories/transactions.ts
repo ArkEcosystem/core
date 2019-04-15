@@ -1,105 +1,93 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { Crypto } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
 import { Transaction } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-const { transactions: sql } = queries;
-
-// @TODO: add database transaction interface
 export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
-    /**
-     * Find a transactions by its ID.
-     * @param  {String} id
-     * @return {Promise}
-     */
-    public async findById(id) {
-        return this.db.oneOrNone(sql.findById, { id });
+    public async findById(id: string): Promise<Interfaces.ITransactionData> {
+        return this.db.oneOrNone(queries.transactions.findById, { id });
     }
 
-    /**
-     * Find multiple transactionss by their block ID.
-     * @param  {String} id
-     * @return {Promise}
-     */
-    public async findByBlockId(id) {
-        return this.db.manyOrNone(sql.findByBlock, { id });
+    public async findByBlockId(
+        id: string,
+    ): Promise<
+        Array<{
+            id: string;
+            serialized: Buffer;
+        }>
+    > {
+        return this.db.manyOrNone(queries.transactions.findByBlock, { id });
     }
 
-    /**
-     * Find multiple transactionss by their block ID and order them by sequence.
-     * @param  {Number} id
-     * @return {Promise}
-     */
-    public async latestByBlock(id) {
-        return this.db.manyOrNone(sql.latestByBlock, { id });
+    public async latestByBlock(
+        id: string,
+    ): Promise<
+        Array<{
+            id: string;
+            serialized: Buffer;
+        }>
+    > {
+        return this.db.manyOrNone(queries.transactions.latestByBlock, { id });
     }
 
-    /**
-     * Find multiple transactionss by their block IDs and order them by sequence.
-     * @param  {Array} ids
-     * @return {Promise}
-     */
-    public async latestByBlocks(ids) {
-        return this.db.manyOrNone(sql.latestByBlocks, { ids });
+    public async latestByBlocks(
+        ids: string[],
+    ): Promise<
+        Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }>
+    > {
+        return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
     }
 
-    /**
-     * Get all of the forged transactions from the database.
-     * @param  {Array} ids
-     * @return {Promise}
-     */
-    public async forged(ids) {
-        return this.db.manyOrNone(sql.forged, { ids });
+    public async forged(ids: string[]): Promise<Interfaces.ITransactionData[]> {
+        return this.db.manyOrNone(queries.transactions.forged, { ids });
     }
 
-    /**
-     * Get statistics about all transactions from the database.
-     * @return {Promise}
-     */
-    public async statistics() {
-        return this.db.one(sql.statistics);
+    public async statistics(): Promise<{
+        count: number;
+        totalFee: Utils.BigNumber;
+        totalAmount: Utils.BigNumber;
+    }> {
+        return this.db.one(queries.transactions.statistics);
     }
 
-    /**
-     * Delete the transactions from the database.
-     * @param  {Number} id
-     * @return {Promise}
-     */
-    public async deleteByBlockId(id) {
-        return this.db.none(sql.deleteByBlock, { id });
+    public async deleteByBlockId(id: string): Promise<void> {
+        return this.db.none(queries.transactions.deleteByBlock, { id });
     }
 
-    /**
-     * Get the model related to this repository.
-     * @return {Transaction}
-     */
-    public getModel() {
-        return new Transaction(this.pgp);
-    }
-
-    public async getFeeStatistics(days: number, minFeeBroadcast?: number): Promise<any> {
-        const query = this.query
-            .select(this.query.type, this.query.fee, this.query.timestamp)
-            .from(this.query)
-            .where(
-                this.query.timestamp.gte(
-                    Crypto.slots.getTime(
-                        dato()
-                            .subDays(days)
-                            .toMilliseconds(),
+    public async getFeeStatistics(
+        days: number,
+        minFeeBroadcast?: number,
+    ): Promise<Array<{ type: number; fee: number; timestamp: number }>> {
+        return this.findMany(
+            this.query
+                .select(this.query.type, this.query.fee, this.query.timestamp)
+                .from(this.query)
+                .where(
+                    this.query.timestamp.gte(
+                        Crypto.slots.getTime(
+                            dato()
+                                .subDays(days)
+                                .toMilliseconds(),
+                        ),
                     ),
-                ),
-            )
-            .and(this.query.fee.gte(minFeeBroadcast))
-            .order('"timestamp" DESC');
-
-        return this.findMany(query);
+                )
+                .and(this.query.fee.gte(minFeeBroadcast))
+                .order('"timestamp" DESC'),
+        );
     }
 
-    public async findAllByWallet(wallet: any, paginate?: Database.SearchPaginate, orderBy?: Database.SearchOrderBy[]) {
+    public async findAllByWallet(
+        wallet: Database.IWallet,
+        paginate?: Database.SearchPaginate,
+        orderBy?: Database.SearchOrderBy[],
+    ): Promise<Database.ITransactionsPaginated> {
         return this.findManyWithCount(
             this.query
                 .select()
@@ -111,36 +99,31 @@ export class TransactionsRepository extends Repository implements Database.ITran
         );
     }
 
-    public async findWithVendorField() {
-        const selectQuery = this.query
-            .select()
-            .from(this.query)
-            .where(this.query.vendor_field_hex.isNotNull());
-
-        return this.findMany(selectQuery);
-    }
-
     // TODO: Remove with v1
-    public async findAll(parameters: Database.SearchParameters) {
+    public async findAll(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
                 offset: 0,
             };
         }
+
         const selectQuery = this.query.select().from(this.query);
         const params = parameters.parameters;
+
         if (params.length) {
             const [customOps, otherOps] = partition(
                 params,
                 param => param.operator === Database.SearchOperator.OP_CUSTOM,
             );
 
-            const hasNonCustomOps = otherOps.length > 0;
+            const hasNonCustomOps: boolean = otherOps.length > 0;
 
             const first = otherOps.shift();
+
             if (first) {
                 selectQuery.where(this.query[this.propToColumnName(first.field)].equals(first.value));
+
                 for (const op of otherOps) {
                     selectQuery.and(this.query[this.propToColumnName(op.field)].equals(op.value));
                 }
@@ -148,7 +131,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
             customOps.forEach(o => {
                 if (o.field === "ownerWallet") {
-                    const wallet = o.value as Database.IWallet;
+                    const wallet: Database.IWallet = o.value;
+
                     if (hasNonCustomOps) {
                         selectQuery.and(
                             this.query.sender_public_key
@@ -166,15 +150,17 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
     }
 
-    public async search(parameters: Database.SearchParameters) {
+    public async search(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
                 offset: 0,
             };
         }
+
         const selectQuery = this.query.select().from(this.query);
         const params = parameters.parameters;
+
         if (params.length) {
             // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
             const ops = params.filter(value => value.operator !== Database.SearchOperator.OP_CUSTOM);
@@ -191,6 +177,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     const usesInOperator = participants.every(
                         condition => condition.operator === Database.SearchOperator.OP_IN,
                     );
+
                     if (usesInOperator) {
                         selectQuery.or(this.query[this.propToColumnName(last.field)][last.operator](last.value));
                     } else {
@@ -200,6 +187,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 }
             } else if (rest.length) {
                 const first = rest.shift();
+
                 selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
             }
 
@@ -209,6 +197,11 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 );
             }
         }
+
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
+    }
+
+    public getModel(): Transaction {
+        return new Transaction(this.pgp);
     }
 }

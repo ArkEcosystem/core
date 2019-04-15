@@ -5,13 +5,13 @@ import { sortEntries } from "./utils/sort-entries";
 
 // @TODO: add return types
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public all() {
+    public all(): Database.IWallet[] {
         return this.databaseServiceProvider().walletManager.allByAddress();
     }
 
-    public findAll(params: Database.IParameters = {}) {
+    public findAll(params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const wallets = sortEntries(params, this.all(), ["rate", "asc"]);
@@ -22,7 +22,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
+    public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
@@ -33,15 +33,15 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    public findById(id: string) {
+    public findById(id: string): Database.IWallet {
         return this.all().find(wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id);
     }
 
-    public count() {
+    public count(): number {
         return this.all().length;
     }
 
-    public top(params: Database.IParameters = {}) {
+    public top(params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const wallets = sortEntries(params, this.all(), ["balance", "desc"]);
@@ -72,7 +72,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
      * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
      * @return {Object}
      */
-    public search<T extends Database.IParameters>(params: T) {
+    public search<T extends Database.IParameters>(params: T): Database.IWalletsPaginated {
         const query: any = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],

@@ -1,21 +1,14 @@
+import { ColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 
 export class Migration extends Model {
-    constructor(pgp) {
-        super(pgp);
+    protected columnsDescriptor: ColumnDescriptor[] = [
+        {
+            name: "name",
+        },
+    ];
 
-        this.columnsDescriptor = [
-            {
-                name: "name",
-            },
-        ];
-    }
-
-    /**
-     * The table associated with the model.
-     * @return {String}
-     */
-    public getTable() {
+    public getTable(): string {
         return "migrations";
     }
 }
