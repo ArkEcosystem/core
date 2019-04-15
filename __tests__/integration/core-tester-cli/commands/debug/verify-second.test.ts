@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { VerifySecondSignatureCommand } from "../../../../../packages/core-tester-cli/src/commands/debug/verify-second-signature";
 
 describe("Commands - Verify Second", () => {

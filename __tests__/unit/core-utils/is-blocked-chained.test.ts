@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { isBlockChained } from "../../../packages/core-utils/src";
 

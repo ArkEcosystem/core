@@ -1,6 +1,6 @@
 import { Logger } from "@arkecosystem/core-interfaces";
 import * as capcon from "capture-console";
-import "jest-extended";
+
 import { tmpdir } from "os";
 
 export function expectLogger(callback): void {

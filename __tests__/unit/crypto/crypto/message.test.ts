@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { crypto } from "../../../../packages/crypto/src/crypto";
 import { Message } from "../../../../packages/crypto/src/crypto/message";
 import { devnet } from "../../../../packages/crypto/src/networks";

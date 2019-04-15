@@ -1,5 +1,5 @@
 import { httpie } from "@arkecosystem/core-utils";
-import "jest-extended";
+
 import nock from "nock";
 import { TransferCommand } from "../../../../../packages/core-tester-cli/src/commands/send/transfer";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";

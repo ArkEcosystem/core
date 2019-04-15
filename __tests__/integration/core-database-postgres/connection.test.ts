@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { Blocks } from "@arkecosystem/crypto";

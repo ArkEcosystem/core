@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { NetworkManager } from "../../../../packages/crypto/src/managers/network";
 import * as networks from "../../../../packages/crypto/src/networks";
 

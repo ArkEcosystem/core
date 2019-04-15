@@ -1,4 +1,3 @@
-import "jest-extended";
 import { Logger } from "./__stubs__/logger";
 
 const dummyMessage = "Hello World";

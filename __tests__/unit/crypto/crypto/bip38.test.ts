@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import wif from "wif";

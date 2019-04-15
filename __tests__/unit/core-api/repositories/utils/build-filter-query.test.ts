@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { buildFilterQuery } from "../../../../../packages/core-api/src/repositories/utils/build-filter-query";
 
 describe("Repository utils > buildFilterQuery", () => {

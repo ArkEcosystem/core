@@ -1,4 +1,3 @@
-import "jest-extended";
 import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";

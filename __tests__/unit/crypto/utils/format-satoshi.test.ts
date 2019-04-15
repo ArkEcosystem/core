@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { SATOSHI } from "../../../../packages/crypto/src/constants";
 import { BigNumber, formatSatoshi } from "../../../../packages/crypto/src/utils";
 

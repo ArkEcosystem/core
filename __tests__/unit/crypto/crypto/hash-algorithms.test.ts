@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { HashAlgorithms } from "../../../../packages/crypto/src/crypto/hash-algorithms";
 import fixtures from "./fixtures/crypto.json";
 

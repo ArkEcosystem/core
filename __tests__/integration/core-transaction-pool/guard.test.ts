@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Crypto, Interfaces, Utils } from "@arkecosystem/crypto";

@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p";
 import { Crypto } from "@arkecosystem/crypto";
-import "jest-extended";
+
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";

@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { asValue } from "awilix";
 import { resolve } from "path";
 import { app } from "../../../packages/core-container/src";

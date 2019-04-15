@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { IBlockData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { isException } from "../../../../packages/crypto/src/utils";

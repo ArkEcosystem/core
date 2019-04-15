@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";

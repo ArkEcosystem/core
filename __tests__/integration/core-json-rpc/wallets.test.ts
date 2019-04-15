@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p";
 import nock from "nock";

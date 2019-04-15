@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import "./api";
 import "./blockchain";
 import "./fields";

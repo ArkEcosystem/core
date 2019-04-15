@@ -1,6 +1,5 @@
 import "./mocks/core-container";
 
-import "jest-extended";
 import { NSect } from "../../../packages/core-utils/src/nsect";
 
 let data: number[];

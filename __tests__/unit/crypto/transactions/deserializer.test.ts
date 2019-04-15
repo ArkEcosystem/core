@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import {

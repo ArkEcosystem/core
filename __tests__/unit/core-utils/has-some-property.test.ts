@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { hasSomeProperty } from "../../../packages/core-utils/src/has-some-property";
 
 let object;

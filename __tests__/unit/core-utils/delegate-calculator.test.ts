@@ -1,4 +1,3 @@
-import "jest-extended";
 import "./mocks/core-container-calculator";
 
 import { Wallet } from "@arkecosystem/core-database";

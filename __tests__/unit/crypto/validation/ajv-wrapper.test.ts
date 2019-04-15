@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import ajv from "ajv";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { TransactionRegistry } from "../../../../packages/crypto/src/transactions/index";

@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import "./mocks/core-container";
 
 import { formatTimestamp } from "../../../packages/core-utils/src/format-timestamp";

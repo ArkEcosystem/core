@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { PublicKeyError } from "../../../../packages/crypto/src/errors";
 import { Address } from "../../../../packages/crypto/src/identities/address";
 import { Keys } from "../../../../packages/crypto/src/identities/keys";

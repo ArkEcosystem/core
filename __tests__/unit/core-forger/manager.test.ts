@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import "./mocks/core-container";
 
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";

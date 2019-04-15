@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { resolve } from "path";
 import { Container } from "../../../../packages/core-container/src/container";
 import { PluginRegistrar } from "../../../../packages/core-container/src/registrars/plugin";

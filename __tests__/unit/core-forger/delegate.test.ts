@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { Types, Utils } from "@arkecosystem/crypto";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ITransactionData } from "../../../packages/crypto/src/interfaces";

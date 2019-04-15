@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import "./mocks/core-container";
 
 import { CappedSet } from "../../../packages/core-utils/src/capped-set";

@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { MaximumPaymentCountExceededError } from "../../../../../../packages/crypto/src/errors";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";

@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { Utils } from "@arkecosystem/crypto";
 import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";

@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";

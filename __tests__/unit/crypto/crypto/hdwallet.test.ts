@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import bip32 from "bip32";
 import { crypto, HDWallet } from "../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers/config";

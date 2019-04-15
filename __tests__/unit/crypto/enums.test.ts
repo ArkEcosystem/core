@@ -1,4 +1,3 @@
-import "jest-extended";
 import * as enums from "../../../packages/crypto/src/enums";
 
 describe("Constants", () => {

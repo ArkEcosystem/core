@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { configManager, feeManager } from "../../../../packages/crypto/src/managers";
 import { devnet, mainnet } from "../../../../packages/crypto/src/networks";

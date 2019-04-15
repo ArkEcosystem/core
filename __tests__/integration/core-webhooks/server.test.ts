@@ -1,4 +1,3 @@
-import "jest-extended";
 import { setUp, tearDown } from "./__support__/setup";
 import * as utils from "./__support__/utils";
 

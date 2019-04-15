@@ -1,5 +1,3 @@
-import "jest-extended";
-
 import { BlockCommand } from "../../../../../packages/core-tester-cli/src/commands/make/block";
 
 describe("make:block", () => {

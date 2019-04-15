@@ -1,5 +1,3 @@
-import "jest-extended";
-
 process.env.CORE_PATH_CACHE = process.env.HOME;
 
 import { database } from "../../../packages/core-webhooks/src/database";

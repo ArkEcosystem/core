@@ -1,5 +1,3 @@
-import "jest-extended";
-
 const info = jest.fn();
 jest.mock("@arkecosystem/core-container", () => {
     return {
