@@ -14,13 +14,21 @@ import { QueryExecutor } from "./sql/query-executor";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IConnection {
+    // @TODO: make this private
     public models: { [key: string]: Model } = {};
+    // @TODO: make this private
     public query: QueryExecutor;
+    // @TODO: make this private
     public db: any;
+    // @TODO: make this private
     public blocksRepository: Database.IBlocksRepository;
+    // @TODO: make this private
     public roundsRepository: Database.IRoundsRepository;
+    // @TODO: make this private
     public transactionsRepository: Database.ITransactionsRepository;
+    // @TODO: make this private
     public walletsRepository: Database.IWalletsRepository;
+    // @TODO: make this private
     public pgp: IMain;
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");

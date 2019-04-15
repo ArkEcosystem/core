@@ -4,90 +4,46 @@ import { Model } from "../models";
 
 export abstract class Repository implements Database.IRepository {
     protected model: Model;
-    protected query;
+    // @TODO: add proper return type
+    protected query: any;
 
-    /**
-     * Create a new repository instance.
-     * @param  {Object} db
-     * @param  {Object} pgp
-     */
     constructor(protected readonly db, protected readonly pgp: IMain) {
         this.model = this.getModel();
         this.query = this.model.query();
     }
 
-    /**
-     * Get the model related to this repository.
-     * @return {Model}
-     */
     public abstract getModel(): Model;
 
-    /**
-     * Estimate the number of records in the table.
-     * @return {Promise}
-     */
-    public async estimate() {
-        return this.db.one(`SELECT count_estimate('SELECT * FROM ${this.model.getTable()})`);
-    }
-
-    /**
-     * Run a truncate statement on the table.
-     * @return {Promise}
-     */
-    public async truncate() {
+    public async truncate(): Promise<void> {
         return this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
     }
 
-    /**
-     * Create one or many instances of the related models.
-     * @param  {Array|Object} items
-     * @return {Promise}
-     */
-    public async insert(items) {
-        return this.db.none(this.insertQuery(items));
+    public async insert(items: object | object[]): Promise<void> {
+        return this.db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
     }
 
-    /**
-     * Update one or many instances of the related models.
-     * @param  {Array|Object} items
-     * @return {Promise}
-     */
-    public async update(items) {
-        return this.db.none(this.updateQuery(items));
-    }
-
-    /**
-     * Generate an "INSERT" query for the given data.
-     * @param  {Array|Object} data
-     * @return {String}
-     */
-    protected insertQuery(data) {
-        return this.pgp.helpers.insert(data, this.model.getColumnSet());
-    }
-
-    /**
-     * Generate an "UPDATE" query for the given data.
-     * @param  {Array|Object} data
-     * @return {String}
-     */
-    protected updateQuery(data) {
-        return this.pgp.helpers.update(data, this.model.getColumnSet());
+    public async update(items: object | object[]): Promise<void> {
+        return this.db.none(this.pgp.helpers.update(items, this.model.getColumnSet()));
     }
 
     protected propToColumnName(prop: string): string {
         if (prop) {
             const columnSet = this.model.getColumnSet();
             const columnDef = columnSet.columns.find(col => col.prop === prop || col.name === prop);
+
             return columnDef ? columnDef.name : null;
         }
+
         return prop;
     }
 
-    protected async find(query): Promise<any> {
+    // @TODO: add query hint
+    protected async find<T = any>(query): Promise<T> {
         return this.db.oneOrNone(query.toQuery());
     }
 
-    protected async findMany(query): Promise<any> {
+    // @TODO: add query hint
+    protected async findMany<T = any>(query): Promise<T> {
         return this.db.manyOrNone(query.toQuery());
     }
 
@@ -124,7 +80,7 @@ export abstract class Repository implements Database.IRepository {
         //          Sort Key: "timestamp" DESC
         //          ->  Seq Scan on transactions  (cost=0.00..11.20 rows=120 width=622)
 
-        let count = 0;
+        let count: number = 0;
         const explainedQuery = await this.db.manyOrNone(`EXPLAIN ${selectQuery.toString()}`);
         for (const row of explainedQuery) {
             const line: any = Object.values(row)[0];
