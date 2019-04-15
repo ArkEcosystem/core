@@ -2,7 +2,7 @@ import { httpie } from "@arkecosystem/core-utils";
 import uuid from "uuid/v4";
 
 export async function sendRequest(method, params: any = {}) {
-    const id = uuid();
+    const id: string = uuid();
     const response = await httpie.post("http://localhost:8080/", {
         body: {
             jsonrpc: "2.0",

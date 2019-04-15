@@ -1,9 +1,12 @@
+import { Server } from "hapi";
 import Joi from "joi";
 import get from "lodash.get";
+import { IResponse, IResponseError } from "../../interfaces";
 import { network } from "./network";
 
 export class Processor {
-    public async resource(server, payload) {
+    public async resource(server: Server, payload) {
+        // @TODO: replace Joi with AJV
         const { error } = Joi.validate(payload || {}, {
             jsonrpc: Joi.string()
                 .valid("2.0")
@@ -23,9 +26,10 @@ export class Processor {
             const targetMethod = get(server.methods, method);
 
             if (!targetMethod) {
-                return this.createErrorResponse(id, -32601, "The method does not exist / is not available.");
+                return this.createErrorResponse(id, -32601, new Error("The method does not exist / is not available."));
             }
 
+            // @ts-ignore
             const schema = server.app.schemas[method];
 
             if (schema) {
@@ -61,7 +65,7 @@ export class Processor {
         return results;
     }
 
-    private createSuccessResponse(id, result) {
+    private createSuccessResponse<T = any>(id: string | number, result: T): IResponse<T> {
         return {
             jsonrpc: "2.0",
             id,
@@ -69,7 +73,7 @@ export class Processor {
         };
     }
 
-    private createErrorResponse(id, code, error) {
+    private createErrorResponse(id: string | number, code: number, error: Error): IResponseError {
         return {
             jsonrpc: "2.0",
             id,
