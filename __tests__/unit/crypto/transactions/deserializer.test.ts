@@ -12,6 +12,7 @@ import { Transaction } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
+import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: Transaction, expected) => {
@@ -154,44 +155,12 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - multi signature", () => {
-        const multiSignature = BuilderFactory.multiSignature()
-            .multiSignatureAsset({
-                keysgroup: [
-                    "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                    "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-                ],
-                lifetime: 72,
-                min: 2,
-            })
-            .version(1)
-            .network(30)
-            .sign("dummy passphrase")
-            .multiSignatureSign("multi passphrase 1")
-            .multiSignatureSign("multi passphrase 2")
-            .getStruct();
+    describe("ser/deserialize - multi signature (LEGACY)", () => {
+        it("should ser/deserialize a legacy multisig registration", () => {
+            const deserialized = Transaction.fromHex(legacyMultiSignatureRegistration.serialized);
 
-        it("should ser/deserialize giving back original fields", () => {
-            const serialized = Transaction.fromData(multiSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, multiSignature);
-
-            expect(deserialized.data.asset).toEqual(multiSignature.asset);
-        });
-
-        it("should ser/deserialize giving back original fields - v2 keysgroup", () => {
-            multiSignature.asset.multisignature.keysgroup = [
-                "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-            ];
-
-            const serialized = Transaction.fromData(multiSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, multiSignature);
-
-            expect(deserialized.data.asset).toEqual(multiSignature.asset);
+            expect(deserialized.id).toEqual(legacyMultiSignatureRegistration.data.id);
+            expect(deserialized.toJson()).toMatchObject(legacyMultiSignatureRegistration.data);
         });
     });
 
