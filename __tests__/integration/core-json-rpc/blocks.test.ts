@@ -14,8 +14,7 @@ let mockHost;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4000);
-    Object.assign(peerMock, peerMock.headers, { status: "OK" });
+    peerMock = new Peer("1.0.0.99", 4003); // @NOTE: we use the Public API port
 
     app.resolvePlugin("p2p")
         .getStorage()
@@ -23,23 +22,12 @@ beforeAll(async () => {
 
     nock("http://localhost", { allowUnmocked: true });
 
-    mockHost = nock("http://localhost:4003");
+    mockHost = nock(peerMock.url);
 });
 
-afterAll(async () => {
-    nock.cleanAll();
-    await tearDown();
-});
+afterAll(async () => await tearDown());
 
-beforeEach(async () => {
-    nock(peerMock.url)
-        .get("/peer/status")
-        .reply(200, { success: true, height: 1 }, peerMock.headers);
-});
-
-afterEach(async () => {
-    nock.cleanAll();
-});
+afterEach(async () => nock.cleanAll());
 
 describe("Blocks", () => {
     describe("POST blocks.latest", () => {

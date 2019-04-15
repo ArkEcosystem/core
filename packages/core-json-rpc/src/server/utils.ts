@@ -9,13 +9,9 @@ export async function getBIP38Wallet(userId, bip38password): Promise<IWallet> {
             Crypto.HashAlgorithms.sha256(Buffer.from(userId)).toString("hex"),
         );
 
-        if (!encryptedWif) {
-            throw Error("Could not find a matching WIF");
-        }
-
-        return decryptWIF(encryptedWif, userId, bip38password);
+        return encryptedWif ? decryptWIF(encryptedWif, userId, bip38password) : undefined;
     } catch (error) {
-        throw Error("Could not find a matching WIF");
+        throw new Error("Could not find a matching WIF");
     }
 }
 
