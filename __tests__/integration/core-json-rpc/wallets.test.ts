@@ -1,6 +1,7 @@
+import "jest-extended";
+
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p";
-import "jest-extended";
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
@@ -14,7 +15,6 @@ beforeAll(async () => {
     await setUp();
 
     peerMock = new Peer("1.0.0.99", 4000);
-    Object.assign(peerMock, peerMock.headers, { status: "OK" });
 
     app.resolvePlugin("p2p")
         .getStorage()

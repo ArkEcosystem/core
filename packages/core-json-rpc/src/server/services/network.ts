@@ -6,13 +6,11 @@ import isReachable from "is-reachable";
 import sample from "lodash.sample";
 
 class Network {
-    private peers: any;
-    private server: any;
-
+    private peers: P2P.IPeer[];
+    private server: P2P.IPeer;
     private readonly network: any = Managers.configManager.all();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly p2p: P2P.IPeerService = app.resolvePlugin<P2P.IPeerService>("p2p");
-
     private readonly requestOpts: Record<string, any> = {
         headers: {
             Accept: "application/vnd.core-api.v2+json",
@@ -94,11 +92,13 @@ class Network {
         return sample(this.peers);
     }
 
-    private loadRemotePeers() {
-        this.peers =
-            this.network.name === "testnet"
-                ? [{ ip: "localhost", port: app.resolveOptions("api").port }]
-                : this.p2p.getStorage().getPeers();
+    private loadRemotePeers(): void {
+        if (this.network.name === "testnet") {
+            // @ts-ignore - @TODO: make this a peer instance
+            this.peers = [{ ip: "localhost", port: app.resolveOptions("api").port }];
+        } else {
+            this.peers = this.p2p.getStorage().getPeers();
+        }
 
         if (!this.peers.length) {
             this.logger.error("No peers found. Shutting down...");
@@ -107,9 +107,7 @@ class Network {
     }
 
     private async selectResponsivePeer(peer) {
-        const reachable = await isReachable(`${peer.ip}:${peer.port}`);
-
-        if (!reachable) {
+        if (!(await isReachable(`${peer.ip}:${peer.port}`))) {
             this.logger.warn(`${peer} is unresponsive. Choosing new peer.`);
 
             return this.selectResponsivePeer(this.getRandomPeer());
