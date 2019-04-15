@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { plugin } from "../../../../packages/core-blockchain/src/plugin";
-import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
+import { setUpContainer } from "../../../utils/helpers/container";
 
 jest.setTimeout(60000);
 

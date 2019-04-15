@@ -1,5 +1,4 @@
 import { app } from "@arkecosystem/core-container";
-import { defaults } from "../../../../packages/core-database-postgres/src/defaults";
 import { plugin } from "../../../../packages/core-database-postgres/src/plugin";
 import { plugin as pluginDatabase } from "../../../../packages/core-database/src/plugin";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
