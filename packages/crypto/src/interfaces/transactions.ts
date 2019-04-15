@@ -32,12 +32,13 @@ export interface ITransactionAsset {
         publicKey?: string;
     };
     votes?: string[];
-    multisignature?: IMultiSignatureAsset;
+    multiSignatureLegacy?: IMultiSignatureLegacyAsset;
+    multiSignature?: IMultiSignatureAsset;
     ipfs?: {
         dag: string;
     };
     payments?: any;
-    [custom: string]: any;
+    //  [custom: string]: any;
 }
 
 export interface ITransactionData {
@@ -117,6 +118,12 @@ export interface ISchemaValidationResult<T = any> {
 export interface IMultiPaymentItem {
     amount: BigNumber;
     recipientId: string;
+}
+
+export interface IMultiSignatureLegacyAsset {
+    min: number;
+    lifetime: number;
+    keysgroup: string[];
 }
 
 export interface IMultiSignatureAsset {

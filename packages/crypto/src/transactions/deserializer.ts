@@ -109,7 +109,7 @@ class Deserializer {
         if (transaction.type === TransactionTypes.Vote) {
             transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
         } else if (transaction.type === TransactionTypes.MultiSignature) {
-            transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k =>
+            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
                 k.startsWith("+") ? k : `+${k}`,
             );
         }

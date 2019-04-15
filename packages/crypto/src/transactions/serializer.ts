@@ -84,11 +84,11 @@ export class Serializer {
             }
 
             case TransactionTypes.MultiSignature: {
-                const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(""), "utf8");
+                const keysgroupBuffer = Buffer.from(transaction.asset.multiSignatureLegacy.keysgroup.join(""), "utf8");
                 const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
 
-                bb.writeByte(transaction.asset.multisignature.min);
-                bb.writeByte(transaction.asset.multisignature.lifetime);
+                bb.writeByte(transaction.asset.multiSignatureLegacy.min);
+                bb.writeByte(transaction.asset.multiSignatureLegacy.lifetime);
 
                 for (const byte of keysgroupBuffer) {
                     bb.writeByte(byte);
@@ -228,7 +228,7 @@ export class Serializer {
             buffer.append(transaction.signSignature, "hex");
         }
 
-        if (transaction.signatures) {
+        if (transaction.version === 1 && transaction.signatures) {
             buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
             buffer.append(transaction.signatures.join(""), "hex");
         }

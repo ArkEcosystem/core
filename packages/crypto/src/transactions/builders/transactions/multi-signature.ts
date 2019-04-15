@@ -13,16 +13,14 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
-        this.data.asset = { multisignature: {} } as ITransactionAsset;
+        this.data.asset = { multiSignature: {} } as ITransactionAsset;
 
         this.signWithSenderAsRecipient = true;
     }
 
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
-        this.data.asset.multisignature = multiSignature;
-        this.data.fee = BigNumber.make(multiSignature.keysgroup.length + 1).times(
-            feeManager.get(TransactionTypes.MultiSignature),
-        );
+        this.data.asset.multiSignature = multiSignature;
+        this.data.fee = feeManager.getForTransaction(this.data);
 
         return this;
     }
