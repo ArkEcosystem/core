@@ -1,7 +1,8 @@
-import { Crypto } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import Boom from "boom";
 import Joi from "joi";
+import { IWallet } from "../../interfaces";
 import { database } from "../services/database";
 import { network } from "../services/network";
 import { decryptWIF, getBIP38Wallet } from "../utils";
@@ -9,7 +10,7 @@ import { decryptWIF, getBIP38Wallet } from "../utils";
 export const walletCreate = {
     name: "wallets.create",
     async method(params) {
-        const { publicKey } = Crypto.crypto.getKeys(params.passphrase);
+        const { publicKey }: Interfaces.IKeyPair = Crypto.crypto.getKeys(params.passphrase);
 
         return {
             publicKey,
@@ -26,7 +27,11 @@ export const walletInfo = {
     async method(params) {
         const response = await network.sendRequest({ url: `wallets/${params.address}` });
 
-        return response ? response.data : Boom.notFound(`Wallet ${params.address} could not be found.`);
+        if (!response) {
+            return Boom.notFound(`Wallet ${params.address} could not be found.`);
+        }
+
+        return response.data;
     },
     schema: {
         address: Joi.string()
@@ -68,7 +73,7 @@ export const walletBIP38Create = {
     name: "wallets.bip38.create",
     async method(params) {
         try {
-            const { keys, wif } = await getBIP38Wallet(params.userId, params.bip38);
+            const { keys, wif }: IWallet = await getBIP38Wallet(params.userId, params.bip38);
 
             return {
                 publicKey: keys.publicKey,
@@ -76,21 +81,20 @@ export const walletBIP38Create = {
                 wif,
             };
         } catch (error) {
-            const { publicKey, privateKey } = Crypto.crypto.getKeys(generateMnemonic());
+            const { publicKey, privateKey }: Interfaces.IKeyPair = Crypto.crypto.getKeys(generateMnemonic());
 
-            const encryptedWIF = Crypto.bip38.encrypt(
+            const encryptedWIF: string = Crypto.bip38.encrypt(
                 Buffer.from(privateKey, "hex"),
                 true,
                 params.bip38 + params.userId,
             );
-            await database.set(Crypto.HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"), encryptedWIF);
 
-            const { wif } = decryptWIF(encryptedWIF, params.userId, params.bip38);
+            await database.set(Crypto.HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"), encryptedWIF);
 
             return {
                 publicKey,
                 address: Crypto.crypto.getAddress(publicKey),
-                wif,
+                wif: decryptWIF(encryptedWIF, params.userId, params.bip38).wif,
             };
         }
     },

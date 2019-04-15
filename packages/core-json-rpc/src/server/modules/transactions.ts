@@ -1,6 +1,8 @@
-import { Crypto, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { ITransactionData } from "@arkecosystem/crypto/dist/interfaces";
 import Boom from "boom";
 import Joi from "joi";
+import { IWallet } from "../../interfaces";
 import { database } from "../services/database";
 import { network } from "../services/network";
 import { getBIP38Wallet } from "../utils";
@@ -8,7 +10,7 @@ import { getBIP38Wallet } from "../utils";
 export const transactionBroadcast = {
     name: "transactions.broadcast",
     async method(params) {
-        const transaction = await database.get(params.id);
+        const transaction: ITransactionData = await database.get<ITransactionData>(params.id);
 
         if (!transaction) {
             return Boom.notFound(`Transaction ${params.id} could not be found.`);
@@ -30,7 +32,7 @@ export const transactionBroadcast = {
 export const transactionCreate = {
     name: "transactions.create",
     async method(params) {
-        const transaction = Transactions.BuilderFactory.transfer()
+        const transaction: Interfaces.ITransactionData = Transactions.BuilderFactory.transfer()
             .recipientId(params.recipientId)
             .amount(params.amount)
             .sign(params.passphrase)
@@ -52,7 +54,11 @@ export const transactionInfo = {
     async method(params) {
         const response = await network.sendRequest({ url: `transactions/${params.id}` });
 
-        return response ? response.data : Boom.notFound(`Transaction ${params.id} could not be found.`);
+        if (!response) {
+            return Boom.notFound(`Transaction ${params.id} could not be found.`);
+        }
+
+        return response.data;
     },
     schema: {
         id: Joi.string()
@@ -64,13 +70,13 @@ export const transactionInfo = {
 export const transactionBIP38Create = {
     name: "transactions.bip38.create",
     async method(params) {
-        const wallet = await getBIP38Wallet(params.userId, params.bip38);
+        const wallet: IWallet = await getBIP38Wallet(params.userId, params.bip38);
 
         if (!wallet) {
             return Boom.notFound(`User ${params.userId} could not be found.`);
         }
 
-        const transaction = Transactions.BuilderFactory.transfer()
+        const transaction: Interfaces.ITransactionData = Transactions.BuilderFactory.transfer()
             .recipientId(params.recipientId)
             .amount(params.amount)
             .signWithWif(wallet.wif)

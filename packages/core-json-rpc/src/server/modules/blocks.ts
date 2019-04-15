@@ -7,7 +7,11 @@ export const blockInfo = {
     async method(params) {
         const response = await network.sendRequest({ url: `blocks/${params.id}` });
 
-        return response ? response.data : Boom.notFound(`Block ${params.id} could not be found.`);
+        if (!response) {
+            return Boom.notFound(`Block ${params.id} could not be found.`);
+        }
+
+        return response.data;
     },
     schema: {
         id: Joi.number()
@@ -40,12 +44,14 @@ export const blockTransactions = {
             },
         });
 
-        return response
-            ? {
-                  count: response.meta.totalCount,
-                  data: response.data,
-              }
-            : Boom.notFound(`Block ${params.id} could not be found.`);
+        if (!response) {
+            return Boom.notFound(`Block ${params.id} could not be found.`);
+        }
+
+        return {
+            count: response.meta.totalCount,
+            data: response.data,
+        };
     },
     schema: {
         id: Joi.number()

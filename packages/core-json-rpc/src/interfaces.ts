@@ -1,3 +1,5 @@
+import { Interfaces } from "@arkecosystem/crypto";
+
 export interface IResponse<T> {
     jsonrpc: "2.0";
     id: string | number;
@@ -12,4 +14,9 @@ export interface IResponseError {
         message: string;
         data: string;
     };
+}
+
+export interface IWallet {
+    keys: Interfaces.IKeyPair;
+    wif: string;
 }
