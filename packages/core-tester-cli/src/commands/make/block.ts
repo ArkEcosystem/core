@@ -56,7 +56,7 @@ export class BlockCommand extends BaseCommand {
 
         for (let i = 0; i < flags.number; i++) {
             const milestone = Managers.configManager.getMilestone(previousBlock.height);
-            const delegate = new Delegate(flags.passphrase, Managers.configManager.get("pubKeyHash"));
+            const delegate = new Delegate(flags.passphrase, Managers.configManager.get("network.pubKeyHash"));
 
             const transactions = [];
             for (let i = 0; i < flags.transactions; i++) {

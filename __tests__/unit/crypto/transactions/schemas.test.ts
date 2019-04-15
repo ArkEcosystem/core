@@ -166,7 +166,7 @@ describe("Transfer Transaction", () => {
             .recipientId(address)
             .amount("1")
             .fee("1")
-            .network(configManager.get("pubKeyHash"))
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -192,7 +192,7 @@ describe("Transfer Transaction", () => {
             .recipientId(address)
             .amount("1")
             .fee("1")
-            .network(configManager.get("pubKeyHash"))
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase")
             .build();
 
@@ -207,7 +207,7 @@ describe("Transfer Transaction", () => {
             .recipientId("APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi")
             .amount("1")
             .fee("1")
-            .network(configManager.get("pubKeyHash"))
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase")
             .build();
 
@@ -222,7 +222,7 @@ describe("Transfer Transaction", () => {
             .recipientId(address)
             .amount("1")
             .fee("1")
-            .network(configManager.get("pubKeyHash"))
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase")
             .build();
 

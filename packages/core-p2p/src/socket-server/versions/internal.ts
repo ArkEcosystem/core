@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 export function emitEvent({ req }): void {
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);

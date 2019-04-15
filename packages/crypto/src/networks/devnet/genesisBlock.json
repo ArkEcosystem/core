@@ -1,6 +1,6 @@
 {
     "version": 0,
-    "totalAmount": 12500000000000000,
+    "totalAmount": "12500000000000000",
     "totalFee": "0",
     "reward": "0",
     "payloadHash": "2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867",
@@ -12,7 +12,7 @@
     "transactions": [
         {
             "type": 0,
-            "amount": 12500000000000000,
+            "amount": "12500000000000000",
             "fee": "0",
             "recipientId": "D6Z26L69gdk9qYmTv5uzk3uGepigtHY4ax",
             "timestamp": 0,

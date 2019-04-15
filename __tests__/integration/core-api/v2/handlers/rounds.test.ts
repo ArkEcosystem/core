@@ -22,9 +22,11 @@ describe("API 2.0 - Rounds", () => {
                     expect(response.data.data).toBeArray();
                     expect(response.data.data).toHaveLength(51);
 
-                    expect(response.data.data.sort((a, b) => {
-                        return a.balance > b.balance || a.publicKey < b.publicKey;
-                    })).toEqual(response.data.data);
+                    expect(
+                        response.data.data.sort((a, b) => {
+                            return a.balance > b.balance || a.publicKey < b.publicKey;
+                        }),
+                    ).toEqual(response.data.data);
                 });
             },
         );

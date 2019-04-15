@@ -5,34 +5,28 @@ import set from "lodash.set";
 import { TransactionTypes } from "../enums";
 import { InvalidMilestoneConfigurationError } from "../errors";
 import { IMilestone } from "../interfaces";
+import { INetworkConfig } from "../interfaces/networks";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
 import { feeManager } from "./fee";
 
 export class ConfigManager {
-    // @TODO: add an interface/type and make it private
-    public config: any;
-    // @TODO: make it private
-    public milestone: IMilestone;
-    // @TODO: add an interface/type and make it private
-    public milestones: any;
+    private config: INetworkConfig;
     private height: number;
+    private milestone: IMilestone;
+    private milestones: Record<string, any>;
 
     constructor() {
         this.setConfig(networks.devnet);
     }
 
-    public setConfig(config: any) {
-        this.config = {};
-
-        // Map the config.network values to the root
-        for (const [key, value] of Object.entries(config.network)) {
-            this.config[key] = value;
-        }
-
-        this.config.exceptions = config.exceptions;
-        this.config.milestones = config.milestones;
-        this.config.genesisBlock = config.genesisBlock;
+    public setConfig(config: INetworkConfig): void {
+        this.config = {
+            network: config.network,
+            exceptions: config.exceptions,
+            milestones: config.milestones,
+            genesisBlock: config.genesisBlock,
+        };
 
         this.validateMilestones();
 
@@ -44,11 +38,11 @@ export class ConfigManager {
         this.setConfig(this.getPreset(network));
     }
 
-    public getPreset(network: NetworkName) {
+    public getPreset(network: NetworkName): INetworkConfig {
         return networks[network.toLowerCase()];
     }
 
-    public all() {
+    public all(): INetworkConfig {
         return this.config;
     }
 
@@ -57,7 +51,7 @@ export class ConfigManager {
     }
 
     public get<T = any>(key: string): T {
-        return get(this.config, key) as T;
+        return get(this.config, key);
     }
 
     public setHeight(value: number): void {
@@ -92,6 +86,10 @@ export class ConfigManager {
         }
 
         return this.milestone.data;
+    }
+
+    public getMilestones(): any {
+        return this.milestones;
     }
 
     private buildConstants(): void {

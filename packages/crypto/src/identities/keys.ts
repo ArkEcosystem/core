@@ -3,6 +3,7 @@ import wif from "wif";
 import { HashAlgorithms } from "../crypto";
 import { NetworkVersionError } from "../errors";
 import { IKeyPair } from "../interfaces";
+import { INetwork } from "../interfaces/networks";
 import { configManager } from "../managers";
 
 export class Keys {
@@ -20,9 +21,9 @@ export class Keys {
         };
     }
 
-    public static fromWIF(wifKey: string, network?: { wif: number }): IKeyPair {
+    public static fromWIF(wifKey: string, network?: INetwork): IKeyPair {
         if (!network) {
-            network = configManager.all();
+            network = configManager.get("network");
         }
 
         const { version, compressed, privateKey } = wif.decode(wifKey, network.wif);

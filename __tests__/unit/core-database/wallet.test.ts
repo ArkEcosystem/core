@@ -17,7 +17,9 @@ describe("Models - Wallet", () => {
             const wallet = new Wallet(address);
             const balance = +(Math.random() * 1000).toFixed(8);
             wallet.balance = Utils.BigNumber.make(balance * SATOSHI);
-            expect(wallet.toString()).toBe(`${address} (${balance} ${Managers.configManager.config.client.symbol})`);
+            expect(wallet.toString()).toBe(
+                `${address} (${balance} ${Managers.configManager.get("network.client.symbol")})`,
+            );
         });
     });
 

@@ -31,7 +31,7 @@ class AjvWrapper {
     }
 
     public validate<T = any>(schemaName: string, data: T): ISchemaValidationResult<T> {
-        const valid = this.ajv.validate(schemaName, data);
+        this.ajv.validate(schemaName, data);
         const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
         return { value: data, error };
     }

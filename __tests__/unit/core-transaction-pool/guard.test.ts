@@ -296,7 +296,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_INVALID_RECIPIENT",
                         message: `Recipient ${
                             transactions[0].recipientId
-                        } is not on the same network: ${Managers.configManager.get("pubKeyHash")}`,
+                        } is not on the same network: ${Managers.configManager.get("network.pubKeyHash")}`,
                     },
                 ],
             });

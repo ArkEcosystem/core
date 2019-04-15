@@ -15,7 +15,7 @@ export class Address {
         }
 
         if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
+            networkVersion = configManager.get("network.pubKeyHash");
         }
 
         const buffer: Buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
@@ -33,7 +33,7 @@ export class Address {
 
     public static validate(address: string, networkVersion?: number): boolean {
         if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
+            networkVersion = configManager.get("network.pubKeyHash");
         }
 
         try {

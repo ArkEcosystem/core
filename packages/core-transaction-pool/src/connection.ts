@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Blocks, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
 import { Mem } from "./mem";

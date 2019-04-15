@@ -1,6 +1,5 @@
+import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { Dato } from "@faustbrian/dato";
-
-import { Blocks, Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export interface IAddTransactionResponse {
     success: boolean;

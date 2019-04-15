@@ -1,11 +1,11 @@
 import "jest-extended";
+
 import "../mocks/core-container";
 
 import { Blocks, Managers } from "@arkecosystem/crypto/src";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
-import { InvalidTransactionsError } from "../../../../packages/core-p2p/src/socket-server/errors";
 import { createPeerService } from "../../../helpers/peers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";

@@ -5,6 +5,7 @@ import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkec
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
+import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
@@ -76,12 +77,10 @@ class TestTransactionHandler extends TransactionHandler {
 }
 
 beforeAll(() => {
-    Managers.configManager.setFromPreset("testnet");
-    Managers.configManager.milestone.data.fees.staticFees.test = 1234;
-});
+    // @ts-ignore
+    testnet.milestones[0].fees.staticFees.test = 1234;
 
-afterAll(() => {
-    delete Managers.configManager.milestone.data.fees.staticFees.test;
+    Managers.configManager.setConfig(testnet);
 });
 
 afterEach(() => {

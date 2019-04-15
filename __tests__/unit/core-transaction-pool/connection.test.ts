@@ -3,7 +3,7 @@ import "./mocks/core-container";
 
 import { Wallet } from "@arkecosystem/core-database";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Blocks, Constants, Crypto, Enums, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Crypto, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -186,7 +186,7 @@ describe("Connection", () => {
                 errors.push("Some error in canApply");
                 return false;
             });
-            const { added, notAdded } = connection.addTransactions([highFeeTransaction]);
+            const { notAdded } = connection.addTransactions([highFeeTransaction]);
             expect(notAdded[0]).toEqual({
                 message: '["Some error in canApply"]',
                 transaction: highFeeTransaction,
@@ -213,7 +213,7 @@ describe("Connection", () => {
             const expireAfterSeconds = 3;
             const expiration = slots.getTime() + expireAfterSeconds;
 
-            const transactions: Transactions.Transaction[] = [];
+            const transactions: Interfaces.ITransaction[] = [];
 
             transactions.push(Transactions.Transaction.fromData(cloneDeep(mockData.dummyExp1.data)));
             transactions[transactions.length - 1].data.expiration = expiration;

@@ -74,7 +74,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network || configManager.get("pubKeyHash");
+            const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
             this.data.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey, pubKeyHash);
         }
 
@@ -85,13 +85,13 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     public signWithWif(wif: string, networkWif?: number): TBuilder {
         const keys: IKeyPair = crypto.getKeysFromWIF(wif, {
-            wif: networkWif || configManager.get("wif"),
+            wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network || configManager.get("pubKeyHash");
+            const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
 
             this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash);
         }
@@ -109,7 +109,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     public secondSignWithWif(wif: string, networkWif?: number): TBuilder {
         const keys = crypto.getKeysFromWIF(wif, {
-            wif: networkWif || configManager.get("wif"),
+            wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
         this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);

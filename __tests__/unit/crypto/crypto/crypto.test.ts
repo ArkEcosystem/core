@@ -113,7 +113,7 @@ describe("crypto.ts", () => {
             asset: {},
             senderPublicKey: keys.publicKey,
         };
-        const signature = crypto.sign(transaction, keys);
+        crypto.sign(transaction, keys);
 
         const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
 

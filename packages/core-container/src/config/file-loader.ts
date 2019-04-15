@@ -2,23 +2,33 @@ import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import got from "got";
 import Joi from "joi";
 import { basename, extname, resolve } from "path";
-import { schemaConfig } from "./schema";
 
-class FileLoader {
-    public async setUp(opts): Promise<{ config: Record<string, any>; files: Record<string, string> }> {
+export class FileLoader {
+    public async setUp(opts): Promise<Record<string, string>> {
         if (!opts) {
             throw new Error("Invalid network configuration provided.");
         }
 
         const files: Record<string, string> = await this.createFromDirectory();
 
-        const { value, error } = Joi.validate(files, schemaConfig);
+        // @TODO: replace Joi with AJV
+        const { error } = Joi.validate(
+            files,
+            Joi.object({
+                delegates: Joi.object({
+                    secrets: Joi.array().items(Joi.string()),
+                    bip38: Joi.string(),
+                }),
+                peers: Joi.object().required(),
+                plugins: Joi.object().required(),
+            }).unknown(),
+        );
 
         if (error) {
             throw error;
         }
 
-        return { config: value, files };
+        return files;
     }
 
     private async createFromDirectory(): Promise<Record<string, string>> {
@@ -96,5 +106,3 @@ class FileLoader {
         }
     }
 }
-
-export const fileLoader = new FileLoader();

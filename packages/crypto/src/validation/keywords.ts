@@ -43,7 +43,7 @@ const network = (ajv: Ajv) => {
     ajv.addKeyword("network", {
         compile(schema) {
             return data => {
-                return schema && data === configManager.get("pubKeyHash");
+                return schema && data === configManager.get("network.pubKeyHash");
             };
         },
         errors: false,

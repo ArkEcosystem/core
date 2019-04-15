@@ -51,7 +51,6 @@ export class TransactionFactory {
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private fee: Utils.BigNumber;
-    private milestone: Record<string, any>;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
     private passphraseList: string[];
@@ -74,7 +73,7 @@ export class TransactionFactory {
     }
 
     public withHeight(height: number): TransactionFactory {
-        this.milestone = Managers.configManager.getMilestone(height);
+        Managers.configManager.setHeight(height);
 
         return this;
     }
@@ -114,8 +113,8 @@ export class TransactionFactory {
         return this.make<Interfaces.ITransactionData>(quantity, "getStruct");
     }
 
-    public build(quantity: number = 1): Transactions.Transaction[] {
-        return this.make<Transactions.Transaction>(quantity, "build");
+    public build(quantity: number = 1): Interfaces.ITransaction[] {
+        return this.make<Interfaces.ITransaction>(quantity, "build");
     }
 
     private make<T>(quantity: number = 1, method: string): T[] {

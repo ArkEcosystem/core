@@ -13,7 +13,7 @@ export function formatSatoshi(amount: BigNumber): string {
         maximumFractionDigits: 8,
     });
 
-    return `${localeString} ${configManager.config.client.symbol}`;
+    return `${localeString} ${configManager.get("network.client.symbol")}`;
 }
 
 /**
@@ -51,11 +51,12 @@ export function sortTransactions(transactions: ITransactionData[]): ITransaction
     });
 }
 
-let genesisTransactions: { [key: string]: boolean };
-let currentNetwork: number;
-
 export const isGenesisTransaction = (id: string): boolean => {
-    const network = configManager.get("pubKeyHash");
+    let genesisTransactions: { [key: string]: boolean };
+    let currentNetwork: number;
+
+    const network: number = configManager.get("network.pubKeyHash");
+
     if (!genesisTransactions || currentNetwork !== network) {
         currentNetwork = network;
         genesisTransactions = configManager

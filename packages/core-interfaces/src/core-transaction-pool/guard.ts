@@ -1,4 +1,4 @@
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { IConnection } from "./connection";
 
 export interface ITransactionErrorResponse {

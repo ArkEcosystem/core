@@ -14,7 +14,7 @@ export class PublicKey {
 
     public static validate(publicKey: string, networkVersion?: number): boolean {
         if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
+            networkVersion = configManager.get("network.pubKeyHash");
         }
 
         try {

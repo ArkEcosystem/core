@@ -1,4 +1,4 @@
-import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {

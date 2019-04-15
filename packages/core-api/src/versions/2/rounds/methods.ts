@@ -21,8 +21,7 @@ const delegates = async request => {
 export function registerMethods(server) {
     const { activeDelegates, blocktime } = config.getMilestone();
 
-    ServerCache.make(server)
-        .method("v2.rounds.delegates", delegates, activeDelegates * blocktime, request => ({
-            id: request.params.id
-        }));
+    ServerCache.make(server).method("v2.rounds.delegates", delegates, activeDelegates * blocktime, request => ({
+        id: request.params.id,
+    }));
 }
