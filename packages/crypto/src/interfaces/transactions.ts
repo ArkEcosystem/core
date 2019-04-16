@@ -1,3 +1,4 @@
+import { ErrorObject } from "ajv";
 import { TransactionTypes } from "../enums";
 import { BigNumber } from "../utils";
 
@@ -110,6 +111,7 @@ export interface ITransactionJson {
 export interface ISchemaValidationResult<T = any> {
     value: T;
     error: any;
+    errors?: ErrorObject[];
 }
 
 export interface IMultiPaymentItem {

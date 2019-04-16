@@ -32,18 +32,18 @@ export const hapiAjv = {
                 const config = request.route.settings.plugins[name] || {};
 
                 if (config.payloadSchema) {
-                    const { error } = Validation.validator.validate(config.payloadSchema, request.payload);
+                    const { error, errors } = Validation.validator.validate(config.payloadSchema, request.payload);
 
                     if (error) {
-                        return createErrorResponse(request, h, error);
+                        return createErrorResponse(request, h, errors);
                     }
                 }
 
                 if (config.querySchema) {
-                    const { error } = Validation.validator.validate(config.querySchema, request.query);
+                    const { error, errors } = Validation.validator.validate(config.querySchema, request.query);
 
                     if (error) {
-                        return createErrorResponse(request, h, error);
+                        return createErrorResponse(request, h, errors);
                     }
                 }
 

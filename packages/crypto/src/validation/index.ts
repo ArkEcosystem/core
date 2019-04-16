@@ -37,9 +37,9 @@ export class Validator {
 
             const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
 
-            return { value: data, error };
+            return { value: data, error, errors: this.ajv.errors };
         } catch (error) {
-            return { value: null, error: error.stack };
+            return { value: null, error: error.stack, errors: null };
         }
     }
 
