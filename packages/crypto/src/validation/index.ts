@@ -39,7 +39,7 @@ export class Validator {
 
             return { value: data, error, errors: this.ajv.errors };
         } catch (error) {
-            return { value: null, error: error.stack, errors: null };
+            return { value: null, error: error.stack, errors: [] };
         }
     }
 
