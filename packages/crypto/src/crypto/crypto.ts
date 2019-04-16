@@ -6,6 +6,7 @@ import { configManager, feeManager } from "../managers";
 import { Serializer } from "../transactions/serializer";
 import { BigNumber } from "../utils";
 import { HashAlgorithms } from "./hash-algorithms";
+import { signSchnorr, verifySchnorr } from "./schnorr";
 
 class Crypto {
     public getFee(transaction: ITransactionData): BigNumber {
@@ -58,6 +59,10 @@ class Crypto {
             .toString("hex");
     }
 
+    public signSchnorr(hash: Buffer, keys: IKeyPair): string {
+        return signSchnorr(hash, Buffer.from(keys.privateKey, "hex")).toString("hex");
+    }
+
     public verify(transaction: ITransactionData): boolean {
         if (transaction.version && transaction.version !== 1) {
             // TODO: enable AIP11 when ready here
@@ -95,6 +100,14 @@ class Crypto {
         return secp256k1.verify(
             hash,
             secp256k1.signatureImport(signature instanceof Buffer ? signature : Buffer.from(signature, "hex")),
+            publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex"),
+        );
+    }
+
+    public verifySchnorr(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
+        return verifySchnorr(
+            hash,
+            signature instanceof Buffer ? signature : Buffer.from(signature, "hex"),
             publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex"),
         );
     }

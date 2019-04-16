@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "../../../../packages/crypto/src";
 import { crypto } from "../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
@@ -130,6 +130,29 @@ describe("crypto.ts", () => {
             delete transactionWithoutSignature.signature;
 
             expect(crypto.verify(transactionWithoutSignature)).toBeFalse();
+        });
+    });
+
+    describe("schnorr", () => {
+        const keys = crypto.getKeys("secret");
+        const transaction = {
+            type: 0,
+            amount: Utils.BigNumber.make(1000),
+            fee: Utils.BigNumber.make(2000),
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys.publicKey,
+        };
+
+        it("sign and verify should be ok", () => {
+            const hash = crypto.getHash(transaction);
+            const signature = crypto.signSchnorr(hash, keys);
+
+            expect(crypto.verifySchnorr(hash, signature, keys.publicKey)).toBeTrue();
+            expect(signature).toEqual(
+                "4472588f5145b70e35e68c1413e3a7b098015d755fda4d359cc4f79d1b984907d5c3e942f815a5e4b2294a02f563b0148c1a77d3d3a3a4b86339fe093a5c299a",
+            );
         });
     });
 
