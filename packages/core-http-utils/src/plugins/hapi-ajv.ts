@@ -23,7 +23,7 @@ export const hapiAjv = {
                     .takeover();
             }
 
-            return Boom.badData(errors);
+            return Boom.badData(errors[0].message);
         };
 
         server.ext({
