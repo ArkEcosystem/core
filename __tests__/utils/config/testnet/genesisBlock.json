@@ -562,7 +562,7 @@
         },
         {
             "type": 0,
-            "amount": 245100000000000,
+            "amount": "245100000000000",
             "fee": "0",
             "recipientId": "ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo",
             "timestamp": 0,

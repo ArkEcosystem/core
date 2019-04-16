@@ -8,7 +8,6 @@ import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
 import { ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
-import { BigNumber } from "../utils";
 import { Transaction } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -153,10 +152,8 @@ export class Serializer {
             }
         }
 
-        // @TODO: remove the BigNumber.make
-        bb.writeInt64(+BigNumber.make(transaction.amount).toFixed());
-        // @TODO: remove the BigNumber.make
-        bb.writeInt64(+BigNumber.make(transaction.fee).toFixed());
+        bb.writeInt64(+transaction.amount.toFixed());
+        bb.writeInt64(+transaction.fee.toFixed());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {

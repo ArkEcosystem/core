@@ -72,6 +72,21 @@ export class Block implements IBlock {
         return this.fromSerialized(buffer.toString("hex"));
     }
 
+    public static fromJson(json: IBlockJson): IBlock {
+        // @ts-ignore
+        const data: IBlockData = { ...json };
+        data.totalAmount = BigNumber.make(data.totalAmount);
+        data.totalFee = BigNumber.make(data.totalFee);
+        data.reward = BigNumber.make(data.reward);
+
+        for (const transaction of data.transactions) {
+            transaction.amount = BigNumber.make(transaction.amount);
+            transaction.fee = BigNumber.make(transaction.fee);
+        }
+
+        return this.fromData(data);
+    }
+
     public static fromData(data: IBlockData): IBlock {
         const serialized: string = Block.serializeWithTransactions(data).toString("hex");
         const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });

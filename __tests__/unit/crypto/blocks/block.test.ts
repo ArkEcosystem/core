@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block } from "../../../../packages/crypto/src/blocks";
@@ -58,6 +58,10 @@ describe("Block", () => {
 
     test("#fromData", () => {
         expectBlock(Block.fromData(dummyBlock));
+    });
+
+    test("#fromJson", () => {
+        expectBlock(Block.fromJson(Block.fromData(dummyBlock).toJson()));
     });
 
     describe("constructor", () => {
@@ -377,11 +381,10 @@ describe("Block", () => {
                 (network: NetworkName, length: number) => {
                     configManager.setFromPreset(network);
 
-                    const serialized: string = Block.serializeWithTransactions(networks[network]
-                        .genesisBlock as any).toString("hex");
+                    const block: Interfaces.IBlock = Block.fromJson(networks[network].genesisBlock);
 
-                    expect(serialized).toHaveLength(length);
-                    expect(Block.fromData(Block.deserialize(serialized)).verifySignature()).toBeTrue();
+                    expect(block.serialized).toHaveLength(length);
+                    expect(block.verifySignature()).toBeTrue();
                 },
             );
         });

@@ -3,7 +3,6 @@ import { PreviousBlockIdFormatError } from "../errors";
 import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Transaction } from "../transactions";
-import { BigNumber } from "../utils";
 import { Block } from "./block";
 
 export class Serializer {
@@ -56,12 +55,9 @@ export class Serializer {
         buffer.writeUint32(block.height);
         buffer.append(block.previousBlockHex, "hex");
         buffer.writeUint32(block.numberOfTransactions);
-        // @TODO: remove the BigNumber.make
-        buffer.writeUint64(+BigNumber.make(block.totalAmount).toFixed());
-        // @TODO: remove the BigNumber.make
-        buffer.writeUint64(+BigNumber.make(block.totalFee).toFixed());
-        // @TODO: remove the BigNumber.make
-        buffer.writeUint64(+BigNumber.make(block.reward).toFixed());
+        buffer.writeUint64(+block.totalAmount.toFixed());
+        buffer.writeUint64(+block.totalFee.toFixed());
+        buffer.writeUint64(+block.reward.toFixed());
         buffer.writeUint32(block.payloadLength);
         buffer.append(block.payloadHash, "hex");
         buffer.append(block.generatorPublicKey, "hex");
