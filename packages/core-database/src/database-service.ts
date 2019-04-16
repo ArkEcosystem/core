@@ -62,7 +62,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.truncate();
         await this.connection.transactionsRepository.truncate();
 
-        await this.saveBlock(Block.fromData(configManager.get("genesisBlock")));
+        await this.saveBlock(Block.fromJson(configManager.get("genesisBlock")));
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {

@@ -1,3 +1,4 @@
+import { Utils } from "@arkecosystem/crypto";
 import "../../../../packages/core-jest-matchers/src/transactions/valid";
 
 const transaction = {
@@ -6,9 +7,9 @@ const transaction = {
     type: 0,
     timestamp: 35672738,
     senderPublicKey: "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
-    fee: 10000000,
+    fee: Utils.BigNumber.make(10000000),
     vendorFieldHex: "5449443a2030",
-    amount: 200000000,
+    amount: Utils.BigNumber.make(200000000),
     expiration: 0,
     recipientId: "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
     signature:
@@ -23,7 +24,7 @@ describe(".toBeValidTransaction", () => {
     });
 
     test("fails when given an invalid transaction", () => {
-        transaction.fee = "invalid" as any;
+        transaction.signature = "invalid" as any;
         expect(expect(transaction).toBeValidTransaction).toThrowError("Expected value to be a valid transaction");
     });
 });

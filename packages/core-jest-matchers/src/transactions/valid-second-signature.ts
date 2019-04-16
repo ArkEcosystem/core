@@ -13,7 +13,7 @@ declare global {
 
 expect.extend({
     toHaveValidSecondSignature: (actual, expected) => {
-        let verified;
+        let verified: boolean;
 
         try {
             verified = Crypto.crypto.verifySecondSignature(actual, expected.publicKey);

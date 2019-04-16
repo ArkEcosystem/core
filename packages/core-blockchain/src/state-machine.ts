@@ -176,7 +176,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
-                stateStorage.setLastBlock(Block.fromData(config.get("genesisBlock")));
+                stateStorage.setLastBlock(Block.fromJson(config.get("genesisBlock")));
                 await blockchain.database.buildWallets();
 
                 return blockchain.dispatch("STARTED");

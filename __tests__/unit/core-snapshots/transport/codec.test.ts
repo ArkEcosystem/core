@@ -2,11 +2,20 @@
 
 import pick from "lodash.pick";
 import msgpack from "msgpack-lite";
-
+import { Codec } from "../../../../packages/core-snapshots/src/transport/codec";
 import { blocks } from "../fixtures/blocks";
 import { transactions } from "../fixtures/transactions";
 
-import { Codec } from "../../../../packages/core-snapshots/src/transport/codec";
+function jsonBlock(block) {
+    // @ts-ignore
+    block.reward = block.reward.toFixed();
+    // @ts-ignore
+    block.total_amount = block.total_amount.toFixed();
+    // @ts-ignore
+    block.total_fee = block.total_fee.toFixed();
+
+    return block;
+}
 
 beforeAll(async () => {
     transactions.forEach((transaction: any) => {
@@ -24,7 +33,7 @@ describe("Codec testing", () => {
         delete decoded.previous_block_hex;
         delete decoded.id_hex;
 
-        expect(decoded).toEqual(blocks[1]);
+        expect(decoded).toEqual(jsonBlock({ ...blocks[1] }));
         console.timeEnd("singleblock");
     });
 
@@ -43,7 +52,7 @@ describe("Codec testing", () => {
             delete decoded.previous_block_hex;
             delete decoded.id_hex;
 
-            expect(block).toEqual(decoded);
+            expect(jsonBlock(block)).toEqual(decoded);
         }
         console.timeEnd("blocks");
     });
