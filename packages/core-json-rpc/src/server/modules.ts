@@ -102,7 +102,6 @@ export const transactions = [
             type: "object",
             properties: {
                 id: {
-                    type: "string",
                     $ref: "transactionId",
                 },
             },
@@ -165,8 +164,7 @@ export const transactions = [
             type: "object",
             properties: {
                 id: {
-                    type: "string",
-                    $ref: "address",
+                    $ref: "transactionId",
                 },
             },
             required: ["id"],

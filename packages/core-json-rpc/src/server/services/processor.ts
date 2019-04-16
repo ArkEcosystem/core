@@ -17,7 +17,7 @@ export class Processor {
                     type: "string",
                 },
                 id: {
-                    type: ["number", "integer"],
+                    type: ["number", "string"],
                 },
                 params: {
                     type: "object",
