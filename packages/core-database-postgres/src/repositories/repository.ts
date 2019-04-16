@@ -1,29 +1,31 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { IMain } from "pg-promise";
+import { Executable, Query } from "sql";
 import { Model } from "../models";
 
 export abstract class Repository implements Database.IRepository {
     protected model: Model;
-    // @TODO: add proper return type
-    protected query: any;
 
     constructor(protected readonly db, protected readonly pgp: IMain) {
         this.model = this.getModel();
-        this.query = this.model.query();
     }
 
     public abstract getModel(): Model;
 
     public async truncate(): Promise<void> {
-        return this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
+        await this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
     }
 
     public async insert(items: object | object[]): Promise<void> {
-        return this.db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
+        await this.db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
     }
 
     public async update(items: object | object[]): Promise<void> {
-        return this.db.none(this.pgp.helpers.update(items, this.model.getColumnSet()));
+        await this.db.none(this.pgp.helpers.update(items, this.model.getColumnSet()));
+    }
+
+    protected get query(): Query<any> {
+        return this.model.query();
     }
 
     protected propToColumnName(prop: string): string {
@@ -37,21 +39,19 @@ export abstract class Repository implements Database.IRepository {
         return prop;
     }
 
-    // @TODO: add query hint
-    protected async find<T = any>(query): Promise<T> {
+    protected async find<T = any>(query: Executable): Promise<T> {
         return this.db.oneOrNone(query.toQuery());
     }
 
-    // @TODO: add query hint
-    protected async findMany<T = any>(query): Promise<T> {
+    protected async findMany<T = any>(query: Executable): Promise<T> {
         return this.db.manyOrNone(query.toQuery());
     }
 
-    protected async findManyWithCount(
-        selectQuery,
+    protected async findManyWithCount<T = any>(
+        selectQuery: Query<any>,
         paginate?: Database.SearchPaginate,
         orderBy?: Database.SearchOrderBy[],
-    ): Promise<any> {
+    ): Promise<{ rows: T; count: number }> {
         if (!!orderBy) {
             orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));
         }
