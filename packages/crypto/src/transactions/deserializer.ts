@@ -1,11 +1,11 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionRegistry } from ".";
 import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "../utils";
+import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class Deserializer {
@@ -15,7 +15,7 @@ class Deserializer {
         const buffer: ByteBuffer = this.getByteBuffer(serialized);
         this.deserializeCommon(data, buffer);
 
-        const instance: ITransaction = TransactionRegistry.create(data);
+        const instance: ITransaction = TransactionTypeFactory.create(data);
         this.deserializeVendorField(instance, buffer);
 
         // Deserialize type specific parts

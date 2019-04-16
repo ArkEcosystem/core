@@ -1,5 +1,4 @@
 // tslint:disable:member-ordering
-import { TransactionRegistry } from "..";
 import { crypto } from "../../crypto";
 import { TransactionTypes } from "../../enums";
 import {
@@ -13,6 +12,7 @@ import { BigNumber, isException } from "../../utils";
 import { validator } from "../../validation";
 import { deserializer } from "../deserializer";
 import { Serializer } from "../serializer";
+import { TransactionTypeFactory } from "./factory";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction implements ITransaction {
@@ -75,7 +75,7 @@ export abstract class Transaction implements ITransaction {
             throw new TransactionSchemaError(error);
         }
 
-        const transaction = TransactionRegistry.create(value);
+        const transaction = TransactionTypeFactory.create(value);
         deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
         Serializer.serialize(transaction);
 
@@ -86,7 +86,7 @@ export abstract class Transaction implements ITransaction {
     }
 
     public static toBytes(data: ITransactionData): Buffer {
-        const transaction = TransactionRegistry.create(data);
+        const transaction = TransactionTypeFactory.create(data);
         return Serializer.serialize(transaction);
     }
 
@@ -154,7 +154,7 @@ export abstract class Transaction implements ITransaction {
             return { value: data, error: null };
         }
 
-        const { $id } = TransactionRegistry.get(data.type).getSchema();
+        const { $id } = TransactionTypeFactory.get(data.type).getSchema();
 
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }

@@ -9,8 +9,7 @@ import { ISerializeOptions } from "../interfaces";
 import { ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "../utils";
-import { transactionRegistry } from "./registry";
-import { Transaction } from "./types";
+import { Transaction, TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer {
@@ -192,7 +191,7 @@ export class Serializer {
     }
 
     private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions): Buffer {
-        return this.serialize(transactionRegistry.create(transaction));
+        return this.serialize(TransactionTypeFactory.create(transaction));
     }
 
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
