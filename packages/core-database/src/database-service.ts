@@ -192,7 +192,6 @@ export class DatabaseService implements Database.IDatabaseService {
         return forgingDelegates;
     }
 
-    // @TODO: add interface for database transactions
     public async getBlock(id: string): Promise<Interfaces.IBlock | null> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
@@ -490,7 +489,6 @@ export class DatabaseService implements Database.IDatabaseService {
             }
         }
 
-        // @TODO: add block stats interface
         const blockStats: {
             numberOfTransactions: number;
             totalFee: Utils.BigNumber;
@@ -498,7 +496,6 @@ export class DatabaseService implements Database.IDatabaseService {
             count: number;
         } = await this.connection.blocksRepository.statistics();
 
-        // @TODO: add transacttion stats interface
         const transactionStats: {
             count: number;
             totalFee: Utils.BigNumber;

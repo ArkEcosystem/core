@@ -21,7 +21,6 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
         return this;
     }
 
-    // @TODO: revise
     public vendorField(type: string): IPFSBuilder {
         this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString("hex");
 

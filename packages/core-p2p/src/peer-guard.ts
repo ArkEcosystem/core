@@ -53,10 +53,6 @@ export class PeerGuard implements P2P.IPeerGuard {
             until: () => dato().addMinutes(5),
             reason: "Socket not open",
         },
-        unknown: {
-            until: () => dato().addMinutes(10),
-            reason: "Unknown",
-        },
     };
 
     constructor(private readonly connector: P2P.IPeerConnector) {}
@@ -101,9 +97,6 @@ export class PeerGuard implements P2P.IPeerGuard {
         }
 
         return null;
-
-        // @TODO: review and check if we keep it or not
-        // return this.createPunishment(this.offences.unknown);
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {

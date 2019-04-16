@@ -3,7 +3,6 @@ import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
-// @TODO: add return types
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 

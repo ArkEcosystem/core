@@ -268,7 +268,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         return { forked: true, blocksToRollback: lastBlock.data.height - highestCommonHeight };
     }
 
-    // @TODO: review and move into an appropriate class
     public async syncWithNetwork(fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: P2P.IPeer[] = this.storage.getPeers();
@@ -294,7 +293,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
     }
 
-    // @TODO: review and move into an appropriate class
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
@@ -338,7 +336,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block.toJson())));
     }
 
-    // @TODO: review and move into an appropriate class
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
         const peers: P2P.IPeer[] = take(shuffle(this.storage.getPeers()), app.resolveOptions("p2p").maxPeersBroadcast);
 
