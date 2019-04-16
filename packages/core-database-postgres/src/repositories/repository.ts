@@ -24,7 +24,7 @@ export abstract class Repository implements Database.IRepository {
         await this.db.none(this.pgp.helpers.update(items, this.model.getColumnSet()));
     }
 
-    protected get query(): Query<any> {
+    protected get query(): any {
         return this.model.query();
     }
 
