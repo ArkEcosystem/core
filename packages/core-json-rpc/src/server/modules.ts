@@ -103,6 +103,10 @@ export const transactions = [
 
             const transaction: Interfaces.ITransactionData = transactionBuilder.sign(params.passphrase).getStruct();
 
+            if (!transactionBuilder.verify()) {
+                return Boom.badRequest("Failed to verify the transaction.");
+            }
+
             await database.set(transaction.id, transaction);
 
             return transaction;
@@ -149,6 +153,10 @@ export const transactions = [
             }
 
             const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
+
+            if (!transactionBuilder.verify()) {
+                return Boom.badRequest("Failed to verify the transaction.");
+            }
 
             await database.set(transaction.id, transaction);
 
