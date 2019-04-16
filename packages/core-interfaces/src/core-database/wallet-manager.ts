@@ -1,5 +1,5 @@
 import { Bignum, IMultiSignatureAsset, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
-import { Logger } from "../index";
+import { Logger, Shared } from "../index";
 import { IRoundInfo } from "../shared";
 
 export interface IWallet {
@@ -54,6 +54,8 @@ export interface IWalletManager {
     loadActiveDelegateList(roundInfo: IRoundInfo): IDelegateWallet[];
 
     buildVoteBalances(): void;
+
+    buildDelegateRanking(delegates: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
     applyBlock(block: models.Block): void;
 

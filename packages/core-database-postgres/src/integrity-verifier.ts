@@ -179,16 +179,9 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        const delegateWallets = this.walletManager
-            .allByUsername()
-            .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
+        const delegateWallets = this.walletManager.allByUsername();
 
-        sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
-            const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
-            // @TODO: unknown property 'rate' being access on Wallet class
-            (wallet as any).rate = i + 1;
-            this.walletManager.reindex(wallet);
-        });
+        this.walletManager.buildDelegateRanking(delegateWallets);
     }
 
     /**
