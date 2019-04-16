@@ -5,7 +5,10 @@ import { IResponse, IResponseError } from "../../interfaces";
 import { network } from "./network";
 
 export class Processor {
-    public async resource(server: Server, payload) {
+    public async resource(
+        server: Server,
+        payload: { jsonrpc: string; method: string; id: string | number; params: object },
+    ) {
         const { error } = Validation.validator.validate(
             {
                 type: "object",
