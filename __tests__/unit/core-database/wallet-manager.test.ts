@@ -514,4 +514,34 @@ describe("Wallet Manager", () => {
             }
         });
     });
+
+    describe("buildDelegateRanking", () => {
+        it("should build ranking and sort delegates by vote balance", async () => {
+            for (let i = 0; i < 5; i++) {
+                const delegateKey = i.toString().repeat(66);
+                const delegate = new Wallet(crypto.getAddress(delegateKey));
+                delegate.publicKey = delegateKey;
+                delegate.username = `delegate${i}`;
+                delegate.voteBalance = Bignum.ZERO;
+
+                const voter = new Wallet(crypto.getAddress((i + 5).toString().repeat(66)));
+                voter.balance = new Bignum((i + 1) * 1000 * SATOSHI);
+                voter.publicKey = `v${delegateKey}`;
+                voter.vote = delegateKey;
+
+                walletManager.index([delegate, voter]);
+            }
+
+            walletManager.buildVoteBalances();
+
+            let delegates = walletManager.allByUsername();
+            delegates = walletManager.buildDelegateRanking(delegates);
+
+            for (let i = 0; i < 5; i++) {
+                const delegate = delegates[i];
+                expect(delegate.rate).toEqual(i + 1);
+                expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * SATOSHI));
+            }
+        });
+    });
 });

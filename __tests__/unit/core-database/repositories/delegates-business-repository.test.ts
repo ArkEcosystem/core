@@ -46,16 +46,19 @@ describe("Delegate Repository", () => {
             { username: "delegate-1", forgedFees: new Bignum(20), forgedRewards: new Bignum(20) },
             { username: "delegate-2", forgedFees: new Bignum(30), forgedRewards: new Bignum(30) },
         ];
-        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
+
+        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map(delegate => {
+            const wallet = new Wallet("");
+            return Object.assign(wallet, delegate);
+        });
 
         it("should return the local wallets of the connection that are delegates", () => {
-            // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates();
 
-            expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
-            expect(walletManager.allByAddress).toHaveBeenCalled();
+            expect(actualDelegates).toEqual(expect.arrayContaining(wallets));
+            expect(walletManager.allByUsername).toHaveBeenCalled();
         });
 
         it("should be ok with params (forgedTotal)", () => {
