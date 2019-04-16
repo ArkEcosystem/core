@@ -31,21 +31,19 @@ export const hapiAjv = {
             method: (request, h) => {
                 const config = request.route.settings.plugins[name] || {};
 
-                let errors;
-
                 if (config.payloadSchema) {
-                    errors = Validation.validator.validate(config.payloadSchema, request.payload);
+                    const { error } = Validation.validator.validate(config.payloadSchema, request.payload);
 
-                    if (errors) {
-                        return createErrorResponse(request, h, errors[0].message);
+                    if (error) {
+                        return createErrorResponse(request, h, error);
                     }
                 }
 
                 if (config.querySchema) {
-                    errors = Validation.validator.validate(config.querySchema, request.query);
+                    const { error } = Validation.validator.validate(config.querySchema, request.query);
 
-                    if (errors) {
-                        return createErrorResponse(request, h, errors);
+                    if (error) {
+                        return createErrorResponse(request, h, error);
                     }
                 }
 
