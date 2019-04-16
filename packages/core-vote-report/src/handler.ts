@@ -19,7 +19,7 @@ function formatDelegates(
     return delegates.map((delegate: Database.IWallet) => {
         const filteredVoters: Database.IWallet[] = databaseService.walletManager
             .allByPublicKey()
-            .filter(wallet => wallet.vote === delegate.publicKey && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
+            .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance.gt(0.1 * 1e8));
 
         const approval: string = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
             undefined,

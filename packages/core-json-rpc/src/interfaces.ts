@@ -1,5 +1,12 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
+export interface IRequestParameters {
+    jsonrpc: "2.0";
+    method: string;
+    id: string | number;
+    params: object;
+}
+
 export interface IResponse<T> {
     jsonrpc: "2.0";
     id: string | number;

@@ -108,8 +108,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         });
     }
 
-    // @TODO: add typehint for response
-    private parseHeaders(peer: P2P.IPeer, response): any {
+    private parseHeaders(peer: P2P.IPeer, response): void {
         ["nethash", "os", "version"].forEach(key => {
             peer[key] = response.headers[key] || peer[key];
         });
@@ -117,8 +116,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         if (response.headers.height) {
             peer.state.height = +response.headers.height;
         }
-
-        return response;
     }
 
     private validateReply(peer: P2P.IPeer, reply: any, endpoint: string): boolean {
@@ -176,8 +173,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
-    // @TODO: add typehint for error
-    private handleSocketError(peer: P2P.IPeer, error) {
+    private handleSocketError(peer: P2P.IPeer, error: Error): void {
         if (!error.name) {
             return;
         }

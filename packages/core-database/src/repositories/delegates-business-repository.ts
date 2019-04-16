@@ -6,7 +6,6 @@ import { sortEntries } from "./utils/sort-entries";
 
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
-// @TODO: add return types
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 

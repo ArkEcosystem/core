@@ -553,16 +553,4 @@ describe("Block", () => {
             });
         });
     });
-
-    describe("toString", () => {
-        it("should return the block as a string", () => {
-            const block = Block.fromData(dummyBlock);
-
-            expect(block.toString()).toBe(
-                `${dummyBlock.id}, height: ${dummyBlock.height.toLocaleString()}, ${
-                    dummyBlock.numberOfTransactions
-                } transactions, verified: true, errors: `,
-            );
-        });
-    });
 });

@@ -1,4 +1,3 @@
-import pluralize from "pluralize";
 import { crypto, HashAlgorithms, slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
@@ -151,15 +150,6 @@ export class Block implements IBlock {
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
-    // @TODO: clean this up or remove it
-    public toString(): string {
-        return `${this.data.id}, height: ${this.data.height.toLocaleString()}, ${pluralize(
-            "transaction",
-            this.data.numberOfTransactions,
-            true,
-        )}, verified: ${this.verification.verified}, errors: ${this.verification.errors}`;
-    }
-
     public toJson(): IBlockJson {
         const data: IBlockJson = JSON.parse(JSON.stringify(this.data));
         data.reward = this.data.reward.toFixed();
@@ -203,15 +193,6 @@ export class Block implements IBlock {
             if (slots.getSlotNumber(block.timestamp) > slots.getSlotNumber()) {
                 result.errors.push("Invalid block timestamp");
             }
-
-            // @TODO: remove this
-            // Disabling to allow orphanedBlocks?
-            // if(previousBlock){
-            //   const lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
-            //   if(blockSlotNumber < lastBlockSlotNumber) {
-            //      result.errors.push('block timestamp is smaller than previous block timestamp')
-            //   }
-            // }
 
             let size: number = 0;
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);

@@ -1,5 +1,4 @@
 import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
-import { ITransactionData } from "@arkecosystem/crypto/dist/interfaces";
 import { generateMnemonic } from "bip39";
 import Boom from "boom";
 import { IWallet } from "../interfaces";
@@ -10,7 +9,7 @@ import { decryptWIF, getBIP38Wallet } from "./utils";
 export const blocks = [
     {
         name: "blocks.info",
-        async method(params) {
+        async method(params: { id: string }) {
             const response = await network.sendRequest({ url: `blocks/${params.id}` });
 
             if (!response) {
@@ -43,7 +42,7 @@ export const blocks = [
     },
     {
         name: "blocks.transactions",
-        async method(params) {
+        async method(params: { id: string; offset?: number }) {
             const response = await network.sendRequest({
                 url: `blocks/${params.id}/transactions`,
                 query: {
@@ -80,8 +79,8 @@ export const blocks = [
 export const transactions = [
     {
         name: "transactions.broadcast",
-        async method(params) {
-            const transaction: ITransactionData = await database.get<ITransactionData>(params.id);
+        async method(params: { id: string }) {
+            const transaction: Interfaces.ITransactionData = await database.get<Interfaces.ITransactionData>(params.id);
 
             if (!transaction) {
                 return Boom.notFound(`Transaction ${params.id} could not be found.`);
@@ -107,7 +106,7 @@ export const transactions = [
     },
     {
         name: "transactions.create",
-        async method(params) {
+        async method(params: { recipientId: string; amount: string; vendorField?: string; passphrase: string }) {
             const transactionBuilder = Transactions.BuilderFactory.transfer()
                 .recipientId(params.recipientId)
                 .amount(params.amount);
@@ -118,11 +117,11 @@ export const transactions = [
 
             const transaction: Interfaces.ITransactionData = transactionBuilder.sign(params.passphrase).getStruct();
 
-            if (!transactionBuilder.verify()) {
-                return Boom.badRequest("Failed to verify the transaction.");
+            if (!Crypto.crypto.verify(transaction)) {
+                return Boom.badData();
             }
 
-            await database.set(transaction.id, transaction);
+            await database.set<Interfaces.ITransactionData>(transaction.id, transaction);
 
             return transaction;
         },
@@ -148,7 +147,7 @@ export const transactions = [
     },
     {
         name: "transactions.info",
-        async method(params) {
+        async method(params: { id: string }) {
             const response = await network.sendRequest({ url: `transactions/${params.id}` });
 
             if (!response) {
@@ -169,30 +168,40 @@ export const transactions = [
     },
     {
         name: "transactions.bip38.create",
-        async method(params) {
-            const wallet: IWallet = await getBIP38Wallet(params.userId, params.bip38);
+        async method(params: {
+            userId: string;
+            bip38: string;
+            recipientId: string;
+            amount: string;
+            vendorField?: string;
+        }) {
+            try {
+                const wallet: IWallet = await getBIP38Wallet(params.userId, params.bip38);
 
-            if (!wallet) {
-                return Boom.notFound(`User ${params.userId} could not be found.`);
+                if (!wallet) {
+                    return Boom.notFound(`User ${params.userId} could not be found.`);
+                }
+
+                const transactionBuilder = Transactions.BuilderFactory.transfer()
+                    .recipientId(params.recipientId)
+                    .amount(params.amount);
+
+                if (params.vendorField) {
+                    transactionBuilder.vendorField(params.vendorField);
+                }
+
+                const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
+
+                if (!Crypto.crypto.verify(transaction)) {
+                    return Boom.badData();
+                }
+
+                await database.set<Interfaces.ITransactionData>(transaction.id, transaction);
+
+                return transaction;
+            } catch (error) {
+                return Boom.badImplementation(error.message);
             }
-
-            const transactionBuilder = Transactions.BuilderFactory.transfer()
-                .recipientId(params.recipientId)
-                .amount(params.amount);
-
-            if (params.vendorField) {
-                transactionBuilder.vendorField(params.vendorField);
-            }
-
-            const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
-
-            if (!transactionBuilder.verify()) {
-                return Boom.badRequest("Failed to verify the transaction.");
-            }
-
-            await database.set(transaction.id, transaction);
-
-            return transaction;
         },
         schema: {
             type: "object",
@@ -223,7 +232,7 @@ export const transactions = [
 export const wallets = [
     {
         name: "wallets.create",
-        async method(params) {
+        async method(params: { passphrase: string }) {
             const { publicKey }: Interfaces.IKeyPair = Crypto.crypto.getKeys(params.passphrase);
 
             return {
@@ -243,7 +252,7 @@ export const wallets = [
     },
     {
         name: "wallets.info",
-        async method(params) {
+        async method(params: { address: string }) {
             const response = await network.sendRequest({ url: `wallets/${params.address}` });
 
             if (!response) {
@@ -265,7 +274,7 @@ export const wallets = [
     },
     {
         name: "wallets.transactions",
-        async method(params) {
+        async method(params: { offset?: number; address: string }) {
             const response = await network.sendRequest({
                 url: "transactions",
                 query: {
@@ -291,7 +300,7 @@ export const wallets = [
                     type: "string",
                     $ref: "address",
                 },
-                userId: {
+                offset: {
                     type: "integer",
                 },
             },
@@ -300,7 +309,7 @@ export const wallets = [
     },
     {
         name: "wallets.bip38.create",
-        async method(params) {
+        async method(params: { userId: string; bip38: string }) {
             try {
                 const { keys, wif }: IWallet = await getBIP38Wallet(params.userId, params.bip38);
 
@@ -318,7 +327,7 @@ export const wallets = [
                     params.bip38 + params.userId,
                 );
 
-                await database.set(
+                await database.set<string>(
                     Crypto.HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"),
                     encryptedWIF,
                 );
@@ -346,8 +355,8 @@ export const wallets = [
     },
     {
         name: "wallets.bip38.info",
-        async method(params) {
-            const encryptedWIF = await database.get(
+        async method(params: { userId: string; bip38: string }) {
+            const encryptedWIF: string = await database.get<string>(
                 Crypto.HashAlgorithms.sha256(Buffer.from(params.userId)).toString("hex"),
             );
 
@@ -355,7 +364,7 @@ export const wallets = [
                 return Boom.notFound(`User ${params.userId} could not be found.`);
             }
 
-            const { keys, wif } = decryptWIF(encryptedWIF, params.userId, params.bip38);
+            const { keys, wif }: IWallet = decryptWIF(encryptedWIF, params.userId, params.bip38);
 
             return {
                 publicKey: keys.publicKey,

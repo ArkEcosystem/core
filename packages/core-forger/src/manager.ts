@@ -10,8 +10,8 @@ import { Delegate } from "./delegate";
 import { HostNoResponseError } from "./errors";
 
 export class ForgerManager {
-    private logger = app.resolvePlugin<Logger.ILogger>("logger");
-    private config = app.getConfig();
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly config = app.getConfig();
 
     private secrets: string[];
     private network: Types.NetworkType;
@@ -28,19 +28,10 @@ export class ForgerManager {
         this.client = new Client(options.hosts);
     }
 
-    public async startForging(): Promise<void> {
-        return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
-    }
-
-    public async stopForging(): Promise<void> {
-        this.isStopped = true;
-    }
-
-    // @TODO: make this private
-    public async loadDelegates(bip38: string, password: string): Promise<Delegate[] | null> {
+    public async startForging(bip38: string, password: string): Promise<void> {
         if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
             this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
-            return null;
+            return;
         }
 
         this.secrets = uniq(this.secrets.map(secret => secret.trim()));
@@ -52,17 +43,28 @@ export class ForgerManager {
             this.delegates.push(new Delegate(bip38, this.network, password));
         }
 
+        if (!this.delegates) {
+            this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
+            return;
+        }
+
         try {
             await this.loadRound();
+
+            await this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
+
+            this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
             this.logger.warn("Waiting for a responsive host.");
         }
+    }
 
-        return this.delegates;
+    public async stopForging(): Promise<void> {
+        this.isStopped = true;
     }
 
     // @TODO: make this private
-    public async monitor(): Promise<void> {
+    public async checkSlot(): Promise<void> {
         try {
             if (this.isStopped) {
                 return;
@@ -202,7 +204,9 @@ export class ForgerManager {
             return false;
         }
 
-        const overHeightBlockHeaders: Array<{ [id: string]: any }> = networkState.getOverHeightBlockHeaders();
+        const overHeightBlockHeaders: Array<{
+            [id: string]: any;
+        }> = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
             this.logger.info(
                 `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
@@ -259,7 +263,7 @@ export class ForgerManager {
     }
 
     private checkLater(timeout: number): void {
-        setTimeout(() => this.monitor(), timeout);
+        setTimeout(() => this.checkSlot(), timeout);
     }
 
     private printLoadedDelegates(): void {

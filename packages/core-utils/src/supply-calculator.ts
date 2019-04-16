@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 
-// @TODO: satoshi value so we need to return bignum
 export function calculate(height: number): number {
     const { genesisBlock, milestones } = app.getConfig().all();
 

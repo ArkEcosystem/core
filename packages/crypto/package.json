@@ -27,7 +27,7 @@
         "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js"
     },
     "dependencies": {
-        "@faustbrian/dato": "^0.2.0",
+        "@faustbrian/dato": "^0.3.0",
         "ajv": "^6.10.0",
         "ajv-keywords": "^3.4.0",
         "bcrypto": "^3.1.0",

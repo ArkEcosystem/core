@@ -28,18 +28,6 @@ beforeEach(() => {
 });
 
 describe("Forger Manager", () => {
-    describe("loadDelegates", () => {
-        it("should be ok with configured delegates", async () => {
-            const secret = "a secret";
-            forgeManager.secrets = [secret];
-
-            const delegates = await forgeManager.loadDelegates();
-
-            expect(delegates).toBeArray();
-            delegates.forEach(value => expect(value).toBeInstanceOf(Delegate));
-        });
-    });
-
     describe("forgeNewBlock", () => {
         it("should forge a block", async () => {
             // NOTE: make sure we have valid transactions from an existing wallet
@@ -78,12 +66,12 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("monitor", () => {
+    describe("checkSlot", () => {
         it("should emit failed event if error while monitoring", async () => {
             forgeManager.client.getRound.mockRejectedValue(new Error("oh bollocks"));
 
             setTimeout(() => forgeManager.stopForging(), 1000);
-            await forgeManager.monitor();
+            await forgeManager.checkSlot();
 
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("forger.failed", "oh bollocks");
         });

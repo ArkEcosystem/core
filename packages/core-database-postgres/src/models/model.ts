@@ -1,6 +1,6 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { ColumnSet, IMain } from "pg-promise";
-import sql from "sql";
+import sql, { Query } from "sql";
 import { ColumnDescriptor } from "../interfaces";
 
 export abstract class Model implements Database.IModel {
@@ -42,8 +42,7 @@ export abstract class Model implements Database.IModel {
         return this.constructor.name;
     }
 
-    // @TODO: add proper return type
-    public query(): any {
+    public query<T = any>(): Query<T> {
         const { columns } = this.getColumnSet();
 
         return sql.define({

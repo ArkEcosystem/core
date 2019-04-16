@@ -4,15 +4,9 @@ import { IWallet } from "../interfaces";
 import { database } from "./services/database";
 
 export async function getBIP38Wallet(userId, bip38password): Promise<IWallet> {
-    try {
-        const encryptedWif: string = await database.get(
-            Crypto.HashAlgorithms.sha256(Buffer.from(userId)).toString("hex"),
-        );
+    const encryptedWif: string = await database.get(Crypto.HashAlgorithms.sha256(Buffer.from(userId)).toString("hex"));
 
-        return encryptedWif ? decryptWIF(encryptedWif, userId, bip38password) : undefined;
-    } catch (error) {
-        throw new Error("Could not find a matching WIF");
-    }
+    return encryptedWif ? decryptWIF(encryptedWif, userId, bip38password) : undefined;
 }
 
 export function decryptWIF(encryptedWif, userId, bip38password): IWallet {
