@@ -122,15 +122,10 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
-    // @TODO: make this throw an error
     public async buildWallets(): Promise<void> {
         this.walletManager.reset();
 
-        try {
-            await this.connection.buildWallets();
-        } catch (err) {
-            this.logger.error(err.stack);
-        }
+        await this.connection.buildWallets();
     }
 
     public async commitQueuedQueries(): Promise<void> {
