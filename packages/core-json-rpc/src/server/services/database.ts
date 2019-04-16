@@ -12,15 +12,15 @@ class Database {
     }
 
     public async set<T = any>(id: string, value: T): Promise<void> {
-        this.database.set(id, value);
+        await this.database.set(id, value);
     }
 
     public async delete(id: string): Promise<void> {
-        this.database.delete(id);
+        await this.database.delete(id);
     }
 
     public async clear(): Promise<void> {
-        this.database.clear();
+        await this.database.clear();
     }
 }
 

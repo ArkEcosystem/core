@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { IRequestParameters } from "../interfaces";
 import * as modules from "./modules";
 import { Processor } from "./services/processor";
 
@@ -47,8 +48,8 @@ export async function startServer(options) {
             const processor = new Processor();
 
             return Array.isArray(request.payload)
-                ? processor.collection(request.server, request.payload)
-                : processor.resource(request.server, request.payload);
+                ? processor.collection(request.server, request.payload as IRequestParameters[])
+                : processor.resource(request.server, request.payload as IRequestParameters);
         },
     });
 

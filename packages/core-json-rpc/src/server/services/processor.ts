@@ -1,14 +1,14 @@
 import { Validation } from "@arkecosystem/crypto";
 import { Server } from "hapi";
 import get from "lodash.get";
-import { IResponse, IResponseError } from "../../interfaces";
+import { IRequestParameters, IResponse, IResponseError } from "../../interfaces";
 import { network } from "./network";
 
 export class Processor {
-    public async resource(
+    public async resource<T = any>(
         server: Server,
-        payload: { jsonrpc: string; method: string; id: string | number; params: object },
-    ) {
+        payload: IRequestParameters,
+    ): Promise<IResponse<T> | IResponseError> {
         const { error } = Validation.validator.validate(
             {
                 type: "object",
@@ -69,13 +69,14 @@ export class Processor {
         }
     }
 
-    public async collection(server, payload) {
+    public async collection<T = any>(
+        server: Server,
+        payloads: IRequestParameters[],
+    ): Promise<Array<IResponse<T>> | IResponseError[]> {
         const results = [];
 
-        for (const item of payload) {
-            const result = await this.resource(server, item);
-
-            results.push(result);
+        for (const payload of payloads) {
+            results.push(await this.resource<T>(server, payload));
         }
 
         return results;
