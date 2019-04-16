@@ -15,17 +15,6 @@ export const conditions: string[] = [
     "truthy",
 ];
 
-export const index: object = {
-    query: {
-        page: Joi.number()
-            .integer()
-            .positive(),
-        limit: Joi.number()
-            .integer()
-            .positive(),
-    },
-};
-
 export const show: object = {
     params: {
         id: Joi.string(),

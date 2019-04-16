@@ -10,7 +10,7 @@ import {
 } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { BigNumber, isException } from "../../utils";
-import { AjvWrapper } from "../../validation";
+import { validator } from "../../validation";
 import { deserializer } from "../deserializer";
 import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
@@ -156,6 +156,6 @@ export abstract class Transaction implements ITransaction {
 
         const { $id } = TransactionRegistry.get(data.type).getSchema();
 
-        return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
+        return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 }

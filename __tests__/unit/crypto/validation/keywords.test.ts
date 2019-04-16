@@ -3,9 +3,9 @@ import "jest-extended";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
-import { AjvWrapper } from "../../../../packages/crypto/src/validation";
+import { validator } from "../../../../packages/crypto/src/validation";
 
-const ajv = AjvWrapper.instance();
+const ajv = validator.getInstance();
 
 describe("keyword maxBytes", () => {
     it("should be ok", () => {

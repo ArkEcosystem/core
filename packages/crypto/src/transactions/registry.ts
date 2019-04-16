@@ -9,7 +9,7 @@ import {
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { feeManager } from "../managers/fee";
-import { AjvWrapper } from "../validation";
+import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
@@ -114,7 +114,7 @@ class TransactionRegistry {
     }
 
     private updateSchemas(transaction: TransactionConstructor, remove?: boolean): void {
-        AjvWrapper.extendTransaction(transaction.getSchema(), remove);
+        validator.extendTransaction(transaction.getSchema(), remove);
     }
 }
 

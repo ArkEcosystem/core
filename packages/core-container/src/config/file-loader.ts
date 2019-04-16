@@ -11,7 +11,7 @@ export class FileLoader {
 
         const files: Record<string, string> = await this.createFromDirectory();
 
-        // @TODO: replace Joi with AJV
+        // @TODO: replace Joi with AJV in 3.0
         const { error } = Joi.validate(
             files,
             Joi.object({

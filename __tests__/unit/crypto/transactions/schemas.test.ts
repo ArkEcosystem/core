@@ -6,7 +6,7 @@ import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionRegistry } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
-import { AjvWrapper as Ajv } from "../../../../packages/crypto/src/validation";
+import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 
 let transaction;
 let transactionSchema: TransactionSchema;

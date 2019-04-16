@@ -78,11 +78,11 @@ export class Worker extends SCWorker {
             }
 
             const headersValidation = validateHeaders(req.data.headers);
-            if (!headersValidation.valid) {
+            if (headersValidation.error) {
                 return next(
                     this.createError(
                         SocketErrors.HeadersValidationFailed,
-                        `Headers validation failed: ${headersValidation.errors.map(e => e.message).join()}`,
+                        `Headers validation failed: ${headersValidation.error}`,
                     ),
                 );
             }

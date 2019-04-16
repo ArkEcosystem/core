@@ -2,7 +2,6 @@ import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { ITransactionData } from "@arkecosystem/crypto/dist/interfaces";
 import { generateMnemonic } from "bip39";
 import Boom from "boom";
-import Joi from "joi";
 import { IWallet } from "../interfaces";
 import { database } from "./services/database";
 import { network } from "./services/network";
@@ -21,10 +20,14 @@ export const blocks = [
             return response.data;
         },
         schema: {
-            id: Joi.number()
-                // @ts-ignore
-                .unsafe()
-                .required(),
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    maxLength: 64,
+                },
+            },
+            required: ["id"],
         },
     },
     {
@@ -59,11 +62,17 @@ export const blocks = [
             };
         },
         schema: {
-            id: Joi.number()
-                // @ts-ignore
-                .unsafe()
-                .required(),
-            offset: Joi.number().default(0),
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    maxLength: 64,
+                },
+                offset: {
+                    type: "number",
+                },
+            },
+            required: ["id"],
         },
     },
 ];
@@ -87,7 +96,13 @@ export const transactions = [
             return transaction;
         },
         schema: {
-            id: Joi.string().length(64),
+            type: "object",
+            properties: {
+                id: {
+                    $ref: "transactionId",
+                },
+            },
+            required: ["id"],
         },
     },
     {
@@ -112,10 +127,23 @@ export const transactions = [
             return transaction;
         },
         schema: {
-            amount: Joi.number().required(),
-            recipientId: Joi.string().required(),
-            passphrase: Joi.string().required(),
-            vendorField: Joi.string(),
+            type: "object",
+            properties: {
+                amount: {
+                    type: "number",
+                },
+                recipientId: {
+                    type: "string",
+                    $ref: "address",
+                },
+                passphrase: {
+                    type: "string",
+                },
+                vendorField: {
+                    type: "string",
+                },
+            },
+            required: ["amount", "recipientId", "passphrase"],
         },
     },
     {
@@ -130,9 +158,13 @@ export const transactions = [
             return response.data;
         },
         schema: {
-            id: Joi.string()
-                .length(64)
-                .required(),
+            type: "object",
+            properties: {
+                id: {
+                    $ref: "transactionId",
+                },
+            },
+            required: ["id"],
         },
     },
     {
@@ -163,15 +195,27 @@ export const transactions = [
             return transaction;
         },
         schema: {
-            amount: Joi.number().required(),
-            recipientId: Joi.string()
-                .length(34)
-                .required(),
-            vendorField: Joi.string(),
-            bip38: Joi.string().required(),
-            userId: Joi.string()
-                .hex()
-                .required(),
+            type: "object",
+            properties: {
+                amount: {
+                    type: "number",
+                },
+                recipientId: {
+                    type: "string",
+                    $ref: "address",
+                },
+                vendorField: {
+                    type: "string",
+                },
+                bip38: {
+                    type: "string",
+                },
+                userId: {
+                    type: "string",
+                    $ref: "hex",
+                },
+            },
+            required: ["amount", "recipientId", "bip38", "userId"],
         },
     },
 ];
@@ -188,7 +232,13 @@ export const wallets = [
             };
         },
         schema: {
-            passphrase: Joi.string().required(),
+            type: "object",
+            properties: {
+                passphrase: {
+                    type: "string",
+                },
+            },
+            required: ["passphrase"],
         },
     },
     {
@@ -203,9 +253,14 @@ export const wallets = [
             return response.data;
         },
         schema: {
-            address: Joi.string()
-                .length(34)
-                .required(),
+            type: "object",
+            properties: {
+                address: {
+                    type: "string",
+                    $ref: "address",
+                },
+            },
+            required: ["address"],
         },
     },
     {
@@ -230,10 +285,17 @@ export const wallets = [
             };
         },
         schema: {
-            address: Joi.string()
-                .length(34)
-                .required(),
-            offset: Joi.number().default(0),
+            type: "object",
+            properties: {
+                address: {
+                    type: "string",
+                    $ref: "address",
+                },
+                userId: {
+                    type: "integer",
+                },
+            },
+            required: ["address"],
         },
     },
     {
@@ -269,10 +331,17 @@ export const wallets = [
             }
         },
         schema: {
-            bip38: Joi.string().required(),
-            userId: Joi.string()
-                .hex()
-                .required(),
+            type: "object",
+            properties: {
+                bip38: {
+                    type: "string",
+                },
+                userId: {
+                    type: "string",
+                    $ref: "hex",
+                },
+            },
+            required: ["bip38", "userId"],
         },
     },
     {
@@ -295,10 +364,17 @@ export const wallets = [
             };
         },
         schema: {
-            bip38: Joi.string().required(),
-            userId: Joi.string()
-                .hex()
-                .required(),
+            type: "object",
+            properties: {
+                bip38: {
+                    type: "string",
+                },
+                userId: {
+                    type: "string",
+                    $ref: "hex",
+                },
+            },
+            required: ["bip38", "userId"],
         },
     },
 ];
