@@ -63,8 +63,9 @@ export async function postBlock({ req }): Promise<void> {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
+    const fromForger: boolean = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
 
-    if (!isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress)) {
+    if (!fromForger) {
         if (blockchain.pingBlock(block)) {
             return;
         }
@@ -76,7 +77,7 @@ export async function postBlock({ req }): Promise<void> {
         }
     }
 
-    blockchain.handleIncomingBlock(block, req.headers.remoteAddress);
+    blockchain.handleIncomingBlock(block, req.headers.remoteAddress, fromForger);
 }
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {

@@ -234,8 +234,8 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Push a block to the process queue.
      */
-    public handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string): void {
-        this.pushPingBlock(block);
+    public handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string, fromForger: boolean = false): void {
+        this.pushPingBlock(block, fromForger);
 
         logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
@@ -482,7 +482,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: Interfaces.IBlockData): void {
-        this.state.pushPingBlock(block);
+    public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+        this.state.pushPingBlock(block, fromForger);
     }
 }
