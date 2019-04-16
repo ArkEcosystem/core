@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import { existsSync, readFileSync } from "fs";
+import { IPeerData } from "../interfaces";
 import { validateJSON } from "./validate-json";
 
-export const restorePeers = (): any[] => {
+export function restorePeers(): IPeerData[] {
     const path: string = `${process.env.CORE_PATH_CACHE}/peers.json`;
 
     if (!existsSync(path)) {
@@ -11,9 +12,7 @@ export const restorePeers = (): any[] => {
     }
 
     try {
-        const peers: Array<{ ip: string; port: number; version: string }> = JSON.parse(
-            readFileSync(path, { encoding: "utf8" }),
-        );
+        const peers: IPeerData[] = JSON.parse(readFileSync(path, { encoding: "utf8" }));
 
         const { error } = validateJSON(peers, {
             type: "array",
@@ -48,4 +47,4 @@ export const restorePeers = (): any[] => {
     } catch (error) {
         return [];
     }
-};
+}

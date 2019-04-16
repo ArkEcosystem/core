@@ -12,6 +12,7 @@ import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
+import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP, restorePeers } from "./utils";
 
@@ -22,7 +23,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     private initializing: boolean = true;
     private coldStartPeriod: Dato;
 
-    private readonly appConfig = app.getConfig();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
@@ -68,9 +68,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         await this.checkDNSConnectivity(options.dns);
         await this.checkNTPConnectivity(options.ntp);
 
-        restorePeers();
-        // localConfig.set("peers", cachedPeers);
-
         await this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
@@ -114,7 +111,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         if (!this.hasMinimumPeers()) {
             await this.populateSeedPeers();
+
             nextRunDelaySeconds = 5;
+
             this.logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
 
@@ -414,23 +413,21 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         return Object.keys(this.storage.getPeers()).length >= app.resolveOptions("p2p").minimumNetworkReach;
     }
 
-    // @TODO: review and move into an appropriate class
     private async populateSeedPeers(): Promise<any> {
-        const peerList = this.appConfig.get("peers.list");
+        const peerList: IPeerData[] = app.getConfig().get("peers.list");
 
         if (!peerList) {
             app.forceExit("No seed peers defined in peers.json");
         }
 
-        const peers = peerList.map(peer => {
+        const peers: IPeerData[] = peerList.map(peer => {
             peer.version = app.getVersion();
             return peer;
         });
 
-        // @TODO
-        const localConfigPeers = app.resolveOptions("p2p").peers;
-        if (localConfigPeers) {
-            localConfigPeers.forEach(peerA => {
+        const peerCache: IPeerData[] = restorePeers();
+        if (peerCache) {
+            peerCache.forEach(peerA => {
                 if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {
                     peers.push(peerA);
                 }
@@ -438,8 +435,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
 
         return Promise.all(
-            Object.values(peers).map((peer: any) => {
+            Object.values(peers).map((peer: P2P.IPeer) => {
                 this.storage.forgetPeer(peer);
+
                 return this.processor.validateAndAcceptPeer(peer, { seed: true, lessVerbose: true });
             }),
         );
