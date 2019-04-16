@@ -222,7 +222,7 @@ export class StateStorage implements Blockchain.IStateStorage {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: Interfaces.IBlockData): void {
+    public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
         // logging for stats about network health
         if (this.blockPing) {
             logger.info(
@@ -231,7 +231,7 @@ export class StateStorage implements Blockchain.IStateStorage {
         }
 
         this.blockPing = {
-            count: 1,
+            count: fromForger ? 0 : 1, // if block comes from forger, it hasn't "pinged" blockchain even once
             first: new Date().getTime(),
             last: new Date().getTime(),
             block,
