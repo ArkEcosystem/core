@@ -45,7 +45,7 @@ export class Config {
     private configureNetwork(network: Types.NetworkName): Interfaces.INetworkConfig {
         const config: Interfaces.INetworkConfig = Managers.NetworkManager.findByName(network);
 
-        // @TODO: replace Joi with AJV
+        // @TODO: replace Joi with AJV in 3.0
         const { error } = Joi.validate(
             config,
             Joi.object({

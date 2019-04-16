@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { AjvWrapper } from "../../../../packages/crypto/src/validation";
+import { validator } from "../../../../packages/crypto/src/validation";
 
-const ajv = AjvWrapper.instance();
+const ajv = validator.getInstance();
 
 describe("format vendorField", () => {
     it("should be ok with 64 bytes", () => {

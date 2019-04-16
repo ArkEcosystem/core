@@ -1,55 +1,35 @@
-import AJV from "ajv";
-import ip from "ip";
+import { validateJSON } from "../../utils";
 
-const validateHeaders = headers => {
-    const ajv = new AJV();
-
-    ajv.addFormat("ip", {
-        type: "string",
-        validate: value => ip.isV4Format(value) || ip.isV6Format(value),
-    });
-
+export function validateHeaders(headers) {
     if (headers.port) {
         headers.port = +headers.port;
     }
 
-    const errors = ajv.validate(
-        {
-            type: "object",
-            properties: {
-                ip: {
-                    type: "string",
-                    format: "ip",
-                },
-                port: {
-                    type: "integer",
-                    minimum: 1,
-                    maximum: 65535,
-                },
-                os: {
-                    type: "string",
-                    maxLength: 64,
-                },
-                nethash: {
-                    type: "string",
-                    maxLength: 64,
-                },
-                version: {
-                    type: "string",
-                    maxLength: 16,
-                },
+    return validateJSON(headers, {
+        type: "object",
+        properties: {
+            ip: {
+                type: "string",
+                format: "ip",
             },
-            required: ["version", "nethash", "port"],
+            port: {
+                type: "integer",
+                minimum: 1,
+                maximum: 65535,
+            },
+            os: {
+                type: "string",
+                maxLength: 64,
+            },
+            nethash: {
+                type: "string",
+                maxLength: 64,
+            },
+            version: {
+                type: "string",
+                maxLength: 16,
+            },
         },
-        headers,
-    )
-        ? null
-        : ajv.errors;
-
-    return {
-        valid: !errors,
-        errors,
-    };
-};
-
-export { validateHeaders };
+        required: ["version", "nethash", "port"],
+    });
+}

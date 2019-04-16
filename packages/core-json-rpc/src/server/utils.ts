@@ -1,4 +1,4 @@
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Validation } from "@arkecosystem/crypto";
 import wif from "wif";
 import { IWallet } from "../interfaces";
 import { database } from "./services/database";
@@ -28,4 +28,8 @@ export function decryptWIF(encryptedWif, userId, bip38password): IWallet {
     );
 
     return { keys: Crypto.crypto.getKeysFromWIF(encodedWIF), wif: encodedWIF };
+}
+
+export function validateJSON(data, schema) {
+    return Validation.Validator.make({ useDefaults: true }).validate(schema, data);
 }

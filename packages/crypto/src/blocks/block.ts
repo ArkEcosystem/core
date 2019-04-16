@@ -4,7 +4,7 @@ import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { BigNumber, isException } from "../utils";
-import { AjvWrapper } from "../validation";
+import { validator } from "../validation";
 import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
@@ -94,7 +94,7 @@ export class Block implements IBlock {
     public verification: IBlockVerification;
 
     private constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
-        const { value, error } = AjvWrapper.validate("block", data);
+        const { value, error } = validator.validate("block", data);
 
         if (
             error !== null &&

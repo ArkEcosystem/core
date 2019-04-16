@@ -8,15 +8,9 @@ export const hapiAjv = {
     name,
     version: "1.0.0",
     register: async (server: Hapi.Server, options: any): Promise<void> => {
-        const ajv = Validation.AjvWrapper.instance();
-
         if (options.registerFormats) {
-            options.registerFormats(ajv);
+            options.registerFormats(Validation.validator.getInstance());
         }
-
-        const validate = (schema, data) => {
-            return ajv.validate(schema, data) ? null : ajv.errors;
-        };
 
         const createErrorResponse = (request, h, errors) => {
             if (request.pre.apiVersion === 1) {
@@ -40,7 +34,7 @@ export const hapiAjv = {
                 let errors;
 
                 if (config.payloadSchema) {
-                    errors = validate(config.payloadSchema, request.payload);
+                    errors = Validation.validator.validate(config.payloadSchema, request.payload);
 
                     if (errors) {
                         return createErrorResponse(request, h, errors[0].message);
@@ -48,7 +42,7 @@ export const hapiAjv = {
                 }
 
                 if (config.querySchema) {
-                    errors = validate(config.querySchema, request.query);
+                    errors = Validation.validator.validate(config.querySchema, request.query);
 
                     if (errors) {
                         return createErrorResponse(request, h, errors);

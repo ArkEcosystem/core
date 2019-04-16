@@ -1,23 +1,33 @@
 import { Server } from "hapi";
-import Joi from "joi";
 import get from "lodash.get";
 import { IResponse, IResponseError } from "../../interfaces";
+import { validateJSON } from "../utils";
 import { network } from "./network";
 
 export class Processor {
     public async resource(server: Server, payload) {
-        // @TODO: replace Joi with AJV
-        const { error } = Joi.validate(payload || {}, {
-            jsonrpc: Joi.string()
-                .valid("2.0")
-                .required(),
-            method: Joi.string().required(),
-            id: Joi.required(),
-            params: Joi.object(),
+        const { error } = validateJSON(payload || {}, {
+            type: "object",
+            properties: {
+                jsonrpc: {
+                    type: "string",
+                    pattern: "2.0",
+                },
+                method: {
+                    type: "string",
+                },
+                id: {
+                    type: ["number", "integer"],
+                },
+                params: {
+                    type: "object",
+                },
+            },
+            required: ["jsonrpc", "method", "id"],
         });
 
         if (error) {
-            return this.createErrorResponse(payload ? payload.id : null, -32600, error);
+            return this.createErrorResponse(payload ? payload.id : null, -32600, new Error(error));
         }
 
         const { method, params, id } = payload;
@@ -34,7 +44,7 @@ export class Processor {
 
             if (schema) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const { error } = Joi.validate(params, schema);
+                const { error } = validateJSON(params, schema);
 
                 if (error) {
                     return this.createErrorResponse(id, -32602, error);

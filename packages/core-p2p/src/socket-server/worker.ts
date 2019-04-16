@@ -82,7 +82,7 @@ export class Worker extends SCWorker {
                 return next(
                     this.createError(
                         SocketErrors.HeadersValidationFailed,
-                        `Headers validation failed: ${headersValidation.errors.map(e => e.message).join()}`,
+                        `Headers validation failed: ${headersValidation.error}`,
                     ),
                 );
             }
