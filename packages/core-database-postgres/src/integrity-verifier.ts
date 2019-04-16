@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
-import { Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
@@ -10,7 +10,7 @@ export class IntegrityVerifier {
 
     constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
 
-    public async run(): Promise<boolean> {
+    public async run(): Promise<void> {
         this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
         await this.buildReceivedTransactions();
 
@@ -40,7 +40,7 @@ export class IntegrityVerifier {
         );
         this.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
-        return this.verifyWalletsConsistency();
+        this.verifyWalletsConsistency();
     }
 
     private async buildReceivedTransactions(): Promise<void> {
@@ -86,12 +86,12 @@ export class IntegrityVerifier {
         }
     }
 
-    private isGenesis(wallet): boolean {
+    private isGenesis(wallet: Database.IWallet): boolean {
         return app
             .getConfig()
             .get("genesisBlock.transactions")
-            .map(tx => tx.senderId)
-            .includes(wallet.address);
+            .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)
+            .includes(wallet.publicKey);
     }
 
     private async buildSecondSignatures() {
@@ -169,28 +169,23 @@ export class IntegrityVerifier {
     }
 
     /**
-     * Verify the consistency of the wallets table by comparing all records against
-     * the in memory wallets.
+     * Verify the consistency of the wallets table by comparing all records against the in memory wallets.
+     *
      * NOTE: This is faster than rebuilding the entire table from scratch each time.
-     * @returns {Boolean}
      */
-    private async verifyWalletsConsistency(): Promise<boolean> {
-        let detectedInconsistency = false;
-
+    private verifyWalletsConsistency(): void {
         for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                detectedInconsistency = true;
                 this.logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
-                break;
+
+                // @TODO: throw here
             }
 
             if (wallet.voteBalance.isLessThan(0)) {
-                detectedInconsistency = true;
                 this.logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
-                break;
+
+                // @TODO: throw here
             }
         }
-
-        return !detectedInconsistency;
     }
 }

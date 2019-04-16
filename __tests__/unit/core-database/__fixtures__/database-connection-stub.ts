@@ -10,8 +10,8 @@ export class DatabaseConnectionStub implements Database.IConnection {
     public walletsRepository: Database.IWalletsRepository;
     public options: any;
 
-    public buildWallets(): Promise<boolean> {
-        return undefined;
+    public buildWallets(): Promise<void> {
+        return null;
     }
 
     public commitQueuedQueries(): any {}

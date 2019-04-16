@@ -110,16 +110,8 @@ export class PostgresConnection implements Database.IConnection {
         this.logger.debug("Disconnected from database");
     }
 
-    public async buildWallets(): Promise<boolean> {
-        try {
-            return await new IntegrityVerifier(this.query, this.walletManager).run();
-        } catch (error) {
-            this.logger.error(error.stack);
-
-            app.forceExit("Failed to build wallets. This indicates a problem with the database.");
-
-            return false;
-        }
+    public async buildWallets(): Promise<void> {
+        await new IntegrityVerifier(this.query, this.walletManager).run();
     }
 
     public async commitQueuedQueries(): Promise<void> {

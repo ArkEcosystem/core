@@ -74,5 +74,5 @@ export interface IStateStorage {
     /**
      * Push ping block
      */
-    pushPingBlock(block: Interfaces.IBlockData): void;
+    pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
 }
