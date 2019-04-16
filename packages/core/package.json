@@ -58,7 +58,7 @@
         "@arkecosystem/core-utils": "^2.3.0-next.6",
         "@arkecosystem/core-webhooks": "^2.3.0-next.6",
         "@arkecosystem/crypto": "^2.3.0-next.6",
-        "@faustbrian/dato": "^0.2.0",
+        "@faustbrian/dato": "^0.3.0",
         "@oclif/command": "^1.5.12",
         "@oclif/config": "^1.12.12",
         "@oclif/plugin-autocomplete": "^0.1.0",

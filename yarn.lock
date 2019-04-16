@@ -790,10 +790,12 @@
   dependencies:
     benchmark "^2.1.4"
 
-"@faustbrian/dato@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@faustbrian/dato/-/dato-0.2.0.tgz#80149f37504d658fada9c270187f10cc7578a12f"
-  integrity sha512-4f5w3bJoitqPfvsllSJXCo1jKSwRDaZbeNtp8XOKr0kXA124YkUY4ziET41p6/WhPIlx26yP0CADfOrnDInI1Q==
+"@faustbrian/dato@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@faustbrian/dato/-/dato-0.3.0.tgz#83c9d034e0dd5904105851520d0c964d2e18b8e6"
+  integrity sha512-dt0/KZVo9+bgfJgue4XrKGR3bxXK4JhKBl9pvTcVlFhcfVl2LkJmp5GkXbNhS5nLzZwXjtS9ciu2r/PXelm7pw==
+  dependencies:
+    dateformat "^3.0.3"
 
 "@faustbrian/hapi-version@^0.2.11":
   version "0.2.11"
@@ -4635,7 +4637,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2.19.0, commander@^2.12.1, commander@^2.14.1, commander@^2.19.0, commander@^2.9.0:
+commander@^2.12.1, commander@^2.14.1, commander@^2.19.0, commander@^2.9.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
   integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
@@ -5097,14 +5099,6 @@ dateformat@^3.0.0, dateformat@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-3.0.3.tgz#a6e37499a4d9a9cf85ef5872044d62901c9889ae"
   integrity sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==
-
-dayjs-ext@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/dayjs-ext/-/dayjs-ext-2.2.0.tgz#2d1ed1e2a8dccc260122d4685e8422062edc5dbb"
-  integrity sha512-n7u711rSmAOPcx1xqj2WUSU/1PbWEst1VC/FeIQsC/ULQLNVlAUwYwRc8D1CdTWqZgliw/SVcox+xNyQl9Q4IA==
-  dependencies:
-    fast-plural-rules "^0.0.1"
-    timezone-support "^1.8.0"
 
 debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -6001,11 +5995,6 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
-
-fast-plural-rules@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/fast-plural-rules/-/fast-plural-rules-0.0.1.tgz#7032c8afa979e6dc65a452f0ef5b4ef31eca763b"
-  integrity sha512-0Cxx7LaH7+dNJEBozlisCxqaN5g68VTFT9PyLeFGBHmkPnQ3e46zss+r8pRC94KpzPlitL6m33GVdbMIDiUgqg==
 
 fast-redact@^1.4.4:
   version "1.4.4"
@@ -13058,13 +13047,6 @@ timers-browserify@^2.0.4:
   integrity sha512-YvC1SV1XdOUaL6gx5CoGroT3Gu49pK9+TZ38ErPldOWW4j49GI1HKs9DV+KGq/w6y+LZ72W1c8cKz2vzY+qpzg==
   dependencies:
     setimmediate "^1.0.4"
-
-timezone-support@^1.8.0:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/timezone-support/-/timezone-support-1.8.1.tgz#0a8c04d0614be6fccdd2280aaad5072fa5d31e5f"
-  integrity sha512-+pKzxoUe4PZXaQcswceJlA+69oRyyu1uivnYKdpsC7eGzZiuvTLbU4WYPqTKslEsoSvjN8k/u/6qNfGikBB/wA==
-  dependencies:
-    commander "2.19.0"
 
 tiny-emitter@2.1.0:
   version "2.1.0"
