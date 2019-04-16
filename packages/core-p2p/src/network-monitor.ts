@@ -268,7 +268,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         return { forked: true, blocksToRollback: lastBlock.data.height - highestCommonHeight };
     }
 
-    public async syncWithNetwork(fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
+    public async syncWithNetwork(
+        fromBlockHeight: number,
+        maxParallelDownloads: number = 25,
+    ): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: P2P.IPeer[] = this.storage.getPeers();
             const peersFiltered: P2P.IPeer[] = peersAll.filter(
@@ -285,11 +288,39 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 return [];
             }
 
-            return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
+            const networkHeight = this.getNetworkHeight();
+            if (!networkHeight) {
+                return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
+            }
+            const chunkSize = 400; // we download blocks by chunks of 400 by peer
+            const chunksMissingToSync = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
+            const chunksToDownload = Math.min(chunksMissingToSync, peersFiltered.length, maxParallelDownloads);
+
+            const peerDownloadRetry = async (peer, allPeers, height) => {
+                const peersToTry = [peer, sample(allPeers), sample(allPeers)]; // 2 "fallback" peers to download from if 1st one failed
+                for (const peerToDownloadFrom of peersToTry) {
+                    try {
+                        return await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+                    } catch (e) {
+                        // tslint:disable-next-line
+                    }
+                }
+                throw new Error(
+                    `Could not download blocks at height ${height} from peers : ${peersToTry.map(p => p.ip).join()}`,
+                );
+            };
+
+            const allDownloadsPromise = shuffle(peersFiltered)
+                .slice(0, chunksToDownload)
+                .map((peer, index) => peerDownloadRetry(peer, peersFiltered, fromBlockHeight + chunkSize * index));
+            const blocksByChunks = await Promise.all(allDownloadsPromise);
+            const allDownloadedBlocks = blocksByChunks.reduce((acc, curr) => [...acc, ...curr], []);
+
+            return allDownloadedBlocks;
         } catch (error) {
             this.logger.error(`Could not download blocks: ${error.message}`);
 
-            return this.syncWithNetwork(fromBlockHeight);
+            return this.syncWithNetwork(fromBlockHeight, Math.ceil(maxParallelDownloads / 2)); // retry with half the parallel downloads
         }
     }
 
