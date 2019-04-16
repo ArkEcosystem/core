@@ -150,20 +150,6 @@ export class Block implements IBlock {
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
-    public toString(): string {
-        return JSON.stringify(
-            {
-                id: this.data.id,
-                height: this.data.height.toLocaleString(),
-                transactions: this.data.numberOfTransactions,
-                verified: this.verification.verified,
-                errors: this.verification.errors,
-            },
-            null,
-            4,
-        );
-    }
-
     public toJson(): IBlockJson {
         const data: IBlockJson = JSON.parse(JSON.stringify(this.data));
         data.reward = this.data.reward.toFixed();
