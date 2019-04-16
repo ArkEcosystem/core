@@ -3,6 +3,7 @@ import "jest-extended";
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p";
 import { Crypto } from "@arkecosystem/crypto";
+import { randomBytes } from "crypto";
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
@@ -75,6 +76,19 @@ describe("Transactions", () => {
             expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
             expect(crypto.verify(response.body.result)).toBeTrue();
         });
+
+        it("should create a new transaction with a vendor field and verify", async () => {
+            const response = await sendRequest("transactions.create", {
+                amount: 100000000,
+                passphrase: "this is a top secret passphrase",
+                recipientId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                vendorField: "Hello World",
+            });
+
+            expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
+            expect(response.body.result.vendorField).toBe("Hello World");
+            expect(crypto.verify(response.body.result)).toBeTrue();
+        });
     });
 
     describe("POST transactions.broadcast", () => {
@@ -107,11 +121,9 @@ describe("Transactions", () => {
     });
 
     describe("POST transactions.bip38.create", () => {
-        it("should create a new transaction", async () => {
-            const userId: string = require("crypto")
-                .randomBytes(32)
-                .toString("hex");
+        const userId: string = randomBytes(32).toString("hex");
 
+        it("should create a new transaction", async () => {
             await sendRequest("wallets.bip38.create", {
                 bip38: "this is a top secret passphrase",
                 userId,
@@ -125,6 +137,20 @@ describe("Transactions", () => {
             });
 
             expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
+            expect(crypto.verify(response.body.result)).toBeTrue();
+        });
+
+        it("should create a new transaction with a vendor field", async () => {
+            const response = await sendRequest("transactions.bip38.create", {
+                bip38: "this is a top secret passphrase",
+                userId,
+                amount: 1000000000,
+                recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+                vendorField: "Hello World",
+            });
+
+            expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
+            expect(response.body.result.vendorField).toBe("Hello World");
             expect(crypto.verify(response.body.result)).toBeTrue();
         });
 
