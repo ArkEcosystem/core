@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
-import { Utils } from "@arkecosystem/crypto";
+import { ITransactionData, Utils } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
@@ -86,12 +86,12 @@ export class IntegrityVerifier {
         }
     }
 
-    private isGenesis(wallet): boolean {
+    private isGenesis(wallet: Database.IWallet): boolean {
         return app
             .getConfig()
             .get("genesisBlock.transactions")
-            .map(tx => tx.senderId)
-            .includes(wallet.address);
+            .map((tx: ITransactionData) => tx.senderPublicKey)
+            .includes(wallet.publicKey);
     }
 
     private async buildSecondSignatures() {
