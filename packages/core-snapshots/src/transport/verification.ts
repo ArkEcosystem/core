@@ -43,7 +43,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             const bytes = Block.serialize(camelizeKeys(data), false);
             const hash = HashAlgorithms.sha256(bytes);
 
-            const signatureVerify = crypto.verifyHash(hash, data.block_signature, data.generator_public_key);
+            const signatureVerify = crypto.verifyECDSA(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
                 logger.error(`Failed to verify signature: ${JSON.stringify(data)}`);

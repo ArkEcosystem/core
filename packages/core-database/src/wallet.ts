@@ -80,35 +80,26 @@ export class Wallet implements Database.IWallet {
         return false;
     }
 
-    /**
-     * Verify multi-signatures for the wallet.
-     */
     public verifySignatures(
         transaction: Interfaces.ITransactionData,
-        multisignature: Interfaces.IMultiSignatureAsset,
+        multiSignature: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
-            return false;
-        }
+        // TODO
+        // const { publicKeys, min } = multiSignature;
 
-        const keysgroup = multisignature.keysgroup.map(publicKey =>
-            publicKey.startsWith("+") ? publicKey.slice(1) : publicKey,
-        );
-        const signatures = Object.values(transaction.signatures);
+        // let valid = 0;
+        // for (const publicKey of publicKeys) {
+        //     const signature = this.verifyTransactionSignatures(transaction, signatures, publicKey);
+        //     if (signature) {
+        //         signatures.splice(signatures.indexOf(signature), 1);
+        //         valid++;
+        //         if (valid === multiSignature.min) {
+        //             return true;
+        //         }
+        //     }
+        // }
 
-        let valid = 0;
-        for (const publicKey of keysgroup) {
-            const signature = this.verifyTransactionSignatures(transaction, signatures, publicKey);
-            if (signature) {
-                signatures.splice(signatures.indexOf(signature), 1);
-                valid++;
-                if (valid === multisignature.min) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return true;
     }
 
     /**
@@ -157,16 +148,16 @@ export class Wallet implements Database.IWallet {
         }
 
         if (transaction.type === TransactionTypes.MultiSignature) {
-            const keysgroup = transaction.asset.multisignature.keysgroup;
+            const keysgroup = transaction.asset.multiSignature.publicKeys;
             audit.push({ "Multisignature not yet registered": !this.multisignature });
             audit.push({
-                "Multisignature enough keys": keysgroup.length >= transaction.asset.multisignature.min,
+                "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
             });
             audit.push({
                 "Multisignature all keys signed": keysgroup.length === transaction.signatures.length,
             });
             audit.push({
-                "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multisignature),
+                "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multiSignature),
             });
         }
 
@@ -204,25 +195,20 @@ export class Wallet implements Database.IWallet {
     /**
      * Goes through signatures to check if public key matches. Can also remove valid signatures.
      */
+    // @ts-ignore
     private verifyTransactionSignatures(
         transaction: Interfaces.ITransactionData,
         signatures: string[],
         publicKey: string,
     ): string | null {
         for (const signature of signatures) {
-            if (this.verify(transaction, signature, publicKey)) {
+            const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+
+            if (crypto.verifySchnorr(hash, signature, publicKey)) {
                 return signature;
             }
         }
 
         return null;
-    }
-
-    /**
-     * Verify the wallet.
-     */
-    private verify(transaction: Interfaces.ITransactionData, signature: string, publicKey: string): boolean {
-        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        return crypto.verifyHash(hash, signature, publicKey);
     }
 }
