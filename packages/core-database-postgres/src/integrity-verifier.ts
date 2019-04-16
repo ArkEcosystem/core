@@ -167,24 +167,18 @@ export class IntegrityVerifier {
             }
         }
     }
-
-    /**
-     * Verify the consistency of the wallets table by comparing all records against the in memory wallets.
-     *
-     * NOTE: This is faster than rebuilding the entire table from scratch each time.
-     */
     private verifyWalletsConsistency(): void {
         for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
                 this.logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
 
-                // @TODO: throw here
+                throw new Error("Non-genesis wallet with negative balance.");
             }
 
             if (wallet.voteBalance.isLessThan(0)) {
                 this.logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
 
-                // @TODO: throw here
+                throw new Error("Wallet with negative vote balance.");
             }
         }
     }
