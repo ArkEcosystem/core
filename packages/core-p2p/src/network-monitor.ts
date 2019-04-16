@@ -288,35 +288,36 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 return [];
             }
 
-            const networkHeight = this.getNetworkHeight();
+            const networkHeight: number = this.getNetworkHeight();
+
             if (!networkHeight) {
                 return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
             }
-            const chunkSize = 400; // we download blocks by chunks of 400 by peer
-            const chunksMissingToSync = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
-            const chunksToDownload = Math.min(chunksMissingToSync, peersFiltered.length, maxParallelDownloads);
 
-            const peerDownloadRetry = async (peer, allPeers, height) => {
-                const peersToTry = [peer, sample(allPeers), sample(allPeers)]; // 2 "fallback" peers to download from if 1st one failed
-                for (const peerToDownloadFrom of peersToTry) {
-                    try {
-                        return await this.communicator.downloadBlocks(peerToDownloadFrom, height);
-                    } catch (e) {
-                        // tslint:disable-next-line
-                    }
-                }
-                throw new Error(
-                    `Could not download blocks at height ${height} from peers : ${peersToTry.map(p => p.ip).join()}`,
-                );
-            };
+            const chunkSize: number = 400;
+            const chunksMissingToSync: number = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
+            const chunksToDownload: number = Math.min(chunksMissingToSync, peersFiltered.length, maxParallelDownloads);
 
-            const allDownloadsPromise = shuffle(peersFiltered)
-                .slice(0, chunksToDownload)
-                .map((peer, index) => peerDownloadRetry(peer, peersFiltered, fromBlockHeight + chunkSize * index));
-            const blocksByChunks = await Promise.all(allDownloadsPromise);
-            const allDownloadedBlocks = blocksByChunks.reduce((acc, curr) => [...acc, ...curr], []);
+            return (await Promise.all(
+                shuffle(peersFiltered)
+                    .slice(0, chunksToDownload)
+                    .map(async (peer: P2P.IPeer, index) => {
+                        const height: number = fromBlockHeight + chunkSize * index;
+                        const peersToTry: P2P.IPeer[] = [peer, sample(peersFiltered), sample(peersFiltered)]; // 2 "fallback" peers to download from if 1st one failed
 
-            return allDownloadedBlocks;
+                        for (const peerToDownloadFrom of peersToTry) {
+                            try {
+                                return await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+                            } catch (e) {} // tslint:disable-line
+                        }
+
+                        throw new Error(
+                            `Could not download blocks at height ${height} from peers: ${peersToTry
+                                .map(p => p.ip)
+                                .join()}`,
+                        );
+                    }),
+            )).reduce((acc, curr) => [...acc, ...curr], []);
         } catch (error) {
             this.logger.error(`Could not download blocks: ${error.message}`);
 
