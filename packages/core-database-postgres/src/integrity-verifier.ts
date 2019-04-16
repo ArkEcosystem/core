@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
-import { ITransactionData, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
@@ -90,7 +90,7 @@ export class IntegrityVerifier {
         return app
             .getConfig()
             .get("genesisBlock.transactions")
-            .map((tx: ITransactionData) => tx.senderPublicKey)
+            .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)
             .includes(wallet.publicKey);
     }
 
