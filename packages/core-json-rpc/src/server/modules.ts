@@ -93,11 +93,19 @@ export const transactions = [
     {
         name: "transactions.create",
         async method(params) {
-            const transaction: Interfaces.ITransactionData = Transactions.BuilderFactory.transfer()
+            const transactionBuilder = Transactions.BuilderFactory.transfer()
                 .recipientId(params.recipientId)
-                .amount(params.amount)
-                .sign(params.passphrase)
-                .getStruct();
+                .amount(params.amount);
+
+            if (params.vendorField) {
+                transactionBuilder.vendorField(params.vendorField);
+            }
+
+            const transaction: Interfaces.ITransactionData = transactionBuilder.sign(params.passphrase).getStruct();
+
+            if (!transactionBuilder.verify()) {
+                return Boom.badRequest("Failed to verify the transaction.");
+            }
 
             await database.set(transaction.id, transaction);
 
@@ -107,6 +115,7 @@ export const transactions = [
             amount: Joi.number().required(),
             recipientId: Joi.string().required(),
             passphrase: Joi.string().required(),
+            vendorField: Joi.string(),
         },
     },
     {
@@ -135,11 +144,19 @@ export const transactions = [
                 return Boom.notFound(`User ${params.userId} could not be found.`);
             }
 
-            const transaction: Interfaces.ITransactionData = Transactions.BuilderFactory.transfer()
+            const transactionBuilder = Transactions.BuilderFactory.transfer()
                 .recipientId(params.recipientId)
-                .amount(params.amount)
-                .signWithWif(wallet.wif)
-                .getStruct();
+                .amount(params.amount);
+
+            if (params.vendorField) {
+                transactionBuilder.vendorField(params.vendorField);
+            }
+
+            const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
+
+            if (!transactionBuilder.verify()) {
+                return Boom.badRequest("Failed to verify the transaction.");
+            }
 
             await database.set(transaction.id, transaction);
 
@@ -150,6 +167,7 @@ export const transactions = [
             recipientId: Joi.string()
                 .length(34)
                 .required(),
+            vendorField: Joi.string(),
             bip38: Joi.string().required(),
             userId: Joi.string()
                 .hex()
