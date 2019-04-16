@@ -24,7 +24,6 @@ export const blocks = [
             properties: {
                 id: {
                     type: "string",
-                    minLength: 64,
                     maxLength: 64,
                 },
             },
@@ -67,12 +66,10 @@ export const blocks = [
             properties: {
                 id: {
                     type: "string",
-                    minLength: 64,
                     maxLength: 64,
                 },
                 offset: {
                     type: "number",
-                    default: 0,
                 },
             },
             required: ["id"],
@@ -296,7 +293,6 @@ export const wallets = [
                 },
                 userId: {
                     type: "integer",
-                    default: 0,
                 },
             },
             required: ["address"],

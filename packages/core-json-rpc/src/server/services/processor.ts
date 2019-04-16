@@ -1,30 +1,33 @@
+import { Validation } from "@arkecosystem/crypto";
 import { Server } from "hapi";
 import get from "lodash.get";
 import { IResponse, IResponseError } from "../../interfaces";
-import { validateJSON } from "../utils";
 import { network } from "./network";
 
 export class Processor {
     public async resource(server: Server, payload) {
-        const { error } = validateJSON(payload || {}, {
-            type: "object",
-            properties: {
-                jsonrpc: {
-                    type: "string",
-                    pattern: "2.0",
+        const { error } = Validation.validator.validate(
+            {
+                type: "object",
+                properties: {
+                    jsonrpc: {
+                        type: "string",
+                        pattern: "2.0",
+                    },
+                    method: {
+                        type: "string",
+                    },
+                    id: {
+                        type: ["number", "string"],
+                    },
+                    params: {
+                        type: "object",
+                    },
                 },
-                method: {
-                    type: "string",
-                },
-                id: {
-                    type: ["number", "string"],
-                },
-                params: {
-                    type: "object",
-                },
+                required: ["jsonrpc", "method", "id"],
             },
-            required: ["jsonrpc", "method", "id"],
-        });
+            payload || {},
+        );
 
         if (error) {
             return this.createErrorResponse(payload ? payload.id : null, -32600, new Error(error));
@@ -44,7 +47,7 @@ export class Processor {
 
             if (schema) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const { error } = validateJSON(params, schema);
+                const { error } = Validation.validator.validate(schema, params);
 
                 if (error) {
                     return this.createErrorResponse(id, -32602, error);

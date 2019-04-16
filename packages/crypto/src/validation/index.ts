@@ -31,9 +31,9 @@ export class Validator {
         return this.ajv;
     }
 
-    public validate<T = any>(schemaName: string, data: T): ISchemaValidationResult<T> {
+    public validate<T = any>(schemaKeyRef: string | boolean | object, data: T): ISchemaValidationResult<T> {
         try {
-            this.ajv.validate(schemaName, data);
+            this.ajv.validate(schemaKeyRef, data);
 
             const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
 
@@ -59,7 +59,7 @@ export class Validator {
         this.ajv.removeKeyword(keyword);
     }
 
-    public removeSchema(schemaKeyRef?: string | boolean | object | RegExp): void {
+    public removeSchema(schemaKeyRef: string | boolean | object | RegExp): void {
         this.ajv.removeSchema(schemaKeyRef);
     }
 
