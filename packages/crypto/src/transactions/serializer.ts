@@ -9,6 +9,7 @@ import { ISerializeOptions } from "../interfaces";
 import { ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "../utils";
+import { transactionRegistry } from "./registry";
 import { Transaction } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -16,11 +17,12 @@ export class Serializer {
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
         const version: number = transaction.version || 1;
 
-        switch (version) {
-            case 1:
-                return this.getBytesV1(transaction, options);
-            default:
-                throw new TransactionVersionError(version);
+        if (version === 1) {
+            return this.getBytesV1(transaction, options);
+        } else if (version === 2 && configManager.getMilestone().aip11) {
+            return this.getBytesV2(transaction, options);
+        } else {
+            throw new TransactionVersionError(version);
         }
     }
 
@@ -187,6 +189,10 @@ export class Serializer {
         }
 
         return Buffer.from(buffer);
+    }
+
+    private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions): Buffer {
+        return this.serialize(transactionRegistry.create(transaction));
     }
 
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {

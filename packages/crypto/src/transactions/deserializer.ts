@@ -4,6 +4,7 @@ import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { ITransaction, ITransactionData } from "../interfaces";
+import { configManager } from "../managers";
 import { BigNumber } from "../utils";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -22,12 +23,13 @@ class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        switch (data.version) {
-            case 1:
-                this.applyV1Compatibility(data);
-                break;
-            default:
-                throw new TransactionVersionError(data.version);
+        const { version } = data;
+        if (version === 1) {
+            this.applyV1Compatibility(data);
+        } else if (version === 2 && configManager.getMilestone().aip11) {
+            // TODO
+        } else {
+            throw new TransactionVersionError(version);
         }
 
         instance.serialized = buffer.flip().toBuffer();
