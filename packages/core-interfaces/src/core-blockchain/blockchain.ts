@@ -66,7 +66,7 @@ export interface IBlockchain {
     /**
      * Push a block to the process queue.
      */
-    handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string): void;
+    handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string, fromForger?: boolean): void;
 
     /**
      * Remove N number of blocks.
@@ -163,5 +163,5 @@ export interface IBlockchain {
      * Push ping block.
      * @return {Object}
      */
-    pushPingBlock(block: Interfaces.IBlockData): void;
+    pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
 }

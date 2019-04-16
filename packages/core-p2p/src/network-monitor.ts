@@ -341,9 +341,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             // wait a bit before broadcasting if a bit early
             const diff = blockPing.last - blockPing.first;
             const maxHop = 4;
-            let proba = (maxHop - blockPing.count) / maxHop;
+            let broadcastQuota: number = (maxHop - blockPing.count) / maxHop;
 
-            if (diff < 500 && proba > 0) {
+            if (diff < 500 && broadcastQuota > 0) {
                 await delay(500 - diff);
 
                 blockPing = blockchain.getBlockPing();
@@ -353,11 +353,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                     return;
                 }
 
-                proba = (maxHop - blockPing.count) / maxHop;
+                broadcastQuota = (maxHop - blockPing.count) / maxHop;
             }
 
-            // TODO: to be put in config?
-            peers = peers.filter(p => Math.random() < proba);
+            peers = broadcastQuota <= 0 ? [] : shuffle(peers).slice(0, Math.ceil(broadcastQuota * peers.length));
+            // select a portion of our peers according to quota calculated before
         }
 
         this.logger.info(

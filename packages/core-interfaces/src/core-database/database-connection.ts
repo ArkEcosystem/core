@@ -18,7 +18,7 @@ export interface IConnection {
 
     disconnect(): Promise<void>;
 
-    buildWallets(): Promise<boolean>;
+    buildWallets(): Promise<void>;
 
     saveBlock(block: Interfaces.IBlock): Promise<void>;
 
