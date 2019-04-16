@@ -51,6 +51,8 @@ describe("Delegate Repository", () => {
         it("should return the local wallets of the connection that are delegates", () => {
             // @ts-ignore
             jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            // @ts-ignore
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates();
 
