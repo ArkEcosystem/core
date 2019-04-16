@@ -63,7 +63,7 @@ export async function postBlock({ req }): Promise<void> {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
-    const fromForger = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
+    const fromForger: boolean = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
 
     if (!fromForger) {
         if (blockchain.pingBlock(block)) {

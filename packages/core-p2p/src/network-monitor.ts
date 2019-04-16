@@ -310,7 +310,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             // wait a bit before broadcasting if a bit early
             const diff = blockPing.last - blockPing.first;
             const maxHop = 4;
-            let broadcastQuota = (maxHop - blockPing.count) / maxHop;
+            let broadcastQuota: number = (maxHop - blockPing.count) / maxHop;
 
             if (diff < 500 && broadcastQuota > 0) {
                 await delay(500 - diff);
