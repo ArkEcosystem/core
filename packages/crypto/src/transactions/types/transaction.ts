@@ -121,7 +121,7 @@ export abstract class Transaction implements ITransaction {
             return true;
         }
 
-        if (data.type >= 4 && data.type <= 99) {
+        if (data.type > 4 && data.type <= 99) {
             return false;
         }
 
