@@ -19,7 +19,7 @@ export class BlockFactory {
     }
 
     public static fromHex(hex: string): IBlock {
-        return this.fromSerialized(Buffer.from(hex));
+        return this.fromSerialized(Buffer.from(hex, "hex"));
     }
 
     public static fromBytes(buffer: Buffer): IBlock {
@@ -52,7 +52,9 @@ export class BlockFactory {
     }
 
     private static fromSerialized(serialized: Buffer): IBlock {
-        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
+        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(
+            serialized.toString("hex"),
+        );
         deserialized.data = Block.applySchema(deserialized.data);
 
         const block: IBlock = new Block(deserialized);

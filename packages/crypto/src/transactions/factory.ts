@@ -11,7 +11,7 @@ import { Serializer } from "./serializer";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
-        return this.fromSerialized(Buffer.from(hex));
+        return this.fromSerialized(Buffer.from(hex, "hex"));
     }
 
     public static fromBytes(buffer: Buffer): ITransaction {
