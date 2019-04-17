@@ -38,11 +38,11 @@ export class Block implements IBlock {
     }
 
     public static serializeWithTransactions(block: IBlockData) {
-        return Serializer.serializeWithTransactions(block);
+        return Serializer.serializeWithTransactions(Block.applySchema(block));
     }
 
     public static serialize(block: IBlockData, includeSignature: boolean = true) {
-        return Serializer.serialize(block, includeSignature);
+        return Serializer.serialize(Block.applySchema(block), includeSignature);
     }
 
     public static getIdHex(data: IBlockData): string {
