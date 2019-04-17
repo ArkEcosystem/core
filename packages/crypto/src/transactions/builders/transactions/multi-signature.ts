@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../../../enums";
-import { IMultiSignatureAsset, ITransactionAsset, ITransactionData } from "../../../interfaces";
+import { IMultiSignatureAsset, ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";
@@ -9,13 +9,33 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         super();
 
         this.data.type = TransactionTypes.MultiSignature;
+        this.data.version = 2;
         this.data.fee = BigNumber.ZERO;
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = null;
         this.data.senderPublicKey = null;
-        this.data.asset = { multiSignature: {} } as ITransactionAsset;
+        this.data.asset = { multiSignature: { min: 0, publicKeys: [] } };
+    }
 
-        this.signWithSenderAsRecipient = true;
+    public publicKey(publicKey: string): MultiSignatureBuilder {
+        const { publicKeys } = this.data.asset.multiSignature;
+
+        if (publicKeys.length <= 16) {
+            publicKeys.push(publicKey);
+            this.data.fee = feeManager.getForTransaction(this.data);
+        }
+
+        return this;
+    }
+
+    public min(min: number): MultiSignatureBuilder {
+        this.data.asset.multiSignature.min = min;
+
+        return this;
+    }
+
+    public sign(passphrase: string): MultiSignatureBuilder {
+        throw new Error("Use multiSign instead of sign.");
     }
 
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
