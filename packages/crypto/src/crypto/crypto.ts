@@ -72,26 +72,6 @@ class Crypto {
 
         const hash = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         if (transaction.version === 2) {
-            // TODO: move out of here
-            if (transaction.type === TransactionTypes.MultiSignature) {
-                const multiSignature = transaction.asset.multiSignature;
-                const signature = transaction.signature;
-
-                const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-                const count = Math.floor(signature.length / 130);
-                for (let i = 0, offset = 0; i < count; i++, offset += 130) {
-                    const publicKeyIndex = parseInt(signature.slice(offset, offset + 2), 16);
-                    const partialSignature = signature.slice(offset + 2, offset + 130);
-                    const publicKey = multiSignature.publicKeys[publicKeyIndex];
-
-                    if (!crypto.verifySchnorr(hash, partialSignature, publicKey)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
             return this.verifySchnorr(hash, signature, senderPublicKey);
         } else {
             return this.verifyECDSA(hash, signature, senderPublicKey);

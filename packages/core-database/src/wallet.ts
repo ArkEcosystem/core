@@ -84,22 +84,33 @@ export class Wallet implements Database.IWallet {
         transaction: Interfaces.ITransactionData,
         multiSignature: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        // TODO
-        // const { publicKeys, min } = multiSignature;
+        const { publicKeys, min } = multiSignature;
 
-        // let valid = 0;
-        // for (const publicKey of publicKeys) {
-        //     const signature = this.verifyTransactionSignatures(transaction, signatures, publicKey);
-        //     if (signature) {
-        //         signatures.splice(signatures.indexOf(signature), 1);
-        //         valid++;
-        //         if (valid === multiSignature.min) {
-        //             return true;
-        //         }
-        //     }
-        // }
+        const signature = transaction.signature;
 
-        return true;
+        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+        const count = Math.floor(signature.length / 130);
+
+        let verified = false;
+        let verifiedSignatures = 0;
+        for (let i = 0, offset = 0; i < count; i++, offset += 130) {
+            const publicKeyIndex = parseInt(signature.slice(offset, offset + 2), 16);
+            const partialSignature = signature.slice(offset + 2, offset + 130);
+            const publicKey = publicKeys[publicKeyIndex];
+
+            if (crypto.verifySchnorr(hash, partialSignature, publicKey)) {
+                verifiedSignatures++;
+            }
+
+            if (verifiedSignatures === min) {
+                verified = true;
+                break;
+            } else if (count - (i + 1 - verifiedSignatures) < min) {
+                break;
+            }
+        }
+
+        return verified;
     }
 
     /**
@@ -190,25 +201,5 @@ export class Wallet implements Database.IWallet {
      */
     public toString(): string {
         return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
-    }
-
-    /**
-     * Goes through signatures to check if public key matches. Can also remove valid signatures.
-     */
-    // @ts-ignore
-    private verifyTransactionSignatures(
-        transaction: Interfaces.ITransactionData,
-        signatures: string[],
-        publicKey: string,
-    ): string | null {
-        for (const signature of signatures) {
-            const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-
-            if (crypto.verifySchnorr(hash, signature, publicKey)) {
-                return signature;
-            }
-        }
-
-        return null;
     }
 }

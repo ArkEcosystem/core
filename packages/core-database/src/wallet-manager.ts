@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
 import { Wallet } from "./wallet";
@@ -349,7 +349,7 @@ export class WalletManager implements Database.IWalletManager {
 
         const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(senderPublicKey);
-        const recipient: Database.IWallet = this.findByAddress(recipientId);
+        let recipient: Database.IWallet = this.findByAddress(recipientId);
 
         // TODO: can/should be removed?
         if (type === TransactionTypes.SecondSignature) {
@@ -377,8 +377,13 @@ export class WalletManager implements Database.IWalletManager {
             this.reindex(sender);
         }
 
-        // TODO: make more generic
+        // TODO: give handler a reference to wallet manager
+        // and have it figure out how to deal with the wallet(s) itself.
         if (recipient && type === TransactionTypes.Transfer) {
+            transactionHandler.applyToRecipient(transaction, recipient);
+        } else if (data.version === 2 && type === TransactionTypes.MultiSignature) {
+            const multiSigAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
+            recipient = this.findByAddress(multiSigAddress);
             transactionHandler.applyToRecipient(transaction, recipient);
         }
 
@@ -393,7 +398,7 @@ export class WalletManager implements Database.IWalletManager {
 
         const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey); // Should exist
-        const recipient: Database.IWallet = this.byAddress[data.recipientId];
+        let recipient: Database.IWallet = this.byAddress[data.recipientId];
 
         transactionHandler.revertForSender(transaction, sender);
 
@@ -403,6 +408,10 @@ export class WalletManager implements Database.IWalletManager {
         }
 
         if (recipient && type === TransactionTypes.Transfer) {
+            transactionHandler.revertForRecipient(transaction, recipient);
+        } else if (data.version === 2 && type === TransactionTypes.MultiSignature) {
+            const multiSigAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
+            recipient = this.findByAddress(multiSigAddress);
             transactionHandler.revertForRecipient(transaction, recipient);
         }
 

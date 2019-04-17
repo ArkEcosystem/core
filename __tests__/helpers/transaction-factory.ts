@@ -48,6 +48,33 @@ export class TransactionFactory {
         );
     }
 
+    public static multiSignature(participants?: string[], min?: number): TransactionFactory {
+        let passphrases;
+        if (!participants) {
+            passphrases = [secrets[0], secrets[1], secrets[2]];
+        }
+
+        participants = participants || [
+            Identities.PublicKey.fromPassphrase(secrets[0]),
+            Identities.PublicKey.fromPassphrase(secrets[1]),
+            Identities.PublicKey.fromPassphrase(secrets[2]),
+        ];
+
+        let factory = new TransactionFactory(
+            Transactions.BuilderFactory.multiSignature().multiSignatureAsset({
+                publicKeys: participants,
+                min: min || participants.length,
+            }),
+        );
+
+        if (passphrases) {
+            factory = factory.withPassphraseList(passphrases);
+        }
+
+        factory.builder.senderPublicKey(participants[0]);
+        return factory;
+    }
+
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private fee: Utils.BigNumber;
@@ -127,12 +154,6 @@ export class TransactionFactory {
             );
         }
 
-        if (this.passphraseList && this.passphraseList.length) {
-            return this.passphraseList.map(
-                (passphrase: string) => this.withPassphrase(passphrase).sign<T>(quantity, method)[0],
-            );
-        }
-
         return this.sign<T>(quantity, method);
     }
 
@@ -162,10 +183,16 @@ export class TransactionFactory {
                 this.builder.fee(this.fee.toFixed());
             }
 
-            this.builder.sign(this.passphrase);
-
-            if (this.secondPassphrase) {
-                this.builder.secondSign(this.secondPassphrase);
+            if (this.passphraseList && this.passphraseList.length) {
+                for (let i = 0; i < this.passphraseList.length; i++) {
+                    const passphrase = this.passphraseList[i];
+                    this.builder.multiSign(passphrase, i);
+                }
+            } else {
+                this.builder.sign(this.passphrase);
+                if (this.secondPassphrase) {
+                    this.builder.secondSign(this.secondPassphrase);
+                }
             }
 
             transactions.push(this.builder[method]());
