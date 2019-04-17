@@ -5,7 +5,7 @@ import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
 import { slots } from "../../../../packages/crypto/src/crypto";
-import { IBlock, IBlockData } from "../../../../packages/crypto/src/interfaces";
+import { IBlock } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import * as networks from "../../../../packages/crypto/src/networks";
 import { testnet } from "../../../../packages/crypto/src/networks";
@@ -14,18 +14,6 @@ import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
-
-function expectBlock({ data }: { data: IBlockData }) {
-    delete data.idHex;
-
-    const blockWithoutTransactions: IBlockData = { ...dummyBlock };
-    blockWithoutTransactions.reward = blockWithoutTransactions.reward;
-    blockWithoutTransactions.totalAmount = blockWithoutTransactions.totalAmount;
-    blockWithoutTransactions.totalFee = blockWithoutTransactions.totalFee;
-    delete blockWithoutTransactions.transactions;
-
-    expect(data).toEqual(blockWithoutTransactions);
-}
 
 beforeEach(() => configManager.setFromPreset("devnet"));
 
@@ -47,22 +35,6 @@ describe("Block", () => {
         transactions: [],
         version: 6,
     };
-
-    test("#fromHex", () => {
-        expectBlock(BlockFactory.fromHex(Block.serializeWithTransactions(dummyBlock).toString("hex")));
-    });
-
-    test("#fromBytes", () => {
-        expectBlock(BlockFactory.fromBytes(Block.serializeWithTransactions(dummyBlock)));
-    });
-
-    test("#fromData", () => {
-        expectBlock(BlockFactory.fromData(dummyBlock));
-    });
-
-    test("#fromJson", () => {
-        expectBlock(BlockFactory.fromJson(BlockFactory.fromData(dummyBlock).toJson()));
-    });
 
     describe("constructor", () => {
         it("should store the data", () => {

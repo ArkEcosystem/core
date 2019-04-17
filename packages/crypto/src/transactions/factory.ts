@@ -2,8 +2,8 @@
 import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
-import { ISchemaValidationResult, ITransaction, ITransactionData } from "../interfaces";
-import { isException } from "../utils";
+import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
+import { BigNumber, isException } from "../utils";
 import { validator } from "../validation";
 import { deserializer } from "./deserializer";
 import { transactionRegistry } from "./registry";
@@ -37,6 +37,32 @@ export class TransactionFactory {
         }
     }
 
+    public static fromJson(json: ITransactionJson): ITransaction {
+        // @ts-ignore
+        const data: ITransactionData = { ...json };
+        data.amount = BigNumber.make(data.amount);
+        data.fee = BigNumber.make(data.fee);
+
+        return this.fromData(data);
+    }
+
+    public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
+        const { value, error } = this.validateSchema(data, strict);
+
+        if (error !== null && !isException(value)) {
+            throw new TransactionSchemaError(error);
+        }
+
+        const transaction = transactionRegistry.create(value);
+        deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
+        Serializer.serialize(transaction);
+
+        data.id = crypto.getId(data);
+        transaction.isVerified = transaction.verify();
+
+        return transaction;
+    }
+
     private static fromSerialized(serialized: string | Buffer): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);
@@ -58,23 +84,6 @@ export class TransactionFactory {
 
             throw new MalformedTransactionBytesError();
         }
-    }
-
-    public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
-        const { value, error } = this.validateSchema(data, strict);
-
-        if (error !== null && !isException(value)) {
-            throw new TransactionSchemaError(error);
-        }
-
-        const transaction = transactionRegistry.create(value);
-        deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
-        Serializer.serialize(transaction);
-
-        data.id = crypto.getId(data);
-        transaction.isVerified = transaction.verify();
-
-        return transaction;
     }
 
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
