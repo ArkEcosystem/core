@@ -11,7 +11,7 @@ import { Serializer } from "./serializer";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
-        return this.fromSerialized(hex);
+        return this.fromSerialized(Buffer.from(hex));
     }
 
     public static fromBytes(buffer: Buffer): ITransaction {
@@ -53,7 +53,7 @@ export class TransactionFactory {
             throw new TransactionSchemaError(error);
         }
 
-        const transaction = transactionRegistry.create(value);
+        const transaction: ITransaction = transactionRegistry.create(value);
         deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
         Serializer.serialize(transaction);
 
@@ -63,7 +63,7 @@ export class TransactionFactory {
         return transaction;
     }
 
-    private static fromSerialized(serialized: string | Buffer): ITransaction {
+    private static fromSerialized(serialized: Buffer): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);
             transaction.data.id = crypto.getId(transaction.data);

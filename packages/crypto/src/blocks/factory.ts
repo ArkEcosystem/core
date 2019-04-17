@@ -19,11 +19,11 @@ export class BlockFactory {
     }
 
     public static fromHex(hex: string): IBlock {
-        return this.fromSerialized(hex);
+        return this.fromSerialized(Buffer.from(hex));
     }
 
     public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer.toString("hex"));
+        return this.fromSerialized(buffer);
     }
 
     public static fromJson(json: IBlockJson): IBlock {
@@ -51,12 +51,12 @@ export class BlockFactory {
         return block;
     }
 
-    private static fromSerialized(serialized: string): IBlock {
+    private static fromSerialized(serialized: Buffer): IBlock {
         const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
         deserialized.data = Block.applySchema(deserialized.data);
 
         const block: IBlock = new Block(deserialized);
-        block.serialized = serialized;
+        block.serialized = serialized.toString("hex");
 
         return block;
     }
