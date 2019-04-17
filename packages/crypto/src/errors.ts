@@ -147,3 +147,9 @@ export class InvalidMilestoneConfigurationError extends CryptoError {
         super(message);
     }
 }
+
+export class MalformedBlockBytesError extends CryptoError {
+    constructor() {
+        super(`Failed to deserialize block, because the bytes are malformed.`);
+    }
+}
