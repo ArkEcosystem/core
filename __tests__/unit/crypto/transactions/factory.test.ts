@@ -1,6 +1,7 @@
 import "jest-extended";
 
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { MalformedTransactionBytesError, TransactionSchemaError } from "../../../../packages/crypto/src/errors";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Serializer, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { transaction as transactionFixture } from "../fixtures/transaction";
@@ -17,32 +18,66 @@ const transactionSerialized: Buffer = Serializer.serialize(transaction);
 
 describe("TransactionFactory", () => {
     describe(".fromHex", () => {
-        it("should create a transaction instance from hex", () => {
+        it("should pass to create a transaction from hex", () => {
             expectTransaction(TransactionFactory.fromHex(transactionSerialized.toString("hex")));
+        });
+
+        it("should fail to create a transaction from hex that contains malformed bytes", () => {
+            expect(() => TransactionFactory.fromHex("deadbeef")).toThrowError(MalformedTransactionBytesError);
         });
     });
 
     describe(".fromBytes", () => {
-        it("should create a transaction instance from a buffer", () => {
+        it("should pass to create a transaction from a buffer", () => {
             expectTransaction(TransactionFactory.fromBytes(transactionSerialized));
+        });
+
+        it("should fail to create a transaction from a buffer that contains malformed bytes", () => {
+            expect(() => TransactionFactory.fromBytes(Buffer.from("deadbeef"))).toThrowError(
+                MalformedTransactionBytesError,
+            );
         });
     });
 
     describe(".fromBytesUnsafe", () => {
-        it("should create a transaction instance from a buffer (unsafe)", () => {
+        it("should pass to create a transaction from a buffer", () => {
             expectTransaction(TransactionFactory.fromBytesUnsafe(transactionSerialized));
+        });
+
+        it("should fail to create a transaction from a buffer that contains malformed bytes", () => {
+            expect(() => TransactionFactory.fromBytesUnsafe(Buffer.from("deadbeef"))).toThrowError(
+                MalformedTransactionBytesError,
+            );
         });
     });
 
     describe(".fromData", () => {
-        it("should create a transaction instance from an object", () => {
+        it("should pass to create a transaction from an object", () => {
             expectTransaction(TransactionFactory.fromData(transaction.data));
+        });
+
+        it("should fail to create a transaction from an object that contains malformed data", () => {
+            expect(() =>
+                TransactionFactory.fromData({
+                    ...transaction.data,
+                    ...{ fee: Utils.BigNumber.make(0) },
+                }),
+            ).toThrowError(TransactionSchemaError);
         });
     });
 
     describe(".fromJson", () => {
-        it("should create a transaction instance from JSON", () => {
+        it("should pass to create a transaction from JSON", () => {
             expectTransaction(TransactionFactory.fromJson(transactionJson));
+        });
+
+        it("should fail to create a transaction from JSON that contains malformed data", () => {
+            expect(() =>
+                TransactionFactory.fromJson({
+                    ...transactionJson,
+                    ...{ fee: "something" },
+                }),
+            ).toThrowError(TransactionSchemaError);
         });
     });
 });
