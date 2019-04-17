@@ -236,7 +236,7 @@ describe("Wallet Manager", () => {
 
     describe("revertTransaction", () => {
         it("should revert the transaction from the sender & recipient", async () => {
-            const transaction = Transactions.Transaction.fromData({
+            const transaction = Transactions.TransactionFactory.fromData({
                 type: TransactionTypes.Transfer,
                 amount: Utils.BigNumber.make(245098000000000),
                 fee: Utils.BigNumber.make(0),

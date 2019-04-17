@@ -242,7 +242,7 @@ export class PostgresConnection implements Database.IConnection {
             await this.db.task(task => {
                 const transactions = [];
                 batch.forEach((tx: { serialized: Buffer; id: string }) => {
-                    const transaction = Transactions.Transaction.fromBytesUnsafe(tx.serialized, tx.id);
+                    const transaction = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
                     if (transaction.data.asset) {
                         let transactionId = transaction.id;
 

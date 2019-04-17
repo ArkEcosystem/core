@@ -22,7 +22,7 @@ export class Transactions extends Index {
 
             if (rows.length) {
                 rows = rows.map(row => {
-                    const { data } = CryptoTransactions.Transaction.fromBytesUnsafe(row.serialized, row.id);
+                    const { data } = CryptoTransactions.TransactionFactory.fromBytesUnsafe(row.serialized, row.id);
                     data.blockId = row.blockId;
 
                     return data;

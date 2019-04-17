@@ -60,7 +60,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             return true;
         }
 
-        return Transactions.Transaction.fromBytes(data.serialized).verified;
+        return Transactions.TransactionFactory.fromBytes(data.serialized).verified;
     }
 
     return false;

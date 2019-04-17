@@ -56,7 +56,7 @@ describe("PeerCommunicator", () => {
 
             const response = await communicator.postTransactions(
                 stubPeer,
-                transactions.map(t => Transactions.Transaction.fromData(t).toJson()),
+                transactions.map(t => Transactions.TransactionFactory.fromData(t).toJson()),
             );
 
             expect(response).toBeArray();

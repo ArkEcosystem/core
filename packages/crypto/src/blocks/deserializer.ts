@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
-import { Transaction } from "../transactions";
+import { TransactionFactory } from "../transactions";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
 
@@ -93,7 +93,7 @@ class Deserializer {
         block.transactions = [];
         transactionLengths.forEach(length => {
             const transactionBytes = buf.readBytes(length).toBuffer();
-            const transaction = Transaction.fromBytes(transactionBytes);
+            const transaction = TransactionFactory.fromBytes(transactionBytes);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
         });

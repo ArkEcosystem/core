@@ -176,7 +176,7 @@ describe("Connection", () => {
 
         it("should not add not-appliable transactions", () => {
             // This should be skipped due to insufficient funds
-            const highFeeTransaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy3.data));
+            const highFeeTransaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy3.data));
             highFeeTransaction.data.fee = Utils.BigNumber.make(1e9 * SATOSHI);
             // changing public key as fixture transactions have the same one
             highFeeTransaction.data.senderPublicKey =
@@ -215,13 +215,15 @@ describe("Connection", () => {
 
             const transactions: Interfaces.ITransaction[] = [];
 
-            transactions.push(Transactions.Transaction.fromData(cloneDeep(mockData.dummyExp1.data)));
+            transactions.push(Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummyExp1.data)));
             transactions[transactions.length - 1].data.expiration = expiration;
 
-            transactions.push(Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data)));
+            transactions.push(Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data)));
 
             // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx: any = Transactions.Transaction.fromData(cloneDeep(mockData.dummyExp2.data));
+            const insufficientBalanceTx: any = Transactions.TransactionFactory.fromData(
+                cloneDeep(mockData.dummyExp2.data),
+            );
             transactions.push(insufficientBalanceTx);
             insufficientBalanceTx.data.expiration = expiration;
 
@@ -382,7 +384,7 @@ describe("Connection", () => {
             for (const i of [0, 1]) {
                 const retrieved = connection
                     .getTransactions(i, 1)
-                    .map(serializedTx => Transactions.Transaction.fromBytes(serializedTx));
+                    .map(serializedTx => Transactions.TransactionFactory.fromBytes(serializedTx));
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();
@@ -704,7 +706,7 @@ describe("Connection", () => {
         it("should be true for existent sender with votes", () => {
             const tx = mockData.dummy1;
 
-            const voteTx = Transactions.Transaction.fromData(cloneDeep(tx.data));
+            const voteTx = Transactions.TransactionFactory.fromData(cloneDeep(tx.data));
             voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
             voteTx.data.type = TransactionTypes.Vote;
             voteTx.data.amount = Utils.BigNumber.ZERO;
@@ -785,7 +787,7 @@ describe("Connection", () => {
 
             const usedId = {};
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 if (usedId[transaction.data.id]) {
                     console.log("AAAAA");
@@ -813,7 +815,7 @@ describe("Connection", () => {
             }
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 connection.removeTransaction(transaction);
             }
@@ -822,12 +824,12 @@ describe("Connection", () => {
         it("delete + add after sync", () => {
             for (let i = 0; i < connection.options.syncInterval; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const transaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 connection.addTransaction(transaction);
             }
 
-            const transaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data));
+            const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
             transaction.data.id = fakeTransactionId(0);
             connection.removeTransaction(transaction);
             connection.addTransaction(transaction);
@@ -842,7 +844,7 @@ describe("Connection", () => {
 
             const allTransactions: Transactions.Transaction[] = [];
             for (let i = 0; i < nAdd; i++) {
-                const transaction = Transactions.Transaction.fromData(cloneDeep(mockData.dummy1.data));
+                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 transaction.data.fee = Utils.BigNumber.make(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
                 transaction.serialized = Transactions.Transaction.toBytes(transaction.data);
@@ -866,7 +868,7 @@ describe("Connection", () => {
             // console.timeEnd(`time to get first ${nGet}`)
 
             const topFeesReceived = topTransactionsSerialized.map(e =>
-                Transactions.Transaction.fromBytes(e).data.fee.toString(),
+                Transactions.TransactionFactory.fromBytes(e).data.fee.toString(),
             );
 
             expect(topFeesReceived).toEqual(topFeesExpected);

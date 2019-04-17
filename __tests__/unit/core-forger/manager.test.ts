@@ -90,7 +90,7 @@ describe("Forger Manager", () => {
         it("should return deserialized transactions", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: [Transactions.Transaction.fromData(sampleTransaction).serialized.toString("hex")],
+                transactions: [Transactions.TransactionFactory.fromData(sampleTransaction).serialized.toString("hex")],
             });
 
             const transactions = await forgeManager.getTransactionsForForging();
