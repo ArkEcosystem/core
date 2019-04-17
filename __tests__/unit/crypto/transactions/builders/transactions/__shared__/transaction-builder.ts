@@ -1,16 +1,21 @@
+import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
 import { crypto, slots } from "../../../../../../../packages/crypto/src/crypto";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
 import * as Utils from "../../../../../../../packages/crypto/src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
         describe("inherits = require(TransactionBuilder", () => {
             it("should have the essential properties", () => {
                 const builder = provider();
 
                 expect(builder).toHaveProperty("data.id", null);
                 expect(builder).toHaveProperty("data.timestamp");
-                expect(builder).toHaveProperty("data.version", 0x01);
+                expect(builder).toHaveProperty("data.version");
 
                 expect(builder).toHaveProperty("data.type");
                 expect(builder).toHaveProperty("data.fee");
@@ -27,8 +32,8 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                         id: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8dae1a1f",
                         amount: Utils.BigNumber.ONE,
                         fee: Utils.BigNumber.ONE,
-                        recipientId: "DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42",
-                        senderPublicKey: "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
+                        recipientId: "AZT6b2Vm6VgNF7gW49M4wvUVBBntWxdCj5",
+                        senderPublicKey: "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                         timestamp,
                         type: 0,
                         version: 0x01,
@@ -45,9 +50,9 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     expect(transaction.type).toBe(0);
                     expect(transaction.data.amount).toEqual(Utils.BigNumber.ONE);
                     expect(transaction.data.fee).toEqual(Utils.BigNumber.ONE);
-                    expect(transaction.data.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
+                    expect(transaction.data.recipientId).toBe("AZT6b2Vm6VgNF7gW49M4wvUVBBntWxdCj5");
                     expect(transaction.data.senderPublicKey).toBe(
-                        "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
+                        "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                     );
                     expect(transaction.data.timestamp).toBe(timestamp);
                     expect(transaction.data.version).toBe(0x01);
@@ -65,9 +70,9 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
 
                     expect(transaction.data.amount).toEqual(Utils.BigNumber.make(33));
                     expect(transaction.data.fee).toEqual(Utils.BigNumber.make(1000));
-                    expect(transaction.data.recipientId).toBe("DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42");
+                    expect(transaction.data.recipientId).toBe("AZT6b2Vm6VgNF7gW49M4wvUVBBntWxdCj5");
                     expect(transaction.data.senderPublicKey).toBe(
-                        "035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c",
+                        "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                     );
                     expect(transaction.data.timestamp).toBe(timestamp);
                     expect(transaction.data.version).toBe(0x01);
@@ -112,48 +117,71 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
         });
 
         describe("sign", () => {
-            it("signs this transaction with the keys of the passphrase", () => {
-                const builder = provider();
+            afterEach(() => {
+                jest.resetAllMocks();
+            });
+
+            it("should sign the transaction", () => {
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
+                    privateKey: "",
+                    compressed: true,
                 };
-                // @ts-ignore
-                crypto.getKeys = jest.fn(() => keys);
-                crypto.sign = jest.fn();
 
-                builder.sign("dummy pass");
+                const builder = provider();
+                if (builder.data.type === TransactionTypes.MultiSignature) {
+                    expect(() => builder.sign("dummy pass")).toThrowError();
+                } else {
+                    const getKeys = jest.spyOn(crypto, "getKeys").mockImplementation(() => keys);
+                    const sign = jest.spyOn(crypto, "sign").mockImplementation();
 
-                expect(crypto.getKeys).toHaveBeenCalledWith("dummy pass");
-                expect(crypto.sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                    builder.sign("dummy pass");
+                    expect(getKeys).toHaveBeenCalledWith("dummy pass");
+                    expect(sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                    expect(builder.data.signature).not.toBeEmpty();
+                }
             });
 
             it("establishes the public key of the sender", () => {
                 const builder = provider();
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
+                    privateKey: "",
+                    compressed: true,
                 };
-                // @ts-ignore
-                crypto.getKeys = jest.fn(() => keys);
-                crypto.sign = jest.fn();
-                builder.sign("my real pass");
-                expect(builder.data.senderPublicKey).toBe(keys.publicKey);
+
+                if (builder.data.type === TransactionTypes.MultiSignature) {
+                    expect(() => builder.sign("my real pass")).toThrowError();
+                } else {
+                    jest.spyOn(crypto, "getKeys").mockImplementation(() => keys);
+                    jest.spyOn(crypto, "sign").mockImplementation();
+
+                    builder.sign("my real pass");
+                    expect(builder.data.senderPublicKey).toBe(keys.publicKey);
+                }
             });
         });
 
         describe("signWithWif", () => {
-            it("signs this transaction with keys from a wif", () => {
+            afterEach(() => {
+                jest.resetAllMocks();
+            });
+
+            it("should sign the transaction", () => {
                 const builder = provider();
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
+                    privateKey: "",
+                    compressed: true,
                 };
-                // @ts-ignore
-                crypto.getKeysFromWIF = jest.fn(() => keys);
-                crypto.sign = jest.fn();
+
+                jest.spyOn(crypto, "getKeysFromWIF").mockImplementation(() => keys);
+                jest.spyOn(crypto, "sign").mockImplementation();
 
                 builder.network(23).signWithWif("dummy pass");
 
                 expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("dummy pass", {
-                    wif: 170,
+                    wif: 186,
                 });
                 expect(crypto.sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
@@ -162,46 +190,53 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const builder = provider();
                 const keys = {
                     publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
+                    privateKey: "",
+                    compressed: true,
                 };
-                // @ts-ignore
-                crypto.getKeysFromWIF = jest.fn(() => keys);
-                crypto.sign = jest.fn();
+
+                jest.spyOn(crypto, "getKeysFromWIF").mockImplementation(() => keys);
+                jest.spyOn(crypto, "sign").mockImplementation();
+
                 builder.signWithWif("my real pass");
                 expect(builder.data.senderPublicKey).toBe(keys.publicKey);
             });
         });
 
         describe("secondSign", () => {
-            it("signs this transaction with the keys of the second passphrase", () => {
+            it("should second sign the transaction", () => {
                 const builder = provider();
+
                 let keys;
-                crypto.getKeys = jest.fn(pass => {
+                const getKeys = jest.spyOn(crypto, "getKeys").mockImplementation(pass => {
                     keys = { publicKey: `${pass} public key` };
                     return keys;
                 });
-                crypto.secondSign = jest.fn();
+
+                const secondSign = jest.spyOn(crypto, "secondSign").mockImplementation(jest.fn());
 
                 builder.secondSign("my very real second pass");
 
-                expect(crypto.getKeys).toHaveBeenCalledWith("my very real second pass");
-                expect(crypto.secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                expect(getKeys).toHaveBeenCalledWith("my very real second pass");
+                expect(secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
         });
 
         describe("secondSignWithWif", () => {
             it("signs this transaction with the keys of a second wif", () => {
                 const builder = provider();
+
                 let keys;
-                crypto.getKeysFromWIF = jest.fn(pass => {
+                const getKeysFromWIF = jest.spyOn(crypto, "getKeysFromWIF").mockImplementation(pass => {
                     keys = { publicKey: `${pass} public key` };
                     return keys;
                 });
-                crypto.secondSign = jest.fn();
+
+                const secondSign = jest.spyOn(crypto, "secondSign").mockImplementation(jest.fn());
 
                 builder.network(23).secondSignWithWif("my very real second pass", null);
 
-                expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("my very real second pass", { wif: 170 });
-                expect(crypto.secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                expect(getKeysFromWIF).toHaveBeenCalledWith("my very real second pass", { wif: 186 });
+                expect(secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
         });
     });

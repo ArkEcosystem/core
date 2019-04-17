@@ -1,7 +1,8 @@
 import "jest-extended";
 
-import { crypto } from "../../../../../../packages/crypto/src/crypto";
+import { slots } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { configManager } from "../../../../../../packages/crypto/src/managers";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
@@ -10,27 +11,30 @@ import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiSignatureBuilder;
 
+beforeAll(() => {
+    configManager.setFromPreset("testnet");
+});
+
 beforeEach(() => {
     builder = BuilderFactory.multiSignature();
 });
 
 describe("Multi Signature Transaction", () => {
     describe("verify", () => {
-        it.skip("should be valid with a signature", () => {
+        it("should be valid with a signature", () => {
             const actual = builder
                 .multiSignatureAsset({
-                    keysgroup: [
-                        "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                        "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-                        "+03e710267cdbc87cf8c2f32a6c3f22e1d1ce22ba30e1915360f511a2b16df8c5a5",
+                    publicKeys: [
+                        "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
+                        "028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0",
+                        "021d3932ab673230486d0f956d05b9e88791ee298d9af2d6df7d9ed5bb861c92dd",
                     ],
-                    lifetime: 72,
                     min: 2,
                 })
-                .sign("dummy passphrase")
-                .multiSignatureSign("multi passphrase 1")
-                .multiSignatureSign("multi passphrase 2")
-                .multiSignatureSign("multi passphrase 3");
+                .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22")
+                .multiSign("secret 1", 0)
+                .multiSign("secret 2", 1)
+                .multiSign("secret 3", 2);
 
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
@@ -41,59 +45,62 @@ describe("Multi Signature Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
+        expect(builder).toHaveProperty("data.version", 0x02);
         expect(builder).toHaveProperty("data.fee", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", null);
         expect(builder).toHaveProperty("data.senderPublicKey", null);
         expect(builder).toHaveProperty("data.asset");
-        expect(builder).toHaveProperty("data.asset.multisignature", {});
+        expect(builder).toHaveProperty("data.asset.multiSignature", { min: 0, publicKeys: [] });
     });
 
     describe("multiSignatureAsset", () => {
         const multiSignatureFee = feeManager.get(TransactionTypes.MultiSignature);
-        const multisignature = {
-            keysgroup: ["key a", "key b", "key c"],
-            lifetime: 1,
+        const multiSignature = {
+            publicKeys: ["key a", "key b", "key c"],
             min: 1,
         };
 
         it("establishes the multi-signature on the asset", () => {
-            builder.multiSignatureAsset(multisignature);
-            expect(builder.data.asset.multisignature).toBe(multisignature);
+            builder.multiSignatureAsset(multiSignature);
+            expect(builder.data.asset.multiSignature).toBe(multiSignature);
         });
 
         it("calculates and establish the fee", () => {
-            builder.multiSignatureAsset(multisignature);
+            builder.multiSignatureAsset(multiSignature);
             expect(builder.data.fee).toEqual(Utils.BigNumber.make(4).times(multiSignatureFee));
         });
     });
 
     describe("sign", () => {
-        it("establishes the recipient id", () => {
-            const pass = "dummy pass";
-
-            // @ts-ignore
-            crypto.getKeys = jest.fn(() => ({
-                publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-            }));
-            crypto.sign = jest.fn();
-
-            builder.sign(pass);
-            expect(builder.data.recipientId).toBe("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F");
+        it("should throw an error", () => {
+            expect(() => builder.sign("secret")).toThrowError();
         });
     });
 
-    describe("multiSignatureSign", () => {
+    describe("multiSign", () => {
         it("adds the signature to the transaction", () => {
-            const pass = "dummy pass";
-            const signature = `${pass} signature`;
+            const actual = builder
+                .multiSignatureAsset({
+                    publicKeys: [
+                        "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
+                        "028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0",
+                        "021d3932ab673230486d0f956d05b9e88791ee298d9af2d6df7d9ed5bb861c92dd",
+                    ],
+                    min: 2,
+                })
+                .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22")
+                .multiSign("secret 1", 0)
+                .multiSign("secret 2", 1)
+                .multiSign("secret 3", 2);
 
             // @ts-ignore
-            crypto.getKeys = jest.fn(value => ({ publicKey: `${value} public key` }));
-            crypto.sign = jest.fn(() => signature);
+            slots.getTime = jest.fn(() => slots.beginEpochTime().toMilliseconds());
 
-            builder.multiSignatureSign(pass);
-            expect(builder.data.signatures).toIncludeAllMembers([signature]);
+            expect(actual.data.signature).toBe(
+                "00bab66bbc4a6b9e350b641969c454fa3052ff6511e748aafbbb0511f8178e0039810a336149436d6d1ad407a65fc121e6246c3449086a5d295d868269eceaf62f014f01534036346f7442d6f2b0b88f8325fd296cfa0b521f9a56ba53c4df4718586ed7358a12b4e8943b0e7936f5cbf457b356918dd70b3d644c7fd7820cdbd4fc02c876f3697ffa8df485348c1b5d164e69ff182e98756c527f62711e4fbabc0d19913c0274c9550f07a3cc4ccb213143ee07bf0f8160d01c91301394eda0c458e7",
+            );
+            expect(actual.data.signature.length / 130).toBe(3);
         });
     });
 });
