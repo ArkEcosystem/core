@@ -1,5 +1,4 @@
 import { crypto, HashAlgorithms } from "../crypto";
-import { MalformedBlockBytesError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../interfaces";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
@@ -20,19 +19,11 @@ export class BlockFactory {
     }
 
     public static fromHex(hex: string): IBlock {
-        let buffer: Buffer;
-
-        try {
-            buffer = Buffer.from(hex, "hex");
-        } catch (error) {
-            throw new MalformedBlockBytesError();
-        }
-
-        return this.fromSerialized(buffer);
+        return this.fromSerialized(hex);
     }
 
     public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer);
+        return this.fromSerialized(buffer ? buffer.toString("hex") : null);
     }
 
     public static fromJson(json: IBlockJson): IBlock {
@@ -60,14 +51,12 @@ export class BlockFactory {
         return block;
     }
 
-    private static fromSerialized(serialized: Buffer): IBlock {
-        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(
-            serialized.toString("hex"),
-        );
+    private static fromSerialized(serialized: string): IBlock {
+        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
         deserialized.data = Block.applySchema(deserialized.data);
 
         const block: IBlock = new Block(deserialized);
-        block.serialized = serialized.toString("hex");
+        block.serialized = serialized;
 
         return block;
     }

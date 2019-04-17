@@ -11,19 +11,11 @@ import { Serializer } from "./serializer";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
-        let buffer: Buffer;
-
-        try {
-            buffer = Buffer.from(hex, "hex");
-        } catch (error) {
-            throw new MalformedTransactionBytesError();
-        }
-
-        return this.fromSerialized(buffer);
+        return this.fromSerialized(hex);
     }
 
     public static fromBytes(buffer: Buffer): ITransaction {
-        return this.fromSerialized(buffer);
+        return this.fromSerialized(buffer ? buffer.toString("hex") : null);
     }
 
     /**
@@ -71,7 +63,7 @@ export class TransactionFactory {
         return transaction;
     }
 
-    private static fromSerialized(serialized: Buffer): ITransaction {
+    private static fromSerialized(serialized: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);
             transaction.data.id = crypto.getId(transaction.data);
