@@ -12,7 +12,7 @@ import { stateStorage } from "./state-storage";
 
 import { Blockchain } from "./blockchain";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -176,7 +176,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
-                stateStorage.setLastBlock(Block.fromData(config.get("genesisBlock")));
+                stateStorage.setLastBlock(BlockFactory.fromJson(config.get("genesisBlock")));
                 await blockchain.database.buildWallets();
 
                 return blockchain.dispatch("STARTED");

@@ -1,12 +1,13 @@
 const {
     HashAlgorithms,
-    Transaction
+    Transactions
 } = require('@arkecosystem/crypto')
+
 const createHash = require("create-hash");
 const nodeSha256 = (bytes) => createHash("sha256").update(bytes).digest()
 
 const data = require('../helpers').getJSONFixture('transaction/deserialized/0');
-const transactionBytes = Transaction.toBytes(data);
+const transactionBytes = Transactions.Transaction.toBytes(data);
 
 exports['bcrypto.sha256'] = () => {
     HashAlgorithms.sha256(transactionBytes);

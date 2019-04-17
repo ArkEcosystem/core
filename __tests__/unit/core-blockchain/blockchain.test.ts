@@ -15,7 +15,7 @@ import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { getStorage } from "./mocks/p2p/peer-storage";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 
 let genesisBlock;
 
@@ -25,7 +25,7 @@ describe("Blockchain", () => {
     beforeAll(async () => {
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = Block.fromData(GB);
+        genesisBlock = BlockFactory.fromData(GB);
 
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
@@ -92,7 +92,7 @@ describe("Blockchain", () => {
     });
 
     describe("processBlock", () => {
-        const block3 = Block.fromData(blocks2to100[1]);
+        const block3 = BlockFactory.fromData(blocks2to100[1]);
         let getLastBlock;
         let setLastBlock;
         beforeEach(() => {
@@ -111,7 +111,7 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
 
-            await blockchain.processBlock(Block.fromData(blocks2to100[2]), mockCallback);
+            await blockchain.processBlock(BlockFactory.fromData(blocks2to100[2]), mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
@@ -228,7 +228,7 @@ describe("Blockchain", () => {
 
     describe("forkBlock", () => {
         it("should dispatch FORK and set state.forkedBlock", () => {
-            const forkedBlock = Block.fromData(blocks2to100[11]);
+            const forkedBlock = BlockFactory.fromData(blocks2to100[11]);
             expect(() => blockchain.forkBlock(forkedBlock)).toDispatch(blockchain, "FORK");
             expect(blockchain.state.forkedBlock).toBe(forkedBlock);
 

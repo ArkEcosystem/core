@@ -9,7 +9,7 @@ import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fix
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 const { crypto } = Crypto;
 
 let TransactionGuard;
@@ -647,6 +647,14 @@ describe("Transaction Guard", () => {
             afterEach(async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1)); // resets to height 1
 
             const addBlock = async transactions => {
+                let totalAmount = Utils.BigNumber.ZERO;
+                let totalFee = Utils.BigNumber.ZERO;
+
+                for (const transaction of transactions) {
+                    totalAmount = totalAmount.plus(transaction.amount);
+                    totalFee = totalFee.plus(transaction.fee);
+                }
+
                 // makes blockchain accept a new block with the transactions specified
                 const block = {
                     id: "17882607875259085966",
@@ -657,8 +665,8 @@ describe("Transaction Guard", () => {
                     previousBlock: genesisBlock.id,
                     numberOfTransactions: 1,
                     transactions,
-                    totalAmount: Utils.BigNumber.make(transactions.reduce((acc, curr) => acc + curr.amount)),
-                    totalFee: Utils.BigNumber.make(transactions.reduce((acc, curr) => acc + curr.fee)),
+                    totalAmount,
+                    totalFee,
                     payloadLength: 0,
                     payloadHash: genesisBlock.payloadHash,
                     generatorPublicKey: delegates[0].publicKey,
@@ -666,11 +674,12 @@ describe("Transaction Guard", () => {
                         "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
                     createdAt: "2019-07-11T16:48:50.550Z",
                 };
-                const blockVerified = Block.fromData(block);
+                const blockVerified = BlockFactory.fromData(block);
                 blockVerified.verification.verified = true;
 
                 await blockchain.processBlock(blockVerified, () => null);
             };
+
             const forgedErrorMessage = id => ({
                 [id]: [
                     {

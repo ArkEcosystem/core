@@ -28,7 +28,7 @@ export class DeserializeCommand extends BaseCommand {
         if (flags.type === "transaction") {
             output = Transactions.TransactionFactory.fromHex(flags.data).data;
         } else {
-            const block = Blocks.Block.fromHex(flags.data);
+            const block = Blocks.BlockFactory.fromHex(flags.data);
             output = { data: block.data, transactions: block.transactions.map(tx => tx.data) };
         }
 

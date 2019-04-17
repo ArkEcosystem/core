@@ -9,8 +9,8 @@ import "../../utils";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 
-const { Block } = cBlocks;
-const blocks = blocks2to100.concat(blocks101to155).map(block => Block.fromData(block));
+const { Block, BlockFactory } = cBlocks;
+const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
 let stateStorage;
 
 beforeAll(async () => {

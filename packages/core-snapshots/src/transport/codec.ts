@@ -1,4 +1,4 @@
-import { Blocks, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Transactions } from "@arkecosystem/crypto";
 import { createCodec, decode, encode } from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 
@@ -8,12 +8,12 @@ function encodeBlock(block) {
 
 function decodeBlock(buffer) {
     const block = Blocks.Block.deserialize(buffer.toString("hex"), true);
-    // @ts-ignore
-    block.totalAmount = (block.totalAmount as Utils.BigNumber).toFixed();
-    // @ts-ignore
-    block.totalFee = (block.totalFee as Utils.BigNumber).toFixed();
-    // @ts-ignore
-    block.reward = (block.reward as Utils.BigNumber).toFixed();
+    // @ts-ignore - @TODO: remove ts-ignore
+    block.totalAmount = block.totalAmount.toFixed();
+    // @ts-ignore - @TODO: remove ts-ignore
+    block.totalFee = block.totalFee.toFixed();
+    // @ts-ignore - @TODO: remove ts-ignore
+    block.reward = block.reward.toFixed();
 
     return decamelizeKeys(block);
 }

@@ -6,7 +6,7 @@ import { Blocks } from "@arkecosystem/crypto";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 
 let databaseService: Database.IDatabaseService;
 
@@ -15,7 +15,7 @@ beforeAll(async () => {
 
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    await databaseService.saveBlock(Block.fromData(genesisBlock));
+    await databaseService.saveBlock(BlockFactory.fromData(genesisBlock));
 });
 
 afterAll(async () => {
@@ -31,7 +31,7 @@ describe("Connection", () => {
 
     describe("getLastBlock", () => {
         it("should get the genesis block as last block", async () => {
-            await expect(databaseService.getLastBlock()).resolves.toEqual(Block.fromData(genesisBlock));
+            await expect(databaseService.getLastBlock()).resolves.toEqual(BlockFactory.fromData(genesisBlock));
         });
     });
 });

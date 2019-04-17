@@ -9,6 +9,8 @@ const fixedJobs = [
     "test-node11-unit",
     "test-node10-functional",
     "test-node11-functional",
+    "test-node10-benchmark",
+    "test-node11-benchmark",
 ]
 
 function jason(value) {

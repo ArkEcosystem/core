@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p";
-import { Crypto } from "@arkecosystem/crypto";
+import { Crypto, Transactions } from "@arkecosystem/crypto";
 import { randomBytes } from "crypto";
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
@@ -32,6 +32,10 @@ beforeAll(async () => {
 afterAll(async () => await tearDown());
 
 afterEach(async () => nock.cleanAll());
+
+function verifyTransaction(data): boolean {
+    return crypto.verify(Transactions.TransactionFactory.fromData(data).data);
+}
 
 describe("Transactions", () => {
     describe("POST transactions.info", () => {
@@ -74,7 +78,7 @@ describe("Transactions", () => {
             });
 
             expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
 
         it("should create a new transaction with a vendor field and verify", async () => {
@@ -87,7 +91,7 @@ describe("Transactions", () => {
 
             expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
             expect(response.body.result.vendorField).toBe("Hello World");
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
     });
 
@@ -105,7 +109,7 @@ describe("Transactions", () => {
                 id: transaction.body.result.id,
             });
 
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
 
         it("should fail to broadcast the transaction", async () => {
@@ -137,7 +141,7 @@ describe("Transactions", () => {
             });
 
             expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
 
         it("should create a new transaction with a vendor field", async () => {
@@ -151,7 +155,7 @@ describe("Transactions", () => {
 
             expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
             expect(response.body.result.vendorField).toBe("Hello World");
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
 
         it("should fail to create a new transaction", async () => {

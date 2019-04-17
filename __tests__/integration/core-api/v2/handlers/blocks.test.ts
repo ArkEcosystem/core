@@ -10,7 +10,7 @@ import { resetBlockchain } from "../../../../utils/helpers";
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 
 beforeAll(async () => {
     await setUp();
@@ -165,7 +165,7 @@ describe("API 2.0 - Blocks", () => {
             (header, request) => {
                 it("should POST a search for blocks with the exact specified previousBlock", async () => {
                     // save a new block so that we can make the request with previousBlock
-                    const block2 = Block.fromData(blocks2to100[0]);
+                    const block2 = BlockFactory.fromData(blocks2to100[0]);
                     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
                     await databaseService.saveBlock(block2);
 

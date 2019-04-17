@@ -406,7 +406,7 @@ export class PeerVerifier {
             return true;
         }
 
-        const block = Blocks.Block.fromData(blockData);
+        const block = Blocks.BlockFactory.fromData(blockData);
 
         if (!block.verification.verified) {
             this.log(
