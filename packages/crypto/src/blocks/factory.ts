@@ -1,8 +1,6 @@
 import { crypto, HashAlgorithms } from "../crypto";
-import { BlockSchemaError } from "../errors";
-import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction, ITransactionData } from "../interfaces";
-import { BigNumber, isException } from "../utils";
-import { validator } from "../validation";
+import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../interfaces";
+import { BigNumber } from "../utils";
 import { Block } from "./block";
 import { deserializer } from "./deserializer";
 
@@ -44,7 +42,7 @@ export class BlockFactory {
     }
 
     public static fromData(data: IBlockData): IBlock {
-        data = BlockFactory.applySchema(data);
+        data = Block.applySchema(data);
 
         const serialized: string = Block.serializeWithTransactions(data).toString("hex");
         const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
@@ -55,24 +53,11 @@ export class BlockFactory {
 
     private static fromSerialized(serialized: string): IBlock {
         const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
-        deserialized.data = BlockFactory.applySchema(deserialized.data);
+        deserialized.data = Block.applySchema(deserialized.data);
 
         const block: IBlock = new Block(deserialized);
         block.serialized = serialized;
 
         return block;
-    }
-
-    private static applySchema(data: IBlockData): IBlockData {
-        const { value, error } = validator.validate("block", data);
-
-        if (
-            error !== null &&
-            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
-        ) {
-            throw new BlockSchemaError(error);
-        }
-
-        return value;
     }
 }

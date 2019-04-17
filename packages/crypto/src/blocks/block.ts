@@ -1,11 +1,26 @@
 import { crypto, HashAlgorithms, slots } from "../crypto";
+import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
-import { BigNumber } from "../utils";
+import { BigNumber, isException } from "../utils";
+import { validator } from "../validation";
 import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
+    public static applySchema(data: IBlockData): IBlockData {
+        const { value, error } = validator.validate("block", data);
+
+        if (
+            error !== null &&
+            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
+        ) {
+            throw new BlockSchemaError(error);
+        }
+
+        return value;
+    }
+
     public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
         return deserializer.deserialize(hexString, headerOnly).data;
     }
