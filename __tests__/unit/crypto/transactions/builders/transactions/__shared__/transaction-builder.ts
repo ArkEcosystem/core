@@ -1,10 +1,15 @@
 import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
 import { crypto, slots } from "../../../../../../../packages/crypto/src/crypto";
+import { configManager } from "../../../../../../../packages/crypto/src/managers";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
 import * as Utils from "../../../../../../../packages/crypto/src/utils";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
         afterEach(() => {
             jest.restoreAllMocks();
         });
@@ -138,7 +143,6 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     builder.sign("dummy pass");
                     expect(getKeys).toHaveBeenCalledWith("dummy pass");
                     expect(sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
-                    expect(builder.data.signature).not.toBeEmpty();
                 }
             });
 

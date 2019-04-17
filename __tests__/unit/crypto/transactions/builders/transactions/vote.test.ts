@@ -67,7 +67,7 @@ describe("Vote Transaction", () => {
             crypto.sign = jest.fn();
 
             builder.sign(pass);
-            expect(builder.data.recipientId).toBe("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F");
+            expect(builder.data.recipientId).toBe("AGTteu9EFVisaGWoEJdpxQ5D5B3UZfPFgT");
         });
     });
 
@@ -82,7 +82,7 @@ describe("Vote Transaction", () => {
             // builder.signWithWif = jest.fn();
 
             builder.signWithWif(pass);
-            expect(builder.data.recipientId).toBe("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F");
+            expect(builder.data.recipientId).toBe("AGTteu9EFVisaGWoEJdpxQ5D5B3UZfPFgT");
         });
     });
 });

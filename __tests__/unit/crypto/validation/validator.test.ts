@@ -2,7 +2,7 @@ import "jest-extended";
 
 import ajv from "ajv";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionRegistry } from "../../../../packages/crypto/src/transactions/index";
+import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator } from "../../../../packages/crypto/src/validation";
 import { block2, genesisBlock } from "../../../utils/fixtures/unitnet/blocks";
@@ -191,7 +191,7 @@ describe("validator", () => {
 
         describe("block", () => {
             beforeAll(() => {
-                TransactionRegistry.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
+                TransactionTypeFactory.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
                 configManager.setFromPreset("unitnet");
             });
 

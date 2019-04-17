@@ -4,7 +4,7 @@ import { crypto } from "../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
-import { TransactionRegistry } from "../../../../packages/crypto/src/transactions";
+import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 
@@ -17,7 +17,7 @@ describe("Transfer Transaction", () => {
     const amount = 10 * ARKTOSHI;
 
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.Transfer).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.Transfer).getSchema();
     });
 
     beforeEach(() => {
@@ -239,7 +239,7 @@ describe("Transfer Transaction", () => {
 
 describe("Second Signature Transaction", () => {
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.SecondSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.SecondSignature).getSchema();
     });
 
     beforeEach(() => {
@@ -310,7 +310,7 @@ describe("Second Signature Transaction", () => {
 
 describe("Delegate Registration Transaction", () => {
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.DelegateRegistration).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.DelegateRegistration).getSchema();
     });
 
     beforeEach(() => {
@@ -403,7 +403,7 @@ describe("Vote Transaction", () => {
     ];
 
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.Vote).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.Vote).getSchema();
     });
 
     beforeEach(() => {
@@ -500,7 +500,7 @@ describe.skip("Multi Signature Transaction", () => {
     let multiSignatureAsset;
 
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.MultiSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.MultiSignature).getSchema();
     });
 
     beforeEach(() => {
