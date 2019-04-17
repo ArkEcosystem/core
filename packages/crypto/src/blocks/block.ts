@@ -8,6 +8,19 @@ import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
+    public static applySchema(data: IBlockData): IBlockData {
+        const { value, error } = validator.validate("block", data);
+
+        if (
+            error !== null &&
+            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
+        ) {
+            throw new BlockSchemaError(error);
+        }
+
+        return value;
+    }
+
     public static createFromData(data, keys): IBlock {
         data.generatorPublicKey = keys.publicKey;
 
@@ -88,6 +101,8 @@ export class Block implements IBlock {
     }
 
     public static fromData(data: IBlockData): IBlock {
+        data = Block.applySchema(data);
+
         const serialized: string = Block.serializeWithTransactions(data).toString("hex");
         const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
         block.serialized = serialized;
@@ -96,7 +111,10 @@ export class Block implements IBlock {
     }
 
     private static fromSerialized(serialized: string): IBlock {
-        const block: IBlock = new Block(deserializer.deserialize(serialized));
+        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
+        deserialized.data = Block.applySchema(deserialized.data);
+
+        const block: IBlock = new Block(deserialized);
         block.serialized = serialized;
 
         return block;
@@ -108,16 +126,7 @@ export class Block implements IBlock {
     public verification: IBlockVerification;
 
     private constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
-        const { value, error } = validator.validate("block", data);
-
-        if (
-            error !== null &&
-            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
-        ) {
-            throw new BlockSchemaError(error);
-        }
-
-        this.data = value;
+        this.data = data;
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
