@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
-import { TransactionVersionError } from "../errors";
+import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "../utils";
@@ -61,6 +61,14 @@ class Deserializer {
     }
 
     private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
+        if (transaction.version === 1) {
+            this.deserializeECDSA(transaction, buf);
+        } else {
+            this.deserializeSchnorr(transaction, buf);
+        }
+    }
+
+    private deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer) {
         const currentSignatureLength = (): number => {
             buf.mark();
 
@@ -101,6 +109,21 @@ class Deserializer {
             buf.skip(1);
             const multiSignature: string = buf.readBytes(buf.limit - buf.offset).toString("hex");
             transaction.signatures = [multiSignature];
+        }
+    }
+
+    private deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer) {
+        if (buf.remaining() % 65 === 0) {
+            // Multi sig
+            transaction.signature = buf.readBytes(buf.remaining()).toString("hex");
+        } else if (buf.remaining() % 64 === 0) {
+            transaction.signature = buf.readBytes(64).toString("hex");
+
+            if (buf.remaining()) {
+                transaction.secondSignature = buf.readBytes(64).toString("hex");
+            }
+        } else {
+            throw new MalformedTransactionBytesError();
         }
     }
 

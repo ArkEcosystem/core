@@ -17,7 +17,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         this.data.asset = { multiSignature: { min: 0, publicKeys: [] } };
     }
 
-    public publicKey(publicKey: string): MultiSignatureBuilder {
+    public participant(publicKey: string): MultiSignatureBuilder {
         const { publicKeys } = this.data.asset.multiSignature;
 
         if (publicKeys.length <= 16) {
