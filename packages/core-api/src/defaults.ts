@@ -28,22 +28,6 @@ export const defaults = {
         key: process.env.CORE_API_SSL_KEY,
         cert: process.env.CORE_API_SSL_CERT,
     },
-    // @see https://github.com/faustbrian/hapi-version
-    versions: {
-        basePath: "/api/",
-        versions: {
-            default: 1,
-            allowed: [1, 2],
-        },
-        strategies: {
-            acceptHeader: {
-                subType: "core-api",
-            },
-            customHeader: {
-                parameter: "api-version",
-            },
-        },
-    },
     // @see https://github.com/wraithgar/hapi-rate-limit
     rateLimit: {
         enabled: !process.env.CORE_API_RATE_LIMIT,
@@ -82,11 +66,11 @@ export const defaults = {
     whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     plugins: [
         {
-            plugin: resolve(__dirname, "./versions/1"),
-            routes: { prefix: "/api/v1" },
+            plugin: resolve(__dirname, "./handlers"),
+            routes: { prefix: "/api" },
         },
         {
-            plugin: resolve(__dirname, "./versions/2"),
+            plugin: resolve(__dirname, "./handlers"),
             routes: { prefix: "/api/v2" },
         },
     ],
