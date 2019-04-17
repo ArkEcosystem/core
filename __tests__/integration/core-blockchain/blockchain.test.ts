@@ -12,8 +12,6 @@ import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block, BlockFactory } = Blocks;
-
 let genesisBlock;
 let configManager;
 let container;
@@ -172,7 +170,7 @@ describe("Blockchain", () => {
                 transactions: sortedTransactions,
             };
 
-            return BlockFactory.make(data, Crypto.crypto.getKeys(generatorKeys.secret));
+            return Blocks.BlockFactory.make(data, Crypto.crypto.getKeys(generatorKeys.secret));
         };
 
         it("should restore vote balances after a rollback", async () => {
@@ -328,7 +326,7 @@ async function __addBlocks(untilHeight) {
     const lastHeight = blockchain.getLastHeight();
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
-        const blockToProcess = BlockFactory.fromData(allBlocks[height - 2]);
+        const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
         await blockchain.processBlock(blockToProcess, () => null);
     }
 }
