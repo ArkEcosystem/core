@@ -8,7 +8,7 @@ import {
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { Transaction } from "../../../../packages/crypto/src/transactions";
+import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
@@ -33,7 +33,7 @@ describe("Transaction serializer / deserializer", () => {
             .getStruct();
 
         it("should ser/deserialize giving back original fields", () => {
-            const serialized = Transaction.fromData(transfer).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, transfer);
@@ -47,7 +47,7 @@ describe("Transaction serializer / deserializer", () => {
             const vendorField = "cool vendor field";
             transfer.vendorFieldHex = new Buffer(vendorField).toString("hex");
 
-            const serialized = Transaction.fromData(transfer).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, transfer);
@@ -70,7 +70,7 @@ describe("Transaction serializer / deserializer", () => {
                 .getStruct();
 
             const serialized = Transaction.toBytes(transferWithLongVendorfield);
-            const deserialized = Transaction.fromBytes(serialized);
+            const deserialized = TransactionFactory.fromBytes(serialized);
 
             expect(deserialized.verified).toBeTrue();
             expect(deserialized.data.vendorField).toHaveLength(255);
@@ -93,7 +93,7 @@ describe("Transaction serializer / deserializer", () => {
             transferWithLongVendorfield.vendorField = "y".repeat(255);
             expect(() => {
                 const serialized = Transaction.toBytes(transferWithLongVendorfield);
-                Transaction.fromBytes(serialized);
+                TransactionFactory.fromBytes(serialized);
             }).toThrow(TransactionSchemaError);
         });
     });
@@ -108,7 +108,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.fromData(secondSignature).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(secondSignature).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, secondSignature);
@@ -126,7 +126,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.fromData(delegateRegistration).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(delegateRegistration).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateRegistration);
@@ -145,7 +145,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.fromData(vote).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(vote).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, vote);
@@ -172,7 +172,7 @@ describe("Transaction serializer / deserializer", () => {
             .getStruct();
 
         it("should ser/deserialize giving back original fields", () => {
-            const serialized = Transaction.fromData(multiSignature).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(multiSignature).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, multiSignature);
@@ -186,7 +186,7 @@ describe("Transaction serializer / deserializer", () => {
                 "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
             ];
 
-            const serialized = Transaction.fromData(multiSignature).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(multiSignature).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, multiSignature);
@@ -205,7 +205,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.fromData(ipfs).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(ipfs).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, ipfs);
@@ -227,7 +227,7 @@ describe("Transaction serializer / deserializer", () => {
                 .getStruct();
 
             // expect(timelockTransfer).toEqual({})
-            const serialized = Transaction.fromData(timelockTransfer).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(timelockTransfer).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, timelockTransfer);
@@ -248,7 +248,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.fromData(multiPayment).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(multiPayment).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, multiPayment);
@@ -266,7 +266,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.fromData(delegateResignation).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(delegateResignation).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateResignation);
@@ -318,7 +318,7 @@ describe("Transaction serializer / deserializer", () => {
                 .getStruct();
             transactionWrongType.type = 55;
 
-            expect(() => Transaction.fromData(transactionWrongType)).toThrow(UnkownTransactionError);
+            expect(() => TransactionFactory.fromData(transactionWrongType)).toThrow(UnkownTransactionError);
         });
     });
 

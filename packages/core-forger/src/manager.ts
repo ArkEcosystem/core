@@ -173,7 +173,7 @@ export class ForgerManager {
         }
 
         const transactions: Interfaces.ITransactionData[] = response.transactions.map(
-            serializedTx => Transactions.Transaction.fromHex(serializedTx).data,
+            serializedTx => Transactions.TransactionFactory.fromHex(serializedTx).data,
         );
 
         this.logger.debug(

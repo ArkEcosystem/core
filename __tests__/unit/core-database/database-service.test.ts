@@ -193,7 +193,7 @@ describe("Database Service", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                    wallet.username = Transactions.Transaction.fromBytes(
+                    wallet.username = Transactions.TransactionFactory.fromBytes(
                         transaction.serialized,
                     ).data.asset.delegate.username;
                     wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);

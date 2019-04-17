@@ -7,17 +7,17 @@ const serializedHex = require('../../helpers').getFixture('transaction/serialize
 const serializedBytes = Buffer.from(serializedHex, "hex");
 
 exports['fromData'] = () => {
-    return Transaction.fromData(data);
+    return TransactionFactory.fromData(data);
 };
 
 exports['fromHex'] = () => {
-    return Transaction.fromHex(serializedHex);
+    return TransactionFactory.fromHex(serializedHex);
 };
 
 exports['fromBytes'] = () => {
-    return Transaction.fromBytes(serializedBytes);
+    return TransactionFactory.fromBytes(serializedBytes);
 };
 
 exports['fromBytesUnsafe'] = () => {
-    return Transaction.fromBytesUnsafe(serializedBytes, data.id);
+    return TransactionFactory.fromBytesUnsafe(serializedBytes, data.id);
 };

@@ -29,7 +29,7 @@ export class SerializeCommand extends BaseCommand {
 
         let serialized: Buffer;
         if (flags.type === "transaction") {
-            serialized = Transactions.Transaction.fromData(JSON.parse(flags.data)).serialized;
+            serialized = Transactions.TransactionFactory.fromData(JSON.parse(flags.data)).serialized;
         } else {
             // @TODO: call applySchema in @arkecosystem/crypto before serialising
             const block: Interfaces.IBlockData = Blocks.Block.applySchema(JSON.parse(flags.data));
