@@ -1,8 +1,10 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { Utils } from "../../../../packages/crypto/src";
+import { crypto } from "../../../../packages/crypto/src/crypto";
 import {
+    MalformedTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
@@ -161,6 +163,47 @@ describe("Transaction serializer / deserializer", () => {
 
             expect(deserialized.id).toEqual(legacyMultiSignatureRegistration.data.id);
             expect(deserialized.toJson()).toMatchObject(legacyMultiSignatureRegistration.data);
+        });
+    });
+
+    describe("ser/deserialize - multi signature", () => {
+        let multiSignatureRegistration;
+
+        beforeEach(() => {
+            configManager.setFromPreset("testnet");
+
+            const participant1 = crypto.getKeys("secret 1");
+            const participant2 = crypto.getKeys("secret 2");
+            const participant3 = crypto.getKeys("secret 3");
+
+            multiSignatureRegistration = BuilderFactory.multiSignature()
+                .senderPublicKey(participant1.publicKey)
+                .network(23)
+                .participant(participant1.publicKey)
+                .participant(participant2.publicKey)
+                .participant(participant3.publicKey)
+                .min(3)
+                .multiSign("secret 1", 0)
+                .multiSign("secret 2", 1)
+                .multiSign("secret 3", 2)
+                .getStruct();
+        });
+
+        it("should ser/deserialize a multisig registration", () => {
+            const transaction = Transaction.fromData(multiSignatureRegistration);
+            const deserialized = Transaction.fromBytes(transaction.serialized);
+
+            expect(transaction.isVerified).toBeTrue();
+            expect(deserialized.isVerified).toBeTrue();
+            expect(deserialized.data.asset).toEqual(multiSignatureRegistration.asset);
+            checkCommonFields(deserialized, multiSignatureRegistration);
+        });
+
+        it("should not deserialize a malformed signature", () => {
+            const transaction = Transaction.fromData(multiSignatureRegistration);
+            transaction.serialized = transaction.serialized.slice(0, transaction.serialized.length - 2);
+
+            expect(() => Transaction.fromBytes(transaction.serialized)).toThrowError(MalformedTransactionBytesError);
         });
     });
 
