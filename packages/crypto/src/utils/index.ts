@@ -1,6 +1,5 @@
 import { SATOSHI } from "../constants";
-import { IBlockData } from "../interfaces";
-import { ITransactionData } from "../interfaces";
+import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "./bignum";
 

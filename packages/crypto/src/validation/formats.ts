@@ -25,4 +25,19 @@ const vendorFieldHex = (ajv: Ajv) => {
     });
 };
 
-export const formats = [vendorField, vendorFieldHex];
+const signatures = (ajv: Ajv) => {
+    ajv.addFormat("signatures", data => {
+        try {
+            // TODO: also validate first byte is a unique index between 0-15
+            if (/^[0123456789A-Fa-f]+$/.test(data)) {
+                return data.length % 130 === 0;
+            }
+        } catch {
+            return false;
+        }
+
+        return false;
+    });
+};
+
+export const formats = [vendorField, vendorFieldHex, signatures];

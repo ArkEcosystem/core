@@ -36,6 +36,7 @@ export const transactionBaseSchema = {
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
         signSignature: { $ref: "alphanumeric" },
+        signatures: { type: "string", format: "signatures" },
     },
 };
 
@@ -130,6 +131,7 @@ export const vote = extend(transactionBaseSchema, {
 
 export const multiSignature = extend(transactionBaseSchema, {
     $id: "multiSignature",
+    required: ["asset", "signatures"],
     properties: {
         type: { transactionType: TransactionTypes.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },

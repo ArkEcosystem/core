@@ -1,5 +1,4 @@
 import secp256k1 from "secp256k1";
-import { TransactionTypes } from "../enums";
 import { Address, Keys, PublicKey, WIF } from "../identities";
 import { IKeyPair, ISerializeOptions, ITransactionData } from "../interfaces";
 import { INetwork } from "../interfaces/networks";
