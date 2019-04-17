@@ -647,6 +647,14 @@ describe("Transaction Guard", () => {
             afterEach(async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1)); // resets to height 1
 
             const addBlock = async transactions => {
+                let totalAmount = Utils.BigNumber.ZERO;
+                let totalFee = Utils.BigNumber.ZERO;
+
+                for (const transaction of transactions) {
+                    totalAmount = totalAmount.plus(transaction.amount);
+                    totalFee = totalFee.plus(transaction.fee);
+                }
+
                 // makes blockchain accept a new block with the transactions specified
                 const block = {
                     id: "17882607875259085966",
@@ -657,8 +665,8 @@ describe("Transaction Guard", () => {
                     previousBlock: genesisBlock.id,
                     numberOfTransactions: 1,
                     transactions,
-                    totalAmount: Utils.BigNumber.make(transactions.reduce((acc, curr) => acc + curr.amount)),
-                    totalFee: Utils.BigNumber.make(transactions.reduce((acc, curr) => acc + curr.fee)),
+                    totalAmount,
+                    totalFee,
                     payloadLength: 0,
                     payloadHash: genesisBlock.payloadHash,
                     generatorPublicKey: delegates[0].publicKey,
@@ -671,6 +679,7 @@ describe("Transaction Guard", () => {
 
                 await blockchain.processBlock(blockVerified, () => null);
             };
+
             const forgedErrorMessage = id => ({
                 [id]: [
                     {
