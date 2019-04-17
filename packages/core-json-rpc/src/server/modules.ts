@@ -86,7 +86,7 @@ export const transactions = [
                 return Boom.notFound(`Transaction ${params.id} could not be found.`);
             }
 
-            const { data } = Transactions.Transaction.fromData(transaction);
+            const { data } = Transactions.TransactionFactory.fromData(transaction);
 
             if (!Crypto.crypto.verify(data)) {
                 return Boom.badData();

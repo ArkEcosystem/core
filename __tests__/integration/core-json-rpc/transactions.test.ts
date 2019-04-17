@@ -34,7 +34,7 @@ afterAll(async () => await tearDown());
 afterEach(async () => nock.cleanAll());
 
 function verifyTransaction(data): boolean {
-    return crypto.verify(Transactions.Transaction.fromData(data).data);
+    return crypto.verify(Transactions.TransactionFactory.fromData(data).data);
 }
 
 describe("Transactions", () => {
