@@ -306,7 +306,9 @@ describe("NetworkMonitor", () => {
 
             communicator.postTransactions = jest.fn();
 
-            await monitor.broadcastTransactions([Transactions.Transaction.fromData(genesisBlock.transactions[0])]);
+            await monitor.broadcastTransactions([
+                Transactions.TransactionFactory.fromData(genesisBlock.transactions[0]),
+            ]);
 
             expect(communicator.postTransactions).toHaveBeenCalled();
         });

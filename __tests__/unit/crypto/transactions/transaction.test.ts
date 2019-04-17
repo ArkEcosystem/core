@@ -11,7 +11,7 @@ import {
 } from "../../../../packages/crypto/src/errors";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { BuilderFactory, Transaction } from "../../../../packages/crypto/src/transactions";
+import { BuilderFactory, Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
 let transactionData: ITransactionData;
@@ -107,7 +107,7 @@ describe("Transaction", () => {
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
-                    const newTransaction = Transaction.fromBytes(Transaction.toBytes(transaction.data));
+                    const newTransaction = TransactionFactory.fromBytes(Transaction.toBytes(transaction.data));
 
                     // TODO: Remove both from data when not needed
                     delete transaction.data.signSignature;
@@ -130,22 +130,22 @@ describe("Transaction", () => {
 
         it("should create a transaction", () => {
             const hex = Transaction.toBytes(transactionData).toString("hex");
-            const transaction = Transaction.fromHex(hex);
+            const transaction = TransactionFactory.fromHex(hex);
             expect(transaction).toBeInstanceOf(Transaction);
             expect(transaction.toJson()).toEqual(transactionDataJSON);
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => Transaction.fromBytes(null)).toThrow(MalformedTransactionBytesError);
-            expect(() => Transaction.fromBytes(Buffer.from("garbage"))).toThrow(MalformedTransactionBytesError);
-            expect(() => Transaction.fromHex(null)).toThrow(MalformedTransactionBytesError);
-            expect(() => Transaction.fromHex("affe")).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(null)).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromHex(null)).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromHex("affe")).toThrow(MalformedTransactionBytesError);
         });
 
         it("should throw when getting an unsupported version", () => {
             let hex = Transaction.toBytes(transactionData).toString("hex");
             hex = hex.slice(0, 2) + "99" + hex.slice(4);
-            expect(() => Transaction.fromHex(hex)).toThrow(TransactionVersionError);
+            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
         });
     });
 
@@ -154,7 +154,7 @@ describe("Transaction", () => {
             const bytes = Transaction.toBytes(transactionData);
             const id = transactionData.id;
 
-            const transaction = Transaction.fromBytesUnsafe(bytes, id);
+            const transaction = TransactionFactory.fromBytesUnsafe(bytes, id);
             expect(transaction).toBeInstanceOf(Transaction);
             expect(transaction.toJson()).toEqual(transactionDataJSON);
         });
@@ -166,14 +166,14 @@ describe("Transaction", () => {
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
                     const originalId = transaction.data.id;
-                    const newTransaction = Transaction.fromData(transaction.data);
+                    const newTransaction = TransactionFactory.fromData(transaction.data);
                     expect(newTransaction.data.id).toEqual(originalId);
                 });
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => Transaction.fromData({} as ITransactionData)).toThrow(UnkownTransactionError);
-            expect(() => Transaction.fromData({ type: 0 } as ITransactionData)).toThrow(TransactionSchemaError);
+            expect(() => TransactionFactory.fromData({} as ITransactionData)).toThrow(UnkownTransactionError);
+            expect(() => TransactionFactory.fromData({ type: 0 } as ITransactionData)).toThrow(TransactionSchemaError);
         });
     });
 
@@ -209,7 +209,7 @@ describe("Transaction", () => {
 
             txs.forEach(tx =>
                 it(`txid: ${tx.id}`, () => {
-                    const newtx = Transaction.fromData(tx);
+                    const newtx = TransactionFactory.fromData(tx);
                     expect(newtx.data.id).toEqual(tx.id);
                 }),
             );
@@ -288,7 +288,7 @@ describe("Transaction", () => {
             ];
             txs.forEach(tx =>
                 it(`txid: ${tx.id}`, () => {
-                    const newtx = Transaction.fromData(tx);
+                    const newtx = TransactionFactory.fromData(tx);
                     expect(newtx.data.id).toEqual(tx.id);
                 }),
             );

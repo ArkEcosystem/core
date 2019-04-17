@@ -23,7 +23,7 @@ export class VerifySecondSignatureCommand extends BaseCommand {
 
         Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-        const { data } = Transactions.Transaction.fromHex(flags.data);
+        const { data } = Transactions.TransactionFactory.fromHex(flags.data);
 
         return handleOutput(flags, Crypto.crypto.verifySecondSignature(data, flags.publicKey));
     }

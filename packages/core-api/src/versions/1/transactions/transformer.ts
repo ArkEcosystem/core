@@ -6,7 +6,7 @@ export function transformTransactionLegacy(model) {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const { data } = Transactions.Transaction.fromBytesUnsafe(model.serialized, model.id);
+    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(model.serialized, model.id);
     const senderId = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     return {

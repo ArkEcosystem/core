@@ -33,7 +33,7 @@ function encodeTransaction(transaction) {
 function decodeTransaction(buffer) {
     const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
-    const transaction: any = Transactions.Transaction.fromBytesUnsafe(serialized, id).data;
+    const transaction: any = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data;
     transaction.block_id = blockId;
     transaction.sequence = sequence;
     transaction.timestamp = timestamp;
