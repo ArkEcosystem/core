@@ -2,10 +2,10 @@ const {
     benchmarker
 } = require('@faustbrian/benchmarker');
 const {
-    configManager
+    Managers
 } = require("@arkecosystem/crypto");
 
-configManager.setFromPreset("mainnet");
+Managers.configManager.setFromPreset("mainnet");
 
 benchmarker('core', [{
         name: 'new Block()',

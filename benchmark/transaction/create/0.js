@@ -1,5 +1,5 @@
 const {
-    Transaction
+    Transactions
 } = require('@arkecosystem/crypto')
 
 const data = require('../../helpers').getJSONFixture('transaction/deserialized/0');
@@ -7,17 +7,17 @@ const serializedHex = require('../../helpers').getFixture('transaction/serialize
 const serializedBytes = Buffer.from(serializedHex, "hex");
 
 exports['fromData'] = () => {
-    return TransactionFactory.fromData(data);
+    return Transactions.TransactionFactory.fromData(data);
 };
 
 exports['fromHex'] = () => {
-    return TransactionFactory.fromHex(serializedHex);
+    return Transactions.TransactionFactory.fromHex(serializedHex);
 };
 
 exports['fromBytes'] = () => {
-    return TransactionFactory.fromBytes(serializedBytes);
+    return Transactions.TransactionFactory.fromBytes(serializedBytes);
 };
 
 exports['fromBytesUnsafe'] = () => {
-    return TransactionFactory.fromBytesUnsafe(serializedBytes, data.id);
+    return Transactions.TransactionFactory.fromBytesUnsafe(serializedBytes, data.id);
 };

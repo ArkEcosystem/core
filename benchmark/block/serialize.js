@@ -1,5 +1,5 @@
 const {
-    models
+    Blocks
 } = require('@arkecosystem/crypto')
 
 const data = require('../helpers').getJSONFixture('block/deserialized/no-transactions');
