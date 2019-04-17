@@ -69,7 +69,7 @@ describe("Peer socket endpoint", () => {
         describe("postBlock", () => {
             it("should postBlock successfully", async () => {
                 const { data } = await emit("p2p.peer.postBlock", {
-                    data: { block: Blocks.Block.fromData(genesisBlock).toJson() },
+                    data: { block: Blocks.BlockFactory.fromData(genesisBlock).toJson() },
                     headers,
                 });
 

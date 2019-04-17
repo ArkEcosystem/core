@@ -12,7 +12,7 @@ import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 const { TransactionTypes } = Enums;
 
@@ -239,7 +239,7 @@ describe("Database Service", () => {
                 walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
                 // walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey;
 
-                const block = Block.createFromData(
+                const block = BlockFactory.make(
                     {
                         version: 0,
                         timestamp: 0,

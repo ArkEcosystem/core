@@ -21,18 +21,6 @@ export class Block implements IBlock {
         return value;
     }
 
-    public static createFromData(data, keys): IBlock {
-        data.generatorPublicKey = keys.publicKey;
-
-        const payloadHash: Buffer = Block.serialize(data, false);
-        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
-
-        data.blockSignature = crypto.signHash(hash, keys);
-        data.id = Block.getId(data);
-
-        return Block.fromData(data);
-    }
-
     public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
         return deserializer.deserialize(hexString, headerOnly).data;
     }
@@ -77,55 +65,12 @@ export class Block implements IBlock {
         return constants.block.idFullSha256 ? idHex : BigNumber.make(idHex, 16).toFixed();
     }
 
-    public static fromHex(hex: string): IBlock {
-        return this.fromSerialized(hex);
-    }
-
-    public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer.toString("hex"));
-    }
-
-    public static fromJson(json: IBlockJson): IBlock {
-        // @ts-ignore
-        const data: IBlockData = { ...json };
-        data.totalAmount = BigNumber.make(data.totalAmount);
-        data.totalFee = BigNumber.make(data.totalFee);
-        data.reward = BigNumber.make(data.reward);
-
-        for (const transaction of data.transactions) {
-            transaction.amount = BigNumber.make(transaction.amount);
-            transaction.fee = BigNumber.make(transaction.fee);
-        }
-
-        return this.fromData(data);
-    }
-
-    public static fromData(data: IBlockData): IBlock {
-        data = Block.applySchema(data);
-
-        const serialized: string = Block.serializeWithTransactions(data).toString("hex");
-        const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
-        block.serialized = serialized;
-
-        return block;
-    }
-
-    private static fromSerialized(serialized: string): IBlock {
-        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
-        deserialized.data = Block.applySchema(deserialized.data);
-
-        const block: IBlock = new Block(deserialized);
-        block.serialized = serialized;
-
-        return block;
-    }
-
     public serialized: string;
     public data: IBlockData;
     public transactions: ITransaction[];
     public verification: IBlockVerification;
 
-    private constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
         this.data = data;
 
         // TODO genesis block calculated id is wrong for some reason

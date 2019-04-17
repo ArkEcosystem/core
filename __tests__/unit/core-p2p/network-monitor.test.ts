@@ -294,7 +294,7 @@ describe("NetworkMonitor", () => {
 
             communicator.postBlock = jest.fn();
 
-            await monitor.broadcastBlock(Blocks.Block.fromData(genesisBlock));
+            await monitor.broadcastBlock(Blocks.BlockFactory.fromData(genesisBlock));
 
             expect(communicator.postBlock).toHaveBeenCalled();
         });

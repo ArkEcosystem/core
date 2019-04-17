@@ -6,8 +6,6 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
-const { Block } = Blocks;
-const { configManager } = Managers;
 const { crypto, HashAlgorithms } = Crypto;
 
 export class DatabaseService implements Database.IDatabaseService {
@@ -62,7 +60,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.truncate();
         await this.connection.transactionsRepository.truncate();
 
-        await this.saveBlock(Block.fromJson(configManager.get("genesisBlock")));
+        await this.saveBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
@@ -204,7 +202,7 @@ export class DatabaseService implements Database.IDatabaseService {
             ({ serialized, id }) => Transactions.Transaction.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Block.fromData(block);
+        return Blocks.BlockFactory.fromData(block);
     }
 
     public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
@@ -295,7 +293,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map((b: Interfaces.IBlockData) =>
-            Blocks.Block.fromData(b),
+            Blocks.BlockFactory.fromData(b),
         );
     }
 
@@ -325,7 +323,7 @@ export class DatabaseService implements Database.IDatabaseService {
             ({ serialized, id }) => Transactions.Transaction.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Block.fromData(block);
+        return Blocks.BlockFactory.fromData(block);
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
@@ -562,7 +560,7 @@ export class DatabaseService implements Database.IDatabaseService {
         if (!(await this.getLastBlock())) {
             this.logger.warn("No block found in database");
 
-            await this.saveBlock(Block.fromJson(this.config.get("genesisBlock")));
+            await this.saveBlock(Blocks.BlockFactory.fromJson(this.config.get("genesisBlock")));
         }
     }
 

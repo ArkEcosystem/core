@@ -13,7 +13,7 @@ import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 
 let stateMachine;
 
@@ -175,7 +175,7 @@ describe("State Machine", () => {
                 databaseMocks = {
                     getLastBlock: jest
                         .spyOn(blockchain.database, "getLastBlock")
-                        .mockReturnValue(Block.fromData(genesisBlock)),
+                        .mockReturnValue(BlockFactory.fromData(genesisBlock)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(true),
@@ -306,7 +306,7 @@ describe("State Machine", () => {
             });
 
             beforeEach(() => {
-                stateStorage.lastDownloadedBlock = Block.fromData(genesisBlock);
+                stateStorage.lastDownloadedBlock = BlockFactory.fromData(genesisBlock);
             });
 
             afterEach(() => jest.resetAllMocks());

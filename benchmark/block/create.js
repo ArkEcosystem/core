@@ -10,17 +10,17 @@ const serializedEmpty = require('../helpers').getFixture('block/serialized/no-tr
 const serializedFull = require('../helpers').getFixture('block/serialized/transactions.txt');
 
 exports['fromData (0)'] = () => {
-    return Block.fromData(dataEmpty);
+    return BlockFactory.fromData(dataEmpty);
 };
 
 exports['fromData (150)'] = () => {
-    return Block.fromData(dataFull);
+    return BlockFactory.fromData(dataFull);
 };
 
 exports['fromHex (0)'] = () => {
-    return Block.fromHex(serializedEmpty);
+    return BlockFactory.fromHex(serializedEmpty);
 };
 
 exports['fromHex (150)'] = () => {
-    return Block.fromHex(serializedFull);
+    return BlockFactory.fromHex(serializedFull);
 };

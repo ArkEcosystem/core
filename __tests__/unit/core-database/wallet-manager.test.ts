@@ -9,13 +9,13 @@ import { TransactionFactory } from "../../helpers/transaction-factory";
 import { fixtures } from "../../utils";
 import wallets from "./__fixtures__/wallets.json";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 const { TransactionTypes } = Enums;
 const { crypto } = Crypto;
 
 const block3 = fixtures.blocks2to100[1];
-const block = Block.fromData(block3);
+const block = BlockFactory.fromData(block3);
 
 const walletData1 = wallets[0];
 const walletData2 = wallets[1];
@@ -77,7 +77,7 @@ describe("Wallet Manager", () => {
             data.transactions.push(txs[0].data);
             data.transactions.push(txs[1].data);
             data.transactions.push(txs[2].data);
-            block2 = Block.fromData(data);
+            block2 = BlockFactory.fromData(data);
 
             walletManager.reindex(delegateMock);
         });

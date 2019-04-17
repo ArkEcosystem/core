@@ -16,7 +16,7 @@ import { block2, delegates } from "../../utils/fixtures/unitnet";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { database as databaseService } from "./mocks/database";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 const { slots } = Crypto;
 const { TransactionTypes } = Enums;
@@ -583,7 +583,7 @@ describe("Connection", () => {
         it("should update wallet when accepting a chained block", () => {
             const balanceBefore = mockWallet.balance;
 
-            connection.acceptChainedBlock(Block.fromData(block2));
+            connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
         });
@@ -593,7 +593,7 @@ describe("Connection", () => {
 
             expect(connection.getTransactions(0, 10)).toEqual([mockData.dummy2.serialized]);
 
-            const chainedBlock = Block.fromData(block2);
+            const chainedBlock = BlockFactory.fromData(block2);
             chainedBlock.transactions.push(mockData.dummy2);
 
             connection.acceptChainedBlock(chainedBlock);
@@ -608,7 +608,7 @@ describe("Connection", () => {
             });
             const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey");
 
-            connection.acceptChainedBlock(Block.fromData(block2));
+            connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(purgeByPublicKey).toHaveBeenCalledTimes(1);
             expect(connection.isSenderBlocked(block2.transactions[0].senderPublicKey)).toBeTrue();
@@ -618,7 +618,7 @@ describe("Connection", () => {
             jest.spyOn(connection.walletManager, "canBePurged").mockReturnValue(true);
             const deleteWallet = jest.spyOn(connection.walletManager, "deleteWallet");
 
-            connection.acceptChainedBlock(Block.fromData(block2));
+            connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(deleteWallet).toHaveBeenCalledTimes(block2.transactions.length);
         });

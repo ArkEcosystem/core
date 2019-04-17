@@ -9,7 +9,7 @@ import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fix
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 const { crypto } = Crypto;
 
 let TransactionGuard;
@@ -666,7 +666,7 @@ describe("Transaction Guard", () => {
                         "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
                     createdAt: "2019-07-11T16:48:50.550Z",
                 };
-                const blockVerified = Block.fromData(block);
+                const blockVerified = BlockFactory.fromData(block);
                 blockVerified.verification.verified = true;
 
                 await blockchain.processBlock(blockVerified, () => null);

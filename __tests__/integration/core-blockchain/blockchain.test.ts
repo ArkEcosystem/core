@@ -12,7 +12,7 @@ import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block } = Blocks;
+const { Block, BlockFactory } = Blocks;
 
 let genesisBlock;
 let configManager;
@@ -27,7 +27,7 @@ describe("Blockchain", () => {
 
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = Blocks.Block.fromData(GB);
+        genesisBlock = Blocks.BlockFactory.fromData(GB);
 
         configManager = container.getConfig();
 
@@ -172,7 +172,7 @@ describe("Blockchain", () => {
                 transactions: sortedTransactions,
             };
 
-            return Block.createFromData(data, Crypto.crypto.getKeys(generatorKeys.secret));
+            return BlockFactory.make(data, Crypto.crypto.getKeys(generatorKeys.secret));
         };
 
         it("should restore vote balances after a rollback", async () => {
@@ -328,7 +328,7 @@ async function __addBlocks(untilHeight) {
     const lastHeight = blockchain.getLastHeight();
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
-        const blockToProcess = Block.fromData(allBlocks[height - 2]);
+        const blockToProcess = BlockFactory.fromData(allBlocks[height - 2]);
         await blockchain.processBlock(blockToProcess, () => null);
     }
 }
