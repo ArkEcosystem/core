@@ -1,4 +1,5 @@
 import { Transaction } from "../..";
+import { Utils } from "../../..";
 import { crypto, slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { IKeyPair, ITransactionData } from "../../../interfaces";
@@ -127,9 +128,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
         const keys: IKeyPair = crypto.getKeys(passphrase);
         const signature = crypto.sign(this.getSigningObject(), keys);
-        const indexHex = Number(index).toString(16);
-        const indexHexPadded = "0".repeat(2 - indexHex.length) + indexHex;
-        this.data.signature += `${indexHexPadded}${signature}`;
+        const indexHex = Utils.numberToHex(index);
+        this.data.signature += `${indexHex}${signature}`;
 
         return this.instance();
     }
