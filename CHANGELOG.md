@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Added the `core-logger-signale` package ([#2343])
 -   Added more events for blocks and the transaction pool ([#2321])
 -   Return `slip44` and `wif` via `v2/node/configuration` ([#2388])
+-   Added an `asset` column to the `transactions` table ([#2236])
 
 ### Fixed
 
@@ -422,6 +423,7 @@ Closed security vulnerabilities:
 [#2218]: https://github.com/ARKEcosystem/core/pull/2218
 [#2221]: https://github.com/ARKEcosystem/core/pull/2221
 [#2229]: https://github.com/ARKEcosystem/core/pull/2229
+[#2236]: https://github.com/ARKEcosystem/core/pull/2236
 [#2287]: https://github.com/ARKEcosystem/core/pull/2287
 [#2288]: https://github.com/ARKEcosystem/core/pull/2288
 [#2289]: https://github.com/ARKEcosystem/core/pull/2289
