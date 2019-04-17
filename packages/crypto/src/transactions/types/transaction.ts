@@ -3,10 +3,8 @@ import { TransactionRegistry } from "..";
 import { crypto } from "../../crypto";
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
-import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import { ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { isException } from "../../utils";
-import { validator } from "../../validation";
-import { deserializer } from "../deserializer";
 import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 
