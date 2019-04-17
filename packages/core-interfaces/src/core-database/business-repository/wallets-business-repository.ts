@@ -9,8 +9,6 @@ export interface IWalletsPaginated {
 export interface IWalletsBusinessRepository {
     all(): IWallet[];
 
-    findAll(params?: IParameters): IWalletsPaginated;
-
     findAllByVote(publicKey: string, params?: IParameters): IWalletsPaginated;
 
     findById(id: string): IWallet;

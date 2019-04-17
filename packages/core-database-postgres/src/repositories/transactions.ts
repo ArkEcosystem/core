@@ -99,57 +99,6 @@ export class TransactionsRepository extends Repository implements Database.ITran
         );
     }
 
-    // TODO: Remove with v1
-    public async findAll(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
-        if (!parameters.paginate) {
-            parameters.paginate = {
-                limit: 100,
-                offset: 0,
-            };
-        }
-
-        const selectQuery = this.query.select().from(this.query);
-        const params = parameters.parameters;
-
-        if (params.length) {
-            const [customOps, otherOps] = partition(
-                params,
-                param => param.operator === Database.SearchOperator.OP_CUSTOM,
-            );
-
-            const hasNonCustomOps: boolean = otherOps.length > 0;
-
-            const first = otherOps.shift();
-
-            if (first) {
-                selectQuery.where(this.query[this.propToColumnName(first.field)].equals(first.value));
-
-                for (const op of otherOps) {
-                    selectQuery.and(this.query[this.propToColumnName(op.field)].equals(op.value));
-                }
-            }
-
-            customOps.forEach(o => {
-                if (o.field === "ownerWallet") {
-                    const wallet: Database.IWallet = o.value;
-
-                    if (hasNonCustomOps) {
-                        selectQuery.and(
-                            this.query.sender_public_key
-                                .equals(wallet.publicKey)
-                                .or(this.query.recipient_id.equals(wallet.address)),
-                        );
-                    } else {
-                        selectQuery
-                            .where(this.query.sender_public_key.equals(wallet.publicKey))
-                            .or(this.query.recipient_id.equals(wallet.address));
-                    }
-                }
-            });
-        }
-        return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
-    }
-
     public async search(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {

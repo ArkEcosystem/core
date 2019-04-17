@@ -26,7 +26,5 @@ export interface IBlocksRepository extends IRepository {
     top(count: number): Promise<Interfaces.IBlockData[]>;
     delete(id: string): Promise<void>;
 
-    /* TODO: Remove with V1 */
-    findAll(params: SearchParameters): Promise<IBlocksPaginated>;
     search(params: SearchParameters): Promise<IBlocksPaginated>;
 }

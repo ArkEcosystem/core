@@ -7,7 +7,7 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 const transactionsRepository = app.resolvePlugin<Database.IDatabaseService>("database").transactionsBusinessRepository;
 
 const index = async request => {
-    const transactions = await transactionsRepository.findAll({
+    const transactions = await transactionsRepository.search({
         ...request.query,
         ...paginate(request),
     });

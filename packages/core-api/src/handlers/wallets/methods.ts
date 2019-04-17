@@ -1,14 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
-import { transactionsRepository } from "../../repositories";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const wallets = await databaseService.wallets.findAll({
+    const wallets = await databaseService.wallets.search({
         ...request.query,
         ...paginate(request),
     });

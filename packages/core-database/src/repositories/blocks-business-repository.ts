@@ -5,14 +5,13 @@ import { SearchParameterConverter } from "./utils/search-parameter-converter";
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    /* TODO: Remove with v1 */
-    public async findAll(
+    public async search(
         params: Database.IParameters,
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
     }> {
-        return this.databaseServiceProvider().connection.blocksRepository.findAll(this.parseSearchParams(params));
+        return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 
     public async findAllByGenerator(
@@ -22,7 +21,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         rows: Interfaces.IBlockData[];
         count: number;
     }> {
-        return this.findAll({ generatorPublicKey, ...paginate });
+        return this.search({ generatorPublicKey, ...paginate });
     }
 
     public async findByHeight(height: number): Promise<Interfaces.IBlockData> {
@@ -41,15 +40,6 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         } catch (error) {
             return this.findById(idOrHeight);
         }
-    }
-
-    public async search(
-        params: Database.IParameters,
-    ): Promise<{
-        rows: Interfaces.IBlockData[];
-        count: number;
-    }> {
-        return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 
     private parseSearchParams(params: Database.IParameters): Database.SearchParameters {

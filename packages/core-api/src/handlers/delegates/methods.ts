@@ -1,14 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
-import { blocksRepository } from "../../repositories";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const delegates = await databaseService.delegates.findAll({
+    const delegates = await databaseService.delegates.search({
         ...request.query,
         ...paginate(request),
     });

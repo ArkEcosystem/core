@@ -6,20 +6,9 @@ import { SearchParameterConverter } from "./utils/search-parameter-converter";
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public async allVotesBySender(senderPublicKey: any, parameters: any): Promise<Database.ITransactionsPaginated> {
-        return this.findAll({
-            ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
-            ...parameters,
-        });
-    }
-
-    // TODO: Remove with v1
-    public async findAll(
-        params: any,
-        sequenceOrder: "asc" | "desc" = "desc",
-    ): Promise<Database.ITransactionsPaginated> {
+    public async search(params: any, sequenceOrder: "asc" | "desc" = "desc"): Promise<Database.ITransactionsPaginated> {
         try {
-            const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(
+            const result = await this.databaseServiceProvider().connection.transactionsRepository.search(
                 this.parseSearchParameters(params, sequenceOrder),
             );
             result.rows = await this.mapBlocksToTransactions(result.rows);
@@ -30,26 +19,33 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         }
     }
 
+    public async allVotesBySender(senderPublicKey: any, parameters: any): Promise<Database.ITransactionsPaginated> {
+        return this.search({
+            ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
+            ...parameters,
+        });
+    }
+
     public async findAllByBlock(blockId: string, parameters: any = {}): Promise<Database.ITransactionsPaginated> {
-        return this.findAll({ blockId, ...parameters }, "asc");
+        return this.search({ blockId, ...parameters }, "asc");
     }
 
     public async findAllByRecipient(
         recipientId: string,
         parameters: any = {},
     ): Promise<Database.ITransactionsPaginated> {
-        return this.findAll({ recipientId, ...parameters });
+        return this.search({ recipientId, ...parameters });
     }
 
     public async findAllBySender(
         senderPublicKey: string,
         parameters: any = {},
     ): Promise<Database.ITransactionsPaginated> {
-        return this.findAll({ senderPublicKey, ...parameters });
+        return this.search({ senderPublicKey, ...parameters });
     }
 
     public async findAllByType(type: number, parameters: any = {}): Promise<Database.ITransactionsPaginated> {
-        return this.findAll({ type, ...parameters });
+        return this.search({ type, ...parameters });
     }
 
     public async findAllByWallet(
@@ -69,10 +65,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return result;
     }
 
-    public async findAllLegacy(parameters: Database.IParameters): Promise<void> {
-        throw new Error("This is deprecated in v2");
-    }
-
     public async findById(id: string) {
         return (await this.mapBlocksToTransactions(
             await this.databaseServiceProvider().connection.transactionsRepository.findById(id),
@@ -80,7 +72,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findByTypeAndId(type: any, id: string) {
-        const results = await this.findAll({ type, id });
+        const results = await this.search({ type, id });
         return results.rows.length ? results.rows[0] : null;
     }
 
@@ -97,20 +89,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             days,
             app.resolveOptions("transaction-pool").dynamicFees.minFeeBroadcast,
         );
-    }
-
-    public async search(params: any) {
-        try {
-            const result = await this.databaseServiceProvider().connection.transactionsRepository.search(
-                this.parseSearchParameters(params),
-            );
-
-            result.rows = await this.mapBlocksToTransactions(result.rows);
-
-            return result;
-        } catch (e) {
-            return { rows: [], count: 0 };
-        }
     }
 
     private getPublicKeyFromAddress(senderId: string): string {

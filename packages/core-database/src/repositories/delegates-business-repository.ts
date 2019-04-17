@@ -35,17 +35,6 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         return delegates;
     }
 
-    public findAll(params: Database.IParameters = {}): Database.IWalletsPaginated {
-        this.applyOrder(params);
-
-        const delegates = sortEntries(params, this.getLocalDelegates(), ["rate", "asc"]);
-
-        return {
-            rows: limitRows(delegates, params),
-            count: delegates.length,
-        };
-    }
-
     /**
      * Search all delegates.
      * TODO Search by last block

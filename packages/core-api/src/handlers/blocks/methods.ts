@@ -9,7 +9,7 @@ const blocksRepository = databaseService.blocksBusinessRepository;
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
-    const blocks = await blocksRepository.findAll({
+    const blocks = await blocksRepository.search({
         ...request.query,
         ...paginate(request),
     });

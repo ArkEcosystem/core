@@ -10,17 +10,6 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.databaseServiceProvider().walletManager.allByAddress();
     }
 
-    public findAll(params: Database.IParameters = {}): Database.IWalletsPaginated {
-        this.applyOrder(params);
-
-        const wallets = sortEntries(params, this.all(), ["rate", "asc"]);
-
-        return {
-            rows: limitRows(wallets, params),
-            count: wallets.length,
-        };
-    }
-
     public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
