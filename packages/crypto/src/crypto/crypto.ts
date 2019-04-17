@@ -33,7 +33,7 @@ class Crypto {
 
     public sign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        const signature: string = this.signECDSA(hash, keys);
+        const signature: string = transaction.version === 2 ? this.signSchnorr(hash, keys) : this.signECDSA(hash, keys);
 
         if (!transaction.signature) {
             transaction.signature = signature;
@@ -64,20 +64,17 @@ class Crypto {
     }
 
     public verify(transaction: ITransactionData): boolean {
-        if (transaction.version && transaction.version !== 1) {
-            // TODO: enable AIP11 when ready here
+        const { signature, senderPublicKey } = transaction;
+        if (!signature) {
             return false;
         }
 
-        if (!transaction.signature) {
-            return false;
+        const hash = this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+        if (transaction.version === 2) {
+            return this.verifySchnorr(hash, signature, senderPublicKey);
+        } else {
+            return this.verifyECDSA(hash, signature, senderPublicKey);
         }
-
-        return this.verifyECDSA(
-            this.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true }),
-            transaction.signature,
-            transaction.senderPublicKey,
-        );
     }
 
     public verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {

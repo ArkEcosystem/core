@@ -76,7 +76,11 @@ export abstract class Transaction implements ITransaction {
         }
 
         const transaction = TransactionTypeFactory.create(value);
-        deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
+
+        if (transaction.data.version === 1) {
+            deserializer.applyV1Compatibility(transaction.data);
+        }
+
         Serializer.serialize(transaction);
 
         data.id = crypto.getId(data);
