@@ -77,6 +77,7 @@ describe("Wallet Manager", () => {
             data.transactions.push(txs[0].data);
             data.transactions.push(txs[1].data);
             data.transactions.push(txs[2].data);
+            data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
             block2 = BlockFactory.fromData(data);
 
             walletManager.reindex(delegateMock);

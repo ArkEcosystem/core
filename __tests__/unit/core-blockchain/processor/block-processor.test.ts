@@ -30,7 +30,7 @@ describe("Block processor", () => {
         height: 2,
         reward: Utils.BigNumber.make(0),
         previousBlock: genesisBlock.id,
-        numberOfTransactions: 1,
+        numberOfTransactions: 0,
         transactions: [],
         totalAmount: Utils.BigNumber.make(0),
         totalFee: Utils.BigNumber.make(0),

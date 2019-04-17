@@ -206,6 +206,7 @@ describe("Database Service", () => {
                 publicKey: "02c71ab1a1b5b7c278145382eb0b535249483b3c4715a4fe6169d40388bbb09fa7",
                 privateKey: "dcf4ead2355090279aefba91540f32e93b15c541ecb48ca73071f161b4f3e2e3",
                 address: "D64cbDctaiADEH7NREnvRQGV27bnb1v2kE",
+                compressed: true,
             };
 
             // Beginning of round 2 with all delegates 0 vote balance.
@@ -237,16 +238,16 @@ describe("Database Service", () => {
 
                 // Vote for itself
                 walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
-                // walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey;
 
                 const block = BlockFactory.make(
                     {
                         version: 0,
                         timestamp: 0,
+                        previousBlock: genesisBlock.data.id,
                         height: initialHeight + i,
                         numberOfTransactions: 1,
                         totalAmount: transfer.data.amount,
-                        totalFee: Utils.BigNumber.make(0.1),
+                        totalFee: Utils.BigNumber.make(1),
                         reward: Utils.BigNumber.make(2),
                         payloadLength: 0,
                         payloadHash: "a".repeat(64),
