@@ -28,7 +28,7 @@ export class Serializer {
     /**
      * Serializes the given transaction according to AIP11.
      */
-    public static serialize(transaction: Transaction): Buffer {
+    public static serialize(transaction: Transaction, options: ISerializeOptions = {}): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
         const { data } = transaction;
 
@@ -38,7 +38,7 @@ export class Serializer {
         const typeBuffer: ByteBuffer = transaction.serialize().flip();
         buffer.append(typeBuffer);
 
-        this.serializeSignatures(data, buffer);
+        this.serializeSignatures(data, buffer, options);
 
         const flippedBuffer: Buffer = buffer.flip().toBuffer();
         transaction.serialized = flippedBuffer;
@@ -190,8 +190,8 @@ export class Serializer {
         return Buffer.from(buffer);
     }
 
-    private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions): Buffer {
-        return this.serialize(TransactionTypeFactory.create(transaction));
+    private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
+        return this.serialize(TransactionTypeFactory.create(transaction), options);
     }
 
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
@@ -222,15 +222,18 @@ export class Serializer {
         }
     }
 
-    private static serializeSignatures(transaction: ITransactionData, buffer: ByteBuffer): void {
-        if (transaction.signature) {
+    private static serializeSignatures(
+        transaction: ITransactionData,
+        buffer: ByteBuffer,
+        options: ISerializeOptions = {},
+    ): void {
+        if (transaction.signature && !options.excludeSignature) {
             buffer.append(transaction.signature, "hex");
         }
 
-        if (transaction.secondSignature) {
-            buffer.append(transaction.secondSignature, "hex");
-        } else if (transaction.signSignature) {
-            buffer.append(transaction.signSignature, "hex");
+        const secondSignature = transaction.secondSignature || transaction.signSignature;
+        if (secondSignature && !options.excludeSecondSignature) {
+            buffer.append(secondSignature, "hex");
         }
 
         if (transaction.version === 1 && transaction.signatures) {
