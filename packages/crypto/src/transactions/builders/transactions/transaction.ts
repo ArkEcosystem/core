@@ -117,14 +117,19 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return this.instance();
     }
 
-    public multiSignatureSign(passphrase: string): TBuilder {
-        const keys: IKeyPair = crypto.getKeys(passphrase);
-
-        if (!this.data.signatures) {
-            this.data.signatures = [];
+    public multiSign(passphrase: string, index: number): TBuilder {
+        if (!this.data.signature) {
+            this.data.signature = "";
         }
 
-        this.data.signatures.push(crypto.sign(this.getSigningObject(), keys));
+        // TOOD: move to crypto?
+        // TOOD: sanity checks (index < 16, etc.)
+
+        const keys: IKeyPair = crypto.getKeys(passphrase);
+        const signature = crypto.sign(this.getSigningObject(), keys);
+        const indexHex = Number(index).toString(16);
+        const indexHexPadded = "0".repeat(2 - indexHex.length) + indexHex;
+        this.data.signature += `${indexHexPadded}${signature}`;
 
         return this.instance();
     }
