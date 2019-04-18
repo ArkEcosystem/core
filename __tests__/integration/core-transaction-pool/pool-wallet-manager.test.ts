@@ -1,14 +1,11 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Blocks, Crypto, Identities, Utils } from "@arkecosystem/crypto";
+import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
-
-const { BlockFactory } = Blocks;
-const { crypto } = Crypto;
 
 const satoshi = 1e8;
 let container: Container.IContainer;
@@ -61,7 +58,7 @@ describe("applyPoolTransactionToSender", () => {
         it("should only update the balance of the sender", async () => {
             const delegate0 = delegates[0];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = Address.fromPublicKey(publicKey);
+            const newAddress = Identities.Address.fromPublicKey(publicKey);
 
             const delegateWallet = poolWalletManager.findByAddress(delegate0.address);
             const newWallet = poolWalletManager.findByAddress(newAddress);
@@ -85,7 +82,7 @@ describe("applyPoolTransactionToSender", () => {
         it("should only update the balance of the sender with dyn fees", async () => {
             const delegate0 = delegates[1];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = Address.fromPublicKey(publicKey);
+            const newAddress = Identities.Address.fromPublicKey(publicKey);
 
             const delegateWallet = poolWalletManager.findByAddress(delegate0.address);
             const newWallet = poolWalletManager.findByAddress(newAddress);
@@ -208,7 +205,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
                 "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
             createdAt: "2019-07-11T16:48:50.550Z",
         };
-        const blockWithRewardVerified = BlockFactory.fromData(blockWithReward);
+        const blockWithRewardVerified = Blocks.BlockFactory.fromData(blockWithReward);
         blockWithRewardVerified.verification.verified = true;
 
         await blockchain.processBlock(blockWithRewardVerified, () => null);

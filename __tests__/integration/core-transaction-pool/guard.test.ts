@@ -9,8 +9,6 @@ import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fix
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
-const { BlockFactory } = Blocks;
-
 let TransactionGuard;
 
 let container: Container.IContainer;
@@ -108,7 +106,7 @@ describe("Transaction Guard", () => {
         it("should not apply the tx to the balance of the sender & recipient with dyn fee < min fee", async () => {
             const delegate0 = delegates[14];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = Address.fromPublicKey(publicKey);
+            const newAddress = Identities.Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate0.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -133,7 +131,7 @@ describe("Transaction Guard", () => {
         it("should update the balance of the sender & recipient with dyn fee > min fee", async () => {
             const delegate1 = delegates[1];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = Address.fromPublicKey(publicKey);
+            const newAddress = Identities.Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate1.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -163,7 +161,7 @@ describe("Transaction Guard", () => {
             const delegate2 = delegates[2];
             const newWalletPassphrase = generateMnemonic();
             const { publicKey } = Identities.Keys.fromPassphrase(newWalletPassphrase);
-            const newAddress = Address.fromPublicKey(publicKey);
+            const newAddress = Identities.Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate2.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -226,7 +224,7 @@ describe("Transaction Guard", () => {
             const delegate3 = delegates[3];
             const newWalletPassphrase = generateMnemonic();
             const { publicKey } = Identities.Keys.fromPassphrase(newWalletPassphrase);
-            const newAddress = Address.fromPublicKey(publicKey);
+            const newAddress = Identities.Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate3.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -673,7 +671,7 @@ describe("Transaction Guard", () => {
                         "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
                     createdAt: "2019-07-11T16:48:50.550Z",
                 };
-                const blockVerified = BlockFactory.fromData(block);
+                const blockVerified = Blocks.BlockFactory.fromData(block);
                 blockVerified.verification.verified = true;
 
                 await blockchain.processBlock(blockVerified, () => null);
