@@ -9,7 +9,7 @@ import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
-const { crypto, slots } = Crypto;
+const { slots } = Crypto;
 
 const TEST_TRANSACTION_TYPE = 100;
 

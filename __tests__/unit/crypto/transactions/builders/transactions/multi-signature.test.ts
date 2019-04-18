@@ -1,11 +1,13 @@
 import "jest-extended";
 
-import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { Keys } from "../../../../../../packages/crypto/src/identities";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
+import { Transaction } from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "../../../../../../packages/crypto/src/utils";
+import { identity } from "../../../../../utils/identities";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiSignatureBuilder;
@@ -70,30 +72,23 @@ describe("Multi Signature Transaction", () => {
 
     describe("sign", () => {
         it("establishes the recipient id", () => {
-            const pass = "dummy pass";
+            jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
+            jest.spyOn(Transaction, "sign").mockImplementation(jest.fn());
 
-            // @ts-ignore
-            crypto.getKeys = jest.fn(() => ({
-                publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-            }));
-            crypto.sign = jest.fn();
+            builder.sign(identity.bip39);
 
-            builder.sign(pass);
-            expect(builder.data.recipientId).toBe("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F");
+            expect(builder.data.recipientId).toBe(identity.address);
         });
     });
 
     describe("multiSignatureSign", () => {
         it("adds the signature to the transaction", () => {
-            const pass = "dummy pass";
-            const signature = `${pass} signature`;
+            jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
+            jest.spyOn(Transaction, "sign").mockImplementation(() => "signature");
 
-            // @ts-ignore
-            crypto.getKeys = jest.fn(value => ({ publicKey: `${value} public key` }));
-            crypto.sign = jest.fn(() => signature);
+            builder.multiSignatureSign(identity.bip39);
 
-            builder.multiSignatureSign(pass);
-            expect(builder.data.signatures).toIncludeAllMembers([signature]);
+            expect(builder.data.signatures).toIncludeAllMembers(["signature"]);
         });
     });
 });

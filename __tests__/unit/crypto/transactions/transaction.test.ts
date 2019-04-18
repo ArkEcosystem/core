@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
@@ -297,6 +296,6 @@ describe("Transaction", () => {
     });
 
     it("Signatures are verified", () => {
-        [0, 1, 2, 3].map(type => createRandomTx(type)).forEach(({ data }) => expect(crypto.verify(data)).toBeTrue());
+        [0, 1, 2, 3].map(type => createRandomTx(type)).forEach(tx => expect(tx.verify()).toBeTrue());
     });
 });

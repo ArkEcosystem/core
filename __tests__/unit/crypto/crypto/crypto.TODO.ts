@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import { Managers, Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../packages/crypto/src/crypto";
-import { TransactionTypes } from "../../../../packages/crypto/src/enums";
-import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
-import { configManager } from "../../../../packages/crypto/src/managers";
+import { crypto } from "@arkecosystem/crypto/src/crypto";
+import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
+import { PublicKeyError, TransactionVersionError } from "@arkecosystem/crypto/src/errors";
+import { configManager } from "@arkecosystem/crypto/src/managers";
 
 const networkMainnet = configManager.getPreset("mainnet");
 const networkDevnet = configManager.getPreset("devnet");
