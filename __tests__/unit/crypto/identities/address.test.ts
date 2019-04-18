@@ -33,7 +33,7 @@ describe("Identities - Address", () => {
                     min: 3,
                     publicKeys: ["secret 1", "secret 2", "secret 3"].map(secret => PublicKey.fromPassphrase(secret)),
                 }),
-            ).toBe("DJsEH5mxveqEtNBtjs6CSFzYmsJHHwUMXy");
+            ).toBe("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi");
         });
 
         it("should create distinct addresses for different min", () => {

@@ -1,7 +1,6 @@
 import bs58check from "bs58check";
-import { Utils } from "..";
 import { HashAlgorithms } from "../crypto";
-import { InvalidMultiSignatureAssetError, PublicKeyError } from "../errors";
+import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { PublicKey } from "./public-key";
@@ -30,30 +29,8 @@ export class Address {
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
-        const { min, publicKeys } = asset;
-        publicKeys.forEach(publicKey => {
-            if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
-                throw new PublicKeyError(publicKey);
-            }
-        });
-
-        if (min < 1 || min > publicKeys.length) {
-            throw new InvalidMultiSignatureAssetError();
-        }
-
-        networkVersion = networkVersion || configManager.get("network.pubKeyHash");
-
-        const keyBuffers = publicKeys.map(publicKey => Buffer.from(publicKey, "hex"));
-
-        const hash = HashAlgorithms.ripemd160(
-            Buffer.concat([Buffer.from(Utils.numberToHex(min), "hex"), ...keyBuffers]),
-        );
-
-        const payload: Buffer = Buffer.alloc(21);
-        payload.writeUInt8(networkVersion, 0);
-        hash.copy(payload, 1);
-
-        return bs58check.encode(payload);
+        const publicKey = PublicKey.fromMultiSignatureAsset(asset);
+        return this.fromPublicKey(publicKey, networkVersion);
     }
 
     public static fromPrivateKey(privateKey, networkVersion?: number): string {
