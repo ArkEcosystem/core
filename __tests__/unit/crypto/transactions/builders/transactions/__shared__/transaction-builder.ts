@@ -1,4 +1,3 @@
-import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
 import { crypto, slots } from "../../../../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../../../../packages/crypto/src/managers";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
@@ -134,16 +133,13 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 };
 
                 const builder = provider();
-                if (builder.data.type === TransactionTypes.MultiSignature) {
-                    expect(() => builder.sign("dummy pass")).toThrowError();
-                } else {
-                    const getKeys = jest.spyOn(crypto, "getKeys").mockImplementation(() => keys);
-                    const sign = jest.spyOn(crypto, "sign").mockImplementation();
 
-                    builder.sign("dummy pass");
-                    expect(getKeys).toHaveBeenCalledWith("dummy pass");
-                    expect(sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
-                }
+                const getKeys = jest.spyOn(crypto, "getKeys").mockImplementation(() => keys);
+                const sign = jest.spyOn(crypto, "sign").mockImplementation();
+
+                builder.sign("dummy pass");
+                expect(getKeys).toHaveBeenCalledWith("dummy pass");
+                expect(sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
             });
 
             it("establishes the public key of the sender", () => {
@@ -154,15 +150,11 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     compressed: true,
                 };
 
-                if (builder.data.type === TransactionTypes.MultiSignature) {
-                    expect(() => builder.sign("my real pass")).toThrowError();
-                } else {
-                    jest.spyOn(crypto, "getKeys").mockImplementation(() => keys);
-                    jest.spyOn(crypto, "sign").mockImplementation();
+                jest.spyOn(crypto, "getKeys").mockImplementation(() => keys);
+                jest.spyOn(crypto, "sign").mockImplementation();
 
-                    builder.sign("my real pass");
-                    expect(builder.data.senderPublicKey).toBe(keys.publicKey);
-                }
+                builder.sign("my real pass");
+                expect(builder.data.senderPublicKey).toBe(keys.publicKey);
             });
         });
 

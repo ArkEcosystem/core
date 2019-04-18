@@ -236,8 +236,10 @@ export class Serializer {
             buffer.append(secondSignature, "hex");
         }
 
-        if (transaction.version === 1 && transaction.signatures) {
-            buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
+        if (transaction.signatures && !options.excludeSignature) {
+            if (transaction.version === 1) {
+                buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
+            }
             buffer.append(transaction.signatures.join(""), "hex");
         }
     }

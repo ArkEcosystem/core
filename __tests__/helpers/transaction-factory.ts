@@ -188,11 +188,11 @@ export class TransactionFactory {
                     const passphrase = this.passphraseList[i];
                     this.builder.multiSign(passphrase, i);
                 }
-            } else {
-                this.builder.sign(this.passphrase);
-                if (this.secondPassphrase) {
-                    this.builder.secondSign(this.secondPassphrase);
-                }
+            }
+
+            this.builder.sign(this.passphrase);
+            if (this.secondPassphrase) {
+                this.builder.secondSign(this.secondPassphrase);
             }
 
             transactions.push(this.builder[method]());

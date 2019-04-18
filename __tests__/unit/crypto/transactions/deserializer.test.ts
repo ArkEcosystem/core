@@ -186,7 +186,7 @@ describe("Transaction serializer / deserializer", () => {
                 .multiSign("secret 1", 0)
                 .multiSign("secret 2", 1)
                 .multiSign("secret 3", 2)
-                .getStruct();
+                .sign("secret 1").data;
         });
 
         it("should ser/deserialize a multisig registration", () => {
@@ -196,6 +196,7 @@ describe("Transaction serializer / deserializer", () => {
             expect(transaction.isVerified).toBeTrue();
             expect(deserialized.isVerified).toBeTrue();
             expect(deserialized.data.asset).toEqual(multiSignatureRegistration.asset);
+            expect(transaction.data.signatures).toEqual(deserialized.data.signatures);
             checkCommonFields(deserialized, multiSignatureRegistration);
         });
 

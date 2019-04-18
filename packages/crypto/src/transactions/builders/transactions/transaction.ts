@@ -119,8 +119,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public multiSign(passphrase: string, index: number): TBuilder {
-        if (!this.data.signature) {
-            this.data.signature = "";
+        if (!this.data.signatures) {
+            this.data.signatures = [];
         }
 
         // TOOD: move to crypto?
@@ -129,7 +129,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         const keys: IKeyPair = crypto.getKeys(passphrase);
         const signature = crypto.sign(this.getSigningObject(), keys);
         const indexHex = Utils.numberToHex(index);
-        this.data.signature += `${indexHex}${signature}`;
+        this.data.signatures.push(`${indexHex}${signature}`);
 
         return this.instance();
     }

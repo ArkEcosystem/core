@@ -29,7 +29,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new MultiSignatureMinimumKeysError();
         }
 
-        if (publicKeys.length !== data.signature.length / 130) {
+        if (publicKeys.length !== data.signatures.length) {
             throw new MultiSignatureKeyCountMismatchError();
         }
 

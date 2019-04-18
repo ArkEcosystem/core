@@ -5,9 +5,9 @@ import { Crypto, Enums, Interfaces, Managers, Transactions } from "@arkecosystem
 
 import {
     InsufficientBalanceError,
+    InvalidMultiSignatureError,
     InvalidSecondSignatureError,
     SenderWalletMismatchError,
-    UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
@@ -30,7 +30,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         const { data } = transaction;
         if (wallet.multisignature) {
-            throw new UnexpectedMultiSignatureError();
+            if (!wallet.verifySignatures(data, wallet.multisignature)) {
+                throw new InvalidMultiSignatureError();
+            }
         }
 
         if (

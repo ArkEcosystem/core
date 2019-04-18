@@ -63,7 +63,7 @@ class Deserializer {
     private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
         if (transaction.version === 1) {
             this.deserializeECDSA(transaction, buf);
-        } else {
+        } else if (transaction.version === 2) {
             this.deserializeSchnorr(transaction, buf);
         }
     }
@@ -113,14 +113,21 @@ class Deserializer {
     }
 
     private deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer) {
-        if (buf.remaining() % 65 === 0) {
-            // Multi sig
-            transaction.signature = buf.readBytes(buf.remaining()).toString("hex");
-        } else if (buf.remaining() % 64 === 0) {
-            transaction.signature = buf.readBytes(64).toString("hex");
+        transaction.signature = buf.readBytes(64).toString("hex");
 
-            if (buf.remaining()) {
+        if (buf.remaining()) {
+            if (buf.remaining() % 65 !== 0) {
                 transaction.secondSignature = buf.readBytes(64).toString("hex");
+            }
+        }
+
+        if (buf.remaining() && buf.remaining() % 65 === 0) {
+            transaction.signatures = [];
+
+            const count = buf.remaining() / 65;
+            for (let i = 0; i < count; i++) {
+                const multiSignaturePart = buf.readBytes(65).toString("hex");
+                transaction.signatures.push(multiSignaturePart);
             }
         } else {
             throw new MalformedTransactionBytesError();

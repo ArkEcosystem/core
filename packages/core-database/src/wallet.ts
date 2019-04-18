@@ -85,17 +85,16 @@ export class Wallet implements Database.IWallet {
         multiSignature: Interfaces.IMultiSignatureAsset,
     ): boolean {
         const { publicKeys, min } = multiSignature;
-
-        const signature = transaction.signature;
+        const { signatures } = transaction;
 
         const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        const count = Math.floor(signature.length / 130);
 
         let verified = false;
         let verifiedSignatures = 0;
-        for (let i = 0, offset = 0; i < count; i++, offset += 130) {
-            const publicKeyIndex = parseInt(signature.slice(offset, offset + 2), 16);
-            const partialSignature = signature.slice(offset + 2, offset + 130);
+        for (let i = 0; i < signatures.length; i++) {
+            const signature = signatures[i];
+            const publicKeyIndex = parseInt(signature.slice(0, 2), 16);
+            const partialSignature = signature.slice(2, 130);
             const publicKey = publicKeys[publicKeyIndex];
 
             if (crypto.verifySchnorr(hash, partialSignature, publicKey)) {
@@ -105,7 +104,7 @@ export class Wallet implements Database.IWallet {
             if (verifiedSignatures === min) {
                 verified = true;
                 break;
-            } else if (count - (i + 1 - verifiedSignatures) < min) {
+            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
                 break;
             }
         }

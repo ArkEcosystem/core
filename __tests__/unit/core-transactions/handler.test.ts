@@ -575,7 +575,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should be false if failure to verify signatures in asset", () => {
-            instance.data.signature = instance.data.signature.replace("00", "02");
+            instance.data.signatures[0] = instance.data.signatures[0].replace("00", "02");
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(InvalidMultiSignatureError);
         });
 
@@ -590,7 +590,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             wallet.verifySignatures = jest.fn(() => true);
             crypto.verifySecondSignature = jest.fn(() => true);
 
-            instance.data.signature = "00324242423";
+            instance.data.signatures.splice(0, 2);
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(
                 MultiSignatureKeyCountMismatchError,
             );

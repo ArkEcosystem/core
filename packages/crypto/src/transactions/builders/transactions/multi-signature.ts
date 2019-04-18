@@ -34,10 +34,6 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         return this;
     }
 
-    public sign(passphrase: string): MultiSignatureBuilder {
-        throw new Error("Use multiSign instead of sign.");
-    }
-
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
         this.data.asset.multiSignature = multiSignature;
         this.data.fee = feeManager.getForTransaction(this.data);
