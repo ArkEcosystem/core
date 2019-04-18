@@ -3,8 +3,9 @@ import "./mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { Blocks, Constants, Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
+import { Address } from "../../../packages/crypto/src/identities";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { fixtures } from "../../utils";
 import wallets from "./__fixtures__/wallets.json";
@@ -12,7 +13,6 @@ import wallets from "./__fixtures__/wallets.json";
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 const { TransactionTypes } = Enums;
-const { crypto } = Crypto;
 
 const block3 = fixtures.blocks2to100[1];
 const block = BlockFactory.fromData(block3);
@@ -491,12 +491,12 @@ describe("Wallet Manager", () => {
         it("should update vote balance of delegates", async () => {
             for (let i = 0; i < 5; i++) {
                 const delegateKey = i.toString().repeat(66);
-                const delegate = new Wallet(crypto.getAddress(delegateKey));
+                const delegate = new Wallet(Address.fromPublicKey(delegateKey));
                 delegate.publicKey = delegateKey;
                 delegate.username = `delegate${i}`;
                 delegate.voteBalance = Utils.BigNumber.ZERO;
 
-                const voter = new Wallet(crypto.getAddress((i + 5).toString().repeat(66)));
+                const voter = new Wallet(Address.fromPublicKey((i + 5).toString().repeat(66)));
                 voter.balance = Utils.BigNumber.make(i + 1)
                     .times(1000)
                     .times(SATOSHI);

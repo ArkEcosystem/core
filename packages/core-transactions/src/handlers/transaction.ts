@@ -1,8 +1,7 @@
 // tslint:disable:max-classes-per-file
 
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-
+import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     InsufficientBalanceError,
     InvalidSecondSignatureError,
@@ -45,7 +44,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         if (wallet.secondPublicKey) {
-            if (!Crypto.crypto.verifySecondSignature(data, wallet.secondPublicKey)) {
+            if (!Transactions.Transaction.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
         } else {

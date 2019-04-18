@@ -9,7 +9,7 @@ import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
-const { crypto, slots } = Crypto;
+const { slots } = Crypto;
 
 const TEST_TRANSACTION_TYPE = 100;
 
@@ -123,8 +123,8 @@ describe("TransactionHandlerRegistry", () => {
             },
         };
 
-        data.signature = crypto.sign(data, keys);
-        data.id = crypto.getId(data);
+        data.signature = Transactions.Transaction.sign(data, keys);
+        data.id = Transactions.Transaction.getId(data);
 
         const transaction = Transactions.TransactionFactory.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);

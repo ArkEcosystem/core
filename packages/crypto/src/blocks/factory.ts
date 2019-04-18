@@ -1,4 +1,4 @@
-import { crypto, HashAlgorithms } from "../crypto";
+import { Hash, HashAlgorithms } from "../crypto";
 import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../interfaces";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
@@ -12,7 +12,7 @@ export class BlockFactory {
         const payloadHash: Buffer = Block.serialize(data, false);
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
-        data.blockSignature = crypto.signHash(hash, keys);
+        data.blockSignature = Hash.sign(hash, keys);
         data.id = Block.getId(data);
 
         return this.fromData(data);

@@ -4,9 +4,10 @@ import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import { Crypto, Utils } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { DelegatesBusinessRepository, Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Address } from "../../../../packages/crypto/src/identities";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
 let repository;
@@ -26,7 +27,8 @@ beforeEach(async () => {
 
 function generateWallets(): Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = Crypto.crypto.getAddress(transaction.data.senderPublicKey);
+        // @TODO: switch to unitnet
+        const address: string = Address.fromPublicKey(transaction.data.senderPublicKey, 23);
 
         return {
             address,
@@ -52,17 +54,17 @@ describe("Delegate Repository", () => {
 
         it("should return the local wallets of the connection that are delegates", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates();
 
             expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
-            expect(walletManager.allByAddress).toHaveBeenCalled();
+            expect(walletManager.allByUsername).toHaveBeenCalled();
         });
 
         it("should be ok with params (forgedTotal)", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
 

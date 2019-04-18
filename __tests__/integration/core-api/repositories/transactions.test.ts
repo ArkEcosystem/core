@@ -1,13 +1,10 @@
 import "jest-extended";
 import "../../../utils";
 
-import { Crypto } from "@arkecosystem/crypto";
-// noinspection TypeScriptPreferShortImport
 import { TransactionsRepository } from "../../../../packages/core-api/src/repositories/transactions";
+import { Address } from "../../../../packages/crypto/src/identities";
 import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "../__support__/setup";
-
-const { crypto } = Crypto;
 
 let repository;
 let genesisTransaction;
@@ -84,7 +81,7 @@ describe("Transaction Repository", () => {
         describe("`senderId`", () => {
             it("should search transactions by the specified `senderId`", async () => {
                 const senderPublicKey = genesisTransaction.senderPublicKey;
-                const senderId = crypto.getAddress(senderPublicKey, 23);
+                const senderId = Address.fromPublicKey(senderPublicKey, 23);
 
                 const transactions = await repository.search({ senderId });
 
@@ -135,7 +132,7 @@ describe("Transaction Repository", () => {
 
         describe("when searching by `senderId` and `recipientId`", () => {
             it("should search transactions by sent by `senderId` to `recipientId`", async () => {
-                const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
                 const recipientId = genesisBlock.transactions[2].recipientId;
 
                 let transactions = await repository.search({
@@ -176,7 +173,7 @@ describe("Transaction Repository", () => {
 
             describe("when searching by `addresses` and `senderId`", () => {
                 it("should search transactions by the `addresses`, but only include those received from `senderId`", async () => {
-                    const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                    const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
 
                     let transactions = await repository.search({
                         senderId,
@@ -224,7 +221,7 @@ describe("Transaction Repository", () => {
 
             describe("when searching by `addresses` and `recipientId`", () => {
                 it("should search transactions by the `addresses`, but only include those sent to `recipientId`", async () => {
-                    const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                    const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
                     const recipientId = genesisBlock.transactions[2].recipientId;
 
                     let transactions = await repository.search({
@@ -249,7 +246,7 @@ describe("Transaction Repository", () => {
 
             describe("when searching by `addresses`, `senderId` and `recipientId`", () => {
                 it("should search transactions by `senderId` and `recipientId` only", async () => {
-                    const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                    const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
                     const params = {
                         senderId,
                         recipientId: genesisTransaction.recipientId,
