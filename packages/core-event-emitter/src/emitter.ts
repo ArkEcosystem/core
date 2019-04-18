@@ -4,9 +4,7 @@ export class EventEmitter extends NativeEmitter {
     public on(event: string | symbol, listener: (...args: any) => void): this {
         this.ensureListenerCount(event, (maxListeners: number) => maxListeners + 1);
 
-        super.on(event, listener);
-
-        return this;
+        return super.on(event, listener);
     }
 
     public off(event: string | symbol, listener: (...args: any) => void): this {
@@ -16,9 +14,7 @@ export class EventEmitter extends NativeEmitter {
     public once(event: string | symbol, listener: (...args: any) => void): this {
         this.ensureListenerCount(event, (maxListeners: number) => maxListeners + 1);
 
-        super.once(event, listener);
-
-        return this;
+        return super.once(event, listener);
     }
 
     public addListener(event: string | symbol, listener: (...args: any) => void): this {
@@ -28,9 +24,7 @@ export class EventEmitter extends NativeEmitter {
     public removeListener(event: string | symbol, listener: (...args: any) => void): this {
         this.ensureListenerCount(event, (maxListeners: number) => maxListeners - 1);
 
-        super.removeListener(event, listener);
-
-        return this;
+        return super.removeListener(event, listener);
     }
 
     private ensureListenerCount(event: string | symbol, count: (maxListeners: number) => number): void {
