@@ -82,6 +82,7 @@ export class TransactionFactory {
     private secondPassphrase: string;
     private passphraseList: string[];
     private passphrasePairs: PassphrasePair[];
+    private version: number;
 
     public constructor(builder) {
         this.builder = builder;
@@ -101,6 +102,12 @@ export class TransactionFactory {
 
     public withHeight(height: number): TransactionFactory {
         Managers.configManager.setHeight(height);
+
+        return this;
+    }
+
+    public withVersion(version: number): TransactionFactory {
+        this.version = version;
 
         return this;
     }
@@ -177,6 +184,10 @@ export class TransactionFactory {
                         this.getRandomUsername(),
                     );
                 }
+            }
+
+            if (this.version) {
+                this.builder.version(this.version);
             }
 
             if (this.fee) {
