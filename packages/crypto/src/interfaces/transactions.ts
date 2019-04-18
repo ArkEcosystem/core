@@ -38,7 +38,7 @@ export interface ITransactionAsset {
         dag: string;
     };
     payments?: any;
-    //  [custom: string]: any;
+    [custom: string]: any;
 }
 
 export interface ITransactionData {

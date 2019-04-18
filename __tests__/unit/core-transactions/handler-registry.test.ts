@@ -104,7 +104,7 @@ describe("TransactionHandlerRegistry", () => {
         ).not.toThrowError();
 
         expect(TransactionHandlerRegistry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
-        expect(Transactions.TransactionRegistry.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
+        expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
 
     it("should be able to instantiate a custom transaction", () => {
