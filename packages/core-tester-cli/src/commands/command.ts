@@ -74,7 +74,7 @@ export abstract class BaseCommand extends Command {
     protected async make(command): Promise<any> {
         const { args, flags } = this.parse(command);
 
-        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/v2/`);
+        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/`);
         this.p2p = new HttpClient(`${flags.host}:${flags.portP2P}/`);
 
         await this.setupConstants();

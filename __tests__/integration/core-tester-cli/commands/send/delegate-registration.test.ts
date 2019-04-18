@@ -8,7 +8,7 @@ import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     nock("http://localhost:4003")
-        .get("/api/v2/node/configuration")
+        .get("/api/node/configuration")
         .thrice()
         .reply(200, { data: { constants: {} } });
 
@@ -35,7 +35,7 @@ describe("Commands - Delegate Registration", () => {
         const expectedDelegateName = "mr_bojangles";
         // call to delegates/{publicKey}/voters returns zero delegates
         nock("http://localhost:4003")
-            .get("/api/v2/delegates")
+            .get("/api/delegates")
             .reply(200, {
                 meta: { pageCount: 1 },
                 data: [],

@@ -42,7 +42,7 @@ function generateWallets(): Wallet[] {
 }
 
 describe("Delegate Repository", () => {
-    describe("getLocalDelegates", () => {
+    describe("search", () => {
         const delegates = [
             { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
             { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
@@ -50,35 +50,38 @@ describe("Delegate Repository", () => {
         ];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
+        beforeEach(() => {
+            const wallets = generateWallets();
+            walletManager.index(wallets);
+        });
+
         it("should return the local wallets of the connection that are delegates", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const actualDelegates = repository.getLocalDelegates();
+            const { rows } = repository.search();
 
-            expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
-            expect(walletManager.allByAddress).toHaveBeenCalled();
+            expect(rows).toEqual(expect.arrayContaining(wallets));
+            expect(walletManager.allByUsername).toHaveBeenCalled();
         });
 
         it("should be ok with params (forgedTotal)", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
+            const { rows } = repository.search({ forgedTotal: null });
 
-            actualDelegates.forEach(delegate => {
+            rows.forEach(delegate => {
                 expect(delegate.hasOwnProperty("forgedTotal"));
                 expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
             });
         });
-    });
 
-    describe("findAll", () => {
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll();
+            const { count, rows } = repository.search({});
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
             expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
@@ -88,7 +91,7 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10, limit: 10, orderBy: "rate:desc" });
+            const { count, rows } = repository.search({ offset: 10, limit: 10, orderBy: "rate:desc" });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
             expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
@@ -98,7 +101,7 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ limit: 10 });
+            const { count, rows } = repository.search({ limit: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
@@ -107,7 +110,7 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
+            const { count, rows } = repository.search({ offset: 0, limit: 12 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(12);
         });
@@ -116,16 +119,9 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10 });
+            const { count, rows } = repository.search({ offset: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(42);
-        });
-    });
-
-    describe("search", () => {
-        beforeEach(() => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
         });
 
         describe("by `username`", () => {
