@@ -10,10 +10,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
     public getLocalDelegates(params: Database.IParameters = {}): Database.IWallet[] {
-        // TODO: What's the diff between this and just calling 'allByUsername'
-        let delegates = this.databaseServiceProvider()
-            .walletManager.allByAddress()
-            .filter(wallet => !!wallet.username);
+        let delegates = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,

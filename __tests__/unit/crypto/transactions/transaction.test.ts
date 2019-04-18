@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
@@ -9,6 +8,7 @@ import {
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { Keys } from "../../../../packages/crypto/src/identities";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory, Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
@@ -296,6 +296,161 @@ describe("Transaction", () => {
     });
 
     it("Signatures are verified", () => {
-        [0, 1, 2, 3].map(type => createRandomTx(type)).forEach(({ data }) => expect(crypto.verify(data)).toBeTrue());
+        [0, 1, 2, 3].map(type => createRandomTx(type)).forEach(tx => expect(tx.verify()).toBeTrue());
+    });
+
+    describe("getHash", () => {
+        const transaction = {
+            version: 1,
+            type: 0,
+            amount: Utils.BigNumber.make(1000),
+            fee: Utils.BigNumber.make(2000),
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+            signature:
+                "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+        };
+
+        it("should return Buffer and Buffer most be 32 bytes length", () => {
+            const result = Transaction.getHash(transaction);
+            expect(result).toBeObject();
+            expect(result).toHaveLength(32);
+            expect(result.toString("hex")).toBe("952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea");
+        });
+
+        it("should throw for unsupported versions", () => {
+            expect(() => Transaction.getHash(Object.assign({}, transaction, { version: 110 }))).toThrow(
+                TransactionVersionError,
+            );
+        });
+    });
+
+    describe("getId", () => {
+        const transaction = {
+            type: 0,
+            amount: Utils.BigNumber.make(1000),
+            fee: Utils.BigNumber.make(2000),
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
+            signature:
+                "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+        };
+
+        it("should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea", () => {
+            const id = Transaction.getId(transaction); // old id
+            expect(id).toBeString();
+            expect(id).toBe("952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea");
+        });
+
+        it("should throw for unsupported version", () => {
+            expect(() => Transaction.getId(Object.assign({}, transaction, { version: 110 }))).toThrow(
+                TransactionVersionError,
+            );
+        });
+    });
+
+    describe("sign", () => {
+        const keys = Keys.fromPassphrase("secret");
+        const transaction = {
+            type: 0,
+            amount: Utils.BigNumber.make(1000),
+            fee: Utils.BigNumber.make(2000),
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys.publicKey,
+        };
+
+        it("should return a valid signature", () => {
+            const signature = Transaction.sign(transaction, keys);
+            // @ts-ignore
+            expect(signature.toString("hex")).toBe(
+                "3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe",
+            );
+        });
+
+        it("should throw for unsupported versions", () => {
+            expect(() => {
+                Transaction.sign(Object.assign({}, transaction, { version: 110 }), keys);
+            }).toThrow(TransactionVersionError);
+        });
+    });
+
+    describe("verify", () => {
+        const keys = Keys.fromPassphrase("secret");
+        const transaction: any = {
+            type: 0,
+            amount: Utils.BigNumber.make(1000),
+            fee: Utils.BigNumber.make(2000),
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys.publicKey,
+        };
+        Transaction.sign(transaction, keys);
+
+        const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+
+        it("should return true on a valid signature", () => {
+            expect(Transaction.verifyData(transaction)).toBeTrue();
+        });
+
+        it("should return false on an invalid signature", () => {
+            expect(
+                Transaction.verifyData(Object.assign({}, transaction, { senderPublicKey: otherPublicKey })),
+            ).toBeFalse();
+        });
+
+        it("should return false on a missing signature", () => {
+            const transactionWithoutSignature = Object.assign({}, transaction);
+            delete transactionWithoutSignature.signature;
+
+            expect(Transaction.verifyData(transactionWithoutSignature)).toBeFalse();
+        });
+    });
+
+    describe("verifySecondSignature", () => {
+        const keys1 = Keys.fromPassphrase("secret");
+        const keys2 = Keys.fromPassphrase("secret too");
+        const transaction: any = {
+            type: 0,
+            amount: Utils.BigNumber.make(1000),
+            fee: Utils.BigNumber.make(2000),
+            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
+            timestamp: 141738,
+            asset: {},
+            senderPublicKey: keys1.publicKey,
+        };
+        const secondSignature = Transaction.secondSign(transaction, keys2);
+        transaction.signSignature = secondSignature;
+        const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+
+        it("should return true on a valid signature", () => {
+            expect(Transaction.verifySecondSignature(transaction, keys2.publicKey)).toBeTrue();
+        });
+
+        it("should return false on an invalid second signature", () => {
+            expect(Transaction.verifySecondSignature(transaction, otherPublicKey)).toBeFalse();
+        });
+
+        it("should return false on a missing second signature", () => {
+            const transactionWithoutSignature = Object.assign({}, transaction);
+            delete transactionWithoutSignature.secondSignature;
+            delete transactionWithoutSignature.signSignature;
+
+            expect(Transaction.verifySecondSignature(transactionWithoutSignature, keys2.publicKey)).toBeFalse();
+        });
+
+        it("should fail this.getHash for transaction version > 1", () => {
+            const transactionV2 = Object.assign({}, transaction, { version: 2 });
+
+            expect(() => Transaction.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(
+                TransactionVersionError,
+            );
+        });
     });
 });

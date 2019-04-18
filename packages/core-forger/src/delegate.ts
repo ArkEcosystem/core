@@ -1,12 +1,12 @@
-import { Blocks, Crypto, Interfaces, Types, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Identities, Interfaces, Types, Utils } from "@arkecosystem/crypto";
 import forge from "node-forge";
 import { authenticator } from "otplib";
 import wif from "wif";
 
 export class Delegate {
     public static encryptPassphrase(passphrase: string, network: Types.NetworkType, password: string): string {
-        const keys = Crypto.crypto.getKeys(passphrase);
-        const decoded = wif.decode(Crypto.crypto.keysToWIF(keys, network), network.wif);
+        const keys = Identities.Keys.fromPassphrase(passphrase);
+        const decoded = wif.decode(Identities.WIF.fromKeys(keys, network), network.wif);
 
         return Crypto.bip38.encrypt(decoded.privateKey, decoded.compressed, password);
     }
@@ -19,7 +19,7 @@ export class Delegate {
         const decryptedWif: Interfaces.IDecryptResult = Crypto.bip38.decrypt(passphrase, password);
         const wifKey: string = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed);
 
-        return Crypto.crypto.getKeysFromWIF(wifKey, network);
+        return Identities.Keys.fromWIF(wifKey, network);
     }
 
     public network: Types.NetworkType;
@@ -42,7 +42,7 @@ export class Delegate {
             try {
                 this.keys = Delegate.decryptPassphrase(passphrase, network, password);
                 this.publicKey = this.keys.publicKey;
-                this.address = Crypto.crypto.getAddress(this.keys.publicKey, network.pubKeyHash);
+                this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
                 this.otpSecret = authenticator.generateSecret();
                 this.bip38 = true;
 
@@ -53,16 +53,16 @@ export class Delegate {
                 this.address = null;
             }
         } else {
-            this.keys = Crypto.crypto.getKeys(passphrase);
+            this.keys = Identities.Keys.fromPassphrase(passphrase);
             this.publicKey = this.keys.publicKey;
-            this.address = Crypto.crypto.getAddress(this.publicKey, network.pubKeyHash);
+            this.address = Identities.Address.fromPublicKey(this.publicKey, network.pubKeyHash);
         }
     }
 
     public encryptKeysWithOtp(): void {
         this.otp = authenticator.generate(this.otpSecret);
 
-        const wifKey: string = Crypto.crypto.keysToWIF(this.keys, this.network);
+        const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
         this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
         this.keys = null;
@@ -71,7 +71,7 @@ export class Delegate {
     public decryptKeysWithOtp(): void {
         const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
 
-        this.keys = Crypto.crypto.getKeysFromWIF(wifKey, this.network);
+        this.keys = Identities.Keys.fromWIF(wifKey, this.network);
         this.otp = null;
         this.encryptedKeys = null;
     }

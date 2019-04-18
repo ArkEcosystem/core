@@ -1,4 +1,4 @@
-import { Crypto } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
 export {};
 
@@ -16,7 +16,7 @@ expect.extend({
         let verified: boolean = false;
 
         try {
-            verified = Crypto.crypto.verify(actual);
+            verified = Transactions.Transaction.verifyData(actual);
         } catch (e) {} // tslint:disable-line
 
         return {

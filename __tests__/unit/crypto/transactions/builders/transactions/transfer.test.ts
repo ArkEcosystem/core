@@ -1,12 +1,17 @@
 import "jest-extended";
 
+import { configManager } from "../../../../../../packages/crypto/src/managers";
+
+configManager.setFromPreset("testnet");
+
 import { Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { Keys, WIF } from "../../../../../../packages/crypto/src/identities";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { devnet } from "../../../../../../packages/crypto/src/networks";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { TransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
+import { identity } from "../../../../../utils/identities";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: TransferBuilder;
@@ -19,7 +24,7 @@ describe("Transfer Transaction", () => {
     describe("verify", () => {
         it("should be valid with a signature", () => {
             const actual = builder
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .recipientId(identity.address)
                 .amount("1")
                 .vendorField("dummy")
                 .sign("dummy passphrase");
@@ -30,7 +35,7 @@ describe("Transfer Transaction", () => {
 
         it("should be valid with a second signature", () => {
             const actual = builder
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .recipientId(identity.address)
                 .amount("1")
                 .vendorField("dummy")
                 .sign("dummy passphrase")
@@ -45,8 +50,8 @@ describe("Transfer Transaction", () => {
         it("should sign a transaction and match signed with a passphrase", () => {
             const passphrase = "sample passphrase";
             const network = 23;
-            const keys = crypto.getKeys(passphrase);
-            const wif = crypto.keysToWIF(keys, devnet.network);
+            const keys = Keys.fromPassphrase(passphrase);
+            const wif = WIF.fromKeys(keys, devnet.network);
 
             const wifTransaction = builder
                 .amount("10")
@@ -68,8 +73,8 @@ describe("Transfer Transaction", () => {
             const passphrase = "first passphrase";
             const secondPassphrase = "second passphrase";
             const network = 23;
-            const keys = crypto.getKeys(secondPassphrase);
-            const wif = crypto.keysToWIF(keys, devnet.network);
+            const keys = Keys.fromPassphrase(secondPassphrase);
+            const wif = WIF.fromKeys(keys, devnet.network);
 
             const wifTransaction = builder
                 .amount("10")

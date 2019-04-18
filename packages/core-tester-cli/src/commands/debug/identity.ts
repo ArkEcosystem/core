@@ -1,4 +1,4 @@
-import { Crypto, Managers, Types } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Managers, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -26,24 +26,24 @@ export class IdentityCommand extends BaseCommand {
         let output;
 
         if (flags.type === "passphrase") {
-            const keys = Crypto.crypto.getKeys(flags.data);
+            const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(flags.data);
             output = {
                 passphrase: flags.data,
                 publicKey: keys.publicKey,
                 privateKey: keys.privateKey,
-                address: Crypto.crypto.getAddress(keys.publicKey),
+                address: Identities.Address.fromPublicKey(keys.publicKey),
             };
         } else if (flags.type === "privateKey") {
-            const keys = Crypto.crypto.getKeysByPrivateKey(flags.data);
+            const keys: Interfaces.IKeyPair = Identities.Keys.fromPrivateKey(flags.data);
             output = {
                 publicKey: keys.publicKey,
                 privateKey: keys.privateKey,
-                address: Crypto.crypto.getAddress(keys.publicKey),
+                address: Identities.Address.fromPublicKey(keys.publicKey),
             };
         } else if (flags.type === "publicKey") {
             output = {
                 publicKey: flags.data,
-                address: Crypto.crypto.getAddress(flags.data),
+                address: Identities.Address.fromPublicKey(flags.data),
             };
         }
 

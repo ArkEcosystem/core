@@ -2,13 +2,11 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p";
-import { Crypto, Transactions } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import { randomBytes } from "crypto";
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
-
-const { crypto } = Crypto;
 
 jest.mock("is-reachable", () => jest.fn(async peer => true));
 
@@ -31,10 +29,13 @@ beforeAll(async () => {
 
 afterAll(async () => await tearDown());
 
-afterEach(async () => nock.cleanAll());
+afterEach(async () => {
+    nock.cleanAll();
+    jest.restoreAllMocks();
+});
 
 function verifyTransaction(data): boolean {
-    return crypto.verify(Transactions.TransactionFactory.fromData(data).data);
+    return Transactions.TransactionFactory.fromData(data).verify();
 }
 
 describe("Transactions", () => {
@@ -93,6 +94,19 @@ describe("Transactions", () => {
             expect(response.body.result.vendorField).toBe("Hello World");
             expect(verifyTransaction(response.body.result)).toBeTrue();
         });
+
+        it("should return 422 if it fails to verify the transaction", async () => {
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+
+            const response = await sendRequest("transactions.create", {
+                amount: 100000000,
+                recipientId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                passphrase: "this is a top secret passphrase",
+            });
+
+            expect(response.body.error.code).toBe(422);
+            expect(spyVerify).toHaveBeenCalled();
+        });
     });
 
     describe("POST transactions.broadcast", () => {
@@ -103,7 +117,7 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            mockHost.post("/api/transactions").reply(200, { success: true }, peerMock.headers);
+            mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
 
             const response = await sendRequest("transactions.broadcast", {
                 id: transaction.body.result.id,
@@ -121,6 +135,25 @@ describe("Transactions", () => {
             expect(response.body.error.message).toBe(
                 "Transaction e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8 could not be found.",
             );
+        });
+
+        it("should return 422 if it fails to verify the transaction", async () => {
+            const transaction = await sendRequest("transactions.create", {
+                amount: 100000000,
+                recipientId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                passphrase: "this is a top secret passphrase",
+            });
+
+            mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
+
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+
+            const response = await sendRequest("transactions.broadcast", {
+                id: transaction.body.result.id,
+            });
+
+            expect(response.body.error.code).toBe(422);
+            expect(spyVerify).toHaveBeenCalled();
         });
     });
 
@@ -168,6 +201,21 @@ describe("Transactions", () => {
 
             expect(response.body.error.code).toBe(404);
             expect(response.body.error.message).toBe("User 123456789 could not be found.");
+        });
+
+        it("should return 422 if it fails to verify the transaction", async () => {
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+
+            const response = await sendRequest("transactions.bip38.create", {
+                bip38: "this is a top secret passphrase",
+                userId,
+                amount: 1000000000,
+                recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+                vendorField: "Hello World",
+            });
+
+            expect(response.body.error.code).toBe(422);
+            expect(spyVerify).toHaveBeenCalled();
         });
     });
 });

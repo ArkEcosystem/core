@@ -1,11 +1,16 @@
 import "jest-extended";
 
-import { crypto } from "../../../../../../packages/crypto/src/crypto";
+import { configManager } from "../../../../../../packages/crypto/src/managers";
+
+configManager.setFromPreset("testnet");
+
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { Keys } from "../../../../../../packages/crypto/src/identities";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { VoteBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/vote";
 import * as Utils from "../../../../../../packages/crypto/src/utils";
+import { identity } from "../../../../../utils/identities";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: VoteBuilder;
@@ -58,31 +63,19 @@ describe("Vote Transaction", () => {
 
     describe("sign", () => {
         it("establishes the recipient id", () => {
-            const pass = "dummy pass";
+            jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
 
-            // @ts-ignore
-            crypto.getKeys = jest.fn(() => ({
-                publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-            }));
-            crypto.sign = jest.fn();
-
-            builder.sign(pass);
-            expect(builder.data.recipientId).toBe("AGTteu9EFVisaGWoEJdpxQ5D5B3UZfPFgT");
+            builder.sign(identity.bip39);
+            expect(builder.data.recipientId).toBe(identity.address);
         });
     });
 
     describe("signWithWif", () => {
         it("establishes the recipient id", () => {
-            const pass = "dummy pass";
+            jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
 
-            // @ts-ignore
-            crypto.getKeysFromWIF = jest.fn(() => ({
-                publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-            }));
-            // builder.signWithWif = jest.fn();
-
-            builder.signWithWif(pass);
-            expect(builder.data.recipientId).toBe("AGTteu9EFVisaGWoEJdpxQ5D5B3UZfPFgT");
+            builder.signWithWif(identity.wif);
+            expect(builder.data.recipientId).toBe(identity.address);
         });
     });
 });

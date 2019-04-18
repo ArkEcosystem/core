@@ -370,7 +370,6 @@ describe("Transaction Guard", () => {
                 .build()[0];
 
             for (const transactionType of [
-                Enums.TransactionTypes.MultiSignature,
                 Enums.TransactionTypes.Ipfs,
                 Enums.TransactionTypes.TimelockTransfer,
                 Enums.TransactionTypes.MultiPayment,

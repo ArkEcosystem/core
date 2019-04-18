@@ -2,13 +2,13 @@ import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
 import { Utils } from "../../../../packages/crypto/src";
-import { crypto } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { Keys } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
@@ -172,9 +172,9 @@ describe("Transaction serializer / deserializer", () => {
         beforeEach(() => {
             configManager.setFromPreset("testnet");
 
-            const participant1 = crypto.getKeys("secret 1");
-            const participant2 = crypto.getKeys("secret 2");
-            const participant3 = crypto.getKeys("secret 3");
+            const participant1 = Keys.fromPassphrase("secret 1");
+            const participant2 = Keys.fromPassphrase("secret 2");
+            const participant3 = Keys.fromPassphrase("secret 3");
 
             multiSignatureRegistration = BuilderFactory.multiSignature()
                 .senderPublicKey(participant1.publicKey)

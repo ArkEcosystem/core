@@ -1,8 +1,11 @@
 import "jest-extended";
 
+import { configManager } from "../../../../../../packages/crypto/src/managers";
+
+configManager.setFromPreset("testnet");
+
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import { configManager } from "../../../../../../packages/crypto/src/managers";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
@@ -10,10 +13,6 @@ import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: MultiSignatureBuilder;
-
-beforeAll(() => {
-    configManager.setFromPreset("testnet");
-});
 
 beforeEach(() => {
     builder = BuilderFactory.multiSignature();

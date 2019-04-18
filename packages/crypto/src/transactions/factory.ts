@@ -1,5 +1,4 @@
 // tslint:disable:member-ordering
-import { crypto } from "../crypto";
 import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
 import { BigNumber, isException } from "../utils";
@@ -7,6 +6,7 @@ import { validator } from "../validation";
 import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 import { TransactionTypeFactory } from "./types";
+import { Transaction } from "./types/transaction";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
@@ -27,7 +27,7 @@ export class TransactionFactory {
     public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(buffer);
-            transaction.data.id = id || crypto.getId(transaction.data);
+            transaction.data.id = id || Transaction.getId(transaction.data);
             transaction.isVerified = true;
 
             return transaction;
@@ -60,7 +60,7 @@ export class TransactionFactory {
 
         Serializer.serialize(transaction);
 
-        data.id = crypto.getId(data);
+        data.id = Transaction.getId(data);
         transaction.isVerified = transaction.verify();
 
         return transaction;
@@ -69,7 +69,7 @@ export class TransactionFactory {
     private static fromSerialized(serialized: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);
-            transaction.data.id = crypto.getId(transaction.data);
+            transaction.data.id = Transaction.getId(transaction.data);
 
             const { value, error } = this.validateSchema(transaction.data, true);
 

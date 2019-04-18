@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
-import { Constants, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Constants, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -24,9 +24,6 @@ import { TransactionHandlerRegistry } from "../../../packages/core-transactions/
 import { TransactionFactory } from "../../helpers";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
-
-const { ARKTOSHI } = Constants;
-const { crypto } = Crypto;
 
 let wallet: Wallet;
 let transaction: Interfaces.ITransactionData;
@@ -122,7 +119,7 @@ describe("General Tests", () => {
 
     describe("applyTransactionToSender", () => {
         it("should be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
             handler.applyToSender(instance, wallet);
             expect(wallet.balance).toEqual(
@@ -133,7 +130,7 @@ describe("General Tests", () => {
         });
 
         it("should not be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
             instance.data.senderPublicKey = "a".repeat(66);
 
@@ -142,7 +139,7 @@ describe("General Tests", () => {
         });
 
         it("should not fail due to case mismatch", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
 
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
@@ -160,7 +157,7 @@ describe("General Tests", () => {
 
     describe("revertTransactionForSender", () => {
         it("should be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
 
             handler.revertForSender(instance, wallet);
@@ -172,7 +169,7 @@ describe("General Tests", () => {
         });
 
         it("should not be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
             transaction.senderPublicKey = "a".repeat(66);
 
@@ -183,7 +180,7 @@ describe("General Tests", () => {
 
     describe("applyTransactionToRecipient", () => {
         it("should be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
 
             handler.applyToRecipient(instance, wallet);
@@ -191,7 +188,7 @@ describe("General Tests", () => {
         });
 
         it("should not be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
             transaction.recipientId = "invalid-recipientId";
 
@@ -202,7 +199,7 @@ describe("General Tests", () => {
 
     describe("revertTransactionForRecipient", () => {
         it("should be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
 
             handler.revertForRecipient(instance, wallet);
@@ -210,7 +207,7 @@ describe("General Tests", () => {
         });
 
         it("should not be ok", () => {
-            const initialBalance = 1000 * ARKTOSHI;
+            const initialBalance = 1000 * Constants.ARKTOSHI;
             wallet.balance = Utils.BigNumber.make(initialBalance);
 
             transaction.recipientId = "invalid-recipientId";
@@ -580,6 +577,11 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should be false if the number of keys is less than minimum", () => {
+            delete wallet.multisignature;
+
+            wallet.verifySignatures = jest.fn(() => true);
+            Transactions.Transaction.verifySecondSignature = jest.fn(() => true);
+
             instance.data.asset.multiSignature.publicKeys.splice(0, 5);
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(MultiSignatureMinimumKeysError);
         });
@@ -588,7 +590,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             delete wallet.multisignature;
 
             wallet.verifySignatures = jest.fn(() => true);
-            crypto.verifySecondSignature = jest.fn(() => true);
+            Transactions.Transaction.verifySecondSignature = jest.fn(() => true);
 
             instance.data.signatures.splice(0, 2);
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(

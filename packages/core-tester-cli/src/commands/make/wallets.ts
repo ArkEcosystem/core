@@ -1,4 +1,4 @@
-import { Crypto } from "@arkecosystem/crypto";
+import { Identities, Interfaces } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { generateMnemonic } from "bip39";
 import { writeFileSync } from "fs";
@@ -26,9 +26,9 @@ export class WalletCommand extends BaseCommand {
 
         const wallets = {};
         for (let i = 0; i < flags.quantity; i++) {
-            const passphrase = generateMnemonic();
-            const keys = Crypto.crypto.getKeys(passphrase);
-            const address = Crypto.crypto.getAddress(keys.publicKey, this.network.version);
+            const passphrase: string = generateMnemonic();
+            const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(passphrase);
+            const address: string = Identities.Address.fromPublicKey(keys.publicKey);
 
             wallets[address] = { address, keys, passphrase };
         }

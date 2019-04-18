@@ -1,13 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Crypto, Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
 import { Wallet } from "./wallet";
-
-const { TransactionTypes } = Enums;
-const { crypto } = Crypto;
 
 export class WalletManager implements Database.IWalletManager {
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -54,7 +51,7 @@ export class WalletManager implements Database.IWalletManager {
 
     public findByPublicKey(publicKey: string): Database.IWallet {
         if (publicKey && !this.byPublicKey[publicKey]) {
-            const address = crypto.getAddress(publicKey);
+            const address = Identities.Address.fromPublicKey(publicKey);
 
             const wallet = this.findByAddress(address);
             wallet.publicKey = publicKey;
@@ -243,7 +240,7 @@ export class WalletManager implements Database.IWalletManager {
         let delegate: Database.IWallet = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
-            const generator: string = crypto.getAddress(generatorPublicKey);
+            const generator: string = Identities.Address.fromPublicKey(generatorPublicKey);
 
             if (block.data.height === 1) {
                 delegate = new Wallet(generator);
@@ -352,7 +349,7 @@ export class WalletManager implements Database.IWalletManager {
         let recipient: Database.IWallet = this.findByAddress(recipientId);
 
         // TODO: can/should be removed?
-        if (type === TransactionTypes.SecondSignature) {
+        if (type === Enums.TransactionTypes.SecondSignature) {
             data.recipientId = "";
         }
 
@@ -373,15 +370,14 @@ export class WalletManager implements Database.IWalletManager {
 
         transactionHandler.applyToSender(transaction, sender);
 
-        if (type === TransactionTypes.DelegateRegistration) {
+        if (type === Enums.TransactionTypes.DelegateRegistration) {
             this.reindex(sender);
         }
 
-        // TODO: give handler a reference to wallet manager
-        // and have it figure out how to deal with the wallet(s) itself.
-        if (recipient && type === TransactionTypes.Transfer) {
+        // TODO: make more generic
+        if (recipient && type === Enums.TransactionTypes.Transfer) {
             transactionHandler.applyToRecipient(transaction, recipient);
-        } else if (data.version === 2 && type === TransactionTypes.MultiSignature) {
+        } else if (data.version === 2 && type === Enums.TransactionTypes.MultiSignature) {
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
             recipient = this.findByAddress(multiSigAddress);
             transactionHandler.applyToRecipient(transaction, recipient);
@@ -403,13 +399,13 @@ export class WalletManager implements Database.IWalletManager {
         transactionHandler.revertForSender(transaction, sender);
 
         // removing the wallet from the delegates index
-        if (type === TransactionTypes.DelegateRegistration) {
+        if (type === Enums.TransactionTypes.DelegateRegistration) {
             delete this.byUsername[data.asset.delegate.username];
         }
 
-        if (recipient && type === TransactionTypes.Transfer) {
+        if (recipient && type === Enums.TransactionTypes.Transfer) {
             transactionHandler.revertForRecipient(transaction, recipient);
-        } else if (data.version === 2 && type === TransactionTypes.MultiSignature) {
+        } else if (data.version === 2 && type === Enums.TransactionTypes.MultiSignature) {
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
             recipient = this.findByAddress(multiSigAddress);
             transactionHandler.revertForRecipient(transaction, recipient);
@@ -466,7 +462,7 @@ export class WalletManager implements Database.IWalletManager {
         revert: boolean = false,
     ): void {
         // TODO: multipayment?
-        if (transaction.type !== TransactionTypes.Vote) {
+        if (transaction.type !== Enums.TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.vote) {
                 const delegate: Database.IWallet = this.findByPublicKey(sender.vote);

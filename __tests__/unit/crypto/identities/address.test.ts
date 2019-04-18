@@ -4,6 +4,7 @@ import { PublicKey } from "@arkecosystem/crypto/src/identities";
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../../../../packages/crypto/src/errors";
 import { Address } from "../../../../packages/crypto/src/identities/address";
 import { Keys } from "../../../../packages/crypto/src/identities/keys";
+import { configManager } from "../../../../packages/crypto/src/managers";
 import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Address", () => {
@@ -92,6 +93,18 @@ describe("Identities - Address", () => {
 
         it("should fail with an invalid address", () => {
             expect(Address.validate("invalid")).toBeFalse();
+        });
+
+        it("should validate MAINNET addresses", () => {
+            configManager.setConfig(configManager.getPreset("mainnet"));
+
+            expect(Address.validate("AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX")).toBeTrue();
+        });
+
+        it("should validate DEVNET addresses", () => {
+            configManager.setConfig(configManager.getPreset("devnet"));
+
+            expect(Address.validate("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN")).toBeTrue();
         });
     });
 });

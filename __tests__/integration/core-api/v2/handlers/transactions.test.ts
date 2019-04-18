@@ -2,13 +2,11 @@ import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-import { Crypto } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
 import { generateWallets } from "../../../../utils/generators/wallets";
-
-const { crypto } = Crypto;
 
 const transferFee = 10000000;
 
@@ -45,7 +43,7 @@ beforeAll(async () => {
     wrongType = 3;
     version = 1;
     senderPublicKey = genesisTransaction.senderPublicKey;
-    senderAddress = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+    senderAddress = Identities.Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
     recipientAddress = genesisTransaction.recipientId;
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;

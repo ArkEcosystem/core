@@ -1,8 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-
-const { TransactionTypes } = Enums;
-const { crypto } = Crypto;
+import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Wallet implements Database.IWallet {
     public address: string;
@@ -43,7 +40,7 @@ export class Wallet implements Database.IWallet {
     public applyBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
-            crypto.getAddress(block.generatorPublicKey) === this.address
+            Identities.Address.fromPublicKey(block.generatorPublicKey) === this.address
         ) {
             this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
@@ -64,7 +61,7 @@ export class Wallet implements Database.IWallet {
     public revertBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
-            crypto.getAddress(block.generatorPublicKey) === this.address
+            Identities.Address.fromPublicKey(block.generatorPublicKey) === this.address
         ) {
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
@@ -87,7 +84,10 @@ export class Wallet implements Database.IWallet {
         const { publicKeys, min } = multiSignature;
         const { signatures } = transaction;
 
-        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+        const hash = Transactions.Transaction.getHash(transaction, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+        });
 
         let verified = false;
         let verifiedSignatures = 0;
@@ -97,7 +97,7 @@ export class Wallet implements Database.IWallet {
             const partialSignature = signature.slice(2, 130);
             const publicKey = publicKeys[publicKeyIndex];
 
-            if (crypto.verifySchnorr(hash, partialSignature, publicKey)) {
+            if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
                 verifiedSignatures++;
             }
 
@@ -129,36 +129,39 @@ export class Wallet implements Database.IWallet {
                     .minus(transaction.fee)
                     .toFixed(),
             });
-            audit.push({ "Signature validation": crypto.verify(transaction) });
+            audit.push({ "Signature validation": Transactions.Transaction.verifyData(transaction) });
             // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
             if (this.secondPublicKey) {
                 audit.push({
-                    "Second Signature Verification": crypto.verifySecondSignature(transaction, this.secondPublicKey),
+                    "Second Signature Verification": Transactions.Transaction.verifySecondSignature(
+                        transaction,
+                        this.secondPublicKey,
+                    ),
                 });
             }
         }
 
-        if (transaction.type === TransactionTypes.Transfer) {
+        if (transaction.type === Enums.TransactionTypes.Transfer) {
             audit.push({ Transfer: true });
         }
 
-        if (transaction.type === TransactionTypes.SecondSignature) {
+        if (transaction.type === Enums.TransactionTypes.SecondSignature) {
             audit.push({ "Second public key": this.secondPublicKey });
         }
 
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
+        if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
             const username = transaction.asset.delegate.username;
             audit.push({ "Current username": this.username });
             audit.push({ "New username": username });
         }
 
-        if (transaction.type === TransactionTypes.Vote) {
+        if (transaction.type === Enums.TransactionTypes.Vote) {
             audit.push({ "Current vote": this.vote });
             audit.push({ "New vote": transaction.asset.votes[0] });
         }
 
-        if (transaction.type === TransactionTypes.MultiSignature) {
-            const keysgroup = transaction.asset.multiSignature.publicKeys;
+        if (transaction.type === Enums.TransactionTypes.MultiSignature) {
+            const keysgroup = transaction.asset.multisignature.keysgroup;
             audit.push({ "Multisignature not yet registered": !this.multisignature });
             audit.push({
                 "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
@@ -171,24 +174,24 @@ export class Wallet implements Database.IWallet {
             });
         }
 
-        if (transaction.type === TransactionTypes.Ipfs) {
+        if (transaction.type === Enums.TransactionTypes.Ipfs) {
             audit.push({ IPFS: true });
         }
 
-        if (transaction.type === TransactionTypes.TimelockTransfer) {
+        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
             audit.push({ Timelock: true });
         }
 
-        if (transaction.type === TransactionTypes.MultiPayment) {
+        if (transaction.type === Enums.TransactionTypes.MultiPayment) {
             const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
         }
 
-        if (transaction.type === TransactionTypes.DelegateResignation) {
+        if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
             audit.push({ "Resignate Delegate": this.username });
         }
 
-        if (!Object.values(TransactionTypes).includes(transaction.type)) {
+        if (!Object.values(Enums.TransactionTypes).includes(transaction.type)) {
             audit.push({ "Unknown Type": true });
         }
 

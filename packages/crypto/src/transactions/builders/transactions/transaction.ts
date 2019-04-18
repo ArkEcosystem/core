@@ -1,11 +1,11 @@
 import { Transaction, TransactionFactory } from "../..";
-import { Utils } from "../../..";
-import { crypto, slots } from "../../../crypto";
+import { slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
+import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
-import { BigNumber, maxVendorFieldLength } from "../../../utils";
+import { BigNumber, maxVendorFieldLength, numberToHex } from "../../../utils";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -71,21 +71,21 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public sign(passphrase: string): TBuilder {
-        const keys: IKeyPair = crypto.getKeys(passphrase);
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
             const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
-            this.data.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, pubKeyHash);
         }
 
-        this.data.signature = crypto.sign(this.getSigningObject(), keys);
+        this.data.signature = Transaction.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
     public signWithWif(wif: string, networkWif?: number): TBuilder {
-        const keys: IKeyPair = crypto.getKeysFromWIF(wif, {
+        const keys: IKeyPair = Keys.fromWIF(wif, {
             wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
@@ -94,26 +94,29 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         if (this.signWithSenderAsRecipient) {
             const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
 
-            this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(keys.publicKey, pubKeyHash);
         }
 
-        this.data.signature = crypto.sign(this.getSigningObject(), keys);
+        this.data.signature = Transaction.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
     public secondSign(secondPassphrase: string): TBuilder {
-        this.data.secondSignature = crypto.secondSign(this.getSigningObject(), crypto.getKeys(secondPassphrase));
+        this.data.secondSignature = Transaction.secondSign(
+            this.getSigningObject(),
+            Keys.fromPassphrase(secondPassphrase),
+        );
 
         return this.instance();
     }
 
     public secondSignWithWif(wif: string, networkWif?: number): TBuilder {
-        const keys = crypto.getKeysFromWIF(wif, {
+        const keys = Keys.fromWIF(wif, {
             wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
-        this.data.secondSignature = crypto.secondSign(this.getSigningObject(), keys);
+        this.data.secondSignature = Transaction.secondSign(this.getSigningObject(), keys);
 
         return this.instance();
     }
@@ -126,16 +129,16 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         // TOOD: move to crypto?
         // TOOD: sanity checks (index < 16, etc.)
 
-        const keys: IKeyPair = crypto.getKeys(passphrase);
-        const signature = crypto.sign(this.getSigningObject(), keys);
-        const indexHex = Utils.numberToHex(index);
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
+        const signature = Transaction.sign(this.getSigningObject(), keys);
+        const indexHex = numberToHex(index);
         this.data.signatures.push(`${indexHex}${signature}`);
 
         return this.instance();
     }
 
     public verify(): boolean {
-        return crypto.verify(this.data);
+        return Transaction.verifyData(this.data);
     }
 
     public getStruct(): ITransactionData {
@@ -144,7 +147,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         }
 
         const struct: ITransactionData = {
-            id: crypto.getId(this.data).toString(),
+            id: Transaction.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
             timestamp: this.data.timestamp,

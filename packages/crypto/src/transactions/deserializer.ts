@@ -1,7 +1,7 @@
 import ByteBuffer from "bytebuffer";
-import { crypto } from "../crypto";
 import { TransactionTypes } from "../enums";
 import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
+import { Address } from "../identities";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "../utils";
@@ -139,7 +139,7 @@ class Deserializer {
         transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
 
         if (transaction.type === TransactionTypes.Vote) {
-            transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network);
+            transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
         } else if (transaction.type === TransactionTypes.MultiSignature) {
             transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
                 k.startsWith("+") ? k : `+${k}`,
