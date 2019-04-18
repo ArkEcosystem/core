@@ -36,7 +36,13 @@ export const transactionBaseSchema = {
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
         signSignature: { $ref: "alphanumeric" },
-        signatures: { type: "string", format: "signatures" },
+        signatures: {
+            type: "array",
+            minItems: 1,
+            maxItems: 16,
+            additionalItems: false,
+            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
     },
 };
 

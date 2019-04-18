@@ -158,7 +158,7 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("ser/deserialize - multi signature (LEGACY)", () => {
-        it("should ser/deserialize a legacy multisig registration", () => {
+        it.skip("should ser/deserialize a legacy multisig registration", () => {
             const deserialized = Transaction.fromHex(legacyMultiSignatureRegistration.serialized);
 
             expect(deserialized.id).toEqual(legacyMultiSignatureRegistration.data.id);

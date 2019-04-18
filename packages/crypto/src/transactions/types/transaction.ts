@@ -1,19 +1,15 @@
 // tslint:disable:member-ordering
 import { crypto } from "../../crypto";
 import { TransactionTypes } from "../../enums";
-import {
-    MalformedTransactionBytesError,
-    NotImplementedError,
-    TransactionSchemaError,
-    TransactionVersionError,
-} from "../../errors";
+import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
-import { BigNumber, isException } from "../../utils";
+import { isException } from "../../utils";
 import { validator } from "../../validation";
 import { deserializer } from "../deserializer";
 import { Serializer } from "../serializer";
 import { TransactionTypeFactory } from "./factory";
 import { TransactionSchema } from "./schemas";
+import * as schemas from "./schemas";
 
 export abstract class Transaction implements ITransaction {
     public static type: TransactionTypes = null;
@@ -145,21 +141,11 @@ export abstract class Transaction implements ITransaction {
     }
 
     public static getSchema(): TransactionSchema {
-        throw new NotImplementedError();
+        return schemas.multiSignature;
     }
 
     private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
-        // FIXME: legacy type 4 need special treatment
-        if (data.type === TransactionTypes.MultiSignature) {
-            // @TODO: remove the BigNumber.make
-            data.amount = BigNumber.make(data.amount);
-            // @TODO: remove the BigNumber.make
-            data.fee = BigNumber.make(data.fee);
-            return { value: data, error: null };
-        }
-
         const { $id } = TransactionTypeFactory.get(data.type).getSchema();
-
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 }
