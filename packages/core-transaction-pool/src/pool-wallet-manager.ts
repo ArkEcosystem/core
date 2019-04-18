@@ -2,9 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
-
-const { crypto } = Crypto;
+import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
 export class PoolWalletManager extends WalletManager {
     public readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -30,7 +28,7 @@ export class PoolWalletManager extends WalletManager {
 
     public deleteWallet(publicKey) {
         this.forgetByPublicKey(publicKey);
-        this.forgetByAddress(crypto.getAddress(publicKey));
+        this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
     /**
@@ -40,7 +38,7 @@ export class PoolWalletManager extends WalletManager {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         if (!this.databaseService.walletManager.exists(transaction.data.senderPublicKey)) {
-            const senderAddress = crypto.getAddress(transaction.data.senderPublicKey);
+            const senderAddress = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
                 errors.push("Cold wallet is not allowed to send until receiving transaction is confirmed.");

@@ -1,4 +1,4 @@
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Managers } from "@arkecosystem/crypto";
 import wif from "wif";
 import { IWallet } from "../interfaces";
 import { database } from "./services/database";
@@ -21,5 +21,5 @@ export function decryptWIF(encryptedWif, userId, bip38password): IWallet {
         decrypted.compressed,
     );
 
-    return { keys: Crypto.crypto.getKeysFromWIF(encodedWIF), wif: encodedWIF };
+    return { keys: Identities.Keys.fromWIF(encodedWIF), wif: encodedWIF };
 }

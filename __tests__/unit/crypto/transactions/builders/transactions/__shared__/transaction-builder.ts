@@ -1,6 +1,8 @@
 import { crypto, slots } from "../../../../../../../packages/crypto/src/crypto";
+import { Keys } from "../../../../../../../packages/crypto/src/identities";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
 import * as Utils from "../../../../../../../packages/crypto/src/utils";
+import { identity, identitySecond } from "../../../../../../utils/identities";
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {
@@ -114,94 +116,78 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
         describe("sign", () => {
             it("signs this transaction with the keys of the passphrase", () => {
                 const builder = provider();
-                const keys = {
-                    publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-                };
-                // @ts-ignore
-                crypto.getKeys = jest.fn(() => keys);
-                crypto.sign = jest.fn();
 
-                builder.sign("dummy pass");
+                const spyKeys = jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
+                const spySign = jest.spyOn(crypto, "sign").mockImplementationOnce(jest.fn());
 
-                expect(crypto.getKeys).toHaveBeenCalledWith("dummy pass");
-                expect(crypto.sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                builder.sign(identity.bip39);
+
+                expect(spyKeys).toHaveBeenCalledWith(identity.bip39);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
 
             it("establishes the public key of the sender", () => {
+                const spySign = jest.spyOn(crypto, "sign").mockImplementationOnce(jest.fn());
+
                 const builder = provider();
-                const keys = {
-                    publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-                };
-                // @ts-ignore
-                crypto.getKeys = jest.fn(() => keys);
-                crypto.sign = jest.fn();
-                builder.sign("my real pass");
-                expect(builder.data.senderPublicKey).toBe(keys.publicKey);
+                builder.sign(identity.bip39);
+
+                expect(builder.data.senderPublicKey).toBe(identity.keys.publicKey);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
         });
 
         describe("signWithWif", () => {
             it("signs this transaction with keys from a wif", () => {
+                const spyKeys = jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
+                const spySign = jest.spyOn(crypto, "sign").mockImplementationOnce(jest.fn());
+
                 const builder = provider();
-                const keys = {
-                    publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-                };
-                // @ts-ignore
-                crypto.getKeysFromWIF = jest.fn(() => keys);
-                crypto.sign = jest.fn();
+                builder.network(23).signWithWif(identity.bip39);
 
-                builder.network(23).signWithWif("dummy pass");
-
-                expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("dummy pass", {
+                expect(spyKeys).toHaveBeenCalledWith(identity.bip39, {
                     wif: 170,
                 });
-                expect(crypto.sign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
 
             it("establishes the public key of the sender", () => {
+                const spySign = jest.spyOn(crypto, "sign").mockImplementationOnce(jest.fn());
+
                 const builder = provider();
-                const keys = {
-                    publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
-                };
-                // @ts-ignore
-                crypto.getKeysFromWIF = jest.fn(() => keys);
-                crypto.sign = jest.fn();
-                builder.signWithWif("my real pass");
-                expect(builder.data.senderPublicKey).toBe(keys.publicKey);
+                builder.signWithWif(identity.wif);
+
+                expect(builder.data.senderPublicKey).toBe(identity.publicKey);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
         });
 
         describe("secondSign", () => {
             it("signs this transaction with the keys of the second passphrase", () => {
                 const builder = provider();
-                let keys;
-                crypto.getKeys = jest.fn(pass => {
-                    keys = { publicKey: `${pass} public key` };
-                    return keys;
-                });
-                crypto.secondSign = jest.fn();
 
-                builder.secondSign("my very real second pass");
+                const spyKeys = jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identitySecond.keys);
+                const spySecondSign = jest.spyOn(crypto, "secondSign").mockImplementationOnce(jest.fn());
 
-                expect(crypto.getKeys).toHaveBeenCalledWith("my very real second pass");
-                expect(crypto.secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                builder.secondSign(identitySecond.bip39);
+
+                expect(spyKeys).toHaveBeenCalledWith(identitySecond.bip39);
+                expect(spySecondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), identitySecond.keys);
             });
         });
 
         describe("secondSignWithWif", () => {
             it("signs this transaction with the keys of a second wif", () => {
+                const spyKeys = jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identitySecond.keys);
+                const spySecondSign = jest.spyOn(crypto, "secondSign").mockImplementationOnce(jest.fn());
+
                 const builder = provider();
-                let keys;
-                crypto.getKeysFromWIF = jest.fn(pass => {
-                    keys = { publicKey: `${pass} public key` };
-                    return keys;
+                builder.network(23).secondSignWithWif(identitySecond.bip39, null);
+
+                expect(spyKeys).toHaveBeenCalledWith(identitySecond.bip39, {
+                    wif: 170,
                 });
-                crypto.secondSign = jest.fn();
-
-                builder.network(23).secondSignWithWif("my very real second pass", null);
-
-                expect(crypto.getKeysFromWIF).toHaveBeenCalledWith("my very real second pass", { wif: 170 });
-                expect(crypto.secondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), keys);
+                expect(spySecondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), identitySecond.keys);
             });
         });
     });

@@ -3,7 +3,7 @@ import "./mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { Blocks, Constants, Crypto, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet } from "../../../packages/core-database/src";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { fixtures } from "../../utils";
@@ -264,8 +264,8 @@ describe("Wallet Manager", () => {
         });
 
         it("should revert vote transaction and correctly update vote balances", async () => {
-            const delegateKeys = crypto.getKeys("delegate");
-            const voterKeys = crypto.getKeys("secret");
+            const delegateKeys = Identities.Keys.fromPassphrase("delegate");
+            const voterKeys = Identities.Keys.fromPassphrase("secret");
 
             const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
             delegate.username = "unittest";
@@ -299,8 +299,8 @@ describe("Wallet Manager", () => {
         });
 
         it("should revert unvote transaction and correctly update vote balances", async () => {
-            const delegateKeys = crypto.getKeys("delegate");
-            const voterKeys = crypto.getKeys("secret");
+            const delegateKeys = Identities.Keys.fromPassphrase("delegate");
+            const voterKeys = Identities.Keys.fromPassphrase("secret");
 
             const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
             delegate.username = "unittest";

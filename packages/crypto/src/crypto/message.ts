@@ -1,3 +1,4 @@
+import { Keys } from "../identities";
 import { IKeyPair, IMessage } from "../interfaces";
 import { INetwork } from "../interfaces/networks";
 import { configManager } from "../managers";
@@ -6,7 +7,7 @@ import { HashAlgorithms } from "./hash-algorithms";
 
 export class Message {
     public static sign(message: string, passphrase: string): IMessage {
-        const keys: IKeyPair = crypto.getKeys(passphrase);
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
 
         return {
             publicKey: keys.publicKey,
@@ -20,7 +21,7 @@ export class Message {
             network = configManager.get("network");
         }
 
-        const keys: IKeyPair = crypto.getKeysFromWIF(wif, network);
+        const keys: IKeyPair = Keys.fromWIF(wif, network);
 
         return {
             publicKey: keys.publicKey,

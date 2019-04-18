@@ -1,11 +1,12 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { Keys } from "../../../../../../packages/crypto/src/identities";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { SecondSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
+import { identity } from "../../../../../utils/identities";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 let builder: SecondSignatureBuilder;
@@ -38,13 +39,11 @@ describe("Second Signature Transaction", () => {
 
     describe("signatureAsset", () => {
         it("establishes the signature on the asset", () => {
-            // @ts-ignore
-            crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }));
-            crypto.sign = jest.fn();
+            jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
 
-            builder.signatureAsset("bad pass");
+            builder.signatureAsset(identity.bip39);
 
-            expect(builder.data.asset.signature.publicKey).toBe("bad pass public key");
+            expect(builder.data.asset.signature.publicKey).toBe(identity.publicKey);
         });
     });
 });

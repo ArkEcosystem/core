@@ -1,7 +1,7 @@
 import { Utils } from "@arkecosystem/crypto";
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
-import { crypto } from "../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
+import { PublicKey } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionRegistry } from "../../../../packages/crypto/src/transactions";
@@ -620,7 +620,7 @@ describe.skip("Multi Signature Transaction", () => {
         for (let i = 0; i < 20; i++) {
             const value = `passphrase ${i}`;
             values.push(value);
-            multiSignatureAsset.keysgroup.push(crypto.getKeys(value).publicKey);
+            multiSignatureAsset.keysgroup.push(PublicKey.fromPassphrase(value));
         }
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, values);

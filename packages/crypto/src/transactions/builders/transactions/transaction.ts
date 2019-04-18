@@ -1,6 +1,7 @@
 import { Transaction, TransactionFactory } from "../..";
 import { crypto, slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
+import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
@@ -70,12 +71,12 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public sign(passphrase: string): TBuilder {
-        const keys: IKeyPair = crypto.getKeys(passphrase);
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
             const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
-            this.data.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, pubKeyHash);
         }
 
         this.data.signature = crypto.sign(this.getSigningObject(), keys);
@@ -84,7 +85,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public signWithWif(wif: string, networkWif?: number): TBuilder {
-        const keys: IKeyPair = crypto.getKeysFromWIF(wif, {
+        const keys: IKeyPair = Keys.fromWIF(wif, {
             wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
@@ -93,7 +94,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         if (this.signWithSenderAsRecipient) {
             const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
 
-            this.data.recipientId = crypto.getAddress(keys.publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(keys.publicKey, pubKeyHash);
         }
 
         this.data.signature = crypto.sign(this.getSigningObject(), keys);
@@ -102,13 +103,13 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public secondSign(secondPassphrase: string): TBuilder {
-        this.data.secondSignature = crypto.secondSign(this.getSigningObject(), crypto.getKeys(secondPassphrase));
+        this.data.secondSignature = crypto.secondSign(this.getSigningObject(), Keys.fromPassphrase(secondPassphrase));
 
         return this.instance();
     }
 
     public secondSignWithWif(wif: string, networkWif?: number): TBuilder {
-        const keys = crypto.getKeysFromWIF(wif, {
+        const keys = Keys.fromWIF(wif, {
             wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
@@ -118,7 +119,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public multiSignatureSign(passphrase: string): TBuilder {
-        const keys: IKeyPair = crypto.getKeys(passphrase);
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
 
         if (!this.data.signatures) {
             this.data.signatures = [];
