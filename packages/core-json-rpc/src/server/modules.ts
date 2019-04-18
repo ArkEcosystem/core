@@ -1,4 +1,4 @@
-import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import Boom from "boom";
 import { IWallet } from "../interfaces";
@@ -235,11 +235,11 @@ export const wallets = [
     {
         name: "wallets.create",
         async method(params: { passphrase: string }) {
-            const { publicKey }: Interfaces.IKeyPair = Crypto.crypto.getKeys(params.passphrase);
+            const { publicKey }: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(params.passphrase);
 
             return {
                 publicKey,
-                address: Crypto.crypto.getAddress(publicKey),
+                address: Identities.Address.fromPublicKey(publicKey),
             };
         },
         schema: {
@@ -317,11 +317,13 @@ export const wallets = [
 
                 return {
                     publicKey: keys.publicKey,
-                    address: Crypto.crypto.getAddress(keys.publicKey),
+                    address: Identities.Address.fromPublicKey(keys.publicKey),
                     wif,
                 };
             } catch (error) {
-                const { publicKey, privateKey }: Interfaces.IKeyPair = Crypto.crypto.getKeys(generateMnemonic());
+                const { publicKey, privateKey }: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(
+                    generateMnemonic(),
+                );
 
                 const encryptedWIF: string = Crypto.bip38.encrypt(
                     Buffer.from(privateKey, "hex"),
@@ -336,7 +338,7 @@ export const wallets = [
 
                 return {
                     publicKey,
-                    address: Crypto.crypto.getAddress(publicKey),
+                    address: Identities.Address.fromPublicKey(publicKey),
                     wif: decryptWIF(encryptedWIF, params.userId, params.bip38).wif,
                 };
             }
@@ -370,7 +372,7 @@ export const wallets = [
 
             return {
                 publicKey: keys.publicKey,
-                address: Crypto.crypto.getAddress(keys.publicKey),
+                address: Identities.Address.fromPublicKey(keys.publicKey),
                 wif,
             };
         },

@@ -1,4 +1,4 @@
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Crypto, Identities, Managers } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import bip39 from "bip39";
 import fs from "fs-extra";
@@ -88,7 +88,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
 
         this.addTask("Loading private key", async () => {
             // @ts-ignore
-            decodedWIF = wif.decode(crypto.keysToWIF(crypto.getKeys(flags.bip39)));
+            decodedWIF = wif.decode(crypto.keysToWIF(Identities.Keys.fromPassphrase(flags.bip39)));
         });
 
         this.addTask("Encrypt BIP38", async () => {
