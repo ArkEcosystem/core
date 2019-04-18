@@ -1,3 +1,4 @@
+import "jest-extended";
 import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
@@ -58,23 +59,27 @@ function generateFullWallets() {
 }
 
 describe("Wallet Repository", () => {
-    describe("all", () => {
-        it("should return the local wallets of the connection", () => {
-            // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(null);
+    describe("search", () => {
+        const expectSearch = (params, rows = 1, count = 1) => {
+            const wallets = repository.search(params);
+            expect(wallets).toBeObject();
 
-            repository.all();
+            expect(wallets).toHaveProperty("count");
+            expect(wallets.count).toBeNumber();
+            expect(wallets.count).toBe(count);
 
-            expect(walletManager.allByAddress).toHaveBeenCalled();
-        });
-    });
+            expect(wallets).toHaveProperty("rows");
+            expect(wallets.rows).toBeArray();
+            expect(wallets.rows).not.toBeEmpty();
 
-    describe("findAll", () => {
+            expect(wallets.count).toBe(rows);
+        };
+
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll();
+            const { count, rows } = repository.search({});
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
         });
@@ -83,7 +88,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10, limit: 10 });
+            const { count, rows } = repository.search({ offset: 10, limit: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
@@ -92,7 +97,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ limit: 10 });
+            const { count, rows } = repository.search({ limit: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
@@ -101,7 +106,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
+            const { count, rows } = repository.search({ offset: 0, limit: 12 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(12);
         });
@@ -110,9 +115,120 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10 });
+            const { count, rows } = repository.search({ offset: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(42);
+        });
+
+        it("should search wallets by the specified address", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            expectSearch({ address: wallets[0].address });
+        });
+
+        it("should search wallets by several addresses", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
+            expectSearch({ addresses }, 3, 3);
+        });
+
+        describe("when searching by `address` and `addresses`", () => {
+            it("should search wallets only by `address`", () => {
+                const wallets = generateFullWallets();
+                walletManager.index(wallets);
+
+                const { address } = wallets[0];
+                const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
+                expectSearch({ address, addresses }, 1, 1);
+            });
+        });
+
+        it("should search wallets by the specified publicKey", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            expectSearch({ publicKey: wallets[0].publicKey });
+        });
+
+        it("should search wallets by the specified secondPublicKey", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            expectSearch({ secondPublicKey: wallets[0].secondPublicKey });
+        });
+
+        it("should search wallets by the specified vote", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            expectSearch({ vote: wallets[0].vote });
+        });
+
+        it("should search wallets by the specified username", () => {
+            const wallets = generateFullWallets();
+            walletManager.index(wallets);
+
+            expectSearch({ username: wallets[0].username });
+        });
+
+        it("should search wallets by the specified closed inverval (included) of balance", () => {
+            const wallets = generateFullWallets();
+            wallets.forEach((wallet, i) => {
+                if (i < 13) {
+                    wallet.balance = Utils.BigNumber.make(53);
+                } else if (i < 36) {
+                    wallet.balance = Utils.BigNumber.make(99);
+                }
+            });
+            walletManager.index(wallets);
+
+            expectSearch(
+                {
+                    balance: {
+                        from: 53,
+                        to: 99,
+                    },
+                },
+                36,
+                36,
+            );
+        });
+
+        it("should search wallets by the specified closed interval (included) of voteBalance", () => {
+            const wallets = generateFullWallets();
+            wallets.forEach((wallet, i) => {
+                if (i < 17) {
+                    wallet.voteBalance = Utils.BigNumber.make(12);
+                } else if (i < 29) {
+                    wallet.voteBalance = Utils.BigNumber.make(17);
+                }
+            });
+            walletManager.index(wallets);
+
+            expectSearch(
+                {
+                    voteBalance: {
+                        from: 11,
+                        to: 18,
+                    },
+                },
+                29,
+                29,
+            );
+        });
+    });
+
+    describe("all", () => {
+        it("should return the local wallets of the connection", () => {
+            // @ts-ignore
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue(null);
+
+            repository.all();
+
+            expect(walletManager.allByAddress).toHaveBeenCalled();
         });
     });
 
@@ -269,123 +385,6 @@ describe("Wallet Repository", () => {
             expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
             expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
             expect(rows[2].balance).toEqual(Utils.BigNumber.make(1000));
-        });
-    });
-
-    describe("search", () => {
-        const expectSearch = (params, rows = 1, count = 1) => {
-            const wallets = repository.search(params);
-            expect(wallets).toBeObject();
-
-            expect(wallets).toHaveProperty("count");
-            expect(wallets.count).toBeNumber();
-            expect(wallets.count).toBe(count);
-
-            expect(wallets).toHaveProperty("rows");
-            expect(wallets.rows).toBeArray();
-            expect(wallets.rows).not.toBeEmpty();
-
-            expect(wallets.count).toBe(rows);
-        };
-
-        it("should search wallets by the specified address", () => {
-            const wallets = generateFullWallets();
-            walletManager.index(wallets);
-
-            expectSearch({ address: wallets[0].address });
-        });
-
-        it("should search wallets by several addresses", () => {
-            const wallets = generateFullWallets();
-            walletManager.index(wallets);
-
-            const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
-            expectSearch({ addresses }, 3, 3);
-        });
-
-        describe("when searching by `address` and `addresses`", () => {
-            it("should search wallets only by `address`", () => {
-                const wallets = generateFullWallets();
-                walletManager.index(wallets);
-
-                const { address } = wallets[0];
-                const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
-                expectSearch({ address, addresses }, 1, 1);
-            });
-        });
-
-        it("should search wallets by the specified publicKey", () => {
-            const wallets = generateFullWallets();
-            walletManager.index(wallets);
-
-            expectSearch({ publicKey: wallets[0].publicKey });
-        });
-
-        it("should search wallets by the specified secondPublicKey", () => {
-            const wallets = generateFullWallets();
-            walletManager.index(wallets);
-
-            expectSearch({ secondPublicKey: wallets[0].secondPublicKey });
-        });
-
-        it("should search wallets by the specified vote", () => {
-            const wallets = generateFullWallets();
-            walletManager.index(wallets);
-
-            expectSearch({ vote: wallets[0].vote });
-        });
-
-        it("should search wallets by the specified username", () => {
-            const wallets = generateFullWallets();
-            walletManager.index(wallets);
-
-            expectSearch({ username: wallets[0].username });
-        });
-
-        it("should search wallets by the specified closed inverval (included) of balance", () => {
-            const wallets = generateFullWallets();
-            wallets.forEach((wallet, i) => {
-                if (i < 13) {
-                    wallet.balance = Utils.BigNumber.make(53);
-                } else if (i < 36) {
-                    wallet.balance = Utils.BigNumber.make(99);
-                }
-            });
-            walletManager.index(wallets);
-
-            expectSearch(
-                {
-                    balance: {
-                        from: 53,
-                        to: 99,
-                    },
-                },
-                36,
-                36,
-            );
-        });
-
-        it("should search wallets by the specified closed interval (included) of voteBalance", () => {
-            const wallets = generateFullWallets();
-            wallets.forEach((wallet, i) => {
-                if (i < 17) {
-                    wallet.voteBalance = Utils.BigNumber.make(12);
-                } else if (i < 29) {
-                    wallet.voteBalance = Utils.BigNumber.make(17);
-                }
-            });
-            walletManager.index(wallets);
-
-            expectSearch(
-                {
-                    voteBalance: {
-                        from: 11,
-                        to: 18,
-                    },
-                },
-                29,
-                29,
-            );
         });
     });
 });

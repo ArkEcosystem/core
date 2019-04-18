@@ -8,6 +8,8 @@ export interface ITransactionsPaginated {
 }
 
 export interface ITransactionsBusinessRepository {
+    search(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<ITransactionsPaginated>;
+
     findAllByWallet(wallet: IWallet, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
     findAllBySender(senderPublicKey: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
@@ -33,6 +35,4 @@ export interface ITransactionsBusinessRepository {
             timestamp: number;
         }>
     >;
-
-    search(params: IParameters): Promise<ITransactionsPaginated>;
 }

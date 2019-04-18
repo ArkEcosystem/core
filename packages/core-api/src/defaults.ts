@@ -67,10 +67,6 @@ export const defaults = {
     plugins: [
         {
             plugin: resolve(__dirname, "./handlers"),
-            routes: { prefix: "/api" },
-        },
-        {
-            plugin: resolve(__dirname, "./handlers"),
             routes: { prefix: "/api/v2" },
         },
     ],

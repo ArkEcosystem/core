@@ -92,20 +92,6 @@ export class Server {
         });
 
         await server.register({
-            plugin: require("@faustbrian/hapi-version"),
-            options: this.config.versions,
-        });
-
-        await server.register({
-            plugin: require("./plugins/endpoint-version"),
-            options: { versions: this.config.versions.versions.allowed },
-        });
-
-        await server.register({
-            plugin: require("./plugins/caster"),
-        });
-
-        await server.register({
             plugin: plugins.hapiAjv,
             options: {
                 registerFormats,

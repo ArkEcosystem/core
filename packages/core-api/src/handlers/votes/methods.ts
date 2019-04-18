@@ -1,9 +1,14 @@
+import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { Enums } from "@arkecosystem/crypto";
 import Boom from "boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const { TransactionTypes } = Enums;
+
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
     const transactions = await transactionsRepository.findAllByType(TransactionTypes.Vote, {

@@ -73,12 +73,17 @@ describe("Delegate Repository", () => {
         });
     });
 
-    describe("findAll", () => {
+    describe("search", () => {
+        beforeEach(() => {
+            const wallets = generateWallets();
+            walletManager.index(wallets);
+        });
+
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll();
+            const { count, rows } = repository.search({});
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
             expect(rows.sort((a, b) => a.rate < b.rate)).toEqual(rows);
@@ -88,7 +93,7 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10, limit: 10, orderBy: "rate:desc" });
+            const { count, rows } = repository.search({ offset: 10, limit: 10, orderBy: "rate:desc" });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
             expect(rows.sort((a, b) => a.rate > b.rate)).toEqual(rows);
@@ -98,7 +103,7 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ limit: 10 });
+            const { count, rows } = repository.search({ limit: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
@@ -107,7 +112,7 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 0, limit: 12 });
+            const { count, rows } = repository.search({ offset: 0, limit: 12 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(12);
         });
@@ -116,16 +121,9 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.findAll({ offset: 10 });
+            const { count, rows } = repository.search({ offset: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(42);
-        });
-    });
-
-    describe("search", () => {
-        beforeEach(() => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
         });
 
         describe("by `username`", () => {
