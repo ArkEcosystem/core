@@ -7,23 +7,15 @@ import { ApiHelpers } from "../../utils/helpers/api";
 
 class Helpers {
     public async request(method, path, params = {}) {
-        const url = `http://localhost:4003/api/${path}`;
-        const headers = {
-            "API-Version": 2,
-            "Content-Type": "application/json",
-        };
-
-        return ApiHelpers.request(app.resolvePlugin("api").http, method, url, headers, params);
-    }
-
-    public async requestWithAcceptHeader(method, path, params = {}) {
-        const url = `http://localhost:4003/api/${path}`;
-        const headers = {
-            "API-Version": 2,
-            "Content-Type": "application/json",
-        };
-
-        return ApiHelpers.request(app.resolvePlugin("api").http, method, url, headers, params);
+        return ApiHelpers.request(
+            app.resolvePlugin("api").http,
+            method,
+            `http://localhost:4003/api/${path}`,
+            {
+                "Content-Type": "application/json",
+            },
+            params,
+        );
     }
 
     public expectJson(response) {
@@ -34,11 +26,6 @@ class Helpers {
         expect(response.status).toBe(code);
     }
 
-    public assertVersion(response, version) {
-        expect(response.headers).toBeObject();
-        expect(response.headers).toHaveProperty("api-version", version);
-    }
-
     public expectResource(response) {
         expect(response.data.data).toBeObject();
     }
@@ -47,7 +34,7 @@ class Helpers {
         expect(Array.isArray(response.data.data)).toBe(true);
     }
 
-    public expectPaginator(response, firstPage = true) {
+    public expectPaginator(response) {
         expect(response.data.meta).toBeObject();
         expect(response.data.meta).toHaveProperty("count");
         expect(response.data.meta).toHaveProperty("pageCount");
@@ -62,7 +49,6 @@ class Helpers {
     public expectSuccessful(response, statusCode = 200) {
         this.expectStatus(response, statusCode);
         this.expectJson(response);
-        this.assertVersion(response, 2);
     }
 
     public expectError(response, statusCode = 404) {
@@ -153,7 +139,7 @@ class Helpers {
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .getStruct();
 
-        await httpie.post("http://127.0.0.1:4003/api/v2/transactions", {
+        await httpie.post("http://127.0.0.1:4003/api/transactions", {
             body: {
                 transactions: [transaction],
             },

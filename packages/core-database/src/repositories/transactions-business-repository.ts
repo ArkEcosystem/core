@@ -197,9 +197,10 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             delete params.ownerId;
         }
 
-        const searchParameters = new SearchParameterConverter(
+        const searchParameters: Database.SearchParameters = new SearchParameterConverter(
             databaseService.connection.transactionsRepository.getModel(),
         ).convert(params);
+
         if (!searchParameters.paginate) {
             searchParameters.paginate = {
                 offset: 0,
@@ -208,7 +209,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         }
 
         if (!searchParameters.orderBy.length) {
-            // default order-by
             searchParameters.orderBy.push({
                 field: "timestamp",
                 direction: "desc",

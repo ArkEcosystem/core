@@ -25,12 +25,11 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
         this.applyOrder(params);
 
-        let wallets: Database.IWallet[] = filterRows(
-            this.databaseServiceProvider().walletManager.allByAddress(),
+        const wallets: Database.IWallet[] = sortEntries(
             params,
-            query,
+            filterRows(this.databaseServiceProvider().walletManager.allByAddress(), params, query),
+            ["balance", "desc"],
         );
-        wallets = sortEntries(params, wallets, ["balance", "desc"]);
 
         return {
             rows: limitRows(wallets, params),
@@ -38,19 +37,10 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    // @TODO: simplify this
     public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IWalletsPaginated {
-        this.applyOrder(params);
-
-        const wallets: Database.IWallet[] = this.search().rows.filter(wallet => wallet.vote === publicKey);
-
-        return {
-            rows: limitRows(sortEntries(params, wallets, ["balance", "desc"]), params),
-            count: wallets.length,
-        };
+        return this.search({ ...params, ...{ vote: publicKey } });
     }
 
-    // @TODO: simplify this
     public findById(id: string): Database.IWallet {
         return this.search().rows.find(
             wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id,
@@ -61,16 +51,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search().count;
     }
 
-    // @TODO: simplify this
     public top(params: Database.IParameters = {}): Database.IWalletsPaginated {
-        this.applyOrder(params);
-
-        const wallets: Database.IWallet[] = sortEntries(params, this.search().rows, ["balance", "desc"]);
-
-        return {
-            rows: limitRows(wallets, params),
-            count: wallets.length,
-        };
+        return this.search({ ...params, ...{ orderBy: "balance:desc" } });
     }
 
     private applyOrder(params: Database.IParameters): void {
