@@ -126,12 +126,12 @@ describe("TransactionHandlerRegistry", () => {
         data.signature = crypto.sign(data, keys);
         data.id = crypto.getId(data);
 
-        const transaction = Transactions.Transaction.fromData(data);
+        const transaction = Transactions.TransactionFactory.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);
         expect(transaction.verified).toBeTrue();
 
         const bytes = Transactions.Transaction.toBytes(transaction.data);
-        const deserialized = Transactions.Transaction.fromBytes(bytes);
+        const deserialized = Transactions.TransactionFactory.fromBytes(bytes);
         expect(deserialized.verified);
         expect(deserialized.data.asset.test).toBe(256);
     });

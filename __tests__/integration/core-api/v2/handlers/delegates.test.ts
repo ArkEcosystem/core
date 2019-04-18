@@ -5,7 +5,7 @@ import { utils } from "../utils";
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
 import { Blocks, Utils } from "@arkecosystem/crypto";
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
@@ -458,7 +458,7 @@ describe("API 2.0 - Delegates", () => {
             (header, request) => {
                 it("should GET all blocks for a delegate by the given identifier", async () => {
                     // save a new block so that we can make the request with generatorPublicKey
-                    const block2 = Block.fromData(blocks2to100[0]);
+                    const block2 = BlockFactory.fromData(blocks2to100[0]);
                     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
                     await databaseService.saveBlock(block2);
 

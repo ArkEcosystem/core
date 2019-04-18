@@ -1,4 +1,4 @@
-import { Transaction } from "../..";
+import { Transaction, TransactionFactory } from "../..";
 import { Utils } from "../../..";
 import { crypto, slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
@@ -21,7 +21,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public build(data: Partial<ITransactionData> = {}): Transaction {
-        return Transaction.fromData({ ...this.data, ...data }, false);
+        return TransactionFactory.fromData({ ...this.data, ...data }, false);
     }
 
     public version(version: number): TBuilder {

@@ -50,7 +50,7 @@ export function sortTransactions(transactions: ITransactionData[]): ITransaction
     });
 }
 
-export const isGenesisTransaction = (id: string): boolean => {
+export function isGenesisTransaction(id: string): boolean {
     let genesisTransactions: { [key: string]: boolean };
     let currentNetwork: number;
 
@@ -58,13 +58,14 @@ export const isGenesisTransaction = (id: string): boolean => {
 
     if (!genesisTransactions || currentNetwork !== network) {
         currentNetwork = network;
+
         genesisTransactions = configManager
             .get("genesisBlock.transactions")
             .reduce((acc, curr) => Object.assign(acc, { [curr.id]: true }), {});
     }
 
     return genesisTransactions[id];
-};
+}
 
 export const numberToHex = (num: number, padding = 2): string => {
     const indexHex = Number(num).toString(16);

@@ -96,7 +96,7 @@ export class Delegate {
                 this.decryptKeysWithOtp();
             }
 
-            const block: Interfaces.IBlock = Blocks.Block.createFromData(
+            const block: Interfaces.IBlock = Blocks.BlockFactory.make(
                 {
                     version: 0,
                     generatorPublicKey: this.publicKey,

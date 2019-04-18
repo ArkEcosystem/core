@@ -510,6 +510,98 @@
                     }
                 }
             ]
+        },
+        "test-node10-benchmark": {
+            "working_directory": "~/core",
+            "docker": [
+                {
+                    "image": "circleci/node:10-browsers"
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-benchmark"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-benchmark",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Benchmark",
+                        "command": "cd ~/core && yarn bench"
+                    }
+                }
+            ]
+        },
+        "test-node11-benchmark": {
+            "working_directory": "~/core",
+            "docker": [
+                {
+                    "image": "circleci/node:11-browsers"
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-benchmark"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-benchmark",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Benchmark",
+                        "command": "cd ~/core && yarn bench"
+                    }
+                }
+            ]
         }
     },
     "workflows": {

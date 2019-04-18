@@ -3,7 +3,7 @@ import { Blocks, Managers } from "@arkecosystem/crypto";
 
 Managers.configManager.setFromPreset("unitnet");
 
-export const sampleBlock = Blocks.Block.fromData({
+export const sampleBlock = Blocks.BlockFactory.fromData({
     id: "4398082439836560423",
     version: 0,
     timestamp: 35751416,

@@ -3,4 +3,4 @@ import { genesisBlock as GB } from "../../config/unitnet/genesisBlock";
 
 Managers.configManager.setFromPreset("unitnet");
 
-export const genesisBlock = Blocks.Block.fromData(GB);
+export const genesisBlock = Blocks.BlockFactory.fromData(GB);

@@ -12,10 +12,16 @@ declare global {
 }
 
 expect.extend({
-    toBeValidTransaction: (transaction, network) => {
+    toBeValidTransaction: actual => {
+        let verified: boolean = false;
+
+        try {
+            verified = Crypto.crypto.verify(actual);
+        } catch (e) {} // tslint:disable-line
+
         return {
             message: () => "Expected value to be a valid transaction",
-            pass: Crypto.crypto.verify(transaction),
+            pass: !!verified,
         };
     },
 });

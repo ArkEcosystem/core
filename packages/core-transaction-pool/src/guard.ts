@@ -100,7 +100,7 @@ export class TransactionGuard implements TransactionPool.IGuard {
             } else if (this.__validateTransaction(transaction)) {
                 try {
                     const receivedId = transaction.id;
-                    const trx = Transactions.Transaction.fromData(transaction);
+                    const trx = Transactions.TransactionFactory.fromData(transaction);
                     if (trx.verified) {
                         const applyErrors = [];
                         if (this.pool.walletManager.canApply(trx, applyErrors)) {

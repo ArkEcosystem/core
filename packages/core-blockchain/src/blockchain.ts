@@ -20,7 +20,7 @@ import { StateStorage } from "./state-storage";
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const { Block } = Blocks;
+const { BlockFactory } = Blocks;
 
 export class Blockchain implements blockchain.IBlockchain {
     /**
@@ -82,7 +82,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.queue = async.queue((block: Interfaces.IBlockData, cb) => {
             try {
-                return this.processBlock(Blocks.Block.fromData(block), cb);
+                return this.processBlock(Blocks.BlockFactory.fromData(block), cb);
             } catch (error) {
                 logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
                 logger.error(error.stack);
@@ -274,7 +274,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         this.queue.push(blocks);
-        this.state.lastDownloadedBlock = Block.fromData(blocks.slice(-1)[0]);
+        this.state.lastDownloadedBlock = BlockFactory.fromData(blocks.slice(-1)[0]);
     }
 
     /**
@@ -304,7 +304,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = Block.fromData(blocksToRemove.pop());
+            const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock;
@@ -360,7 +360,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         for (const block of blocks) {
             this.database.enqueueDeleteRound(block.height);
-            this.database.enqueueDeleteBlock(Block.fromData(block));
+            this.database.enqueueDeleteBlock(BlockFactory.fromData(block));
         }
 
         await this.database.commitQueuedQueries();

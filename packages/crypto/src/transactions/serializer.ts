@@ -6,9 +6,8 @@ import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
-import { ITransactionData } from "../interfaces";
+import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
-import { BigNumber } from "../utils";
 import { Transaction, TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -28,7 +27,7 @@ export class Serializer {
     /**
      * Serializes the given transaction according to AIP11.
      */
-    public static serialize(transaction: Transaction, options: ISerializeOptions = {}): Buffer {
+    public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
         const { data } = transaction;
 
@@ -154,10 +153,8 @@ export class Serializer {
             }
         }
 
-        // @TODO: remove the BigNumber.make
-        bb.writeInt64(+BigNumber.make(transaction.amount).toFixed());
-        // @TODO: remove the BigNumber.make
-        bb.writeInt64(+BigNumber.make(transaction.fee).toFixed());
+        bb.writeInt64(+transaction.amount.toFixed());
+        bb.writeInt64(+transaction.fee.toFixed());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {

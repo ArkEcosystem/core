@@ -76,7 +76,7 @@ beforeEach(() => {
 describe("General Tests", () => {
     beforeEach(() => {
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canBeApplied", () => {
@@ -86,7 +86,7 @@ describe("General Tests", () => {
 
         it("should be true if the transaction has a second signature but wallet does not, when ignoreInvalidSecondSignatureField=true", () => {
             Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField = true;
-            instance = Transactions.Transaction.fromData(transactionWithSecondSignature);
+            instance = Transactions.TransactionFactory.fromData(transactionWithSecondSignature);
             expect(handler.canBeApplied(instance, wallet, walletManager)).toBeTrue();
         });
 
@@ -97,7 +97,7 @@ describe("General Tests", () => {
 
         it("should be false if the transaction has a second signature but wallet does not", () => {
             delete Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
-            instance = Transactions.Transaction.fromData(transactionWithSecondSignature);
+            instance = Transactions.TransactionFactory.fromData(transactionWithSecondSignature);
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(UnexpectedSecondSignatureError);
         });
 
@@ -115,7 +115,7 @@ describe("General Tests", () => {
         it("should be true even with publicKey case mismatch", () => {
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             wallet.publicKey = wallet.publicKey.toLowerCase();
-            instance = Transactions.Transaction.fromData(transaction);
+            instance = Transactions.TransactionFactory.fromData(transaction);
             expect(handler.canBeApplied(instance, wallet, walletManager)).toBeTrue();
         });
     });
@@ -146,7 +146,7 @@ describe("General Tests", () => {
             wallet.balance = Utils.BigNumber.make(initialBalance);
 
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
-            const instance = Transactions.Transaction.fromData(transaction);
+            const instance = Transactions.TransactionFactory.fromData(transaction);
             wallet.publicKey = wallet.publicKey.toLowerCase();
 
             handler.applyToSender(instance, wallet);
@@ -226,7 +226,7 @@ describe("TransferTransaction", () => {
         wallet = walletFixture;
         transaction = transactionFixture;
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {
@@ -270,7 +270,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         };
 
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {
@@ -351,7 +351,7 @@ describe("DelegateRegistrationTransaction", () => {
         };
 
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {
@@ -439,7 +439,7 @@ describe("VoteTransaction", () => {
         };
 
         handler = TransactionHandlerRegistry.get(voteTransaction.type);
-        instance = Transactions.Transaction.fromData(voteTransaction);
+        instance = Transactions.TransactionFactory.fromData(voteTransaction);
     });
 
     describe("canApply", () => {
@@ -449,7 +449,7 @@ describe("VoteTransaction", () => {
 
         it("should be true if the unvote is valid and the wallet has voted", () => {
             wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-            instance = Transactions.Transaction.fromData(unvoteTransaction);
+            instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
             expect(handler.canBeApplied(instance, wallet, walletManager)).toBeTrue();
         });
 
@@ -460,12 +460,12 @@ describe("VoteTransaction", () => {
 
         it("should be false if the asset public key differs from the currently voted one", () => {
             wallet.vote = "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
-            instance = Transactions.Transaction.fromData(unvoteTransaction);
+            instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(UnvoteMismatchError);
         });
 
         it("should be false if unvoting a non-voted wallet", () => {
-            instance = Transactions.Transaction.fromData(unvoteTransaction);
+            instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
             expect(() => handler.canBeApplied(instance, wallet, walletManager)).toThrow(NoVoteError);
         });
 
@@ -501,7 +501,7 @@ describe("VoteTransaction", () => {
 
                 expect(wallet.vote).not.toBeNull();
 
-                instance = Transactions.Transaction.fromData(unvoteTransaction);
+                instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.applyToSender(instance, wallet);
 
                 expect(wallet.vote).toBeNull();
@@ -526,7 +526,7 @@ describe("VoteTransaction", () => {
             it("should add the vote to the wallet", () => {
                 expect(wallet.vote).toBeNull();
 
-                instance = Transactions.Transaction.fromData(unvoteTransaction);
+                instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.revertForSender(instance, wallet);
 
                 expect(wallet.vote).toBe("02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af");
@@ -542,7 +542,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         transaction = TransactionFactory.multiSignature().create()[0];
 
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
 
         wallet = new Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         wallet.balance = Utils.BigNumber.make(100390000000);
@@ -643,7 +643,7 @@ describe.skip("IpfsTransaction", () => {
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {
@@ -669,7 +669,7 @@ describe.skip("TimelockTransferTransaction", () => {
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {
@@ -731,7 +731,7 @@ describe.skip("MultiPaymentTransaction", () => {
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {
@@ -757,7 +757,7 @@ describe.skip("DelegateResignationTransaction", () => {
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
         handler = TransactionHandlerRegistry.get(transaction.type);
-        instance = Transactions.Transaction.fromData(transaction);
+        instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
     describe("canApply", () => {

@@ -3,4 +3,4 @@ import { genesisBlock as GB } from "../../config/testnet/genesisBlock";
 
 Managers.configManager.setFromPreset("testnet");
 
-export const genesisBlock = Blocks.Block.fromData(GB);
+export const genesisBlock = Blocks.BlockFactory.fromData(GB);

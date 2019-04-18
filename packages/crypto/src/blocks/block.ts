@@ -8,16 +8,17 @@ import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
-    public static createFromData(data, keys): IBlock {
-        data.generatorPublicKey = keys.publicKey;
+    public static applySchema(data: IBlockData): IBlockData {
+        const { value, error } = validator.validate("block", data);
 
-        const payloadHash: Buffer = Block.serialize(data, false);
-        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
+        if (
+            error !== null &&
+            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
+        ) {
+            throw new BlockSchemaError(error);
+        }
 
-        data.blockSignature = crypto.signECDSA(hash, keys);
-        data.id = Block.getId(data);
-
-        return Block.fromData(data);
+        return value;
     }
 
     public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
@@ -64,45 +65,13 @@ export class Block implements IBlock {
         return constants.block.idFullSha256 ? idHex : BigNumber.make(idHex, 16).toFixed();
     }
 
-    public static fromHex(hex: string): IBlock {
-        return this.fromSerialized(hex);
-    }
-
-    public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer.toString("hex"));
-    }
-
-    public static fromData(data: IBlockData): IBlock {
-        const serialized: string = Block.serializeWithTransactions(data).toString("hex");
-        const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
-        block.serialized = serialized;
-
-        return block;
-    }
-
-    private static fromSerialized(serialized: string): IBlock {
-        const block: IBlock = new Block(deserializer.deserialize(serialized));
-        block.serialized = serialized;
-
-        return block;
-    }
-
     public serialized: string;
     public data: IBlockData;
     public transactions: ITransaction[];
     public verification: IBlockVerification;
 
-    private constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
-        const { value, error } = validator.validate("block", data);
-
-        if (
-            error !== null &&
-            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
-        ) {
-            throw new BlockSchemaError(error);
-        }
-
-        this.data = value;
+    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+        this.data = data;
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
