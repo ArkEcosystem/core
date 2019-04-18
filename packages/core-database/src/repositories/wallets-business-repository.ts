@@ -41,6 +41,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search({ ...params, ...{ vote: publicKey } });
     }
 
+    // @TODO: simplify this
     public findById(id: string): Database.IWallet {
         return this.search().rows.find(
             wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id,
