@@ -27,7 +27,8 @@ beforeEach(async () => {
 
 function generateWallets(): Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = Address.fromPublicKey(transaction.data.senderPublicKey);
+        // @TODO: switch to unitnet
+        const address: string = Address.fromPublicKey(transaction.data.senderPublicKey, 23);
 
         return {
             address,
@@ -53,17 +54,17 @@ describe("Delegate Repository", () => {
 
         it("should return the local wallets of the connection that are delegates", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates();
 
             expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
-            expect(walletManager.allByAddress).toHaveBeenCalled();
+            expect(walletManager.allByUsername).toHaveBeenCalled();
         });
 
         it("should be ok with params (forgedTotal)", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
 
