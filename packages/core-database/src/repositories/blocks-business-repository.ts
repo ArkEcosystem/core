@@ -6,7 +6,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
     public async search(
-        params: Database.IParameters,
+        params: Database.IParameters = {},
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
@@ -34,7 +34,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
 
     public async findByIdOrHeight(idOrHeight): Promise<Interfaces.IBlockData> {
         try {
-            const block = await this.findByHeight(idOrHeight);
+            const block: Interfaces.IBlockData = await this.findByHeight(idOrHeight);
 
             return block || this.findById(idOrHeight);
         } catch (error) {
@@ -43,15 +43,16 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
     }
 
     private parseSearchParams(params: Database.IParameters): Database.SearchParameters {
-        const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
+        const blocksRepository: Database.IBlocksRepository = this.databaseServiceProvider().connection.blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
+
         if (!searchParameters.orderBy.length) {
-            // default order-by
             searchParameters.orderBy.push({
                 field: "height",
                 direction: "desc",
             });
         }
+
         return searchParameters;
     }
 }

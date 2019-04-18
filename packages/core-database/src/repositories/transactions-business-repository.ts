@@ -6,7 +6,10 @@ import { SearchParameterConverter } from "./utils/search-parameter-converter";
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public async search(params: any, sequenceOrder: "asc" | "desc" = "desc"): Promise<Database.ITransactionsPaginated> {
+    public async search(
+        params: Database.IParameters = {},
+        sequenceOrder: "asc" | "desc" = "desc",
+    ): Promise<Database.ITransactionsPaginated> {
         try {
             const result = await this.databaseServiceProvider().connection.transactionsRepository.search(
                 this.parseSearchParameters(params, sequenceOrder),
@@ -19,40 +22,50 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         }
     }
 
-    public async allVotesBySender(senderPublicKey: any, parameters: any): Promise<Database.ITransactionsPaginated> {
+    public async allVotesBySender(
+        senderPublicKey: string,
+        parameters: Database.IParameters = {},
+    ): Promise<Database.ITransactionsPaginated> {
         return this.search({
             ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
             ...parameters,
         });
     }
 
-    public async findAllByBlock(blockId: string, parameters: any = {}): Promise<Database.ITransactionsPaginated> {
+    public async findAllByBlock(
+        blockId: string,
+        parameters: Database.IParameters = {},
+    ): Promise<Database.ITransactionsPaginated> {
         return this.search({ blockId, ...parameters }, "asc");
     }
 
     public async findAllByRecipient(
         recipientId: string,
-        parameters: any = {},
+        parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
         return this.search({ recipientId, ...parameters });
     }
 
     public async findAllBySender(
         senderPublicKey: string,
-        parameters: any = {},
+        parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
         return this.search({ senderPublicKey, ...parameters });
     }
 
-    public async findAllByType(type: number, parameters: any = {}): Promise<Database.ITransactionsPaginated> {
+    public async findAllByType(
+        type: number,
+        parameters: Database.IParameters = {},
+    ): Promise<Database.ITransactionsPaginated> {
         return this.search({ type, ...parameters });
     }
 
+    // @TODO: simplify this
     public async findAllByWallet(
         wallet: Database.IWallet,
-        parameters?: Database.IParameters,
+        parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
-        const { transactionsRepository } = this.databaseServiceProvider().connection;
+        const { transactionsRepository }: Database.IConnection = this.databaseServiceProvider().connection;
         const searchParameters = new SearchParameterConverter(transactionsRepository.getModel()).convert(parameters);
 
         const result = await transactionsRepository.findAllByWallet(
@@ -65,13 +78,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return result;
     }
 
+    // @TODO: simplify this
     public async findById(id: string) {
         return (await this.mapBlocksToTransactions(
             await this.databaseServiceProvider().connection.transactionsRepository.findById(id),
         ))[0];
     }
 
-    public async findByTypeAndId(type: any, id: string) {
+    public async findByTypeAndId(type: number, id: string) {
         const results = await this.search({ type, id });
         return results.rows.length ? results.rows[0] : null;
     }

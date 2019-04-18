@@ -42,7 +42,7 @@ function generateWallets(): Wallet[] {
 }
 
 describe("Delegate Repository", () => {
-    describe("getLocalDelegates", () => {
+    describe("search", () => {
         const delegates = [
             { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
             { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
@@ -50,33 +50,31 @@ describe("Delegate Repository", () => {
         ];
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
 
+        beforeEach(() => {
+            const wallets = generateWallets();
+            walletManager.index(wallets);
+        });
+
         it("should return the local wallets of the connection that are delegates", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const actualDelegates = repository.getLocalDelegates();
+            const { rows } = repository.search();
 
-            expect(actualDelegates).toEqual(expect.arrayContaining(delegates));
-            expect(walletManager.allByAddress).toHaveBeenCalled();
+            expect(rows).toEqual(expect.arrayContaining(wallets));
+            expect(walletManager.allByUsername).toHaveBeenCalled();
         });
 
         it("should be ok with params (forgedTotal)", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
+            const { rows } = repository.search({ forgedTotal: null });
 
-            actualDelegates.forEach(delegate => {
+            rows.forEach(delegate => {
                 expect(delegate.hasOwnProperty("forgedTotal"));
                 expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
             });
-        });
-    });
-
-    describe("search", () => {
-        beforeEach(() => {
-            const wallets = generateWallets();
-            walletManager.index(wallets);
         });
 
         it("should be ok without params", () => {

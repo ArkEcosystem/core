@@ -75,6 +75,14 @@ describe("Wallet Repository", () => {
             expect(wallets.count).toBe(rows);
         };
 
+        it("should return the local wallets of the connection", () => {
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue([]);
+
+            repository.search();
+
+            expect(walletManager.allByAddress).toHaveBeenCalled();
+        });
+
         it("should be ok without params", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
@@ -218,17 +226,6 @@ describe("Wallet Repository", () => {
                 29,
                 29,
             );
-        });
-    });
-
-    describe("all", () => {
-        it("should return the local wallets of the connection", () => {
-            // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(null);
-
-            repository.all();
-
-            expect(walletManager.allByAddress).toHaveBeenCalled();
         });
     });
 
