@@ -1,8 +1,7 @@
 // tslint:disable:max-classes-per-file
 
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-
+import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     InsufficientBalanceError,
     InvalidSecondSignatureError,
@@ -11,8 +10,6 @@ import {
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
-
-const { TransactionTypes } = Enums;
 
 export abstract class TransactionHandler implements ITransactionHandler {
     public abstract getConstructor(): Transactions.TransactionConstructor;
@@ -47,7 +44,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         if (wallet.secondPublicKey) {
-            if (!Crypto.crypto.verifySecondSignature(data, wallet.secondPublicKey)) {
+            if (!Transactions.Transaction.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
         } else {
@@ -67,7 +64,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const { data } = transaction;
         if (
             data.senderPublicKey === wallet.publicKey ||
-            Crypto.crypto.getAddress(data.senderPublicKey) === wallet.address
+            Identities.Address.fromPublicKey(data.senderPublicKey) === wallet.address
         ) {
             wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
 
@@ -86,7 +83,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const { data } = transaction;
         if (
             data.senderPublicKey === wallet.publicKey ||
-            Crypto.crypto.getAddress(data.senderPublicKey) === wallet.address
+            Identities.Address.fromPublicKey(data.senderPublicKey) === wallet.address
         ) {
             wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
 
@@ -117,7 +114,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         guard.pushError(
             data,
             "ERR_UNSUPPORTED",
-            `Invalidating transaction of unsupported type '${TransactionTypes[data.type]}'`,
+            `Invalidating transaction of unsupported type '${Enums.TransactionTypes[data.type]}'`,
         );
         return false;
     }
@@ -128,7 +125,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
             guard.pushError(
                 data,
                 "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${TransactionTypes[type]}' in the pool`,
+                `Sender ${senderPublicKey} already has a transaction of type '${
+                    Enums.TransactionTypes[type]
+                }' in the pool`,
             );
 
             return true;

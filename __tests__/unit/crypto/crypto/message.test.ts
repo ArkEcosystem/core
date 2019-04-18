@@ -1,16 +1,13 @@
 import "jest-extended";
 
-import { crypto } from "../../../../packages/crypto/src/crypto";
 import { Message } from "../../../../packages/crypto/src/crypto/message";
-import { devnet } from "../../../../packages/crypto/src/networks";
+import { identity } from "../../../utils/identities";
 
-const passphrase = "sample passphrase";
-const wif = crypto.keysToWIF(crypto.getKeys(passphrase), devnet.network);
 const signedMessageEntries: any = [
-    ["publicKey", "03bb51bbf5bf84759452e33dd97cf72cc8904be07df07a946a0d84939400f17e87"],
+    ["publicKey", identity.publicKey],
     [
         "signature",
-        "304402204550cd28d369a7f6eccd399b315e42e054a2f21f6771983af4ed3c5f7c7fa83102200699fef72cc64e79ccba85a31666e9508c052038c71c04260264e3d2d11c7e08",
+        "3045022100b5ad008d8a2935cd2261c56ef1605b2e35810f47940277d1d8a6a202a08c6de0022021fcbf9ec9db67f8c7019ff2ce07376f8a203ea77f26f2f7d564d5b8f4bde1a7",
     ],
     ["message", "test"],
 ];
@@ -18,30 +15,30 @@ const signedMessageEntries: any = [
 describe("Message", () => {
     describe("sign", () => {
         it("should sign a message", () => {
-            expect(Message.sign("test", passphrase)).toContainAllEntries(signedMessageEntries);
+            expect(Message.sign("test", identity.bip39)).toContainAllEntries(signedMessageEntries);
         });
     });
 
     describe("signWithWif", () => {
         it("should sign a message", () => {
-            expect(Message.signWithWif("test", wif)).toContainAllEntries(signedMessageEntries);
+            expect(Message.signWithWif("test", identity.wif)).toContainAllEntries(signedMessageEntries);
         });
 
         it("should sign a message and match passphrase", () => {
-            const signedMessage = Message.sign("test", passphrase);
-            const signedWifMessage = Message.signWithWif("test", wif);
+            const signedMessage = Message.sign("test", identity.bip39);
+            const signedWifMessage = Message.signWithWif("test", identity.wif);
             expect(signedMessage).toEqual(signedWifMessage);
         });
     });
 
     describe("verify", () => {
         it("should verify a signed message", () => {
-            const signedMessage = Message.sign("test", passphrase);
+            const signedMessage = Message.sign("test", identity.bip39);
             expect(Message.verify(signedMessage)).toBe(true);
         });
 
         it("should verify a signed wif message", () => {
-            const signedMessage = Message.signWithWif("test", wif);
+            const signedMessage = Message.signWithWif("test", identity.wif);
             expect(Message.verify(signedMessage)).toBe(true);
         });
     });

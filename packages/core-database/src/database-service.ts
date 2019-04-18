@@ -3,10 +3,8 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
-
-const { crypto, HashAlgorithms } = Crypto;
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IConnection;
@@ -164,7 +162,7 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         const seedSource: string = round.toString();
-        let currentSeed: Buffer = HashAlgorithms.sha256(seedSource);
+        let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
 
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -173,7 +171,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 delegates[newIndex] = delegates[i];
                 delegates[i] = b;
             }
-            currentSeed = HashAlgorithms.sha256(currentSeed);
+            currentSeed = Crypto.HashAlgorithms.sha256(currentSeed);
         }
 
         const forgingDelegates: Database.IDelegateWallet[] = delegates.map(delegate => {
@@ -533,10 +531,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
-        const senderId: string = crypto.getAddress(
-            transaction.data.senderPublicKey,
-            this.config.get("network.pubKeyHash"),
-        );
+        const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: Database.IWallet = this.walletManager.findByAddress(senderId); // should exist
         const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);

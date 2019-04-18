@@ -1,4 +1,4 @@
-import { Crypto, Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -25,6 +25,6 @@ export class VerifySecondSignatureCommand extends BaseCommand {
 
         const { data } = Transactions.TransactionFactory.fromHex(flags.data);
 
-        return handleOutput(flags, Crypto.crypto.verifySecondSignature(data, flags.publicKey));
+        return handleOutput(flags, Transactions.Transaction.verifySecondSignature(data, flags.publicKey));
     }
 }

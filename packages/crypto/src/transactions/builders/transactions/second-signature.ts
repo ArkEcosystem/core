@@ -1,5 +1,5 @@
-import { crypto } from "../../../crypto";
 import { TransactionTypes } from "../../../enums";
+import { Keys } from "../../../identities";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
@@ -18,7 +18,7 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
     }
 
     public signatureAsset(secondPassphrase: string): SecondSignatureBuilder {
-        this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey;
+        this.data.asset.signature.publicKey = Keys.fromPassphrase(secondPassphrase).publicKey;
         return this;
     }
 

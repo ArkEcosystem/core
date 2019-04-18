@@ -2,13 +2,14 @@ import "jest-extended";
 import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
-import { Crypto, Utils } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import compact from "lodash.compact";
 import uniq from "lodash.uniq";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
 import { Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Address } from "../../../../packages/crypto/src/identities";
 
 let genesisSenders;
 let repository;
@@ -30,21 +31,21 @@ beforeEach(async () => {
 
 function generateWallets() {
     return genesisSenders.map((senderPublicKey, index) => ({
-        address: Crypto.crypto.getAddress(senderPublicKey),
+        address: Address.fromPublicKey(senderPublicKey),
         balance: Utils.BigNumber.make(index),
     }));
 }
 
 function generateVotes() {
     return genesisSenders.map(senderPublicKey => ({
-        address: Crypto.crypto.getAddress(senderPublicKey),
+        address: Address.fromPublicKey(senderPublicKey),
         vote: genesisBlock.transactions[0].data.senderPublicKey,
     }));
 }
 
 function generateFullWallets() {
     return genesisSenders.map(senderPublicKey => {
-        const address = Crypto.crypto.getAddress(senderPublicKey);
+        const address = Address.fromPublicKey(senderPublicKey);
 
         return {
             address,

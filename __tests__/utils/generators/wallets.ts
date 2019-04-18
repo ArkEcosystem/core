@@ -1,4 +1,4 @@
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
 export const generateWallets = (network, quantity = 10) => {
@@ -11,9 +11,9 @@ export const generateWallets = (network, quantity = 10) => {
 
     const wallets = [];
     for (let i = 0; i < quantity; i++) {
-        const passphrase = generateMnemonic();
-        const publicKey = Crypto.crypto.getKeys(passphrase).publicKey;
-        const address = Crypto.crypto.getAddress(publicKey);
+        const passphrase: string = generateMnemonic();
+        const publicKey: string = Identities.PublicKey.fromPassphrase(passphrase);
+        const address: string = Identities.Address.fromPassphrase(passphrase);
 
         wallets.push({ address, passphrase, publicKey });
     }
