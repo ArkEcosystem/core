@@ -1,5 +1,4 @@
-import { Crypto, Managers } from "@arkecosystem/crypto";
-import { Identities } from "@arkecosystem/crypto/src";
+import { Identities, Managers } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
 export const generateWallets = (network, quantity = 10) => {
