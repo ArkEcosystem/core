@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
@@ -93,5 +93,9 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
     public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         wallet.multisignature = null;
+    }
+
+    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+        return !this.typeFromSenderAlreadyInPool(data, guard);
     }
 }

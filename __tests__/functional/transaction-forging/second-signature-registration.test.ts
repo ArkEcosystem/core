@@ -6,7 +6,7 @@ beforeAll(support.setUp);
 afterAll(support.tearDown);
 
 describe("Transaction Forging - Second Signature Registration", () => {
-    it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
+    it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
         const secondSignature = TransactionFactory.secondSignature(support.passphrases.secondPassphrase)
             .withPassphrase(secrets[0])
             .create();

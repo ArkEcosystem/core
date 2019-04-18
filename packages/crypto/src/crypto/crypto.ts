@@ -44,7 +44,7 @@ class Crypto {
 
     public secondSign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = this.getHash(transaction, { excludeSecondSignature: true });
-        const signature: string = this.signECDSA(hash, keys);
+        const signature: string = transaction.version === 2 ? this.signSchnorr(hash, keys) : this.signECDSA(hash, keys);
 
         if (!transaction.secondSignature) {
             transaction.secondSignature = signature;
