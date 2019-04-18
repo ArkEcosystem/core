@@ -2,7 +2,7 @@ import { Keys } from "../identities";
 import { IKeyPair, IMessage } from "../interfaces";
 import { INetwork } from "../interfaces/networks";
 import { configManager } from "../managers";
-import { crypto } from "./crypto";
+import { Hash } from "./hash";
 import { HashAlgorithms } from "./hash-algorithms";
 
 export class Message {
@@ -11,7 +11,7 @@ export class Message {
 
         return {
             publicKey: keys.publicKey,
-            signature: crypto.signHash(this.createHash(message), keys),
+            signature: Hash.sign(this.createHash(message), keys),
             message,
         };
     }
@@ -25,13 +25,13 @@ export class Message {
 
         return {
             publicKey: keys.publicKey,
-            signature: crypto.signHash(this.createHash(message), keys),
+            signature: Hash.sign(this.createHash(message), keys),
             message,
         };
     }
 
     public static verify({ message, publicKey, signature }: IMessage): boolean {
-        return crypto.verifyHash(this.createHash(message), signature, publicKey);
+        return Hash.verify(this.createHash(message), signature, publicKey);
     }
 
     private static createHash(message: string): Buffer {

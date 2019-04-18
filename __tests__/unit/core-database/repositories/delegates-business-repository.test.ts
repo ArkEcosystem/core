@@ -26,7 +26,7 @@ beforeEach(async () => {
 
 function generateWallets(): Wallet[] {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = Crypto.crypto.getAddress(transaction.data.senderPublicKey);
+        const address = Address.fromPublicKey(transaction.data.senderPublicKey);
 
         return {
             address,

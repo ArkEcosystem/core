@@ -1,9 +1,10 @@
 // tslint:disable:member-ordering
 import { TransactionRegistry } from "..";
-import { crypto } from "../../crypto";
+import { Hash, HashAlgorithms } from "../../crypto";
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
-import { ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import { IKeyPair, ISerializeOptions, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import { configManager } from "../../managers";
 import { isException } from "../../utils";
 import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
@@ -12,8 +13,7 @@ export abstract class Transaction implements ITransaction {
     public static type: TransactionTypes = null;
 
     public static toBytes(data: ITransactionData): Buffer {
-        const transaction = TransactionRegistry.create(data);
-        return Serializer.serialize(transaction);
+        return Serializer.serialize(TransactionRegistry.create(data));
     }
 
     public get id(): string {
@@ -47,7 +47,24 @@ export abstract class Transaction implements ITransaction {
             return false;
         }
 
-        return crypto.verify(data);
+        return Transaction.verifyData(data);
+    }
+
+    public static verifyData(data: ITransactionData): boolean {
+        if (data.version && data.version !== 1) {
+            // TODO: enable AIP11 when ready here
+            return false;
+        }
+
+        if (!data.signature) {
+            return false;
+        }
+
+        return Hash.verify(
+            Transaction.getHash(data, { excludeSignature: true, excludeSecondSignature: true }),
+            data.signature,
+            data.senderPublicKey,
+        );
     }
 
     public toJson(): ITransactionJson {
@@ -68,5 +85,59 @@ export abstract class Transaction implements ITransaction {
 
     public static getSchema(): TransactionSchema {
         throw new NotImplementedError();
+    }
+
+    public static getId(transaction: ITransactionData): string {
+        const id: string = Transaction.getHash(transaction).toString("hex");
+
+        // Apply fix for broken type 1 and 4 transactions, which were
+        // erroneously calculated with a recipient id.
+        const { transactionIdFixTable } = configManager.get("exceptions");
+
+        if (transactionIdFixTable && transactionIdFixTable[id]) {
+            return transactionIdFixTable[id];
+        }
+
+        return id;
+    }
+
+    public static getHash(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
+        return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
+    }
+
+    public static sign(transaction: ITransactionData, keys: IKeyPair): string {
+        const hash: Buffer = Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+        const signature: string = Hash.sign(hash, keys);
+
+        if (!transaction.signature) {
+            transaction.signature = signature;
+        }
+
+        return signature;
+    }
+
+    public static secondSign(transaction: ITransactionData, keys: IKeyPair): string {
+        const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
+        const signature: string = Hash.sign(hash, keys);
+
+        if (!transaction.secondSignature) {
+            transaction.secondSignature = signature;
+        }
+
+        return signature;
+    }
+
+    public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
+        const secondSignature = transaction.secondSignature || transaction.signSignature;
+
+        if (!secondSignature) {
+            return false;
+        }
+
+        return Hash.verify(
+            Transaction.getHash(transaction, { excludeSecondSignature: true }),
+            secondSignature,
+            publicKey,
+        );
     }
 }

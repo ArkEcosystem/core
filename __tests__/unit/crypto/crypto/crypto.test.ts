@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import { crypto } from "../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKeyError, TransactionVersionError } from "../../../../packages/crypto/src/errors";
-import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 
 const networkMainnet = configManager.getPreset("mainnet");
@@ -69,9 +68,7 @@ describe("crypto.ts", () => {
 
     describe("getFee", () => {
         it("should return 10000000", () => {
-            expect(crypto.getFee({ type: TransactionTypes.Transfer } as ITransactionData)).toEqual(
-                Utils.BigNumber.make(10000000),
-            );
+            expect(Managers.feeManager.get(TransactionTypes.Transfer)).toEqual(Utils.BigNumber.make(10000000));
         });
     });
 
@@ -189,7 +186,7 @@ describe("crypto.ts", () => {
 
         it("should return address", () => {
             const keys = crypto.getKeys("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
-            const address = crypto.getAddress(keys.publicKey);
+            const address = Address.fromPublicKey(keys.publicKey);
             expect(address).toBe("DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub");
         });
     });
@@ -204,47 +201,6 @@ describe("crypto.ts", () => {
             const keys = crypto.getKeysByPrivateKey(expectedKeys.privateKey);
 
             expect(keys).toEqual(expectedKeys);
-        });
-    });
-
-    describe("getKeysFromWIF", () => {
-        it("should return two keys in hex", () => {
-            const keys = crypto.getKeysFromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
-
-            expect(keys).toBeObject();
-            expect(keys).toHaveProperty("publicKey");
-            expect(keys).toHaveProperty("privateKey");
-
-            expect(keys.publicKey).toBeString();
-            expect(keys.publicKey).toMatch(Buffer.from(keys.publicKey, "hex").toString("hex"));
-
-            expect(keys.privateKey).toBeString();
-            expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, "hex").toString("hex"));
-        });
-
-        it("should return address", () => {
-            const keys = crypto.getKeysFromWIF("SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov");
-            // @ts-ignore
-            const address = crypto.getAddress(keys.publicKey.toString("hex"));
-            expect(address).toBe("DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8");
-        });
-
-        it("should get keys from compressed WIF", () => {
-            const keys = crypto.getKeysFromWIF("SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4");
-
-            expect(keys).toBeObject();
-            expect(keys).toHaveProperty("publicKey");
-            expect(keys).toHaveProperty("privateKey");
-            expect(keys).toHaveProperty("compressed", true);
-        });
-
-        it("should get keys from uncompressed WIF", () => {
-            const keys = crypto.getKeysFromWIF("6hgnAG19GiMUf75C43XteG2mC8esKTiX9PYbKTh4Gca9MELRWmg");
-
-            expect(keys).toBeObject();
-            expect(keys).toHaveProperty("publicKey");
-            expect(keys).toHaveProperty("privateKey");
-            expect(keys).toHaveProperty("compressed", false);
         });
     });
 
@@ -263,7 +219,7 @@ describe("crypto.ts", () => {
                 "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4",
                 networkMainnet.network,
             );
-            const address = crypto.getAddress(keys.publicKey, networkMainnet.network.pubKeyHash);
+            const address = Address.fromPublicKey(keys.publicKey, networkMainnet.network.pubKeyHash);
             expect(keys.compressed).toBeTruthy();
             expect(address).toBe("APnrtb2JGa6WjrRik9W3Hjt6h71mD6Zgez");
         });
@@ -273,7 +229,7 @@ describe("crypto.ts", () => {
                 "SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4",
                 networkDevnet.network,
             );
-            const address = crypto.getAddress(keys.publicKey, networkDevnet.network.pubKeyHash);
+            const address = Address.fromPublicKey(keys.publicKey, networkDevnet.network.pubKeyHash);
             expect(keys.compressed).toBeTruthy();
             expect(address).toBe("DDA5nM7KEqLeTtQKv5qGgcnc6dpNBKJNTS");
         });
@@ -282,7 +238,7 @@ describe("crypto.ts", () => {
     describe("getAddress", () => {
         it("should generate address by publicKey", () => {
             const keys = crypto.getKeys("secret");
-            const address = crypto.getAddress(keys.publicKey);
+            const address = Address.fromPublicKey(keys.publicKey);
 
             expect(address).toBeString();
             expect(address).toBe("D7seWn8JLVwX4nHd9hh2Lf7gvZNiRJ7qLk");
@@ -290,7 +246,7 @@ describe("crypto.ts", () => {
 
         it("should generate address by publicKey - second test", () => {
             const keys = crypto.getKeys("secret second test to be sure it works correctly");
-            const address = crypto.getAddress(keys.publicKey);
+            const address = Address.fromPublicKey(keys.publicKey);
 
             expect(address).toBeString();
             expect(address).toBe("DDp4SYpnuzFPuN4W79PYY762d7FtW3DFFN");
@@ -303,7 +259,7 @@ describe("crypto.ts", () => {
                     "a".repeat(66),
                 ];
                 for (const validKey of validKeys) {
-                    crypto.getAddress(validKey);
+                    Address.fromPublicKey(validKey);
                 }
             } catch (error) {
                 throw new Error("Should not have failed to call getAddress with a valid publicKey");
@@ -313,7 +269,7 @@ describe("crypto.ts", () => {
         it("should throw an error if the publicKey is invalid", () => {
             const invalidKeys = ["invalid", "a".repeat(65), "a".repeat(67), "z".repeat(66)];
             for (const invalidKey of invalidKeys) {
-                expect(() => crypto.getAddress(invalidKey)).toThrow(PublicKeyError);
+                expect(() => Address.fromPublicKey(invalidKey)).toThrow(PublicKeyError);
             }
         });
     });

@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Wallet implements Database.IWallet {
     public address: string;
@@ -125,11 +125,11 @@ export class Wallet implements Database.IWallet {
                     .minus(transaction.fee)
                     .toFixed(),
             });
-            audit.push({ "Signature validation": Crypto.crypto.verify(transaction) });
+            audit.push({ "Signature validation": Transactions.Transaction.verifyData(transaction) });
             // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
             if (this.secondPublicKey) {
                 audit.push({
-                    "Second Signature Verification": Crypto.crypto.verifySecondSignature(
+                    "Second Signature Verification": Transactions.Transaction.verifySecondSignature(
                         transaction,
                         this.secondPublicKey,
                     ),
@@ -222,7 +222,10 @@ export class Wallet implements Database.IWallet {
      * Verify the wallet.
      */
     private verify(transaction: Interfaces.ITransactionData, signature: string, publicKey: string): boolean {
-        const hash = Crypto.crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        return Crypto.crypto.verifyHash(hash, signature, publicKey);
+        return Crypto.Hash.verify(
+            Transactions.Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true }),
+            signature,
+            publicKey,
+        );
     }
 }

@@ -178,7 +178,7 @@ describe("Blockchain", () => {
 
             // Create key pair for new voter
             const keyPair = Identities.Keys.fromPassphrase("secret");
-            const recipient = Crypto.crypto.getAddress(keyPair.publicKey);
+            const recipient = Address.fromPublicKey(keyPair.publicKey);
 
             let nextForger = await getNextForger();
             const initialVoteBalance = nextForger.voteBalance;
@@ -307,7 +307,7 @@ async function __resetToHeight1() {
         await blockchain.database.buildWallets();
 
         // Index the genesis wallet or else revert block at height 1 fails
-        const generator = Crypto.crypto.getAddress(genesisBlock.data.generatorPublicKey);
+        const generator = Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
         const genesis = new Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
         genesis.username = "genesis";

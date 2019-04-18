@@ -638,7 +638,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             delete wallet.multisignature;
 
             wallet.verifySignatures = jest.fn(() => true);
-            crypto.verifySecondSignature = jest.fn(() => true);
+            Transactions.Transaction.verifySecondSignature = jest.fn(() => true);
 
             instance.data.asset.multisignature.keysgroup.splice(0, 5);
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(MultiSignatureMinimumKeysError);
@@ -648,7 +648,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             delete wallet.multisignature;
 
             wallet.verifySignatures = jest.fn(() => true);
-            crypto.verifySecondSignature = jest.fn(() => true);
+            Transactions.Transaction.verifySecondSignature = jest.fn(() => true);
 
             instance.data.signatures.splice(0, 5);
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(MultiSignatureKeyCountMismatchError);

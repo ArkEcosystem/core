@@ -35,7 +35,7 @@ afterEach(async () => {
 });
 
 function verifyTransaction(data): boolean {
-    return Crypto.crypto.verify(Transactions.TransactionFactory.fromData(data).data);
+    return Transactions.TransactionFactory.fromData(data).verify();
 }
 
 describe("Transactions", () => {
@@ -96,7 +96,7 @@ describe("Transactions", () => {
         });
 
         it("should return 422 if it fails to verify the transaction", async () => {
-            const spyVerify = jest.spyOn(Crypto.crypto, "verify").mockImplementation(() => false);
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verify").mockImplementation(() => false);
 
             const response = await sendRequest("transactions.create", {
                 amount: 100000000,
@@ -146,7 +146,7 @@ describe("Transactions", () => {
 
             mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
 
-            const spyVerify = jest.spyOn(Crypto.crypto, "verify").mockImplementation(() => false);
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verify").mockImplementation(() => false);
 
             const response = await sendRequest("transactions.broadcast", {
                 id: transaction.body.result.id,
@@ -204,7 +204,7 @@ describe("Transactions", () => {
         });
 
         it("should return 422 if it fails to verify the transaction", async () => {
-            const spyVerify = jest.spyOn(Crypto.crypto, "verify").mockImplementation(() => false);
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verify").mockImplementation(() => false);
 
             const response = await sendRequest("transactions.bip38.create", {
                 bip38: "this is a top secret passphrase",

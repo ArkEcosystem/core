@@ -80,7 +80,7 @@ describe("Delegate Registration Transaction", () => {
             it("returns the id", () => {
                 expect(builder.getStruct().id).toBe(
                     // @ts-ignore
-                    crypto.getId(builder.data).toString("hex"),
+                    Transactions.Transaction.getId(builder.data).toString("hex"),
                 );
             });
             it("returns the signature", () => {

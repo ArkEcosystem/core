@@ -6,7 +6,7 @@ import wif from "wif";
 export class Delegate {
     public static encryptPassphrase(passphrase: string, network: Types.NetworkType, password: string): string {
         const keys = Identities.Keys.fromPassphrase(passphrase);
-        const decoded = wif.decode(Crypto.crypto.keysToWIF(keys, network), network.wif);
+        const decoded = wif.decode(Identities.WIF.fromKeys(keys, network), network.wif);
 
         return Crypto.bip38.encrypt(decoded.privateKey, decoded.compressed, password);
     }
@@ -62,7 +62,7 @@ export class Delegate {
     public encryptKeysWithOtp(): void {
         this.otp = authenticator.generate(this.otpSecret);
 
-        const wifKey: string = Crypto.crypto.keysToWIF(this.keys, this.network);
+        const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
         this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
         this.keys = null;

@@ -1,4 +1,4 @@
-import { crypto, HashAlgorithms, slots } from "../crypto";
+import { Hash, HashAlgorithms, slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
@@ -116,7 +116,7 @@ export class Block implements IBlock {
         const bytes: Buffer = Block.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
 
-        return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
+        return Hash.verify(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
     public toJson(): IBlockJson {

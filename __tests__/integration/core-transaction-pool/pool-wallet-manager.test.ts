@@ -61,7 +61,7 @@ describe("applyPoolTransactionToSender", () => {
         it("should only update the balance of the sender", async () => {
             const delegate0 = delegates[0];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = crypto.getAddress(publicKey);
+            const newAddress = Address.fromPublicKey(publicKey);
 
             const delegateWallet = poolWalletManager.findByAddress(delegate0.address);
             const newWallet = poolWalletManager.findByAddress(newAddress);
@@ -85,7 +85,7 @@ describe("applyPoolTransactionToSender", () => {
         it("should only update the balance of the sender with dyn fees", async () => {
             const delegate0 = delegates[1];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = crypto.getAddress(publicKey);
+            const newAddress = Address.fromPublicKey(publicKey);
 
             const delegateWallet = poolWalletManager.findByAddress(delegate0.address);
             const newWallet = poolWalletManager.findByAddress(newAddress);

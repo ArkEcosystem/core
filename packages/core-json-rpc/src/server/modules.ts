@@ -88,7 +88,7 @@ export const transactions = [
 
             const { data } = Transactions.TransactionFactory.fromData(transaction);
 
-            if (!Crypto.crypto.verify(data)) {
+            if (!Transactions.Transaction.verifyData(data)) {
                 return Boom.badData();
             }
 
@@ -119,7 +119,7 @@ export const transactions = [
 
             const transaction: Interfaces.ITransactionData = transactionBuilder.sign(params.passphrase).getStruct();
 
-            if (!Crypto.crypto.verify(transaction)) {
+            if (!Transactions.Transaction.verifyData(transaction)) {
                 return Boom.badData();
             }
 
@@ -194,7 +194,7 @@ export const transactions = [
 
                 const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
 
-                if (!Crypto.crypto.verify(transaction)) {
+                if (!Transactions.Transaction.verifyData(transaction)) {
                     return Boom.badData();
                 }
 

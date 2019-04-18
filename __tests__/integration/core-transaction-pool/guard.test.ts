@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Blocks, Crypto, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
@@ -10,7 +10,6 @@ import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const { BlockFactory } = Blocks;
-const { crypto } = Crypto;
 
 let TransactionGuard;
 
@@ -109,7 +108,7 @@ describe("Transaction Guard", () => {
         it("should not apply the tx to the balance of the sender & recipient with dyn fee < min fee", async () => {
             const delegate0 = delegates[14];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = crypto.getAddress(publicKey);
+            const newAddress = Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate0.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -134,7 +133,7 @@ describe("Transaction Guard", () => {
         it("should update the balance of the sender & recipient with dyn fee > min fee", async () => {
             const delegate1 = delegates[1];
             const { publicKey } = Identities.Keys.fromPassphrase(generateMnemonic());
-            const newAddress = crypto.getAddress(publicKey);
+            const newAddress = Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate1.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -164,7 +163,7 @@ describe("Transaction Guard", () => {
             const delegate2 = delegates[2];
             const newWalletPassphrase = generateMnemonic();
             const { publicKey } = Identities.Keys.fromPassphrase(newWalletPassphrase);
-            const newAddress = crypto.getAddress(publicKey);
+            const newAddress = Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate2.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
@@ -227,7 +226,7 @@ describe("Transaction Guard", () => {
             const delegate3 = delegates[3];
             const newWalletPassphrase = generateMnemonic();
             const { publicKey } = Identities.Keys.fromPassphrase(newWalletPassphrase);
-            const newAddress = crypto.getAddress(publicKey);
+            const newAddress = Address.fromPublicKey(publicKey);
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate3.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
