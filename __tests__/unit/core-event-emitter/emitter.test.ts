@@ -4,7 +4,7 @@ import { EventEmitter } from "../../../packages/core-event-emitter/src/emitter";
 const emitter: EventEmitter = plugin.register();
 
 let lastEmit: string;
-describe("Event Manager", () => {
+describe("EventEmitter", () => {
     it("should listen for the event", () => {
         emitter.on("hello", data => (lastEmit = data));
 
