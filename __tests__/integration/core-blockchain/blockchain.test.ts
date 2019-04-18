@@ -3,7 +3,7 @@ import "../../utils";
 /* tslint:disable:max-line-length */
 import { Wallet } from "@arkecosystem/core-database";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
@@ -170,14 +170,14 @@ describe("Blockchain", () => {
                 transactions: sortedTransactions,
             };
 
-            return Blocks.BlockFactory.make(data, Crypto.crypto.getKeys(generatorKeys.secret));
+            return Blocks.BlockFactory.make(data, Identities.Keys.fromPassphrase(generatorKeys.secret));
         };
 
         it("should restore vote balances after a rollback", async () => {
             const mockCallback = jest.fn(() => true);
 
             // Create key pair for new voter
-            const keyPair = Crypto.crypto.getKeys("secret");
+            const keyPair = Identities.Keys.fromPassphrase("secret");
             const recipient = Crypto.crypto.getAddress(keyPair.publicKey);
 
             let nextForger = await getNextForger();

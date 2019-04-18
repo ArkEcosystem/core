@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { crypto } from "../../../../../../packages/crypto/src/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { Keys, WIF } from "../../../../../../packages/crypto/src/identities";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { devnet } from "../../../../../../packages/crypto/src/networks";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
@@ -45,8 +45,8 @@ describe("Transfer Transaction", () => {
         it("should sign a transaction and match signed with a passphrase", () => {
             const passphrase = "sample passphrase";
             const network = 23;
-            const keys = crypto.getKeys(passphrase);
-            const wif = crypto.keysToWIF(keys, devnet.network);
+            const keys = Keys.fromPassphrase(passphrase);
+            const wif = WIF.fromKeys(keys, devnet.network);
 
             const wifTransaction = builder
                 .amount("10")
@@ -68,8 +68,8 @@ describe("Transfer Transaction", () => {
             const passphrase = "first passphrase";
             const secondPassphrase = "second passphrase";
             const network = 23;
-            const keys = crypto.getKeys(secondPassphrase);
-            const wif = crypto.keysToWIF(keys, devnet.network);
+            const keys = Keys.fromPassphrase(secondPassphrase);
+            const wif = WIF.fromKeys(keys, devnet.network);
 
             const wifTransaction = builder
                 .amount("10")

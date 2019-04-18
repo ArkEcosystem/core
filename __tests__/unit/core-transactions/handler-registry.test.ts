@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
@@ -110,7 +110,7 @@ describe("TransactionHandlerRegistry", () => {
     it("should be able to instantiate a custom transaction", () => {
         TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler);
 
-        const keys = crypto.getKeys("secret");
+        const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
             type: TEST_TRANSACTION_TYPE,
             timestamp: slots.getTime(),

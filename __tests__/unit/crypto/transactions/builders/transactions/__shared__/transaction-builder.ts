@@ -127,10 +127,13 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
 
             it("establishes the public key of the sender", () => {
+                const spySign = jest.spyOn(crypto, "sign").mockImplementationOnce(jest.fn());
+
                 const builder = provider();
                 builder.sign(identity.bip39);
 
                 expect(builder.data.senderPublicKey).toBe(identity.keys.publicKey);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
         });
 
@@ -149,10 +152,13 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
 
             it("establishes the public key of the sender", () => {
+                const spySign = jest.spyOn(crypto, "sign").mockImplementationOnce(jest.fn());
+
                 const builder = provider();
                 builder.signWithWif(identity.wif);
 
                 expect(builder.data.senderPublicKey).toBe(identity.publicKey);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
         });
 

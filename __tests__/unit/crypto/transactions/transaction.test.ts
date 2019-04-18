@@ -9,6 +9,7 @@ import {
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { PublicKey } from "../../../../packages/crypto/src/identities";
 import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory, Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
@@ -63,7 +64,7 @@ const createRandomTx = type => {
         case 4: {
             // multisignature registration
             const passphrases = [1, 2, 3].map(() => Math.random().toString(36));
-            const publicKeys = passphrases.map(passphrase => `+${crypto.getKeys(passphrase).publicKey}`);
+            const publicKeys = passphrases.map(passphrase => `+${PublicKey.fromPassphrase(passphrase)}`);
             const min = Math.min(1, publicKeys.length);
             const max = Math.max(1, publicKeys.length);
             const minSignatures = Math.floor(Math.random() * (max - min)) + min;
