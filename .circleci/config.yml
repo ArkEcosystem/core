@@ -762,6 +762,9 @@ jobs:
           name: Docker init and start
           command: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
       - run:
+          name: Docker inspect
+          command: docker inspect $(docker ps -a -q)
+      - run:
           name: Run tests
           command: >-
             source ~/.bashrc && nvm use 10 && cd __tests__/e2e && sudo bin/e2e
