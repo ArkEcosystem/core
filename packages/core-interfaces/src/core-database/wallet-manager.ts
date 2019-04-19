@@ -36,8 +36,6 @@ export type IDelegateWallet = IWallet & { rate: number; round: number };
 export interface IWalletManager {
     logger: Logger.ILogger;
 
-    config: any;
-
     reset(): void;
 
     allByAddress(): IWallet[];
@@ -48,7 +46,7 @@ export interface IWalletManager {
 
     findByAddress(address: string): IWallet;
 
-    exists(addressOrPublicKey: string): boolean;
+    has(addressOrPublicKey: string): boolean;
 
     findByPublicKey(publicKey: string): IWallet;
 

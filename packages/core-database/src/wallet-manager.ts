@@ -7,12 +7,14 @@ import pluralize from "pluralize";
 import { Wallet } from "./wallet";
 
 export class WalletManager implements Database.IWalletManager {
-    public logger = app.resolvePlugin<Logger.ILogger>("logger");
-    public config = app.getConfig();
-
+    // @TODO: make this private and read-only
     public byAddress: { [key: string]: Database.IWallet };
+    // @TODO: make this private and read-only
     public byPublicKey: { [key: string]: Database.IWallet };
+    // @TODO: make this private and read-only
     public byUsername: { [key: string]: Database.IWallet };
+    // @TODO: make this private and read-only
+    public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Create a new wallet manager instance.
@@ -83,6 +85,10 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
+    public has(addressOrPublicKey: string): boolean {
+        return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
+    }
+
     public hasByAddress(address: string): boolean {
         return !!this.byAddress[address];
     }
@@ -105,10 +111,6 @@ export class WalletManager implements Database.IWalletManager {
 
     public forgetByUsername(username: string): void {
         delete this.byUsername[username];
-    }
-
-    public exists(addressOrPublicKey: string): boolean {
-        return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
     }
 
     public index(wallets: Database.IWallet[]): void {
@@ -389,7 +391,7 @@ export class WalletManager implements Database.IWalletManager {
         const { type, data } = transaction;
 
         const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
-        const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey); // Should exist
+        const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: Database.IWallet = this.byAddress[data.recipientId];
 
         transactionHandler.revertForSender(transaction, sender);

@@ -4,22 +4,23 @@ import { Container } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
+import { Processor } from "../../../packages/core-transaction-pool/src/processor";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
-
-let TransactionGuard;
+// import { Crypto, Enums, Managers } from "@arkecosystem/crypto";
+// import { Connection } from "../../../packages/core-transaction-pool/src/connection";
+// import { MemoryTransaction } from "../../../packages/core-transaction-pool/src/memory-transaction";
+// import { delegates, wallets } from "../../utils/fixtures/unitnet";
 
 let container: Container.IContainer;
-let guard;
+let processor;
 let transactionPool;
 let blockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
-
-    TransactionGuard = require("../../../packages/core-transaction-pool/src").TransactionGuard;
 
     transactionPool = container.resolvePlugin("transaction-pool");
     blockchain = container.resolvePlugin("blockchain");
@@ -31,7 +32,7 @@ afterAll(async () => {
 
 beforeEach(() => {
     transactionPool.flush();
-    guard = new TransactionGuard(transactionPool);
+    processor = transactionPool.createProcessor();
 });
 
 describe("Transaction Guard", () => {
@@ -79,7 +80,7 @@ describe("Transaction Guard", () => {
                         .withPassphrase(t.from.passphrase)
                         .build()[0];
 
-                    await guard.validate([transferTx.data]);
+                    await processor.validate([transferTx.data]);
                 }
 
                 // apply again transfer from 0 to 1
@@ -88,13 +89,13 @@ describe("Transaction Guard", () => {
                     .withPassphrase(transfer1.from.passphrase)
                     .build()[0];
 
-                await guard.validate([transfer.data]);
+                await processor.validate([transfer.data]);
 
                 const expectedError = {
                     message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
                     type: "ERR_APPLY",
                 };
-                expect(guard.errors[transfer.id]).toContainEqual(expectedError);
+                expect(processor.errors[transfer.id]).toContainEqual(expectedError);
 
                 // check final balances
                 expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
@@ -122,7 +123,7 @@ describe("Transaction Guard", () => {
                 .withPassphrase(delegate0.secret)
                 .build();
 
-            await guard.validate(transfers.map(tx => tx.data));
+            await processor.validate(transfers.map(tx => tx.data));
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance);
             expect(+newWallet.balance).toBe(0);
@@ -146,8 +147,8 @@ describe("Transaction Guard", () => {
                 .withFee(fee)
                 .withPassphrase(delegate1.secret)
                 .build();
-            await guard.validate(transfers.map(tx => tx.data));
-            expect(guard.errors).toEqual({});
+            await processor.validate(transfers.map(tx => tx.data));
+            expect(processor.errors).toEqual({});
 
             // simulate forged transaction
             const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
@@ -168,7 +169,7 @@ describe("Transaction Guard", () => {
 
             expect(+delegateWallet.balance).toBe(+delegate2.balance);
             expect(+newWallet.balance).toBe(0);
-            expect(guard.errors).toEqual({});
+            expect(processor.errors).toEqual({});
 
             const amount1 = +delegateWallet.balance / 2;
             const fee = 0.1 * 10 ** 8;
@@ -201,21 +202,21 @@ describe("Transaction Guard", () => {
             });
 
             // first validate the 1st transfer so that new wallet is updated with the amount
-            await guard.validate(transfers.map(tx => tx.data));
+            await processor.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
             const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], newWallet);
 
-            expect(guard.errors).toEqual({});
+            expect(processor.errors).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
 
-            // reset guard, if not the 1st transaction will still be in this.accept and mess up
-            guard = new TransactionGuard(transactionPool);
+            // reset processor, if not the 1st transaction will still be in this.accept and mess up
+            processor = new Processor(transactionPool);
 
-            await guard.validate([votes[0].data, delegateRegs[0].data, signatures[0].data]);
+            await processor.validate([votes[0].data, delegateRegs[0].data, signatures[0].data]);
 
-            expect(guard.errors).toEqual({});
+            expect(processor.errors).toEqual({});
             expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1 - voteFee - delegateRegFee - signatureFee);
         });
@@ -242,7 +243,7 @@ describe("Transaction Guard", () => {
                 .withNetwork("unitnet")
                 .withPassphrase(delegate3.secret)
                 .build();
-            await guard.validate(transfers1.map(tx => tx.data));
+            await processor.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
             const transactionHandler = TransactionHandlerRegistry.get(transfers1[0].type);
@@ -257,7 +258,7 @@ describe("Transaction Guard", () => {
                 .withNetwork("unitnet")
                 .withPassphrase(newWalletPassphrase)
                 .build();
-            await guard.validate(transfers2.map(tx => tx.data));
+            await processor.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
             transactionHandler.applyToRecipient(transfers2[0], delegateWallet);
@@ -288,7 +289,7 @@ describe("Transaction Guard", () => {
             ];
 
             for (const transaction of allTransactions) {
-                await guard.validate(transaction.map(tx => tx.data));
+                await processor.validate(transaction.map(tx => tx.data));
 
                 const errorExpected = [
                     {
@@ -296,7 +297,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_APPLY",
                     },
                 ];
-                expect(guard.errors[transaction[0].id]).toEqual(errorExpected);
+                expect(processor.errors[transaction[0].id]).toEqual(errorExpected);
 
                 expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee + amount2);
                 expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
@@ -310,7 +311,7 @@ describe("Transaction Guard", () => {
                 .withPassphrase(delegates[0].secret)
                 .create(2);
 
-            const result = await guard.validate(transactions);
+            const result = await processor.validate(transactions);
 
             expect(result.errors[transactions[1].id]).toEqual([
                 {
@@ -340,7 +341,7 @@ describe("Transaction Guard", () => {
             // we change the receiver in lastTransaction to prevent having 2 exact
             // same transactions with same id (if not, could be same as transactions[0])
 
-            const result = await guard.validate(transactions.concat(lastTransaction));
+            const result = await processor.validate(transactions.concat(lastTransaction));
 
             expect(result.errors).toEqual(null);
         });
@@ -371,7 +372,7 @@ describe("Transaction Guard", () => {
 
                 const allTransactions = transactions.concat(lastTransaction);
 
-                const result = await guard.validate(allTransactions);
+                const result = await processor.validate(allTransactions);
 
                 expect(Object.keys(result.errors).length).toBe(1);
                 expect(result.errors[lastTransaction[0].id]).toEqual([
@@ -394,7 +395,7 @@ describe("Transaction Guard", () => {
             const transactionId = transactions[0].id;
             transactions[0].id = "a".repeat(64);
 
-            const result = await guard.validate(transactions);
+            const result = await processor.validate(transactions);
             expect(result.accept).toEqual([transactionId]);
             expect(result.broadcast).toEqual([transactionId]);
             expect(result.errors).toBeNull();
@@ -412,11 +413,11 @@ describe("Transaction Guard", () => {
                     .build()[0],
             ];
 
-            const result = await guard.validate(delegateRegistrations.map(transaction => transaction.data));
+            const result = await processor.validate(delegateRegistrations.map(transaction => transaction.data));
             expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
 
             delegateRegistrations.forEach(tx => {
-                expect(guard.errors[tx.id]).toEqual([
+                expect(processor.errors[tx.id]).toEqual([
                     {
                         type: "ERR_CONFLICT",
                         message: `Multiple delegate registrations for "${
@@ -466,7 +467,7 @@ describe("Transaction Guard", () => {
                         senderPublicKey: wallets2ndSig[1].keys.publicKey,
                     }),
                 ];
-                const result = await guard.validate(modifiedTransactions);
+                const result = await processor.validate(modifiedTransactions);
 
                 const expectedErrors = [
                     ...[...transfers, ...transfers2ndSigned].map(transfer => [
@@ -530,7 +531,7 @@ describe("Transaction Guard", () => {
                         senderPublicKey: wallets2ndSig[50].keys.publicKey,
                     }),
                 ];
-                const result = await guard.validate(modifiedTransactions);
+                const result = await processor.validate(modifiedTransactions);
 
                 const expectedErrors = [
                     ...[...delegateRegs, ...delegateRegs2ndSigned].map(transfer => [
@@ -586,7 +587,7 @@ describe("Transaction Guard", () => {
                         senderPublicKey: wallets2ndSig[50].keys.publicKey,
                     }),
                 ];
-                const result = await guard.validate(modifiedTransactions);
+                const result = await processor.validate(modifiedTransactions);
 
                 const expectedErrors = [
                     ...votes.map(tx => [tx.id, "ERR_BAD_DATA", "Transaction didn't pass the verification process."]),
@@ -627,7 +628,7 @@ describe("Transaction Guard", () => {
                 const modifiedTransactions = modifiedFields2ndSig.map((objField, index) =>
                     Object.assign({}, secondSigs[index], objField),
                 );
-                const result = await guard.validate(modifiedTransactions);
+                const result = await processor.validate(modifiedTransactions);
 
                 expect(
                     Object.keys(result.errors).map(id => [id, result.errors[id][0].type, result.errors[id][0].message]),
@@ -693,7 +694,7 @@ describe("Transaction Guard", () => {
                     .create();
                 await addBlock(transfers);
 
-                const result = await guard.validate(transfers);
+                const result = await processor.validate(transfers);
 
                 expect(result.errors).toEqual(forgedErrorMessage(transfers[0].id));
             });
@@ -708,7 +709,7 @@ describe("Transaction Guard", () => {
                 const realTransferId = transfers[0].id;
                 transfers[0].id = "c".repeat(64);
 
-                const result = await guard.validate(transfers);
+                const result = await processor.validate(transfers);
 
                 expect(result.errors).toEqual(forgedErrorMessage(realTransferId));
             });
@@ -721,7 +722,9 @@ describe("Transaction Guard", () => {
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
                 .build();
-            expect(guard.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(transactions.map(tx => tx.data));
+            expect(processor.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(
+                transactions.map(tx => tx.data),
+            );
         });
 
         it("should not add a transaction already in cache and add it as an error", () => {
@@ -729,9 +732,11 @@ describe("Transaction Guard", () => {
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[11].passphrase)
                 .build();
-            expect(guard.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(transactions.map(tx => tx.data));
-            expect(guard.__cacheTransactions([transactions[0].data])).toEqual([]);
-            expect(guard.errors).toEqual({
+            expect(processor.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(
+                transactions.map(tx => tx.data),
+            );
+            expect(processor.__cacheTransactions([transactions[0].data])).toEqual([]);
+            expect(processor.errors).toEqual({
                 [transactions[0].id]: [
                     {
                         message: "Already in cache.",
@@ -741,4 +746,525 @@ describe("Transaction Guard", () => {
             });
         });
     });
+
+    // describe("__cacheTransactions", () => {
+    //     it("should add transactions to cache", () => {
+    //         const transactions = TransactionFactory.transfer(wallets[11].address, 35)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[10].passphrase)
+    //             .create(3);
+    //         jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
+
+    //         expect(processor.__cacheTransactions(transactions)).toEqual(transactions);
+    //     });
+
+    //     it("should not add a transaction already in cache and add it as an error", () => {
+    //         const transactions = TransactionFactory.transfer(wallets[12].address, 35)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[11].passphrase)
+    //             .create(3);
+
+    //         jest.spyOn(state, "cacheTransactions")
+    //             .mockReturnValueOnce({ added: transactions, notAdded: [] })
+    //             .mockReturnValueOnce({ added: [], notAdded: [transactions[0]] });
+
+    //         expect(processor.__cacheTransactions(transactions)).toEqual(transactions);
+    //         expect(processor.__cacheTransactions([transactions[0]])).toEqual([]);
+    //         expect(processor.errors).toEqual({
+    //             [transactions[0].id]: [
+    //                 {
+    //                     message: "Already in cache.",
+    //                     type: "ERR_DUPLICATE",
+    //                 },
+    //             ],
+    //         });
+    //     });
+    // });
+
+    // describe("getBroadcastTransactions", () => {
+    //     it("should return broadcast transaction", async () => {
+    //         const transactions = TransactionFactory.transfer(wallets[11].address, 25)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[10].passphrase)
+    //             .build(3);
+
+    //         jest.spyOn(state, "cacheTransactions").mockReturnValueOnce({ added: transactions, notAdded: [] });
+
+    //         for (const tx of transactions) {
+    //             processor.broadcast.set(tx.id, tx);
+    //         }
+
+    //         expect(processor.getBroadcastTransactions()).toEqual(transactions);
+    //     });
+    // });
+
+    // describe("__filterAndTransformTransactions", () => {
+    //     it("should reject duplicate transactions", () => {
+    //         const transactionExists = processor.pool.transactionExists;
+    //         processor.pool.transactionExists = jest.fn(() => true);
+
+    //         const tx = { id: "1" };
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id]).toEqual([
+    //             {
+    //                 message: `Duplicate transaction ${tx.id}`,
+    //                 type: "ERR_DUPLICATE",
+    //             },
+    //         ]);
+
+    //         processor.pool.transactionExists = transactionExists;
+    //     });
+
+    //     it("should reject blocked senders", () => {
+    //         const transactionExists = processor.pool.transactionExists;
+    //         processor.pool.transactionExists = jest.fn(() => false);
+    //         const isSenderBlocked = processor.pool.isSenderBlocked;
+    //         processor.pool.isSenderBlocked = jest.fn(() => true);
+
+    //         const tx = { id: "1", senderPublicKey: "affe" };
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id]).toEqual([
+    //             {
+    //                 message: `Transaction ${tx.id} rejected. Sender ${tx.senderPublicKey} is blocked.`,
+    //                 type: "ERR_SENDER_BLOCKED",
+    //             },
+    //         ]);
+
+    //         processor.pool.isSenderBlocked = isSenderBlocked;
+    //         processor.pool.transactionExists = transactionExists;
+    //     });
+
+    //     it("should reject transactions that are too large", () => {
+    //         const tx = TransactionFactory.transfer(wallets[12].address)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[11].passphrase)
+    //             .build(3)[0];
+
+    //         // @FIXME: Uhm excuse me, what the?
+    //         tx.data.signatures = [""];
+    //         for (let i = 0; i < transactionPool.options.maxTransactionBytes; i++) {
+    //             // @ts-ignore
+    //             tx.data.signatures += "1";
+    //         }
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id]).toEqual([
+    //             {
+    //                 message: `Transaction ${tx.id} is larger than ${
+    //                     transactionPool.options.maxTransactionBytes
+    //                 } bytes.`,
+    //                 type: "ERR_TOO_LARGE",
+    //             },
+    //         ]);
+    //     });
+
+    //     it("should reject transactions from the future", () => {
+    //         const now = 47157042; // seconds since genesis block
+    //         const transactionExists = processor.pool.transactionExists;
+    //         processor.pool.transactionExists = jest.fn(() => false);
+    //         const getTime = Crypto.slots.getTime;
+    //         Crypto.slots.getTime = jest.fn(() => now);
+
+    //         const secondsInFuture = 3601;
+    //         const tx = {
+    //             id: "1",
+    //             senderPublicKey: "affe",
+    //             timestamp: Crypto.slots.getTime() + secondsInFuture,
+    //         };
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id]).toEqual([
+    //             {
+    //                 message: `Transaction ${tx.id} is ${secondsInFuture} seconds in the future`,
+    //                 type: "ERR_FROM_FUTURE",
+    //             },
+    //         ]);
+
+    //         Crypto.slots.getTime = getTime;
+    //         processor.pool.transactionExists = transactionExists;
+    //     });
+
+    //     it("should accept transaction with correct network byte", () => {
+    //         const transactionExists = processor.pool.transactionExists;
+    //         processor.pool.transactionExists = jest.fn(() => false);
+
+    //         const canApply = processor.pool.walletManager.canApply;
+    //         processor.pool.walletManager.canApply = jest.fn(() => true);
+
+    //         const tx = {
+    //             id: "1",
+    //             network: 23,
+    //             type: Enums.TransactionTypes.Transfer,
+    //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+    //             recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
+    //         };
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id]).not.toEqual([
+    //             {
+    //                 message: `Transaction network '${tx.network}' does not match '${Managers.configManager.get(
+    //                     "pubKeyHash",
+    //                 )}'`,
+    //                 type: "ERR_WRONG_NETWORK",
+    //             },
+    //         ]);
+
+    //         processor.pool.transactionExists = transactionExists;
+    //         processor.pool.walletManager.canApply = canApply;
+    //     });
+
+    //     it("should accept transaction with missing network byte", () => {
+    //         const transactionExists = processor.pool.transactionExists;
+    //         processor.pool.transactionExists = jest.fn(() => false);
+
+    //         const canApply = processor.pool.walletManager.canApply;
+    //         processor.pool.walletManager.canApply = jest.fn(() => true);
+
+    //         const tx = {
+    //             id: "1",
+    //             type: Enums.TransactionTypes.Transfer,
+    //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+    //             recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
+    //         };
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id].type).not.toEqual("ERR_WRONG_NETWORK");
+
+    //         processor.pool.transactionExists = transactionExists;
+    //         processor.pool.walletManager.canApply = canApply;
+    //     });
+
+    //     it("should not accept transaction with wrong network byte", () => {
+    //         const transactionExists = processor.pool.transactionExists;
+    //         processor.pool.transactionExists = jest.fn(() => false);
+
+    //         const canApply = processor.pool.walletManager.canApply;
+    //         processor.pool.walletManager.canApply = jest.fn(() => true);
+
+    //         const tx = {
+    //             id: "1",
+    //             network: 2,
+    //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
+    //         };
+    //         processor.__filterAndTransformTransactions([tx]);
+
+    //         expect(processor.errors[tx.id]).toEqual([
+    //             {
+    //                 message: `Transaction network '${tx.network}' does not match '${Managers.configManager.get(
+    //                     "pubKeyHash",
+    //                 )}'`,
+    //                 type: "ERR_WRONG_NETWORK",
+    //             },
+    //         ]);
+
+    //         processor.pool.transactionExists = transactionExists;
+    //         processor.pool.walletManager.canApply = canApply;
+    //     });
+
+    //     it("should not accept transaction if pool hasExceededMaxTransactions and add it to excess", () => {
+    //         const transactions = TransactionFactory.transfer(wallets[11].address, 35)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[10].passphrase)
+    //             .create(3);
+
+    //         jest.spyOn(processor.pool, "hasExceededMaxTransactions").mockImplementationOnce(tx => true);
+
+    //         processor.__filterAndTransformTransactions(transactions);
+
+    //         expect(processor.excess).toEqual([transactions[0].id]);
+    //         expect(processor.accept).toEqual(new Map());
+    //         expect(processor.broadcast).toEqual(new Map());
+    //     });
+
+    //     it("should push a ERR_UNKNOWN error if something threw in validated transaction block", () => {
+    //         const transactions = TransactionFactory.transfer(wallets[11].address, 35)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[10].passphrase)
+    //             .build(3);
+
+    //         // use processor.accept.set() call to introduce a throw
+    //         jest.spyOn(processor.pool.walletManager, "canApply").mockImplementationOnce(() => {
+    //             throw new Error("hey");
+    //         });
+
+    //         processor.__filterAndTransformTransactions(transactions.map(tx => tx.data));
+
+    //         expect(processor.accept).toEqual(new Map());
+    //         expect(processor.broadcast).toEqual(new Map());
+    //         expect(processor.errors[transactions[0].id]).toEqual([
+    //             {
+    //                 message: `hey`,
+    //                 type: "ERR_UNKNOWN",
+    //             },
+    //         ]);
+    //     });
+    // });
+
+    // describe("__validateTransaction", () => {
+    //     it("should not validate when recipient is not on the same network", async () => {
+    //         const transactions = TransactionFactory.transfer("DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY", 35)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[10].passphrase)
+    //             .create(3);
+
+    //         expect(processor.__validateTransaction(transactions[0])).toBeFalse();
+    //         expect(processor.errors).toEqual({
+    //             [transactions[0].id]: [
+    //                 {
+    //                     type: "ERR_INVALID_RECIPIENT",
+    //                     message: `Recipient ${
+    //                         transactions[0].recipientId
+    //                     } is not on the same network: ${Managers.configManager.get("network.pubKeyHash")}`,
+    //                 },
+    //             ],
+    //         });
+    //     });
+
+    //     it("should not validate a delegate registration if an existing registration for the same username from a different wallet exists in the pool", async () => {
+    //         const delegateRegistrations = [
+    //             TransactionFactory.delegateRegistration("test_delegate")
+    //                 .withNetwork("unitnet")
+    //                 .withPassphrase(wallets[16].passphrase)
+    //                 .build()[0],
+    //             TransactionFactory.delegateRegistration("test_delegate")
+    //                 .withNetwork("unitnet")
+    //                 .withPassphrase(wallets[17].passphrase)
+    //                 .build()[0],
+    //         ];
+    //         const memPoolTx = new MemPoolTransaction(delegateRegistrations[0]);
+    //         jest.spyOn(processor.pool, "getTransactionsByType").mockReturnValueOnce(new Set([memPoolTx]));
+
+    //         expect(processor.__validateTransaction(delegateRegistrations[1].data)).toBeFalse();
+    //         expect(processor.errors[delegateRegistrations[1].id]).toEqual([
+    //             {
+    //                 type: "ERR_PENDING",
+    //                 message: `Delegate registration for "${
+    //                     delegateRegistrations[1].data.asset.delegate.username
+    //                 }" already in the pool`,
+    //             },
+    //         ]);
+    //     });
+
+    //     it("should not validate when sender has same type transactions in the pool (only for 2nd sig, delegate registration, vote)", async () => {
+    //         jest.spyOn(processor.pool.walletManager, "canApply").mockImplementation(() => true);
+    //         jest.spyOn(processor.pool, "senderHasTransactionsOfType").mockReturnValue(true);
+    //         const vote = TransactionFactory.vote(delegates[0].publicKey)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[10].passphrase)
+    //             .build()[0];
+
+    //         const delegateReg = TransactionFactory.delegateRegistration()
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[11].passphrase)
+    //             .build()[0];
+
+    //         const signature = TransactionFactory.secondSignature(wallets[12].passphrase)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[12].passphrase)
+    //             .build()[0];
+
+    //         for (const tx of [vote, delegateReg, signature]) {
+    //             expect(processor.__validateTransaction(tx.data)).toBeFalse();
+    //             expect(processor.errors[tx.id]).toEqual([
+    //                 {
+    //                     type: "ERR_PENDING",
+    //                     message:
+    //                         `Sender ${tx.data.senderPublicKey} already has a transaction of type ` +
+    //                         `'${Enums.TransactionTypes[tx.type]}' in the pool`,
+    //                 },
+    //             ]);
+    //         }
+
+    //         jest.restoreAllMocks();
+    //     });
+
+    //     it("should not validate unsupported transaction types", async () => {
+    //         jest.spyOn(processor.pool.walletManager, "canApply").mockImplementation(() => true);
+
+    //         // use a random transaction as a base - then play with type
+    //         const baseTransaction = TransactionFactory.delegateRegistration()
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(wallets[11].passphrase)
+    //             .build()[0];
+
+    //         for (const transactionType of [
+    //             Enums.TransactionTypes.MultiSignature,
+    //             Enums.TransactionTypes.Ipfs,
+    //             Enums.TransactionTypes.TimelockTransfer,
+    //             Enums.TransactionTypes.MultiPayment,
+    //             Enums.TransactionTypes.DelegateResignation,
+    //             99,
+    //         ]) {
+    //             baseTransaction.data.type = transactionType;
+    //             // @FIXME: Uhm excuse me, what the?
+    //             // @ts-ignore
+    //             baseTransaction.data.id = transactionType;
+
+    //             expect(processor.__validateTransaction(baseTransaction)).toBeFalse();
+    //             expect(processor.errors[baseTransaction.id]).toEqual([
+    //                 {
+    //                     type: "ERR_UNSUPPORTED",
+    //                     message: `Invalidating transaction of unsupported type '${
+    //                         Enums.TransactionTypes[transactionType]
+    //                     }'`,
+    //                 },
+    //             ]);
+    //         }
+
+    //         jest.restoreAllMocks();
+    //     });
+    // });
+
+    // describe("__removeForgedTransactions", () => {
+    //     it("should remove forged transactions", async () => {
+    //         const transfers = TransactionFactory.transfer(delegates[0].senderPublicKey)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(delegates[0].secret)
+    //             .build(4);
+
+    //         transfers.forEach(tx => {
+    //             processor.accept.set(tx.id, tx);
+    //             processor.broadcast.set(tx.id, tx);
+    //         });
+
+    //         const forgedTx = transfers[2];
+    //         jest.spyOn(database, "getForgedTransactionsIds").mockReturnValueOnce([forgedTx.id]);
+
+    //         await processor.__removeForgedTransactions();
+
+    //         expect(processor.accept.size).toBe(3);
+    //         expect(processor.broadcast.size).toBe(3);
+
+    //         expect(processor.errors[forgedTx.id]).toHaveLength(1);
+    //         expect(processor.errors[forgedTx.id][0].type).toEqual("ERR_FORGED");
+    //     });
+    // });
+
+    // describe("__addTransactionsToPool", () => {
+    //     it("should add transactions to the pool", () => {
+    //         const transfers = TransactionFactory.transfer(delegates[0].senderPublicKey)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(delegates[0].secret)
+    //             .create(4);
+
+    //         transfers.forEach(tx => {
+    //             processor.accept.set(tx.id, tx);
+    //             processor.broadcast.set(tx.id, tx);
+    //         });
+
+    //         expect(processor.errors).toEqual({});
+    //         jest.spyOn(processor.pool, "addTransactions").mockReturnValueOnce({ added: transfers, notAdded: [] });
+
+    //         processor.__addTransactionsToPool();
+
+    //         expect(processor.errors).toEqual({});
+    //         expect(processor.accept.size).toBe(4);
+    //         expect(processor.broadcast.size).toBe(4);
+    //     });
+
+    //     it("should delete from accept and broadcast transactions that were not added to the pool", () => {
+    //         const added = TransactionFactory.transfer(delegates[0].address)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(delegates[0].secret)
+    //             .build(2);
+    //         const notAddedError = { type: "ERR_TEST", message: "" };
+    //         const notAdded = TransactionFactory.transfer(delegates[1].address)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(delegates[0].secret)
+    //             .build(2)
+    //             .map(tx => ({
+    //                 transaction: tx,
+    //                 ...notAddedError,
+    //             }));
+
+    //         added.forEach(tx => {
+    //             processor.accept.set(tx.id, tx);
+    //             processor.broadcast.set(tx.id, tx);
+    //         });
+    //         notAdded.forEach(tx => {
+    //             processor.accept.set(tx.transaction.id, tx);
+    //             processor.broadcast.set(tx.transaction.id, tx);
+    //         });
+
+    //         jest.spyOn(processor.pool, "addTransactions").mockReturnValueOnce({ added, notAdded });
+    //         processor.__addTransactionsToPool();
+
+    //         expect(processor.accept.size).toBe(2);
+    //         expect(processor.broadcast.size).toBe(2);
+
+    //         expect(processor.errors[notAdded[0].transaction.id]).toEqual([notAddedError]);
+    //         expect(processor.errors[notAdded[1].transaction.id]).toEqual([notAddedError]);
+    //     });
+
+    //     it("should delete from accept but keep in broadcast transactions that were not added to the pool because of ERR_POOL_FULL", () => {
+    //         const added = TransactionFactory.transfer(delegates[0].address)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(delegates[0].secret)
+    //             .build(2);
+
+    //         const notAddedError = { type: "ERR_POOL_FULL", message: "" };
+    //         const notAdded = TransactionFactory.transfer(delegates[1].address)
+    //             .withNetwork("unitnet")
+    //             .withPassphrase(delegates[0].secret)
+    //             .build(2)
+    //             .map(tx => ({
+    //                 transaction: tx,
+    //                 ...notAddedError,
+    //             }));
+
+    //         added.forEach(tx => {
+    //             processor.accept.set(tx.id, tx);
+    //             processor.broadcast.set(tx.id, tx);
+    //         });
+    //         notAdded.forEach(tx => {
+    //             processor.accept.set(tx.transaction.id, tx);
+    //             processor.broadcast.set(tx.transaction.id, tx);
+    //         });
+
+    //         jest.spyOn(processor.pool, "addTransactions").mockReturnValueOnce({ added, notAdded });
+    //         processor.__addTransactionsToPool();
+
+    //         expect(processor.accept.size).toBe(2);
+    //         expect(processor.broadcast.size).toBe(4);
+
+    //         expect(processor.errors[notAdded[0].transaction.id]).toEqual([notAddedError]);
+    //         expect(processor.errors[notAdded[1].transaction.id]).toEqual([notAddedError]);
+    //     });
+    // });
+
+    // describe("pushError", () => {
+    //     it("should have error for transaction", () => {
+    //         expect(processor.errors).toBeEmpty();
+
+    //         processor.pushError({ id: 1 }, "ERR_INVALID", "Invalid.");
+
+    //         expect(processor.errors).toBeObject();
+    //         expect(processor.errors["1"]).toBeArray();
+    //         expect(processor.errors["1"]).toHaveLength(1);
+    //         expect(processor.errors["1"]).toEqual([{ message: "Invalid.", type: "ERR_INVALID" }]);
+
+    //         expect(processor.invalid.size).toEqual(1);
+    //         expect(processor.invalid.entries().next().value[1]).toEqual({ id: 1 });
+    //     });
+
+    //     it("should have multiple errors for transaction", () => {
+    //         expect(processor.errors).toBeEmpty();
+
+    //         processor.pushError({ id: 1 }, "ERR_INVALID", "Invalid 1.");
+    //         processor.pushError({ id: 1 }, "ERR_INVALID", "Invalid 2.");
+
+    //         expect(processor.errors).toBeObject();
+    //         expect(processor.errors["1"]).toBeArray();
+    //         expect(processor.errors["1"]).toHaveLength(2);
+    //         expect(processor.errors["1"]).toEqual([
+    //             { message: "Invalid 1.", type: "ERR_INVALID" },
+    //             { message: "Invalid 2.", type: "ERR_INVALID" },
+    //         ]);
+
+    //         expect(processor.invalid.size).toEqual(1);
+    //         expect(processor.invalid.entries().next().value[1]).toEqual({ id: 1 });
+    //     });
+    // });
 });

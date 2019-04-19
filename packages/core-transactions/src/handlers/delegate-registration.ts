@@ -47,18 +47,22 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         emitter.emit("delegate.registered", transaction.data);
     }
 
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
-        if (this.typeFromSenderAlreadyInPool(data, guard)) {
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
         const { username } = data.asset.delegate;
-        const delegateRegistrationsSameNameInPayload = guard.transactions.filter(
-            tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username,
-        );
+        const delegateRegistrationsSameNameInPayload = processor
+            .getTransactions()
+            .filter(tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username);
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
-            guard.pushError(
+            processor.pushError(
                 data,
                 "ERR_CONFLICT",
                 `Multiple delegate registrations for "${username}" in transaction payload`,
@@ -67,14 +71,14 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            guard.pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
+            pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
         ).map((memTx: any) => memTx.transaction.data);
 
         const containsDelegateRegistrationForSameNameInPool = delegateRegistrationsInPool.some(
             transaction => transaction.asset.delegate.username === username,
         );
         if (containsDelegateRegistrationForSameNameInPool) {
-            guard.pushError(data, "ERR_PENDING", `Delegate registration for "${username}" already in the pool`);
+            processor.pushError(data, "ERR_PENDING", `Delegate registration for "${username}" already in the pool`);
             return false;
         }
 

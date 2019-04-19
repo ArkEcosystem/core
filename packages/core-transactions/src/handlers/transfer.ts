@@ -28,9 +28,13 @@ export class TransferTransactionHandler extends TransactionHandler {
         return;
     }
 
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
         if (!isRecipientOnActiveNetwork(data)) {
-            guard.pushError(
+            processor.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
                 `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(

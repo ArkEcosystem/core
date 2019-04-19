@@ -1,180 +1,44 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { Dato } from "@faustbrian/dato";
+import { IProcessor } from "./processor";
 
 export interface IAddTransactionResponse {
-    success: boolean;
-}
-
-export interface IAddTransactionErrorResponse extends IAddTransactionResponse {
-    transaction: Interfaces.ITransaction;
-    type: string;
-    message: string;
-    success: boolean;
+    transaction?: Interfaces.ITransaction;
+    type?: string;
+    message?: string;
 }
 
 export interface IConnection {
-    options: any;
-    loggedAllowedSenders: string[];
-    walletManager: any;
+    makeProcessor(): IProcessor;
 
     make(): Promise<this>;
-
-    /**
-     * Get a driver instance.
-     */
-    driver(): () => any;
-
-    /**
-     * Disconnect from transaction pool.
-     * @return {void}
-     */
     disconnect(): void;
-
-    /**
-     * Get the number of transactions in the pool.
-     */
     getPoolSize(): number;
-
-    /**
-     * Get the number of transactions in the pool from a specific sender\
-     */
     getSenderSize(senderPublicKey: string): number;
-
-    /**
-     * Add many transactions to the pool.
-     * @param {Array}   transactions, already transformed and verified
-     * by transaction guard - must have serialized field
-     * @return {Object} like
-     * {
-     *   added: [ ... successfully added transactions ... ],
-     *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
-     * }
-     */
     addTransactions(
         transactions: Interfaces.ITransaction[],
     ): {
         added: Interfaces.ITransaction[];
-        notAdded: IAddTransactionErrorResponse[];
+        notAdded: IAddTransactionResponse[];
     };
-
-    /**
-     * Add a transaction to the pool.
-     */
-    addTransaction(transaction: Interfaces.ITransaction): IAddTransactionResponse;
-
-    /**
-     * Remove a transaction from the pool by transaction object.
-     * @param  {Transaction} transaction
-     * @return {void}
-     */
-    removeTransaction(transaction: Interfaces.ITransaction): void;
-
-    /**
-     * Remove a transaction from the pool by id.
-     */
-    removeTransactionById(id: string, senderPublicKey?: string): void;
-
-    /**
-     * Get all transactions that are ready to be forged.
-     */
-    getTransactionsForForging(blockSize: number): string[];
-
-    /**
-     * Get a transaction by transaction id.
-     */
-    getTransaction(id: string): Interfaces.ITransaction;
-
-    /**
-     * Get all transactions within the specified range [start, start + size), ordered by fee.
-     * @return {(Array|void)} array of serialized transaction hex strings
-     */
-    getTransactions(start: number, size: number, maxBytes?: number): Buffer[];
-
-    /**
-     * Get all transactions within the specified range [start, start + size).
-     * @return {Array} array of transactions IDs in the specified range
-     */
-    getTransactionIdsForForging(start: number, size: number): string[];
-
-    /**
-     * Get data from all transactions within the specified range [start, start + size).
-     * Transactions are ordered by fee (highest fee first) or by
-     * insertion time, if fees equal (earliest transaction first).
-     * @return {Array} array of transaction[property]
-     */
-    getTransactionsData(start: number, size: number, property: string, maxBytes?: number): string[] | Buffer[];
-
-    /**
-     *  Get all transactions of a given type from the pool.
-     */
-    getTransactionsByType(type: any): any;
-
-    /**
-     * Remove all transactions from the transaction pool belonging to specific sender.
-     */
-    removeTransactionsForSender(senderPublicKey: string): void;
-
-    /**
-     * Check whether sender of transaction has exceeded max transactions in queue.
-     */
-    hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean;
-
-    /**
-     * Flush the pool (delete all transactions from it).
-     */
-    flush(): void;
-
-    /**
-     * Checks if a transaction exists in the pool.
-     */
-    transactionExists(transactionId: string): any;
-
-    /**
-     * Check if transaction sender is blocked
-     * @return {Boolean}
-     */
-    isSenderBlocked(senderPublicKey: string): boolean;
-
-    /**
-     * Blocks sender for a specified time
-     */
-    blockSender(senderPublicKey: string): Dato;
-
-    /**
-     * Processes recently accepted block by the blockchain.
-     * It removes block transaction from the pool and adjusts
-     * pool wallets for non existing transactions.
-     *
-     * @param  {Object} block
-     * @return {void}
-     */
     acceptChainedBlock(block: Interfaces.IBlock): void;
-
-    /**
-     * Rebuild pool manager wallets
-     * Removes all the wallets from pool manager and applies transaction from pool - if any
-     * It waits for the node to sync, and then check the transactions in pool
-     * and validates them and apply to the pool manager.
-     */
+    blockSender(senderPublicKey: string): Dato;
     buildWallets(): Promise<void>;
-
+    flush(): void;
+    getTransaction(id: string): Interfaces.ITransaction;
+    getTransactionIdsForForging(start: number, size: number): string[];
+    getTransactions(start: number, size: number, maxBytes?: number): Buffer[];
+    getTransactionsByType(type: any): any;
+    getTransactionsData<T>(start: number, size: number, property: string, maxBytes?: number): T[];
+    getTransactionsForForging(blockSize: number): string[];
+    has(transactionId: string): any;
+    hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean;
+    isSenderBlocked(senderPublicKey: string): boolean;
+    purgeByBlock(block: Interfaces.IBlock): void;
     purgeByPublicKey(senderPublicKey: string): void;
-
-    /**
-     * Purges all transactions from senders with at least one
-     * invalid transaction.
-     */
     purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void;
-
-    /**
-     * Purges all transactions from the block.
-     * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
-     */
-    purgeBlock(block: Interfaces.IBlock): void;
-
-    /**
-     * Check whether a given sender has any transactions of the specified type
-     * in the pool.
-     */
+    removeTransaction(transaction: Interfaces.ITransaction): void;
+    removeTransactionById(id: string, senderPublicKey?: string): void;
+    removeTransactionsForSender(senderPublicKey: string): void;
     senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean;
 }

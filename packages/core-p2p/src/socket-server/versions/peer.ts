@@ -1,15 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
-import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { isBlockChained } from "../../../../core-utils/dist";
 import { MissingCommonBlockError } from "../../errors";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
-
-const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export async function acceptNewPeer({ service, req }: { service: P2P.IPeerService; req }): Promise<void> {
     const peer = { ip: req.data.ip };
@@ -81,15 +77,18 @@ export async function postBlock({ req }): Promise<void> {
 }
 
 export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
-    const guard: TransactionPool.IGuard = new TransactionGuard(transactionPool);
-    const result: TransactionPool.IValidationResult = await guard.validate(req.data.transactions);
+    const processor: TransactionPool.IProcessor = app
+        .resolvePlugin<TransactionPool.IConnection>("transaction-pool")
+        .makeProcessor();
+
+    const result: TransactionPool.IProcessorResult = await processor.validate(req.data.transactions);
 
     if (result.invalid.length > 0) {
         throw new InvalidTransactionsError();
     }
 
     if (result.broadcast.length > 0) {
-        service.getMonitor().broadcastTransactions(guard.getBroadcastTransactions());
+        service.getMonitor().broadcastTransactions(processor.getBroadcastTransactions());
     }
 
     return result.accept;
@@ -112,7 +111,7 @@ export async function getBlocks({ req }): Promise<Interfaces.IBlockData[]> {
         blocks = await database.getBlocks(reqBlockHeight, 400);
     }
 
-    logger.info(
+    app.resolvePlugin<Logger.ILogger>("logger").info(
         `${req.headers.remoteAddress} has downloaded ${pluralize("block", blocks.length, true)} from height ${(!isNaN(
             reqBlockHeight,
         )

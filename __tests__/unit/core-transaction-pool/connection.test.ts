@@ -10,7 +10,7 @@ import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
-import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/mem-pool-transaction";
+import { MemPoolTransaction } from "../../../packages/core-transaction-pool/src/pool-transaction";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { block2, delegates } from "../../utils/fixtures/unitnet";
 import { transactions as mockData } from "./__fixtures__/transactions";

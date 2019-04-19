@@ -65,7 +65,11 @@ export class VoteTransactionHandler extends TransactionHandler {
         });
     }
 
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, guard);
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
     }
 }
