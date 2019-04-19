@@ -12,6 +12,18 @@ import {
 import { ITransactionHandler } from "../interfaces";
 
 export abstract class TransactionHandler implements ITransactionHandler {
+    // TODO: merge with canBeApplied ?
+    // just a quick hack to get multi sig working
+    public verify(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): boolean {
+        const { data } = transaction;
+        const senderWallet = walletManager.findByPublicKey(data.senderPublicKey);
+        if (senderWallet.multisignature) {
+            transaction.isVerified = senderWallet.verifySignatures(data);
+        }
+
+        return transaction.isVerified;
+    }
+
     public abstract getConstructor(): Transactions.TransactionConstructor;
 
     /**

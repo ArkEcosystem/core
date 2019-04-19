@@ -101,7 +101,8 @@ export class TransactionGuard implements TransactionPool.IGuard {
                 try {
                     const receivedId = transaction.id;
                     const trx = Transactions.TransactionFactory.fromData(transaction);
-                    if (trx.verified) {
+                    const handler = TransactionHandlerRegistry.get(trx.type);
+                    if (handler.verify(trx, this.pool.walletManager)) {
                         const applyErrors = [];
                         if (this.pool.walletManager.canApply(trx, applyErrors)) {
                             const dynamicFee = dynamicFeeMatcher(trx);

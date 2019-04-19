@@ -27,7 +27,7 @@ export interface IWallet {
 
     verifySignatures(
         transaction: Interfaces.ITransactionData,
-        multisignature: Interfaces.IMultiSignatureAsset,
+        multisignature?: Interfaces.IMultiSignatureAsset,
     ): boolean;
 }
 

@@ -5,6 +5,7 @@ import { ITransaction, ITransactionJson } from "./transactions";
 export interface IBlockVerification {
     verified: boolean;
     errors: string[];
+    containsMultiSignatures: boolean;
 }
 
 export interface IBlock {
@@ -15,6 +16,7 @@ export interface IBlock {
 
     getHeader(): IBlockData;
     verifySignature(): boolean;
+    verify(): IBlockVerification;
 
     toString(): string;
     toJson(): IBlockJson;
