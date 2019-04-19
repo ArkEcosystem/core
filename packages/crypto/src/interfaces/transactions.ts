@@ -134,4 +134,5 @@ export interface IMultiSignatureAsset {
 export interface ISerializeOptions {
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
+    excludeMultiSignature?: boolean;
 }

@@ -126,11 +126,18 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             this.data.signatures = [];
         }
 
+        this.version(2);
+
         // TOOD: move to crypto?
         // TOOD: sanity checks (index < 16, etc.)
 
         const keys: IKeyPair = Keys.fromPassphrase(passphrase);
-        const signature = Transaction.sign(this.getSigningObject(), keys);
+        const signature = Transaction.sign(this.getSigningObject(), keys, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+            excludeMultiSignature: true,
+        });
+
         const indexHex = numberToHex(index);
         this.data.signatures.push(`${indexHex}${signature}`);
 
@@ -142,7 +149,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public getStruct(): ITransactionData {
-        if (!this.data.senderPublicKey || !this.data.signature) {
+        if (!this.data.senderPublicKey || (!this.data.signature && !this.data.signatures)) {
             throw new MissingTransactionSignatureError();
         }
 

@@ -233,11 +233,14 @@ export class Serializer {
             buffer.append(secondSignature, "hex");
         }
 
-        if (transaction.signatures && !options.excludeSignature) {
+        if (transaction.signatures) {
+            // TODO: check if still relevant
             if (transaction.version === 1) {
                 buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
+                buffer.append(transaction.signatures.join(""), "hex");
+            } else if (!options.excludeMultiSignature) {
+                buffer.append(transaction.signatures.join(""), "hex");
             }
-            buffer.append(transaction.signatures.join(""), "hex");
         }
     }
 }

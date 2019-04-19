@@ -62,11 +62,12 @@ export abstract class Transaction implements ITransaction {
         return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
     }
 
-    public static sign(transaction: ITransactionData, keys: IKeyPair): string {
-        const hash: Buffer = Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+    public static sign(transaction: ITransactionData, keys: IKeyPair, options?: ISerializeOptions): string {
+        options = options || { excludeSignature: true, excludeSecondSignature: true };
+        const hash: Buffer = Transaction.getHash(transaction, options);
         const signature: string = transaction.version === 2 ? Hash.signSchnorr(hash, keys) : Hash.signECDSA(hash, keys);
 
-        if (!transaction.signature) {
+        if (!transaction.signature && !options.excludeMultiSignature) {
             transaction.signature = signature;
         }
 

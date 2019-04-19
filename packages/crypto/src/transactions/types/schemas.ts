@@ -47,7 +47,11 @@ export const transactionBaseSchema = {
 };
 
 const signedTransaction = {
-    required: ["id", "signature"],
+    anyOf: [
+        { required: ["id", "signature"] },
+        { required: ["id", "signature", "signatures"] },
+        { required: ["id", "signatures"] },
+    ],
 };
 
 const strictTransaction = {
