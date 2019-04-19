@@ -92,11 +92,12 @@ export abstract class Transaction implements ITransaction {
             return false;
         }
 
-        return Hash.verifyECDSA(
-            Transaction.getHash(transaction, { excludeSecondSignature: true }),
-            secondSignature,
-            publicKey,
-        );
+        const hash = Transaction.getHash(transaction, { excludeSecondSignature: true });
+        if (transaction.version === 2) {
+            return Hash.verifySchnorr(hash, secondSignature, publicKey);
+        } else {
+            return Hash.verifyECDSA(hash, secondSignature, publicKey);
+        }
     }
 
     public isVerified: boolean;
