@@ -627,6 +627,12 @@
                 },
                 {
                     "run": {
+                        "name": "Install lerna",
+                        "command": "source ~/.bashrc && nvm use 10 && npm install -g lerna"
+                    }
+                },
+                {
+                    "run": {
                         "name": "Docker swarm init",
                         "command": "docker swarm init"
                     }
