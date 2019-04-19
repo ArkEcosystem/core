@@ -628,7 +628,7 @@
                 {
                     "run": {
                         "name": "Install lerna",
-                        "command": "source ~/.bashrc && nvm use 10 && yarn add lerna"
+                        "command": "source ~/.bashrc && nvm use 10 && yarn add lerna -W"
                     }
                 },
                 {

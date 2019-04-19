@@ -695,7 +695,7 @@ jobs:
             apt-get install yarn
       - run:
           name: Install lerna
-          command: source ~/.bashrc && nvm use 10 && yarn add lerna
+          command: source ~/.bashrc && nvm use 10 && yarn add lerna -W
       - run:
           name: Docker swarm init
           command: docker swarm init
