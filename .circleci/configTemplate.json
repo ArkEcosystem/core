@@ -657,7 +657,7 @@
                 {
                     "run": {
                         "name": "Generate files",
-                        "command": "source ~/.bashrc && nvm use 10 && node --version && __tests__/e2e/bin/e2e generate -c 3"
+                        "command": "source ~/.bashrc && nvm use 10 && node --version && cd __tests__/e2e && bin/e2e generate -c 3"
                     }
                 },
                 {
@@ -675,7 +675,7 @@
                 {
                     "run": {
                         "name": "Run tests",
-                        "command": "source ~/.bashrc && nvm use 10 && sudo __tests__/e2e/bin/e2e run-tests -s scenario1"
+                        "command": "source ~/.bashrc && nvm use 10 && cd __tests__/e2e && sudo bin/e2e run-tests -s scenario1"
                     }
                 },
                 {
