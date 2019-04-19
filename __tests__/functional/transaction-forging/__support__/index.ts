@@ -55,6 +55,7 @@ export async function expectAcceptAndBroadcast(transactions, id): Promise<void> 
         console.log(body.errors);
     }
 
+    expect(body.errors).toBeNull();
     expect(body.data.accept).toContain(id);
     expect(body.data.broadcast).toContain(id);
 }

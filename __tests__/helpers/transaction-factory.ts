@@ -83,6 +83,7 @@ export class TransactionFactory {
     private passphraseList: string[];
     private passphrasePairs: PassphrasePair[];
     private version: number;
+    private senderPublicKey: string;
 
     public constructor(builder) {
         this.builder = builder;
@@ -102,6 +103,12 @@ export class TransactionFactory {
 
     public withHeight(height: number): TransactionFactory {
         Managers.configManager.setHeight(height);
+
+        return this;
+    }
+
+    public withSenderPublicKey(sender: string): TransactionFactory {
+        this.senderPublicKey = sender;
 
         return this;
     }
@@ -194,16 +201,25 @@ export class TransactionFactory {
                 this.builder.fee(this.fee.toFixed());
             }
 
+            if (this.senderPublicKey) {
+                this.builder.senderPublicKey(this.senderPublicKey);
+            }
+
+            let sign = true;
             if (this.passphraseList && this.passphraseList.length) {
+                sign = this.builder.constructor.name === "MultiSignatureBuilder";
                 for (let i = 0; i < this.passphraseList.length; i++) {
                     const passphrase = this.passphraseList[i];
                     this.builder.multiSign(passphrase, i);
                 }
             }
 
-            this.builder.sign(this.passphrase);
-            if (this.secondPassphrase) {
-                this.builder.secondSign(this.secondPassphrase);
+            if (sign) {
+                this.builder.sign(this.passphrase);
+
+                if (this.secondPassphrase) {
+                    this.builder.secondSign(this.secondPassphrase);
+                }
             }
 
             transactions.push(this.builder[method]());

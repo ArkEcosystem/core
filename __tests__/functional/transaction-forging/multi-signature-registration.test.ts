@@ -32,14 +32,13 @@ describe("Transaction Forging - Multi Signature Registration", () => {
             .withPassphraseList(passphrases)
             .create();
 
-        console.error(multiSignature);
-
         await support.expectAcceptAndBroadcast(multiSignature, multiSignature[0].id);
         await support.snoozeForBlock(1);
         await support.expectTransactionForged(multiSignature[0].id);
     });
 
-    it.only("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
+    it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
+        const passphrase = secrets[2];
         // Make a fresh wallet for the second signature tests
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
@@ -59,7 +58,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Register a multi signature wallet with defaults
-        const passphrases = [passphrase, secrets[1], secrets[2]];
+        const passphrases = [passphrase, secrets[3], secrets[4]];
         const participants = [
             Identities.PublicKey.fromPassphrase(passphrases[0]),
             Identities.PublicKey.fromPassphrase(passphrases[1]),
@@ -67,8 +66,8 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         ];
 
         const multiSignature = TransactionFactory.multiSignature(participants, 3)
-            .withPassphrasePair({ passphrase, secondPassphrase })
             .withPassphraseList(passphrases)
+            .withPassphrasePair({ passphrase, secondPassphrase })
             .create();
 
         await support.expectAcceptAndBroadcast(multiSignature, multiSignature[0].id);

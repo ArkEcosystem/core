@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
-import { Constants, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Constants, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -545,7 +545,8 @@ describe("MultiSignatureRegistrationTransaction", () => {
         wallet.balance = Utils.BigNumber.make(100390000000);
         wallet.publicKey = transaction.senderPublicKey;
 
-        recipientWallet = new Wallet("ARUejF6aYhoY9n6iwmAykPbx47F7wuc86J");
+        const multiSignatureAddress = Identities.Address.fromMultiSignatureAsset(instance.data.asset.multiSignature);
+        recipientWallet = new Wallet(multiSignatureAddress);
         recipientWallet.balance = Utils.BigNumber.make(0);
 
         walletManager.reindex(wallet);
