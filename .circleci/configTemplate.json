@@ -602,6 +602,92 @@
                     }
                 }
             ]
+        },
+        "test-node10-e2e": {
+            "machine": true,
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Adjustments for sudo env variables",
+                        "command": "n=$(which node) && n=${n%/bin/node} && chmod -R 755 $n/bin/* && sudo cp -r $n/{bin,lib,share} /usr/local && n=$(which npm) && n=${n%/bin/npm} && chmod -R 755 $n/bin/* && sudo cp -r $n/{bin,lib,share} /usr/local"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install n and update node version",
+                        "command": "sudo npm install -g n && sudo n 10 && source ~/.bashrc && nvm install 10 && nvm use 10"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Docker swarm init",
+                        "command": "docker swarm init"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "ark-e2e-{{ checksum \"__tests__/e2e/package.json\" }}-1"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn bootstrap && yarn build && cd __tests__/e2e && yarn install"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "ark-e2e-{{ checksum \"__tests__/e2e/package.json\" }}-1",
+                        "paths": ["__tests__/e2e/node_modules"]
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate files",
+                        "command": "source ~/.bashrc && nvm use 10 && node --version && __tests__/e2e/bin/e2e generate -c 3"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Make scripts executable",
+                        "command": "sudo chmod +x __tests__/e2e/dist/docker* && sudo chmod +x __tests__/e2e/dist/node0/docker/testnet-e2e/entrypoint.sh && sudo chmod +x __tests__/e2e/dist/node1/docker/testnet-e2e/entrypoint.sh && sudo chmod +x __tests__/e2e/dist/node2/docker/testnet-e2e/entrypoint.sh && sudo chmod +x __tests__/e2e/dist/node0/ark.sh && sudo chmod +x __tests__/e2e/dist/node1/ark.sh && sudo chmod +x __tests__/e2e/dist/node2/ark.sh"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Docker init and start",
+                        "command": "cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Run tests",
+                        "command": "sudo __tests__/e2e/bin/e2e run-tests -s scenario1"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Output results - node0",
+                        "when": "always",
+                        "command": "cat __tests__/e2e/dist/node0/output.log && cat __tests__/e2e/dist/node0/errors.log"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Output results - node1",
+                        "when": "always",
+                        "command": "cat __tests__/e2e/dist/node1/output.log && cat __tests__/e2e/dist/node1/errors.log"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Output results - node2",
+                        "when": "always",
+                        "command": "cat __tests__/e2e/dist/node2/output.log && cat __tests__/e2e/dist/node2/errors.log"
+                    }
+                }
+            ]
         }
     },
     "workflows": {
