@@ -1,11 +1,34 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { Blocks, Enums, Interfaces } from "@arkecosystem/crypto";
 import { Dato } from "@faustbrian/dato";
+import { ITransactionsProcessed } from "../../../../packages/core-transaction-pool/src/interfaces";
+import { Memory } from "../../../../packages/core-transaction-pool/src/memory";
+import { Storage } from "../../../../packages/core-transaction-pool/src/storage";
+import { WalletManager } from "../../../../packages/core-transaction-pool/src/wallet-manager";
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;
     public loggedAllowedSenders: string[];
     public walletManager: any;
+    public memory: any;
+    public storage: any;
+
+    constructor({
+        options,
+        walletManager,
+        memory,
+        storage,
+    }: {
+        options: Record<string, any>;
+        walletManager: WalletManager;
+        memory: Memory;
+        storage: Storage;
+    }) {
+        this.options = options;
+        this.walletManager = walletManager;
+        this.memory = memory;
+        this.storage = storage;
+    }
 
     public async make(): Promise<this> {
         return this;
@@ -27,12 +50,7 @@ export class Connection implements TransactionPool.IConnection {
         return 0;
     }
 
-    public addTransactions(
-        transactions: Interfaces.ITransaction[],
-    ): {
-        added: Interfaces.ITransaction[];
-        notAdded: TransactionPool.IAddTransactionErrorResponse[];
-    } {
+    public addTransactions(transactions: Interfaces.ITransaction[]): ITransactionsProcessed {
         return { added: [], notAdded: [] };
     }
 
@@ -64,7 +82,7 @@ export class Connection implements TransactionPool.IConnection {
         return null;
     }
 
-    public getTransactionsData(start: number, size: number, property: string, maxBytes?: number): string[] | Buffer[] {
+    public getTransactionsData<T>(start: number, size: number, property: string, maxBytes?: number): T[] {
         return null;
     }
 
@@ -84,7 +102,11 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public transactionExists(transactionId: string): any {
+    public makeProcessor(): TransactionPool.IProcessor {
+        return null;
+    }
+
+    public has(transactionId: string): any {
         return;
     }
 
@@ -112,7 +134,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public purgeBlock(block: Blocks.Block): void {
+    public purgeByBlock(block: Blocks.Block): void {
         return;
     }
 

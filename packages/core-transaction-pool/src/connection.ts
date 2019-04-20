@@ -12,8 +12,10 @@ import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
 export class Connection implements TransactionPool.IConnection {
-    private readonly options: Record<string, any>;
-    private readonly walletManager: WalletManager;
+    // @TODO: make this private, requires some bigger changes to tests
+    public options: Record<string, any>;
+    // @TODO: make this private, requires some bigger changes to tests
+    public walletManager: WalletManager;
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];

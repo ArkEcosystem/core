@@ -4,7 +4,7 @@ import { Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import camelCase from "lodash.camelcase";
 import { IDynamicFeeMatch } from "./interfaces";
 
-function calculateMinimumFee(satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber {
+export function calculateMinimumFee(satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber {
     if (satoshiPerByte <= 0) {
         satoshiPerByte = 1;
     }
