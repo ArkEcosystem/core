@@ -74,7 +74,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     return defaults;
                 }
 
-                if (name === "transactionPool") {
+                if (name === "transaction-pool") {
                     return null;
                 }
 
