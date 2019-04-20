@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { Container } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container, TransactionPool } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
-import { Processor } from "../../../packages/core-transaction-pool/src/processor";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
@@ -15,9 +14,9 @@ import { setUpFull, tearDownFull } from "./__support__/setup";
 // import { delegates, wallets } from "../../utils/fixtures/unitnet";
 
 let container: Container.IContainer;
-let processor;
-let transactionPool;
-let blockchain;
+let processor: TransactionPool.IProcessor;
+let transactionPool: TransactionPool.IConnection;
+let blockchain: Blockchain.IBlockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
@@ -32,7 +31,7 @@ afterAll(async () => {
 
 beforeEach(() => {
     transactionPool.flush();
-    processor = transactionPool.createProcessor();
+    processor = transactionPool.makeProcessor();
 });
 
 describe("Transaction Guard", () => {
@@ -95,7 +94,7 @@ describe("Transaction Guard", () => {
                     message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
                     type: "ERR_APPLY",
                 };
-                expect(processor.errors[transfer.id]).toContainEqual(expectedError);
+                expect(processor.getErrors()[transfer.id]).toContainEqual(expectedError);
 
                 // check final balances
                 expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
@@ -148,7 +147,7 @@ describe("Transaction Guard", () => {
                 .withPassphrase(delegate1.secret)
                 .build();
             await processor.validate(transfers.map(tx => tx.data));
-            expect(processor.errors).toEqual({});
+            expect(processor.getErrors()).toEqual({});
 
             // simulate forged transaction
             const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
@@ -169,7 +168,7 @@ describe("Transaction Guard", () => {
 
             expect(+delegateWallet.balance).toBe(+delegate2.balance);
             expect(+newWallet.balance).toBe(0);
-            expect(processor.errors).toEqual({});
+            expect(processor.getErrors()).toEqual({});
 
             const amount1 = +delegateWallet.balance / 2;
             const fee = 0.1 * 10 ** 8;
@@ -208,15 +207,15 @@ describe("Transaction Guard", () => {
             const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], newWallet);
 
-            expect(processor.errors).toEqual({});
+            expect(processor.getErrors()).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
 
             // reset processor, if not the 1st transaction will still be in this.accept and mess up
-            processor = new Processor(transactionPool);
+            processor = transactionPool.makeProcessor();
 
             await processor.validate([votes[0].data, delegateRegs[0].data, signatures[0].data]);
 
-            expect(processor.errors).toEqual({});
+            expect(processor.getErrors()).toEqual({});
             expect(+delegateWallet.balance).toBe(+delegate2.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1 - voteFee - delegateRegFee - signatureFee);
         });
@@ -297,7 +296,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_APPLY",
                     },
                 ];
-                expect(processor.errors[transaction[0].id]).toEqual(errorExpected);
+                expect(processor.getErrors()[transaction[0].id]).toEqual(errorExpected);
 
                 expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee + amount2);
                 expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
@@ -417,7 +416,7 @@ describe("Transaction Guard", () => {
             expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
 
             delegateRegistrations.forEach(tx => {
-                expect(processor.errors[tx.id]).toEqual([
+                expect(processor.getErrors()[tx.id]).toEqual([
                     {
                         type: "ERR_CONFLICT",
                         message: `Multiple delegate registrations for "${
@@ -717,26 +716,30 @@ describe("Transaction Guard", () => {
     });
 
     describe("__cacheTransactions", () => {
-        it("should add transactions to cache", () => {
+        it("should add transactions to cache", async () => {
             const transactions = TransactionFactory.transfer(wallets[11].address, 35)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[10].passphrase)
                 .build();
-            expect(processor.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(
-                transactions.map(tx => tx.data),
-            );
+
+            await processor.validate(transactions.map(tx => tx.data));
+
+            expect(processor.getTransactions()).toEqual(transactions.map(tx => tx.data));
         });
 
-        it("should not add a transaction already in cache and add it as an error", () => {
+        it("should not add a transaction already in cache and add it as an error", async () => {
             const transactions = TransactionFactory.transfer(wallets[12].address, 35)
                 .withNetwork("unitnet")
                 .withPassphrase(wallets[11].passphrase)
                 .build();
-            expect(processor.__cacheTransactions(transactions.map(tx => tx.data))).toEqual(
-                transactions.map(tx => tx.data),
-            );
-            expect(processor.__cacheTransactions([transactions[0].data])).toEqual([]);
-            expect(processor.errors).toEqual({
+
+            await processor.validate(transactions.map(tx => tx.data));
+            expect(processor.getTransactions()).toEqual(transactions.map(tx => tx.data));
+
+            await processor.validate([transactions[0].data]);
+            expect(processor.getTransactions()).toEqual([]);
+
+            expect(processor.getErrors()).toEqual({
                 [transactions[0].id]: [
                     {
                         message: "Already in cache.",
@@ -746,6 +749,9 @@ describe("Transaction Guard", () => {
             });
         });
     });
+
+    // @TODO: review and remove tests that are no longer needed.
+    // Those used to be unit tests but their behaviour is already covered by integration tests.
 
     // describe("__cacheTransactions", () => {
     //     it("should add transactions to cache", () => {

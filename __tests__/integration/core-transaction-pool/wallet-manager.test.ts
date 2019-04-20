@@ -2,6 +2,7 @@ import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
+import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
@@ -9,15 +10,13 @@ import { setUpFull, tearDownFull } from "./__support__/setup";
 
 const satoshi = 1e8;
 let container: Container.IContainer;
-let PoolWalletManager;
-let poolWalletManager;
+let poolWalletManager: WalletManager;
 let blockchain: Blockchain.IBlockchain;
 
 beforeAll(async () => {
     container = await setUpFull();
 
-    PoolWalletManager = require("../../../packages/core-transaction-pool/src").PoolWalletManager;
-    poolWalletManager = new PoolWalletManager();
+    poolWalletManager = new WalletManager();
     blockchain = container.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 });
 
@@ -25,20 +24,20 @@ afterAll(async () => {
     await tearDownFull();
 });
 
-describe("canApply", () => {
+describe("throwIfApplyingFails", () => {
     it("should add an error for delegate registration when username is already taken", () => {
         const delegateReg = TransactionFactory.delegateRegistration("genesis_11")
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
-        const errors = [];
 
-        expect(poolWalletManager.canApply(delegateReg, errors)).toBeFalse();
-        expect(errors).toEqual([
-            `Failed to apply transaction, because the username '${
-                delegateReg.data.asset.delegate.username
-            }' is already registered.`,
-        ]);
+        expect(() => poolWalletManager.throwIfApplyingFails(delegateReg)).toThrow(
+            JSON.stringify([
+                `Failed to apply transaction, because the username '${
+                    delegateReg.data.asset.delegate.username
+                }' is already registered.`,
+            ]),
+        );
     });
 
     it("should add an error when voting for a delegate that doesn't exist", () => {
@@ -46,10 +45,10 @@ describe("canApply", () => {
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
-        const errors = [];
 
-        expect(poolWalletManager.canApply(vote, errors)).toBeFalse();
-        expect(errors).toEqual([`Failed to apply transaction, because only delegates can be voted.`]);
+        expect(() => poolWalletManager.throwIfApplyingFails(vote)).toThrow(
+            JSON.stringify([`Failed to apply transaction, because only delegates can be voted.`]),
+        );
     });
 });
 
@@ -145,15 +144,16 @@ describe("applyPoolTransactionToSender", () => {
                     .resolvePlugin<Database.IDatabaseService>("database")
                     .walletManager.findByPublicKey(transfer.data.senderPublicKey);
 
-                const errors = [];
-                if (poolWalletManager.canApply(transfer, errors)) {
+                try {
+                    poolWalletManager.throwIfApplyingFails(transfer);
+
                     const senderWallet = poolWalletManager.findByPublicKey(transfer.data.senderPublicKey);
                     transactionHandler.applyToSender(transfer, senderWallet);
 
                     expect(t.from).toBe(delegate);
-                } else {
+                } catch (error) {
                     expect(t.from).toBe(walletsGen[0]);
-                    expect(errors).toEqual(["Insufficient balance in the wallet."]);
+                    expect(error.message).toEqual(JSON.stringify(["Insufficient balance in the wallet."]));
                 }
 
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(

@@ -29,7 +29,11 @@ export class WalletManager extends BaseWalletManager {
             const senderAddress: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
-                throw new Error("Cold wallet is not allowed to send until receiving transaction is confirmed.");
+                const message: string = "Cold wallet is not allowed to send until receiving transaction is confirmed.";
+
+                this.logger.error(message);
+
+                throw new Error(JSON.stringify([message]));
             }
         }
 
@@ -47,11 +51,13 @@ export class WalletManager extends BaseWalletManager {
                     this.databaseService.walletManager,
                 );
             } catch (error) {
-                throw new Error(
+                this.logger.error(
                     `[PoolWalletManager] Can't apply transaction ${transaction.id} from ${
                         sender.address
                     } due to ${JSON.stringify(error.message)}`,
                 );
+
+                throw new Error(JSON.stringify([error.message]));
             }
         }
     }
