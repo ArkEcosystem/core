@@ -11,7 +11,7 @@ const args = {
     options: defaults,
     walletManager: new WalletManager(),
     memory: new Memory(),
-    storage: new Storage(defaults.storage),
+    storage: new Storage(),
 };
 
 describe("Transaction Pool Manager", () => {
