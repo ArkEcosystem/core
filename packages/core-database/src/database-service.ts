@@ -533,7 +533,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
-        const sender: Database.IWallet = this.walletManager.findByAddress(senderId); // should exist
+        const sender: Database.IWallet = this.walletManager.findByAddress(senderId);
         const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
         if (!sender.publicKey) {

@@ -358,7 +358,7 @@ describe("Transactions Business Repository", () => {
 
         it("should return no rows if senderId is an invalid address", async () => {
             databaseService.walletManager = {
-                exists: addressOrPublicKey => false,
+                has: addressOrPublicKey => false,
             } as Database.IWalletManager;
             databaseService.connection.transactionsRepository = {
                 search: async parameters => parameters,
@@ -375,7 +375,7 @@ describe("Transactions Business Repository", () => {
 
         it("should lookup senders address from senderId", async () => {
             databaseService.walletManager = {
-                exists: addressOrPublicKey => true,
+                has: addressOrPublicKey => true,
                 findByAddress: address => ({ publicKey: "pubKey" }),
             } as Database.IWalletManager;
 
@@ -487,10 +487,10 @@ describe("Transactions Business Repository", () => {
             }));
 
             databaseService.walletManager = {
-                exists: addressOrPublicKey => false,
+                has: addressOrPublicKey => false,
             } as Database.IWalletManager;
 
-            jest.spyOn(databaseService.walletManager, "exists").mockReturnValue(false);
+            jest.spyOn(databaseService.walletManager, "has").mockReturnValue(false);
 
             await transactionsBusinessRepository.search({
                 addresses: ["addy1", "addy2"],
@@ -513,8 +513,8 @@ describe("Transactions Business Repository", () => {
                     ]),
                 }),
             );
-            expect(databaseService.walletManager.exists).toHaveBeenNthCalledWith(1, "addy1");
-            expect(databaseService.walletManager.exists).toHaveBeenNthCalledWith(2, "addy2");
+            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(1, "addy1");
+            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(2, "addy2");
         });
 
         it("should cache blocks if cache-miss ", async () => {

@@ -1,133 +1,106 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { ITransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
-import { Mem } from "./mem";
-import { MemPoolTransaction } from "./mem-pool-transaction";
-import { PoolWalletManager } from "./pool-wallet-manager";
+import { ITransactionsProcessed } from "./interfaces";
+import { Memory } from "./memory";
+import { MemoryTransaction } from "./memory-transaction";
+import { Processor } from "./processor";
 import { Storage } from "./storage";
+import { WalletManager } from "./wallet-manager";
 
-/**
- * Transaction pool. It uses a hybrid storage - caching the data
- * in memory and occasionally saving it to a persistent, on-disk storage (SQLite),
- * every N modifications, and also during shutdown. The operations that only read
- * data (everything other than add or remove transaction) are served from the
- * in-memory storage.
- */
 export class Connection implements TransactionPool.IConnection {
-    public walletManager: PoolWalletManager;
-    public mem: Mem;
-    public storage: Storage;
-    public loggedAllowedSenders: string[];
-    private blockedByPublicKey: { [key: string]: Dato };
+    // @TODO: make this private, requires some bigger changes to tests
+    public options: Record<string, any>;
+    // @TODO: make this private, requires some bigger changes to tests
+    public walletManager: WalletManager;
+    private readonly memory: Memory;
+    private readonly storage: Storage;
+    private readonly loggedAllowedSenders: string[] = [];
+    private readonly blockedByPublicKey: { [key: string]: Dato } = {};
+    private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
+        "database",
+    );
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    private readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    private readonly emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
-
-    /**
-     * Create a new transaction pool instance.
-     * @param  {Object} options
-     */
-    constructor(public options) {
-        this.walletManager = new PoolWalletManager();
-        this.blockedByPublicKey = {};
+    constructor({
+        options,
+        walletManager,
+        memory,
+        storage,
+    }: {
+        options: Record<string, any>;
+        walletManager: WalletManager;
+        memory: Memory;
+        storage: Storage;
+    }) {
+        this.options = options;
+        this.walletManager = walletManager;
+        this.memory = memory;
+        this.storage = storage;
     }
 
-    /**
-     * Make the transaction pool instance. Load all transactions in the pool from
-     * the on-disk database, saved there from a previous run.
-     * @return {TransactionPool}
-     */
     public async make(): Promise<this> {
-        this.mem = new Mem();
-        this.storage = new Storage(this.options.storage);
-        this.loggedAllowedSenders = [];
+        this.memory.flush();
+        this.storage.connect(this.options.storage);
 
-        const all = this.storage.loadAll();
-        all.forEach(t => this.mem.add(t, this.options.maxTransactionAge, true));
+        const all: MemoryTransaction[] = this.storage.loadAll();
 
-        this.__purgeExpired();
+        for (const transaction of all) {
+            this.memory.remember(transaction, this.options.maxTransactionAge, true);
+        }
 
-        // Remove transactions that were forged while we were offline.
-        const allIds = all.map(memPoolTransaction => memPoolTransaction.transaction.id);
+        this.purgeExpired();
 
-        const forgedIds = await this.databaseService.getForgedTransactionsIds(allIds);
+        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
+            all.map((transaction: MemoryTransaction) => transaction.transaction.id),
+        );
 
-        forgedIds.forEach(id => this.removeTransactionById(id));
+        for (const id of forgedIds) {
+            this.removeTransactionById(id);
+        }
 
         return this;
     }
 
-    /**
-     * Get a driver instance.
-     * @return {TransactionPoolInterface}
-     */
-    public driver() {
-        return this.driver;
+    public disconnect(): void {
+        this.syncToPersistentStorage();
+        this.storage.disconnect();
     }
 
-    /**
-     * Disconnect from transaction pool.
-     */
-    public disconnect() {
-        this.__syncToPersistentStorage();
-        this.storage.close();
+    public makeProcessor(): TransactionPool.IProcessor {
+        return new Processor(this, this.walletManager);
     }
 
-    /**
-     * Get all transactions of a given type from the pool.
-     * @param {Number} type of transaction
-     * @return {Set of MemPoolTransaction} all transactions of the given type, could be empty Set
-     */
-    public getTransactionsByType(type) {
-        this.__purgeExpired();
+    public getTransactionsByType(type: number): Set<MemoryTransaction> {
+        this.purgeExpired();
 
-        return this.mem.getByType(type);
+        return this.memory.getByType(type);
     }
 
-    /**
-     * Get the number of transactions in the pool.
-     */
     public getPoolSize(): number {
-        this.__purgeExpired();
+        this.purgeExpired();
 
-        return this.mem.getSize();
+        return this.memory.count();
     }
 
-    /**
-     * Get the number of transactions in the pool from a specific sender
-     */
     public getSenderSize(senderPublicKey: string): number {
-        this.__purgeExpired();
+        this.purgeExpired();
 
-        return this.mem.getBySender(senderPublicKey).size;
+        return this.memory.getBySender(senderPublicKey).size;
     }
 
-    /**
-     * Add many transactions to the pool.
-     * @param {Array}   transactions, already transformed and verified
-     * by transaction guard - must have serialized field
-     * @return {Object} like
-     * {
-     *   added: [ ... successfully added transactions ... ],
-     *   notAdded: [ { transaction: Transaction, type: String, message: String }, ... ]
-     * }
-     */
-    public addTransactions(transactions: Interfaces.ITransaction[]) {
-        const added = [];
-        const notAdded = [];
+    public addTransactions(transactions: Interfaces.ITransaction[]): ITransactionsProcessed {
+        const added: Interfaces.ITransaction[] = [];
+        const notAdded: TransactionPool.IAddTransactionResponse[] = [];
 
         for (const transaction of transactions) {
-            const result = this.addTransaction(transaction);
+            const result: TransactionPool.IAddTransactionResponse = this.addTransaction(transaction);
 
-            if (result.success) {
-                added.push(transaction);
-            } else {
-                notAdded.push(result);
-            }
+            result.message ? notAdded.push(result) : added.push(transaction);
         }
 
         if (added.length > 0) {
@@ -141,140 +114,57 @@ export class Connection implements TransactionPool.IConnection {
         return { added, notAdded };
     }
 
-    /**
-     * Add a transaction to the pool.
-     * @param {Transaction} transaction
-     * @return {Object} The success property indicates wether the transaction was successfully added
-     * and applied to the pool or not. In case it was not successful, the type and message
-     * property yield information about the error.
-     */
-    public addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
-        if (this.transactionExists(transaction.id)) {
-            this.logger.debug(
-                "Transaction pool: ignoring attempt to add a transaction that is already " +
-                    `in the pool, id: ${transaction.id}`,
-            );
-
-            return this.__createError(transaction, "ERR_ALREADY_IN_POOL", "Already in pool");
-        }
-
-        const poolSize = this.mem.getSize();
-
-        if (this.options.maxTransactionsInPool <= poolSize) {
-            // The pool can't accommodate more transactions. Either decline the newcomer or remove
-            // an existing transaction from the pool in order to free up space.
-            const all = this.mem.getTransactionsOrderedByFee();
-            const lowest = all[all.length - 1].transaction;
-
-            const fee = transaction.data.fee as Utils.BigNumber;
-            const lowestFee = lowest.data.fee as Utils.BigNumber;
-
-            if (lowestFee.isLessThan(fee)) {
-                this.walletManager.revertTransactionForSender(lowest);
-                this.mem.remove(lowest.id, lowest.data.senderPublicKey);
-            } else {
-                return this.__createError(
-                    transaction,
-                    "ERR_POOL_FULL",
-                    `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
-                        `${fee.toFixed()} is not higher than the lowest fee already in pool ` +
-                        `${lowestFee.toFixed()}`,
-                );
-            }
-        }
-
-        this.mem.add(new MemPoolTransaction(transaction), this.options.maxTransactionAge);
-
-        // Apply transaction to pool wallet manager.
-        const senderWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
-
-        // TODO: rework error handling
-        const errors = [];
-        if (this.walletManager.canApply(transaction, errors)) {
-            const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
-            transactionHandler.applyToSender(transaction, senderWallet);
-        } else {
-            // Remove tx again from the pool
-            this.mem.remove(transaction.id);
-            return this.__createError(transaction, "ERR_APPLY", JSON.stringify(errors));
-        }
-
-        this.__syncToPersistentStorageIfNecessary();
-        return { success: true };
-    }
-
-    /**
-     * Remove a transaction from the pool by transaction.
-     */
-    public removeTransaction(transaction: Interfaces.ITransaction) {
+    public removeTransaction(transaction: Interfaces.ITransaction): void {
         this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
-    /**
-     * Remove a transaction from the pool by id.
-     */
-    public removeTransactionById(id: string, senderPublicKey?: string) {
-        this.mem.remove(id, senderPublicKey);
+    public removeTransactionById(id: string, senderPublicKey?: string): void {
+        this.memory.forget(id, senderPublicKey);
 
-        this.__syncToPersistentStorageIfNecessary();
+        this.syncToPersistentStorageIfNecessary();
 
         this.emitter.emit("transaction.pool.removed", id);
     }
 
-    /**
-     * Get all transactions that are ready to be forged.
-     */
+    public getTransaction(id: string): Interfaces.ITransaction {
+        this.purgeExpired();
+
+        return this.memory.getById(id);
+    }
+
+    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
+        return this.getTransactionsData<Buffer>(start, size, "serialized", maxBytes);
+    }
+
     public getTransactionsForForging(blockSize: number): string[] {
         return this.getTransactions(0, blockSize, this.options.maxTransactionBytes).map(tx => tx.toString("hex"));
     }
 
-    /**
-     * Get a transaction by transaction id.
-     */
-    public getTransaction(id: string): Interfaces.ITransaction {
-        this.__purgeExpired();
-
-        return this.mem.getTransactionById(id);
-    }
-
-    /**
-     * Get all transactions within the specified range [start, start + size), ordered by fee.
-     */
-    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
-        return this.getTransactionsData(start, size, "serialized", maxBytes) as Buffer[];
-    }
-
-    /**
-     * Get all transactions within the specified range [start, start + size).
-     */
     public getTransactionIdsForForging(start: number, size: number): string[] {
-        return this.getTransactionsData(start, size, "id", this.options.maxTransactionBytes) as string[];
+        return this.getTransactionsData<string>(start, size, "id", this.options.maxTransactionBytes);
     }
 
-    /**
-     * Get data from all transactions within the specified range [start, start + size).
-     * Transactions are ordered by fee (highest fee first) or by
-     * insertion time, if fees equal (earliest transaction first).
-     */
-    public getTransactionsData(start: number, size: number, property: string, maxBytes = 0): string[] | Buffer[] {
-        this.__purgeExpired();
+    public getTransactionsData<T>(start: number, size: number, property: string, maxBytes: number = 0): T[] {
+        this.purgeExpired();
 
-        const data = [];
+        const data: T[] = [];
 
-        let transactionBytes = 0;
+        let transactionBytes: number = 0;
 
         let i = 0;
-        for (const memPoolTransaction of this.mem.getTransactionsOrderedByFee()) {
+        for (const MemoryTransaction of this.memory.allSortedByFee()) {
             if (i >= start + size) {
                 break;
             }
 
             if (i >= start) {
-                let pushTransaction = false;
-                assert.notStrictEqual(memPoolTransaction.transaction[property], undefined);
+                let pushTransaction: boolean = false;
+
+                assert.notStrictEqual(MemoryTransaction.transaction[property], undefined);
+
                 if (maxBytes > 0) {
-                    // Only add the transaction if it will not make the total payload size exceed the maximum
-                    const transactionSize = JSON.stringify(memPoolTransaction.transaction.data).length;
+                    const transactionSize: number = JSON.stringify(MemoryTransaction.transaction.data).length;
+
                     if (transactionBytes + transactionSize <= maxBytes) {
                         transactionBytes += transactionSize;
                         pushTransaction = true;
@@ -282,8 +172,9 @@ export class Connection implements TransactionPool.IConnection {
                 } else {
                     pushTransaction = true;
                 }
+
                 if (pushTransaction) {
-                    data.push(memPoolTransaction.transaction[property]);
+                    data.push(MemoryTransaction.transaction[property]);
                     i++;
                 }
             } else {
@@ -294,18 +185,15 @@ export class Connection implements TransactionPool.IConnection {
         return data;
     }
 
-    /**
-     * Remove all transactions from the transaction pool belonging to specific sender.
-     */
-    public removeTransactionsForSender(senderPublicKey: string) {
-        this.mem.getBySender(senderPublicKey).forEach(e => this.removeTransactionById(e.transaction.id));
+    public removeTransactionsForSender(senderPublicKey: string): void {
+        for (const transaction of this.memory.getBySender(senderPublicKey)) {
+            this.removeTransactionById(transaction.transaction.id);
+        }
     }
 
-    /**
-     * Check whether sender of transaction has exceeded max transactions in queue.
-     */
+    // @TODO: move this to a more appropriate place
     public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
-        this.__purgeExpired();
+        this.purgeExpired();
 
         if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
@@ -314,44 +202,33 @@ export class Connection implements TransactionPool.IConnection {
                         transaction.senderPublicKey
                     } (listed in options.allowedSenders), thus skipping throttling.`,
                 );
+
                 this.loggedAllowedSenders.push(transaction.senderPublicKey);
             }
 
             return false;
         }
 
-        const count = this.mem.getBySender(transaction.senderPublicKey).size;
-
-        return !(count <= this.options.maxTransactionsPerSender);
+        return this.memory.getBySender(transaction.senderPublicKey).size >= this.options.maxTransactionsPerSender;
     }
 
-    /**
-     * Flush the pool (delete all transactions from it).
-     */
-    public flush() {
-        this.mem.flush();
+    public flush(): void {
+        this.memory.flush();
 
         this.storage.deleteAll();
     }
 
-    /**
-     * Checks if a transaction exists in the pool.
-     */
-    public transactionExists(transactionId: string): boolean {
-        if (!this.mem.transactionExists(transactionId)) {
-            // If it does not exist then no need to purge expired transactions because
-            // we know it will not exist after purge too.
+    public has(transactionId: string): boolean {
+        if (!this.memory.has(transactionId)) {
             return false;
         }
 
-        this.__purgeExpired();
+        this.purgeExpired();
 
-        return this.mem.transactionExists(transactionId);
+        return this.memory.has(transactionId);
     }
 
-    /**
-     * Check if transaction sender is blocked
-     */
+    // @TODO: move this to a more appropriate place
     public isSenderBlocked(senderPublicKey: string): boolean {
         if (!this.blockedByPublicKey[senderPublicKey]) {
             return false;
@@ -359,17 +236,15 @@ export class Connection implements TransactionPool.IConnection {
 
         if (dato().isAfter(this.blockedByPublicKey[senderPublicKey])) {
             delete this.blockedByPublicKey[senderPublicKey];
+
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Blocks sender for a specified time
-     */
     public blockSender(senderPublicKey: string): Dato {
-        const blockReleaseTime = dato().addHours(1);
+        const blockReleaseTime: Dato = dato().addHours(1);
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
@@ -378,25 +253,20 @@ export class Connection implements TransactionPool.IConnection {
         return blockReleaseTime;
     }
 
-    /**
-     * Processes recently accepted block by the blockchain.
-     * It removes block transaction from the pool and adjusts
-     * pool wallets for non existing transactions.
-     */
-    public acceptChainedBlock(block: Interfaces.IBlock) {
+    public acceptChainedBlock(block: Interfaces.IBlock): void {
         for (const transaction of block.transactions) {
-            const { data } = transaction;
-            const exists = this.transactionExists(data.id);
-            const senderPublicKey = data.senderPublicKey;
-            const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
+            const { data }: Interfaces.ITransaction = transaction;
+            const exists: boolean = this.has(data.id);
+            const senderPublicKey: string = data.senderPublicKey;
+            const transactionHandler: ITransactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
-            const senderWallet = this.walletManager.exists(senderPublicKey)
+            const senderWallet: Database.IWallet = this.walletManager.has(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
-                : false;
+                : undefined;
 
-            const recipientWallet = this.walletManager.exists(data.recipientId)
+            const recipientWallet: Database.IWallet = this.walletManager.has(data.recipientId)
                 ? this.walletManager.findByAddress(data.recipientId)
-                : false;
+                : undefined;
 
             if (recipientWallet) {
                 transactionHandler.applyToRecipient(transaction, recipientWallet);
@@ -417,6 +287,7 @@ export class Connection implements TransactionPool.IConnection {
                             data.id
                         } due to ${error.message}. Possible double spending attack`,
                     );
+
                     return;
                 }
 
@@ -428,93 +299,86 @@ export class Connection implements TransactionPool.IConnection {
                 this.walletManager.canBePurged(senderWallet) &&
                 this.getSenderSize(senderPublicKey) === 0
             ) {
-                this.walletManager.deleteWallet(senderPublicKey);
+                this.walletManager.forget(senderPublicKey);
             }
         }
 
         // if delegate in poll wallet manager - apply rewards and fees
-        if (this.walletManager.exists(block.data.generatorPublicKey)) {
-            const delegateWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
-            const increase = (block.data.reward as Utils.BigNumber).plus(block.data.totalFee);
-            delegateWallet.balance = delegateWallet.balance.plus(increase);
+        if (this.walletManager.has(block.data.generatorPublicKey)) {
+            const delegateWallet: Database.IWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
+
+            delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
         app.resolve("state").removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
 
-    /**
-     * Rebuild pool manager wallets
-     * Removes all the wallets from pool manager and applies transaction from pool - if any
-     * It waits for the node to sync, and then check the transactions in pool
-     * and validates them and apply to the pool manager.
-     */
-    public async buildWallets() {
+    public async buildWallets(): Promise<void> {
         this.walletManager.reset();
-        const poolTransactionIds = await this.getTransactionIdsForForging(0, this.getPoolSize());
 
-        app.resolve<Blockchain.IStateStorage>("state").removeCachedTransactionIds(poolTransactionIds);
+        const transactionIds: string[] = await this.getTransactionIdsForForging(0, this.getPoolSize());
 
-        poolTransactionIds.forEach(transactionId => {
-            const transaction = this.getTransaction(transactionId);
+        app.resolve<Blockchain.IStateStorage>("state").removeCachedTransactionIds(transactionIds);
+
+        for (const transactionId of transactionIds) {
+            const transaction: Interfaces.ITransaction = this.getTransaction(transactionId);
+
             if (!transaction) {
                 return;
             }
 
-            const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
-            const senderWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const senderWallet: Database.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
             // TODO: rework error handling
             try {
+                const transactionHandler: ITransactionHandler = TransactionHandlerRegistry.get(transaction.type);
                 transactionHandler.canBeApplied(transaction, senderWallet);
                 transactionHandler.applyToSender(transaction, senderWallet);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
+
                 this.purgeByPublicKey(transaction.data.senderPublicKey);
             }
-        });
+        }
+
         this.logger.info("Transaction Pool Manager build wallets complete");
     }
 
-    public purgeByPublicKey(senderPublicKey: string) {
+    public purgeByBlock(block: Interfaces.IBlock): void {
+        for (const transaction of block.transactions) {
+            if (this.has(transaction.id)) {
+                this.removeTransaction(transaction);
+
+                this.walletManager.revertTransactionForSender(transaction);
+            }
+        }
+    }
+
+    public purgeByPublicKey(senderPublicKey: string): void {
         this.logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
 
         this.removeTransactionsForSender(senderPublicKey);
 
-        this.walletManager.deleteWallet(senderPublicKey);
+        this.walletManager.forget(senderPublicKey);
     }
 
-    /**
-     * Purges all transactions from senders with at least one
-     * invalid transaction.
-     */
-    public purgeSendersWithInvalidTransactions(block: Interfaces.IBlock) {
-        const publicKeys = new Set(block.transactions.filter(tx => !tx.verified).map(tx => tx.data.senderPublicKey));
+    public purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void {
+        const publicKeys: Set<string> = new Set(
+            block.transactions
+                .filter(transaction => !transaction.verified)
+                .map(transaction => transaction.data.senderPublicKey),
+        );
 
-        publicKeys.forEach(publicKey => this.purgeByPublicKey(publicKey));
+        for (const publicKey of publicKeys) {
+            this.purgeByPublicKey(publicKey);
+        }
     }
 
-    /**
-     * Purges all transactions from the block.
-     * Purges if transaction exists. It assumes that if trx exists that also wallet exists in pool
-     */
-    public purgeBlock(block: Interfaces.IBlock) {
-        block.transactions.forEach(tx => {
-            if (this.transactionExists(tx.id)) {
-                this.removeTransaction(tx);
-                this.walletManager.revertTransactionForSender(tx);
-            }
-        });
-    }
-
-    /**
-     * Check whether a given sender has any transactions of the specified type
-     * in the pool.
-     */
     public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
-        this.__purgeExpired();
+        this.purgeExpired();
 
-        for (const memPoolTransaction of this.mem.getBySender(senderPublicKey)) {
-            if (memPoolTransaction.transaction.type === transactionType) {
+        for (const MemoryTransaction of this.memory.getBySender(senderPublicKey)) {
+            if (MemoryTransaction.transaction.type === transactionType) {
                 return true;
             }
         }
@@ -522,53 +386,84 @@ export class Connection implements TransactionPool.IConnection {
         return false;
     }
 
-    /**
-     * Sync the in-memory storage to the persistent (on-disk) storage if too
-     * many changes have been accumulated in-memory.
-     */
-    public __syncToPersistentStorageIfNecessary() {
-        if (this.options.syncInterval <= this.mem.getNumberOfDirty()) {
-            this.__syncToPersistentStorage();
+    private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
+        if (this.has(transaction.id)) {
+            this.logger.debug(
+                "Transaction pool: ignoring attempt to add a transaction that is already " +
+                    `in the pool, id: ${transaction.id}`,
+            );
+
+            return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
+        }
+
+        const poolSize: number = this.memory.count();
+
+        if (this.options.maxTransactionsInPool <= poolSize) {
+            // The pool can't accommodate more transactions. Either decline the newcomer or remove
+            // an existing transaction from the pool in order to free up space.
+            const all: MemoryTransaction[] = this.memory.allSortedByFee();
+            const lowest: Interfaces.ITransaction = all[all.length - 1].transaction;
+
+            const fee: Utils.BigNumber = transaction.data.fee;
+            const lowestFee: Utils.BigNumber = lowest.data.fee;
+
+            if (lowestFee.isLessThan(fee)) {
+                this.walletManager.revertTransactionForSender(lowest);
+                this.memory.forget(lowest.id, lowest.data.senderPublicKey);
+            } else {
+                return {
+                    transaction,
+                    type: "ERR_POOL_FULL",
+                    message:
+                        `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
+                        `${fee.toFixed()} is not higher than the lowest fee already in pool ` +
+                        `${lowestFee.toFixed()}`,
+                };
+            }
+        }
+
+        this.memory.remember(new MemoryTransaction(transaction), this.options.maxTransactionAge);
+
+        // Apply transaction to pool wallet manager.
+        const senderWallet: Database.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+        try {
+            this.walletManager.throwIfApplyingFails(transaction);
+
+            TransactionHandlerRegistry.get(transaction.type).applyToSender(transaction, senderWallet);
+        } catch (error) {
+            this.logger.error(error.message);
+
+            this.memory.forget(transaction.id);
+
+            return { transaction, type: "ERR_APPLY", message: error.message };
+        }
+
+        this.syncToPersistentStorageIfNecessary();
+
+        return {};
+    }
+
+    private syncToPersistentStorageIfNecessary(): void {
+        if (this.options.syncInterval <= this.memory.countDirty()) {
+            this.syncToPersistentStorage();
         }
     }
 
-    /**
-     * Sync the in-memory storage to the persistent (on-disk) storage.
-     */
-    public __syncToPersistentStorage() {
-        const added = this.mem.getDirtyAddedAndForget();
-        this.storage.bulkAdd(added);
-
-        const removed = this.mem.getDirtyRemovedAndForget();
-        this.storage.bulkRemoveById(removed);
+    private syncToPersistentStorage(): void {
+        this.storage.bulkAdd(this.memory.pullDirtyAdded());
+        this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
     }
 
-    /**
-     * Create an error object which the TransactionGuard understands.
-     */
-    public __createError(
-        transaction: Interfaces.ITransaction,
-        type: string,
-        message: string,
-    ): TransactionPool.IAddTransactionErrorResponse {
-        return {
-            transaction,
-            type,
-            message,
-            success: false,
-        };
-    }
-
-    /**
-     * Remove all transactions from the pool that have expired.
-     */
-    private __purgeExpired() {
-        for (const transaction of this.mem.getExpired(this.options.maxTransactionAge)) {
+    private purgeExpired() {
+        for (const transaction of this.memory.getExpired(this.options.maxTransactionAge)) {
             this.emitter.emit("transaction.expired", transaction.data);
 
             this.walletManager.revertTransactionForSender(transaction);
-            this.mem.remove(transaction.id, transaction.data.senderPublicKey);
-            this.__syncToPersistentStorageIfNecessary();
+
+            this.memory.forget(transaction.id, transaction.data.senderPublicKey);
+
+            this.syncToPersistentStorageIfNecessary();
         }
     }
 }

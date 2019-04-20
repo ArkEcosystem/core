@@ -110,8 +110,12 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Transaction Pool logic
      */
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
-        guard.pushError(
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        processor.pushError(
             data,
             "ERR_UNSUPPORTED",
             `Invalidating transaction of unsupported type '${Enums.TransactionTypes[data.type]}'`,
@@ -119,10 +123,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    protected typeFromSenderAlreadyInPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    protected typeFromSenderAlreadyInPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
         const { senderPublicKey, type } = data;
-        if (guard.pool.senderHasTransactionsOfType(senderPublicKey, type)) {
-            guard.pushError(
+
+        if (pool.senderHasTransactionsOfType(senderPublicKey, type)) {
+            processor.pushError(
                 data,
                 "ERR_PENDING",
                 `Sender ${senderPublicKey} already has a transaction of type '${

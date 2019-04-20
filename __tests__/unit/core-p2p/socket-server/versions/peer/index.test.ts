@@ -126,7 +126,8 @@ describe("Peers handler", () => {
         });
     });
 
-    describe("postTransactions", () => {
+    // @TODO: this is an integration test, not a unit test
+    describe.skip("postTransactions", () => {
         it("should handle the incoming transactions", async () => {
             const result = await postTransactions({
                 service: createPeerService().service,
