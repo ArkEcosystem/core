@@ -18,7 +18,7 @@ export const plugin: Container.PluginDescriptor = {
                 options,
                 walletManager: new WalletManager(),
                 memory: new Memory(),
-                storage: new Storage(options.storage.toString()),
+                storage: new Storage(),
             }),
         );
     },

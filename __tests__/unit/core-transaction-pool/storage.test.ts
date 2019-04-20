@@ -3,12 +3,16 @@ import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 import { transactions } from "./__fixtures__/transactions";
 
 describe("Storage", () => {
-    const storage = new Storage("./tmp");
+    const storage = new Storage();
 
-    beforeEach(() => storage.deleteAll());
+    beforeEach(() => {
+        storage.connect("./tmp");
+        storage.deleteAll();
+    });
+
     afterAll(() => {
         storage.deleteAll();
-        storage.close();
+        storage.disconnect();
     });
 
     describe("bulkAdd", () => {

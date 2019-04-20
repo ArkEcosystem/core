@@ -8,9 +8,8 @@ import { Blocks, Constants, Crypto, Enums, Interfaces, Transactions, Utils } fro
 import { dato } from "@faustbrian/dato";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
-import { tmpdir } from "os";
 import randomSeed from "random-seed";
-import { Connection } from "../../../packages/core-transaction-pool/src";
+import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
 import { MemoryTransaction } from "../../../packages/core-transaction-pool/src/memory-transaction";
@@ -33,23 +32,19 @@ let connection: Connection;
 let memory: Memory;
 
 beforeAll(async () => {
-    process.env.CORE_PATH_DATA = tmpdir();
-
     memory = new Memory();
 
     connection = new Connection({
         options: defaults,
         walletManager: new WalletManager(),
         memory,
-        storage: new Storage(defaults.storage),
+        storage: new Storage(),
     });
 
     await connection.make();
 });
 
-beforeEach(() => {
-    connection.flush();
-});
+beforeEach(() => connection.flush());
 
 describe("Connection", () => {
     const addTransactions = transactions => {
@@ -733,7 +728,7 @@ describe("Connection", () => {
     });
 
     describe("shutdown and start", () => {
-        it("save and restore transactions", () => {
+        it("save and restore transactions", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
             const transactions = [mockData.dummy1, mockData.dummy4];
@@ -744,7 +739,7 @@ describe("Connection", () => {
 
             connection.disconnect();
 
-            connection.make();
+            await connection.make();
 
             expect(connection.getPoolSize()).toBe(2);
 

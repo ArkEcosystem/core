@@ -44,6 +44,9 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public async make(): Promise<this> {
+        this.memory.flush();
+        this.storage.connect(this.options.storage);
+
         const all: MemoryTransaction[] = this.storage.loadAll();
 
         for (const transaction of all) {
@@ -65,7 +68,7 @@ export class Connection implements TransactionPool.IConnection {
 
     public disconnect(): void {
         this.syncToPersistentStorage();
-        this.storage.close();
+        this.storage.disconnect();
     }
 
     public makeProcessor(): TransactionPool.IProcessor {

@@ -7,7 +7,7 @@ export class Storage {
     private readonly table: string = "pool";
     private database: BetterSqlite3.Database;
 
-    constructor(file: string) {
+    public connect(file: string) {
         ensureFileSync(file);
 
         this.database = new BetterSqlite3(file);
@@ -22,7 +22,7 @@ export class Storage {
     `);
     }
 
-    public close(): void {
+    public disconnect(): void {
         this.database.close();
         this.database = null;
     }
@@ -32,7 +32,7 @@ export class Storage {
             return;
         }
 
-        const insertStatement = this.database.prepare(
+        const insertStatement: BetterSqlite3.Statement = this.database.prepare(
             `INSERT INTO ${this.table} ` + "(sequence, id, serialized) VALUES " + "(:sequence, :id, :serialized);",
         );
 

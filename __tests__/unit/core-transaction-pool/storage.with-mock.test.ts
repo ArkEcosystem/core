@@ -21,7 +21,9 @@ jest.mock("better-sqlite3", () => {
 describe("Storage", () => {
     describe("bulkAdd", () => {
         it("should rollback if this.db is 'inTransaction'", () => {
-            const storage = new Storage("./tmp");
+            const storage = new Storage();
+            storage.connect("./tmp");
+
             const memPoolTransaction = new MemoryTransaction(transactions.dummy1);
             storage.bulkAdd([memPoolTransaction]);
 
