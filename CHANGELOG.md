@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     -   **This significantly improves performance of logging when it occurs a lot in situations like syncing or rollbacks.**
 -   Rewrote `core-tester-cli` from scratch ([#2133])
 -   Merged `core-debugger-cli` into `core-tester-cli` and deprecated it ([#2133])
+-   Use the node.js `EventEmitter` from `events` instead of `eventemitter3` ([#2329])
 
 ### Added
 
@@ -37,11 +38,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Added the `core-error-tracker-airbrake` package ([#2289])
 -   Added the `core-logger-signale` package ([#2343])
 -   Added more events for blocks and the transaction pool ([#2321])
+-   Return `slip44` and `wif` via `v2/node/configuration` ([#2388])
+-   Added an `asset` column to the `transactions` table ([#2236])
 
 ### Fixed
 
 -   Properly sort peers by their version ([#2229])
 -   Memory leak in the monitoring process of `core-forger` ([#2341])
+-   Handle dynamic round sizes with milestones ([#2370])
+-   Validate that a transaction recipient is on the same network ([#2394])
+-   Handle empty `rows` in `mapBlocksToTransactions` ([#2404])
+-   Prevent indexing/creating of ghost wallets ([#2405])
 
 ### Changed
 
@@ -416,9 +423,16 @@ Closed security vulnerabilities:
 [#2218]: https://github.com/ARKEcosystem/core/pull/2218
 [#2221]: https://github.com/ARKEcosystem/core/pull/2221
 [#2229]: https://github.com/ARKEcosystem/core/pull/2229
+[#2236]: https://github.com/ARKEcosystem/core/pull/2236
 [#2287]: https://github.com/ARKEcosystem/core/pull/2287
 [#2288]: https://github.com/ARKEcosystem/core/pull/2288
 [#2289]: https://github.com/ARKEcosystem/core/pull/2289
 [#2321]: https://github.com/ARKEcosystem/core/pull/2321
+[#2329]: https://github.com/ARKEcosystem/core/pull/2329
 [#2341]: https://github.com/ARKEcosystem/core/pull/2341
 [#2343]: https://github.com/ARKEcosystem/core/pull/2343
+[#2370]: https://github.com/ARKEcosystem/core/pull/2370
+[#2388]: https://github.com/ARKEcosystem/core/pull/2388
+[#2394]: https://github.com/ARKEcosystem/core/pull/2394
+[#2404]: https://github.com/ARKEcosystem/core/pull/2404
+[#2405]: https://github.com/ARKEcosystem/core/pull/2405

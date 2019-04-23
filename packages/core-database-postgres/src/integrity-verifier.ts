@@ -145,15 +145,7 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        const delegateWallets: Database.IWallet[] = this.walletManager
-            .allByUsername()
-            .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
-
-        sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
-            const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
-            wallet.rate = i + 1;
-            this.walletManager.reindex(wallet);
-        });
+        this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
     }
 
     private async buildMultisignatures(): Promise<void> {
