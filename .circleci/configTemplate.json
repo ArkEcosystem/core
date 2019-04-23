@@ -674,6 +674,12 @@
                 },
                 {
                     "run": {
+                        "name": "Wait 10 sec for docker containers to be up",
+                        "command": "sleep 10"
+                    }
+                },
+                {
+                    "run": {
                         "name": "Docker ps -a",
                         "command": "docker ps -a"
                     }

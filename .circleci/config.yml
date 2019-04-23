@@ -762,6 +762,9 @@ jobs:
           name: Docker init and start
           command: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
       - run:
+          name: Wait 10 sec for docker containers to be up
+          command: sleep 10
+      - run:
           name: Docker ps -a
           command: docker ps -a
       - run:
