@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
