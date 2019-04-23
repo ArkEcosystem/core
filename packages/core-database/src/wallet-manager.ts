@@ -437,9 +437,11 @@ export class WalletManager implements Database.IWalletManager {
                 if (delegateWallets.includes(values[0])) {
                     const mapped = values.map(v => `${v.username} (${v.publicKey})`);
                     this.logger.warn(
-                        `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${formatSatoshi(
-                            voteBalance,
-                        )}`,
+                        `Delegates ${JSON.stringify(
+                            mapped,
+                            null,
+                            4,
+                        )} have a matching vote balance of ${Utils.formatSatoshi(voteBalance)}`,
                     );
                 }
             }
