@@ -54,7 +54,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
-        if (this.typeFromSenderAlreadyInPool(data, guard)) {
+        if (
+            this.typeFromSenderAlreadyInPool(data, guard) ||
+            this.secondSignatureRegistrationFromSenderAlreadyInPool(data, guard)
+        ) {
             return false;
         }
 
