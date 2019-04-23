@@ -23,12 +23,30 @@ fs.readdir("./packages", (_, packages) => {
     const packagesChunks = splitPackages(packages);
 
     for (const [name, job] of Object.entries(config.jobs)) {
-        // save cache
-        const saveCacheStep = job.steps.find(step => typeof step === "object" && step.save_cache);
-        saveCacheStep.save_cache.paths = packages
+        // save cache using 2 steps because only 1 step cause circleci issue because of number of paths to save
+        const saveCacheIndex = job.steps.findIndex(step => typeof step === "object" && step.save_cache);
+        const saveCacheStep1 = job.steps[saveCacheIndex];
+        const saveCacheStep2 = { save_cache: Object.assign({}, saveCacheStep1.save_cache) };
+        const pathsToSave = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules")
             .concat("./__tests__/e2e/node_modules");
+
+        saveCacheStep1.save_cache.paths = pathsToSave.slice(0, Math.floor(pathsToSave.length / 2));
+        saveCacheStep1.save_cache.key = saveCacheStep1.save_cache.key + "-1";
+
+        saveCacheStep2.save_cache.paths = pathsToSave.slice(Math.floor(pathsToSave.length / 2));
+        saveCacheStep2.save_cache.key = saveCacheStep2.save_cache.key + "-2";
+        job.steps.splice(saveCacheIndex, 0, saveCacheStep2);
+
+        // restore cache, same as for save cache
+        const restoreCacheIndex = job.steps.findIndex(step => typeof step === "object" && step.restore_cache);
+        const restoreCacheStep1 = job.steps[restoreCacheIndex];
+        const restoreCacheStep2 = { restore_cache: Object.assign({}, restoreCacheStep1.restore_cache) };
+
+        restoreCacheStep1.restore_cache.key = restoreCacheStep1.restore_cache.key + "-1";
+        restoreCacheStep2.restore_cache.key = restoreCacheStep2.restore_cache.key + "-2";
+        job.steps.splice(restoreCacheIndex, 0, restoreCacheStep2);
 
         if (fixedJobs.includes(name)) {
             continue;
