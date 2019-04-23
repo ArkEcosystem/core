@@ -1,18 +1,21 @@
 /* tslint:disable:max-line-length */
 import "./mocks/";
+import { container } from "./mocks/container";
 
-import { models, slots } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
-import { config as localConfig } from "../../../packages/core-blockchain/src/config";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import "../../utils";
+import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { config } from "./mocks/config";
 import { logger } from "./mocks/logger";
+import { getMonitor } from "./mocks/p2p/network-monitor";
+import { getStorage } from "./mocks/p2p/peer-storage";
 
-const { Block } = models;
+const { BlockFactory } = Blocks;
 
 let genesisBlock;
 
@@ -22,7 +25,7 @@ describe("Blockchain", () => {
     beforeAll(async () => {
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
-        genesisBlock = new Block(require("../../utils/config/testnet/genesisBlock.json"));
+        genesisBlock = BlockFactory.fromData(GB);
 
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
@@ -63,7 +66,7 @@ describe("Blockchain", () => {
 
     describe("updateNetworkStatus", () => {
         it("should call p2p updateNetworkStatus", async () => {
-            const p2pUpdateNetworkStatus = jest.spyOn(blockchain.p2p, "updateNetworkStatus");
+            const p2pUpdateNetworkStatus = jest.spyOn(getMonitor, "updateNetworkStatus");
 
             await blockchain.updateNetworkStatus();
 
@@ -89,7 +92,7 @@ describe("Blockchain", () => {
     });
 
     describe("processBlock", () => {
-        const block3 = new Block(blocks2to100[1]);
+        const block3 = BlockFactory.fromData(blocks2to100[1]);
         let getLastBlock;
         let setLastBlock;
         beforeEach(() => {
@@ -108,7 +111,7 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
 
-            await blockchain.processBlock(new Block(blocks2to100[2]), mockCallback);
+            await blockchain.processBlock(BlockFactory.fromData(blocks2to100[2]), mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
@@ -125,14 +128,14 @@ describe("Blockchain", () => {
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
         });
 
-        it("should broadcast a block if (slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+        it("should broadcast a block if (Crypto.slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             blockchain.state.started = true;
 
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
-            lastBlock.data.timestamp = slots.getSlotNumber() * 8000;
+            lastBlock.data.timestamp = Crypto.slots.getSlotNumber() * 8000;
 
-            const broadcastBlock = jest.spyOn(blockchain.p2p, "broadcastBlock");
+            const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
             await blockchain.processBlock(lastBlock, mockCallback);
             await delay(200);
@@ -144,7 +147,10 @@ describe("Blockchain", () => {
 
     describe("getLastBlock", () => {
         it("should be ok", () => {
-            jest.spyOn(localConfig, "get").mockReturnValueOnce(50);
+            jest.spyOn(container.app, "resolveOptions").mockReturnValueOnce({
+                state: { maxLastBlocks: 50 },
+            });
+
             blockchain.state.setLastBlock(genesisBlock);
 
             expect(blockchain.getLastBlock()).toEqual(genesisBlock);
@@ -161,10 +167,11 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: slots.getEpochTime(),
+                timestamp: Crypto.slots.getEpochTime(),
             };
 
-            blockchain.handleIncomingBlock(block);
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, "127.0.0.1");
 
             expect(blockchain.dispatch).toHaveBeenCalled();
             expect(blockchain.enqueueBlocks).toHaveBeenCalled();
@@ -182,10 +189,11 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: slots.getSlotTime(slots.getNextSlot()),
+                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getNextSlot()),
             };
 
-            blockchain.handleIncomingBlock(block);
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, "127.0.0.1");
 
             expect(blockchain.dispatch).not.toHaveBeenCalled();
             expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
@@ -199,11 +207,11 @@ describe("Blockchain", () => {
             const loggerInfo = jest.spyOn(logger, "info");
 
             const mockGetSlotNumber = jest
-                .spyOn(slots, "getSlotNumber")
+                .spyOn(Crypto.slots, "getSlotNumber")
                 .mockReturnValueOnce(1)
                 .mockReturnValueOnce(1);
 
-            await blockchain.handleIncomingBlock(blocks101to155[54]);
+            await blockchain.handleIncomingBlock(blocks101to155[54], "127.0.0.1");
 
             expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready");
             blockchain.state.started = true;
@@ -220,7 +228,7 @@ describe("Blockchain", () => {
 
     describe("forkBlock", () => {
         it("should dispatch FORK and set state.forkedBlock", () => {
-            const forkedBlock = new Block(blocks2to100[11]);
+            const forkedBlock = BlockFactory.fromData(blocks2to100[11]);
             expect(() => blockchain.forkBlock(forkedBlock)).toDispatch(blockchain, "FORK");
             expect(blockchain.state.forkedBlock).toBe(forkedBlock);
 
@@ -234,21 +242,21 @@ describe("Blockchain", () => {
                 expect(
                     blockchain.isSynced({
                         data: {
-                            timestamp: slots.getTime(),
+                            timestamp: Crypto.slots.getTime(),
                             height: genesisBlock.height,
                         },
-                    } as models.IBlock),
+                    } as Interfaces.IBlock),
                 ).toBeTrue();
             });
         });
 
         describe("without a block param", () => {
             it("should use the last block", () => {
-                jest.spyOn(blockchain.p2p, "hasPeers").mockReturnValueOnce(true);
+                jest.spyOn(getStorage, "hasPeers").mockReturnValueOnce(true);
                 const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
                     // @ts-ignore
                     data: {
-                        timestamp: slots.getTime(),
+                        timestamp: Crypto.slots.getTime(),
                         height: genesisBlock.height,
                     },
                 });
@@ -296,7 +304,8 @@ describe("Blockchain", () => {
             const loggerWarn = jest.spyOn(logger, "warn");
             const loggerInfo = jest.spyOn(logger, "info");
 
-            const blockchainNetworkStart = new Blockchain({ networkStart: true });
+            // tslint:disable-next-line: no-unused-expression
+            new Blockchain({ networkStart: true });
 
             expect(loggerWarn).toHaveBeenCalledWith(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",

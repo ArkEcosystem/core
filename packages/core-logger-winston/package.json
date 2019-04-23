@@ -22,11 +22,11 @@
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.3.0",
         "@arkecosystem/core-logger": "^2.3.0",
+        "@faustbrian/dato": "^0.3.0",
         "chalk": "^2.4.2",
         "colors": "^1.3.3",
-        "dayjs-ext": "^2.2.0",
         "winston": "^3.2.1",
-        "winston-daily-rotate-file": "^3.6.0",
+        "winston-daily-rotate-file": "^3.8.0",
         "winston-transport": "^4.3.0"
     },
     "publishConfig": {

@@ -1,26 +1,18 @@
 import Keyv from "keyv";
 
 class Database {
-    public database: Keyv;
+    private database: Keyv;
 
     public init(options) {
         this.database = new Keyv(options);
     }
 
-    public async get(id) {
+    public async get<T = any>(id: string): Promise<T> {
         return this.database.get(id);
     }
 
-    public async set(id, value) {
-        return this.database.set(id, value);
-    }
-
-    public async delete(id) {
-        return this.database.delete(id);
-    }
-
-    public async clear() {
-        return this.database.clear();
+    public async set<T = any>(id: string, value: T): Promise<void> {
+        await this.database.set(id, value);
     }
 }
 

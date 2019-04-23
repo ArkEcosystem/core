@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
 export {};
 
@@ -12,10 +12,16 @@ declare global {
 }
 
 expect.extend({
-    toBeValidTransaction: (transaction, network) => {
+    toBeValidTransaction: actual => {
+        let verified: boolean = false;
+
+        try {
+            verified = Transactions.Transaction.verifyData(actual);
+        } catch (e) {} // tslint:disable-line
+
         return {
             message: () => "Expected value to be a valid transaction",
-            pass: crypto.verify(transaction),
+            pass: !!verified,
         };
     },
 });

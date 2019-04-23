@@ -1,6 +1,7 @@
-import { app } from "@arkecosystem/core-container";
-import { Peer } from "@arkecosystem/core-p2p/dist/peer";
 import "jest-extended";
+
+import { app } from "@arkecosystem/core-container";
+import { Peer } from "@arkecosystem/core-p2p";
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
@@ -13,55 +14,26 @@ let mockHost;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4000);
-    Object.assign(peerMock, peerMock.headers, { status: "OK" });
+    peerMock = new Peer("1.0.0.99", 4003); // @NOTE: we use the Public API port
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-    monitor.peers[peerMock.ip] = peerMock;
+    app.resolvePlugin("p2p")
+        .getStorage()
+        .setPeer(peerMock);
 
     nock("http://localhost", { allowUnmocked: true });
 
-    mockHost = nock("http://localhost:4003");
+    mockHost = nock(peerMock.url);
 });
 
-afterAll(async () => {
-    nock.cleanAll();
-    await tearDown();
-});
+afterAll(async () => await tearDown());
 
 beforeEach(async () => {
     nock(peerMock.url)
         .get("/api/loader/autoconfigure")
         .reply(200, { network: {} }, peerMock.headers);
-
-    nock(peerMock.url)
-        .get("/peer/status")
-        .reply(200, { success: true, height: 5 }, peerMock.headers);
-
-    nock(peerMock.url)
-        .get("/peer/list")
-        .reply(
-            200,
-            {
-                success: true,
-                peers: [
-                    {
-                        status: "OK",
-                        ip: peerMock.ip,
-                        port: 4002,
-                        height: 5,
-                        delay: 8,
-                    },
-                ],
-            },
-            peerMock.headers,
-        );
 });
 
-afterEach(async () => {
-    nock.cleanAll();
-});
+afterEach(async () => nock.cleanAll());
 
 describe("Wallets", () => {
     describe("POST wallets.info", () => {
@@ -118,6 +90,15 @@ describe("Wallets", () => {
         });
 
         it("should fail to get transactions for the given wallet", async () => {
+            mockHost
+                .get("/api/transactions")
+                .query({
+                    offset: 0,
+                    orderBy: "timestamp:desc",
+                    ownerId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+                })
+                .reply(200, { meta: { totalCount: 0 }, data: [] }, peerMock.headers);
+
             const response = await sendRequest("wallets.transactions", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
             });

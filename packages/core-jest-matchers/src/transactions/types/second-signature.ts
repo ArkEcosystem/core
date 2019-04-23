@@ -1,6 +1,6 @@
-import { constants } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 
-const { SecondSignature } = constants.TransactionTypes;
+const { SecondSignature } = Enums.TransactionTypes;
 
 export {};
 

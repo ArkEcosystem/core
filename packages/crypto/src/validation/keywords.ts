@@ -2,7 +2,7 @@ import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
 import { Address } from "../identities/address";
 import { configManager } from "../managers";
-import { Bignum, isGenesisTransaction } from "../utils";
+import { BigNumber, isGenesisTransaction } from "../utils";
 
 const maxBytes = (ajv: Ajv) => {
     ajv.addKeyword("maxBytes", {
@@ -43,7 +43,7 @@ const network = (ajv: Ajv) => {
     ajv.addKeyword("network", {
         compile(schema) {
             return data => {
-                return schema && data === configManager.get("pubKeyHash");
+                return schema && data === configManager.get("network.pubKeyHash");
             };
         },
         errors: false,
@@ -55,7 +55,7 @@ const network = (ajv: Ajv) => {
 
 const bignumber = (ajv: Ajv) => {
     const instanceOf = ajvKeywords.get("instanceof").definition;
-    instanceOf.CONSTRUCTORS.Bignum = Bignum;
+    instanceOf.CONSTRUCTORS.BigNumber = BigNumber;
 
     ajv.addKeyword("bignumber", {
         compile(schema) {
@@ -63,13 +63,13 @@ const bignumber = (ajv: Ajv) => {
                 const minimum = typeof schema.minimum !== "undefined" ? schema.minimum : 0;
                 const maximum = typeof schema.maximum !== "undefined" ? schema.maximum : Number.MAX_SAFE_INTEGER;
 
-                const bignum = new Bignum(data);
+                const bignum = BigNumber.make(data);
 
                 if (!bignum.isInteger()) {
                     return false;
                 }
 
-                let bypassGenesis = false;
+                let bypassGenesis: boolean = false;
                 if (schema.bypassGenesis) {
                     if (parentObject.id) {
                         if (schema.block) {

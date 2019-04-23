@@ -1,4 +1,4 @@
-import { ITransactionData, models } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStorage {
     reset(): void;
@@ -16,19 +16,19 @@ export interface IStateStorage {
     /**
      * Get the last block.
      */
-    getLastBlock(): models.Block | null;
+    getLastBlock(): Interfaces.IBlock | null;
 
     /**
      * Sets the last block.
      * @returns {void}
      */
-    setLastBlock(block: models.Block): void;
+    setLastBlock(block: Interfaces.IBlock): void;
 
     /**
      * Get the last blocks.
      * @returns {Array}
      */
-    getLastBlocks(): models.Block[];
+    getLastBlocks(): Interfaces.IBlock[];
 
     /**
      * Get the last block ids.
@@ -41,18 +41,20 @@ export interface IStateStorage {
      * @param {Number} start
      * @param {Number} end
      */
-    getLastBlocksByHeight(start: number, end?: number): models.IBlockData[];
+    getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[];
 
     /**
      * Get common blocks for the given IDs.
      * @returns {Array}
      */
-    getCommonBlocks(ids: string[]): models.IBlockData[];
+    getCommonBlocks(ids: string[]): Interfaces.IBlockData[];
 
     /**
      * Cache the ids of the given transactions.
      */
-    cacheTransactions(transactions: ITransactionData[]): { [key in "added" | "notAdded"]: ITransactionData[] };
+    cacheTransactions(
+        transactions: Interfaces.ITransactionData[],
+    ): { [key in "added" | "notAdded"]: Interfaces.ITransactionData[] };
 
     /**
      * Remove the given transaction ids from the cache.
@@ -67,10 +69,10 @@ export interface IStateStorage {
     /**
      * Ping a block.
      */
-    pingBlock(incomingBlock: models.IBlockData): boolean;
+    pingBlock(incomingBlock: Interfaces.IBlockData): boolean;
 
     /**
      * Push ping block
      */
-    pushPingBlock(block: models.IBlockData): void;
+    pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
 }

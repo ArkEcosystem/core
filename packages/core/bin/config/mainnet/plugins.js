@@ -32,8 +32,9 @@ module.exports = {
         },
     },
     "@arkecosystem/core-p2p": {
-        host: process.env.CORE_P2P_HOST || "0.0.0.0",
-        port: process.env.CORE_P2P_PORT || 4001,
+        server: {
+            port: process.env.CORE_P2P_PORT || 4001,
+        },
     },
     "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {
@@ -50,9 +51,7 @@ module.exports = {
             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         },
     },
-    "@arkecosystem/core-forger": {
-        hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4001}`],
-    },
+    "@arkecosystem/core-forger": {},
     "@arkecosystem/core-json-rpc": {
         enabled: process.env.CORE_JSON_RPC_ENABLED,
         host: process.env.CORE_JSON_RPC_HOST || "0.0.0.0",

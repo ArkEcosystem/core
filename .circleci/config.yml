@@ -159,15 +159,15 @@ jobs:
   test-node10-functional:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
+          POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
     steps:
       - checkout
       - run:
@@ -245,15 +245,15 @@ jobs:
   test-node11-functional:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
+          POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
     steps:
       - checkout
       - run:
@@ -331,187 +331,15 @@ jobs:
   test-node10-integration-0:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
-    steps:
-      - checkout
-      - run:
-          name: Apt update
-          command: >-
-            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
-            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
-      - run:
-          name: Install xsel & postgresql-client
-          command: sudo apt-get install -q xsel postgresql-client
-      - run:
-          name: Generate cache key
-          command: >-
-            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
-      - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
-      - run:
-          name: Install and build packages
-          command: yarn setup
-      - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
-          paths:
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-blockchain/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-database/node_modules
-            - ./packages/core-database-postgres/node_modules
-            - ./packages/core-elasticsearch/node_modules
-            - ./packages/core-error-tracker-airbrake/node_modules
-            - ./packages/core-error-tracker-bugsnag/node_modules
-            - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
-            - ./packages/core-error-tracker-sentry/node_modules
-            - ./packages/core-event-emitter/node_modules
-            - ./packages/core-forger/node_modules
-            - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
-            - ./packages/core-jest-matchers/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
-      - run:
-          name: Create .core/database directory
-          command: mkdir -p $HOME/.core/database
-      - run:
-          name: Unit tests
-          command: >-
-            cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/ --maxWorkers=2
-      - run:
-          name: Last 1000 lines of test output
-          when: on_fail
-          command: tail -n 1000 test_output.txt
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
-  test-node11-integration-0:
-    working_directory: ~/core
-    environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
-    docker:
-      - image: 'circleci/node:11-browsers'
-      - image: 'postgres:alpine'
-        environment:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
-    steps:
-      - checkout
-      - run:
-          name: Apt update
-          command: >-
-            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
-            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
-      - run:
-          name: Install xsel & postgresql-client
-          command: sudo apt-get install -q xsel postgresql-client
-      - run:
-          name: Generate cache key
-          command: >-
-            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
-      - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
-      - run:
-          name: Install and build packages
-          command: yarn setup
-      - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
-          paths:
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-blockchain/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-database/node_modules
-            - ./packages/core-database-postgres/node_modules
-            - ./packages/core-elasticsearch/node_modules
-            - ./packages/core-error-tracker-airbrake/node_modules
-            - ./packages/core-error-tracker-bugsnag/node_modules
-            - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
-            - ./packages/core-error-tracker-sentry/node_modules
-            - ./packages/core-event-emitter/node_modules
-            - ./packages/core-forger/node_modules
-            - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
-            - ./packages/core-jest-matchers/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
-      - run:
-          name: Create .core/database directory
-          command: mkdir -p $HOME/.core/database
-      - run:
-          name: Unit tests
-          command: >-
-            cd ~/core && yarn test:unit:coverage --coverageDirectory
-            .coverage/unit/ --maxWorkers=2
-      - run:
-          name: Last 1000 lines of test output
-          when: on_fail
-          command: tail -n 1000 test_output.txt
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
-  test-node10-integration-1:
-    working_directory: ~/core
-    environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
-    docker:
-      - image: 'circleci/node:10-browsers'
-      - image: 'postgres:alpine'
-        environment:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
+          POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
     steps:
       - checkout
       - run:
@@ -611,18 +439,249 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node10-integration-2:
+  test-node11-integration-0:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
+    docker:
+      - image: 'circleci/node:11-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .core/database directory
+          command: mkdir -p $HOME/.core/database
+      - run:
+          name: core-api - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-api/ --coverageDirectory
+            .coverage/integration/core-api
+      - run:
+          name: core-blockchain - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-blockchain/ --coverageDirectory
+            .coverage/integration/core-blockchain
+      - run:
+          name: core-database-postgres - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-database-postgres/
+            --coverageDirectory .coverage/integration/core-database-postgres
+      - run:
+          name: core-forger - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-forger/ --coverageDirectory
+            .coverage/integration/core-forger
+      - run:
+          name: core-json-rpc - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-json-rpc/ --coverageDirectory
+            .coverage/integration/core-json-rpc
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node10-benchmark:
+    working_directory: ~/core
+    docker:
+      - image: 'circleci/node:10-browsers'
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Benchmark
+          command: cd ~/core && yarn bench
+  test-node11-benchmark:
+    working_directory: ~/core
+    docker:
+      - image: 'circleci/node:11-browsers'
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Benchmark
+          command: cd ~/core && yarn bench
+  test-node10-integration-1:
+    working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
+          POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
     steps:
       - checkout
       - run:
@@ -682,6 +741,12 @@ jobs:
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
+      - run:
+          name: core-p2p - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-p2p/ --coverageDirectory
+            .coverage/integration/core-p2p
       - run:
           name: core-tester-cli - integration
           command: >-
@@ -719,15 +784,15 @@ jobs:
   test-node11-integration-1:
     working_directory: ~/core
     environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
     docker:
       - image: 'circleci/node:11-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
+          POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
     steps:
       - checkout
       - run:
@@ -788,116 +853,11 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api - integration
+          name: core-p2p - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-api/ --coverageDirectory
-            .coverage/integration/core-api
-      - run:
-          name: core-blockchain - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-blockchain/ --coverageDirectory
-            .coverage/integration/core-blockchain
-      - run:
-          name: core-database-postgres - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-database-postgres/
-            --coverageDirectory .coverage/integration/core-database-postgres
-      - run:
-          name: core-forger - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-forger/ --coverageDirectory
-            .coverage/integration/core-forger
-      - run:
-          name: core-json-rpc - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-json-rpc/ --coverageDirectory
-            .coverage/integration/core-json-rpc
-      - run:
-          name: Last 1000 lines of test output
-          when: on_fail
-          command: tail -n 1000 test_output.txt
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Codecov
-          command: ./node_modules/.bin/codecov
-  test-node11-integration-2:
-    working_directory: ~/core
-    environment:
-      CORE_DB_DATABASE: core_unitnet
-      CORE_DB_USERNAME: core
-    docker:
-      - image: 'circleci/node:11-browsers'
-      - image: 'postgres:alpine'
-        environment:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: core_unitnet
-          POSTGRES_USER: core
-    steps:
-      - checkout
-      - run:
-          name: Apt update
-          command: >-
-            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
-            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
-      - run:
-          name: Install xsel & postgresql-client
-          command: sudo apt-get install -q xsel postgresql-client
-      - run:
-          name: Generate cache key
-          command: >-
-            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
-      - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
-      - run:
-          name: Install and build packages
-          command: yarn setup
-      - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
-          paths:
-            - ./packages/core/node_modules
-            - ./packages/core-api/node_modules
-            - ./packages/core-blockchain/node_modules
-            - ./packages/core-container/node_modules
-            - ./packages/core-database/node_modules
-            - ./packages/core-database-postgres/node_modules
-            - ./packages/core-elasticsearch/node_modules
-            - ./packages/core-error-tracker-airbrake/node_modules
-            - ./packages/core-error-tracker-bugsnag/node_modules
-            - ./packages/core-error-tracker-raygun/node_modules
-            - ./packages/core-error-tracker-rollbar/node_modules
-            - ./packages/core-error-tracker-sentry/node_modules
-            - ./packages/core-event-emitter/node_modules
-            - ./packages/core-forger/node_modules
-            - ./packages/core-http-utils/node_modules
-            - ./packages/core-interfaces/node_modules
-            - ./packages/core-jest-matchers/node_modules
-            - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
-      - run:
-          name: Create .core/database directory
-          command: mkdir -p $HOME/.core/database
+            test:coverage /integration/core-p2p/ --coverageDirectory
+            .coverage/integration/core-p2p
       - run:
           name: core-tester-cli - integration
           command: >-
@@ -940,9 +900,9 @@ workflows:
       - test-node11-unit
       - test-node10-functional
       - test-node11-functional
+      - test-node10-benchmark
+      - test-node11-benchmark
       - test-node10-integration-0
-      - test-node11-integration-0
       - test-node10-integration-1
-      - test-node10-integration-2
+      - test-node11-integration-0
       - test-node11-integration-1
-      - test-node11-integration-2

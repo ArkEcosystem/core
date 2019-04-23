@@ -2,8 +2,9 @@ import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../../helpers/transaction-factory";
-import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
 import { generateWallets } from "../../../../utils/generators/wallets";
 
@@ -42,15 +43,15 @@ beforeAll(async () => {
     wrongType = 3;
     version = 1;
     senderPublicKey = genesisTransaction.senderPublicKey;
-    senderAddress = genesisTransaction.senderId;
+    senderAddress = Identities.Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
     recipientAddress = genesisTransaction.recipientId;
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
     timestampTo = timestamp;
-    amount = genesisTransaction.amount;
+    amount = +genesisTransaction.amount.toFixed();
     amountFrom = amount;
     amountTo = amount;
-    fee = genesisTransaction.fee;
+    fee = +genesisTransaction.fee.toFixed();
     feeFrom = fee;
     feeTo = fee;
 });

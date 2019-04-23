@@ -1,6 +1,10 @@
 export const defaults = {
-    host: process.env.CORE_P2P_HOST || "0.0.0.0",
-    port: process.env.CORE_P2P_PORT || 4002,
+    // https://socketcluster.io/#!/docs/api-socketcluster
+    server: {
+        hostname: process.env.CORE_P2P_HOST || "0.0.0.0",
+        port: process.env.CORE_P2P_PORT || 4002,
+        logLevel: process.env.CORE_NETWORK_NAME === "testnet" ? 1 : 0,
+    },
     /**
      * The minimum peer version we expect
      */
@@ -56,15 +60,7 @@ export const defaults = {
      */
     ntp: ["pool.ntp.org", "time.google.com"],
     /**
-     * @see https://github.com/wraithgar/hapi-rate-limit
+     * Rate limit config, used in socket-server worker / master
      */
-    rateLimit: {
-        enabled: true,
-        pathLimit: false,
-        userLimit: 20,
-        userCache: {
-            expiresIn: 1000,
-        },
-        ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    },
+    rateLimit: 20, // max number of messages per second per socket connection
 };

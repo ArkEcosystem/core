@@ -1,8 +1,9 @@
 // tslint:disable:max-classes-per-file
 
 import { app } from "@arkecosystem/core-container";
+import { Database, Shared } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { models } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
@@ -18,14 +19,14 @@ enum UnchainedBlockStatus {
 }
 
 class BlockNotReadyCounter {
-    public static maxAttempts = 5;
+    public static maxAttempts: number = 5;
 
-    private id = "";
-    private attempts = 0;
+    private id: string = "";
+    private attempts: number = 0;
 
-    public increment(block: models.Block): boolean {
+    public increment(block: Interfaces.IBlock): boolean {
         const { id } = block.data;
-        let attemptsLeft = false;
+        let attemptsLeft: boolean = false;
 
         if (this.id !== id) {
             this.reset();
@@ -35,6 +36,7 @@ class BlockNotReadyCounter {
         this.attempts += 1;
 
         attemptsLeft = this.attempts <= BlockNotReadyCounter.maxAttempts;
+
         if (!attemptsLeft) {
             this.reset();
         }
@@ -53,7 +55,7 @@ export class UnchainedHandler extends BlockHandler {
 
     public constructor(
         protected readonly blockchain: Blockchain,
-        protected readonly block: models.Block,
+        protected readonly block: Interfaces.IBlock,
         private isValidGenerator: boolean,
     ) {
         super(blockchain, block);
@@ -64,12 +66,15 @@ export class UnchainedHandler extends BlockHandler {
 
         this.blockchain.clearQueue();
 
-        const status = this.checkUnchainedBlock();
+        const status: UnchainedBlockStatus = this.checkUnchainedBlock();
+
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
-                const database = app.resolvePlugin("database");
-                const roundInfo = roundCalculator.calculateRound(this.block.data.height);
-                const delegates = await database.getActiveDelegates(roundInfo);
+                const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(this.block.data.height);
+                const delegates: Database.IDelegateWallet[] = await app
+                    .resolvePlugin("database")
+                    .getActiveDelegates(roundInfo);
+
                 if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {
                     this.blockchain.forkBlock(this.block);
                 }
@@ -79,6 +84,7 @@ export class UnchainedHandler extends BlockHandler {
 
             case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
                 this.blockchain.forkBlock(this.block, 5000); // TODO: find a better heuristic based on peer information
+
                 return BlockProcessorResult.DiscardedButCanBeBroadcasted;
             }
 
@@ -94,7 +100,8 @@ export class UnchainedHandler extends BlockHandler {
     }
 
     private checkUnchainedBlock(): UnchainedBlockStatus {
-        const lastBlock = this.blockchain.getLastBlock();
+        const lastBlock: Interfaces.IBlock = this.blockchain.getLastBlock();
+
         if (this.block.data.height > lastBlock.data.height + 1) {
             this.logger.debug(
                 `Blockchain not ready to accept new block at height ${this.block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
@@ -129,6 +136,7 @@ export class UnchainedHandler extends BlockHandler {
             return UnchainedBlockStatus.AlreadyInBlockchain;
         } else if (this.block.data.height === lastBlock.data.height && this.block.data.id === lastBlock.data.id) {
             this.logger.debug(`Block ${this.block.data.height.toLocaleString()} just received`);
+
             return UnchainedBlockStatus.EqualToLastBlock;
         } else if (this.block.data.timestamp < lastBlock.data.timestamp) {
             this.logger.debug(

@@ -1,4 +1,3 @@
-import Boom from "boom";
 import Hapi from "hapi";
 import { transformerService } from "../../services/transformer";
 

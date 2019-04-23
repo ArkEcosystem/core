@@ -1,6 +1,5 @@
-import { configManager, crypto } from "@arkecosystem/crypto";
+import { Crypto, Identities, Managers } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import bip38 from "bip38";
 import bip39 from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
@@ -84,17 +83,17 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
         });
 
         this.addTask("Prepare crypto", async () => {
-            configManager.setFromPreset(flags.network);
+            Managers.configManager.setFromPreset(flags.network);
         });
 
         this.addTask("Loading private key", async () => {
             // @ts-ignore
-            decodedWIF = wif.decode(crypto.keysToWIF(crypto.getKeys(flags.bip39)));
+            decodedWIF = wif.decode(Identities.WIF.fromPassphrase(flags.bip39));
         });
 
         this.addTask("Encrypt BIP38", async () => {
             const delegates = require(delegatesConfig);
-            delegates.bip38 = bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, flags.password);
+            delegates.bip38 = Crypto.bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, flags.password);
             delegates.secrets = [];
 
             fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));

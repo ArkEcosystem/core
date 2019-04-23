@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { networks } from "@arkecosystem/crypto";
+import { Networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
 import envPaths, { Paths } from "env-paths";
@@ -15,7 +15,7 @@ import { CommandFlags, Options } from "../types";
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
 
-const validNetworks = Object.keys(networks).filter(network => network !== "unitnet");
+const validNetworks = Object.keys(Networks).filter(network => network !== "unitnet");
 
 export abstract class BaseCommand extends Command {
     public static flagsNetwork: Record<string, object> = {

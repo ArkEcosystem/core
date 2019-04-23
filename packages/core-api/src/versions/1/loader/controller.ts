@@ -1,7 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import Boom from "boom";
 import Hapi from "hapi";
-import { transactionsRepository } from "../../../repositories";
 import { Controller } from "../shared/controller";
 
 export class LoaderController extends Controller {
@@ -20,7 +18,8 @@ export class LoaderController extends Controller {
             return super.respondWith({
                 loaded: this.blockchain.isSynced(),
                 now: lastBlock ? lastBlock.data.height : 0,
-                blocksCount: this.blockchain.p2p.getNetworkHeight() - (lastBlock ? lastBlock.data.height : 0),
+                blocksCount:
+                    this.blockchain.p2p.getMonitor().getNetworkHeight() - (lastBlock ? lastBlock.data.height : 0),
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -33,7 +32,7 @@ export class LoaderController extends Controller {
 
             return super.respondWith({
                 syncing: !this.blockchain.isSynced(),
-                blocks: this.blockchain.p2p.getNetworkHeight() - lastBlock.data.height,
+                blocks: this.blockchain.p2p.getMonitor().getNetworkHeight() - lastBlock.data.height,
                 height: lastBlock.data.height,
                 id: lastBlock.data.id,
             });
@@ -44,8 +43,6 @@ export class LoaderController extends Controller {
 
     public async autoconfigure(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const feeStatisticsData = await transactionsRepository.getFeeStatistics();
-
             const network = this.config.get("network");
 
             return super.respondWith({
@@ -56,7 +53,6 @@ export class LoaderController extends Controller {
                     explorer: network.client.explorer,
                     version: network.pubKeyHash,
                     ports: super.toResource(request, this.config, "ports"),
-                    feeStatistics: super.toCollection(request, feeStatisticsData, "fee-statistics"),
                 },
             });
         } catch (error) {

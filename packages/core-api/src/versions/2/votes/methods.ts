@@ -1,10 +1,10 @@
-import { constants } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "boom";
 import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const { TransactionTypes } = constants;
+const { TransactionTypes } = Enums;
 
 const index = async request => {
     const transactions = await transactionsRepository.findAllByType(TransactionTypes.Vote, {

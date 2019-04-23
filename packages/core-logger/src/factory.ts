@@ -5,7 +5,7 @@ export class LoggerFactory {
     public make(driver: Logger.ILogger): Logger.ILogger {
         const instance: Logger.ILogger = driver.make();
 
-        driver.debug(`${app.getName()} ${app.getVersion()}`);
+        instance.debug(`${app.getName()} ${app.getVersion()}`);
         this.logPaths(instance);
 
         return instance;

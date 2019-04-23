@@ -1,7 +1,9 @@
-import { app } from "@arkecosystem/core-container";
-import { Peer } from "@arkecosystem/core-p2p/dist/peer";
-import { crypto } from "@arkecosystem/crypto";
 import "jest-extended";
+
+import { app } from "@arkecosystem/core-container";
+import { Peer } from "@arkecosystem/core-p2p";
+import { Transactions } from "@arkecosystem/crypto";
+import { randomBytes } from "crypto";
 import nock from "nock";
 import { sendRequest } from "./__support__/request";
 import { setUp, tearDown } from "./__support__/setup";
@@ -14,31 +16,27 @@ let mockHost;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4000);
-    Object.assign(peerMock, peerMock.headers, { status: "OK" });
+    peerMock = new Peer("1.0.0.99", 4003); // @NOTE: we use the Public API port
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-    monitor.peers[peerMock.ip] = peerMock;
+    app.resolvePlugin("p2p")
+        .getStorage()
+        .setPeer(peerMock);
 
     nock("http://localhost", { allowUnmocked: true });
 
-    mockHost = nock("http://localhost:4003");
+    mockHost = nock(peerMock.url);
 });
 
-afterAll(async () => {
-    nock.cleanAll();
-    await tearDown();
-});
-beforeEach(async () => {
-    nock(peerMock.url)
-        .get("/peer/status")
-        .reply(200, { success: true, height: 1 }, peerMock.headers);
-});
+afterAll(async () => await tearDown());
 
 afterEach(async () => {
     nock.cleanAll();
+    jest.restoreAllMocks();
 });
+
+function verifyTransaction(data): boolean {
+    return Transactions.TransactionFactory.fromData(data).verify();
+}
 
 describe("Transactions", () => {
     describe("POST transactions.info", () => {
@@ -81,7 +79,33 @@ describe("Transactions", () => {
             });
 
             expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
+        });
+
+        it("should create a new transaction with a vendor field and verify", async () => {
+            const response = await sendRequest("transactions.create", {
+                amount: 100000000,
+                passphrase: "this is a top secret passphrase",
+                recipientId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                vendorField: "Hello World",
+            });
+
+            expect(response.body.result.recipientId).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
+            expect(response.body.result.vendorField).toBe("Hello World");
+            expect(verifyTransaction(response.body.result)).toBeTrue();
+        });
+
+        it("should return 422 if it fails to verify the transaction", async () => {
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+
+            const response = await sendRequest("transactions.create", {
+                amount: 100000000,
+                recipientId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                passphrase: "this is a top secret passphrase",
+            });
+
+            expect(response.body.error.code).toBe(422);
+            expect(spyVerify).toHaveBeenCalled();
         });
     });
 
@@ -93,13 +117,13 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            mockHost.post("/api/transactions").reply(200, { success: true }, peerMock.headers);
+            mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
 
             const response = await sendRequest("transactions.broadcast", {
                 id: transaction.body.result.id,
             });
 
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
 
         it("should fail to broadcast the transaction", async () => {
@@ -112,13 +136,31 @@ describe("Transactions", () => {
                 "Transaction e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8 could not be found.",
             );
         });
+
+        it("should return 422 if it fails to verify the transaction", async () => {
+            const transaction = await sendRequest("transactions.create", {
+                amount: 100000000,
+                recipientId: "APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn",
+                passphrase: "this is a top secret passphrase",
+            });
+
+            mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
+
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+
+            const response = await sendRequest("transactions.broadcast", {
+                id: transaction.body.result.id,
+            });
+
+            expect(response.body.error.code).toBe(422);
+            expect(spyVerify).toHaveBeenCalled();
+        });
     });
 
     describe("POST transactions.bip38.create", () => {
+        const userId: string = randomBytes(32).toString("hex");
+
         it("should create a new transaction", async () => {
-            const userId = require("crypto")
-                .randomBytes(32)
-                .toString("hex");
             await sendRequest("wallets.bip38.create", {
                 bip38: "this is a top secret passphrase",
                 userId,
@@ -132,7 +174,21 @@ describe("Transactions", () => {
             });
 
             expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
-            expect(crypto.verify(response.body.result)).toBeTrue();
+            expect(verifyTransaction(response.body.result)).toBeTrue();
+        });
+
+        it("should create a new transaction with a vendor field", async () => {
+            const response = await sendRequest("transactions.bip38.create", {
+                bip38: "this is a top secret passphrase",
+                userId,
+                amount: 1000000000,
+                recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+                vendorField: "Hello World",
+            });
+
+            expect(response.body.result.recipientId).toBe("AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv");
+            expect(response.body.result.vendorField).toBe("Hello World");
+            expect(verifyTransaction(response.body.result)).toBeTrue();
         });
 
         it("should fail to create a new transaction", async () => {
@@ -145,6 +201,21 @@ describe("Transactions", () => {
 
             expect(response.body.error.code).toBe(404);
             expect(response.body.error.message).toBe("User 123456789 could not be found.");
+        });
+
+        it("should return 422 if it fails to verify the transaction", async () => {
+            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+
+            const response = await sendRequest("transactions.bip38.create", {
+                bip38: "this is a top secret passphrase",
+                userId,
+                amount: 1000000000,
+                recipientId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
+                vendorField: "Hello World",
+            });
+
+            expect(response.body.error.code).toBe(422);
+            expect(spyVerify).toHaveBeenCalled();
         });
     });
 });

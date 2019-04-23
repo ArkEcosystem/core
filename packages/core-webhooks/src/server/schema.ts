@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export const conditions = [
+export const conditions: string[] = [
     "between",
     "contains",
     "eq",
@@ -15,24 +15,13 @@ export const conditions = [
     "truthy",
 ];
 
-export const index = {
-    query: {
-        page: Joi.number()
-            .integer()
-            .positive(),
-        limit: Joi.number()
-            .integer()
-            .positive(),
-    },
-};
-
-export const show = {
+export const show: object = {
     params: {
         id: Joi.string(),
     },
 };
 
-export const store = {
+export const store: object = {
     payload: {
         event: Joi.string().required(),
         target: Joi.string()
@@ -49,7 +38,7 @@ export const store = {
     },
 };
 
-export const update = {
+export const update: object = {
     params: {
         id: Joi.string(),
     },
@@ -67,7 +56,7 @@ export const update = {
     },
 };
 
-export const destroy = {
+export const destroy: object = {
     params: {
         id: Joi.string(),
     },

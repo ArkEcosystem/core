@@ -1,10 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Transactions } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
-
-const { Block } = models;
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 export const verifyData = (context, data, prevData, verifySignatures) => {
     if (context === "blocks") {
@@ -29,7 +26,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
         };
 
         if (!isBlockChained()) {
-            logger.error(
+            app.resolvePlugin<Logger.ILogger>("logger").error(
                 `Blocks are not chained. Current block: ${JSON.stringify(data)}, previous block: ${JSON.stringify(
                     prevData,
                 )}`,
@@ -39,13 +36,15 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
 
         // TODO: manually calculate block ID and compare to existing
         if (verifySignatures) {
-            const bytes = Block.serialize(camelizeKeys(data), false);
-            const hash = HashAlgorithms.sha256(bytes);
+            const bytes = Blocks.Block.serialize(camelizeKeys(data), false);
+            const hash = Crypto.HashAlgorithms.sha256(bytes);
 
-            const signatureVerify = crypto.verifyHash(hash, data.block_signature, data.generator_public_key);
+            const signatureVerify = Crypto.Hash.verify(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
-                logger.error(`Failed to verify signature: ${JSON.stringify(data)}`);
+                app.resolvePlugin<Logger.ILogger>("logger").error(
+                    `Failed to verify signature: ${JSON.stringify(data)}`,
+                );
             }
 
             return signatureVerify;
@@ -59,7 +58,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             return true;
         }
 
-        return Transaction.fromBytes(data.serialized).verified;
+        return Transactions.TransactionFactory.fromBytes(data.serialized).verified;
     }
 
     return false;

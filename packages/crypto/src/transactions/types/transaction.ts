@@ -1,90 +1,19 @@
 // tslint:disable:member-ordering
 import { TransactionRegistry } from "..";
-import { TransactionTypes } from "../../constants";
-import { crypto } from "../../crypto";
-import {
-    MalformedTransactionBytesError,
-    NotImplementedError,
-    TransactionSchemaError,
-    TransactionVersionError,
-} from "../../errors";
-import { Bignum, isException } from "../../utils";
-import { AjvWrapper } from "../../validation";
-import { TransactionDeserializer } from "../deserializers";
-import { ISchemaValidationResult, ITransactionData } from "../interfaces";
-import { TransactionSerializer } from "../serializers";
+import { Hash, HashAlgorithms } from "../../crypto";
+import { TransactionTypes } from "../../enums";
+import { NotImplementedError } from "../../errors";
+import { IKeyPair, ISerializeOptions, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import { configManager } from "../../managers";
+import { isException } from "../../utils";
+import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 
-export abstract class Transaction {
+export abstract class Transaction implements ITransaction {
     public static type: TransactionTypes = null;
 
-    public static fromHex(hex: string): Transaction {
-        return this.fromSerialized(hex);
-    }
-
-    public static fromBytes(buffer: Buffer): Transaction {
-        return this.fromSerialized(buffer);
-    }
-
-    /**
-     * Deserializes a transaction from `buffer` with the given `id`. It is faster
-     * than `fromBytes` at the cost of vital safety checks (validation, verification and id calculation).
-     *
-     * NOTE: Only use this internally when it is safe to assume the buffer has already been
-     * verified.
-     */
-    public static fromBytesUnsafe(buffer: Buffer, id?: string): Transaction {
-        try {
-            const transaction = TransactionDeserializer.deserialize(buffer);
-            transaction.data.id = id || crypto.getId(transaction.data);
-            transaction.isVerified = true;
-
-            return transaction;
-        } catch (error) {
-            throw new MalformedTransactionBytesError();
-        }
-    }
-
-    private static fromSerialized(serialized: string | Buffer): Transaction {
-        try {
-            const transaction = TransactionDeserializer.deserialize(serialized);
-            transaction.data.id = crypto.getId(transaction.data);
-
-            const { value, error } = this.validateSchema(transaction.data, true);
-            if (error !== null && !isException(value)) {
-                throw new TransactionSchemaError(error);
-            }
-
-            transaction.isVerified = transaction.verify();
-            return transaction;
-        } catch (error) {
-            if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
-                throw error;
-            }
-
-            throw new MalformedTransactionBytesError();
-        }
-    }
-
-    public static fromData(data: ITransactionData, strict: boolean = true): Transaction {
-        const { value, error } = this.validateSchema(data, strict);
-        if (error !== null && !isException(value)) {
-            throw new TransactionSchemaError(error);
-        }
-
-        const transaction = TransactionRegistry.create(value);
-        TransactionDeserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
-        TransactionSerializer.serialize(transaction);
-
-        data.id = crypto.getId(data);
-        transaction.isVerified = transaction.verify();
-
-        return transaction;
-    }
-
     public static toBytes(data: ITransactionData): Buffer {
-        const transaction = TransactionRegistry.create(data);
-        return TransactionSerializer.serialize(transaction);
+        return Serializer.serialize(TransactionRegistry.create(data));
     }
 
     public get id(): string {
@@ -95,7 +24,7 @@ export abstract class Transaction {
         return this.data.type;
     }
 
-    private isVerified: boolean;
+    public isVerified: boolean;
     public get verified(): boolean {
         return this.isVerified;
     }
@@ -104,17 +33,12 @@ export abstract class Transaction {
     public serialized: Buffer;
     public timestamp: number;
 
-    /**
-     * Serde
-     */
     public abstract serialize(): ByteBuffer;
     public abstract deserialize(buf: ByteBuffer): void;
 
-    /**
-     * Misc
-     */
-    protected verify(): boolean {
+    public verify(): boolean {
         const { data } = this;
+
         if (isException(data)) {
             return true;
         }
@@ -123,13 +47,30 @@ export abstract class Transaction {
             return false;
         }
 
-        return crypto.verify(data);
+        return Transaction.verifyData(data);
     }
 
-    public toJson() {
-        const data = Object.assign({}, this.data);
-        data.amount = +(data.amount as Bignum).toFixed();
-        data.fee = +(data.fee as Bignum).toFixed();
+    public static verifyData(data: ITransactionData): boolean {
+        if (data.version && data.version !== 1) {
+            // TODO: enable AIP11 when ready here
+            return false;
+        }
+
+        if (!data.signature) {
+            return false;
+        }
+
+        return Hash.verify(
+            Transaction.getHash(data, { excludeSignature: true, excludeSecondSignature: true }),
+            data.signature,
+            data.senderPublicKey,
+        );
+    }
+
+    public toJson(): ITransactionJson {
+        const data: ITransactionJson = JSON.parse(JSON.stringify(this.data));
+        data.amount = this.data.amount.toFixed();
+        data.fee = this.data.fee.toFixed();
 
         if (data.vendorFieldHex === null) {
             delete data.vendorFieldHex;
@@ -142,22 +83,61 @@ export abstract class Transaction {
         return false;
     }
 
-    /**
-     * Schema
-     */
     public static getSchema(): TransactionSchema {
         throw new NotImplementedError();
     }
 
-    private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
-        // FIXME: legacy type 4 need special treatment
-        if (data.type === TransactionTypes.MultiSignature) {
-            data.amount = new Bignum(data.amount);
-            data.fee = new Bignum(data.fee);
-            return { value: data, error: null };
+    public static getId(transaction: ITransactionData): string {
+        const id: string = Transaction.getHash(transaction).toString("hex");
+
+        // Apply fix for broken type 1 and 4 transactions, which were
+        // erroneously calculated with a recipient id.
+        const { transactionIdFixTable } = configManager.get("exceptions");
+
+        if (transactionIdFixTable && transactionIdFixTable[id]) {
+            return transactionIdFixTable[id];
         }
 
-        const { $id } = TransactionRegistry.get(data.type).getSchema();
-        return AjvWrapper.validate(strict ? `${$id}Strict` : `${$id}`, data);
+        return id;
+    }
+
+    public static getHash(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
+        return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
+    }
+
+    public static sign(transaction: ITransactionData, keys: IKeyPair): string {
+        const hash: Buffer = Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
+        const signature: string = Hash.sign(hash, keys);
+
+        if (!transaction.signature) {
+            transaction.signature = signature;
+        }
+
+        return signature;
+    }
+
+    public static secondSign(transaction: ITransactionData, keys: IKeyPair): string {
+        const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
+        const signature: string = Hash.sign(hash, keys);
+
+        if (!transaction.secondSignature) {
+            transaction.secondSignature = signature;
+        }
+
+        return signature;
+    }
+
+    public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
+        const secondSignature = transaction.secondSignature || transaction.signSignature;
+
+        if (!secondSignature) {
+            return false;
+        }
+
+        return Hash.verify(
+            Transaction.getHash(transaction, { excludeSecondSignature: true }),
+            secondSignature,
+            publicKey,
+        );
     }
 }

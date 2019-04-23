@@ -29,7 +29,11 @@ export class Container implements container.IContainer {
      * @param  {Object} options
      * @return {void}
      */
-    public async setUp(version: string, variables: Record<string, any>, options: Record<string, any> = {}) {
+    public async setUp(
+        version: string,
+        variables: Record<string, any>,
+        options: Record<string, any> = {},
+    ): Promise<void> {
         // Register any exit signal handling
         this.registerExitHandler(["SIGINT", "exit"]);
 
@@ -42,7 +46,7 @@ export class Container implements container.IContainer {
         this.name = `${this.variables.token}-${this.variables.suffix}`;
 
         // Register the environment variables
-        const environment = new Environment(variables);
+        const environment: Environment = new Environment(variables);
         environment.setUp();
 
         // Mainly used for testing environments!
@@ -65,11 +69,7 @@ export class Container implements container.IContainer {
         return this.config;
     }
 
-    /**
-     * Tear down the app.
-     * @return {Promise}
-     */
-    public async tearDown() {
+    public async tearDown(): Promise<void> {
         if (!this.options.skipPlugins) {
             await this.plugins.tearDown();
         }
@@ -77,10 +77,7 @@ export class Container implements container.IContainer {
         this.isReady = false;
     }
 
-    /**
-     * Add a new registration.
-     */
-    public register<T>(name, resolver: Resolver<T>) {
+    public register<T>(name: string, resolver: Resolver<T>) {
         try {
             this.container.register(name, resolver);
             return this;
@@ -89,13 +86,7 @@ export class Container implements container.IContainer {
         }
     }
 
-    /**
-     * Resolve a registration.
-     * @param  {string} key
-     * @return {Object}
-     * @throws {Error}
-     */
-    public resolve<T = any>(key): T {
+    public resolve<T = any>(key: string): T {
         try {
             return this.container.resolve<T>(key);
         } catch (err) {
@@ -103,40 +94,18 @@ export class Container implements container.IContainer {
         }
     }
 
-    /**
-     * Resolve a plugin.
-     * @param  {string} key
-     * @return {Object}
-     * @throws {Error}
-     */
-    public resolvePlugin<T = any>(key): T {
+    public resolvePlugin<T = any>(key: string): T {
         try {
             return this.container.resolve<container.PluginConfig<T>>(key).plugin;
         } catch (err) {
             return null;
         }
     }
-
-    /**
-     * Resolve the options of a plugin. Available before a plugin mounts.
-     * @param  {string} key
-     * @return {Object}
-     * @throws {Error}
-     */
     public resolveOptions(key) {
-        try {
-            return this.container.resolve<container.PluginConfig<any>>(key).options;
-        } catch (err) {
-            throw err;
-        }
+        return this.container.resolve<container.PluginConfig<any>>(`pkg.${key}.opts`);
     }
 
-    /**
-     * Determine if the given registration exists.
-     * @param  {String}  key
-     * @return {Boolean}
-     */
-    public has(key) {
+    public has(key: string) {
         try {
             this.container.resolve(key);
 
@@ -146,24 +115,11 @@ export class Container implements container.IContainer {
         }
     }
 
-    /**
-     * Force the container to exit and print the given message and associated error.
-     * @param  {String} message
-     * @param  {Error} error
-     * @return {void}
-     */
-    public forceExit(message, error = null) {
+    public forceExit(message: string, error?: Error) {
         this.exit(1, message, error);
     }
 
-    /**
-     * Exit the container with the given exitCode, message and associated error.
-     * @param  {Number} exitCode
-     * @param  {String} message
-     * @param  {Error} error
-     * @return {void}
-     */
-    public exit(exitCode, message, error = null) {
+    public exit(exitCode: number, message: string, error?: Error): void {
         this.shuttingDown = true;
 
         const logger = this.resolvePlugin<Logger.ILogger>("logger");
@@ -176,20 +132,11 @@ export class Container implements container.IContainer {
         process.exit(exitCode);
     }
 
-    /**
-     * Get the application version.
-     * @throws {String}
-     */
     public getVersion(): string {
         return this.version;
     }
 
-    /**
-     * Set the application version.
-     * @param  {String} version
-     * @return {void}
-     */
-    public setVersion(version: string) {
+    public setVersion(version: string): void {
         if (!semver.valid(version)) {
             this.forceExit(
                 // tslint:disable-next-line:max-line-length
@@ -204,11 +151,7 @@ export class Container implements container.IContainer {
         return this.name;
     }
 
-    /**
-     * Handle any exit signals.
-     * @return {void}
-     */
-    private registerExitHandler(exitEvents: string[]) {
+    private registerExitHandler(exitEvents: string[]): void {
         const handleExit = async () => {
             if (this.shuttingDown || !this.isReady) {
                 return;
@@ -216,28 +159,18 @@ export class Container implements container.IContainer {
 
             this.shuttingDown = true;
 
-            const logger = this.resolvePlugin<Logger.ILogger>("logger");
+            const logger: Logger.ILogger = this.resolvePlugin<Logger.ILogger>("logger");
             if (logger) {
                 logger.suppressConsoleOutput(this.silentShutdown);
                 logger.info("Core is trying to gracefully shut down to avoid data corruption");
             }
 
             try {
-                /* TODO: core-database-postgres has a dep on core-container. Yet we have code in core-container fetching a reference to core-database-postgres.
-                If we try to import core-database-postgres types, we create a circular dependency: core-container -> core-database-postgres -> core-container.
-                The only thing we're doing here is trying to save the wallets upon shutdown. The code can and should be moved into core-database-postgres instead
-                and leverage either the plugins `tearDown` method or the event-emitter's 'shutdown' event
-                 */
-                const database = this.resolvePlugin("database");
-                if (database) {
-                    const emitter = this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+                // Notify plugins about shutdown
+                this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("shutdown");
 
-                    // Notify plugins about shutdown
-                    emitter.emit("shutdown");
-
-                    // Wait for event to be emitted and give time to finish
-                    await delay(1000);
-                }
+                // Wait for event to be emitted and give time to finish
+                await delay(1000);
             } catch (error) {
                 // tslint:disable-next-line:no-console
                 console.error(error.stack);

@@ -1,55 +1,63 @@
-import { Bignum } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { ITransactionsPaginated } from "../business-repository";
 import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
+import { IWallet } from "../wallet-manager";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
-    /**
-     * Find a transactions by its ID.
-     */
-    findById(id: string): Promise<any>;
+    findById(id: string): Promise<Interfaces.ITransactionData>;
 
-    /**
-     * Find multiple transactionss by their block ID.
-     */
-    findByBlockId(blockId: string): Promise<any[]>;
+    findByBlockId(
+        blockId: string,
+    ): Promise<
+        Array<{
+            id: string;
+            serialized: Buffer;
+        }>
+    >;
 
-    /**
-     * Find multiple transactionss by their block ID and order them by sequence.
-     */
-    latestByBlock(blockId: string): Promise<any[]>;
+    latestByBlock(
+        blockId: string,
+    ): Promise<
+        Array<{
+            id: string;
+            serialized: Buffer;
+        }>
+    >;
 
-    /**
-     * Find multiple transactionss by their block IDs and order them by sequence.
-     */
-    latestByBlocks(blockIds: string[]): Promise<any[]>;
+    latestByBlocks(
+        blockIds: string[],
+    ): Promise<
+        Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }>
+    >;
 
-    /**
-     * Get all of the forged transaction ids from the database.
-     */
-    forged(ids: string[]): Promise<any[]>;
+    forged(ids: string[]): Promise<Interfaces.ITransactionData[]>;
 
-    /**
-     * Get statistics about all transactions from the database.
-     */
     statistics(): Promise<{
         count: number;
-        totalFee: Bignum;
-        totalAmount: Bignum;
+        totalFee: Utils.BigNumber;
+        totalAmount: Utils.BigNumber;
     }>;
 
-    getFeeStatistics(minFeeBroadcast: number): Promise<any>;
+    getFeeStatistics(
+        days: number,
+        minFeeBroadcast: number,
+    ): Promise<Array<{ type: number; fee: number; timestamp: number }>>;
 
-    /**
-     * Delete transactions with blockId
-     */
     deleteByBlockId(blockId: string): Promise<void>;
 
-    findAllByWallet(wallet: any, paginate?: SearchPaginate, orderBy?: SearchOrderBy[]): Promise<any>;
-
-    findWithVendorField(): Promise<any>;
+    findAllByWallet(
+        wallet: IWallet,
+        paginate?: SearchPaginate,
+        orderBy?: SearchOrderBy[],
+    ): Promise<ITransactionsPaginated>;
 
     /* TODO: Remove with v1 */
-    findAll(parameters: SearchParameters): Promise<any>;
+    findAll(parameters: SearchParameters): Promise<ITransactionsPaginated>;
 
-    search(parameters: SearchParameters): Promise<any>;
+    search(parameters: SearchParameters): Promise<ITransactionsPaginated>;
 }

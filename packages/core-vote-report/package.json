@@ -22,12 +22,11 @@
         "@arkecosystem/core-http-utils": "^2.3.0",
         "@arkecosystem/core-utils": "^2.3.0",
         "@arkecosystem/crypto": "^2.3.0",
-        "handlebars": "^4.1.0",
+        "handlebars": "^4.1.2",
         "lodash.sumby": "^4.6.0",
         "vision": "^5.4.4"
     },
     "devDependencies": {
-        "@types/handlebars": "^4.1.0",
         "@types/lodash.sumby": "^4.6.6",
         "@types/vision": "^5.3.6"
     },

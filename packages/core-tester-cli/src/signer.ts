@@ -1,5 +1,4 @@
-import { bignumify } from "@arkecosystem/core-utils";
-import { client } from "@arkecosystem/crypto";
+import { Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Signer {
     protected network: Record<string, any>;
@@ -9,9 +8,7 @@ export class Signer {
     }
 
     public makeTransfer(opts: Record<string, any>): any {
-        const transaction = client
-            .getBuilder()
-            .transfer()
+        const transaction = Transactions.BuilderFactory.transfer()
             .fee(this.toSatoshi(opts.transferFee))
             .network(this.network.version)
             .recipientId(opts.recipient)
@@ -31,9 +28,7 @@ export class Signer {
     }
 
     public makeDelegate(opts: Record<string, any>): any {
-        const transaction = client
-            .getBuilder()
-            .delegateRegistration()
+        const transaction = Transactions.BuilderFactory.delegateRegistration()
             .fee(this.toSatoshi(opts.delegateFee))
             .network(this.network.version)
             .usernameAsset(opts.username)
@@ -47,9 +42,7 @@ export class Signer {
     }
 
     public makeSecondSignature(opts: Record<string, any>): any {
-        return client
-            .getBuilder()
-            .secondSignature()
+        return Transactions.BuilderFactory.secondSignature()
             .fee(this.toSatoshi(opts.signatureFee))
             .network(this.network.version)
             .signatureAsset(opts.secondPassphrase)
@@ -58,9 +51,7 @@ export class Signer {
     }
 
     public makeVote(opts: Record<string, any>): any {
-        const transaction = client
-            .getBuilder()
-            .vote()
+        const transaction = Transactions.BuilderFactory.vote()
             .fee(this.toSatoshi(opts.voteFee))
             .votesAsset([`+${opts.delegate}`])
             .network(this.network.version)
@@ -73,8 +64,8 @@ export class Signer {
         return transaction.getStruct();
     }
 
-    private toSatoshi(value) {
-        return bignumify(value)
+    private toSatoshi(value): string {
+        return Utils.BigNumber.make(value)
             .times(1e8)
             .toFixed();
     }

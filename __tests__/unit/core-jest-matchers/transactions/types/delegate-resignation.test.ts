@@ -1,7 +1,7 @@
 import "../../../../../packages/core-jest-matchers/src/transactions/types/delegate-resignation";
 
-import { constants } from "@arkecosystem/crypto";
-const { TransactionTypes } = constants;
+import { Enums } from "@arkecosystem/crypto";
+const { TransactionTypes } = Enums;
 
 describe(".toBeDelegateResignationType", () => {
     test("passes when given a valid transaction", () => {

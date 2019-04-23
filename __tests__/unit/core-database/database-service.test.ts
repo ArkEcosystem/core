@@ -4,7 +4,7 @@ import "./mocks/core-container";
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Address, Bignum, constants, models, Transaction, transactionBuilder } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { roundCalculator } from "../../../packages/core-utils/dist";
@@ -12,8 +12,9 @@ import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { StateStorageStub } from "./__fixtures__/state-storage-stub";
 
-const { Block } = models;
-const { SATOSHI, TransactionTypes } = constants;
+const { BlockFactory } = Blocks;
+const { SATOSHI } = Constants;
+const { TransactionTypes } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
@@ -192,8 +193,10 @@ describe("Database Service", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                    wallet.username = Transaction.fromBytes(transaction.serialized).data.asset.delegate.username;
-                    wallet.address = Address.fromPublicKey(transaction.data.senderPublicKey);
+                    wallet.username = Transactions.TransactionFactory.fromBytes(
+                        transaction.serialized,
+                    ).data.asset.delegate.username;
+                    wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
             }
@@ -203,6 +206,7 @@ describe("Database Service", () => {
                 publicKey: "02c71ab1a1b5b7c278145382eb0b535249483b3c4715a4fe6169d40388bbb09fa7",
                 privateKey: "dcf4ead2355090279aefba91540f32e93b15c541ecb48ca73071f161b4f3e2e3",
                 address: "D64cbDctaiADEH7NREnvRQGV27bnb1v2kE",
+                compressed: true,
             };
 
             // Beginning of round 2 with all delegates 0 vote balance.
@@ -222,26 +226,29 @@ describe("Database Service", () => {
             // reverse the current delegate order.
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
-                const transfer = transactionBuilder
-                    .transfer()
-                    .amount((i + 1) * SATOSHI)
+                const transfer = Transactions.BuilderFactory.transfer()
+                    .amount(
+                        Utils.BigNumber.make(i + 1)
+                            .times(SATOSHI)
+                            .toFixed(),
+                    )
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();
 
                 // Vote for itself
                 walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
-                // walletManager.byPublicKey[delegatesRound2[i].publicKey].vote = delegatesRound2[i].publicKey;
 
-                const block = Block.create(
+                const block = BlockFactory.make(
                     {
                         version: 0,
                         timestamp: 0,
+                        previousBlock: genesisBlock.data.id,
                         height: initialHeight + i,
                         numberOfTransactions: 1,
                         totalAmount: transfer.data.amount,
-                        totalFee: new Bignum(0.1),
-                        reward: new Bignum(2),
+                        totalFee: Utils.BigNumber.make(1),
+                        reward: Utils.BigNumber.make(2),
                         payloadLength: 0,
                         payloadHash: "a".repeat(64),
                         transactions: [transfer.data],

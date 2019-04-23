@@ -26,7 +26,6 @@
         "@arkecosystem/core-utils": "^2.3.0",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
-        "hapi-pagination": "^2.1.0",
         "joi": "^14.3.1",
         "lowdb": "^1.0.0",
         "uuid": "^3.3.2"
@@ -34,10 +33,7 @@
     "devDependencies": {
         "@types/boom": "^7.2.1",
         "@types/fs-extra": "^5.0.5",
-        "@types/joi": "^14.3.2",
-        "@types/sequelize": "^4.27.39",
-        "@types/sqlite3": "^3.1.5",
-        "@types/umzug": "^2.2.0"
+        "@types/joi": "^14.3.3"
     },
     "publishConfig": {
         "access": "public"

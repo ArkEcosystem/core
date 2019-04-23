@@ -1,10 +1,12 @@
+import "jest-extended";
+
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { models } from "@arkecosystem/crypto";
-import genesisBlock from "../../utils/config/testnet/genesisBlock.json";
+import { Blocks } from "@arkecosystem/crypto";
+import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "./__support__/setup";
 
-const { Block } = models;
+const { BlockFactory } = Blocks;
 
 let databaseService: Database.IDatabaseService;
 
@@ -13,7 +15,7 @@ beforeAll(async () => {
 
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    await databaseService.saveBlock(new Block(genesisBlock));
+    await databaseService.saveBlock(BlockFactory.fromData(genesisBlock));
 });
 
 afterAll(async () => {
@@ -23,18 +25,13 @@ afterAll(async () => {
 describe("Connection", () => {
     describe("verifyBlockchain", () => {
         it("should be valid - no errors - when verifying blockchain", async () => {
-            expect(await databaseService.verifyBlockchain()).toEqual({
-                valid: true,
-                errors: [],
-            });
+            await expect(databaseService.verifyBlockchain()).resolves.toBeTrue();
         });
     });
 
     describe("getLastBlock", () => {
         it("should get the genesis block as last block", async () => {
-            const lastBlock = await databaseService.getLastBlock();
-
-            expect(lastBlock).toEqual(new Block(genesisBlock as any));
+            await expect(databaseService.getLastBlock()).resolves.toEqual(BlockFactory.fromData(genesisBlock));
         });
     });
 });

@@ -1,25 +1,27 @@
-import { configManager, constants, crypto } from "../../../../packages/crypto/src";
-import { transactionBuilder } from "../../../../packages/crypto/src/builder";
+import { Utils } from "@arkecosystem/crypto";
+import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
+import { TransactionTypes } from "../../../../packages/crypto/src/enums";
+import { PublicKey } from "../../../../packages/crypto/src/identities";
+import { configManager } from "../../../../packages/crypto/src/managers";
+import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionRegistry } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
-import { AjvWrapper as Ajv } from "../../../../packages/crypto/src/validation";
-
-const { TransactionTypes } = constants;
+import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 
 let transaction;
 let transactionSchema: TransactionSchema;
 
 describe("Transfer Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
-    const fee = 1 * constants.ARKTOSHI;
-    const amount = 10 * constants.ARKTOSHI;
+    const fee = 1 * ARKTOSHI;
+    const amount = 10 * ARKTOSHI;
 
     beforeAll(() => {
         transactionSchema = TransactionRegistry.get(TransactionTypes.Transfer).getSchema();
     });
 
     beforeEach(() => {
-        transaction = transactionBuilder.transfer();
+        transaction = BuilderFactory.transfer();
     });
 
     it("should be valid", () => {
@@ -36,7 +38,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(fee)
+            .fee(Utils.BigNumber.make(fee).toFixed())
             .vendorField("Ahoy")
             .sign("passphrase");
 
@@ -48,7 +50,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(fee)
+            .fee(Utils.BigNumber.make(fee).toFixed())
             .vendorField("a".repeat(64))
             .sign("passphrase");
         let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -57,7 +59,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(fee)
+            .fee(Utils.BigNumber.make(fee).toFixed())
             .vendorField("⊁".repeat(21))
             .sign("passphrase");
 
@@ -69,7 +71,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(fee);
+            .fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.data.vendorField = "a".repeat(65);
@@ -81,7 +83,7 @@ describe("Transfer Transaction", () => {
         transaction
             .recipientId(address)
             .amount(amount)
-            .fee(fee);
+            .fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.vendorField("⊁".repeat(22));
@@ -132,8 +134,8 @@ describe("Transfer Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .recipientId(address)
-            .amount(1)
-            .fee(0)
+            .amount("1")
+            .fee("0")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -141,7 +143,7 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be invalid due to wrong transaction type", () => {
-        transaction = transactionBuilder.delegateRegistration();
+        transaction = BuilderFactory.delegateRegistration();
         transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -151,8 +153,8 @@ describe("Transfer Transaction", () => {
     it("should be valid due to missing network byte", () => {
         transaction
             .recipientId(address)
-            .amount(1)
-            .fee(1)
+            .amount("1")
+            .fee("1")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -162,9 +164,9 @@ describe("Transfer Transaction", () => {
     it("should be valid due to correct network byte", () => {
         transaction
             .recipientId(address)
-            .amount(1)
-            .fee(1)
-            .network(configManager.get("pubKeyHash"))
+            .amount("1")
+            .fee("1")
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -174,8 +176,8 @@ describe("Transfer Transaction", () => {
     it("should be invalid due to wrong network byte", () => {
         transaction
             .recipientId(address)
-            .amount(1)
-            .fee(1)
+            .amount("1")
+            .fee("1")
             .network(1)
             .sign("passphrase");
 
@@ -188,9 +190,9 @@ describe("Transfer Transaction", () => {
 
         let transfer = transaction
             .recipientId(address)
-            .amount(1)
-            .fee(1)
-            .network(configManager.get("pubKeyHash"))
+            .amount("1")
+            .fee("1")
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase")
             .build();
 
@@ -203,9 +205,9 @@ describe("Transfer Transaction", () => {
 
         transfer = transaction
             .recipientId("APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi")
-            .amount(1)
-            .fee(1)
-            .network(configManager.get("pubKeyHash"))
+            .amount("1")
+            .fee("1")
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase")
             .build();
 
@@ -218,9 +220,9 @@ describe("Transfer Transaction", () => {
     it("should be ok and turn uppercase publicKey to lowercase", () => {
         const transfer = transaction
             .recipientId(address)
-            .amount(1)
-            .fee(1)
-            .network(configManager.get("pubKeyHash"))
+            .amount("1")
+            .fee("1")
+            .network(configManager.get("network.pubKeyHash"))
             .sign("passphrase")
             .build();
 
@@ -241,7 +243,7 @@ describe("Second Signature Transaction", () => {
     });
 
     beforeEach(() => {
-        transaction = transactionBuilder.secondSignature();
+        transaction = BuilderFactory.secondSignature();
     });
 
     it("should be valid", () => {
@@ -254,7 +256,7 @@ describe("Second Signature Transaction", () => {
     it("should be valid with correct data", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(1 * constants.ARKTOSHI)
+            .fee("100000000")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -269,7 +271,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .signatureAsset("second passphrase")
-            .amount(10 * constants.ARKTOSHI)
+            .amount("1000000000")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -279,7 +281,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(0)
+            .fee("0")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -289,7 +291,7 @@ describe("Second Signature Transaction", () => {
     it("should be invalid due to second signature", () => {
         transaction
             .signatureAsset("second passphrase")
-            .fee(1)
+            .fee("1")
             .sign("passphrase")
             .secondSign("second passphrase");
 
@@ -298,7 +300,7 @@ describe("Second Signature Transaction", () => {
     });
 
     it("should be invalid due to wrong transaction type", () => {
-        transaction = transactionBuilder.delegateRegistration();
+        transaction = BuilderFactory.delegateRegistration();
         transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -312,7 +314,7 @@ describe("Delegate Registration Transaction", () => {
     });
 
     beforeEach(() => {
-        transaction = transactionBuilder.delegateRegistration();
+        transaction = BuilderFactory.delegateRegistration();
     });
 
     it("should be valid", () => {
@@ -330,7 +332,7 @@ describe("Delegate Registration Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .usernameAsset("delegate1")
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * ARKTOSHI)
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -379,10 +381,10 @@ describe("Delegate Registration Transaction", () => {
     });
 
     it("should be invalid due to wrong transaction type", () => {
-        transaction = transactionBuilder.transfer();
+        transaction = BuilderFactory.transfer();
         transaction
             .recipientId(null)
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * ARKTOSHI)
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -405,7 +407,7 @@ describe("Vote Transaction", () => {
     });
 
     beforeEach(() => {
-        transaction = transactionBuilder.vote();
+        transaction = BuilderFactory.vote();
     });
 
     it("should be valid with 1 vote", () => {
@@ -430,7 +432,7 @@ describe("Vote Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .votesAsset([vote])
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * ARKTOSHI)
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -440,7 +442,7 @@ describe("Vote Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .votesAsset(votes)
-            .fee(0)
+            .fee("0")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -477,7 +479,7 @@ describe("Vote Transaction", () => {
     });
 
     it("should be invalid due to wrong transaction type", () => {
-        const wrongTransaction = transactionBuilder.delegateRegistration();
+        const wrongTransaction = BuilderFactory.delegateRegistration();
         wrongTransaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, wrongTransaction.getStruct());
@@ -502,7 +504,7 @@ describe.skip("Multi Signature Transaction", () => {
     });
 
     beforeEach(() => {
-        transaction = transactionBuilder.multiSignature();
+        transaction = BuilderFactory.multiSignature();
         multiSignatureAsset = {
             min: 1,
             keysgroup: keysGroup,
@@ -548,7 +550,7 @@ describe.skip("Multi Signature Transaction", () => {
     it("should be invalid due to non-zero amount", () => {
         transaction
             .multiSignatureAsset(multiSignatureAsset)
-            .amount(10 * constants.ARKTOSHI)
+            .amount(10 * ARKTOSHI)
             .sign("passphrase");
         signTransaction(transaction, passphrases);
 
@@ -559,7 +561,7 @@ describe.skip("Multi Signature Transaction", () => {
     it("should be invalid due to zero fee", () => {
         transaction
             .multiSignatureAsset(multiSignatureAsset)
-            .fee(0)
+            .fee("0")
             .sign("passphrase");
         signTransaction(transaction, passphrases);
 
@@ -618,7 +620,7 @@ describe.skip("Multi Signature Transaction", () => {
         for (let i = 0; i < 20; i++) {
             const value = `passphrase ${i}`;
             values.push(value);
-            multiSignatureAsset.keysgroup.push(crypto.getKeys(value).publicKey);
+            multiSignatureAsset.keysgroup.push(PublicKey.fromPassphrase(value));
         }
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, values);
@@ -690,7 +692,7 @@ describe.skip("Multi Signature Transaction", () => {
     });
 
     it("should be invalid due to wrong transaction type", () => {
-        transaction = transactionBuilder.delegateRegistration();
+        transaction = BuilderFactory.delegateRegistration();
         transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());

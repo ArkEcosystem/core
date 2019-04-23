@@ -1,4 +1,4 @@
-import { crypto } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
 export {};
 
@@ -13,10 +13,10 @@ declare global {
 
 expect.extend({
     toHaveValidSecondSignature: (actual, expected) => {
-        let verified;
+        let verified: boolean;
 
         try {
-            verified = crypto.verifySecondSignature(actual, expected.publicKey);
+            verified = Transactions.Transaction.verifySecondSignature(actual, expected.publicKey);
         } catch (e) {} // tslint:disable-line
 
         return {

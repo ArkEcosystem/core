@@ -9,20 +9,17 @@ export abstract class Index {
     );
     protected readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     protected readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    protected chunkSize: number;
 
-    public constructor(chunkSize: number) {
-        this.chunkSize = chunkSize;
-    }
+    public constructor(protected readonly chunkSize: number) {}
 
     public abstract index(): void;
     public abstract listen(): void;
 
-    protected registerListener(method: "create" | "delete", event: string) {
+    protected registerListener(method: "create" | "delete", event: string): void {
         this.emitter.on(event, async doc => {
             try {
-                const exists = await this.exists(doc);
-                const shouldTakeAction = method === "create" ? !exists : exists;
+                const exists: boolean = await this.exists(doc);
+                const shouldTakeAction: boolean = method === "create" ? !exists : exists;
 
                 if (shouldTakeAction) {
                     if (method === "create") {
@@ -58,17 +55,17 @@ export abstract class Index {
         const actions = [];
 
         rows.forEach(item => {
-            const query = this.getUpsertQuery(item);
-            actions.push(query.action);
-            actions.push(query.document);
+            const { action, document } = this.getUpsertQuery(item);
+            actions.push(action);
+            actions.push(document);
         });
 
         return client.bulk(actions);
     }
 
     protected async getIterations() {
-        const countES = await this.countWithElastic();
-        const countDB = await this.countWithDatabase();
+        const countES: number = await this.countWithElastic();
+        const countDB: number = await this.countWithDatabase();
 
         return Math.ceil((countDB - countES) / this.chunkSize);
     }

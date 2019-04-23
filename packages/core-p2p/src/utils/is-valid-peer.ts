@@ -15,12 +15,6 @@ export const isValidPeer = (peer: { ip: string; status?: string | number }): boo
         return false;
     }
 
-    if (peer.status) {
-        if (peer.status !== 200 && peer.status !== "OK") {
-            return false;
-        }
-    }
-
     return true;
 };
 
@@ -32,6 +26,10 @@ export const isLocalHost = (ip: string): boolean => {
         }
 
         if (ip.startsWith("0")) {
+            return true;
+        }
+
+        if (["127.0.0.1", "::ffff:127.0.0.1"].includes(ip)) {
             return true;
         }
 

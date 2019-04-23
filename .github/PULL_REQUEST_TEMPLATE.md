@@ -8,29 +8,29 @@
 
 <!-- _Put an `x` in the boxes that apply. -->
 
-- [ ] Bugfix
-- [ ] New feature
-- [ ] Refactoring / Performance Improvements
-- [ ] Build-related changes
-- [ ] Documentation
-- [ ] Tests / Continuous Integration
-- [ ] Other, please describe:
+-   [ ] Bugfix
+-   [ ] New feature
+-   [ ] Refactoring / Performance Improvements
+-   [ ] Build-related changes
+-   [ ] Documentation
+-   [ ] Tests / Continuous Integration
+-   [ ] Other, please describe:
 
 ## Does this PR introduce a breaking change?
 
 <!-- _Put an `x` in the boxes that apply. -->
 
-- [ ] Yes
-- [ ] No
+-   [ ] Yes
+-   [ ] No
 
 ## Checklist
 
 <!-- _Put an `x` in the boxes that apply. -->
 
-- [ ] I have read the [CONTRIBUTING](https://docs.ark.io/guidebook/contribution-guidelines/contributing.html) documentation
-- [ ] Lint and unit tests pass locally with my changes
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] I have added necessary documentation _(if appropriate)_
+-   [ ] I have read the [CONTRIBUTING](https://docs.ark.io/guidebook/contribution-guidelines/contributing.html) documentation
+-   [ ] Lint and unit tests pass locally with my changes
+-   [ ] I have added tests that prove my fix is effective or that my feature works
+-   [ ] I have added necessary documentation _(if appropriate)_
 
 ## Other information
 

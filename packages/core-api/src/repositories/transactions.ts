@@ -1,5 +1,5 @@
-import { constants, slots } from "@arkecosystem/crypto";
-import { dato } from "@faustbrian/dato";
+import { Database } from "@arkecosystem/core-interfaces";
+import { Enums } from "@arkecosystem/crypto";
 import partition from "lodash.partition";
 import snakeCase from "lodash.snakecase";
 import { IRepository } from "../interfaces";
@@ -8,15 +8,6 @@ import { buildFilterQuery } from "./utils/build-filter-query";
 
 // TODO: Deprecate this with v1
 export class TransactionsRepository extends Repository implements IRepository {
-    constructor() {
-        super();
-    }
-
-    /**
-     * Get all transactions.
-     * @param  {Object}  params
-     * @return {Object}
-     */
     public async findAll(parameters: any = {}, sequenceOrder: "asc" | "desc" = "desc"): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
@@ -62,11 +53,6 @@ export class TransactionsRepository extends Repository implements IRepository {
         return results;
     }
 
-    /**
-     * Get all transactions (LEGACY, for V1 only).
-     * @param  {Object}  params
-     * @return {Object}
-     */
     public async findAllLegacy(parameters: any = {}): Promise<any> {
         const selectQuery = this.query
             .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
@@ -107,13 +93,10 @@ export class TransactionsRepository extends Repository implements IRepository {
         return results;
     }
 
-    /**
-     * Get all transactions for the given Wallet object.
-     * @param  {Wallet} wallet
-     * @param  {Object} parameters
-     * @return {Object}
-     */
-    public async findAllByWallet(wallet, parameters: any = {}): Promise<any> {
+    public async findAllByWallet(
+        wallet: Database.IWallet,
+        parameters: any = {},
+    ): Promise<Database.ITransactionsPaginated> {
         const selectQuery = this.query
             .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query);
@@ -141,65 +124,29 @@ export class TransactionsRepository extends Repository implements IRepository {
         return results;
     }
 
-    /**
-     * Get all transactions for the given sender public key.
-     * @param  {String} senderPublicKey
-     * @param  {Object} parameters
-     * @return {Object}
-     */
     public async findAllBySender(senderPublicKey, parameters: any = {}): Promise<any> {
         return this.findAll({ ...{ senderPublicKey }, ...parameters });
     }
 
-    /**
-     * Get all transactions for the given recipient address.
-     * @param  {String} recipientId
-     * @param  {Object} parameters
-     * @return {Object}
-     */
     public async findAllByRecipient(recipientId, parameters: any = {}): Promise<any> {
         return this.findAll({ ...{ recipientId }, ...parameters });
     }
 
-    /**
-     * Get all vote transactions for the given sender public key.
-     * TODO rename to findAllVotesBySender or not?
-     * @param  {String} senderPublicKey
-     * @param  {Object} parameters
-     * @return {Object}
-     */
     public async allVotesBySender(senderPublicKey, parameters: any = {}): Promise<any> {
         return this.findAll({
-            ...{ senderPublicKey, type: constants.TransactionTypes.Vote },
+            ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
             ...parameters,
         });
     }
 
-    /**
-     * Get all transactions for the given block.
-     * @param  {Number} blockId
-     * @param  {Object} parameters
-     * @return {Object}
-     */
     public async findAllByBlock(blockId, parameters: any = {}): Promise<any> {
         return this.findAll({ ...{ blockId }, ...parameters }, "asc");
     }
 
-    /**
-     * Get all transactions for the given type.
-     * @param  {Number} type
-     * @param  {Object} parameters
-     * @return {Object}
-     */
     public async findAllByType(type, parameters: any = {}): Promise<any> {
         return this.findAll({ ...{ type }, ...parameters });
     }
 
-    /**
-     * Get a transaction.
-     * @param  {Number} id
-     * @return {Object}
-     */
     public async findById(id): Promise<any> {
         const query = this.query
             .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
@@ -211,12 +158,6 @@ export class TransactionsRepository extends Repository implements IRepository {
         return this.__mapBlocksToTransactions(transaction);
     }
 
-    /**
-     * Get a transactions for the given type and id.
-     * @param  {Number} type
-     * @param  {Number} id
-     * @return {Object}
-     */
     public async findByTypeAndId(type, id): Promise<any> {
         const query = this.query
             .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
@@ -228,61 +169,11 @@ export class TransactionsRepository extends Repository implements IRepository {
         return this.__mapBlocksToTransactions(transaction);
     }
 
-    /**
-     * Get transactions for the given ids.
-     * @param  {Array} ids
-     * @return {Object}
-     */
     public async findByIds(ids): Promise<any> {
         const query = this.query
             .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
             .from(this.query)
             .where(this.query.id.in(ids));
-
-        return this._findMany(query);
-    }
-
-    /**
-     * Get all transactions that have a vendor field.
-     * @return {Object}
-     */
-    public async findWithVendorField(): Promise<any> {
-        const query = this.query
-            .select(this.query.id, this.query.block_id, this.query.serialized, this.query.timestamp)
-            .from(this.query)
-            .where(this.query.vendor_field_hex.isNotNull());
-
-        const transactions = await this._findMany(query);
-
-        return this.__mapBlocksToTransactions(transactions);
-    }
-
-    /**
-     * Calculates min, max and average fee statistics based on transactions table
-     * @return {Object}
-     */
-    public async getFeeStatistics(): Promise<any> {
-        const query = this.query
-            .select(
-                this.query.type,
-                this.query.fee.min("minFee"),
-                this.query.fee.max("maxFee"),
-                this.query.fee.avg("avgFee"),
-                this.query.timestamp.max("timestamp"),
-            )
-            .from(this.query)
-            .where(
-                this.query.timestamp.gte(
-                    slots.getTime(
-                        dato()
-                            .addDays(30)
-                            .toMilliseconds(),
-                    ),
-                ),
-            )
-            .and(this.query.fee.gte(this.transactionPool.options.dynamicFees.minFeeBroadcast))
-            .group(this.query.type)
-            .order('"timestamp" DESC');
 
         return this._findMany(query);
     }
@@ -503,7 +394,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {String}
      */
     public __publicKeyFromAddress(senderId): string {
-        if (this.databaseService.walletManager.exists(senderId)) {
+        if (this.databaseService.walletManager.has(senderId)) {
             return this.databaseService.walletManager.findByAddress(senderId).publicKey;
         }
 

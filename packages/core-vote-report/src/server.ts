@@ -17,9 +17,6 @@ export async function startServer(config) {
         [require("vision")],
     );
 
-    // @ts-ignore
-    server.app.config = config;
-
     server.route({
         method: "GET",
         path: "/",

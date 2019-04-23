@@ -15,7 +15,7 @@ export class WinstonLogger extends AbstractLogger {
         return this;
     }
 
-    public suppressConsoleOutput(suppress: boolean): void {
+    public suppressConsoleOutput(suppress: boolean = true): void {
         const consoleTransport = this.logger.transports.find(
             (transport: ITransportStream) => transport.name === "console",
         );

@@ -5,22 +5,21 @@ import { configManager } from "../managers";
 import { PublicKey } from "./public-key";
 
 export class Address {
-    public static fromPassphrase(passphrase, networkVersion?: number): string {
+    public static fromPassphrase(passphrase: string, networkVersion?: number): string {
         return Address.fromPublicKey(PublicKey.fromPassphrase(passphrase), networkVersion);
     }
 
-    public static fromPublicKey(publicKey, networkVersion?: number): string {
-        const pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
-        if (!pubKeyRegex.test(publicKey)) {
+    public static fromPublicKey(publicKey: string, networkVersion?: number): string {
+        if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
             throw new PublicKeyError(publicKey);
         }
 
         if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
+            networkVersion = configManager.get("network.pubKeyHash");
         }
 
-        const buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
-        const payload = Buffer.alloc(21);
+        const buffer: Buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
+        const payload: Buffer = Buffer.alloc(21);
 
         payload.writeUInt8(networkVersion, 0);
         buffer.copy(payload, 1);
@@ -32,15 +31,14 @@ export class Address {
         return Address.fromPublicKey(privateKey.publicKey, networkVersion);
     }
 
-    public static validate(address, networkVersion?: number): boolean {
+    public static validate(address: string, networkVersion?: number): boolean {
         if (!networkVersion) {
-            networkVersion = configManager.get("pubKeyHash");
+            networkVersion = configManager.get("network.pubKeyHash");
         }
 
         try {
-            const decode = bs58check.decode(address);
-            return decode[0] === networkVersion;
-        } catch (e) {
+            return bs58check.decode(address)[0] === networkVersion;
+        } catch (err) {
             return false;
         }
     }

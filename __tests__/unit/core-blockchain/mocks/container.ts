@@ -54,6 +54,7 @@ export const container = {
 
             return null;
         },
+        resolveOptions: () => ({}),
         forceExit: () => null,
     },
 };

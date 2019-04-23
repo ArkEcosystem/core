@@ -1,5 +1,7 @@
 import "../../../../utils";
-import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
+
+import { Address } from "@arkecosystem/crypto/dist/identities";
+import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
@@ -193,10 +195,13 @@ describe("API 1.0 - Transactions", () => {
             expect(response.data.transaction).toBeApiTransaction();
 
             expect(response.data.transaction).toHaveProperty("id", transactionInCheck.id);
-            expect(response.data.transaction).toHaveProperty("amount", transactionInCheck.amount);
-            expect(response.data.transaction).toHaveProperty("fee", transactionInCheck.fee);
+            expect(response.data.transaction).toHaveProperty("amount", +transactionInCheck.amount.toFixed());
+            expect(response.data.transaction).toHaveProperty("fee", +transactionInCheck.fee.toFixed());
             expect(response.data.transaction).toHaveProperty("recipientId", transactionInCheck.recipientId);
-            expect(response.data.transaction).toHaveProperty("senderId", transactionInCheck.senderId);
+            expect(response.data.transaction).toHaveProperty(
+                "senderId",
+                Address.fromPublicKey(transactionInCheck.senderPublicKey, 23),
+            );
             expect(response.data.transaction).toHaveProperty("type", transactionInCheck.type);
         });
 
@@ -222,8 +227,8 @@ describe("API 1.0 - Transactions", () => {
                 expect(response.data.transaction).toBeObject();
                 expect(response.data.transaction).toHaveProperty("id", transaction.id);
                 expect(response.data.transaction).toHaveProperty("type", transaction.type);
-                expect(response.data.transaction).toHaveProperty("amount", transaction.amount);
-                expect(response.data.transaction).toHaveProperty("fee", transaction.fee);
+                expect(response.data.transaction).toHaveProperty("amount", +transaction.amount.toFixed());
+                expect(response.data.transaction).toHaveProperty("fee", +transaction.fee.toFixed());
                 expect(response.data.transaction).toHaveProperty("recipientId", transaction.recipientId);
                 expect(response.data.transaction).toHaveProperty("senderPublicKey", transaction.senderPublicKey);
                 expect(response.data.transaction).toHaveProperty("signature", transaction.signature);

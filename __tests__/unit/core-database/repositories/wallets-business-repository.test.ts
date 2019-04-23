@@ -1,13 +1,14 @@
 import "../mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
-import { Bignum, crypto } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import compact from "lodash.compact";
 import uniq from "lodash.uniq";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
 import { Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Address } from "../../../../packages/crypto/src/identities";
 
 let genesisSenders;
 let repository;
@@ -29,21 +30,21 @@ beforeEach(async () => {
 
 function generateWallets() {
     return genesisSenders.map((senderPublicKey, index) => ({
-        address: crypto.getAddress(senderPublicKey),
-        balance: new Bignum(index),
+        address: Address.fromPublicKey(senderPublicKey),
+        balance: Utils.BigNumber.make(index),
     }));
 }
 
 function generateVotes() {
     return genesisSenders.map(senderPublicKey => ({
-        address: crypto.getAddress(senderPublicKey),
+        address: Address.fromPublicKey(senderPublicKey),
         vote: genesisBlock.transactions[0].data.senderPublicKey,
     }));
 }
 
 function generateFullWallets() {
     return genesisSenders.map(senderPublicKey => {
-        const address = crypto.getAddress(senderPublicKey);
+        const address = Address.fromPublicKey(senderPublicKey);
 
         return {
             address,
@@ -51,8 +52,8 @@ function generateFullWallets() {
             secondPublicKey: `secondPublicKey-${address}`,
             vote: `vote-${address}`,
             username: `username-${address}`,
-            balance: new Bignum(100),
-            voteBalance: new Bignum(200),
+            balance: Utils.BigNumber.make(100),
+            voteBalance: Utils.BigNumber.make(200),
         };
     });
 }
@@ -126,7 +127,7 @@ describe("Wallet Repository", () => {
                     wallet.vote = vote;
                 }
 
-                wallet.balance = new Bignum(0);
+                wallet.balance = Utils.BigNumber.make(0);
             });
             walletManager.index(wallets);
         });
@@ -205,9 +206,9 @@ describe("Wallet Repository", () => {
     describe("top", () => {
         beforeEach(() => {
             [
-                { address: "dummy-1", balance: new Bignum(1000) },
-                { address: "dummy-2", balance: new Bignum(2000) },
-                { address: "dummy-3", balance: new Bignum(3000) },
+                { address: "dummy-1", balance: Utils.BigNumber.make(1000) },
+                { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
+                { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
             ].forEach(o => {
                 const wallet = new Wallet(o.address);
                 wallet.balance = o.balance;
@@ -220,9 +221,9 @@ describe("Wallet Repository", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(3);
-            expect(rows[0].balance).toEqual(new Bignum(3000));
-            expect(rows[1].balance).toEqual(new Bignum(2000));
-            expect(rows[2].balance).toEqual(new Bignum(1000));
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[2].balance).toEqual(Utils.BigNumber.make(1000));
         });
 
         it("should be ok with params", () => {
@@ -230,8 +231,8 @@ describe("Wallet Repository", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(new Bignum(2000));
-            expect(rows[1].balance).toEqual(new Bignum(1000));
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
         });
 
         it("should be ok with params (offset = 0)", () => {
@@ -239,8 +240,8 @@ describe("Wallet Repository", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(new Bignum(3000));
-            expect(rows[1].balance).toEqual(new Bignum(2000));
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
         });
 
         it("should be ok with params (no offset)", () => {
@@ -248,8 +249,8 @@ describe("Wallet Repository", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(new Bignum(3000));
-            expect(rows[1].balance).toEqual(new Bignum(2000));
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
         });
 
         it("should be ok with params (no limit)", () => {
@@ -257,8 +258,8 @@ describe("Wallet Repository", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(new Bignum(2000));
-            expect(rows[1].balance).toEqual(new Bignum(1000));
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
         });
 
         it("should be ok with legacy", () => {
@@ -266,9 +267,9 @@ describe("Wallet Repository", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(3);
-            expect(rows[0].balance).toEqual(new Bignum(3000));
-            expect(rows[1].balance).toEqual(new Bignum(2000));
-            expect(rows[2].balance).toEqual(new Bignum(1000));
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[2].balance).toEqual(Utils.BigNumber.make(1000));
         });
     });
 
@@ -346,9 +347,9 @@ describe("Wallet Repository", () => {
             const wallets = generateFullWallets();
             wallets.forEach((wallet, i) => {
                 if (i < 13) {
-                    wallet.balance = new Bignum(53);
+                    wallet.balance = Utils.BigNumber.make(53);
                 } else if (i < 36) {
-                    wallet.balance = new Bignum(99);
+                    wallet.balance = Utils.BigNumber.make(99);
                 }
             });
             walletManager.index(wallets);
@@ -369,9 +370,9 @@ describe("Wallet Repository", () => {
             const wallets = generateFullWallets();
             wallets.forEach((wallet, i) => {
                 if (i < 17) {
-                    wallet.voteBalance = new Bignum(12);
+                    wallet.voteBalance = Utils.BigNumber.make(12);
                 } else if (i < 29) {
-                    wallet.voteBalance = new Bignum(17);
+                    wallet.voteBalance = Utils.BigNumber.make(17);
                 }
             });
             walletManager.index(wallets);

@@ -1,4 +1,4 @@
-import { Address } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -10,7 +10,7 @@ afterAll(support.tearDown);
 
 describe("Transaction Forging - Transfer", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
-        const transfer = TransactionFactory.transfer(Address.fromPassphrase(passphrase))
+        const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .create();
 
@@ -21,7 +21,7 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Funds to register a second passphrase
-        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 50 * 1e8)
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
             .withPassphrase(secrets[0])
             .create();
 
@@ -39,7 +39,7 @@ describe("Transaction Forging - Transfer", () => {
         await support.expectTransactionForged(secondSignature[0].id);
 
         // Submit a transfer with 2 passprhases
-        const transfer = TransactionFactory.transfer(Address.fromPassphrase(passphrase))
+        const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrasePair(support.passphrases)
             .create();
 

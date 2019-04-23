@@ -1,24 +1,15 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    configManager,
-    constants,
-    ITransactionData,
-    Transaction,
-    TransactionConstructor,
-    TransferTransaction,
-} from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
 
-const { TransactionTypes } = constants;
-
 export class TransferTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return TransferTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.TransferTransaction;
     }
 
     public canBeApplied(
-        transaction: Transaction,
+        transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean {
@@ -29,24 +20,30 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
         return;
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
-        if (this.secondSignatureRegistrationFromSenderAlreadyInPool(data, guard)) {
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        if (this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
         if (!isRecipientOnActiveNetwork(data)) {
-            guard.pushError(
+            processor.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${configManager.get("pubKeyHash")}`,
+                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
+                    "network.pubKeyHash",
+                )}`,
             );
             return false;
         }

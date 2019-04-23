@@ -1,56 +1,46 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import {
-    Bignum,
-    constants,
-    crypto,
-    formatSatoshi,
-    IMultiSignatureAsset,
-    ITransactionData,
-    models,
-} from "@arkecosystem/crypto";
-
-const { TransactionTypes } = constants;
+import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Wallet implements Database.IWallet {
     public address: string;
     public publicKey: string | null;
     public secondPublicKey: string | null;
-    public balance: Bignum;
+    public balance: Utils.BigNumber;
     public vote: string;
     public voted: boolean;
     public username: string | null;
     public lastBlock: any;
-    public voteBalance: Bignum;
-    public multisignature?: IMultiSignatureAsset;
+    public voteBalance: Utils.BigNumber;
+    public multisignature?: Interfaces.IMultiSignatureAsset;
     public dirty: boolean;
     public producedBlocks: number;
-    public forgedFees: Bignum;
-    public forgedRewards: Bignum;
+    public forgedFees: Utils.BigNumber;
+    public forgedRewards: Utils.BigNumber;
     public rate?: number;
 
     constructor(address: string) {
         this.address = address;
         this.publicKey = null;
         this.secondPublicKey = null;
-        this.balance = Bignum.ZERO;
+        this.balance = Utils.BigNumber.ZERO;
         this.vote = null;
         this.voted = false;
         this.username = null;
         this.lastBlock = null;
-        this.voteBalance = Bignum.ZERO;
+        this.voteBalance = Utils.BigNumber.ZERO;
         this.multisignature = null;
         this.producedBlocks = 0;
-        this.forgedFees = Bignum.ZERO;
-        this.forgedRewards = Bignum.ZERO;
+        this.forgedFees = Utils.BigNumber.ZERO;
+        this.forgedRewards = Utils.BigNumber.ZERO;
     }
 
     /**
      * Add block data to this wallet.
      */
-    public applyBlock(block: models.IBlockData): boolean {
+    public applyBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
-            crypto.getAddress(block.generatorPublicKey) === this.address
+            Identities.Address.fromPublicKey(block.generatorPublicKey) === this.address
         ) {
             this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
@@ -68,10 +58,10 @@ export class Wallet implements Database.IWallet {
     /**
      * Remove block data from this wallet.
      */
-    public revertBlock(block: models.IBlockData): boolean {
+    public revertBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
-            crypto.getAddress(block.generatorPublicKey) === this.address
+            Identities.Address.fromPublicKey(block.generatorPublicKey) === this.address
         ) {
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
@@ -90,7 +80,10 @@ export class Wallet implements Database.IWallet {
     /**
      * Verify multi-signatures for the wallet.
      */
-    public verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean {
+    public verifySignatures(
+        transaction: Interfaces.ITransactionData,
+        multisignature: Interfaces.IMultiSignatureAsset,
+    ): boolean {
         if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
             return false;
         }
@@ -118,7 +111,7 @@ export class Wallet implements Database.IWallet {
     /**
      * Audit the specified transaction.
      */
-    public auditApply(transaction: ITransactionData): any[] {
+    public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
         if (this.multisignature) {
@@ -132,35 +125,38 @@ export class Wallet implements Database.IWallet {
                     .minus(transaction.fee)
                     .toFixed(),
             });
-            audit.push({ "Signature validation": crypto.verify(transaction) });
+            audit.push({ "Signature validation": Transactions.Transaction.verifyData(transaction) });
             // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
             if (this.secondPublicKey) {
                 audit.push({
-                    "Second Signature Verification": crypto.verifySecondSignature(transaction, this.secondPublicKey),
+                    "Second Signature Verification": Transactions.Transaction.verifySecondSignature(
+                        transaction,
+                        this.secondPublicKey,
+                    ),
                 });
             }
         }
 
-        if (transaction.type === TransactionTypes.Transfer) {
+        if (transaction.type === Enums.TransactionTypes.Transfer) {
             audit.push({ Transfer: true });
         }
 
-        if (transaction.type === TransactionTypes.SecondSignature) {
+        if (transaction.type === Enums.TransactionTypes.SecondSignature) {
             audit.push({ "Second public key": this.secondPublicKey });
         }
 
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
+        if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
             const username = transaction.asset.delegate.username;
             audit.push({ "Current username": this.username });
             audit.push({ "New username": username });
         }
 
-        if (transaction.type === TransactionTypes.Vote) {
+        if (transaction.type === Enums.TransactionTypes.Vote) {
             audit.push({ "Current vote": this.vote });
             audit.push({ "New vote": transaction.asset.votes[0] });
         }
 
-        if (transaction.type === TransactionTypes.MultiSignature) {
+        if (transaction.type === Enums.TransactionTypes.MultiSignature) {
             const keysgroup = transaction.asset.multisignature.keysgroup;
             audit.push({ "Multisignature not yet registered": !this.multisignature });
             audit.push({
@@ -174,24 +170,24 @@ export class Wallet implements Database.IWallet {
             });
         }
 
-        if (transaction.type === TransactionTypes.Ipfs) {
+        if (transaction.type === Enums.TransactionTypes.Ipfs) {
             audit.push({ IPFS: true });
         }
 
-        if (transaction.type === TransactionTypes.TimelockTransfer) {
+        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
             audit.push({ Timelock: true });
         }
 
-        if (transaction.type === TransactionTypes.MultiPayment) {
-            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Bignum.ZERO);
+        if (transaction.type === Enums.TransactionTypes.MultiPayment) {
+            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
         }
 
-        if (transaction.type === TransactionTypes.DelegateResignation) {
+        if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
             audit.push({ "Resignate Delegate": this.username });
         }
 
-        if (!Object.values(TransactionTypes).includes(transaction.type)) {
+        if (!Object.values(Enums.TransactionTypes).includes(transaction.type)) {
             audit.push({ "Unknown Type": true });
         }
 
@@ -202,14 +198,14 @@ export class Wallet implements Database.IWallet {
      * Get formatted wallet address and balance as string.
      */
     public toString(): string {
-        return `${this.address} (${formatSatoshi(this.balance)})`;
+        return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
     }
 
     /**
      * Goes through signatures to check if public key matches. Can also remove valid signatures.
      */
     private verifyTransactionSignatures(
-        transaction: ITransactionData,
+        transaction: Interfaces.ITransactionData,
         signatures: string[],
         publicKey: string,
     ): string | null {
@@ -225,8 +221,11 @@ export class Wallet implements Database.IWallet {
     /**
      * Verify the wallet.
      */
-    private verify(transaction: ITransactionData, signature: string, publicKey: string): boolean {
-        const hash = crypto.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        return crypto.verifyHash(hash, signature, publicKey);
+    private verify(transaction: Interfaces.ITransactionData, signature: string, publicKey: string): boolean {
+        return Crypto.Hash.verify(
+            Transactions.Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true }),
+            signature,
+            publicKey,
+        );
     }
 }

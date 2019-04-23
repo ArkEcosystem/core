@@ -1,19 +1,19 @@
-import { client, crypto } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 
 /**
  * Get the testnet genesis delegates information
  * @return {Array} array of objects like { secret, publicKey, address, balance }
  */
 
-client.getConfigManager().setFromPreset("testnet");
+Managers.configManager.setFromPreset("testnet");
 
 import { secrets } from "../../config/testnet/delegates.json";
-import { transactions as genesisTransactions } from "../../config/testnet/genesisBlock.json";
+import { genesisBlock } from "../../config/testnet/genesisBlock";
 
 export const delegates: any = secrets.map(secret => {
-    const publicKey = crypto.getKeys(secret).publicKey;
-    const address = crypto.getAddress(publicKey);
-    const balance = genesisTransactions.find(
+    const publicKey: string = Identities.PublicKey.fromPassphrase(secret);
+    const address: string = Identities.Address.fromPassphrase(secret);
+    const balance = genesisBlock.transactions.find(
         transaction => transaction.recipientId === address && transaction.type === 0,
     ).amount;
     return {

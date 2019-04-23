@@ -1,32 +1,17 @@
 // tslint:disable:max-classes-per-file
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
+import { Database, Logger, P2P, Shared } from "@arkecosystem/core-interfaces";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
-import { models } from "@arkecosystem/crypto";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { inspect } from "util";
-import { Peer } from "./peer";
+import { Severity } from "./enums";
 
 interface IDelegateWallets {
     [publicKey: string]: Database.IDelegateWallet;
 }
 
-enum Severity {
-    /**
-     * Printed at every step of the verification, even if leading to a successful verification.
-     * Multiple such messages are printed even for successfully verified peers. To enable these
-     * messages define CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA in the environment.
-     */
-    DEBUG_EXTRA,
-
-    /** One such message per successful peer verification is printed. */
-    DEBUG,
-
-    /** Failures to verify peer state, either designating malicious peer or communication issues. */
-    INFO,
-}
-
-export class PeerVerificationResult {
+export class PeerVerificationResult implements P2P.IPeerVerificationResult {
     public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
     get forked(): boolean {
@@ -40,16 +25,12 @@ export class PeerVerifier {
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new CappedSet();
-    private database: Database.IDatabaseService;
+    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private logPrefix: string;
-    private logger: Logger.ILogger;
-    private peer: any;
 
-    public constructor(peer: Peer) {
-        this.database = app.resolvePlugin<Database.IDatabaseService>("database");
+    public constructor(private readonly communicator: P2P.IPeerCommunicator, private readonly peer: P2P.IPeer) {
         this.logPrefix = `Peer verify ${peer.ip}:`;
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
-        this.peer = peer;
     }
 
     /**
@@ -245,7 +226,11 @@ export class PeerVerifier {
 
             this.log(Severity.DEBUG_EXTRA, `probe for common blocks in range ${rangePrint}`);
 
-            const highestCommon = await this.peer.hasCommonBlocks(Object.keys(probesHeightById), msRemaining);
+            const highestCommon = await this.communicator.hasCommonBlocks(
+                this.peer,
+                Object.keys(probesHeightById),
+                msRemaining,
+            );
 
             if (!highestCommon) {
                 return null;
@@ -371,10 +356,10 @@ export class PeerVerifier {
         let response;
 
         try {
-            const msRemaining = this.throwIfPastDeadline(deadline);
+            this.throwIfPastDeadline(deadline);
 
             // returns blocks from the next one, thus we do -1
-            response = await this.peer.getPeerBlocks(height - 1, msRemaining);
+            response = await this.communicator.getPeerBlocks(this.peer, height - 1);
         } catch (err) {
             this.log(
                 Severity.DEBUG_EXTRA,
@@ -383,7 +368,7 @@ export class PeerVerifier {
             return false;
         }
 
-        if (response.body.blocks.length === 0) {
+        if (response.length === 0) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
@@ -392,8 +377,8 @@ export class PeerVerifier {
             return false;
         }
 
-        for (let i = 0; i < response.body.blocks.length; i++) {
-            blocksByHeight[height + i] = response.body.blocks[i];
+        for (let i = 0; i < response.length; i++) {
+            blocksByHeight[height + i] = response[i];
         }
 
         return true;
@@ -401,14 +386,14 @@ export class PeerVerifier {
 
     /**
      * Verify a given block from the peer's chain - must be signed by one of the provided delegates.
-     * @param {models.IBlockData} blockData the block to verify
+     * @param {Interfaces.IBlockData} blockData the block to verify
      * @param {Number} expectedHeight the given block must be at this height
      * @param {Object} delegatesByPublicKey a map of { publicKey: delegate, ... }, one of these
      * delegates must have signed the block
      * @return {Boolean} true if the block is legit (signed by the appropriate delegate)
      */
     private async verifyPeerBlock(
-        blockData: models.IBlockData,
+        blockData: Interfaces.IBlockData,
         expectedHeight: number,
         delegatesByPublicKey: IDelegateWallets,
     ): Promise<boolean> {
@@ -421,7 +406,7 @@ export class PeerVerifier {
             return true;
         }
 
-        const block = new models.Block(blockData);
+        const block = Blocks.BlockFactory.fromData(blockData);
 
         if (!block.verification.verified) {
             this.log(

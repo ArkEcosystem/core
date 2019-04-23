@@ -7,18 +7,9 @@ import { sortEntries } from "./utils/sort-entries";
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
-    /**
-     * Create a new delegate repository instance.
-     * @param databaseServiceProvider
-     */
-    public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    /**
-     * Get all local delegates.
-     * @param  {Object} params
-     * @return {Object}
-     */
-    public getLocalDelegates(params: Database.IParameters = {}) {
+    public getLocalDelegates(params: Database.IParameters = {}): Database.IWallet[] {
         let delegates = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
@@ -41,12 +32,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         return delegates;
     }
 
-    /**
-     * Find all delegates.
-     * @param  {Object} params
-     * @return {Object}
-     */
-    public findAll(params: Database.IParameters = {}) {
+    public findAll(params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const delegates = sortEntries(params, this.getLocalDelegates(), ["rate", "asc"]);
@@ -87,7 +73,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
      * @param  {Number} [params.voteBalance.from] - Search by voteBalance (minimum)
      * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
      */
-    public search(params: Database.IParameters) {
+    public search(params: Database.IParameters): Database.IWalletsPaginated {
         const query: any = {
             exact: ["address", "publicKey"],
             like: ["username"],
@@ -114,12 +100,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         };
     }
 
-    /**
-     * Find a delegate.
-     * @param  {String} id
-     * @return {Object}
-     */
-    public findById(id) {
+    public findById(id): Database.IWallet {
         return this.getLocalDelegates().find(a => a.address === id || a.publicKey === id || a.username === id);
     }
 

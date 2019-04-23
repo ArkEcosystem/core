@@ -1,4 +1,4 @@
-import { Address } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -11,7 +11,7 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Delegate Registration", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 100 * 1e8)
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .create();
 
@@ -34,7 +34,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         const passphrase = secondPassphrase;
 
         // Initial Funds
-        const initialFunds = TransactionFactory.transfer(Address.fromPassphrase(passphrase), 100 * 1e8)
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .create();
 

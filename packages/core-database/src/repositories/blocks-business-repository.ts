@@ -1,32 +1,39 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import { Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
-    constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
+    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
     /* TODO: Remove with v1 */
-    public async findAll(params: Database.IParameters) {
+    public async findAll(
+        params: Database.IParameters,
+    ): Promise<{
+        rows: Interfaces.IBlockData[];
+        count: number;
+    }> {
         return this.databaseServiceProvider().connection.blocksRepository.findAll(this.parseSearchParams(params));
     }
 
-    public async findAllByGenerator(generatorPublicKey: string, paginate: Database.SearchPaginate) {
+    public async findAllByGenerator(
+        generatorPublicKey: string,
+        paginate: Database.SearchPaginate,
+    ): Promise<{
+        rows: Interfaces.IBlockData[];
+        count: number;
+    }> {
         return this.findAll({ generatorPublicKey, ...paginate });
     }
 
-    public async findLastByPublicKey(generatorPublicKey: string) {
-        // we order by height,desc by default
-        return this.findAll({ generatorPublicKey });
-    }
-
-    public async findByHeight(height: number) {
+    public async findByHeight(height: number): Promise<Interfaces.IBlockData> {
         return this.databaseServiceProvider().connection.blocksRepository.findByHeight(height);
     }
 
-    public async findById(id: string) {
+    public async findById(id: string): Promise<Interfaces.IBlockData> {
         return this.databaseServiceProvider().connection.blocksRepository.findById(id);
     }
 
-    public async findByIdOrHeight(idOrHeight) {
+    public async findByIdOrHeight(idOrHeight): Promise<Interfaces.IBlockData> {
         try {
             const block = await this.findByHeight(idOrHeight);
 
@@ -36,7 +43,12 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         }
     }
 
-    public async search(params: Database.IParameters) {
+    public async search(
+        params: Database.IParameters,
+    ): Promise<{
+        rows: Interfaces.IBlockData[];
+        count: number;
+    }> {
         return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 

@@ -1,4 +1,4 @@
-import { configManager, crypto, NetworkName, Transaction } from "@arkecosystem/crypto";
+import { Managers, Transactions, Types } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
@@ -21,10 +21,10 @@ export class VerifySecondSignatureCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(VerifySecondSignatureCommand);
 
-        configManager.setFromPreset(flags.network as NetworkName);
+        Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-        const { data } = Transaction.fromHex(flags.data);
+        const { data } = Transactions.TransactionFactory.fromHex(flags.data);
 
-        return handleOutput(flags, crypto.verifySecondSignature(data, flags.publicKey));
+        return handleOutput(flags, Transactions.Transaction.verifySecondSignature(data, flags.publicKey));
     }
 }

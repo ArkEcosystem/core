@@ -20,21 +20,22 @@ const peers = [
 beforeAll(async () => {
     await setUp();
 
-    const peerMocks = peers.map(mock => {
-        const peerMock = new Peer(mock.ip, mock.port);
-        peerMock.setStatus("OK");
-        peerMock.version = mock.version;
-        return peerMock;
-    });
+    const peerMocks = peers
+        .map(mock => {
+            const peerMock = new Peer(mock.ip, mock.port);
+            peerMock.version = mock.version;
+            return peerMock;
+        })
+        .reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = peerMocks.reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
+    for (const peerMock of Object.values(peerMocks)) {
+        app.resolvePlugin("p2p")
+            .getStorage()
+            .setPeer(peerMock);
+    }
 });
 
 afterAll(async () => {
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-
     await tearDown();
 });
 

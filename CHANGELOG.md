@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.1] - 2019-04-23
+
+### Fixed
+
+-   Deserialize type > 0 with vendor field instead of skipping it ([#2459])
+
 ## [2.3.0] - 2019-04-23
 
 ### Breaking Changes
@@ -285,6 +291,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/2.3.0...develop
+[2.3.1]: https://github.com/ARKEcosystem/core/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/ARKEcosystem/core/compare/2.2.2...2.3.0
 [2.2.2]: https://github.com/ARKEcosystem/core/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/ARKEcosystem/core/compare/2.2.0...2.2.1
@@ -437,3 +444,4 @@ Closed security vulnerabilities:
 [#2404]: https://github.com/ARKEcosystem/core/pull/2404
 [#2405]: https://github.com/ARKEcosystem/core/pull/2405
 [#2458]: https://github.com/ARKEcosystem/core/pull/2458
+[#2459]: https://github.com/ARKEcosystem/core/pull/2459

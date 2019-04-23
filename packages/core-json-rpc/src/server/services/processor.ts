@@ -1,20 +1,39 @@
-import Joi from "joi";
+import { Validation } from "@arkecosystem/crypto";
+import { Server } from "hapi";
 import get from "lodash.get";
+import { IRequestParameters, IResponse, IResponseError } from "../../interfaces";
 import { network } from "./network";
 
 export class Processor {
-    public async resource(server, payload) {
-        const { error } = Joi.validate(payload || {}, {
-            jsonrpc: Joi.string()
-                .valid("2.0")
-                .required(),
-            method: Joi.string().required(),
-            id: Joi.required(),
-            params: Joi.object(),
-        });
+    public async resource<T = any>(
+        server: Server,
+        payload: IRequestParameters,
+    ): Promise<IResponse<T> | IResponseError> {
+        const { error } = Validation.validator.validate(
+            {
+                type: "object",
+                properties: {
+                    jsonrpc: {
+                        type: "string",
+                        pattern: "2.0",
+                    },
+                    method: {
+                        type: "string",
+                    },
+                    id: {
+                        type: ["number", "string"],
+                    },
+                    params: {
+                        type: "object",
+                    },
+                },
+                required: ["jsonrpc", "method", "id"],
+            },
+            payload || {},
+        );
 
         if (error) {
-            return this.createErrorResponse(payload ? payload.id : null, -32600, error);
+            return this.createErrorResponse(payload ? payload.id : null, -32600, new Error(error));
         }
 
         const { method, params, id } = payload;
@@ -23,14 +42,15 @@ export class Processor {
             const targetMethod = get(server.methods, method);
 
             if (!targetMethod) {
-                return this.createErrorResponse(id, -32601, "The method does not exist / is not available.");
+                return this.createErrorResponse(id, -32601, new Error("The method does not exist / is not available."));
             }
 
+            // @ts-ignore
             const schema = server.app.schemas[method];
 
             if (schema) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const { error } = Joi.validate(params, schema);
+                const { error } = Validation.validator.validate(schema, params);
 
                 if (error) {
                     return this.createErrorResponse(id, -32602, error);
@@ -49,19 +69,20 @@ export class Processor {
         }
     }
 
-    public async collection(server, payload) {
+    public async collection<T = any>(
+        server: Server,
+        payloads: IRequestParameters[],
+    ): Promise<Array<IResponse<T>> | IResponseError[]> {
         const results = [];
 
-        for (const item of payload) {
-            const result = await this.resource(server, item);
-
-            results.push(result);
+        for (const payload of payloads) {
+            results.push(await this.resource<T>(server, payload));
         }
 
         return results;
     }
 
-    private createSuccessResponse(id, result) {
+    private createSuccessResponse<T = any>(id: string | number, result: T): IResponse<T> {
         return {
             jsonrpc: "2.0",
             id,
@@ -69,7 +90,7 @@ export class Processor {
         };
     }
 
-    private createErrorResponse(id, code, error) {
+    private createErrorResponse(id: string | number, code: number, error: Error): IResponseError {
         return {
             jsonrpc: "2.0",
             id,

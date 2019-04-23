@@ -1,7 +1,7 @@
 import "jest-extended";
 
+import { IBlockData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { IBlockData } from "../../../../packages/crypto/src/models";
 import { isException } from "../../../../packages/crypto/src/utils";
 
 describe("IsException", () => {

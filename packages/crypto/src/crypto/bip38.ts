@@ -10,7 +10,7 @@ import bs58check from "bs58check";
 import xor from "buffer-xor/inplace";
 import crypto from "crypto";
 import secp256k1 from "secp256k1";
-import { crypto as arkCrypto, HashAlgorithms } from "../crypto";
+import { HashAlgorithms } from "../crypto";
 import {
     Bip38CompressionError,
     Bip38LengthError,
@@ -18,6 +18,8 @@ import {
     Bip38TypeError,
     PrivateKeyLengthError,
 } from "../errors";
+import { Keys } from "../identities";
+import { IDecryptResult } from "../interfaces";
 
 const SCRYPT_PARAMS = {
     N: 16384, // specified by BIP38
@@ -26,16 +28,11 @@ const SCRYPT_PARAMS = {
 };
 const NULL = Buffer.alloc(0);
 
-export interface DecryptResult {
-    privateKey: Buffer;
-    compressed: boolean;
-}
-
 export function encrypt(privateKey: Buffer, compressed: boolean, passphrase: string): string {
     return bs58check.encode(encryptRaw(privateKey, compressed, passphrase));
 }
 
-export function decrypt(bip38: string, passphrase): DecryptResult {
+export function decrypt(bip38: string, passphrase): IDecryptResult {
     return decryptRaw(bs58check.decode(bip38), passphrase);
 }
 
@@ -106,7 +103,7 @@ function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Bu
 }
 
 // some of the techniques borrowed from: https://github.com/pointbiz/bitaddress.org
-function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
+function decryptRaw(buffer: Buffer, passphrase: string): IDecryptResult {
     // 39 bytes: 2 bytes prefix, 37 bytes payload
     if (buffer.length !== 39) {
         throw new Bip38LengthError(39, buffer.length);
@@ -155,7 +152,7 @@ function decryptRaw(buffer: Buffer, passphrase: string): DecryptResult {
     };
 }
 
-function decryptECMult(buffer: Buffer, passphrase: string): DecryptResult {
+function decryptECMult(buffer: Buffer, passphrase: string): IDecryptResult {
     buffer = buffer.slice(1); // FIXME: we can avoid this
 
     const flag = buffer.readUInt8(1);
@@ -235,5 +232,5 @@ function getAddressPrivate(privateKey: Buffer, compressed: boolean): string {
 }
 
 function getPublicKey(buffer: Buffer, compressed: boolean): Buffer {
-    return Buffer.from(arkCrypto.getKeysByPrivateKey(buffer, compressed).publicKey, "hex");
+    return Buffer.from(Keys.fromPrivateKey(buffer, compressed).publicKey, "hex");
 }

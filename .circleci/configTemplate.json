@@ -158,8 +158,8 @@
         "test-node10-functional": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -169,8 +169,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -247,8 +247,8 @@
         "test-node11-functional": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -258,8 +258,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -336,8 +336,8 @@
         "test-node10-integration-0": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -347,8 +347,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -425,8 +425,8 @@
         "test-node11-integration-0": {
             "working_directory": "~/core",
             "environment": {
-                "CORE_DB_DATABASE": "core_unitnet",
-                "CORE_DB_USERNAME": "core"
+                "CORE_DB_DATABASE": "ark_unitnet",
+                "CORE_DB_USERNAME": "ark"
             },
             "docker": [
                 {
@@ -436,8 +436,8 @@
                     "image": "postgres:alpine",
                     "environment": {
                         "POSTGRES_PASSWORD": "password",
-                        "POSTGRES_DB": "core_unitnet",
-                        "POSTGRES_USER": "core"
+                        "POSTGRES_DB": "ark_unitnet",
+                        "POSTGRES_USER": "ark"
                     }
                 }
             ],
@@ -510,12 +510,104 @@
                     }
                 }
             ]
+        },
+        "test-node10-benchmark": {
+            "working_directory": "~/core",
+            "docker": [
+                {
+                    "image": "circleci/node:10-browsers"
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-benchmark"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-benchmark",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Benchmark",
+                        "command": "cd ~/core && yarn bench"
+                    }
+                }
+            ]
+        },
+        "test-node11-benchmark": {
+            "working_directory": "~/core",
+            "docker": [
+                {
+                    "image": "circleci/node:11-browsers"
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-benchmark"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-benchmark",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Benchmark",
+                        "command": "cd ~/core && yarn bench"
+                    }
+                }
+            ]
         }
     },
     "workflows": {
         "version": 2,
         "build_and_test": {
-            "jobs": ["test-node10-integration-0", "test-node11-integration-0"]
+            "jobs": []
         }
     }
 }

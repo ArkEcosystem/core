@@ -1,18 +1,16 @@
-import { configManager as crypto } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Types } from "@arkecosystem/crypto";
+import Joi from "joi";
 import get from "lodash.get";
 import set from "lodash.set";
-import { fileLoader } from "./loaders";
-import { Network } from "./network";
+import { FileLoader } from "./file-loader";
 
 export class Config {
     private config: Record<string, any>;
 
-    public async setUp(opts) {
-        const network = Network.setUp(opts);
+    public async setUp(opts): Promise<Config> {
+        const network: Interfaces.INetworkConfig = this.configureNetwork(opts.network);
 
-        const { files } = await fileLoader.setUp(network);
-
-        this.config = files;
+        this.config = await new FileLoader().setUp(network);
 
         this.configureCrypto(network);
 
@@ -23,32 +21,87 @@ export class Config {
         return this.config;
     }
 
-    public get(key: string, defaultValue: any = null): any {
+    public get<T = any>(key: string, defaultValue?: T): T {
         return get(this.config, key, defaultValue);
     }
 
-    public set(key: string, value: any): void {
+    public set<T = any>(key: string, value: T): void {
         set(this.config, key, value);
     }
 
-    /**
-     * Get constants for the specified height.
-     */
-    public getMilestone(height: number): any {
-        return crypto.getMilestone(height);
+    public getMilestone(height: number): { [key: string]: any } {
+        return Managers.configManager.getMilestone(height);
     }
 
-    /**
-     * Configure the @arkecosystem/crypto package.
-     * @return {void}
-     */
     private configureCrypto(value: any): void {
-        crypto.setConfig(value);
+        Managers.configManager.setConfig(value);
 
-        this.config.network = crypto.all();
-        this.config.exceptions = crypto.get("exceptions");
-        this.config.milestones = crypto.get("milestones");
-        this.config.genesisBlock = crypto.get("genesisBlock");
+        this.config.network = Managers.configManager.get("network");
+        this.config.exceptions = Managers.configManager.get("exceptions");
+        this.config.milestones = Managers.configManager.get("milestones");
+        this.config.genesisBlock = Managers.configManager.get("genesisBlock");
+    }
+
+    private configureNetwork(network: Types.NetworkName): Interfaces.INetworkConfig {
+        const config: Interfaces.INetworkConfig = Managers.NetworkManager.findByName(network);
+
+        const { error } = Joi.validate(
+            config,
+            Joi.object({
+                milestones: Joi.array()
+                    .items(Joi.object())
+                    .required(),
+                exceptions: Joi.object({
+                    blocks: Joi.array().items(Joi.string()),
+                    transactions: Joi.array().items(Joi.string()),
+                    outlookTable: Joi.object(),
+                    transactionIdFixTable: Joi.object(),
+                }).default({
+                    exceptions: {},
+                }),
+                genesisBlock: Joi.object().required(),
+                network: Joi.object({
+                    name: Joi.string().required(),
+                    messagePrefix: Joi.string().required(),
+                    bip32: Joi.object({
+                        public: Joi.number()
+                            .positive()
+                            .required(),
+                        private: Joi.number()
+                            .positive()
+                            .required(),
+                    }),
+                    pubKeyHash: Joi.number()
+                        .positive()
+                        .required(),
+                    nethash: Joi.string()
+                        .hex()
+                        .required(),
+                    slip44: Joi.number().positive(),
+                    wif: Joi.number()
+                        .positive()
+                        .required(),
+                    aip20: Joi.number().required(),
+                    client: Joi.object({
+                        token: Joi.string().required(),
+                        symbol: Joi.string().required(),
+                        explorer: Joi.string().required(),
+                    }),
+                }).required(),
+            }),
+        );
+
+        if (error) {
+            throw new Error(
+                `An invalid network configuration was provided or is inaccessible due to it's security settings. ${
+                    error.message
+                }.`,
+            );
+        }
+
+        process.env.CORE_NETWORK_NAME = config.network.name;
+
+        return config;
     }
 }
 
