@@ -1,4 +1,5 @@
-import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { app } from "@arkecosystem/core-container";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import { MemoryTransaction } from "./memory-transaction";
 
@@ -61,7 +62,7 @@ export class Memory {
             this.byExpirationIsSorted = true;
         }
 
-        const currentHeight: number = Crypto.slots.getHeight();
+        const currentHeight: number = app.resolve("state").getLastBlock().data.height;
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const MemoryTransaction of this.byExpiration) {
@@ -146,7 +147,7 @@ export class Memory {
         }
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            const maxHeight: number = Crypto.slots.getHeight() + maxTransactionAge;
+            const maxHeight: number = app.resolve("state").getLastBlock().data.height + maxTransactionAge;
             if (MemoryTransaction.transaction.data.expiration === 0 ||
                 MemoryTransaction.transaction.data.expiration > maxHeight) {
 
