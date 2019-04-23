@@ -53,6 +53,8 @@ $ ark config:forger --method=bip39
             this.abortWithInvalidInput();
         }
 
+        delete flags.suffix;
+
         response = { ...flags, ...response };
 
         if (response.method === "bip38") {
