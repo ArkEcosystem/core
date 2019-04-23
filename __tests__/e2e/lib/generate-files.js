@@ -103,19 +103,11 @@ class GenerateManager {
             if (err) throw err;
       })
 
-      // .env file change CORE_DB_HOST=localhost to CORE_DB_HOST=postgres
-      /*const env = fs.readFileSync(path.join(distCoreNetworkPath, '.env'), 'utf8');
-      const envPostgresFixed = env.replace("CORE_DB_HOST=localhost", "CORE_DB_HOST=postgres");
-      fs.writeFileSync(path.join(distCoreNetworkPath, '.env'), envPostgresFixed);*/
-
       // plugins.js minimumNetworkReach and coldStart to set to 1
       const plugins = fs.readFileSync(path.join(distCoreNetworkPath, 'plugins.js'), 'utf8');
       const pluginsFixed = plugins
         .replace(/minimumNetworkReach: \d+/, "minimumNetworkReach: 1")
         .replace(/coldStart: \d+/, "coldStart: 1")
-        .replace("process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`", "\"ark_testnet\"")
-        .replace("process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN", "\"ark\"")
-        .replace("process.env.CORE_DB_PASSWORD || \"password\"", "\"password\"")
         
       fs.writeFileSync(path.join(distCoreNetworkPath, 'plugins.js'), pluginsFixed);
 

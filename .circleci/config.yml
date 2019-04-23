@@ -18,7 +18,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
       - run:
@@ -60,6 +61,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -96,7 +98,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
       - run:
@@ -138,6 +141,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -182,7 +186,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
       - run:
@@ -224,6 +229,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -268,7 +274,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
       - run:
@@ -310,6 +317,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -354,7 +362,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
@@ -396,6 +405,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -465,7 +475,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
@@ -507,6 +518,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -565,7 +577,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark'
       - run:
@@ -607,6 +620,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Benchmark
           command: cd ~/core && yarn bench
@@ -625,7 +639,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark'
       - run:
@@ -667,6 +682,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Benchmark
           command: cd ~/core && yarn bench
@@ -687,6 +703,14 @@ jobs:
             sudo npm install -g n && sudo n 10 && source ~/.bashrc && nvm
             install 10 && nvm use 10
       - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
+      - restore_cache:
+          key: 'ark-e2e-{{ checksum "checksum.txt" }}-1'
+      - run:
           name: Install yarn
           command: >-
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add
@@ -699,15 +723,13 @@ jobs:
       - run:
           name: Docker swarm init
           command: docker swarm init
-      - restore_cache:
-          key: 'ark-e2e-{{ checksum "__tests__/e2e/package.json" }}-1'
       - run:
           name: Install and build packages
           command: >-
             source ~/.bashrc && nvm use 10 && yarn bootstrap && yarn build && cd
             __tests__/e2e && yarn install
       - save_cache:
-          key: 'ark-e2e-{{ checksum "__tests__/e2e/package.json" }}-1'
+          key: 'ark-e2e-{{ checksum "checksum.txt" }}-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -742,6 +764,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Generate files
           command: >-
@@ -765,22 +788,10 @@ jobs:
           name: Wait 10 sec for docker containers to be up
           command: sleep 10
       - run:
-          name: Docker ps -a
-          command: docker ps -a
-      - run:
-          name: Docker inspect
-          command: docker inspect $(docker ps -a -q)
-      - run:
           name: Run tests
           command: >-
             source ~/.bashrc && nvm use 10 && cd __tests__/e2e && sudo bin/e2e
             run-tests -s scenario1
-      - run:
-          name: Docker ps -a
-          command: docker ps -a
-      - run:
-          name: Docker inspect
-          command: docker inspect $(docker ps -a -q)
       - run:
           name: Output results - node0
           when: always
@@ -825,7 +836,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
       - run:
@@ -867,6 +879,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -936,7 +949,8 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
       - run:
@@ -978,6 +992,7 @@ jobs:
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database

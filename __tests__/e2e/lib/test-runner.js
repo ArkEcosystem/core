@@ -99,10 +99,10 @@ class TestRunner {
             if (err) throw err;
       })
 
-      // postgres config
+      // adapt postgres config to use postgres ip
       const pluginsPath = `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/testnet/plugins.js`
       const plugins = fs.readFileSync(pluginsPath, 'utf8');
-      const pluginsFixed = plugins.replace("process.env.CORE_DB_HOST || \"localhost\"", `"${nodeInfos.postgresIP}"`)
+      const pluginsFixed = plugins.replace("process.env.CORE_DB_HOST", `"${nodeInfos.postgresIP}"`)
       fs.writeFileSync(pluginsPath, pluginsFixed);
 
       // now launch the node, with --network-start for node0

@@ -27,7 +27,8 @@ fs.readdir("./packages", (_, packages) => {
         const saveCacheStep = job.steps.find(step => typeof step === "object" && step.save_cache);
         saveCacheStep.save_cache.paths = packages
             .map(package => `./packages/${package}/node_modules`)
-            .concat("./node_modules");
+            .concat("./node_modules")
+            .concat("./__tests__/e2e/node_modules");
 
         if (fixedJobs.includes(name)) {
             continue;
