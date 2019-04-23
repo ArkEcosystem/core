@@ -115,8 +115,8 @@ class GenerateManager {
         .replace(/coldStart: \d+/, "coldStart: 1")
         .replace("process.env.CORE_DB_HOST || \"localhost\"", "\"postgres\"")
         .replace("process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`", "\"ark_testnet\"")
-        .replace("user: process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN", "\"ark\"")
-        .replace("password: process.env.CORE_DB_PASSWORD || \"password\"", "\"password\"")
+        .replace("process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN", "\"ark\"")
+        .replace("process.env.CORE_DB_PASSWORD || \"password\"", "\"password\"")
         
       fs.writeFileSync(path.join(distCoreNetworkPath, 'plugins.js'), pluginsFixed);
 
