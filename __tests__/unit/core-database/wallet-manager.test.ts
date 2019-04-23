@@ -524,13 +524,13 @@ describe("Wallet Manager", () => {
         it("should build ranking and sort delegates by vote balance", async () => {
             for (let i = 0; i < 5; i++) {
                 const delegateKey = i.toString().repeat(66);
-                const delegate = new Wallet(crypto.getAddress(delegateKey));
+                const delegate = new Wallet(Identities.Address.fromPublicKey(delegateKey));
                 delegate.publicKey = delegateKey;
                 delegate.username = `delegate${i}`;
-                delegate.voteBalance = Bignum.ZERO;
+                delegate.voteBalance = Utils.BigNumber.ZERO;
 
-                const voter = new Wallet(crypto.getAddress((i + 5).toString().repeat(66)));
-                voter.balance = new Bignum((i + 1) * 1000 * SATOSHI);
+                const voter = new Wallet(Identities.Address.fromPublicKey((i + 5).toString().repeat(66)));
+                voter.balance = Utils.BigNumber.make((i + 1) * 1000 * SATOSHI);
                 voter.publicKey = `v${delegateKey}`;
                 voter.vote = delegateKey;
 
@@ -545,7 +545,7 @@ describe("Wallet Manager", () => {
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[i];
                 expect(delegate.rate).toEqual(i + 1);
-                expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * SATOSHI));
+                expect(delegate.voteBalance).toEqual(Utils.BigNumber.make((5 - i) * 1000 * SATOSHI));
             }
         });
     });
