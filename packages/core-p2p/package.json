@@ -32,7 +32,7 @@
         "@faustbrian/dato": "^0.3.0",
         "ajv": "^6.10.0",
         "boom": "^7.3.0",
-        "delay": "^4.1.0",
+        "delay": "^4.2.0",
         "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
         "ipaddr.js": "^1.9.0",

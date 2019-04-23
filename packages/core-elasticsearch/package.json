@@ -31,7 +31,7 @@
     "devDependencies": {
         "@types/elasticsearch": "^5.0.32",
         "@types/fs-extra": "^5.0.5",
-        "@types/joi": "^14.3.2"
+        "@types/joi": "^14.3.3"
     },
     "publishConfig": {
         "access": "public"
