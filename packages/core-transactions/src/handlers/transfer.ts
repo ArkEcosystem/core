@@ -1,6 +1,7 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import {
     configManager,
+    constants,
     ITransactionData,
     Transaction,
     TransactionConstructor,
@@ -8,6 +9,8 @@ import {
 } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
+
+const { TransactionTypes } = constants;
 
 export class TransferTransactionHandler extends TransactionHandler {
     public getConstructor(): TransactionConstructor {
@@ -35,6 +38,10 @@ export class TransferTransactionHandler extends TransactionHandler {
     }
 
     public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
+        if (this.secondSignatureRegistrationFromSenderAlreadyInPool(data, guard)) {
+            return false;
+        }
+
         if (!isRecipientOnActiveNetwork(data)) {
             guard.pushError(
                 data,

@@ -49,13 +49,13 @@ describe("Accept handler", () => {
             const handler = new AcceptBlockHandler(blockchain as any, block);
 
             jest.restoreAllMocks();
-            const loggerError = jest.spyOn(logger, "error");
+            const loggerWarn = jest.spyOn(logger, "warn");
             jest.spyOn(blockchain.database, "applyBlock").mockImplementationOnce(() => {
                 throw new Error("¯_(ツ)_/¯");
             });
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
-            expect(loggerError).toHaveBeenCalledWith(`Refused new block ${JSON.stringify(block.data)}`);
+            expect(loggerWarn).toHaveBeenCalledWith(`Refused new block ${JSON.stringify(block.data)}`);
         });
     });
 });

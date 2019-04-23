@@ -30,7 +30,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Implemented the `ark reinstall` command in `core` ([#2192])
 -   Added the `--force` flag to the `ark update` command in `core` ([#2190])
 -   Added more parameters for delegate searches in `core-api` ([#2184])
--   Add the `/v2/delegates/active` endpoint to `core-api` ([#2205])
 -   Added restart flags to the `ark update` command in `core` ([#2218])
 -   Added the `make:block` command to `core-tester-cli` to create blocks ([#2221])
 -   Added the `core-error-tracker-rollbar` package ([#2287])
@@ -49,6 +48,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Validate that a transaction recipient is on the same network ([#2394])
 -   Handle empty `rows` in `mapBlocksToTransactions` ([#2404])
 -   Prevent indexing/creating of ghost wallets ([#2405])
+-   Refuse transactions from senders with pending second signature registrations and do not rollback when refusing a block ([#2458])
 
 ### Changed
 
@@ -436,3 +436,4 @@ Closed security vulnerabilities:
 [#2394]: https://github.com/ARKEcosystem/core/pull/2394
 [#2404]: https://github.com/ARKEcosystem/core/pull/2404
 [#2405]: https://github.com/ARKEcosystem/core/pull/2405
+[#2458]: https://github.com/ARKEcosystem/core/pull/2458

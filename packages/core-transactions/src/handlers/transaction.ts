@@ -137,4 +137,22 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         return false;
     }
+
+    protected secondSignatureRegistrationFromSenderAlreadyInPool(
+        data: ITransactionData,
+        guard: TransactionPool.IGuard,
+    ): boolean {
+        const { senderPublicKey } = data;
+        if (guard.pool.senderHasTransactionsOfType(senderPublicKey, TransactionTypes.SecondSignature)) {
+            guard.pushError(
+                data,
+                "ERR_PENDING",
+                `Cannot accept transaction from sender ${senderPublicKey} while its second signature registration is in the pool`,
+            );
+
+            return true;
+        }
+
+        return false;
+    }
 }

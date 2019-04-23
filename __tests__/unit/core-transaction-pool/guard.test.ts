@@ -325,6 +325,32 @@ describe("Transaction Guard", () => {
             ]);
         });
 
+        it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {
+            const secondSignatureTransaction = TransactionFactory.secondSignature()
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[16].passphrase)
+                .build()[0];
+
+            const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[16].passphrase)
+                .withSecondPassphrase(wallets[17].passphrase)
+                .build()[0];
+
+            const memPoolTx = new MemPoolTransaction(secondSignatureTransaction);
+            jest.spyOn(guard.pool, "senderHasTransactionsOfType").mockReturnValueOnce(true);
+
+            expect(guard.__validateTransaction(transferTransaction.data)).toBeFalse();
+            expect(guard.errors[transferTransaction.id]).toEqual([
+                {
+                    type: "ERR_PENDING",
+                    message: `Cannot accept transaction from sender ${
+                        transferTransaction.data.senderPublicKey
+                    } while its second signature registration is in the pool`,
+                },
+            ]);
+        });
+
         it("should not validate when sender has same type transactions in the pool (only for 2nd sig, delegate registration, vote)", async () => {
             jest.spyOn(guard.pool.walletManager, "canApply").mockImplementation(() => true);
             jest.spyOn(guard.pool, "senderHasTransactionsOfType").mockReturnValue(true);
