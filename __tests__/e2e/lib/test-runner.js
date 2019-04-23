@@ -70,10 +70,17 @@ class TestRunner {
       const nodeInspect = JSON.parse(stdoutDockerInspect)
       const nodeIP = nodeInspect[0].NetworkSettings.Networks.nodes.IPAddress
       this.nodes[nodeNumber] = { name: `node${nodeNumber}`, IP: nodeIP }
-
+      
       // log IP into a file for possible future use
       const commandLogIP = `echo ${nodeIP} > ${this.rootPath}/dist/node${nodeNumber}/ip.log`
       await exec(commandLogIP)
+
+      // do the same for postgres
+      const commandDockerInspectPostgres = `docker ps --format "{{.Names}}" | grep node${nodeNumber}_postgres | xargs docker inspect`
+      const { stdout: stdoutInspectPostgres, stderr: stderrInspectPostgres } = await exec(commandDockerInspectPostgres)
+      const postgresInspect = JSON.parse(stdoutInspectPostgres)
+      const postgresIP = postgresInspect[0].NetworkSettings.Networks[`node${nodeNumber}backend`].IPAddress
+      this.nodes[nodeNumber].postgresIP = postgresIP
     }
   }
 
@@ -91,6 +98,12 @@ class TestRunner {
           (err) => {
             if (err) throw err;
       })
+
+      // postgres config
+      const pluginsPath = `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/testnet/plugins.js`
+      const plugins = fs.readFileSync(pluginsPath, 'utf8');
+      const pluginsFixed = plugins.replace("process.env.CORE_DB_HOST || \"localhost\"", `"${nodeInfos.postgresIP}"`)
+      fs.writeFileSync(pluginsPath, pluginsFixed);
 
       // now launch the node, with --network-start for node0
       console.log(`[test-runner] Launching node${nodeNumber}...`)

@@ -113,7 +113,6 @@ class GenerateManager {
       const pluginsFixed = plugins
         .replace(/minimumNetworkReach: \d+/, "minimumNetworkReach: 1")
         .replace(/coldStart: \d+/, "coldStart: 1")
-        .replace("process.env.CORE_DB_HOST || \"localhost\"", "\"postgres\"")
         .replace("process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`", "\"ark_testnet\"")
         .replace("process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN", "\"ark\"")
         .replace("process.env.CORE_DB_PASSWORD || \"password\"", "\"password\"")
