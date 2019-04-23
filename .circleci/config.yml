@@ -762,16 +762,13 @@ jobs:
             tee /etc/apt/sources.list.d/yarn.list && sudo apt-get update && sudo
             apt-get install yarn
       - run:
-          name: Install lerna
-          command: source ~/.bashrc && nvm use 10 && yarn add lerna -W -D
-      - run:
           name: Docker swarm init
           command: docker swarm init
       - run:
           name: Install and build packages
           command: >-
-            source ~/.bashrc && nvm use 10 && yarn bootstrap && yarn build && cd
-            __tests__/e2e && yarn install
+            source ~/.bashrc && nvm use 10 && yarn && yarn bootstrap && yarn
+            compile && cd __tests__/e2e && yarn install
       - save_cache:
           key: 'ark-e2e-{{ checksum "checksum.txt" }}-1-2'
           paths:
