@@ -1,6 +1,5 @@
 import { Machine } from "xstate";
 import { fork } from "./actions/fork";
-import { rebuildFromNetwork } from "./actions/rebuild-from-network";
 import { syncWithNetwork } from "./actions/sync-with-network";
 
 export const blockchainMachine: any = Machine({
@@ -16,22 +15,12 @@ export const blockchainMachine: any = Machine({
         init: {
             onEntry: ["init"],
             on: {
-                REBUILD: "rebuild",
                 NETWORKSTART: "idle",
                 STARTED: "syncWithNetwork",
                 ROLLBACK: "rollback",
                 FAILURE: "exit",
                 STOP: "stopped",
             },
-        },
-        rebuild: {
-            on: {
-                REBUILDCOMPLETE: "syncWithNetwork",
-                FORK: "fork",
-                TEST: "syncWithNetwork",
-                STOP: "stopped",
-            },
-            ...rebuildFromNetwork,
         },
         syncWithNetwork: {
             on: {

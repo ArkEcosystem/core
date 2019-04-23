@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 rm -rf /home/ark/ark-core
-git clone https://github.com/ArkEcosystem/core -b upgrade /home/ark/ark-core
+git clone https://github.com/ARKEcosystem/core -b upgrade /home/ark/ark-core
 
 mkdir /home/ark/.ark
 touch /home/ark/.ark/.env

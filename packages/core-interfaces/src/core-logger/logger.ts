@@ -7,38 +7,38 @@ export interface ILogger {
 
     /**
      * Log an error message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    error(message: string): void;
+    error(message: any): void;
 
     /**
      * Log a warning message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    warn(message: string): void;
+    warn(message: any): void;
 
     /**
      * Log an info message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    info(message: string): void;
+    info(message: any): void;
 
     /**
      * Log a debug message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    debug(message: string): void;
+    debug(message: any): void;
 
     /**
      * Log a verbose message.
-     * @param  {String} message
+     * @param  {*} message
      * @return {void}
      */
-    verbose(message: string): void;
+    verbose(message: any): void;
 
     /**
      * Suppress console output.

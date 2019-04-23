@@ -2,11 +2,11 @@ import { IConfig } from "@oclif/config";
 import cli from "cli-ux";
 import { shell } from "execa";
 import { closeSync, openSync, statSync } from "fs";
-import { existsSync } from "fs-extra";
-import { ensureDirSync } from "fs-extra";
+import { ensureDirSync, existsSync } from "fs-extra";
 import latestVersion from "latest-version";
 import { join } from "path";
 import semver from "semver";
+
 import { configManager } from "./config";
 
 async function getLatestVersion(name: string, channel: string): Promise<string> {
@@ -40,7 +40,7 @@ export async function installFromChannel(pkg, channel) {
 }
 
 export function getRegistryChannel(config: IConfig): string {
-    const channels: string[] = ["alpha", "beta", "rc"];
+    const channels: string[] = ["alpha", "beta", "rc", "next"];
 
     let channel: string = "latest";
     for (const item of channels) {

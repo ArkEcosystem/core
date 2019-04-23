@@ -1,10 +1,10 @@
-import { configManager as crypto, HashAlgorithms } from "@arkecosystem/crypto";
-import get from "lodash/get";
-import set from "lodash/set";
+import { configManager as crypto } from "@arkecosystem/crypto";
+import get from "lodash.get";
+import set from "lodash.set";
 import { fileLoader } from "./loaders";
 import { Network } from "./network";
 
-class Config {
+export class Config {
     private config: Record<string, any>;
 
     public async setUp(opts) {

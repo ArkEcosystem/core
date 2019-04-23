@@ -9,11 +9,11 @@ export const plugin: Container.PluginDescriptor = {
     alias: "forger",
     async register(container: Container.IContainer, options) {
         const forgerManager = new ForgerManager(options);
-        const forgers = await forgerManager.loadDelegates(options.bip38, options.password);
+        const forgers = await forgerManager.loadDelegates(options.bip38 as string, options.password as string);
         const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!forgers) {
-            logger.info("Forger is disabled :grey_exclamation:");
+            logger.info("Forger is disabled");
             return false;
         }
 

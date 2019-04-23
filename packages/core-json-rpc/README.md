@@ -1,12 +1,12 @@
-# Ark Core - JSON-RPC
+# ARK Core - JSON-RPC
 
 <p align="center">
-    <img src="../../banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png?sanitize=true" />
 </p>
 
 ## Documentation
 
-You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-json-rpc.html).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/optional/core-json-rpc.html).
 
 ## Security
 
@@ -14,10 +14,8 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
--   [Brian Faust](https://github.com/faustbrian)
--   [François-Xavier Thoorens](https://github.com/fix)
--   [All Contributors](../../../../contributors)
+This project exists thanks to all the people who [contribute](../../../../contributors).
 
 ## License
 
-[MIT](LICENSE) © [ArkEcosystem](https://ark.io)
+[MIT](LICENSE) © [ARK Ecosystem](https://ark.io)

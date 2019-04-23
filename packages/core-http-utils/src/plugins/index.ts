@@ -1,6 +1,5 @@
-import { contentType } from "./content-type";
-import { corsHeaders } from "./cors-headers";
-import { transactionPayload } from "./transaction-payload";
-import { whitelist } from "./whitelist";
-
-export { contentType, corsHeaders, transactionPayload, whitelist };
+export { hapiAjv } from "./hapi-ajv";
+export { contentType } from "./content-type";
+export { corsHeaders } from "./cors-headers";
+export { transactionPayload } from "./transaction-payload";
+export { whitelist } from "./whitelist";

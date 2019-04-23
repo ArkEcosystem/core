@@ -1,5 +1,4 @@
 export const defaults = {
-    fastRebuild: false,
     databaseRollback: {
         maxBlockRewind: 10000,
         steps: 1000,

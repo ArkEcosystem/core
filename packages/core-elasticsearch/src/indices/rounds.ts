@@ -1,4 +1,4 @@
-import { client } from "../client";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
@@ -37,6 +37,6 @@ export class Rounds extends Index {
     }
 
     public listen() {
-        this.emitter.on("round.created", () => this.index());
+        this.emitter.on(ApplicationEvents.RoundCreated, () => this.index());
     }
 }

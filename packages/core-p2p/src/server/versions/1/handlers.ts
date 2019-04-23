@@ -1,15 +1,14 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { Joi, models, slots } from "@arkecosystem/crypto";
-
+import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
+import { AjvWrapper, models, slots } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { monitor } from "../../../monitor";
-import { store as schemaBlock } from "../internal/schemas/blocks";
+import { schema } from "./schema";
 
 const { Block } = models;
 
-const transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
+const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
 /**
@@ -77,20 +76,15 @@ export const getCommonBlocks = {
             };
         }
 
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-
-        const ids = request.query.ids
-            .split(",")
-            .slice(0, 9)
-            .filter(id => id.match(/^\d+$/));
+        const ids = request.query.ids.split(",").filter(id => AjvWrapper.instance().validate({ blockId: {} }, id));
 
         try {
-            const commonBlocks = await blockchain.database.getCommonBlocks(ids);
+            const commonBlocks = await app.resolvePlugin<Database.IDatabaseService>("database").getCommonBlocks(ids);
 
             return {
                 success: true,
                 common: commonBlocks.length ? commonBlocks[0] : null,
-                lastBlockHeight: blockchain.getLastBlock().data.height,
+                lastBlockHeight: app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock().data.height,
             };
         } catch (error) {
             return h
@@ -146,7 +140,7 @@ export const postBlock = {
      * @param  {Hapi.Toolkit} h
      * @return {Hapi.Response}
      */
-    async handler(request, h) {
+    handler: async (request, h) => {
         const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
         try {
@@ -185,7 +179,11 @@ export const postBlock = {
         }
     },
     options: {
-        validate: schemaBlock,
+        plugins: {
+            "hapi-ajv": {
+                payloadSchema: schema.postBlock,
+            },
+        },
     },
 };
 
@@ -231,12 +229,11 @@ export const postTransactions = {
         cors: {
             additionalHeaders: ["nethash", "port", "version"],
         },
-        validate: {
-            payload: {
-                transactions: Joi.transactionArray()
-                    .min(1)
-                    .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
-                    .options({ stripUnknown: true }),
+        plugins: {
+            validate: {
+                "hapi-ajv": {
+                    payloadSchema: schema.postTransactions,
+                },
             },
         },
     },

@@ -1,3 +1,3 @@
 SELECT *
 FROM blocks
-WHERE height IN (${heights:list})
+WHERE height = ${height}

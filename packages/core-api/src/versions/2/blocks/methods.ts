@@ -1,7 +1,12 @@
+import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
-import { blocksRepository, transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
+
+const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+const blocksRepository = databaseService.blocksBusinessRepository;
+const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
     const blocks = await blocksRepository.findAll({
@@ -13,7 +18,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const block = await blocksRepository.findById(request.params.id);
+    const block = await blocksRepository.findByIdOrHeight(request.params.id);
 
     if (!block) {
         return Boom.notFound("Block not found");

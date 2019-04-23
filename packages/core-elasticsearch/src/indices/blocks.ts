@@ -1,4 +1,3 @@
-import { client } from "../client";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";

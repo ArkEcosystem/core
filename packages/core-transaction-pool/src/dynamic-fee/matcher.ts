@@ -1,23 +1,25 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { constants, feeManager, formatSatoshi } from "@arkecosystem/crypto";
-import camelCase from "lodash/camelCase";
+import { Bignum, constants, feeManager, formatSatoshi, Transaction } from "@arkecosystem/crypto";
+import camelCase from "lodash.camelcase";
 import { config as localConfig } from "../config";
 
 /**
  * Calculate minimum fee of a transaction for entering the pool.
- * @param {Number} Minimum fee SATOSHI/byte
- * @param {Transaction} Transaction for which we calculate the fee
- * @returns {Number} Calculated minimum acceptable fee in SATOSHI
  */
-export function calculateFee(satoshiPerByte, transaction) {
+export function calculateFee(satoshiPerByte: number, transaction: Transaction): number {
     if (satoshiPerByte <= 0) {
         satoshiPerByte = 1;
     }
 
-    const addonBytes = localConfig.get("dynamicFees.addonBytes")[
-        camelCase(constants.TransactionTypes[transaction.type])
-    ];
+    let key;
+    if (transaction.type in constants.TransactionTypes) {
+        key = camelCase(constants.TransactionTypes[transaction.type]);
+    } else {
+        key = camelCase(transaction.constructor.name.replace("Transaction", ""));
+    }
+
+    const addonBytes = localConfig.get("dynamicFees.addonBytes")[key];
 
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2;
@@ -31,10 +33,10 @@ export function calculateFee(satoshiPerByte, transaction) {
  * @param {Transaction} Transaction - transaction to check
  * @return {Object} { broadcast: Boolean, enterPool: Boolean }
  */
-export function dynamicFeeMatcher(transaction) {
+export function dynamicFeeMatcher(transaction: Transaction): { broadcast: boolean; enterPool: boolean } {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    const fee = +transaction.fee.toFixed();
+    const fee = +(transaction.data.fee as Bignum).toFixed();
     const id = transaction.id;
 
     const dynamicFees = localConfig.get("dynamicFees");
@@ -79,7 +81,7 @@ export function dynamicFeeMatcher(transaction) {
         }
     } else {
         // Static fees
-        const staticFee = feeManager.getForTransaction(transaction);
+        const staticFee = feeManager.getForTransaction(transaction.data);
 
         if (fee === staticFee) {
             broadcast = true;

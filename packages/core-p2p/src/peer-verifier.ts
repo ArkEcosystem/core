@@ -1,11 +1,15 @@
 // tslint:disable:max-classes-per-file
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { models } from "@arkecosystem/crypto";
 import assert from "assert";
 import { inspect } from "util";
 import { Peer } from "./peer";
+
+interface IDelegateWallets {
+    [publicKey: string]: Database.IDelegateWallet;
+}
 
 enum Severity {
     /**
@@ -292,29 +296,30 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
-        const round = roundCalculator.calculateRound(startHeight);
-        const lastBlockHeightInRound = round.round * round.maxDelegates;
+        const roundInfo = roundCalculator.calculateRound(startHeight);
+        const { maxDelegates, roundHeight } = roundInfo;
+        const lastBlockHeightInRound = roundHeight + maxDelegates;
 
         // Verify a few blocks that are not too far up from the last common block. Within the
         // same round as the last common block or in the next round if the last common block is
         // the last block in a round (so that the delegates calculations are still the same for
         // both chains).
 
-        const delegates = await this.getDelegates(round);
+        const delegates = await this.getDelegatesByRound(roundInfo);
 
         const hisBlocksByHeight = {};
 
         const endHeight = Math.min(claimedHeight, lastBlockHeightInRound);
 
-        for (let h = startHeight; h <= endHeight; h++) {
-            if (hisBlocksByHeight[h] === undefined) {
-                if (!(await this.fetchBlocksFromHeight(h, hisBlocksByHeight, deadline))) {
+        for (let height = startHeight; height <= endHeight; height++) {
+            if (hisBlocksByHeight[height] === undefined) {
+                if (!(await this.fetchBlocksFromHeight(height, hisBlocksByHeight, deadline))) {
                     return false;
                 }
             }
-            assert(hisBlocksByHeight[h] !== undefined);
+            assert(hisBlocksByHeight[height] !== undefined);
 
-            if (!(await this.verifyPeerBlock(hisBlocksByHeight[h], h, delegates))) {
+            if (!(await this.verifyPeerBlock(hisBlocksByHeight[height], height, delegates))) {
                 return false;
             }
         }
@@ -324,36 +329,30 @@ export class PeerVerifier {
 
     /**
      * Get the delegates for the given round.
-     * @param {Object} round round to get delegates for
-     * @return {Object} a map of { publicKey: delegate, ... } of all delegates for the given round
      */
-    private async getDelegates(round: any): Promise<any> {
-        const numDelegates = round.maxDelegates;
+    private async getDelegatesByRound(roundInfo: Shared.IRoundInfo): Promise<IDelegateWallets> {
+        const { round, maxDelegates } = roundInfo;
 
-        const heightOfFirstBlockInRound = (round.round - 1) * numDelegates + 1;
-
-        let delegates = await this.database.getActiveDelegates(heightOfFirstBlockInRound);
+        let delegates = await this.database.getActiveDelegates(roundInfo);
 
         if (delegates.length === 0) {
             // This must be the current round, still not saved into the database (it is saved
             // only after it has completed). So fetch the list of delegates from the wallet
             // manager.
 
-            // loadActiveDelegateList() is upset if we give it any height - it wants the height
-            // of the first block in the round.
-            delegates = this.database.walletManager.loadActiveDelegateList(numDelegates, heightOfFirstBlockInRound);
+            delegates = this.database.walletManager.loadActiveDelegateList(roundInfo);
             assert.strictEqual(
                 delegates.length,
-                numDelegates,
-                `Couldn't derive the list of delegates for round ${round.round}. The database ` +
+                maxDelegates,
+                `Couldn't derive the list of delegates for round ${round}. The database ` +
                     `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
             );
         }
 
-        const delegatesByPublicKey = {};
+        const delegatesByPublicKey = {} as IDelegateWallets;
 
-        for (const d of delegates) {
-            delegatesByPublicKey[d.publicKey] = d;
+        for (const delegate of delegates) {
+            delegatesByPublicKey[delegate.publicKey] = delegate;
         }
 
         return delegatesByPublicKey;
@@ -384,7 +383,7 @@ export class PeerVerifier {
             return false;
         }
 
-        if (response.data.blocks.length === 0) {
+        if (response.body.blocks.length === 0) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
@@ -393,8 +392,8 @@ export class PeerVerifier {
             return false;
         }
 
-        for (let i = 0; i < response.data.blocks.length; i++) {
-            blocksByHeight[height + i] = response.data.blocks[i];
+        for (let i = 0; i < response.body.blocks.length; i++) {
+            blocksByHeight[height + i] = response.body.blocks[i];
         }
 
         return true;
@@ -411,7 +410,7 @@ export class PeerVerifier {
     private async verifyPeerBlock(
         blockData: models.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: any[],
+        delegatesByPublicKey: IDelegateWallets,
     ): Promise<boolean> {
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
             this.log(

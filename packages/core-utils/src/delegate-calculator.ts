@@ -30,19 +30,15 @@ function calculateApproval(delegate, height: any = null) {
 }
 
 /**
- * Calculate the productivity of the given delegate.
- * @param  {Delegate} delegate
- * @return {Number} Productivity, with 2 decimals
+ * Calculate the forged total of the given delegate.
+ * @param {Delegate} delegate
+ * @return {Bignum} Forged total
  */
-function calculateProductivity(delegate) {
-    const missedBlocks = +delegate.missedBlocks;
-    const producedBlocks = +delegate.producedBlocks;
+function calculateForgedTotal(delegate) {
+    const forgedFees = new Bignum(delegate.forgedFees);
+    const forgedRewards = new Bignum(delegate.forgedRewards);
 
-    if (!missedBlocks && !producedBlocks) {
-        return +(0).toFixed(2);
-    }
-
-    return +(100 - missedBlocks / ((producedBlocks + missedBlocks) / 100)).toFixed(2);
+    return +forgedFees.plus(forgedRewards).toFixed();
 }
 
-export { calculateApproval, calculateProductivity };
+export { calculateApproval, calculateForgedTotal };

@@ -34,26 +34,14 @@ class QuorumDetails {
     public peersOverHeightBlockHeaders: { [id: string]: any } = {};
 
     /**
-     * Number of peers which are up to N (=3) blocks below `nodeHeight`.
-     * In other words peers lower than `nodeHeight` - N are not considered for quorum.
-     */
-    public peersBelowHeightElasticity = 0;
-
-    /**
-     * Number of ignored peers (i.e height far below `nodeHeight`). Ignored peers
-     * are not used for quorum.
-     */
-    public peersQuorumIgnored = 0;
-
-    /**
      * The following properties are not mutual exclusive for a peer
      * and imply a peer is on the same `nodeHeight`.
      */
 
     /**
-     * Number of peers with a different last block id.
+     * Number of peers that are on a different chain (forked).
      */
-    public peersDifferentBlockId = 0;
+    public peersForked = 0;
 
     /**
      * Number of peers with a different slot.
@@ -75,8 +63,8 @@ export enum NetworkStateStatus {
 }
 
 export class NetworkState {
-    private nodeHeight: number;
-    private lastBlockId: string;
+    public nodeHeight: number;
+    public lastBlockId: string;
     private quorumDetails: QuorumDetails;
 
     public constructor(readonly status: NetworkStateStatus, lastBlock?: any) {
@@ -157,34 +145,26 @@ export class NetworkState {
     }
 
     private update(peer: Peer, currentSlot: number) {
-        if (peer.state.height === this.nodeHeight) {
-            let quorum = true;
-            if (peer.state.header.id !== this.lastBlockId) {
-                quorum = false;
-                this.quorumDetails.peersDifferentBlockId++;
-            }
-
-            if (peer.state.currentSlot !== currentSlot) {
-                quorum = false;
-                this.quorumDetails.peersDifferentSlot++;
-            }
-
-            if (!peer.state.forgingAllowed) {
-                this.quorumDetails.peersForgingNotAllowed++;
-            }
-
-            quorum ? this.quorumDetails.peersQuorum++ : this.quorumDetails.peersNoQuorum++;
-        } else if (peer.state.height > this.nodeHeight) {
+        if (peer.state.height > this.nodeHeight) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;
-        } else if (this.nodeHeight - peer.state.height < 3) {
-            // suppose the max network elasticity accross 3 blocks
-            this.quorumDetails.peersNoQuorum++;
-            this.quorumDetails.peersBelowHeightElasticity++;
         } else {
-            // Peers far below own height are ignored for quorum
-            this.quorumDetails.peersQuorumIgnored++;
+            if (peer.verification.forked) {
+                this.quorumDetails.peersNoQuorum++;
+                this.quorumDetails.peersForked++;
+            } else {
+                this.quorumDetails.peersQuorum++;
+            }
+        }
+
+        // Just statistics in case something goes wrong.
+        if (peer.state.currentSlot !== currentSlot) {
+            this.quorumDetails.peersDifferentSlot++;
+        }
+
+        if (!peer.state.forgingAllowed) {
+            this.quorumDetails.peersForgingNotAllowed++;
         }
     }
 }

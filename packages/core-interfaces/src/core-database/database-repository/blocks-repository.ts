@@ -1,4 +1,5 @@
 import { Bignum } from "@arkecosystem/crypto";
+import { SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface IBlocksRepository extends IRepository {
@@ -8,11 +9,24 @@ export interface IBlocksRepository extends IRepository {
     findById(id: string): Promise<any>;
 
     /**
+     * Find many blocks by their IDs.
+     * @param {String[]} ids
+     */
+    findByIds(id: string[]): Promise<any[]>;
+
+    /**
+     * Get a block at the given height.
+     * @param  {Number} height the height of the blocks to retrieve
+     * @return {Promise}
+     */
+    findByHeight(height: number): Promise<any>;
+
+    /**
      * Get all of the blocks at the given heights.
      * @param {Array} heights the heights of the blocks to retrieve
      * @return {Promise}
      */
-    findByHeight(heights): Promise<any>;
+    findByHeights(heights: number[]): Promise<any>;
 
     /**
      * Count the number of records in the database.
@@ -59,4 +73,9 @@ export interface IBlocksRepository extends IRepository {
      * Delete the block from the database.
      */
     delete(id: string): Promise<void>;
+
+    /* TODO: Remove with V1 */
+    findAll(params: SearchParameters): Promise<any>;
+
+    search(params: SearchParameters): Promise<any>;
 }

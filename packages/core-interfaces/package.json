@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-interfaces",
-    "description": "Interface types for essential Ark core modules",
-    "version": "2.2.2",
+    "description": "Interface types for essential ARK Core modules",
+    "version": "2.3.0",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -15,24 +15,17 @@
         "dist"
     ],
     "scripts": {
-        "publish:alpha": "npm publish --tag alpha",
-        "publish:beta": "npm publish --tag beta",
-        "publish:rc": "npm publish --tag rc",
-        "publish:latest": "npm publish --tag latest",
         "prepublishOnly": "yarn build",
         "pretest": "bash ../../scripts/pre-test.sh",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.2.2",
-        "awilix": "^4.2.0",
-        "eventemitter3": "^3.1.0"
+        "@arkecosystem/crypto": "^2.3.0",
+        "@faustbrian/dato": "^0.2.0",
+        "awilix": "^4.2.1"
     },
     "publishConfig": {
         "access": "public"

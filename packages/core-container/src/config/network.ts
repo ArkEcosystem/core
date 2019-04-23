@@ -1,7 +1,5 @@
 import { NetworkManager } from "@arkecosystem/crypto";
-import expandHomeDir from "expand-home-dir";
 import Joi from "joi";
-import { resolve } from "path";
 import { schemaNetwork } from "./schema";
 
 export class Network {
@@ -9,7 +7,7 @@ export class Network {
      * Expose information about the for the operating network to the environment.
      * @return {void}
      */
-    public static setUp(opts: any) {
+    public static setUp(opts: Record<string, any>) {
         const config = NetworkManager.findByName(opts.network);
 
         const { error } = Joi.validate(config, schemaNetwork);

@@ -8,7 +8,15 @@ export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "elasticsearch",
-    async register(_, options) {
+    async register(container: Container.IContainer, options: Container.IPluginOptions) {
+        if (
+            typeof options.client !== "object" ||
+            Array.isArray(options.client) ||
+            typeof options.chunkSize !== "number"
+        ) {
+            throw new Error("Elasticsearch plugin config invalid");
+        }
+
         await client.setUp(options.client);
 
         await watchIndices(options.chunkSize);

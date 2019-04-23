@@ -7,10 +7,8 @@ export function transformDelegateLegacy(model) {
         publicKey: model.publicKey,
         vote: `${model.voteBalance}`,
         producedblocks: model.producedBlocks,
-        missedblocks: model.missedBlocks,
         forged: model.forged,
         rate: model.rate,
         approval: delegateCalculator.calculateApproval(model),
-        productivity: delegateCalculator.calculateProductivity(model),
     };
 }

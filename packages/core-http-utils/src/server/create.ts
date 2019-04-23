@@ -1,10 +1,14 @@
 import Hapi from "hapi";
 import { monitorServer } from "./monitor";
 
-export async function createServer(options, callback: any = null) {
+export async function createServer(options, callback: any = null, plugins?: any[]) {
     const server = new Hapi.Server(options);
 
-    await server.register([require("vision"), require("inert"), require("lout")]);
+    if (Array.isArray(plugins)) {
+        for (const plugin of plugins) {
+            await server.register(plugin);
+        }
+    }
 
     await server.register({
         plugin: require("hapi-trailing-slash"),

@@ -1,28 +1,28 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 
 export interface IPeer {
-    setHeaders(headers: any): void;
+    setHeaders(headers: Record<string, any>): void;
 
     /**
      * Set the given status for the peer.
      * @param  {String} value
      * @return {void}
      */
-    setStatus(value: any): void;
+    setStatus(value: string | number): void;
 
     /**
      * Get information to broadcast.
      * @return {Object}
      */
     toBroadcastInfo(): {
-        ip: any;
+        ip: string;
         port: number;
-        nethash: any;
-        version: any;
-        os: any;
-        status: any;
-        height: any;
-        delay: any;
+        nethash: string;
+        version: string;
+        os: string;
+        status: string | number;
+        height: number;
+        delay: number;
     };
 
     /**
@@ -37,7 +37,7 @@ export interface IPeer {
      * @param  {Transaction[]}      transactions
      * @return {(Object|undefined)}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<any>;
+    postTransactions(transactions: Transaction[]): Promise<any>;
 
     /**
      * Download blocks from peer.

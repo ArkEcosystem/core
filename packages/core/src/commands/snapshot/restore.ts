@@ -16,16 +16,13 @@ export class RestoreCommand extends BaseCommand {
             description: "blocks to import, corelates to folder name",
             required: true,
         }),
-        codec: flags.string({
-            description: "codec name, default is msg-lite binary",
-        }),
         truncate: flags.boolean({
             description: "empty all tables before running import",
         }),
         skipRestartRound: flags.boolean({
             description: "skip revert to current round",
         }),
-        signatureVerify: flags.boolean({
+        verifySignatures: flags.boolean({
             description: "signature verification",
         }),
     };
@@ -60,6 +57,6 @@ export class RestoreCommand extends BaseCommand {
             progressBar.stop();
         });
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").importData(flags);
+        await app.resolvePlugin<SnapshotManager>("snapshots").import(flags);
     }
 }

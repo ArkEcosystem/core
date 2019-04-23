@@ -1,32 +1,23 @@
-class TransactionPoolManager {
-    private connections: { [key: string]: any };
+import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { ConnectionFactory } from "./factory";
 
-    /**
-     * Create a new transaction pool manager instance.
-     * @constructor
-     */
-    constructor() {
-        this.connections = {};
+export class ConnectionManager {
+    private readonly factory: ConnectionFactory = new ConnectionFactory();
+    private readonly connections: Map<string, TransactionPool.IConnection> = new Map<
+        string,
+        TransactionPool.IConnection
+    >();
+
+    public connection(name = "default"): TransactionPool.IConnection {
+        return this.connections.get(name);
     }
 
-    /**
-     * Get a transaction pool instance.
-     * @param  {String} name
-     * @return {TransactionPoolInterface}
-     */
-    public connection(name = "default") {
-        return this.connections[name];
-    }
+    public async createConnection(
+        connection: TransactionPool.IConnection,
+        name = "default",
+    ): Promise<TransactionPool.IConnection> {
+        this.connections.set(name, await this.factory.make(connection));
 
-    /**
-     * Make the transaction pool instance.
-     * @param  {TransactionPoolInterface} connection
-     * @param  {String} name
-     * @return {void}
-     */
-    public async makeConnection(connection, name = "default") {
-        this.connections[name] = await connection.make();
+        return this.connection(name);
     }
 }
-
-export const transactionPoolManager = new TransactionPoolManager();

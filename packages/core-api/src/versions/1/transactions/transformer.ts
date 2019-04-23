@@ -1,23 +1,23 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { bignumify } from "@arkecosystem/core-utils";
-import { crypto, models } from "@arkecosystem/crypto";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { Transaction } from "@arkecosystem/crypto";
 
 export function transformTransactionLegacy(model) {
-    const config = app.getConfig();
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const data: any = new models.Transaction(model.serialized.toString("hex"));
+    const { data } = Transaction.fromBytesUnsafe(model.serialized, model.id);
+    const senderId = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     return {
         id: data.id,
         blockid: model.blockId,
         type: data.type,
         timestamp: model.timestamp || data.timestamp,
-        amount: +bignumify(data.amount).toFixed(),
-        fee: +bignumify(data.fee).toFixed(),
+        amount: +data.amount,
+        fee: +data.fee,
         recipientId: data.recipientId,
-        senderId: crypto.getAddress(data.senderPublicKey, config.get("network.pubKeyHash")),
+        senderId,
         senderPublicKey: data.senderPublicKey,
         vendorField: data.vendorField,
         signature: data.signature,

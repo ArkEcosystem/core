@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { flags } from "@oclif/command";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
@@ -29,12 +30,16 @@ $ ark relay:run --launchMode=seed
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsBehaviour,
+        suffix: flags.string({
+            hidden: true,
+            default: "relay",
+        }),
     };
 
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(RunCommand);
 
-        await this.buildApplication(app, flags, {
+        await super.buildApplication(app, flags, {
             exclude: ["@arkecosystem/core-forger"],
             options: {
                 "@arkecosystem/core-p2p": this.buildPeerOptions(flags),

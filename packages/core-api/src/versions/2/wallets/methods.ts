@@ -122,7 +122,7 @@ export function registerMethods(server) {
             ...paginate(request),
         }))
         .method("v2.wallets.top", top, 30, request => paginate(request))
-        .method("v2.wallets.show", show, 30, request => ({ id: request.params.id }))
+        .method("v2.wallets.show", show, 8, request => ({ id: request.params.id }))
         .method("v2.wallets.transactions", transactions, 30, request => ({
             ...{ id: request.params.id },
             ...request.query,

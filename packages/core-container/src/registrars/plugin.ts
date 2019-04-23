@@ -1,27 +1,18 @@
+import { Container } from "@arkecosystem/core-interfaces";
 import { asValue } from "awilix";
-import expandHomeDir from "expand-home-dir";
-import { existsSync } from "fs";
 import Hoek from "hoek";
-import isString from "lodash/isString";
-import { dirname, resolve } from "path";
+import isString from "lodash.isstring";
 import semver from "semver";
 
 export class PluginRegistrar {
     private container: any;
     private plugins: any;
-    private resolvedPlugins: any;
     private options: any;
     private deregister: any;
 
-    /**
-     * Create a new plugin manager instance.
-     * @param  {IContainer} container
-     * @param  {Object} options
-     */
-    constructor(container, options: any = {}) {
+    constructor(container: Container.IContainer, options: Record<string, any> = {}) {
         this.container = container;
         this.plugins = container.config.get("plugins");
-        this.resolvedPlugins = [];
         this.options = this.__castOptions(options);
         this.deregister = [];
     }

@@ -4,10 +4,10 @@ import Hapi from "hapi";
 import { paginate, respondWith, respondWithCache, toCollection, toResource } from "../utils";
 
 export class Controller {
-    protected config = app.getConfig();
-    protected blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    protected databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    protected logger = app.resolvePlugin<Logger.ILogger>("logger");
+    protected readonly config = app.getConfig();
+    protected readonly blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    protected readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    protected readonly logger = app.resolvePlugin<Logger.ILogger>("logger");
 
     protected paginate(request: Hapi.Request): any {
         return paginate(request);

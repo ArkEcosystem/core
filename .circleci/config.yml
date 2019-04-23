@@ -1,6 +1,334 @@
 version: 2
 jobs:
-  test-node10-0:
+  test-node10-unit:
+    working_directory: ~/core
+    docker:
+      - image: 'circleci/node:10-browsers'
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: sudo apt-get install -q xsel
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .core/database directory
+          command: mkdir -p $HOME/.core/database
+      - run:
+          name: Unit tests
+          command: >-
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node11-unit:
+    working_directory: ~/core
+    docker:
+      - image: 'circleci/node:11-browsers'
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel
+          command: sudo apt-get install -q xsel
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .core/database directory
+          command: mkdir -p $HOME/.core/database
+      - run:
+          name: Unit tests
+          command: >-
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node10-functional:
+    working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_unitnet
+      CORE_DB_USERNAME: core
+    docker:
+      - image: 'circleci/node:10-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: core_unitnet
+          POSTGRES_USER: core
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .core/database directory
+          command: mkdir -p $HOME/.core/database
+      - run:
+          name: Functional tests
+          command: >-
+            cd ~/core && yarn test:functional:coverage --coverageDirectory
+            .coverage/functional/
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node11-functional:
+    working_directory: ~/core
+    environment:
+      CORE_DB_DATABASE: core_unitnet
+      CORE_DB_USERNAME: core
+    docker:
+      - image: 'circleci/node:11-browsers'
+      - image: 'postgres:alpine'
+        environment:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: core_unitnet
+          POSTGRES_USER: core
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: >-
+            sudo sh -c 'echo "deb http://ftp.debian.org/debian stable main
+            contrib non-free" >> /etc/apt/sources.list' && sudo apt-get update
+      - run:
+          name: Install xsel & postgresql-client
+          command: sudo apt-get install -q xsel postgresql-client
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
+      - run:
+          name: Install and build packages
+          command: yarn setup
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+      - run:
+          name: Create .core/database directory
+          command: mkdir -p $HOME/.core/database
+      - run:
+          name: Functional tests
+          command: >-
+            cd ~/core && yarn test:functional:coverage --coverageDirectory
+            .coverage/functional/
+      - run:
+          name: Last 1000 lines of test output
+          when: on_fail
+          command: tail -n 1000 test_output.txt
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Codecov
+          command: ./node_modules/.bin/codecov
+  test-node10-integration-0:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -41,24 +369,28 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
             - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -68,35 +400,10 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api
+          name: Unit tests
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-api && yarn test:coverage
-      - run:
-          name: core-blockchain
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-blockchain && yarn test:coverage
-      - run:
-          name: core-container
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-container && yarn test:coverage
-      - run:
-          name: core-database
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database && yarn test:coverage
-      - run:
-          name: core-database-postgres
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database-postgres && yarn test:coverage
-      - run:
-          name: core-debugger-cli
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-debugger-cli && yarn test:coverage
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -107,7 +414,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node11-0:
+  test-node11-integration-0:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -148,24 +455,28 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
             - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -175,35 +486,10 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-api
+          name: Unit tests
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-api && yarn test:coverage
-      - run:
-          name: core-blockchain
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-blockchain && yarn test:coverage
-      - run:
-          name: core-container
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-container && yarn test:coverage
-      - run:
-          name: core-database
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database && yarn test:coverage
-      - run:
-          name: core-database-postgres
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-database-postgres && yarn test:coverage
-      - run:
-          name: core-debugger-cli
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-debugger-cli && yarn test:coverage
+            cd ~/core && yarn test:unit:coverage --coverageDirectory
+            .coverage/unit/ --maxWorkers=2
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -214,7 +500,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node10-1:
+  test-node10-integration-1:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -255,24 +541,28 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
             - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -282,50 +572,35 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-event-emitter
+          name: core-api - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-event-emitter && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-api/ --coverageDirectory
+            .coverage/integration/core-api
       - run:
-          name: core-forger
+          name: core-blockchain - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-forger && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-blockchain/ --coverageDirectory
+            .coverage/integration/core-blockchain
       - run:
-          name: core-graphql
+          name: core-database-postgres - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-graphql && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-database-postgres/
+            --coverageDirectory .coverage/integration/core-database-postgres
       - run:
-          name: core-http-utils
+          name: core-forger - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-http-utils && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-forger/ --coverageDirectory
+            .coverage/integration/core-forger
       - run:
-          name: core-jest-matchers
+          name: core-json-rpc - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-jest-matchers && yarn test:coverage
-      - run:
-          name: core-json-rpc
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-json-rpc && yarn test:coverage
-      - run:
-          name: core-logger
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger && yarn test:coverage
-      - run:
-          name: core-logger-winston
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger-winston && yarn test:coverage
-      - run:
-          name: core-p2p
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-p2p && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-json-rpc/ --coverageDirectory
+            .coverage/integration/core-json-rpc
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -336,7 +611,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node10-2:
+  test-node10-integration-2:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -377,24 +652,28 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
             - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -404,45 +683,29 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-snapshots
+          name: core-tester-cli - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-snapshots && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-tester-cli/ --coverageDirectory
+            .coverage/integration/core-tester-cli
       - run:
-          name: core-test-utils
+          name: core-transaction-pool - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-test-utils && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-transaction-pool/
+            --coverageDirectory .coverage/integration/core-transaction-pool
       - run:
-          name: core-tester-cli
+          name: core-vote-report - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-tester-cli && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-vote-report/ --coverageDirectory
+            .coverage/integration/core-vote-report
       - run:
-          name: core-transaction-pool
+          name: core-webhooks - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-transaction-pool && yarn test:coverage
-      - run:
-          name: core-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-utils && yarn test:coverage
-      - run:
-          name: core-vote-report
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-vote-report && yarn test:coverage
-      - run:
-          name: core-webhooks
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-webhooks && yarn test:coverage
-      - run:
-          name: crypto
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/crypto
-            && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-webhooks/ --coverageDirectory
+            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -453,7 +716,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node11-1:
+  test-node11-integration-1:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -494,24 +757,28 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
             - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -521,50 +788,35 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-event-emitter
+          name: core-api - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-event-emitter && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-api/ --coverageDirectory
+            .coverage/integration/core-api
       - run:
-          name: core-forger
+          name: core-blockchain - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-forger && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-blockchain/ --coverageDirectory
+            .coverage/integration/core-blockchain
       - run:
-          name: core-graphql
+          name: core-database-postgres - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-graphql && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-database-postgres/
+            --coverageDirectory .coverage/integration/core-database-postgres
       - run:
-          name: core-http-utils
+          name: core-forger - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-http-utils && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-forger/ --coverageDirectory
+            .coverage/integration/core-forger
       - run:
-          name: core-jest-matchers
+          name: core-json-rpc - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-jest-matchers && yarn test:coverage
-      - run:
-          name: core-json-rpc
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-json-rpc && yarn test:coverage
-      - run:
-          name: core-logger
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger && yarn test:coverage
-      - run:
-          name: core-logger-winston
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-logger-winston && yarn test:coverage
-      - run:
-          name: core-p2p
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-p2p && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-json-rpc/ --coverageDirectory
+            .coverage/integration/core-json-rpc
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -575,7 +827,7 @@ jobs:
       - run:
           name: Codecov
           command: ./node_modules/.bin/codecov
-  test-node11-2:
+  test-node11-integration-2:
     working_directory: ~/core
     environment:
       CORE_DB_DATABASE: core_unitnet
@@ -616,24 +868,28 @@ jobs:
             - ./packages/core-container/node_modules
             - ./packages/core-database/node_modules
             - ./packages/core-database-postgres/node_modules
-            - ./packages/core-debugger-cli/node_modules
             - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
             - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
             - ./packages/core-forger/node_modules
-            - ./packages/core-graphql/node_modules
             - ./packages/core-http-utils/node_modules
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
             - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
-            - ./packages/core-test-utils/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
             - ./packages/core-webhooks/node_modules
@@ -643,45 +899,29 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
-          name: core-snapshots
+          name: core-tester-cli - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-snapshots && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-tester-cli/ --coverageDirectory
+            .coverage/integration/core-tester-cli
       - run:
-          name: core-test-utils
+          name: core-transaction-pool - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-test-utils && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-transaction-pool/
+            --coverageDirectory .coverage/integration/core-transaction-pool
       - run:
-          name: core-tester-cli
+          name: core-vote-report - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-tester-cli && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-vote-report/ --coverageDirectory
+            .coverage/integration/core-vote-report
       - run:
-          name: core-transaction-pool
+          name: core-webhooks - integration
           command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-transaction-pool && yarn test:coverage
-      - run:
-          name: core-utils
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-utils && yarn test:coverage
-      - run:
-          name: core-vote-report
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-vote-report && yarn test:coverage
-      - run:
-          name: core-webhooks
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd
-            ~/core/packages/core-webhooks && yarn test:coverage
-      - run:
-          name: crypto
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core/packages/crypto
-            && yarn test:coverage
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-webhooks/ --coverageDirectory
+            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -696,9 +936,13 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - test-node10-0
-      - test-node10-1
-      - test-node10-2
-      - test-node11-0
-      - test-node11-1
-      - test-node11-2
+      - test-node10-unit
+      - test-node11-unit
+      - test-node10-functional
+      - test-node11-functional
+      - test-node10-integration-0
+      - test-node11-integration-0
+      - test-node10-integration-1
+      - test-node10-integration-2
+      - test-node11-integration-1
+      - test-node11-integration-2

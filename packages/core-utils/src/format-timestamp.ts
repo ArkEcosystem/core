@@ -1,21 +1,19 @@
 import { app } from "@arkecosystem/core-container";
-import dayjs from "dayjs-ext";
+import { dato } from "@faustbrian/dato";
 
 /**
  * Format the given epoch based timestamp into human and unix.
  * @param  {Number} epochStamp
  * @return {Object}
  */
-function formatTimestamp(epochStamp) {
+export function formatTimestamp(epochStamp) {
     const constants = app.getConfig().getMilestone(1);
     // @ts-ignore
-    const timestamp = dayjs(constants.epoch).add(epochStamp, "seconds");
+    const timestamp = dato(constants.epoch).addSeconds(epochStamp);
 
     return {
         epoch: epochStamp,
-        unix: timestamp.unix(),
-        human: timestamp.toISOString(),
+        unix: timestamp.toUnix(),
+        human: timestamp.toISO(),
     };
 }
-
-export { formatTimestamp };

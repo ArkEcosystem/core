@@ -10,7 +10,8 @@ SELECT
   vendor_field_hex,
   amount,
   fee,
-  serialized
+  serialized,
+  asset
 FROM
   transactions
 WHERE

@@ -9,16 +9,14 @@ export function transformDelegate(delegate) {
         rank: delegate.rate,
         blocks: {
             produced: delegate.producedBlocks,
-            missed: delegate.missedBlocks,
         },
         production: {
             approval: delegateCalculator.calculateApproval(delegate),
-            productivity: delegateCalculator.calculateProductivity(delegate),
         },
         forged: {
             fees: +delegate.forgedFees.toFixed(),
             rewards: +delegate.forgedRewards.toFixed(),
-            total: +delegate.forgedFees.plus(delegate.forgedRewards).toFixed(),
+            total: delegateCalculator.calculateForgedTotal(delegate),
         },
     };
 

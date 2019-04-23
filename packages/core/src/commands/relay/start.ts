@@ -38,6 +38,10 @@ $ ark relay:start --no-daemon
             default: true,
             allowNo: true,
         }),
+        suffix: flags.string({
+            hidden: true,
+            default: "relay",
+        }),
     };
 
     public getClass() {

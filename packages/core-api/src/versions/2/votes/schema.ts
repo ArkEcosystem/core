@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
@@ -9,7 +10,7 @@ export const index: object = {
             id: Joi.string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             version: Joi.number()
                 .integer()
                 .positive(),

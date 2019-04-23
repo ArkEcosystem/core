@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import * as schema from "../schemas/blocks";
+import { schema } from "../../1/schema";
 
 /**
  * @type {Object}
@@ -19,6 +19,10 @@ export const store = {
         return h.response(null).code(204);
     },
     options: {
-        validate: schema.store,
+        plugins: {
+            "hapi-ajv": {
+                payloadSchema: schema.postBlock,
+            },
+        },
     },
 };

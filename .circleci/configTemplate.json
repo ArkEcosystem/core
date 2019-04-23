@@ -1,7 +1,339 @@
 {
     "version": 2,
     "jobs": {
-        "test-node10-0": {
+        "test-node10-unit": {
+            "working_directory": "~/core",
+            "docker": [
+                {
+                    "image": "circleci/node:10-browsers"
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install xsel",
+                        "command": "sudo apt-get install -q xsel"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-unit"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-unit",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Create .core/database directory",
+                        "command": "mkdir -p $HOME/.core/database"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Unit tests",
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Last 1000 lines of test output",
+                        "when": "on_fail",
+                        "command": "tail -n 1000 test_output.txt"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Lint",
+                        "command": "yarn lint"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Codecov",
+                        "command": "./node_modules/.bin/codecov"
+                    }
+                }
+            ]
+        },
+        "test-node11-unit": {
+            "working_directory": "~/core",
+            "docker": [
+                {
+                    "image": "circleci/node:11-browsers"
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install xsel",
+                        "command": "sudo apt-get install -q xsel"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-unit"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-unit",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Create .core/database directory",
+                        "command": "mkdir -p $HOME/.core/database"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Unit tests",
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Last 1000 lines of test output",
+                        "when": "on_fail",
+                        "command": "tail -n 1000 test_output.txt"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Lint",
+                        "command": "yarn lint"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Codecov",
+                        "command": "./node_modules/.bin/codecov"
+                    }
+                }
+            ]
+        },
+        "test-node10-functional": {
+            "working_directory": "~/core",
+            "environment": {
+                "CORE_DB_DATABASE": "core_unitnet",
+                "CORE_DB_USERNAME": "core"
+            },
+            "docker": [
+                {
+                    "image": "circleci/node:10-browsers"
+                },
+                {
+                    "image": "postgres:alpine",
+                    "environment": {
+                        "POSTGRES_PASSWORD": "password",
+                        "POSTGRES_DB": "core_unitnet",
+                        "POSTGRES_USER": "core"
+                    }
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install xsel & postgresql-client",
+                        "command": "sudo apt-get install -q xsel postgresql-client"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-functional"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node10-{{ checksum \"checksum.txt\" }}-functional",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Create .core/database directory",
+                        "command": "mkdir -p $HOME/.core/database"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Functional tests",
+                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Last 1000 lines of test output",
+                        "when": "on_fail",
+                        "command": "tail -n 1000 test_output.txt"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Lint",
+                        "command": "yarn lint"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Codecov",
+                        "command": "./node_modules/.bin/codecov"
+                    }
+                }
+            ]
+        },
+        "test-node11-functional": {
+            "working_directory": "~/core",
+            "environment": {
+                "CORE_DB_DATABASE": "core_unitnet",
+                "CORE_DB_USERNAME": "core"
+            },
+            "docker": [
+                {
+                    "image": "circleci/node:11-browsers"
+                },
+                {
+                    "image": "postgres:alpine",
+                    "environment": {
+                        "POSTGRES_PASSWORD": "password",
+                        "POSTGRES_DB": "core_unitnet",
+                        "POSTGRES_USER": "core"
+                    }
+                }
+            ],
+            "steps": [
+                "checkout",
+                {
+                    "run": {
+                        "name": "Apt update",
+                        "command": "sudo sh -c 'echo \"deb http://ftp.debian.org/debian stable main contrib non-free\" >> /etc/apt/sources.list' && sudo apt-get update"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install xsel & postgresql-client",
+                        "command": "sudo apt-get install -q xsel postgresql-client"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Generate cache key",
+                        "command": "find ./packages/ -name package.json -print0 | sort -z | xargs -r0 echo ./package.json | xargs md5sum | md5sum - > checksum.txt"
+                    }
+                },
+                {
+                    "restore_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-functional"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Install and build packages",
+                        "command": "yarn setup"
+                    }
+                },
+                {
+                    "save_cache": {
+                        "key": "core-node11-{{ checksum \"checksum.txt\" }}-functional",
+                        "paths": []
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Create .core/database directory",
+                        "command": "mkdir -p $HOME/.core/database"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Functional tests",
+                        "command": "cd ~/core && yarn test:functional:coverage --coverageDirectory .coverage/functional/"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Last 1000 lines of test output",
+                        "when": "on_fail",
+                        "command": "tail -n 1000 test_output.txt"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Lint",
+                        "command": "yarn lint"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Codecov",
+                        "command": "./node_modules/.bin/codecov"
+                    }
+                }
+            ]
+        },
+        "test-node10-integration-0": {
             "working_directory": "~/core",
             "environment": {
                 "CORE_DB_DATABASE": "core_unitnet",
@@ -65,8 +397,8 @@
                 },
                 {
                     "run": {
-                        "name": "Test",
-                        "command": ""
+                        "name": "Unit tests",
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2"
                     }
                 },
                 {
@@ -90,7 +422,7 @@
                 }
             ]
         },
-        "test-node11-0": {
+        "test-node11-integration-0": {
             "working_directory": "~/core",
             "environment": {
                 "CORE_DB_DATABASE": "core_unitnet",
@@ -154,8 +486,8 @@
                 },
                 {
                     "run": {
-                        "name": "Test",
-                        "command": ""
+                        "name": "Unit tests",
+                        "command": "cd ~/core && yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2"
                     }
                 },
                 {
@@ -183,7 +515,7 @@
     "workflows": {
         "version": 2,
         "build_and_test": {
-            "jobs": []
+            "jobs": ["test-node10-integration-0", "test-node11-integration-0"]
         }
     }
 }

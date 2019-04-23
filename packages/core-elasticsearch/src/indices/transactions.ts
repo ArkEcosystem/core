@@ -1,5 +1,4 @@
-import { models } from "@arkecosystem/crypto";
-import { client } from "../client";
+import { Transaction } from "@arkecosystem/crypto";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
@@ -12,7 +11,7 @@ export class Transactions extends Index {
             const modelQuery = this.createQuery();
 
             const query = modelQuery
-                .select(modelQuery.block_id, modelQuery.serialized)
+                .select(modelQuery.id, modelQuery.block_id, modelQuery.serialized)
                 .from(modelQuery)
                 .where(modelQuery.timestamp.gte(storage.get("lastTransaction")))
                 .order(modelQuery.timestamp.asc)
@@ -22,10 +21,10 @@ export class Transactions extends Index {
 
             if (rows.length) {
                 rows = rows.map(row => {
-                    const transaction: any = new models.Transaction(row.serialized.toString("hex"));
-                    transaction.blockId = row.blockId;
+                    const { data } = Transaction.fromBytesUnsafe(row.serialized, row.id);
+                    data.blockId = row.blockId;
 
-                    return transaction;
+                    return data;
                 });
 
                 const timestamps = rows.map(row => row.data.timestamp);

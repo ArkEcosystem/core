@@ -1,18 +1,13 @@
 import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
+import { constants } from "@arkecosystem/crypto";
 import Boom from "boom";
 import Hapi from "hapi";
 import { Controller } from "../shared/controller";
 
-import { TransactionGuard, TransactionPool } from "@arkecosystem/core-transaction-pool";
-import { constants } from "@arkecosystem/crypto";
-
 export class TransactionsController extends Controller {
-    private transactionPool = app.resolvePlugin<TransactionPool>("transactionPool");
-
-    public constructor() {
-        super();
-    }
+    private readonly transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
@@ -72,16 +67,16 @@ export class TransactionsController extends Controller {
 
             const pagination = super.paginate(request);
 
-            let transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit, 0);
-            transactions = transactions.map(transaction => ({
-                serialized: transaction,
+            const transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
+            const data = transactions.map(transaction => ({
+                serialized: transaction.toString("hex"),
             }));
 
             return super.toPagination(
                 request,
                 {
                     count: this.transactionPool.getPoolSize(),
-                    rows: transactions,
+                    rows: data,
                 },
                 "transaction",
             );
@@ -96,15 +91,14 @@ export class TransactionsController extends Controller {
                 return Boom.serverUnavailable("Transaction pool is disabled.");
             }
 
-            let transaction = this.transactionPool.getTransaction(request.params.id);
-
+            const transaction = this.transactionPool.getTransaction(request.params.id);
             if (!transaction) {
                 return Boom.notFound("Transaction not found");
             }
 
-            transaction = { serialized: transaction.serialized };
+            const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
-            return super.respondWithResource(request, transaction, "transaction");
+            return super.respondWithResource(request, data, "transaction");
         } catch (error) {
             return Boom.badImplementation(error);
         }

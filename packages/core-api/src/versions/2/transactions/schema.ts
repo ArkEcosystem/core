@@ -1,60 +1,76 @@
 import { app } from "@arkecosystem/core-container";
-import { Joi } from "@arkecosystem/crypto";
+import joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
-            id: Joi.string()
+            orderBy: joi.string(),
+            id: joi
+                .string()
                 .hex()
                 .length(64),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
-            type: Joi.number()
+            blockId,
+            type: joi
+                .number()
                 .integer()
                 .min(0),
-            version: Joi.number()
+            version: joi
+                .number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
+            senderPublicKey: joi
+                .string()
                 .hex()
                 .length(66),
-            senderId: Joi.string()
+            senderId: joi
+                .string()
                 .alphanum()
                 .length(34),
-            recipientId: Joi.string()
+            recipientId: joi
+                .string()
                 .alphanum()
                 .length(34),
-            ownerId: Joi.string()
+            ownerId: joi
+                .string()
                 .alphanum()
                 .length(34),
-            timestamp: Joi.number()
+            timestamp: joi
+                .number()
                 .integer()
                 .min(0),
-            amount: Joi.number()
+            amount: joi
+                .number()
                 .integer()
                 .min(0),
-            fee: Joi.number()
+            fee: joi
+                .number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorFieldHex: joi.string().hex(),
         },
     },
 };
 
 export const store: object = {
-    payload: {
-        transactions: Joi.transactionArray()
-            .min(1)
-            .max(app.resolveOptions("transactionPool").maxTransactionsPerRequest)
-            .options({ stripUnknown: true }),
+    type: "object",
+    required: ["transactions"],
+    additionalProperties: false,
+    properties: {
+        transactions: {
+            $ref: "transactions",
+            minItems: 1,
+            maxItems: app.resolveOptions("transaction-pool").maxTransactionsPerRequest,
+        },
     },
 };
 
 export const show: object = {
     params: {
-        id: Joi.string()
+        id: joi
+            .string()
             .hex()
             .length(64),
     },
@@ -66,63 +82,76 @@ export const unconfirmed: object = {
 
 export const showUnconfirmed: object = {
     params: {
-        id: Joi.string()
+        id: joi
+            .string()
             .hex()
             .length(64),
     },
 };
 
-const address: object = Joi.string()
+const address: object = joi
+    .string()
     .alphanum()
     .length(34);
 
 export const search: object = {
     query: pagination,
     payload: {
-        orderBy: Joi.string(),
-        id: Joi.string()
+        orderBy: joi.string(),
+        id: joi
+            .string()
             .hex()
             .length(64),
-        blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
-        type: Joi.number()
+        blockId,
+        type: joi
+            .number()
             .integer()
             .min(0),
-        version: Joi.number()
+        version: joi
+            .number()
             .integer()
             .positive(),
-        senderPublicKey: Joi.string()
+        senderPublicKey: joi
+            .string()
             .hex()
             .length(66),
         senderId: address,
         recipientId: address,
         ownerId: address,
-        addresses: Joi.array()
+        addresses: joi
+            .array()
             .unique()
             .min(1)
             .max(50)
             .items(address),
-        vendorFieldHex: Joi.string().hex(),
-        timestamp: Joi.object().keys({
-            from: Joi.number()
+        vendorFieldHex: joi.string().hex(),
+        timestamp: joi.object().keys({
+            from: joi
+                .number()
                 .integer()
                 .min(0),
-            to: Joi.number()
-                .integer()
-                .min(0),
-        }),
-        amount: Joi.object().keys({
-            from: Joi.number()
-                .integer()
-                .min(0),
-            to: Joi.number()
+            to: joi
+                .number()
                 .integer()
                 .min(0),
         }),
-        fee: Joi.object().keys({
-            from: Joi.number()
+        amount: joi.object().keys({
+            from: joi
+                .number()
                 .integer()
                 .min(0),
-            to: Joi.number()
+            to: joi
+                .number()
+                .integer()
+                .min(0),
+        }),
+        fee: joi.object().keys({
+            from: joi
+                .number()
+                .integer()
+                .min(0),
+            to: joi
+                .number()
                 .integer()
                 .min(0),
         }),

@@ -26,12 +26,13 @@ export const init: Hook<"init"> = async function({ id, config }) {
             alpha: "develop",
             beta: "develop",
             rc: "develop",
+            next: "develop",
             latest: "master",
         }[state.channel];
 
         await cli.url(
             `Click here to read the changelog for ${state.currentVersion}.`,
-            `https://github.com/ArkEcosystem/core/blob/${branch}/CHANGELOG.md`,
+            `https://github.com/ARKEcosystem/core/blob/${branch}/CHANGELOG.md`,
         );
     }
 };

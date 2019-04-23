@@ -1,8 +1,8 @@
 import { Bignum } from "@arkecosystem/crypto";
+import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
-
     /**
      * Find a transactions by its ID.
      */
@@ -32,14 +32,24 @@ export interface ITransactionsRepository extends IRepository {
      * Get statistics about all transactions from the database.
      */
     statistics(): Promise<{
-        count: number,
-        totalFee: Bignum,
-        totalAmount: Bignum
+        count: number;
+        totalFee: Bignum;
+        totalAmount: Bignum;
     }>;
+
+    getFeeStatistics(minFeeBroadcast: number): Promise<any>;
 
     /**
      * Delete transactions with blockId
      */
     deleteByBlockId(blockId: string): Promise<void>;
 
+    findAllByWallet(wallet: any, paginate?: SearchPaginate, orderBy?: SearchOrderBy[]): Promise<any>;
+
+    findWithVendorField(): Promise<any>;
+
+    /* TODO: Remove with v1 */
+    findAll(parameters: SearchParameters): Promise<any>;
+
+    search(parameters: SearchParameters): Promise<any>;
 }

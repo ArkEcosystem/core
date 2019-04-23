@@ -39,6 +39,10 @@ $ ark core:start --no-daemon
             default: true,
             allowNo: true,
         }),
+        suffix: flags.string({
+            hidden: true,
+            default: "core",
+        }),
     };
 
     public getClass() {
@@ -50,7 +54,7 @@ $ ark core:start --no-daemon
         this.abortRunningProcess(`${flags.token}-relay`);
 
         try {
-            const { bip38, password } = await this.buildBIP38(flags);
+            await this.buildBIP38(flags);
 
             await this.runWithPm2(
                 {

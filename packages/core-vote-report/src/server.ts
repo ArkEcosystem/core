@@ -14,6 +14,7 @@ export async function startServer(config) {
                 relativeTo: __dirname,
                 path: "templates",
             }),
+        [require("vision")],
     );
 
     // @ts-ignore

@@ -1,11 +1,12 @@
 import deepmerge from "deepmerge";
-import camelCase from "lodash/camelCase";
-import get from "lodash/get";
-import set from "lodash/set";
-import { feeManager } from "./fee";
+import camelCase from "lodash.camelcase";
+import get from "lodash.get";
+import set from "lodash.set";
 
 import { TransactionTypes } from "../constants";
+import { InvalidMilestoneConfigurationError } from "../errors";
 import * as networks from "../networks";
+import { feeManager } from "./fee";
 
 interface IMilestone {
     index: number;
@@ -42,6 +43,8 @@ export class ConfigManager {
         this.config.exceptions = config.exceptions;
         this.config.milestones = config.milestones;
         this.config.genesisBlock = config.genesisBlock;
+
+        this.validateMilestones();
 
         this.buildConstants();
         this.buildFees();
@@ -87,6 +90,7 @@ export class ConfigManager {
      */
     public setHeight(value: number): void {
         this.height = value;
+        this.buildFees();
     }
 
     /**
@@ -142,12 +146,38 @@ export class ConfigManager {
         }
     }
 
+    private validateMilestones(): void {
+        const delegateMilestones = this.config.milestones
+            .sort((a, b) => a.height - b.height)
+            .filter(milestone => milestone.activeDelegates);
+
+        for (let i = 1; i < delegateMilestones.length; i++) {
+            const previous = delegateMilestones[i - 1];
+            const current = delegateMilestones[i];
+
+            if (previous.activeDelegates === current.activeDelegates) {
+                continue;
+            }
+
+            if ((current.height - previous.height) % previous.activeDelegates !== 0) {
+                throw new InvalidMilestoneConfigurationError(
+                    `Bad milestone at height: ${
+                        current.height
+                    }. The number of delegates can only be changed at the beginning of a new round.`,
+                );
+            }
+        }
+    }
+
     /**
      * Build fees from config constants.
      */
     private buildFees(): void {
-        for (const type of Object.keys(TransactionTypes)) {
-            feeManager.set(TransactionTypes[type], this.getMilestone().fees.staticFees[camelCase(type)]);
+        for (const key of Object.keys(TransactionTypes)) {
+            const type = TransactionTypes[key];
+            if (typeof type === "number") {
+                feeManager.set(type, this.getMilestone().fees.staticFees[camelCase(key)]);
+            }
         }
     }
 }

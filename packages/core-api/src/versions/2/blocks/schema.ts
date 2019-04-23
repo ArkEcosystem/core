@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {
@@ -6,14 +7,14 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy: Joi.string(),
-            id: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            id: blockId,
             version: Joi.number()
                 .integer()
                 .min(0),
             timestamp: Joi.number()
                 .integer()
                 .min(0),
-            previousBlock: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            previousBlock: blockId,
             height: Joi.number()
                 .integer()
                 .positive(),
@@ -43,7 +44,7 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: Joi.string().regex(/^[0-9]+$/, "numbers"),
+        id: blockId,
     },
 };
 
@@ -58,7 +59,7 @@ export const transactions: object = {
             id: Joi.string()
                 .hex()
                 .length(66),
-            blockId: Joi.string().regex(/^[0-9]+$/, "numbers"),
+            blockId,
             type: Joi.number()
                 .integer()
                 .min(0),
@@ -91,11 +92,11 @@ export const transactions: object = {
 export const search: object = {
     query: pagination,
     payload: {
-        id: Joi.string().regex(/^[0-9]+$/, "numbers"),
+        id: blockId,
         version: Joi.number()
             .integer()
             .min(0),
-        previousBlock: Joi.string().regex(/^[0-9]+$/, "numbers"),
+        previousBlock: blockId,
         payloadHash: Joi.string().hex(),
         generatorPublicKey: Joi.string()
             .hex()

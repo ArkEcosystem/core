@@ -1,0 +1,30 @@
+{
+    "name": "@arkecosystem/core-error-tracker-rollbar",
+    "description": "Rollbar error tracker integration for ARK Core.",
+    "version": "2.3.0",
+    "contributors": [
+        "Brian Faust <brian@ark.io>"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "prepublishOnly": "yarn build",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "^2.3.0",
+        "rollbar": "^2.5.4"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=10.x"
+    }
+}

@@ -13,7 +13,7 @@ export class CommandLineInterfaceCommand extends BaseCommand {
 $ ark config:cli --token=mine
 `,
         `Switch the npm registry channel
-$ ark config:cli --channel=mine
+$ ark config:cli --channel=next
 `,
     ];
 
@@ -23,7 +23,7 @@ $ ark config:cli --channel=mine
         }),
         channel: flags.string({
             description: "the name of the channel that should be used",
-            options: ["alpha", "beta", "rc", "latest"],
+            options: ["alpha", "beta", "rc", "next", "latest"],
         }),
     };
 
@@ -62,9 +62,9 @@ $ ark config:cli --channel=mine
 
             const { flags } = await this.parseWithNetwork(CommandLineInterfaceCommand);
 
-            await this.restartProcess(`${flags.token}-core`);
-            await this.restartProcess(`${flags.token}-relay`);
-            await this.restartProcess(`${flags.token}-forger`);
+            await this.restartRunningProcessPrompt(`${flags.token}-core`);
+            await this.restartRunningProcessPrompt(`${flags.token}-relay`);
+            await this.restartRunningProcessPrompt(`${flags.token}-forger`);
         } catch (err) {
             this.error(err.message);
         } finally {
