@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-utils",
     "description": "Utilities for ARK Core",
-    "version": "2.3.0",
+    "version": "2.3.1",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,9 +18,9 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0",
-        "@arkecosystem/core-interfaces": "^2.3.0",
-        "@arkecosystem/crypto": "^2.3.0",
+        "@arkecosystem/core-container": "^2.3.1",
+        "@arkecosystem/core-interfaces": "^2.3.1",
+        "@arkecosystem/crypto": "^2.3.1",
         "@faustbrian/dato": "^0.3.0",
         "cli-table3": "^0.5.1",
         "fast-json-parse": "^1.0.3",
