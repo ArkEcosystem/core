@@ -768,7 +768,7 @@ jobs:
           name: Install and build packages
           command: >-
             source ~/.bashrc && nvm use 10 && yarn && yarn bootstrap && yarn
-            compile && cd __tests__/e2e && yarn install
+            build && cd __tests__/e2e && yarn install
       - save_cache:
           key: 'ark-e2e-{{ checksum "checksum.txt" }}-1-2'
           paths:
