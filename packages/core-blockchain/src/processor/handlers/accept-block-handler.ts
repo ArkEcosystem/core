@@ -40,11 +40,10 @@ export class AcceptBlockHandler extends BlockHandler {
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
-            this.logger.error(`Refused new block ${JSON.stringify(this.block.data)}`);
+            this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
             this.logger.debug(error.stack);
 
             this.blockchain.transactionPool.purgeByBlock(this.block);
-            this.blockchain.forkBlock(this.block);
 
             return super.execute();
         }

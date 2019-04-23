@@ -70,6 +70,9 @@ export class VoteTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+        return (
+            !this.typeFromSenderAlreadyInPool(data, pool, processor) &&
+            !this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)
+        );
     }
 }
