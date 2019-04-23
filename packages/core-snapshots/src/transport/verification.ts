@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
+import { configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
 const { Block } = models;
@@ -15,13 +15,9 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             // genesis payload different as block.serialize stores
             // block.previous_block with 00000 instead of null
             // it fails on height 2 - chain check
-            // hardcoding for now
-            // TODO: check to improve ser/deser for genesis, add mainnet
-            if (
-                data.height === 2 &&
-                data.previous_block === "13114381566690093367" &&
-                prevData.id === "12760288562212273414"
-            ) {
+            // TODO: check to improve ser/deser for genesis
+            const genesisBlock = configManager.get("genesisBlock");
+            if (data.height === 2 && data.previous_block === genesisBlock.id) {
                 return true;
             }
 
