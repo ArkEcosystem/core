@@ -80,6 +80,7 @@ class Helpers {
         expect(transaction).toHaveProperty("amount");
         expect(transaction).toHaveProperty("fee");
         expect(transaction).toHaveProperty("sender");
+        expect(transaction).toHaveProperty("senderPublicKey");
 
         if ([1, 2].indexOf(transaction.type) === -1) {
             expect(transaction.recipient).toBeString();

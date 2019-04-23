@@ -21,6 +21,7 @@ export function transformTransaction(model) {
         fee: +data.fee,
         sender,
         recipient: data.recipientId,
+        senderPublicKey: data.senderPublicKey,
         signature: data.signature,
         signSignature: data.signSignature,
         signatures: data.signatures,
