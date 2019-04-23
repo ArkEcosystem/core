@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Validate that a transaction recipient is on the same network ([#2394])
 -   Handle empty `rows` in `mapBlocksToTransactions` ([#2404])
 -   Prevent indexing/creating of ghost wallets ([#2405])
+-   Refuse transactions from senders with pending second signature registrations and do not rollback when refusing a block ([#2458])
 
 ### Changed
 
