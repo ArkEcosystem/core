@@ -3,6 +3,7 @@ import { Transaction, TransactionRegistry } from "..";
 import { TransactionTypes } from "../../constants";
 import { crypto } from "../../crypto";
 import { TransactionVersionError } from "../../errors";
+import { configManager } from "../../managers";
 import { Bignum } from "../../utils";
 import { ITransactionData } from "../interfaces";
 
@@ -47,11 +48,6 @@ class TransactionDeserializer {
     }
 
     private deserializeVendorField(transaction: Transaction, buf: ByteBuffer): void {
-        if (!transaction.hasVendorField()) {
-            buf.skip(1);
-            return;
-        }
-
         const vendorFieldLength = buf.readUint8();
         if (vendorFieldLength > 0) {
             transaction.data.vendorFieldHex = buf.readBytes(vendorFieldLength).toString("hex");
