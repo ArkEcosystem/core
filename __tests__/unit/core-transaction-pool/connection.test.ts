@@ -217,8 +217,8 @@ describe("Connection", () => {
         it("should add the transactions to the pool and they should expire", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
-            const expireAfterSeconds = 3;
-            const expiration = slots.getTime() + expireAfterSeconds;
+            const expireAfterBlocks = 3;
+            const expiration = slots.getHeight() + expireAfterBlocks;
 
             const transactions: Interfaces.ITransaction[] = [];
 
@@ -241,8 +241,14 @@ describe("Connection", () => {
             expect(notAdded).toBeEmpty();
 
             expect(connection.getPoolSize()).toBe(4);
-            await delay((expireAfterSeconds + 1) * 1000);
+
+            const origHeight = slots.getHeight();
+
+            slots.setHeight(expiration);
+
             expect(connection.getPoolSize()).toBe(2);
+
+            slots.setHeight(origHeight);
 
             transactions.forEach(t => connection.removeTransactionById(t.id));
         });

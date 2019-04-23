@@ -1,4 +1,4 @@
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import { MemoryTransaction } from "./memory-transaction";
 
@@ -18,6 +18,13 @@ export class Memory {
     private byId: { [key: string]: MemoryTransaction } = {};
     private bySender: { [key: string]: Set<MemoryTransaction> } = {};
     private byType: { [key: number]: Set<MemoryTransaction> } = {};
+    /**
+     * An array of transactions, sorted by expiration (lower height comes first).
+     * This array may not contain all transactions that are in the pool,
+     * transactions that are without expiration are not included. Used to:
+     * - find all transactions that have expired (have an expiration height
+     *   lower than the current height) - they are at the beginning of the array.
+     */
     private byExpiration: MemoryTransaction[] = [];
     private byExpirationIsSorted: boolean = true;
     private readonly dirty: { added: Set<string>; removed: Set<string> } = {
@@ -48,17 +55,17 @@ export class Memory {
         return this.all;
     }
 
-    public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
+    public getExpired(): Interfaces.ITransaction[] {
         if (!this.byExpirationIsSorted) {
-            this.byExpiration.sort((a, b) => a.expiresAt(maxTransactionAge) - b.expiresAt(maxTransactionAge));
+            this.byExpiration.sort((a, b) => a.transaction.data.expiration - b.transaction.data.expiration);
             this.byExpirationIsSorted = true;
         }
 
-        const now: number = Crypto.slots.getTime();
+        const currentHeight: number = Crypto.slots.getHeight();
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const MemoryTransaction of this.byExpiration) {
-            if (MemoryTransaction.expiresAt(maxTransactionAge) >= now) {
+            if (MemoryTransaction.transaction.data.expiration > currentHeight) {
                 break;
             }
 
@@ -138,7 +145,13 @@ export class Memory {
             this.byType[type].add(MemoryTransaction);
         }
 
-        if (MemoryTransaction.expiresAt(maxTransactionAge) !== null) {
+        if (type !== Enums.TransactionTypes.TimelockTransfer) {
+            const maxHeight: number = Crypto.slots.getHeight() + maxTransactionAge;
+            if (MemoryTransaction.transaction.data.expiration === 0 ||
+                MemoryTransaction.transaction.data.expiration > maxHeight) {
+
+                MemoryTransaction.transaction.data.expiration = maxHeight;
+            }
             this.byExpiration.push(MemoryTransaction);
             this.byExpirationIsSorted = false;
         }
