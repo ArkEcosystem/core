@@ -22,7 +22,7 @@
         "@arkecosystem/core-http-utils": "^2.3.0-next.6",
         "@arkecosystem/core-utils": "^2.3.0-next.6",
         "@arkecosystem/crypto": "^2.3.0-next.6",
-        "handlebars": "^4.1.1",
+        "handlebars": "^4.1.2",
         "lodash.sumby": "^4.6.0",
         "vision": "^5.4.4"
     },
