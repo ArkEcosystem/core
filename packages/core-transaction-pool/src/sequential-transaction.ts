@@ -4,11 +4,9 @@ import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
 /**
- * A mem pool transaction.
- * A normal transaction
- * + a sequence number used to order by insertion time
+ * A normal transaction plus a sequence number used to order by insertion time.
  */
-export class MemoryTransaction {
+export class SequentialTransaction {
     // @TODO: remove the need for disabling tslint rules
     private _sequence: number;
 
