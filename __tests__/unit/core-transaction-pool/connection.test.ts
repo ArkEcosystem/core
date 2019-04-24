@@ -242,7 +242,7 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(4);
 
-            const origHeight = slots.getHeight();
+            const origHeight: number = slots.getHeight();
 
             slots.setHeight(expiration);
 
