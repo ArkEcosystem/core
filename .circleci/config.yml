@@ -767,8 +767,8 @@ jobs:
       - run:
           name: Install and build packages
           command: >-
-            source ~/.bashrc && nvm use 10 && yarn && yarn bootstrap && yarn
-            build && cd __tests__/e2e && yarn install
+            sudo n 10 && source ~/.bashrc && nvm use 10 && yarn && yarn
+            bootstrap && yarn build && cd __tests__/e2e && yarn install
       - save_cache:
           key: 'ark-node10-e2e-{{ checksum "checksum.txt" }}-1-2'
           paths:
@@ -812,8 +812,8 @@ jobs:
       - run:
           name: Generate files
           command: >-
-            source ~/.bashrc && nvm use 10 && node --version && cd __tests__/e2e
-            && bin/e2e generate -c 3
+            sudo n 10 && source ~/.bashrc && nvm use 10 && node --version && cd
+            __tests__/e2e && bin/e2e generate -c 3
       - run:
           name: Make scripts executable
           command: >-
@@ -834,8 +834,8 @@ jobs:
       - run:
           name: Run tests
           command: >-
-            source ~/.bashrc && nvm use 10 && cd __tests__/e2e && sudo bin/e2e
-            run-tests -s scenario1
+            sudo n 10 && source ~/.bashrc && nvm use 10 && cd __tests__/e2e &&
+            sudo bin/e2e run-tests -s scenario1
       - run:
           name: Output results - node0
           when: always
@@ -893,8 +893,8 @@ jobs:
       - run:
           name: Install and build packages
           command: >-
-            source ~/.bashrc && nvm use 11 && yarn && yarn bootstrap && yarn
-            build && cd __tests__/e2e && yarn install
+            sudo n 11 && source ~/.bashrc && nvm use 11 && yarn && yarn
+            bootstrap && yarn build && cd __tests__/e2e && yarn install
       - save_cache:
           key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-1-2'
           paths:
@@ -938,8 +938,8 @@ jobs:
       - run:
           name: Generate files
           command: >-
-            source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e
-            && bin/e2e generate -c 3
+            sudo n 11 && source ~/.bashrc && nvm use 11 && node --version && cd
+            __tests__/e2e && bin/e2e generate -c 3
       - run:
           name: Make scripts executable
           command: >-
@@ -960,8 +960,8 @@ jobs:
       - run:
           name: Run tests
           command: >-
-            source ~/.bashrc && nvm use 11 && cd __tests__/e2e && sudo bin/e2e
-            run-tests -s scenario1
+            sudo n 11 && source ~/.bashrc && nvm use 11 && cd __tests__/e2e &&
+            sudo bin/e2e run-tests -s scenario1
       - run:
           name: Output results - node0
           when: always
