@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-transactions",
     "description": "Transaction Services for ARK Core",
-    "version": "2.3.1",
+    "version": "2.3.12",
     "contributors": [
         "Joshua Noack <joshua@ark.io>"
     ],
@@ -19,8 +19,8 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.3.1",
-        "@arkecosystem/crypto": "^2.3.1",
+        "@arkecosystem/core-interfaces": "^2.3.12",
+        "@arkecosystem/crypto": "^2.3.12",
         "bs58check": "^2.1.2"
     },
     "publishConfig": {
