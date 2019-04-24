@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const app = require('commander')
 
 app.version(require('../package.json').version)
