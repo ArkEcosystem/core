@@ -859,6 +859,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install nvm 11
+          command: source ~/.bashrc && nvm install 11 && nvm use 11
+      - run:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
