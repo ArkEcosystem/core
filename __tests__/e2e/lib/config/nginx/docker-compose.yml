@@ -1,0 +1,72 @@
+version: '3'
+services:
+  nginx: 
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 4900:4900
+    networks:
+      node0backend:
+        aliases:
+          - nginx
+      node1backend:
+        aliases:
+          - nginx
+      node2backend:
+        aliases:
+          - nginx
+      node3backend:
+        aliases:
+          - nginx
+      node4backend:
+        aliases:
+          - nginx
+      node5backend:
+        aliases:
+          - nginx
+      node6backend:
+        aliases:
+          - nginx
+      node7backend:
+        aliases:
+          - nginx
+      node8backend:
+        aliases:
+          - nginx
+      node9backend:
+        aliases:
+          - nginx
+
+networks:
+  node0backend:
+    external:
+      name: node0backend
+  node1backend:
+    external:
+      name: node1backend
+  node2backend:
+    external:
+      name: node2backend
+  node3backend:
+    external:
+      name: node3backend
+  node4backend:
+    external:
+      name: node4backend
+  node5backend:
+    external:
+      name: node5backend
+  node6backend:
+    external:
+      name: node6backend
+  node7backend:
+    external:
+      name: node7backend
+  node8backend:
+    external:
+      name: node8backend
+  node9backend:
+    external:
+      name: node9backend
+  
