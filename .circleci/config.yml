@@ -859,18 +859,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Adjustments for sudo env variables
-          command: >-
-            n=$(which node) && n=${n%/bin/node} && chmod -R 755 $n/bin/* && sudo
-            cp -r $n/{bin,lib,share} /usr/local && n=$(which npm) &&
-            n=${n%/bin/npm} && chmod -R 755 $n/bin/* && sudo cp -r
-            $n/{bin,lib,share} /usr/local
-      - run:
-          name: Install n and update node version
-          command: >-
-            sudo npm install -g n && sudo n 11 && source ~/.bashrc && nvm
-            install 11 && nvm use 11
-      - run:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
@@ -893,8 +881,8 @@ jobs:
       - run:
           name: Install and build packages
           command: >-
-            sudo n 11 && source ~/.bashrc && nvm use 11 && yarn && yarn
-            bootstrap && yarn build && cd __tests__/e2e && yarn install
+            source ~/.bashrc && nvm use 11 && yarn && yarn bootstrap && yarn
+            build && cd __tests__/e2e && yarn install
       - save_cache:
           key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-2'
           paths:
@@ -938,8 +926,8 @@ jobs:
       - run:
           name: Generate files
           command: >-
-            sudo n 11 && source ~/.bashrc && nvm use 11 && node --version && cd
-            __tests__/e2e && bin/e2e generate -c 3
+            source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e
+            && bin/e2e generate -c 3
       - run:
           name: Make scripts executable
           command: >-
