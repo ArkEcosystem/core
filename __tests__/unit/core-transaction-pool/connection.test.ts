@@ -4,7 +4,7 @@ import "./mocks/core-container";
 
 import { Wallet } from "@arkecosystem/core-database";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
-import { Blocks, Constants, Crypto, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
@@ -21,7 +21,6 @@ import { database as databaseService } from "./mocks/database";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
-const { slots } = Crypto;
 const { TransactionTypes } = Enums;
 
 const delegatesSecrets = delegates.map(d => d.secret);
@@ -217,7 +216,7 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(0);
 
             const expireAfterBlocks: number = 3;
-            const expiration: number = slots.getHeight() + expireAfterBlocks;
+            const expiration: number = /* XXX how to get current height? */ 123 + expireAfterBlocks;
 
             const transactions: Interfaces.ITransaction[] = [];
 
@@ -241,13 +240,10 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(4);
 
-            const origHeight: number = slots.getHeight();
-
-            slots.setHeight(expiration);
+            /* XXX how to wait until the current height becomes `expiration` or fake it?
 
             expect(connection.getPoolSize()).toBe(2);
-
-            slots.setHeight(origHeight);
+            */
 
             transactions.forEach(t => connection.removeTransactionById(t.id));
         });
