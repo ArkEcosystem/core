@@ -11,7 +11,8 @@ const fixedJobs = [
     "test-node11-functional",
     "test-node10-benchmark",
     "test-node11-benchmark",
-    "test-node10-e2e"
+    "test-node10-e2e",
+    "test-node11-e2e"
 ]
 
 function jason(value) {
