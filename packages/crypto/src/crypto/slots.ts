@@ -2,36 +2,6 @@ import { dato, Dato } from "@faustbrian/dato";
 import { configManager } from "../managers";
 
 class Slots {
-    public height: number;
-
-    /**
-     * Create a new Slot instance.
-     */
-    constructor() {
-        this.resetHeight();
-    }
-
-    /**
-     * Get the height we are currently at.
-     */
-    public getHeight(): number {
-        return this.height;
-    }
-
-    /**
-     * Set the height we are currently at.
-     */
-    public setHeight(height: number): void {
-        this.height = height;
-    }
-
-    /**
-     * Reset the height to the initial value.
-     */
-    public resetHeight(): void {
-        this.height = 1;
-    }
-
     /**
      * Get epoch time relative to beginning epoch time.
      */
@@ -124,7 +94,7 @@ class Slots {
      * Get constant from height 1.
      */
     private getMilestone(key: string): any {
-        return configManager.getMilestone(this.height)[key];
+        return configManager.getMilestone(1)[key];
     }
 }
 
