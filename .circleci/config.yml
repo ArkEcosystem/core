@@ -27,6 +27,7 @@ jobs:
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -105,6 +106,7 @@ jobs:
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -191,6 +193,7 @@ jobs:
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -277,6 +280,7 @@ jobs:
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -363,6 +367,7 @@ jobs:
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -449,6 +454,7 @@ jobs:
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -535,6 +541,7 @@ jobs:
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -646,6 +653,7 @@ jobs:
       - save_cache:
           key: 'core-node10-{{ checksum "checksum.txt" }}-1'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -751,6 +759,7 @@ jobs:
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
@@ -862,6 +871,7 @@ jobs:
       - save_cache:
           key: 'core-node11-{{ checksum "checksum.txt" }}-1'
           paths:
+            - ./packages/a/node_modules
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
             - ./packages/core-blockchain/node_modules
