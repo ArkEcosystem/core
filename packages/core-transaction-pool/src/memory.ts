@@ -62,7 +62,7 @@ export class Memory {
             this.byExpirationIsSorted = true;
         }
 
-        const currentHeight: number = app.resolve("state").getLastBlock().data.height;
+        const currentHeight: number = app.resolve("blockchain").getLastHeight();
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const MemoryTransaction of this.byExpiration) {
