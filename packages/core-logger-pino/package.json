@@ -32,7 +32,7 @@
     "devDependencies": {
         "@types/pino": "^5.8.6",
         "@types/pump": "^1.0.1",
-        "@types/readable-stream": "^2.3.12",
+        "@types/readable-stream": "^2.3.1",
         "@types/split2": "^2.1.6"
     },
     "publishConfig": {
