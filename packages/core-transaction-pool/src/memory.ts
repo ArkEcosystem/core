@@ -1,7 +1,8 @@
-import { app } from "@arkecosystem/core-container";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
+import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { SequentialTransaction } from "./sequential-transaction";
+import { app } from "@arkecosystem/core-container";
 
 export class Memory {
     private sequence: number = 0;
@@ -56,16 +57,27 @@ export class Memory {
         return this.all;
     }
 
-    public getExpired(): Interfaces.ITransaction[] {
+    public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
+        const currentHeight: number = this.currentHeight();
+
+        if (currentHeight === null) {
+            return [];
+        }
+
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => a.transaction.data.expiration - b.transaction.data.expiration);
             this.byExpirationIsSorted = true;
         }
 
-        const currentHeight: number = app.resolve("blockchain").getLastHeight();
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const SequentialTransaction of this.byExpiration) {
+            if (SequentialTransaction.transaction.data.expiration === 0) {
+                SequentialTransaction.transaction.data.expiration = currentHeight + maxTransactionAge;
+                this.byExpirationIsSorted = false;
+                continue;
+            }
+
             if (SequentialTransaction.transaction.data.expiration > currentHeight) {
                 break;
             }
@@ -147,11 +159,16 @@ export class Memory {
         }
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            const maxHeight: number = app.resolve("blockchain").getLastHeight() + maxTransactionAge;
-            if (SequentialTransaction.transaction.data.expiration === 0 ||
-                SequentialTransaction.transaction.data.expiration > maxHeight) {
+            const currentHeight: number = this.currentHeight();
+            if (currentHeight !== null) {
+                const maxHeight: number = currentHeight + maxTransactionAge;
+                if (SequentialTransaction.transaction.data.expiration === 0 ||
+                    SequentialTransaction.transaction.data.expiration > maxHeight) {
 
-                SequentialTransaction.transaction.data.expiration = maxHeight;
+                    SequentialTransaction.transaction.data.expiration = maxHeight;
+                }
+            } else {
+                SequentialTransaction.transaction.data.expiration = 0;
             }
             this.byExpiration.push(SequentialTransaction);
             this.byExpirationIsSorted = false;
@@ -255,5 +272,17 @@ export class Memory {
         this.dirty.removed.clear();
 
         return removed;
+    }
+
+    private currentHeight(): number {
+        if (app.has("state")) {
+            return app.resolve("state").getLastBlock().data.height;
+        }
+
+        if (app.has("blockchain")) {
+            return app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastHeight();
+        }
+
+        return null;
     }
 }

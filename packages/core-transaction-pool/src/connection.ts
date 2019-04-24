@@ -456,7 +456,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     private purgeExpired() {
-        for (const transaction of this.memory.getExpired()) {
+        for (const transaction of this.memory.getExpired(this.options.maxTransactionAge)) {
             this.emitter.emit("transaction.expired", transaction.data);
 
             this.walletManager.revertTransactionForSender(transaction);
