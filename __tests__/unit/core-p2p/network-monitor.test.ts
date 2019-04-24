@@ -275,6 +275,27 @@ describe("NetworkMonitor", () => {
             }
             expect(await monitor.syncWithNetwork(1)).toEqual(expectedBlocks);
         });
+
+        it("should still download blocks from 1 peer if network height === our height", async () => {
+            const mockBlock = { id: "123456" };
+
+            communicator.getPeerBlocks = jest.fn().mockReturnValue([mockBlock]);
+
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.1",
+                    port: 4000,
+                    state: {
+                        height: 20,
+                        currentSlot: 2,
+                        forgingAllowed: true,
+                    },
+                    verificationResult: { forked: false },
+                }),
+            );
+
+            expect(await monitor.syncWithNetwork(20)).toEqual([mockBlock]);
+        });
     });
 
     describe("broadcastBlock", () => {

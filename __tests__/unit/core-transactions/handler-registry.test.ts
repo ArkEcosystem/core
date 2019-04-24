@@ -71,7 +71,11 @@ class TestTransactionHandler extends TransactionHandler {
         return;
     }
 
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
         return true;
     }
 }

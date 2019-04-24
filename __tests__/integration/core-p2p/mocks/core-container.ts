@@ -1,8 +1,8 @@
 import { Managers } from "@arkecosystem/crypto";
-import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { blocks2to100 } from "../../../utils/fixtures";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
+import { defaults } from "./p2p-options";
 
 Managers.configManager.setFromPreset("unitnet");
 
@@ -82,7 +82,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
-                if (name === "transactionPool") {
+                if (name === "transaction-pool") {
                     return {
                         transactionExists: jest.fn().mockReturnValue(false),
                         isSenderBlocked: jest.fn().mockReturnValue(false),
@@ -91,6 +91,11 @@ jest.mock("@arkecosystem/core-container", () => {
                         walletManager: {
                             canApply: jest.fn().mockReturnValue(true),
                         },
+                        makeProcessor: jest.fn().mockReturnValue({
+                            validate: jest.fn().mockImplementation(() => {
+                                throw new Error("The payload contains invalid transaction.");
+                            }),
+                        }),
                         options: {
                             maxTransactionBytes: 10e6,
                         },
@@ -104,7 +109,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     return defaults;
                 }
 
-                if (name === "transactionPool") {
+                if (name === "transaction-pool") {
                     return {
                         maxTransactionsPerRequest: 30,
                     };

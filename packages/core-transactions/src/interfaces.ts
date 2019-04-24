@@ -18,6 +18,11 @@ export interface ITransactionHandler {
     apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
     revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
 
-    canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean;
+    canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean;
+
     emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void;
 }

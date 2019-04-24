@@ -49,14 +49,13 @@ class Deserializer {
     }
 
     private deserializeVendorField(transaction: ITransaction, buf: ByteBuffer): void {
-        if (!transaction.hasVendorField()) {
-            buf.skip(1);
-            return;
-        }
-
         const vendorFieldLength: number = buf.readUint8();
         if (vendorFieldLength > 0) {
-            transaction.data.vendorFieldHex = buf.readBytes(vendorFieldLength).toString("hex");
+            if (transaction.hasVendorField()) {
+                transaction.data.vendorFieldHex = buf.readBytes(vendorFieldLength).toString("hex");
+            } else {
+                buf.skip(vendorFieldLength);
+            }
         }
     }
 

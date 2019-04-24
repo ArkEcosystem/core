@@ -116,7 +116,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     private getPublicKeyFromAddress(senderId: string): string {
         const { walletManager }: Database.IDatabaseService = this.databaseServiceProvider();
 
-        return walletManager.exists(senderId) ? walletManager.findByAddress(senderId).publicKey : null;
+        return walletManager.has(senderId) ? walletManager.findByAddress(senderId).publicKey : null;
     }
 
     private async mapBlocksToTransactions(rows): Promise<Interfaces.ITransactionData[]> {

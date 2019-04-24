@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-webhooks",
     "description": "Webhooks for ARK Core",
-    "version": "2.3.0-next.6",
+    "version": "2.3.12",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -19,11 +19,11 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.6",
-        "@arkecosystem/core-event-emitter": "^2.3.0-next.6",
-        "@arkecosystem/core-http-utils": "^2.3.0-next.6",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.6",
-        "@arkecosystem/core-utils": "^2.3.0-next.6",
+        "@arkecosystem/core-container": "^2.3.12",
+        "@arkecosystem/core-event-emitter": "^2.3.12",
+        "@arkecosystem/core-http-utils": "^2.3.12",
+        "@arkecosystem/core-interfaces": "^2.3.12",
+        "@arkecosystem/core-utils": "^2.3.12",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
         "joi": "^14.3.1",
@@ -33,10 +33,7 @@
     "devDependencies": {
         "@types/boom": "^7.2.1",
         "@types/fs-extra": "^5.0.5",
-        "@types/joi": "^14.3.2",
-        "@types/sequelize": "^4.27.46",
-        "@types/sqlite3": "^3.1.5",
-        "@types/umzug": "^2.2.0"
+        "@types/joi": "^14.3.3"
     },
     "publishConfig": {
         "access": "public"

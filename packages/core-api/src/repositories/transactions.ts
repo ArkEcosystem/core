@@ -394,7 +394,7 @@ export class TransactionsRepository extends Repository implements IRepository {
      * @return {String}
      */
     public __publicKeyFromAddress(senderId): string {
-        if (this.databaseService.walletManager.exists(senderId)) {
+        if (this.databaseService.walletManager.has(senderId)) {
             return this.databaseService.walletManager.findByAddress(senderId).publicKey;
         }
 

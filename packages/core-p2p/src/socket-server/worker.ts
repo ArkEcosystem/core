@@ -170,7 +170,7 @@ export class Worker extends SCWorker {
     }
 
     private hasExceededRateLimit(remoteAddress: string): boolean {
-        if ((this.config.whitelist || []).includes(remoteAddress)) {
+        if ([...this.config.whitelist, ...this.config.remoteAccess].includes(remoteAddress)) {
             return false;
         }
 

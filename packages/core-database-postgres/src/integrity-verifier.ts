@@ -1,14 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
 export class IntegrityVerifier {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) { }
+    constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
 
     public async run(): Promise<void> {
         this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
@@ -145,15 +144,7 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        const delegateWallets: Database.IWallet[] = this.walletManager
-            .allByUsername()
-            .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
-
-        sortBy(delegateWallets, "publicKey").forEach((delegate: Database.IDelegateWallet, i) => {
-            const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
-            wallet.rate = i + 1;
-            this.walletManager.reindex(wallet);
-        });
+        this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
     }
 
     private async buildMultiSignatures(): Promise<void> {

@@ -7,12 +7,14 @@ import pluralize from "pluralize";
 import { Wallet } from "./wallet";
 
 export class WalletManager implements Database.IWalletManager {
-    public logger = app.resolvePlugin<Logger.ILogger>("logger");
-    public config = app.getConfig();
-
+    // @TODO: make this private and read-only
     public byAddress: { [key: string]: Database.IWallet };
+    // @TODO: make this private and read-only
     public byPublicKey: { [key: string]: Database.IWallet };
+    // @TODO: make this private and read-only
     public byUsername: { [key: string]: Database.IWallet };
+    // @TODO: make this private and read-only
+    public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     /**
      * Create a new wallet manager instance.
@@ -83,6 +85,10 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
+    public has(addressOrPublicKey: string): boolean {
+        return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
+    }
+
     public hasByAddress(address: string): boolean {
         return !!this.byAddress[address];
     }
@@ -105,10 +111,6 @@ export class WalletManager implements Database.IWalletManager {
 
     public forgetByUsername(username: string): void {
         delete this.byUsername[username];
-    }
-
-    public exists(addressOrPublicKey: string): boolean {
-        return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
     }
 
     public index(wallets: Database.IWallet[]): void {
@@ -138,7 +140,7 @@ export class WalletManager implements Database.IWalletManager {
     }
 
     public loadActiveDelegateList(roundInfo: Shared.IRoundInfo): Database.IDelegateWallet[] {
-        const { round, maxDelegates } = roundInfo;
+        const { maxDelegates } = roundInfo;
         const delegatesWallets: Database.IWallet[] = this.allByUsername();
 
         if (delegatesWallets.length < maxDelegates) {
@@ -149,53 +151,7 @@ export class WalletManager implements Database.IWalletManager {
             );
         }
 
-        const equalVotesMap: Map<string, Set<Database.IWallet>> = new Map<string, Set<Database.IWallet>>();
-        const delegates: Database.IWallet[] = delegatesWallets
-            .sort((a, b) => {
-                const diff: number = b.voteBalance.comparedTo(a.voteBalance);
-
-                if (diff === 0) {
-                    if (!equalVotesMap.has(a.voteBalance.toFixed())) {
-                        equalVotesMap.set(a.voteBalance.toFixed(), new Set());
-                    }
-
-                    const set: Set<Database.IWallet> = equalVotesMap.get(a.voteBalance.toFixed());
-                    set.add(a);
-                    set.add(b);
-
-                    if (a.publicKey === b.publicKey) {
-                        throw new Error(
-                            `The balance and public key of both delegates are identical! Delegate "${
-                                a.username
-                            }" appears twice in the list.`,
-                        );
-                    }
-
-                    return a.publicKey.localeCompare(b.publicKey, "en");
-                }
-
-                return diff;
-            })
-            .map((delegate, i) => {
-                const rate: number = i + 1;
-                this.byUsername[delegate.username].rate = rate;
-                return { round, ...delegate, rate };
-            })
-            .slice(0, maxDelegates);
-
-        for (const [voteBalance, set] of equalVotesMap.entries()) {
-            const values: Database.IWallet[] = Array.from(set.values());
-
-            if (delegates.includes(values[0])) {
-                const mapped: string[] = values.map(v => `${v.username} (${v.publicKey})`);
-
-                this.logger.warn(
-                    `Delegates ${JSON.stringify(mapped, null, 4)} have a matching vote balance of ${Utils.formatSatoshi(
-                        Utils.BigNumber.make(voteBalance),
-                    )}`,
-                );
-            }
-        }
+        const delegates: Database.IWallet[] = this.buildDelegateRanking(delegatesWallets, roundInfo);
 
         this.logger.debug(`Loaded ${delegates.length} active ${pluralize("delegate", delegates.length)}`);
 
@@ -393,7 +349,7 @@ export class WalletManager implements Database.IWalletManager {
         const { type, data } = transaction;
 
         const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
-        const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey); // Should exist
+        const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey);
         let recipient: Database.IWallet = this.byAddress[data.recipientId];
 
         transactionHandler.revertForSender(transaction, sender);
@@ -442,6 +398,64 @@ export class WalletManager implements Database.IWalletManager {
         this.byAddress = {};
         this.byPublicKey = {};
         this.byUsername = {};
+    }
+
+    public buildDelegateRanking(
+        delegates: Database.IWallet[],
+        roundInfo?: Shared.IRoundInfo,
+    ): Database.IDelegateWallet[] {
+        const equalVotesMap = new Map();
+        let delegateWallets = delegates
+            .sort((a, b) => {
+                const diff = b.voteBalance.comparedTo(a.voteBalance);
+
+                if (diff === 0) {
+                    if (!equalVotesMap.has(a.voteBalance.toFixed())) {
+                        equalVotesMap.set(a.voteBalance.toFixed(), new Set());
+                    }
+
+                    const set = equalVotesMap.get(a.voteBalance.toFixed());
+                    set.add(a);
+                    set.add(b);
+
+                    if (a.publicKey === b.publicKey) {
+                        throw new Error(
+                            `The balance and public key of both delegates are identical! Delegate "${
+                                a.username
+                            }" appears twice in the list.`,
+                        );
+                    }
+
+                    return a.publicKey.localeCompare(b.publicKey, "en");
+                }
+
+                return diff;
+            })
+            .map((delegate, i) => {
+                const rate = i + 1;
+                this.byUsername[delegate.username].rate = rate;
+                return { round: roundInfo ? roundInfo.round : 0, ...delegate, rate };
+            });
+
+        if (roundInfo) {
+            delegateWallets = delegateWallets.slice(0, roundInfo.maxDelegates);
+
+            for (const [voteBalance, set] of equalVotesMap.entries()) {
+                const values: any[] = Array.from(set.values());
+                if (delegateWallets.includes(values[0])) {
+                    const mapped = values.map(v => `${v.username} (${v.publicKey})`);
+                    this.logger.warn(
+                        `Delegates ${JSON.stringify(
+                            mapped,
+                            null,
+                            4,
+                        )} have a matching vote balance of ${Utils.formatSatoshi(voteBalance)}`,
+                    );
+                }
+            }
+        }
+
+        return delegateWallets;
     }
 
     /**
