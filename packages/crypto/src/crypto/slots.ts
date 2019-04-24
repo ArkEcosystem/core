@@ -3,12 +3,6 @@ import { configManager } from "../managers";
 
 class Slots {
     /**
-     * Create a new Slot instance.
-     */
-    constructor() {
-    }
-
-    /**
      * Get epoch time relative to beginning epoch time.
      */
     public getEpochTime(time?: number): number {
