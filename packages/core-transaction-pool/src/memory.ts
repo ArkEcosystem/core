@@ -147,7 +147,7 @@ export class Memory {
         }
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            const maxHeight: number = app.resolve("state").getLastBlock().data.height + maxTransactionAge;
+            const maxHeight: number = app.resolve("blockchain").getLastHeight() + maxTransactionAge;
             if (SequentialTransaction.transaction.data.expiration === 0 ||
                 SequentialTransaction.transaction.data.expiration > maxHeight) {
 
