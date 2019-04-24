@@ -785,7 +785,7 @@
                 {
                     "run": {
                         "name": "Run tests",
-                        "command": "sudo n 11 && source ~/.bashrc && nvm use 11 && cd __tests__/e2e && bin/e2e run-tests -s scenario1"
+                        "command": "source ~/.bashrc && nvm use 11 && cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && bin/e2e run-tests -s scenario1"
                     }
                 },
                 {
