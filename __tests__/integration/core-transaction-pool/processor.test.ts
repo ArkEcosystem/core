@@ -870,14 +870,14 @@ describe("Transaction Guard", () => {
     //         const now = 47157042; // seconds since genesis block
     //         const transactionExists = processor.pool.transactionExists;
     //         processor.pool.transactionExists = jest.fn(() => false);
-    //         const getTime = Crypto.slots.getTime;
-    //         Crypto.slots.getTime = jest.fn(() => now);
+    //         const getTime = Crypto.Slots.getTime;
+    //         Crypto.Slots.getTime = jest.fn(() => now);
 
     //         const secondsInFuture = 3601;
     //         const tx = {
     //             id: "1",
     //             senderPublicKey: "affe",
-    //             timestamp: Crypto.slots.getTime() + secondsInFuture,
+    //             timestamp: Crypto.Slots.getTime() + secondsInFuture,
     //         };
     //         processor.__filterAndTransformTransactions([tx]);
 
@@ -888,7 +888,7 @@ describe("Transaction Guard", () => {
     //             },
     //         ]);
 
-    //         Crypto.slots.getTime = getTime;
+    //         Crypto.Slots.getTime = getTime;
     //         processor.pool.transactionExists = transactionExists;
     //     });
 

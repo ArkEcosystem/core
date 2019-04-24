@@ -264,7 +264,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     data: {
                         height: 2,
-                        timestamp: Crypto.slots.getTime(),
+                        timestamp: Crypto.Slots.getTime(),
                     },
                 });
                 // @ts-ignore

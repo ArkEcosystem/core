@@ -54,7 +54,7 @@ export class Memory {
             this.byExpirationIsSorted = true;
         }
 
-        const now: number = Crypto.slots.getTime();
+        const now: number = Crypto.Slots.getTime();
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const MemoryTransaction of this.byExpiration) {

@@ -136,7 +136,7 @@ describe("Blockchain", () => {
             const lastBlock = blockchain.state.getLastBlock();
             const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
             const activeDelegates = await blockchain.database.getActiveDelegates(roundInfo);
-            const nextSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1;
+            const nextSlot = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1;
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
@@ -156,7 +156,7 @@ describe("Blockchain", () => {
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
-                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1),
                 version: 0,
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,

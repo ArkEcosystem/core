@@ -1,5 +1,5 @@
 import { Transaction, TransactionFactory } from "../..";
-import { slots } from "../../../crypto";
+import { Slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransactionData } from "../../../interfaces";
@@ -15,7 +15,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     constructor() {
         this.data = {
             id: null,
-            timestamp: slots.getTime(),
+            timestamp: Slots.getTime(),
             version: 0x01,
         } as ITransactionData;
     }

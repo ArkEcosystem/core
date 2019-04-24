@@ -128,12 +128,12 @@ describe("Blockchain", () => {
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
         });
 
-        it("should broadcast a block if (Crypto.slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+        it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             blockchain.state.started = true;
 
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
-            lastBlock.data.timestamp = Crypto.slots.getSlotNumber() * 8000;
+            lastBlock.data.timestamp = Crypto.Slots.getSlotNumber() * 8000;
 
             const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
@@ -167,7 +167,7 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: Crypto.slots.getEpochTime(),
+                timestamp: Crypto.Slots.getEpochTime(),
             };
 
             // @ts-ignore
@@ -189,7 +189,7 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getNextSlot()),
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getNextSlot()),
             };
 
             // @ts-ignore
@@ -242,7 +242,7 @@ describe("Blockchain", () => {
                 expect(
                     blockchain.isSynced({
                         data: {
-                            timestamp: Crypto.slots.getTime(),
+                            timestamp: Crypto.Slots.getTime(),
                             height: genesisBlock.height,
                         },
                     } as Interfaces.IBlock),
@@ -256,7 +256,7 @@ describe("Blockchain", () => {
                 const getLastBlock = jest.spyOn(blockchain, "getLastBlock").mockReturnValueOnce({
                     // @ts-ignore
                     data: {
-                        timestamp: Crypto.slots.getTime(),
+                        timestamp: Crypto.Slots.getTime(),
                         height: genesisBlock.height,
                     },
                 });

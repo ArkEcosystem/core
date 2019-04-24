@@ -5,4 +5,4 @@ export { Hash } from "./hash";
 export { HashAlgorithms } from "./hash-algorithms";
 export { HDWallet } from "./hdwallet";
 export { Message } from "./message";
-export { slots } from "./slots";
+export { Slots } from "./slots";
