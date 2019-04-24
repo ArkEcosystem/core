@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger } from "@arkecosystem/core-interfaces";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { sortBy } from "@arkecosystem/utils";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
 
@@ -145,15 +144,7 @@ export class IntegrityVerifier {
             wallet.producedBlocks = +block.totalProduced;
         });
 
-        const delegateWallets: Database.IWallet[] = this.walletManager
-            .allByUsername()
-            .sort((a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance));
-
-        sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
-            const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
-            wallet.rate = i + 1;
-            this.walletManager.reindex(wallet);
-        });
+        this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
     }
 
     private async buildMultisignatures(): Promise<void> {

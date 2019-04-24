@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
     "description": "Transaction Pool Manager for ARK Core",
-    "version": "2.3.0-next.6",
+    "version": "2.3.12",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -24,29 +24,29 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.6",
-        "@arkecosystem/core-database": "^2.3.0-next.6",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.6",
-        "@arkecosystem/core-transactions": "^2.3.0-next.6",
-        "@arkecosystem/crypto": "^2.3.0-next.6",
+        "@arkecosystem/core-container": "^2.3.12",
+        "@arkecosystem/core-database": "^2.3.12",
+        "@arkecosystem/core-interfaces": "^2.3.12",
+        "@arkecosystem/core-transactions": "^2.3.12",
+        "@arkecosystem/crypto": "^2.3.12",
         "@faustbrian/dato": "^0.3.0",
         "@types/better-sqlite3": "^5.2.3",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
         "bs58check": "^2.1.2",
-        "delay": "^4.1.0",
+        "delay": "^4.2.0",
         "fs-extra": "^7.0.1",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-utils": "^2.3.0-next.6",
+        "@arkecosystem/core-utils": "^2.3.12",
         "@types/better-sqlite3": "^5.2.3",
         "@types/bip39": "^2.4.2",
         "@types/fs-extra": "^5.0.5",
         "@types/pluralize": "^0.0.29",
         "@types/random-seed": "^0.3.3",
-        "bip39": "^3.0.0",
+        "bip39": "^3.0.1",
         "lodash.clonedeep": "^4.5.0",
         "random-seed": "^0.3.0"
     },

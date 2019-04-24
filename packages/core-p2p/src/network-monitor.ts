@@ -290,7 +290,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
             const networkHeight: number = this.getNetworkHeight();
 
-            if (!networkHeight) {
+            if (!networkHeight || networkHeight <= fromBlockHeight) {
+                // networkHeight is what we believe network height is, so even if it is <= our height, we download blocks
                 return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
             }
 

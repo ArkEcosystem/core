@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-jest-matchers",
     "description": "Jest matchers for ARK Core",
-    "version": "2.3.0-next.6",
+    "version": "2.3.12",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
@@ -20,16 +20,16 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.6",
-        "@arkecosystem/crypto": "^2.3.0-next.6",
+        "@arkecosystem/core-container": "^2.3.12",
+        "@arkecosystem/crypto": "^2.3.12",
         "@arkecosystem/utils": "^0.3.0",
-        "bip39": "^3.0.0",
+        "bip39": "^3.0.1",
         "jest-extended": "^0.11.1",
         "lodash.get": "^4.4.2",
         "lodash.isequal": "^4.5.0",
         "lodash.sortby": "^4.7.0",
         "superheroes": "^2.0.0",
-        "xstate": "^4.4.0"
+        "xstate": "^4.5.0"
     },
     "devDependencies": {
         "@types/bip39": "^2.4.2",

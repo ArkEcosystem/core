@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-api",
     "description": "Public API for ARK Core",
-    "version": "2.3.0-next.6",
+    "version": "2.3.12",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
@@ -21,19 +21,19 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.0-next.6",
-        "@arkecosystem/core-http-utils": "^2.3.0-next.6",
-        "@arkecosystem/core-interfaces": "^2.3.0-next.6",
-        "@arkecosystem/core-transaction-pool": "^2.3.0-next.6",
-        "@arkecosystem/core-utils": "^2.3.0-next.6",
-        "@arkecosystem/crypto": "^2.3.0-next.6",
+        "@arkecosystem/core-container": "^2.3.12",
+        "@arkecosystem/core-http-utils": "^2.3.12",
+        "@arkecosystem/core-interfaces": "^2.3.12",
+        "@arkecosystem/core-transaction-pool": "^2.3.12",
+        "@arkecosystem/core-utils": "^2.3.12",
+        "@arkecosystem/crypto": "^2.3.12",
         "@arkecosystem/utils": "^0.3.0",
         "@faustbrian/dato": "^0.3.0",
         "@faustbrian/hapi-version": "^0.2.11",
         "ajv": "^6.10.0",
         "boom": "^7.3.0",
         "bs58check": "^2.1.2",
-        "delay": "^4.1.0",
+        "delay": "^4.2.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
         "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
@@ -47,7 +47,7 @@
     "devDependencies": {
         "@types/boom": "^7.2.1",
         "@types/ip": "^1.1.0",
-        "@types/joi": "^14.3.2",
+        "@types/joi": "^14.3.3",
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",

@@ -1,5 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { Logger } from "../index";
+import { Logger, Shared } from "../index";
 import { IRoundInfo } from "../shared";
 
 export interface IWallet {
@@ -36,8 +36,6 @@ export type IDelegateWallet = IWallet & { rate: number; round: number };
 export interface IWalletManager {
     logger: Logger.ILogger;
 
-    config: any;
-
     reset(): void;
 
     allByAddress(): IWallet[];
@@ -48,7 +46,7 @@ export interface IWalletManager {
 
     findByAddress(address: string): IWallet;
 
-    exists(addressOrPublicKey: string): boolean;
+    has(addressOrPublicKey: string): boolean;
 
     findByPublicKey(publicKey: string): IWallet;
 
@@ -65,6 +63,8 @@ export interface IWalletManager {
     buildVoteBalances(): void;
 
     applyBlock(block: Interfaces.IBlock): void;
+
+    buildDelegateRanking(delegates: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
     revertBlock(block: Interfaces.IBlock): void;
 
