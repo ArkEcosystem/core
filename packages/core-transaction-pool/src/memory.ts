@@ -1,5 +1,4 @@
 import assert from "assert";
-import { Blockchain } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { SequentialTransaction } from "./sequential-transaction";
 import { app } from "@arkecosystem/core-container";
@@ -277,10 +276,6 @@ export class Memory {
     private currentHeight(): number {
         if (app.has("state")) {
             return app.resolve("state").getLastBlock().data.height;
-        }
-
-        if (app.has("blockchain")) {
-            return app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastHeight();
         }
 
         return null;
