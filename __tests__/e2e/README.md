@@ -4,7 +4,6 @@
     <img src="./img/core-e2e-banner.png" />
 </p>
 
-[![Build Status](https://badgen.now.sh/circleci/github/ArkEcosystem/core-e2e)](https://circleci.com/gh/ArkEcosystem/core-e2e)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](./LICENSE)
 
 ## Introduction
@@ -15,7 +14,7 @@ This project enables writing and running end-to-end tests on Ark core (v2).
 
 Install the project dependencies :
 
-`npm install`
+`yarn install`
 
 Now to run the tests locally, you need to have Docker installed. Then, run this command to initialize docker swarm feature :
 
@@ -23,20 +22,26 @@ Now to run the tests locally, you need to have Docker installed. Then, run this 
 
 You can now run the configured tests like this :
 
-    bin/e2e generate -n e2enet -c 3
-    sudo chmod +x dist/e2enet/docker*
-    cd dist/e2enet && ./docker-init.sh && ./docker-start.sh && cd ../..
-    bin/e2e run-tests -n e2enet -s scenario1
+    bin/e2e generate -c 3
+    sudo chmod +x dist/docker*
+    sudo chmod +x dist/node0/docker/testnet-e2e/entrypoint.sh
+    sudo chmod +x dist/node1/docker/testnet-e2e/entrypoint.sh
+    sudo chmod +x dist/node2/docker/testnet-e2e/entrypoint.sh
+    sudo chmod +x dist/node0/ark.sh
+    sudo chmod +x dist/node1/ark.sh
+    sudo chmod +x dist/node2/ark.sh
+    cd dist && ./docker-init.sh && ./docker-start.sh && cd ..
+    bin/e2e run-tests -s scenario1
 
-This will generate the configured network `e2enet` with 3 nodes and run the tests defined in `scenario1`. (it can take some time depending on your machine resources)
+This will generate the 3 nodes on testnet and run the tests defined in `scenario1`. (it can take some time depending on your machine resources)
 
 ## Create new tests
 
 ### Structure of tests
 
-To see the existing tests or create new tests, have a look at the `tests` folder. You will find 2 sub-folders : `networks` and `scenarios`.
+To see the existing tests or create new tests, have a look at the `tests` folder. You will find 1 sub-folder : `scenarios`.
 
-We will just look at the `scenarios` sub-folder as we don't want to set up a new network, we already have the default `e2enet` which we will use.
+Let's have a look at the `scenarios` sub-folder.
 
     scenarios / scenario1 / config.js
     scenarios / scenario1 / doublespend1
@@ -46,13 +51,12 @@ So we find our `scenario1` that we executed before. It contains one file for con
 Let's first look at `config.js` :
 
     module.exports  = {
-      network: 'e2enet',
       enabledTests: [
         'doublespend1'
       ]
     }
 
-Pretty straightforward : the network on which we want to execute the scenario, and the test cases we want to run on it.
+Pretty straightforward : we enable the test cases we want to run.
 
 A test case typically contains some actions to be executed on the network (transactions for example), and some tests to check that the behavior is correct. Let's have a look at the `doublespend1` folder :
 
@@ -107,7 +111,7 @@ Here are some tips :
 
 ## CircleCI
 
-The end-to-end tests are configured to run on CircleCI every day : to see which network and scenarios are configured, you can have a look at `.circleci/config.yml`file.
+The end-to-end tests are configured to run on CircleCI for each commit.
 
 ## Technical details about this project
 
