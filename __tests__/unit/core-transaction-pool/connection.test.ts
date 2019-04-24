@@ -218,7 +218,7 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(0);
 
             const expireAfterBlocks: number = 3;
-            const expiration = slots.getHeight() + expireAfterBlocks;
+            const expiration: number = slots.getHeight() + expireAfterBlocks;
 
             const transactions: Interfaces.ITransaction[] = [];
 
