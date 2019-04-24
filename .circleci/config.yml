@@ -951,8 +951,8 @@ jobs:
       - run:
           name: Run tests
           command: >-
-            source ~/.bashrc && nvm use 11 && cd __tests__/e2e && sudo chown -R
-            $USER:$USER ./dist/ && bin/e2e run-tests -s scenario1
+            cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source
+            ~/.bashrc && nvm use 11 && bin/e2e run-tests -s scenario1
       - run:
           name: Output results - node0
           when: always
