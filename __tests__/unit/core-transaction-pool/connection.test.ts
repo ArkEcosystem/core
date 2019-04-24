@@ -22,7 +22,7 @@ import { database as databaseService } from "./mocks/database";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
-const { slots } = Crypto;
+const { Slots } = Crypto;
 const { TransactionTypes } = Enums;
 
 const delegatesSecrets = delegates.map(d => d.secret);
@@ -218,7 +218,7 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(0);
 
             const expireAfterSeconds = 3;
-            const expiration = slots.getTime() + expireAfterSeconds;
+            const expiration = Slots.getTime() + expireAfterSeconds;
 
             const transactions: Interfaces.ITransaction[] = [];
 
