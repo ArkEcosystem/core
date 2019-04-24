@@ -7,32 +7,6 @@ import { devnet } from "../../../../packages/crypto/src/networks";
 beforeEach(() => configManager.setConfig(devnet));
 
 describe("Slots", () => {
-    describe("getHeight", () => {
-        it("should return the set height", () => {
-            expect(slots.getHeight()).toBe(1);
-        });
-    });
-
-    describe("setHeight", () => {
-        it("should set the height", () => {
-            slots.setHeight(123);
-
-            expect(slots.getHeight()).toBe(123);
-        });
-    });
-
-    describe("resetHeight", () => {
-        it("should reset the height", () => {
-            slots.setHeight(123);
-
-            expect(slots.getHeight()).toBe(123);
-
-            slots.resetHeight();
-
-            expect(slots.getHeight()).toBe(1);
-        });
-    });
-
     describe("getEpochTime", () => {
         it("return epoch datetime", () => {
             expect(slots.getEpochTime()).toBeNumber();
