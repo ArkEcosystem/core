@@ -167,7 +167,7 @@ describe("Blockchain", () => {
 
             const block = {
                 height: 100,
-                timestamp: Crypto.Slots.getEpochTime(),
+                timestamp: Crypto.Slots.getTime(),
             };
 
             // @ts-ignore
@@ -207,7 +207,7 @@ describe("Blockchain", () => {
             const loggerInfo = jest.spyOn(logger, "info");
 
             const mockGetSlotNumber = jest
-                .spyOn(Crypto.slots, "getSlotNumber")
+                .spyOn(Crypto.Slots, "getSlotNumber")
                 .mockReturnValueOnce(1)
                 .mockReturnValueOnce(1);
 
