@@ -22,7 +22,7 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
     }
 
     public vendorField(type: string): IPFSBuilder {
-        this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString("hex");
+        this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash).toString("hex");
 
         while (this.data.vendorFieldHex.length < 128) {
             this.data.vendorFieldHex = `00${this.data.vendorFieldHex}`;
