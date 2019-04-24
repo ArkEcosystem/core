@@ -217,7 +217,7 @@ describe("Connection", () => {
         it("should add the transactions to the pool and they should expire", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
-            const expireAfterBlocks = 3;
+            const expireAfterBlocks: number = 3;
             const expiration = slots.getHeight() + expireAfterBlocks;
 
             const transactions: Interfaces.ITransaction[] = [];
