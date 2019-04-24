@@ -66,9 +66,9 @@ fs.readdir("./packages", (_, packages) => {
 
             const steps = getIntegrationSteps(packagesChunks[index]);
 
-            const stepLog = job.steps[9];
-            const stepLint = job.steps[10];
-            const stepCoverage = job.steps[11];
+            const stepLog = jason(job.steps[testStepIndex+1]);
+            const stepLint = jason(job.steps[testStepIndex+2]);
+            const stepCoverage = jason(job.steps[testStepIndex+3]);
 
             for (i = 0; i < steps.length; i++) {
                 job.steps[testStepIndex + i] = steps[i];
