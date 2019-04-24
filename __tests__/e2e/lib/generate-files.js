@@ -28,6 +28,8 @@ class GenerateManager {
     }
     this.nodes = nodes
 
+    this.nodeVersion = options.version;
+
     this.rootPath = path.dirname('../')
     this.coreRootPath = path.dirname('../../..')
   }
@@ -84,7 +86,7 @@ class GenerateManager {
         {
           from: thisDockerPath,
           to: distDockerPath,
-          files: [ 'Dockerfile', 'docker-compose-stack.yml', 'docker-compose.yml', 'entrypoint.sh' ]
+          files: [ [`Dockerfile-${this.nodeVersion}`, 'Dockerfile'], 'docker-compose-stack.yml', 'docker-compose.yml', 'entrypoint.sh' ]
         },
         {
           from: thisDockerPath,

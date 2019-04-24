@@ -8,6 +8,7 @@ app
   .command('generate')
   .description('generate the file structure for e2e testing')
   .option('-c, --nodes <number of nodes>', 'number of nodes to generate', 1)
+  .option('-v, --version <node version>', 'node version to use', 11)
   .action((options) => require('../lib/generate-files')(options))
 
 app

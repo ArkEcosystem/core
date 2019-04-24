@@ -733,17 +733,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Adjustments for sudo env variables
-          command: >-
-            n=$(which node) && n=${n%/bin/node} && chmod -R 755 $n/bin/* && sudo
-            cp -r $n/{bin,lib,share} /usr/local && n=$(which npm) &&
-            n=${n%/bin/npm} && chmod -R 755 $n/bin/* && sudo cp -r
-            $n/{bin,lib,share} /usr/local
-      - run:
-          name: Install n and update node version
-          command: >-
-            sudo npm install -g n && sudo n 10 && source ~/.bashrc && nvm
-            install 10 && nvm use 10
+          name: Install nvm 10
+          command: source ~/.bashrc && nvm install 10 && nvm use 10
       - run:
           name: Generate cache key
           command: >-
@@ -767,8 +758,8 @@ jobs:
       - run:
           name: Install and build packages
           command: >-
-            sudo n 10 && source ~/.bashrc && nvm use 10 && yarn && yarn
-            bootstrap && yarn build && cd __tests__/e2e && yarn install
+            source ~/.bashrc && nvm use 10 && yarn && yarn bootstrap && yarn
+            build && cd __tests__/e2e && yarn install
       - save_cache:
           key: 'ark-node10-e2e-{{ checksum "checksum.txt" }}-1-2'
           paths:
@@ -812,8 +803,8 @@ jobs:
       - run:
           name: Generate files
           command: >-
-            sudo n 10 && source ~/.bashrc && nvm use 10 && node --version && cd
-            __tests__/e2e && bin/e2e generate -c 3
+            source ~/.bashrc && nvm use 10 && node --version && cd __tests__/e2e
+            && yarn generate -c 3 -v 10
       - run:
           name: Make scripts executable
           command: >-
@@ -834,8 +825,8 @@ jobs:
       - run:
           name: Run tests
           command: >-
-            sudo n 10 && source ~/.bashrc && nvm use 10 && cd __tests__/e2e &&
-            sudo bin/e2e run-tests -s scenario1
+            cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source
+            ~/.bashrc && nvm use 10 && yarn run-tests -s scenario1
       - run:
           name: Output results - node0
           when: always
@@ -930,7 +921,7 @@ jobs:
           name: Generate files
           command: >-
             source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e
-            && yarn generate -c 3
+            && yarn generate -c 3 -v 11
       - run:
           name: Make scripts executable
           command: >-
