@@ -877,9 +877,9 @@ jobs:
             echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
             md5sum - > checksum.txt
       - restore_cache:
-          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-1-2'
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-2'
       - restore_cache:
-          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-1-1'
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-1'
       - run:
           name: Install yarn
           command: >-
@@ -896,7 +896,7 @@ jobs:
             sudo n 11 && source ~/.bashrc && nvm use 11 && yarn && yarn
             bootstrap && yarn build && cd __tests__/e2e && yarn install
       - save_cache:
-          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-1-2'
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-2'
           paths:
             - ./packages/core-json-rpc/node_modules
             - ./packages/core-logger/node_modules
@@ -916,7 +916,7 @@ jobs:
             - ./node_modules
             - ./__tests__/e2e/node_modules
       - save_cache:
-          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-1-1'
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
