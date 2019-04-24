@@ -51,7 +51,7 @@ export class ForgerManager {
         try {
             await this.loadRound();
 
-            await this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
+            await this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
 
             this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
@@ -92,7 +92,7 @@ export class ForgerManager {
                     await this.client.syncWithNetwork();
                 }
 
-                return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
             }
 
             const networkState: P2P.INetworkState = await this.client.getNetworkState();
@@ -109,7 +109,7 @@ export class ForgerManager {
                 await this.forgeNewBlock(delegate, this.round, networkState);
             }
 
-            return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
             if (error instanceof HostNoResponseError) {
                 this.logger.warn(error.message);

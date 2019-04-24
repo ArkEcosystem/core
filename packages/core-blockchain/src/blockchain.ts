@@ -245,8 +245,8 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from ${remoteAddress}`,
         );
 
-        const currentSlot: number = Crypto.slots.getSlotNumber();
-        const receivedSlot: number = Crypto.slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber();
+        const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
 
         if (receivedSlot > currentSlot) {
             logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -377,7 +377,7 @@ export class Blockchain implements blockchain.IBlockchain {
             // broadcast only current block
             const blocktime: number = config.getMilestone(block.data.height).blocktime;
 
-            if (this.state.started && Crypto.slots.getSlotNumber() * blocktime <= block.data.timestamp) {
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp) {
                 this.p2p.getMonitor().broadcastBlock(block);
             }
         }
@@ -441,7 +441,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         block = block || this.getLastBlock();
 
-        return Crypto.slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
+        return Crypto.Slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
     }
 
     /**
