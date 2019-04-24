@@ -755,7 +755,7 @@
                 {
                     "run": {
                         "name": "Generate files",
-                        "command": "source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e && node bin/e2e generate -c 3"
+                        "command": "source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e && yarn generate -c 3"
                     }
                 },
                 {
@@ -779,7 +779,7 @@
                 {
                     "run": {
                         "name": "Run tests",
-                        "command": "cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source ~/.bashrc && nvm use 11 && node bin/e2e run-tests -s scenario1"
+                        "command": "cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source ~/.bashrc && nvm use 11 && yarn run-tests -s scenario1"
                     }
                 },
                 {

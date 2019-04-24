@@ -930,7 +930,7 @@ jobs:
           name: Generate files
           command: >-
             source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e
-            && node bin/e2e generate -c 3
+            && yarn generate -c 3
       - run:
           name: Make scripts executable
           command: >-
@@ -952,7 +952,7 @@ jobs:
           name: Run tests
           command: >-
             cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source
-            ~/.bashrc && nvm use 11 && node bin/e2e run-tests -s scenario1
+            ~/.bashrc && nvm use 11 && yarn run-tests -s scenario1
       - run:
           name: Output results - node0
           when: always
