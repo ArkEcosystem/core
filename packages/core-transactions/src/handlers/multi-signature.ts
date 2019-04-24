@@ -95,7 +95,11 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         wallet.multisignature = null;
     }
 
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, guard);
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
     }
 }
