@@ -163,9 +163,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private updateHeaders(peer: P2P.IPeer) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-        if (blockchain) {
-            const lastBlock = blockchain.getLastBlock();
+        if (app.has("blockchain")) {
+            const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
             if (lastBlock) {
                 peer.headers.height = lastBlock.data.height;
