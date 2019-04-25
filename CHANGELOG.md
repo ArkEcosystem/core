@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.15] - 2019-04-25
+
+Fix release of `2.3.14` due to npm connectivity issues.
+
 ## [2.3.14] - 2019-04-25
 
 ### Fixed
@@ -305,6 +309,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/2.3.0...develop
+[2.3.15]: https://github.com/ARKEcosystem/core/compare/2.3.14...2.3.15
 [2.3.14]: https://github.com/ARKEcosystem/core/compare/2.3.12...2.3.14
 [2.3.12]: https://github.com/ARKEcosystem/core/compare/2.3.1...2.3.12
 [2.3.1]: https://github.com/ARKEcosystem/core/compare/2.3.0...2.3.1
