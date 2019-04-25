@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-interfaces",
     "description": "Interface types for essential ARK Core modules",
-    "version": "2.3.12",
+    "version": "2.3.14",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -23,7 +23,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.3.12",
+        "@arkecosystem/crypto": "^2.3.14",
         "@faustbrian/dato": "^0.2.0",
         "awilix": "^4.2.1"
     },

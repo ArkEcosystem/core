@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.14] - 2019-04-25
+
+### Fixed
+
+-   Added missing mainnet exceptions for transactions with invalid recipients ([#2471])
+-   Remove support for old release channels from the 2.2 development period ([#2476])
+
 ## [2.3.12] - 2019-04-24
 
 ### Fixed
@@ -298,6 +305,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/2.3.0...develop
+[2.3.14]: https://github.com/ARKEcosystem/core/compare/2.3.12...2.3.14
 [2.3.12]: https://github.com/ARKEcosystem/core/compare/2.3.1...2.3.12
 [2.3.1]: https://github.com/ARKEcosystem/core/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/ARKEcosystem/core/compare/2.2.2...2.3.0
@@ -455,3 +463,5 @@ Closed security vulnerabilities:
 [#2459]: https://github.com/ARKEcosystem/core/pull/2459
 [#2462]: https://github.com/ARKEcosystem/core/pull/2462
 [#2464]: https://github.com/ARKEcosystem/core/pull/2464
+[#2471]: https://github.com/ARKEcosystem/core/pull/2471
+[#2476]: https://github.com/ARKEcosystem/core/pull/2476

@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/crypto",
     "description": "Crypto utilities for the ARK Blockchain",
-    "version": "2.3.12",
+    "version": "2.3.14",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
