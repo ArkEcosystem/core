@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-webhooks",
     "description": "Webhooks for ARK Core",
-    "version": "2.3.15",
+    "version": "2.3.16",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -19,11 +19,11 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.15",
-        "@arkecosystem/core-event-emitter": "^2.3.15",
-        "@arkecosystem/core-http-utils": "^2.3.15",
-        "@arkecosystem/core-interfaces": "^2.3.15",
-        "@arkecosystem/core-utils": "^2.3.15",
+        "@arkecosystem/core-container": "^2.3.16",
+        "@arkecosystem/core-event-emitter": "^2.3.16",
+        "@arkecosystem/core-http-utils": "^2.3.16",
+        "@arkecosystem/core-interfaces": "^2.3.16",
+        "@arkecosystem/core-utils": "^2.3.16",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
         "hapi-pagination": "^2.1.0",

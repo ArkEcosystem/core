@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.16] - 2019-04-25
+
+### Fixed
+
+-   Initialise the crypto config manager with the latest height on boot ([#2482])
+
 ## [2.3.15] - 2019-04-25
 
 Fix release of `2.3.14` due to npm connectivity issues.
@@ -470,3 +476,4 @@ Closed security vulnerabilities:
 [#2464]: https://github.com/ARKEcosystem/core/pull/2464
 [#2471]: https://github.com/ARKEcosystem/core/pull/2471
 [#2476]: https://github.com/ARKEcosystem/core/pull/2476
+[#2482]: https://github.com/ARKEcosystem/core/pull/2482
