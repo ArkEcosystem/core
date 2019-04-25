@@ -1,6 +1,7 @@
 import assert from "assert";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { SequentialTransaction } from "./sequential-transaction";
+import { State } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-container";
 
 export class Memory {
@@ -59,7 +60,7 @@ export class Memory {
     public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
         const currentHeight: number = this.currentHeight();
 
-        if (currentHeight === null) {
+        if (!currentHeight) {
             return [];
         }
 
@@ -159,7 +160,7 @@ export class Memory {
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
             const currentHeight: number = this.currentHeight();
-            if (currentHeight !== null) {
+            if (currentHeight) {
                 const maxHeight: number = currentHeight + maxTransactionAge;
                 if (typeof SequentialTransaction.transaction.data.expiration !== "number" ||
                     SequentialTransaction.transaction.data.expiration === 0 ||
@@ -275,10 +276,6 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        if (app.has("state")) {
-            return app.resolve("state").getLastBlock().data.height;
-        }
-
-        return null;
+        return app.resolvePlugin<State.IStateStorage>("state").getLastBlock().data.height;
     }
 }
