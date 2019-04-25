@@ -58,17 +58,12 @@ export class Memory {
     }
 
     public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
-        const currentHeight: number = this.currentHeight();
-
-        if (!currentHeight) {
-            return [];
-        }
-
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => a.transaction.data.expiration - b.transaction.data.expiration);
             this.byExpirationIsSorted = true;
         }
 
+        const currentHeight: number = this.currentHeight();
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const SequentialTransaction of this.byExpiration) {
@@ -159,17 +154,12 @@ export class Memory {
         }
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            const currentHeight: number = this.currentHeight();
-            if (currentHeight) {
-                const maxHeight: number = currentHeight + maxTransactionAge;
-                if (typeof SequentialTransaction.transaction.data.expiration !== "number" ||
-                    SequentialTransaction.transaction.data.expiration === 0 ||
-                    SequentialTransaction.transaction.data.expiration > maxHeight) {
+            const maxHeight: number = this.currentHeight() + maxTransactionAge;
+            if (typeof SequentialTransaction.transaction.data.expiration !== "number" ||
+                SequentialTransaction.transaction.data.expiration === 0 ||
+                SequentialTransaction.transaction.data.expiration > maxHeight) {
 
-                    SequentialTransaction.transaction.data.expiration = maxHeight;
-                }
-            } else {
-                SequentialTransaction.transaction.data.expiration = 0;
+                SequentialTransaction.transaction.data.expiration = maxHeight;
             }
             this.byExpiration.push(SequentialTransaction);
             this.byExpirationIsSorted = false;
