@@ -166,7 +166,7 @@ export class Processor implements TransactionPool.IProcessor {
     }
 
     private validateTransaction(transaction: Interfaces.ITransactionData): boolean {
-        const now: number = Crypto.slots.getTime();
+        const now: number = Crypto.Slots.getTime();
 
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;

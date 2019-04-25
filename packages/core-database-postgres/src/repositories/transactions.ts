@@ -71,7 +71,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 .from(this.query)
                 .where(
                     this.query.timestamp.gte(
-                        Crypto.slots.getTime(
+                        Crypto.Slots.getTime(
                             dato()
                                 .subDays(days)
                                 .toMilliseconds(),

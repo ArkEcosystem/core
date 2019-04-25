@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-new-relic",
     "description": "New Relic integration for ARK Core.",
-    "version": "2.3.12",
+    "version": "2.3.15",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,7 +18,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.12",
+        "@arkecosystem/core-container": "^2.3.15",
         "newrelic": "^5.6.4"
     },
     "publishConfig": {

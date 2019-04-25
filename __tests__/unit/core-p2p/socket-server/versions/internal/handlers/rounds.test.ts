@@ -6,7 +6,7 @@ import { delegates } from "../../../../../../utils/fixtures/testnet/delegates";
 import { Crypto } from "@arkecosystem/crypto";
 
 const timestampSlots = 104;
-Crypto.slots.getTime = jest.fn().mockReturnValue(timestampSlots);
+Crypto.Slots.getTime = jest.fn().mockReturnValue(timestampSlots);
 
 describe("Internal handlers - rounds", () => {
     describe("getCurrentRound", () => {

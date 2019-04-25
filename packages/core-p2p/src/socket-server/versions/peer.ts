@@ -49,8 +49,8 @@ export async function getStatus(): Promise<P2P.IPeerState> {
 
     return {
         height: lastBlock ? lastBlock.data.height : 0,
-        forgingAllowed: Crypto.slots.isForgingAllowed(),
-        currentSlot: Crypto.slots.getSlotNumber(),
+        forgingAllowed: Crypto.Slots.isForgingAllowed(),
+        currentSlot: Crypto.Slots.getSlotNumber(),
         header: lastBlock ? lastBlock.getHeader() : {},
     };
 }

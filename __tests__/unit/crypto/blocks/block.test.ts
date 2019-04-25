@@ -4,7 +4,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
-import { slots } from "../../../../packages/crypto/src/crypto";
+import { Slots } from "../../../../packages/crypto/src/crypto";
 import { IBlock } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import * as networks from "../../../../packages/crypto/src/networks";
@@ -75,7 +75,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with incorrect timestamp", () => {
-            jest.spyOn(slots, "getSlotNumber").mockImplementation(timestamp => (timestamp ? 2 : 0));
+            jest.spyOn(Slots, "getSlotNumber").mockImplementation(timestamp => (timestamp ? 2 : 0));
             const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
@@ -148,7 +148,7 @@ describe("Block", () => {
 
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
-            jest.spyOn(slots, "getSlotNumber").mockImplementation(height => {
+            jest.spyOn(Slots, "getSlotNumber").mockImplementation(height => {
                 throw errorMessage;
             });
             const block = BlockFactory.fromData(dummyBlock);
