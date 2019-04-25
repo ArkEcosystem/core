@@ -161,7 +161,8 @@ export class Memory {
             const currentHeight: number = this.currentHeight();
             if (currentHeight !== null) {
                 const maxHeight: number = currentHeight + maxTransactionAge;
-                if (SequentialTransaction.transaction.data.expiration === 0 ||
+                if (typeof SequentialTransaction.transaction.data.expiration !== "number" ||
+                    SequentialTransaction.transaction.data.expiration === 0 ||
                     SequentialTransaction.transaction.data.expiration > maxHeight) {
 
                     SequentialTransaction.transaction.data.expiration = maxHeight;
