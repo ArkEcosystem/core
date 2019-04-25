@@ -23,7 +23,7 @@ $ ark config:cli --channel=next
         }),
         channel: flags.string({
             description: "the name of the channel that should be used",
-            options: ["alpha", "beta", "rc", "next", "latest"],
+            options: ["next", "latest"],
         }),
     };
 
