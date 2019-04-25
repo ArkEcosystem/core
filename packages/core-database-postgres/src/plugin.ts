@@ -21,7 +21,6 @@ export const plugin: Container.PluginDescriptor = {
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Closing Database Connection");
 
-        const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
-        await databaseService.connection.disconnect();
+        await container.resolvePlugin<Database.IDatabaseService>("database").connection.disconnect();
     },
 };

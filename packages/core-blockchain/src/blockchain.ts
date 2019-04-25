@@ -6,6 +6,7 @@ import {
     EventEmitter,
     Logger,
     P2P,
+    State,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
@@ -15,7 +16,6 @@ import delay from "delay";
 import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
-import { StateStorage } from "./state-storage";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -27,7 +27,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the state of the blockchain.
      * @return {IStateStorage}
      */
-    get state(): StateStorage {
+    get state(): State.IStateStorage {
         return stateMachine.state;
     }
 
@@ -192,15 +192,6 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public async updateNetworkStatus(): Promise<void> {
         await this.p2p.getMonitor().updateNetworkStatus();
-    }
-
-    /**
-     * Reset the state of the blockchain.
-     * @return {void}
-     */
-    public resetState(): void {
-        this.clearAndStopQueue();
-        this.state.reset();
     }
 
     /**

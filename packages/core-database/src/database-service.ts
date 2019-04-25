@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger, Shared, State } from "@arkecosystem/core-interfaces";
 import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
@@ -204,15 +204,13 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
-        let blocks: Interfaces.IBlockData[] = [];
-
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
         const end: number = offset + limit - 1;
 
-        if (app.has("state")) {
-            blocks = app.resolve("state").getLastBlocksByHeight(start, end);
-        }
+        let blocks: Interfaces.IBlockData[] = app
+            .resolvePlugin<State.IStateStorage>("state")
+            .getLastBlocksByHeight(start, end);
 
         if (blocks.length !== limit) {
             blocks = await this.connection.blocksRepository.heightRange(start, end);
@@ -252,11 +250,10 @@ export class DatabaseService implements Database.IDatabaseService {
         const toGetFromDB = {};
 
         for (const [i, height] of heights.entries()) {
-            if (app.has("state")) {
-                const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
-                if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
-                    blocks[i] = stateBlocks[0];
-                }
+            const stateBlocks = app.resolvePlugin<State.IStateStorage>("state").getLastBlocksByHeight(height, height);
+
+            if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
+                blocks[i] = stateBlocks[0];
             }
 
             if (blocks[i] === undefined) {
@@ -278,9 +275,11 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocksForRound(roundInfo?: Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
-        const lastBlock: Interfaces.IBlock = app.has("state")
-            ? app.resolve<Blockchain.IStateStorage>("state").getLastBlock()
-            : await this.getLastBlock();
+        let lastBlock: Interfaces.IBlock = app.resolvePlugin<State.IStateStorage>("state").getLastBlock();
+
+        if (!lastBlock) {
+            lastBlock = await this.getLastBlock();
+        }
 
         if (!lastBlock) {
             return [];
@@ -325,7 +324,9 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        let commonBlocks: Interfaces.IBlockData[] = app.resolve("state").getCommonBlocks(ids);
+        let commonBlocks: Interfaces.IBlockData[] = app
+            .resolvePlugin<State.IStateStorage>("state")
+            .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
             commonBlocks = await this.connection.blocksRepository.common(ids);
@@ -336,7 +337,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: Interfaces.IBlockData[] = app
-            .resolve("state")
+            .resolvePlugin("state")
             .getLastBlockIds()
             .reverse()
             .slice(0, 10);

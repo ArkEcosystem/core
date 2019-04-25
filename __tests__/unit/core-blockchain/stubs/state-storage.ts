@@ -33,11 +33,13 @@ export class StateStorageStub implements State.IStateStorage {
     }
 
     public getLastHeight(): number {
-        return 1;
+        const lastBlock = this.getLastBlock();
+
+        return lastBlock ? lastBlock.data.height : 1;
     }
 
     public getLastBlock(): Interfaces.IBlock | null {
-        return undefined;
+        return this.lastDownloadedBlock || undefined;
     }
 
     public getLastBlockIds(): string[] {
@@ -56,13 +58,22 @@ export class StateStorageStub implements State.IStateStorage {
         return false;
     }
 
-    public pushPingBlock(block: Interfaces.IBlockData): void {}
+    public pushPingBlock(block: Interfaces.IBlockData): void {
+        this.blockPing = {
+            count: 1,
+            first: new Date().getTime(),
+            last: new Date().getTime(),
+            block,
+        };
+    }
 
     public removeCachedTransactionIds(transactionIds: string[]): void {}
 
     public reset(): void {}
 
-    public setLastBlock(block: Blocks.Block): void {}
+    public setLastBlock(block: Blocks.Block): void {
+        this.lastDownloadedBlock = block;
+    }
 }
 
 export const stateStorageStub = new StateStorageStub();

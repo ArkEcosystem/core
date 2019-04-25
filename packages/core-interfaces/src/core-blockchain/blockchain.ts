@@ -1,8 +1,8 @@
 import { Interfaces } from "@arkecosystem/crypto";
 import { IDatabaseService } from "../core-database";
 import { IPeerService } from "../core-p2p";
+import { IStateStorage } from "../core-state";
 import { IConnection } from "../core-transaction-pool";
-import { IStateStorage } from "./state-storage";
 
 export interface IBlockchain {
     /**
@@ -43,12 +43,6 @@ export interface IBlockchain {
      * @return {void}
      */
     updateNetworkStatus(): Promise<any>;
-
-    /**
-     * Reset the state of the blockchain.
-     * @return {void}
-     */
-    resetState(): void;
 
     /**
      * Clear and stop the queue.

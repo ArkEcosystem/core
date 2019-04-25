@@ -1,4 +1,5 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { app } from "@arkecosystem/core-container";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { DatabaseService } from "./database-service";
 import { BlocksBusinessRepository } from "./repositories/blocks-business-repository";
 import { DelegatesBusinessRepository } from "./repositories/delegates-business-repository";
@@ -22,6 +23,8 @@ export const databaseServiceFactory = async (
     );
 
     await databaseService.init();
+
+    app.resolvePlugin<State.IStateStorage>("state").setLastBlock(await databaseService.getLastBlock());
 
     return databaseService;
 };
