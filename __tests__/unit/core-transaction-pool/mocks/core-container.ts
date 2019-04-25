@@ -12,10 +12,6 @@ export const container = {
             return true;
         },
         resolve: name => {
-            if (name === "state") {
-                return state;
-            }
-
             return {};
         },
         resolvePlugin: name => {
@@ -46,6 +42,10 @@ export const container = {
 
             if (name === "database") {
                 return database;
+            }
+
+            if (name === "state") {
+                return state;
             }
 
             return {};

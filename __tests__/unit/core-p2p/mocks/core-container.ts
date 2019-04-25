@@ -60,13 +60,13 @@ jest.mock("@arkecosystem/core-container", () => {
                     return p2p;
                 }
 
-                return {};
-            },
-            resolve: name => {
                 if (name === "state") {
                     return state;
                 }
 
+                return {};
+            },
+            resolve: name => {
                 return {};
             },
             resolveOptions: name => {

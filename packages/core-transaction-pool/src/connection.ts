@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, EventEmitter, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { ITransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
@@ -310,7 +310,7 @@ export class Connection implements TransactionPool.IConnection {
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.resolve("state").removeCachedTransactionIds(block.transactions.map(tx => tx.id));
+        app.resolvePlugin<State.IStateStorage>("state").removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
 
     public async buildWallets(): Promise<void> {
@@ -318,7 +318,7 @@ export class Connection implements TransactionPool.IConnection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, this.getPoolSize());
 
-        app.resolve<Blockchain.IStateStorage>("state").removeCachedTransactionIds(transactionIds);
+        app.resolvePlugin<State.IStateStorage>("state").removeCachedTransactionIds(transactionIds);
 
         for (const transactionId of transactionIds) {
             const transaction: Interfaces.ITransaction = this.getTransaction(transactionId);

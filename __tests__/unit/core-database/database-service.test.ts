@@ -10,7 +10,7 @@ import { DatabaseService } from "../../../packages/core-database/src/database-se
 import { roundCalculator } from "../../../packages/core-utils/dist";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
-import { StateStorageStub } from "./__fixtures__/state-storage-stub";
+import { stateStorageStub } from "./__fixtures__/state-storage-stub";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
@@ -74,7 +74,6 @@ describe("Database Service", () => {
         it("should deliver blocks for the given heights", async () => {
             const requestHeightsLow = [1, 5, 20];
             const requestHeightsHigh = [100, 200, 500];
-            const stateStorageStub = new StateStorageStub();
             // @ts-ignore
             jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation((heightFrom, heightTo) => {
                 if (requestHeightsHigh[0] <= heightFrom) {
@@ -119,7 +118,9 @@ describe("Database Service", () => {
                 }
             }
 
-            jest.spyOn(container, "has").mockReturnValue(false);
+            jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation(() => {
+                return undefined;
+            });
 
             blocks = await databaseService.getBlocksByHeight(requestHeights);
 
@@ -134,7 +135,6 @@ describe("Database Service", () => {
 
     describe("getBlocksForRound", () => {
         it("should fetch blocks using lastBlock in state-storage", async () => {
-            const stateStorageStub = new StateStorageStub();
             jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(null);
             jest.spyOn(container, "has").mockReturnValue(true);
             jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
@@ -146,7 +146,7 @@ describe("Database Service", () => {
 
             expect(blocks).toBeEmpty();
             expect(stateStorageStub.getLastBlock).toHaveBeenCalled();
-            expect(databaseService.getLastBlock).not.toHaveBeenCalled();
+            expect(databaseService.getLastBlock).toHaveBeenCalled();
         });
 
         it("should fetch blocks using lastBlock in database", async () => {

@@ -1,0 +1,10 @@
+export const getStorage = {
+    getNetworkHeight: () => 1,
+    updateNetworkStatus: () => null,
+    // tslint:disable-next-line: no-empty
+    checkNetworkHealth: () => {},
+    syncWithNetwork: () => [],
+    refreshPeersAfterFork: () => null,
+    broadcastBlock: () => null,
+    hasPeers: () => false,
+};

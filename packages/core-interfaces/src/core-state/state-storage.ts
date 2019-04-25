@@ -1,7 +1,18 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStorage {
-    reset(): void;
+    blockchain: any;
+    lastDownloadedBlock: Interfaces.IBlock | null;
+    blockPing: any;
+    started: boolean;
+    forkedBlock: Interfaces.IBlock | null;
+    wakeUpTimeout: any;
+    noBlockCounter: number;
+    p2pUpdateCounter: number;
+    numberOfBlocksToRollback: number | null;
+    networkStart: boolean;
+
+    reset(blockchainMachine): void;
 
     /**
      * Clear last blocks.
@@ -12,6 +23,11 @@ export interface IStateStorage {
      * Clear wakeup timeout.
      */
     clearWakeUpTimeout(): void;
+
+    /**
+     * Get the last block height.
+     */
+    getLastHeight(): number;
 
     /**
      * Get the last block.

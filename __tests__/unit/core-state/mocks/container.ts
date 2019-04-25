@@ -1,5 +1,3 @@
-import { blockchainMachine } from "../../../../packages/core-blockchain/src/machines/blockchain";
-import { stateStorageStub } from "../stubs/state-storage";
 import { blockchain } from "./blockchain";
 import { config } from "./config";
 import { database } from "./database";
@@ -20,6 +18,10 @@ export const container = {
             };
         },
         resolve: name => {
+            if (name === "state") {
+                return {};
+            }
+
             return {};
         },
         resolvePlugin: name => {
@@ -50,16 +52,10 @@ export const container = {
                 return transactionPool;
             }
 
-            if (name === "state") {
-                stateStorageStub.blockchain = blockchainMachine.initialState;
-
-                return stateStorageStub;
-            }
-
             return null;
         },
         resolveOptions: () => ({}),
-        has: () => true,
+        has: () => false,
         forceExit: () => null,
     },
 };
