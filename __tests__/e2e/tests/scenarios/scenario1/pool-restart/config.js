@@ -1,4 +1,4 @@
-'use strict'
+"use strict";
 
 /*
 Test summary :
@@ -19,12 +19,12 @@ Workflow :
 module.exports = {
     events: {
         newBlock: {
-            5: [ '0.transfer-new-wallet.action' ],
-            21: [ '1.create-transactions.action' ],
-            23: [ '2.check-unconfirmed.test' ],
-            25: [ '3.stop-node.action' ],
-            28: [ '4.0.restart-node.action', '4.1.check-tx-1.test' ],
-            50: [ '5.check-node-pool.test' ]
-        }
-    }
-}
+            5: ["0.transfer-new-wallet.action"],
+            21: ["1.create-transactions.action"],
+            23: ["2.check-unconfirmed.test"],
+            25: ["3.stop-node.action"],
+            28: ["4.0.restart-node.action", "4.1.check-tx-1.test"],
+            50: ["5.check-node-pool.test"],
+        },
+    },
+};
