@@ -8,6 +8,9 @@ export const container = {
                 get: () => ({}),
             };
         },
+        has: plugin => {
+            return true;
+        },
         resolve: name => {
             if (name === "state") {
                 return state;

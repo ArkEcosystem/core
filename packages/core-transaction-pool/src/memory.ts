@@ -275,7 +275,7 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        if (app && typeof app.has === "function" && app.has("state")) {
+        if (app.has("state")) {
             return app.resolve("state").getLastBlock().data.height;
         }
 

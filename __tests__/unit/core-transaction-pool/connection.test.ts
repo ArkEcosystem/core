@@ -1,6 +1,7 @@
 import "jest-extended";
 
-import "./mocks/core-container";
+import { container } from "./mocks/core-container";
+import { state } from "./mocks/state";
 
 import { Wallet } from "@arkecosystem/core-database";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
@@ -213,10 +214,15 @@ describe("Connection", () => {
         });
 
         it("should add the transactions to the pool and they should expire", async () => {
+            const heightAtStart = 42;
+
+            jest.spyOn(container.app, "has").mockReturnValue(true);
+            jest.spyOn(state, "getLastBlock").mockReturnValue({ data: { height: heightAtStart } });
+
             expect(connection.getPoolSize()).toBe(0);
 
             const expireAfterBlocks: number = 3;
-            const expiration: number = /* XXX how to get current height? */ 123 + expireAfterBlocks;
+            const expiration: number = heightAtStart + expireAfterBlocks;
 
             const transactions: Interfaces.ITransaction[] = [];
 
@@ -229,21 +235,25 @@ describe("Connection", () => {
             const insufficientBalanceTx: any = Transactions.TransactionFactory.fromData(
                 cloneDeep(mockData.dummyExp2.data),
             );
-            transactions.push(insufficientBalanceTx);
             insufficientBalanceTx.data.expiration = expiration;
+            transactions.push(insufficientBalanceTx);
 
             transactions.push(mockData.dummy2);
 
             const { added, notAdded } = connection.addTransactions(transactions);
+
             expect(added).toHaveLength(4);
             expect(notAdded).toBeEmpty();
 
             expect(connection.getPoolSize()).toBe(4);
 
-            /* XXX how to wait until the current height becomes `expiration` or fake it?
+            jest.spyOn(state, "getLastBlock").mockReturnValue({ data: { height: expiration - 1 } });
+
+            expect(connection.getPoolSize()).toBe(4);
+
+            jest.spyOn(state, "getLastBlock").mockReturnValue({ data: { height: expiration } });
 
             expect(connection.getPoolSize()).toBe(2);
-            */
 
             transactions.forEach(t => connection.removeTransactionById(t.id));
         });
