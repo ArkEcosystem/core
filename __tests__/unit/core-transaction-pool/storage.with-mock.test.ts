@@ -1,4 +1,3 @@
-import { SequentialTransaction } from "../../../packages/core-transaction-pool/src/sequential-transaction";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 import { transactions } from "./__fixtures__/transactions";
 
@@ -24,7 +23,7 @@ describe("Storage", () => {
             const storage = new Storage();
             storage.connect("./tmp");
 
-            const memPoolTransaction = new SequentialTransaction(transactions.dummy1);
+            const memPoolTransaction = transactions.dummy1;
             storage.bulkAdd([memPoolTransaction]);
 
             expect(mockPrepare).toHaveBeenLastCalledWith("ROLLBACK;");

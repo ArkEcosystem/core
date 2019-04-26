@@ -1,7 +1,6 @@
-import { Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
-import { SequentialTransaction } from "./sequential-transaction";
 
 export class Storage {
     private readonly table: string = "pool";
@@ -15,8 +14,7 @@ export class Storage {
         this.database.exec(`
       PRAGMA journal_mode=WAL;
       CREATE TABLE IF NOT EXISTS ${this.table} (
-        "sequence" INTEGER PRIMARY KEY,
-        "id" VARCHAR(64) UNIQUE,
+        "id" VARCHAR(64) PRIMARY KEY,
         "serialized" BLOB NOT NULL
       );
     `);
@@ -27,24 +25,20 @@ export class Storage {
         this.database = null;
     }
 
-    public bulkAdd(data: SequentialTransaction[]): void {
+    public bulkAdd(data: Interfaces.ITransaction[]): void {
         if (data.length === 0) {
             return;
         }
 
         const insertStatement: BetterSqlite3.Statement = this.database.prepare(
-            `INSERT INTO ${this.table} ` + "(sequence, id, serialized) VALUES " + "(:sequence, :id, :serialized);",
+            `INSERT INTO ${this.table} ` + "(id, serialized) VALUES " + "(:id, :serialized);",
         );
 
         try {
             this.database.prepare("BEGIN;").run();
 
-            for (const d of data) {
-                insertStatement.run({
-                    sequence: d.sequence,
-                    id: d.transaction.id,
-                    serialized: d.transaction.serialized,
-                });
+            for (const transaction of data) {
+                insertStatement.run({ id: transaction.id, serialized: transaction.serialized });
             }
 
             this.database.prepare("COMMIT;").run();
@@ -73,15 +67,12 @@ export class Storage {
         this.database.prepare("COMMIT;").run();
     }
 
-    public loadAll(): SequentialTransaction[] {
-        const rows: Array<{ sequence: number; serialized: string }> = this.database
-            .prepare(`SELECT sequence, lower(HEX(serialized)) AS serialized FROM ${this.table};`)
+    public loadAll(): Interfaces.ITransaction[] {
+        const rows: Array<{ serialized: string }> = this.database
+            .prepare(`SELECT LOWER(HEX(serialized)) AS serialized FROM ${this.table};`)
             .all();
 
-        return rows
-            .map(r => ({ transaction: Transactions.TransactionFactory.fromHex(r.serialized), ...r }))
-            .filter(r => r.transaction.verified)
-            .map(r => new SequentialTransaction(r.transaction, r.sequence));
+        return rows.map(r => Transactions.TransactionFactory.fromHex(r.serialized)).filter(t => t.verified);
     }
 
     public deleteAll(): void {

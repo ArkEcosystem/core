@@ -12,7 +12,6 @@ import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
-import { SequentialTransaction } from "../../../packages/core-transaction-pool/src/sequential-transaction";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -47,8 +46,8 @@ beforeEach(() => connection.flush());
 
 describe("Connection", () => {
     const addTransactions = transactions => {
-        for (const tx of transactions) {
-            memory.remember(new SequentialTransaction(tx), maxTransactionAge);
+        for (const t of transactions) {
+            memory.remember(t, maxTransactionAge);
         }
     };
 
@@ -60,11 +59,11 @@ describe("Connection", () => {
         it("should return 2 if transactions were added", () => {
             expect(connection.getPoolSize()).toBe(0);
 
-            memory.remember(new SequentialTransaction(mockData.dummy1), maxTransactionAge);
+            memory.remember(mockData.dummy1, maxTransactionAge);
 
             expect(connection.getPoolSize()).toBe(1);
 
-            memory.remember(new SequentialTransaction(mockData.dummy2), maxTransactionAge);
+            memory.remember(mockData.dummy2, maxTransactionAge);
 
             expect(connection.getPoolSize()).toBe(2);
         });
@@ -80,11 +79,11 @@ describe("Connection", () => {
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(0);
 
-            memory.remember(new SequentialTransaction(mockData.dummy1), maxTransactionAge);
+            memory.remember(mockData.dummy1, maxTransactionAge);
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(1);
 
-            memory.remember(new SequentialTransaction(mockData.dummy3), maxTransactionAge);
+            memory.remember(mockData.dummy3, maxTransactionAge);
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(2);
         });
@@ -261,7 +260,7 @@ describe("Connection", () => {
 
     describe("removeTransaction", () => {
         it("should remove the specified transaction from the pool", () => {
-            memory.remember(new SequentialTransaction(mockData.dummy1), maxTransactionAge);
+            memory.remember(mockData.dummy1, maxTransactionAge);
 
             expect(connection.getPoolSize()).toBe(1);
 
@@ -273,7 +272,7 @@ describe("Connection", () => {
 
     describe("removeTransactionById", () => {
         it("should remove the specified transaction from the pool (by id)", () => {
-            memory.remember(new SequentialTransaction(mockData.dummy1), maxTransactionAge);
+            memory.remember(mockData.dummy1, maxTransactionAge);
 
             expect(connection.getPoolSize()).toBe(1);
 
@@ -283,7 +282,7 @@ describe("Connection", () => {
         });
 
         it("should do nothing when asked to delete a non-existent transaction", () => {
-            memory.remember(new SequentialTransaction(mockData.dummy1), maxTransactionAge);
+            memory.remember(mockData.dummy1, maxTransactionAge);
 
             connection.removeTransactionById("nonexistenttransactionid");
 
