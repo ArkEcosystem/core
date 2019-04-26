@@ -149,6 +149,8 @@ export class ForgerManager {
      * Creates new block by the delegate and sends it to relay node for verification and broadcast
      */
     public async forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
+        configManager.setHeight(networkState.nodeHeight);
+
         const transactions = await this.getTransactionsForForging();
 
         const previousBlock = {
@@ -157,7 +159,7 @@ export class ForgerManager {
             height: networkState.nodeHeight,
         };
 
-        if (configManager.getMilestone(networkState.nodeHeight).block.idFullSha256) {
+        if (configManager.getMilestone().block.idFullSha256) {
             previousBlock.idHex = previousBlock.id;
         } else {
             previousBlock.idHex = models.Block.toBytesHex(previousBlock.id);
