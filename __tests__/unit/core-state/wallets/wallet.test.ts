@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Constants, Enums, Managers, Utils } from "@arkecosystem/crypto";
-import { Wallet } from "../../../packages/core-database/src";
-import { TransactionFactory } from "../../helpers/transaction-factory";
+import { Wallet } from "../../../../packages/core-state/src/wallets";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 
 const { SATOSHI } = Constants;
 const { TransactionTypes } = Enums;
