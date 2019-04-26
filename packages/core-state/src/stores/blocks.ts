@@ -5,6 +5,7 @@ import assert from "assert";
 export class BlockStore {
     private readonly byId: OrderedCappedMap<string, Interfaces.IBlockData>;
     private readonly byHeight: OrderedCappedMap<number, Interfaces.IBlockData>;
+    private lastBlock: Interfaces.IBlock;
 
     public constructor(maxSize: number) {
         this.byId = new OrderedCappedMap<string, Interfaces.IBlockData>(maxSize);
@@ -15,13 +16,14 @@ export class BlockStore {
         return typeof key === "string" ? this.byId.get(key) : this.byHeight.get(key);
     }
 
-    public set(value: Interfaces.IBlockData): void {
-        const lastBlock: Interfaces.IBlockData = this.last();
+    public set(value: Interfaces.IBlock): void {
+        const lastBlock: Interfaces.IBlock = this.last();
 
-        assert.strictEqual(value.height, lastBlock ? lastBlock.height + 1 : 1);
+        assert.strictEqual(value.data.height, lastBlock ? lastBlock.data.height + 1 : 1);
 
-        this.byId.set(value.id, value);
-        this.byHeight.set(value.height, value);
+        this.byId.set(value.data.id, value.data);
+        this.byHeight.set(value.data.height, value.data);
+        this.lastBlock = value;
     }
 
     public has(value: Interfaces.IBlockData): boolean {
@@ -43,12 +45,8 @@ export class BlockStore {
         this.byHeight.resize(maxSize);
     }
 
-    public first(): Interfaces.IBlockData {
-        return this.byId.first();
-    }
-
-    public last(): Interfaces.IBlockData {
-        return this.byId.last();
+    public last(): Interfaces.IBlock {
+        return this.lastBlock;
     }
 
     public values(): Interfaces.IBlockData[] {
