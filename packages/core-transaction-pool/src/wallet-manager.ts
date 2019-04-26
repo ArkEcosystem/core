@@ -11,11 +11,9 @@ export class WalletManager extends Wallets.WalletManager {
 
     public findByAddress(address: string): Database.IWallet {
         if (address && !this.byAddress[address]) {
-            const wallet = Object.assign(
-                new Wallets.Wallet(address),
-                this.databaseService.walletManager.findByAddress(address),
+            this.reindex(
+                Object.assign(new Wallets.Wallet(address), this.databaseService.walletManager.findByAddress(address)),
             );
-            this.reindex(wallet);
         }
 
         return this.byAddress[address];
