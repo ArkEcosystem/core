@@ -1,4 +1,4 @@
-import { Hash, HashAlgorithms, slots } from "../crypto";
+import { Hash, HashAlgorithms, Slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
@@ -160,7 +160,7 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block version");
             }
 
-            if (slots.getSlotNumber(block.timestamp) > slots.getSlotNumber()) {
+            if (Slots.getSlotNumber(block.timestamp) > Slots.getSlotNumber()) {
                 result.errors.push("Invalid block timestamp");
             }
 

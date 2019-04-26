@@ -1,8 +1,19 @@
 /* tslint:disable:no-empty */
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { State } from "@arkecosystem/core-interfaces";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
-export class StateStorageStub implements Blockchain.IStateStorage {
+export class StateStoreStub implements State.IStateStore {
+    public blockchain: any;
+    public lastDownloadedBlock: Interfaces.IBlock | null;
+    public blockPing: any;
+    public started: boolean;
+    public forkedBlock: Interfaces.IBlock | null;
+    public wakeUpTimeout: any;
+    public noBlockCounter: number;
+    public p2pUpdateCounter: number;
+    public numberOfBlocksToRollback: number | null;
+    public networkStart: boolean;
+
     public cacheTransactions(
         transactions: Interfaces.ITransactionData[],
     ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
@@ -19,6 +30,10 @@ export class StateStorageStub implements Blockchain.IStateStorage {
 
     public getCommonBlocks(ids: string[]): Interfaces.IBlockData[] {
         return [];
+    }
+
+    public getLastHeight(): number {
+        return 1;
     }
 
     public getLastBlock(): Interfaces.IBlock | null {
@@ -49,3 +64,5 @@ export class StateStorageStub implements Blockchain.IStateStorage {
 
     public setLastBlock(block: Blocks.Block): void {}
 }
+
+export const stateStorageStub = new StateStoreStub();

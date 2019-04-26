@@ -9,7 +9,7 @@ import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
-const { slots } = Crypto;
+const { Slots } = Crypto;
 
 const TEST_TRANSACTION_TYPE = 100;
 
@@ -117,7 +117,7 @@ describe("TransactionHandlerRegistry", () => {
         const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
             type: TEST_TRANSACTION_TYPE,
-            timestamp: slots.getTime(),
+            timestamp: Slots.getTime(),
             senderPublicKey: keys.publicKey,
             fee: Utils.BigNumber.make("10000000"),
             amount: Utils.BigNumber.make("200000000"),

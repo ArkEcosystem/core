@@ -22,10 +22,7 @@ export const init: Hook<"init"> = async function({ id, config }) {
             )}. Review the latest release and run "ark update" once you wish to update.`,
         );
 
-        const branch = {
-            alpha: "develop",
-            beta: "develop",
-            rc: "develop",
+        const branch: Record<string, string> = {
             next: "develop",
             latest: "master",
         }[state.channel];

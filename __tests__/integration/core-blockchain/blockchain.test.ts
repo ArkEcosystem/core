@@ -1,7 +1,7 @@
 import "../../utils";
 
 /* tslint:disable:max-line-length */
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -136,7 +136,7 @@ describe("Blockchain", () => {
             const lastBlock = blockchain.state.getLastBlock();
             const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
             const activeDelegates = await blockchain.database.getActiveDelegates(roundInfo);
-            const nextSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1;
+            const nextSlot = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1;
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
@@ -156,7 +156,7 @@ describe("Blockchain", () => {
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
-                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1),
                 version: 0,
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,
@@ -308,7 +308,7 @@ async function __resetToHeight1() {
 
         // Index the genesis wallet or else revert block at height 1 fails
         const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
-        const genesis = new Wallet(generator);
+        const genesis = new Wallets.Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
         genesis.username = "genesis";
         blockchain.database.walletManager.reindex(genesis);

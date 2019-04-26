@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger, P2P, Shared } from "@arkecosystem/core-interfaces";
+import { Database, Logger, P2P, Shared, State } from "@arkecosystem/core-interfaces";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -103,12 +103,10 @@ export class PeerVerifier {
      * @return {Number} chain height
      */
     private async ourHeight(): Promise<number> {
-        let height: number;
-        if (app.has("state")) {
-            height = app.resolve("state").getLastBlock().data.height;
-        } else {
-            height = (await this.database.getLastBlock()).data.height;
-        }
+        const height: number = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
 
         assert(Number.isInteger(height), `Couldn't derive our chain height: ${height}`);
 

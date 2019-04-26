@@ -84,8 +84,8 @@ describe("Peers handler", () => {
 
     describe("getStatus", () => {
         it("should return status", async () => {
-            Crypto.slots.isForgingAllowed = jest.fn().mockReturnValue(true);
-            Crypto.slots.getSlotNumber = jest.fn().mockReturnValue(3);
+            Crypto.Slots.isForgingAllowed = jest.fn().mockReturnValue(true);
+            Crypto.Slots.getSlotNumber = jest.fn().mockReturnValue(3);
 
             const result = await getStatus();
 

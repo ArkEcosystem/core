@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Wallet, WalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { Constants, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
@@ -25,7 +25,7 @@ import { TransactionFactory } from "../../helpers";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
 
-let wallet: Wallet;
+let wallet: Wallets.Wallet;
 let transaction: Interfaces.ITransactionData;
 let transactionWithSecondSignature: Interfaces.ITransactionData;
 let handler: TransactionHandler;
@@ -33,13 +33,13 @@ let instance: Interfaces.ITransaction;
 let walletManager: Database.IWalletManager;
 
 beforeEach(() => {
-    walletManager = new WalletManager();
+    walletManager = new Wallets.WalletManager();
 
     wallet = {
         address: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
         balance: Utils.BigNumber.make(4527654310),
         publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-    } as Wallet;
+    } as Wallets.Wallet;
 
     walletManager.reindex(wallet);
 
@@ -245,7 +245,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9",
             secondPublicKey: null,
-        } as Wallet;
+        } as Wallets.Wallet;
 
         transaction = {
             version: 1,
@@ -396,12 +396,12 @@ describe("VoteTransaction", () => {
             balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
             vote: null,
-        } as Wallet;
+        } as Wallets.Wallet;
 
         delegateWallet = {
             publicKey: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af",
             username: "test",
-        } as Wallet;
+        } as Wallets.Wallet;
 
         walletManager.reindex(delegateWallet);
 
@@ -541,12 +541,12 @@ describe("MultiSignatureRegistrationTransaction", () => {
         handler = TransactionHandlerRegistry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
 
-        wallet = new Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
+        wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         wallet.balance = Utils.BigNumber.make(100390000000);
         wallet.publicKey = transaction.senderPublicKey;
 
         const multiSignatureAddress = Identities.Address.fromMultiSignatureAsset(instance.data.asset.multiSignature);
-        recipientWallet = new Wallet(multiSignatureAddress);
+        recipientWallet = new Wallets.Wallet(multiSignatureAddress);
         recipientWallet.balance = Utils.BigNumber.make(0);
 
         walletManager.reindex(wallet);

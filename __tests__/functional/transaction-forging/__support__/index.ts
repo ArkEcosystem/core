@@ -16,6 +16,7 @@ export async function setUp() {
         include: [
             "@arkecosystem/core-event-emitter",
             "@arkecosystem/core-logger-pino",
+            "@arkecosystem/core-state",
             "@arkecosystem/core-database-postgres",
             "@arkecosystem/core-transaction-pool",
             "@arkecosystem/core-p2p",

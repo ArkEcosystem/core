@@ -6,6 +6,7 @@ import {
     EventEmitter,
     Logger,
     P2P,
+    State,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
@@ -15,7 +16,6 @@ import delay from "delay";
 import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
-import { StateStorage } from "./state-storage";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
@@ -25,9 +25,9 @@ const { BlockFactory } = Blocks;
 export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStorage}
+     * @return {IStateStore}
      */
-    get state(): StateStorage {
+    get state(): State.IStateStore {
         return stateMachine.state;
     }
 
@@ -195,15 +195,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Reset the state of the blockchain.
-     * @return {void}
-     */
-    public resetState(): void {
-        this.clearAndStopQueue();
-        this.state.reset();
-    }
-
-    /**
      * Clear and stop the queue.
      * @return {void}
      */
@@ -245,8 +236,8 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from ${remoteAddress}`,
         );
 
-        const currentSlot: number = Crypto.slots.getSlotNumber();
-        const receivedSlot: number = Crypto.slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber();
+        const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
 
         if (receivedSlot > currentSlot) {
             logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -377,7 +368,7 @@ export class Blockchain implements blockchain.IBlockchain {
             // broadcast only current block
             const blocktime: number = config.getMilestone(block.data.height).blocktime;
 
-            if (this.state.started && Crypto.slots.getSlotNumber() * blocktime <= block.data.timestamp) {
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp) {
                 this.p2p.getMonitor().broadcastBlock(block);
             }
         }
@@ -441,7 +432,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         block = block || this.getLastBlock();
 
-        return Crypto.slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
+        return Crypto.Slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
     }
 
     /**

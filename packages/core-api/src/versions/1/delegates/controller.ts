@@ -94,7 +94,7 @@ export class DelegatesController extends Controller {
             const limit = request.query.limit || 10;
 
             const delegatesCount = this.config.getMilestone(lastBlock).activeDelegates;
-            const currentSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp);
+            const currentSlot = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp);
 
             const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
             const activeDelegates = await this.databaseService.getActiveDelegates(roundInfo);

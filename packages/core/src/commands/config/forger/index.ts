@@ -28,6 +28,8 @@ $ ark config:forger --method=bip39
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(ForgerCommand);
 
+        delete flags.suffix;
+
         if (flags.method === "bip38") {
             return BIP38Command.run(this.formatFlags(flags));
         }
@@ -52,8 +54,6 @@ $ ark config:forger --method=bip39
         if (!response.method) {
             this.abortWithInvalidInput();
         }
-
-        delete flags.suffix;
 
         response = { ...flags, ...response };
 

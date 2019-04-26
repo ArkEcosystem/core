@@ -1,13 +1,12 @@
-import { configManager } from "../../../../../../../packages/crypto/src/managers";
-
-configManager.setFromPreset("testnet");
-
-import { slots } from "../../../../../../../packages/crypto/src/crypto";
+import { Slots } from "../../../../../../../packages/crypto/src/crypto";
 import { Keys } from "../../../../../../../packages/crypto/src/identities";
+import { configManager } from "../../../../../../../packages/crypto/src/managers";
 import { Transaction } from "../../../../../../../packages/crypto/src/transactions";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
 import * as Utils from "../../../../../../../packages/crypto/src/utils";
 import { identity, identitySecond } from "../../../../../../utils/identities";
+
+configManager.setFromPreset("testnet");
 
 export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: () => TransactionBuilder<T>) => {
     describe("TransactionBuilder", () => {
@@ -32,7 +31,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 let data;
 
                 beforeEach(() => {
-                    timestamp = slots.getTime();
+                    timestamp = Slots.getTime();
 
                     data = {
                         id: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8dae1a1f",

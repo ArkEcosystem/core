@@ -1,14 +1,14 @@
 import "jest-extended";
 import "./mocks/core-container-calculator";
 
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { Utils } from "@arkecosystem/crypto";
 import { calculateApproval, calculateForgedTotal } from "../../../packages/core-utils/src/delegate-calculator";
 
-let delegate: Wallet;
+let delegate: Wallets.Wallet;
 
 beforeEach(() => {
-    delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+    delegate = new Wallets.Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
     delegate.producedBlocks = 0;
 });
 

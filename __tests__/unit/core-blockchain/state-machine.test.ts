@@ -1,16 +1,16 @@
+import "../../utils";
+
 import "./mocks/";
 import { blockchain } from "./mocks/blockchain";
 import { config } from "./mocks/config";
 import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
-
-import "../../utils";
+import { stateStorageStub as stateStorage } from "./stubs/state-storage";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
-import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 
 const { BlockFactory } = Blocks;
@@ -264,7 +264,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     data: {
                         height: 2,
-                        timestamp: Crypto.slots.getTime(),
+                        timestamp: Crypto.Slots.getTime(),
                     },
                 });
                 // @ts-ignore

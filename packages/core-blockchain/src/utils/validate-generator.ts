@@ -9,7 +9,7 @@ export async function validateGenerator(block: Interfaces.IBlock): Promise<boole
 
     const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
     const delegates: Database.IDelegateWallet[] = await database.getActiveDelegates(roundInfo);
-    const slot: number = Crypto.slots.getSlotNumber(block.data.timestamp);
+    const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate: Database.IDelegateWallet = delegates[slot % delegates.length];
 
     const generatorUsername: string = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;

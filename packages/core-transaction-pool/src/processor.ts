@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -67,7 +67,8 @@ export class Processor implements TransactionPool.IProcessor {
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: ITransactionsCached = app
-            .resolve<Blockchain.IStateStorage>("state")
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
             .cacheTransactions(transactions);
 
         this.transactions = added;
@@ -84,7 +85,9 @@ export class Processor implements TransactionPool.IProcessor {
             .resolvePlugin<Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.resolve("state").removeCachedTransactionIds(forgedIdsSet);
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .removeCachedTransactionIds(forgedIdsSet);
 
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
@@ -164,7 +167,7 @@ export class Processor implements TransactionPool.IProcessor {
     }
 
     private validateTransaction(transaction: Interfaces.ITransactionData): boolean {
-        const now: number = Crypto.slots.getTime();
+        const now: number = Crypto.Slots.getTime();
 
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;

@@ -208,7 +208,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         await this.resetSuspendedPeers();
 
         // Ban peer who caused the fork
-        const forkedBlock = app.resolve("state").forkedBlock;
+        const forkedBlock = app.resolvePlugin("state").getStore().forkedBlock;
         if (forkedBlock) {
             this.processor.suspend(forkedBlock.ip);
         }
@@ -220,7 +220,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             await this.resetSuspendedPeers();
         }
 
-        const lastBlock = app.resolve("state").getLastBlock();
+        const lastBlock = app
+            .resolvePlugin("state")
+            .getStore()
+            .getLastBlock();
 
         const allPeers: P2P.IPeer[] = [
             ...this.storage.getPeers(),

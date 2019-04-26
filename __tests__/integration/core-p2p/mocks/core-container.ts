@@ -102,6 +102,17 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
+                if (name === "state") {
+                    return {
+                        getStore: () => ({
+                            getLastBlock: () => genesisBlock,
+                            getLastHeight: () => genesisBlock.data.height,
+                            cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
+                            removeCachedTransactionIds: jest.fn().mockReturnValue(null),
+                        }),
+                    };
+                }
+
                 return {};
             },
             resolveOptions: name => {
@@ -118,14 +129,6 @@ jest.mock("@arkecosystem/core-container", () => {
                 return {};
             },
             resolve: name => {
-                if (name === "state") {
-                    return {
-                        getLastBlock: () => genesisBlock,
-                        cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
-                        removeCachedTransactionIds: jest.fn().mockReturnValue(null),
-                    };
-                }
-
                 return {};
             },
         },

@@ -91,7 +91,7 @@ export class NetworkState implements P2P.INetworkState {
 
     private static analyzeNetwork(lastBlock, peers: P2P.IPeer[]): P2P.INetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
-        const currentSlot = Crypto.slots.getSlotNumber();
+        const currentSlot = Crypto.Slots.getSlotNumber();
 
         for (const peer of peers) {
             networkState.update(peer, currentSlot);

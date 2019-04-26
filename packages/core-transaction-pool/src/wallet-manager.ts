@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
-import { WalletManager as BaseWalletManager } from "@arkecosystem/core-database";
 import { Database } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
-export class WalletManager extends BaseWalletManager {
+export class WalletManager extends Wallets.WalletManager {
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
         "database",
     );
