@@ -25,9 +25,9 @@ const { BlockFactory } = Blocks;
 export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStorage}
+     * @return {IStateStore}
      */
-    get state(): State.IStateStorage {
+    get state(): State.IStateStore {
         return stateMachine.state;
     }
 

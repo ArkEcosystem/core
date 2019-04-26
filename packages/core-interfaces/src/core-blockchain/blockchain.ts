@@ -1,15 +1,15 @@
 import { Interfaces } from "@arkecosystem/crypto";
 import { IDatabaseService } from "../core-database";
 import { IPeerService } from "../core-p2p";
-import { IStateStorage } from "../core-state";
+import { IStateStore } from "../core-state";
 import { IConnection } from "../core-transaction-pool";
 
 export interface IBlockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStorage}
+     * @return {IStateStore}
      */
-    readonly state: IStateStorage;
+    readonly state: IStateStore;
 
     /**
      * Get the network (p2p) interface.

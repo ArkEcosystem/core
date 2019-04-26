@@ -23,8 +23,8 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.18",
         "@arkecosystem/core-interfaces": "^2.3.18",
-        "@arkecosystem/crypto": "^2.3.18",
-        "immutable": "^4.0.0-rc.12"
+        "@arkecosystem/core-utils": "^2.3.18",
+        "@arkecosystem/crypto": "^2.3.18"
     },
     "publishConfig": {
         "access": "public"

@@ -17,13 +17,6 @@ export const container = {
                 }),
             };
         },
-        resolve: name => {
-            if (name === "state") {
-                return {};
-            }
-
-            return {};
-        },
         resolvePlugin: name => {
             if (name === "logger") {
                 return logger;

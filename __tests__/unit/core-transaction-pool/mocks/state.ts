@@ -1,4 +1,6 @@
 export const state = {
-    cacheTransactions: () => null,
-    removeCachedTransactionIds: () => null,
+    getStore: () => ({
+        cacheTransactions: () => null,
+        removeCachedTransactionIds: () => null,
+    }),
 };

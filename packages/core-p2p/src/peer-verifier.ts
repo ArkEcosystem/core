@@ -103,7 +103,10 @@ export class PeerVerifier {
      * @return {Number} chain height
      */
     private async ourHeight(): Promise<number> {
-        const height: number = app.resolvePlugin<State.IStateStorage>("state").getLastBlock().data.height;
+        const height: number = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
 
         assert(Number.isInteger(height), `Couldn't derive our chain height: ${height}`);
 
