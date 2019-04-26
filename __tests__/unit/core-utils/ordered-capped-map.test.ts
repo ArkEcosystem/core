@@ -162,13 +162,29 @@ describe("Ordered Capped Map", () => {
 
         expect(store.count()).toBe(3);
 
-        store.set("4", 4);
-
-        expect(store.count()).toBe(3);
-
         store.resize(4);
+        store.set("1", 1);
+        store.set("2", 2);
+        store.set("3", 3);
+        store.set("4", 4);
         store.set("5", 5);
 
         expect(store.count()).toBe(4);
+        expect(store.has("1")).toBeFalse();
+        expect(store.has("2")).toBeTrue();
+        expect(store.has("3")).toBeTrue();
+        expect(store.has("4")).toBeTrue();
+        expect(store.has("5")).toBeTrue();
+
+        expect(store.count()).toBe(4);
+
+        store.resize(2);
+
+        expect(store.count()).toBe(2);
+        expect(store.has("1")).toBeFalse();
+        expect(store.has("2")).toBeFalse();
+        expect(store.has("3")).toBeFalse();
+        expect(store.has("4")).toBeTrue();
+        expect(store.has("5")).toBeTrue();
     });
 });

@@ -40,6 +40,10 @@ export class OrderedCappedMap<K, V> {
 
     public resize(maxSize: number): void {
         this.maxSize = maxSize;
+
+        if (this.store.size > this.maxSize) {
+            this.store = this.store.takeLast(this.maxSize);
+        }
     }
 
     public first(): V {
