@@ -1,7 +1,7 @@
 import { Transactions } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
-import { MemoryTransaction } from "./memory-transaction";
+import { SequentialTransaction } from "./sequential-transaction";
 
 export class Storage {
     private readonly table: string = "pool";
@@ -27,7 +27,7 @@ export class Storage {
         this.database = null;
     }
 
-    public bulkAdd(data: MemoryTransaction[]): void {
+    public bulkAdd(data: SequentialTransaction[]): void {
         if (data.length === 0) {
             return;
         }
@@ -73,7 +73,7 @@ export class Storage {
         this.database.prepare("COMMIT;").run();
     }
 
-    public loadAll(): MemoryTransaction[] {
+    public loadAll(): SequentialTransaction[] {
         const rows: Array<{ sequence: number; serialized: string }> = this.database
             .prepare(`SELECT sequence, lower(HEX(serialized)) AS serialized FROM ${this.table};`)
             .all();
@@ -81,7 +81,7 @@ export class Storage {
         return rows
             .map(r => ({ transaction: Transactions.TransactionFactory.fromHex(r.serialized), ...r }))
             .filter(r => r.transaction.verified)
-            .map(r => new MemoryTransaction(r.transaction, r.sequence));
+            .map(r => new SequentialTransaction(r.transaction, r.sequence));
     }
 
     public deleteAll(): void {
