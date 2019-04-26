@@ -428,6 +428,10 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.saveBlock(block);
     }
 
+    public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
+        await this.connection.saveBlocks(blocks);
+    }
+
     public async saveRound(activeDelegates: Database.IDelegateWallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
 
