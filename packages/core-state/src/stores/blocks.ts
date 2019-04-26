@@ -1,8 +1,8 @@
+import { OrderedCappedMap } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
-import { AbstractStore } from "./store";
 
-export class BlockStore extends AbstractStore<string, Interfaces.IBlockData> {
-    public set(value: Interfaces.IBlockData): void {
-        this.store.set(value.id, value);
+export class BlockStore extends OrderedCappedMap<string, Interfaces.IBlockData> {
+    public push(value: Interfaces.IBlockData): void {
+        this.set(value.id, value);
     }
 }
