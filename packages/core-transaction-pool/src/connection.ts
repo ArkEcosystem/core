@@ -7,7 +7,6 @@ import assert from "assert";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
-import { SequentialTransaction } from "./sequential-transaction";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
