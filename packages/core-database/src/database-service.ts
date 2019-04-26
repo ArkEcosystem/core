@@ -44,11 +44,6 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        const lastBlock = await this.getLastBlock();
-        if (lastBlock) {
-            configManager.setHeight(lastBlock.data.height);
-        }
-
         await this.loadBlocksFromCurrentRound();
         await this.createGenesisBlock();
     }
@@ -62,8 +57,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.blocksRepository.truncate();
         await this.connection.roundsRepository.truncate();
         await this.connection.transactionsRepository.truncate();
-
-        await this.saveBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
+        await this.createGenesisBlock();
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
@@ -558,11 +552,15 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     private async createGenesisBlock(): Promise<void> {
-        if (!(await this.getLastBlock())) {
+        let lastBlock = await this.getLastBlock();
+        if (!lastBlock) {
             this.logger.warn("No block found in database");
 
-            await this.saveBlock(Blocks.BlockFactory.fromJson(this.config.get("genesisBlock")));
+            lastBlock = Blocks.BlockFactory.fromJson(this.config.get("genesisBlock"));
+            await this.saveBlock(lastBlock);
         }
+
+        Managers.configManager.setHeight(lastBlock.data.height);
     }
 
     private async initializeActiveDelegates(height: number): Promise<void> {
