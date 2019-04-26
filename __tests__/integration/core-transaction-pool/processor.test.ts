@@ -10,7 +10,6 @@ import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 // import { Crypto, Enums, Managers } from "@arkecosystem/crypto";
 // import { Connection } from "../../../packages/core-transaction-pool/src/connection";
-// import { SequentialTransaction } from "../../../packages/core-transaction-pool/src/sequential-transaction";
 // import { delegates, wallets } from "../../utils/fixtures/unitnet";
 
 let container: Container.IContainer;
