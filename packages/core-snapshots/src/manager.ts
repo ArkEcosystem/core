@@ -47,22 +47,23 @@ export class SnapshotManager {
         const params = await this.init(options);
 
         if (params.truncate) {
-            params.lastBlock = await this.database.truncate();
+            await this.database.truncate();
+            params.lastBlock = null;
         }
 
         await importTable("blocks", params);
         await importTable("transactions", params);
 
         const lastBlock = await this.database.getLastBlock();
+        const height = lastBlock.height as number;
 
         logger.info(
-            `Import from folder ${
-                params.meta.folder
-            } completed. Last block in database: ${lastBlock.height.toLocaleString()}`,
+            `Import from folder ${params.meta.folder} completed. Last block in database: ${height.toLocaleString()}`,
         );
 
         if (!params.skipRestartRound) {
-            const newLastBlock = await this.database.rollbackChain(lastBlock.height);
+            const roundInfo = roundCalculator.calculateRound(height);
+            const newLastBlock = await this.database.rollbackChain(roundInfo);
             logger.info(
                 `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
             );
