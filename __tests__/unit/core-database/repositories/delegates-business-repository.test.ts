@@ -5,8 +5,9 @@ import "../mocks/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
-import { DelegatesBusinessRepository, Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { Address } from "../../../../packages/crypto/src/identities";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
@@ -17,7 +18,6 @@ let walletManager: Database.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeEach(async () => {
-    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new DelegatesBusinessRepository(() => databaseService);

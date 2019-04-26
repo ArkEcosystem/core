@@ -1,7 +1,7 @@
 import "../../utils";
 
 /* tslint:disable:max-line-length */
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -308,7 +308,7 @@ async function __resetToHeight1() {
 
         // Index the genesis wallet or else revert block at height 1 fails
         const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
-        const genesis = new Wallet(generator);
+        const genesis = new Wallets.Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
         genesis.username = "genesis";
         blockchain.database.walletManager.reindex(genesis);
