@@ -23,8 +23,11 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.18",
         "@arkecosystem/core-interfaces": "^2.3.18",
+        "@arkecosystem/core-transactions": "^2.3.18",
         "@arkecosystem/crypto": "^2.3.18",
-        "immutable": "^4.0.0-rc.12"
+        "immutable": "^4.0.0-rc.12",
+        "lodash.clonedeep": "^4.5.0",
+        "pluralize": "^7.0.0"
     },
     "publishConfig": {
         "access": "public"

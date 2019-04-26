@@ -3,7 +3,7 @@ import "jest-extended";
 import { container } from "./mocks/core-container";
 import { state } from "./mocks/state";
 
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
@@ -93,7 +93,7 @@ describe("Connection", () => {
     // @TODO: remove this test or move it to "addTransactions" as it is not part of the public API
     describe.skip("addTransaction", () => {
         beforeAll(() => {
-            const mockWallet = new Wallet(delegates[0].address);
+            const mockWallet = new Wallets.Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -166,7 +166,7 @@ describe("Connection", () => {
 
     describe("addTransactions", () => {
         beforeAll(() => {
-            const mockWallet = new Wallet(delegates[0].address);
+            const mockWallet = new Wallets.Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -205,7 +205,7 @@ describe("Connection", () => {
 
     describe("addTransactions with expiration", () => {
         beforeAll(() => {
-            const mockWallet = new Wallet(delegates[0].address);
+            const mockWallet = new Wallets.Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -585,12 +585,12 @@ describe("Connection", () => {
             const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
             jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
 
-            mockWallet = new Wallet(block2.transactions[0].recipientId);
+            mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
             mockWallet.balance = Utils.BigNumber.make(1e12);
             jest.spyOn(connection.walletManager, "has").mockReturnValue(true);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementation(publicKey => {
                 if (publicKey === block2.generatorPublicKey) {
-                    return new Wallet("thisIsTheDelegateGeneratorAddress0");
+                    return new Wallets.Wallet("thisIsTheDelegateGeneratorAddress0");
                 }
                 return mockWallet;
             });
@@ -648,7 +648,7 @@ describe("Connection", () => {
         let findByPublicKey;
         let canBeApplied;
         let applyToSender;
-        const findByPublicKeyWallet = new Wallet("thisIsAnAddressIMadeUpJustLikeThis");
+        const findByPublicKeyWallet = new Wallets.Wallet("thisIsAnAddressIMadeUpJustLikeThis");
         beforeEach(() => {
             const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
             canBeApplied = jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
@@ -658,7 +658,7 @@ describe("Connection", () => {
             findByPublicKey = jest
                 .spyOn(connection.walletManager, "findByPublicKey")
                 .mockReturnValue(findByPublicKeyWallet as any);
-            jest.spyOn(connection.walletManager, "findByAddress").mockReturnValue(new Wallet(
+            jest.spyOn(connection.walletManager, "findByAddress").mockReturnValue(new Wallets.Wallet(
                 "nowThisIsAnotherCoolAddressIMadeUp",
             ) as any);
         });
@@ -788,7 +788,7 @@ describe("Connection", () => {
 
     describe("stress", () => {
         beforeAll(() => {
-            const mockWallet = new Wallet(delegates[0].address);
+            const mockWallet = new Wallets.Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
