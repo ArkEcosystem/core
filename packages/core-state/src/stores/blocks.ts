@@ -1,16 +1,8 @@
-import { OrderedCappedMap } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
+import { AbstractStore } from "./store";
 
-export class BlockStore extends OrderedCappedMap<number, Interfaces.IBlockData> {
-    public getIds(): string[] {
-        return this.store
-            .valueSeq()
-            .reverse()
-            .map((block: Interfaces.IBlockData) => block.id)
-            .toArray();
-    }
-
-    public lastHeight(): number {
-        return this.last().height;
+export class BlockStore extends AbstractStore<string, Interfaces.IBlockData> {
+    public set(value: Interfaces.IBlockData): void {
+        this.store.set(value.id, value);
     }
 }

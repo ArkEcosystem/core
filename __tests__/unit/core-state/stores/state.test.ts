@@ -1,14 +1,14 @@
-import "./mocks/";
-import { container } from "./mocks/container";
-import { logger } from "./mocks/logger";
+import "../mocks/";
+import { container } from "../mocks/container";
+import { logger } from "../mocks/logger";
 
 import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
-import { defaults } from "../../../packages/core-state/src/defaults";
-import { StateStore } from "../../../packages/core-state/src/stores/state";
-import "../../utils";
-import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
+import { defaults } from "../../../../packages/core-state/src/defaults";
+import { StateStore } from "../../../../packages/core-state/src/stores/state";
+import "../../../utils";
+import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block, BlockFactory } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
