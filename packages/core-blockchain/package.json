@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-blockchain",
     "description": "Blockchain Manager for ARK Core",
-    "version": "2.3.16",
+    "version": "2.3.18",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -22,10 +22,10 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.16",
-        "@arkecosystem/core-interfaces": "^2.3.16",
-        "@arkecosystem/core-utils": "^2.3.16",
-        "@arkecosystem/crypto": "^2.3.16",
+        "@arkecosystem/core-container": "^2.3.18",
+        "@arkecosystem/core-interfaces": "^2.3.18",
+        "@arkecosystem/core-utils": "^2.3.18",
+        "@arkecosystem/crypto": "^2.3.18",
         "async": "^2.6.2",
         "awilix": "^4.2.1",
         "delay": "^4.1.0",
@@ -36,7 +36,7 @@
         "xstate": "^4.3.3"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.3.16",
+        "@arkecosystem/core-p2p": "^2.3.18",
         "@types/async": "^2.4.1",
         "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
