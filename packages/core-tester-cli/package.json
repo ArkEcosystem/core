@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-tester-cli",
     "description": "Tester CLI for ARK Core",
-    "version": "2.3.15",
+    "version": "2.3.16",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
@@ -28,9 +28,9 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-forger": "^2.3.15",
-        "@arkecosystem/core-utils": "^2.3.15",
-        "@arkecosystem/crypto": "^2.3.15",
+        "@arkecosystem/core-forger": "^2.3.16",
+        "@arkecosystem/core-utils": "^2.3.16",
+        "@arkecosystem/crypto": "^2.3.16",
         "@oclif/command": "^1.5.13",
         "@oclif/config": "^1.12.12",
         "@oclif/plugin-help": "^2.1.6",

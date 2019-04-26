@@ -44,6 +44,11 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
+        const lastBlock = await this.getLastBlock();
+        if (lastBlock) {
+            configManager.setHeight(lastBlock.data.height);
+        }
+
         await this.loadBlocksFromCurrentRound();
         await this.createGenesisBlock();
     }
