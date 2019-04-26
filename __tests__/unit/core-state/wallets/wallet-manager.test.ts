@@ -1,14 +1,14 @@
 /* tslint:disable:max-line-length no-empty */
-import "./mocks/core-container";
+import "../../core-database/mocks/core-container";
 
 import { Database } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Blocks, Constants, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { Wallet } from "../../../packages/core-database/src";
-import { Address } from "../../../packages/crypto/src/identities";
-import { TransactionFactory } from "../../helpers/transaction-factory";
-import { fixtures } from "../../utils";
-import wallets from "./__fixtures__/wallets.json";
+import { Address } from "@arkecosystem/crypto/src/identities";
+import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
+import { fixtures } from "../../../utils";
+import wallets from "../__fixtures__/wallets.json";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
@@ -23,7 +23,6 @@ const walletData2 = wallets[1];
 let walletManager: Database.IWalletManager;
 
 beforeEach(() => {
-    const { WalletManager } = require("../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 });
 
