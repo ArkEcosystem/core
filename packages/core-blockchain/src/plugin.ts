@@ -14,7 +14,10 @@ export const plugin: Container.PluginDescriptor = {
     async register(container: Container.IContainer, options: Container.IPluginOptions) {
         const blockchain = new Blockchain(options);
 
-        container.resolvePlugin<State.IStateStorage>("state").reset(blockchainMachine);
+        container
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .reset(blockchainMachine);
 
         if (!process.env.CORE_SKIP_BLOCKCHAIN) {
             await blockchain.start();

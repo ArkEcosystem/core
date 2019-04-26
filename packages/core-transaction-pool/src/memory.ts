@@ -1,7 +1,7 @@
-import assert from "assert";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { State } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-container";
+import { State } from "@arkecosystem/core-interfaces";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import assert from "assert";
 
 export class Memory {
     /**
@@ -93,7 +93,11 @@ export class Memory {
         return new Set();
     }
 
-    public remember(transaction: Interfaces.ITransaction, maxTransactionAge: number, databaseReady?: boolean): void {
+public remember(
+        transaction: Interfaces.ITransaction,
+        maxTransactionAge: number,
+        databaseReady?: boolean
+    ): void {
         assert.strictEqual(this.byId[transaction.id], undefined);
 
         this.all.push(transaction);
@@ -122,10 +126,11 @@ export class Memory {
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
             const maxHeight: number = this.currentHeight() + maxTransactionAge;
-            if (typeof transaction.data.expiration !== "number" ||
+            if (
+                typeof transaction.data.expiration !== "number" ||
                 transaction.data.expiration === 0 ||
-                transaction.data.expiration > maxHeight) {
-
+                transaction.data.expiration > maxHeight
+            ) {
                 transaction.data.expiration = maxHeight;
             }
             this.byExpiration.push(transaction);
@@ -232,6 +237,9 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        return app.resolvePlugin<State.IStateStorage>("state").getLastBlock().data.height;
+        return app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
     }
 }

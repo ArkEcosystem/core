@@ -135,13 +135,18 @@ describe("NetworkMonitor", () => {
 
             const spySuspend = jest.spyOn(processor, "suspend");
 
-            state.forkedBlock = { ip: "1.1.1.1" };
+            const spyStateStore = jest.spyOn(state, "getStore").mockReturnValueOnce({
+                ...state.getStore(),
+                ...{ forkedBlock: { ip: "1.1.1.1" } },
+            });
 
             await monitor.refreshPeersAfterFork();
 
             expect(monitor.resetSuspendedPeers).toHaveBeenCalled();
             expect(spySuspend).toHaveBeenCalledWith("1.1.1.1");
             expect(connector.disconnect).toHaveBeenCalled();
+
+            spyStateStore.mockRestore();
         });
     });
 

@@ -67,7 +67,8 @@ export class Processor implements TransactionPool.IProcessor {
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: ITransactionsCached = app
-            .resolvePlugin<State.IStateStorage>("state")
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
             .cacheTransactions(transactions);
 
         this.transactions = added;
@@ -84,7 +85,9 @@ export class Processor implements TransactionPool.IProcessor {
             .resolvePlugin<Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.resolvePlugin<State.IStateStorage>("state").removeCachedTransactionIds(forgedIdsSet);
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .removeCachedTransactionIds(forgedIdsSet);
 
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");

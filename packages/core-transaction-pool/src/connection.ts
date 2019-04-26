@@ -7,6 +7,7 @@ import assert from "assert";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
+import { SequentialTransaction } from "./sequential-transaction";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
@@ -307,7 +308,9 @@ export class Connection implements TransactionPool.IConnection {
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.resolvePlugin<State.IStateStorage>("state").removeCachedTransactionIds(block.transactions.map(tx => tx.id));
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
 
     public async buildWallets(): Promise<void> {
@@ -315,7 +318,9 @@ export class Connection implements TransactionPool.IConnection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, this.getPoolSize());
 
-        app.resolvePlugin<State.IStateStorage>("state").removeCachedTransactionIds(transactionIds);
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .removeCachedTransactionIds(transactionIds);
 
         for (const transactionId of transactionIds) {
             const transaction: Interfaces.ITransaction = this.getTransaction(transactionId);

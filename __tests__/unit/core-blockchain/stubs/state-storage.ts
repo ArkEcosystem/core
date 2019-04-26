@@ -2,7 +2,7 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
-export class StateStorageStub implements State.IStateStorage {
+export class StateStoreStub implements State.IStateStore {
     public blockchain: any;
     public lastDownloadedBlock: Interfaces.IBlock | null;
     public blockPing: any;
@@ -76,4 +76,4 @@ export class StateStorageStub implements State.IStateStorage {
     }
 }
 
-export const stateStorageStub = new StateStorageStub();
+export const stateStorageStub = new StateStoreStub();

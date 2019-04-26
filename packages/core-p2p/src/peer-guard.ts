@@ -62,7 +62,7 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public analyze(peer: P2P.IPeer): P2P.IPunishment {
-        const state = app.resolvePlugin("state");
+        const state = app.resolvePlugin("state").getStore();
 
         if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
             return this.createPunishment(this.offences.fork);

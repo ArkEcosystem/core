@@ -53,7 +53,7 @@ export const container = {
             if (name === "state") {
                 stateStorageStub.blockchain = blockchainMachine.initialState;
 
-                return stateStorageStub;
+                return { getStore: () => stateStorageStub };
             }
 
             return null;

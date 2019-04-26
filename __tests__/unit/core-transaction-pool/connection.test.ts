@@ -216,7 +216,10 @@ describe("Connection", () => {
             const heightAtStart = 42;
 
             jest.spyOn(container.app, "has").mockReturnValue(true);
-            jest.spyOn(state, "getLastBlock").mockReturnValue({ data: { height: heightAtStart } });
+            jest.spyOn(state, "getStore").mockReturnValue({
+                ...state.getStore(),
+                ...{ getLastHeight: () => heightAtStart },
+            });
 
             expect(connection.getPoolSize()).toBe(0);
 
@@ -246,11 +249,17 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(4);
 
-            jest.spyOn(state, "getLastBlock").mockReturnValue({ data: { height: expiration - 1 } });
+            jest.spyOn(state, "getStore").mockReturnValue({
+                ...state.getStore(),
+                ...{ getLastHeight: () => expiration - 1 },
+            });
 
             expect(connection.getPoolSize()).toBe(4);
 
-            jest.spyOn(state, "getLastBlock").mockReturnValue({ data: { height: expiration } });
+            jest.spyOn(state, "getStore").mockReturnValue({
+                ...state.getStore(),
+                ...{ getLastHeight: () => expiration },
+            });
 
             expect(connection.getPoolSize()).toBe(2);
 
