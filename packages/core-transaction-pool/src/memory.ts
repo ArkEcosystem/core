@@ -1,8 +1,8 @@
-import assert from "assert";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { SequentialTransaction } from "./sequential-transaction";
-import { State } from "@arkecosystem/core-interfaces";
 import { app } from "@arkecosystem/core-container";
+import { State } from "@arkecosystem/core-interfaces";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import assert from "assert";
+import { SequentialTransaction } from "./sequential-transaction";
 
 export class Memory {
     private sequence: number = 0;
@@ -111,7 +111,11 @@ export class Memory {
         return new Set();
     }
 
-    public remember(SequentialTransaction: SequentialTransaction, maxTransactionAge: number, databaseReady?: boolean): void {
+    public remember(
+        SequentialTransaction: SequentialTransaction,
+        maxTransactionAge: number,
+        databaseReady?: boolean,
+    ): void {
         const transaction: Interfaces.ITransaction = SequentialTransaction.transaction;
 
         assert.strictEqual(this.byId[transaction.id], undefined);
@@ -155,10 +159,11 @@ export class Memory {
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
             const maxHeight: number = this.currentHeight() + maxTransactionAge;
-            if (typeof SequentialTransaction.transaction.data.expiration !== "number" ||
+            if (
+                typeof SequentialTransaction.transaction.data.expiration !== "number" ||
                 SequentialTransaction.transaction.data.expiration === 0 ||
-                SequentialTransaction.transaction.data.expiration > maxHeight) {
-
+                SequentialTransaction.transaction.data.expiration > maxHeight
+            ) {
                 SequentialTransaction.transaction.data.expiration = maxHeight;
             }
             this.byExpiration.push(SequentialTransaction);
@@ -266,6 +271,9 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        return app.resolvePlugin<State.IStateStorage>("state").getLastBlock().data.height;
+        return app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
     }
 }
