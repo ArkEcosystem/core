@@ -1,4 +1,4 @@
-import { MemoryTransaction } from "../../../packages/core-transaction-pool/src/memory-transaction";
+import { SequentialTransaction } from "../../../packages/core-transaction-pool/src/sequential-transaction";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 import { transactions } from "./__fixtures__/transactions";
 
@@ -18,13 +18,13 @@ describe("Storage", () => {
     describe("bulkAdd", () => {
         it("should add the transactions provided", () => {
             const memPoolTransactions = [
-                new MemoryTransaction(transactions.dummy1),
-                new MemoryTransaction(transactions.dummy2),
+                new SequentialTransaction(transactions.dummy1),
+                new SequentialTransaction(transactions.dummy2),
             ];
 
             storage.bulkAdd(memPoolTransactions);
-            const allMemoryTransactions = storage.loadAll();
-            expect(allMemoryTransactions.map(pooltx => pooltx.transaction)).toMatchObject(
+            const allSequentialTransactions = storage.loadAll();
+            expect(allSequentialTransactions.map(pooltx => pooltx.transaction)).toMatchObject(
                 memPoolTransactions.map(pooltx => pooltx.transaction),
             );
         });
@@ -33,15 +33,15 @@ describe("Storage", () => {
     describe("bulkRemoveById", () => {
         it("should remove the transactions corresponding to the ids provided", () => {
             const memPoolTransactions = [
-                new MemoryTransaction(transactions.dummy1),
-                new MemoryTransaction(transactions.dummy2),
+                new SequentialTransaction(transactions.dummy1),
+                new SequentialTransaction(transactions.dummy2),
             ];
-            const anotherMemoryTransaction = new MemoryTransaction(transactions.dummy3);
+            const anotherSequentialTransaction = new SequentialTransaction(transactions.dummy3);
 
-            storage.bulkAdd([...memPoolTransactions, anotherMemoryTransaction]);
+            storage.bulkAdd([...memPoolTransactions, anotherSequentialTransaction]);
             storage.bulkRemoveById([transactions.dummy3.id]);
-            const allMemoryTransactions = storage.loadAll();
-            expect(allMemoryTransactions.map(pooltx => pooltx.transaction)).toMatchObject(
+            const allSequentialTransactions = storage.loadAll();
+            expect(allSequentialTransactions.map(pooltx => pooltx.transaction)).toMatchObject(
                 memPoolTransactions.map(pooltx => pooltx.transaction),
             );
         });

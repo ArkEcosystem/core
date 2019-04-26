@@ -6,7 +6,7 @@ import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
-import { MemoryTransaction } from "./memory-transaction";
+import { SequentialTransaction } from "./sequential-transaction";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
@@ -47,7 +47,7 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        const all: MemoryTransaction[] = this.storage.loadAll();
+        const all: SequentialTransaction[] = this.storage.loadAll();
 
         for (const transaction of all) {
             this.memory.remember(transaction, this.options.maxTransactionAge, true);
@@ -56,7 +56,7 @@ export class Connection implements TransactionPool.IConnection {
         this.purgeExpired();
 
         const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
-            all.map((transaction: MemoryTransaction) => transaction.transaction.id),
+            all.map((transaction: SequentialTransaction) => transaction.transaction.id),
         );
 
         for (const id of forgedIds) {
@@ -75,7 +75,7 @@ export class Connection implements TransactionPool.IConnection {
         return new Processor(this, this.walletManager);
     }
 
-    public getTransactionsByType(type: number): Set<MemoryTransaction> {
+    public getTransactionsByType(type: number): Set<SequentialTransaction> {
         this.purgeExpired();
 
         return this.memory.getByType(type);
@@ -152,7 +152,7 @@ export class Connection implements TransactionPool.IConnection {
         let transactionBytes: number = 0;
 
         let i = 0;
-        for (const MemoryTransaction of this.memory.allSortedByFee()) {
+        for (const SequentialTransaction of this.memory.allSortedByFee()) {
             if (i >= start + size) {
                 break;
             }
@@ -160,10 +160,10 @@ export class Connection implements TransactionPool.IConnection {
             if (i >= start) {
                 let pushTransaction: boolean = false;
 
-                assert.notStrictEqual(MemoryTransaction.transaction[property], undefined);
+                assert.notStrictEqual(SequentialTransaction.transaction[property], undefined);
 
                 if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(MemoryTransaction.transaction.data).length;
+                    const transactionSize: number = JSON.stringify(SequentialTransaction.transaction.data).length;
 
                     if (transactionBytes + transactionSize <= maxBytes) {
                         transactionBytes += transactionSize;
@@ -174,7 +174,7 @@ export class Connection implements TransactionPool.IConnection {
                 }
 
                 if (pushTransaction) {
-                    data.push(MemoryTransaction.transaction[property]);
+                    data.push(SequentialTransaction.transaction[property]);
                     i++;
                 }
             } else {
@@ -377,8 +377,8 @@ export class Connection implements TransactionPool.IConnection {
     public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
         this.purgeExpired();
 
-        for (const MemoryTransaction of this.memory.getBySender(senderPublicKey)) {
-            if (MemoryTransaction.transaction.type === transactionType) {
+        for (const SequentialTransaction of this.memory.getBySender(senderPublicKey)) {
+            if (SequentialTransaction.transaction.type === transactionType) {
                 return true;
             }
         }
@@ -401,7 +401,7 @@ export class Connection implements TransactionPool.IConnection {
         if (this.options.maxTransactionsInPool <= poolSize) {
             // The pool can't accommodate more transactions. Either decline the newcomer or remove
             // an existing transaction from the pool in order to free up space.
-            const all: MemoryTransaction[] = this.memory.allSortedByFee();
+            const all: SequentialTransaction[] = this.memory.allSortedByFee();
             const lowest: Interfaces.ITransaction = all[all.length - 1].transaction;
 
             const fee: Utils.BigNumber = transaction.data.fee;
@@ -422,7 +422,7 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        this.memory.remember(new MemoryTransaction(transaction), this.options.maxTransactionAge);
+        this.memory.remember(new SequentialTransaction(transaction), this.options.maxTransactionAge);
 
         // Apply transaction to pool wallet manager.
         const senderWallet: Database.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
