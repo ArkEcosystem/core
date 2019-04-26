@@ -1,5 +1,15 @@
 import { Enums, Transactions } from "@arkecosystem/crypto";
-import { transactionHandlers } from ".";
+
+import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
+import { DelegateResignationTransactionHandler } from "./delegate-resignation";
+import { IpfsTransactionHandler } from "./ipfs";
+import { MultiPaymentTransactionHandler } from "./multi-payment";
+import { MultiSignatureTransactionHandler } from "./multi-signature";
+import { SecondSignatureTransactionHandler } from "./second-signature";
+import { TimelockTransferTransactionHandler } from "./timelock-transfer";
+import { TransferTransactionHandler } from "./transfer";
+import { VoteTransactionHandler } from "./vote";
+
 import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
@@ -13,9 +23,15 @@ export class TransactionHandlerRegistry {
     private readonly customTransactionHandlers: Map<number, TransactionHandler> = new Map<number, TransactionHandler>();
 
     constructor() {
-        transactionHandlers.forEach((service: TransactionHandlerConstructor) => {
-            this.registerCoreTransactionHandler(service);
-        });
+        this.registerCoreTransactionHandler(TransferTransactionHandler);
+        this.registerCoreTransactionHandler(SecondSignatureTransactionHandler);
+        this.registerCoreTransactionHandler(DelegateRegistrationTransactionHandler);
+        this.registerCoreTransactionHandler(VoteTransactionHandler);
+        this.registerCoreTransactionHandler(MultiSignatureTransactionHandler);
+        this.registerCoreTransactionHandler(IpfsTransactionHandler);
+        this.registerCoreTransactionHandler(TimelockTransferTransactionHandler);
+        this.registerCoreTransactionHandler(MultiPaymentTransactionHandler);
+        this.registerCoreTransactionHandler(DelegateResignationTransactionHandler);
     }
 
     public get(type: Enums.TransactionTypes | number): TransactionHandler {
