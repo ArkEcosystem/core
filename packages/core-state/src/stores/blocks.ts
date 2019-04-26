@@ -18,9 +18,7 @@ export class BlockStore {
     public set(value: Interfaces.IBlockData): void {
         const lastBlock: Interfaces.IBlockData = this.last();
 
-        if (lastBlock) {
-            assert.strictEqual(value.height, lastBlock.height + 1);
-        }
+        assert.strictEqual(value.height, lastBlock ? lastBlock.height + 1 : 1);
 
         this.byId.set(value.id, value);
         this.byHeight.set(value.height, value);
