@@ -15,10 +15,10 @@ const { BlockFactory } = Blocks;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const stateStorage = app.resolvePlugin<State.IStateStorage>("state");
+const stateStorage = app.resolvePlugin<State.IStateService>("state").getStore();
 
 /**
- * @type {IStateStorage}
+ * @type {IStateStore}
  */
 blockchainMachine.state = stateStorage;
 
