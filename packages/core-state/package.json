@@ -23,6 +23,7 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.18",
         "@arkecosystem/core-interfaces": "^2.3.18",
+        "@arkecosystem/core-transactions": "^2.3.18",
         "@arkecosystem/core-utils": "^2.3.18",
         "@arkecosystem/crypto": "^2.3.18"
     },

@@ -6,8 +6,9 @@ import compact from "lodash.compact";
 import uniq from "lodash.uniq";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
-import { Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Wallets } from "../../../../packages/core-state/src";
 import { Address } from "../../../../packages/crypto/src/identities";
 
 let genesisSenders;
@@ -20,8 +21,7 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
-    walletManager = new WalletManager();
+    walletManager = new Wallets.WalletManager();
 
     repository = new WalletsBusinessRepository(() => databaseService);
 
@@ -210,7 +210,7 @@ describe("Wallet Repository", () => {
                 { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
                 { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
             ].forEach(o => {
-                const wallet = new Wallet(o.address);
+                const wallet = new Wallets.Wallet(o.address);
                 wallet.balance = o.balance;
                 walletManager.reindex(wallet);
             });
