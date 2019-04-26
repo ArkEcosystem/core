@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-http-utils",
     "description": "Http Utilities for ARK Core",
-    "version": "2.3.16",
+    "version": "2.3.18",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,9 +18,9 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.16",
-        "@arkecosystem/core-utils": "^2.3.16",
-        "@arkecosystem/crypto": "^2.3.16",
+        "@arkecosystem/core-container": "^2.3.18",
+        "@arkecosystem/core-utils": "^2.3.18",
+        "@arkecosystem/crypto": "^2.3.18",
         "boom": "^7.3.0",
         "expand-home-dir": "^0.0.3",
         "good": "^8.1.2",
