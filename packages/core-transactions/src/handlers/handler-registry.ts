@@ -1,11 +1,11 @@
 import { Enums, Transactions } from "@arkecosystem/crypto";
-import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "./errors";
-import { transactionHandlers } from "./handlers";
-import { TransactionHandler } from "./handlers/transaction";
+import { transactionHandlers } from ".";
+import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "../errors";
+import { TransactionHandler } from "./transaction";
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 
-class TransactionHandlerRegistry {
+export class TransactionHandlerRegistry {
     private readonly coreTransactionHandlers: Map<Enums.TransactionTypes, TransactionHandler> = new Map<
         Enums.TransactionTypes,
         TransactionHandler

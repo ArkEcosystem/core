@@ -8,7 +8,11 @@ import { TimelockTransferTransactionHandler } from "./timelock-transfer";
 import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
-export const transactionHandlers = [
+import { transactionHandlerRegistry as Registry } from "./handler-registry";
+
+import { TransactionHandler } from "./transaction";
+
+const transactionHandlers = [
     TransferTransactionHandler,
     SecondSignatureTransactionHandler,
     VoteTransactionHandler,
@@ -19,3 +23,5 @@ export const transactionHandlers = [
     MultiPaymentTransactionHandler,
     DelegateResignationTransactionHandler,
 ];
+
+export { Registry, TransactionHandler, transactionHandlers };
