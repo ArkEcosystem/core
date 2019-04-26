@@ -1,5 +1,6 @@
 import { OrderedCappedMap } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
+import assert from "assert";
 
 export class BlockStore {
     private readonly byId: OrderedCappedMap<string, Interfaces.IBlockData>;
@@ -15,6 +16,12 @@ export class BlockStore {
     }
 
     public set(value: Interfaces.IBlockData): void {
+        const lastBlock: Interfaces.IBlockData = this.last();
+
+        if (lastBlock) {
+            assert.strictEqual(value.height, lastBlock.height + 1);
+        }
+
         this.byId.set(value.id, value);
         this.byHeight.set(value.height, value);
     }

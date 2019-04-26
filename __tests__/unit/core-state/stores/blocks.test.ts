@@ -11,6 +11,13 @@ describe("BlockStore", () => {
         expect(store.get(genesisBlock.height)).toEqual(genesisBlock);
     });
 
+    it("should fail to push a block if it isn't chained", () => {
+        const store = new BlockStore(2);
+        store.set(genesisBlock);
+
+        expect(() => store.set({ ...genesisBlock, ...{ height: 3 } })).toThrow();
+    });
+
     it("should return all ids and heights in the order they were inserted", () => {
         const store = new BlockStore(5);
 
