@@ -5,7 +5,7 @@ import { network } from "../../services/network";
 export const blockTransactions = {
     name: "blocks.transactions",
     async method(params) {
-        const response = await network.sendRequest(`blocks/${params.id}/transactions`, {
+        const response = await network.sendGET(`blocks/${params.id}/transactions`, {
             offset: params.offset,
             orderBy: "timestamp:desc",
         });

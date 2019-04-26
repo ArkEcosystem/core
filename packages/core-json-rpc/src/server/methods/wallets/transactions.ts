@@ -5,7 +5,7 @@ import { network } from "../../services/network";
 export const walletTransactions = {
     name: "wallets.transactions",
     async method(params) {
-        const response = await network.sendRequest("transactions", {
+        const response = await network.sendGET("transactions", {
             offset: params.offset || 0,
             orderBy: "timestamp:desc",
             ownerId: params.address,

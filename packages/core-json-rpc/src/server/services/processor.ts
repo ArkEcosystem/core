@@ -1,6 +1,5 @@
 import Joi from "joi";
 import get from "lodash.get";
-import { network } from "./network";
 
 export class Processor {
     public async resource(server, payload) {
@@ -36,8 +35,6 @@ export class Processor {
                     return this.createErrorResponse(id, -32602, error);
                 }
             }
-
-            await network.connect();
 
             const result = await targetMethod(params);
 

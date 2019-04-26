@@ -17,7 +17,9 @@ export const transactionBroadcast = {
             return Boom.badData();
         }
 
-        await network.broadcast(transaction);
+        await network.sendPOST("transactions", {
+            transactions: [transaction],
+        });
 
         return transaction;
     },

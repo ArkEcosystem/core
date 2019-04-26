@@ -5,7 +5,7 @@ import { network } from "../../services/network";
 export const walletInfo = {
     name: "wallets.info",
     async method(params) {
-        const response = await network.sendRequest(`wallets/${params.address}`);
+        const response = await network.sendGET(`wallets/${params.address}`);
 
         return response ? response.data : Boom.notFound(`Wallet ${params.address} could not be found.`);
     },
