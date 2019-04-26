@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.18] - 2019-04-26
+
+### Fixed
+
+-   Reset unfinished round after importing a snapshot ([#2486])
+-   Update the height of the crypto config manager for milestones in the forger _(only caused an issue for split setups)_ ([#2487])
+
+## [2.3.16] - 2019-04-25
+
+### Fixed
+
+-   Initialise the crypto config manager with the latest height on boot ([#2482])
+
 ## [2.3.15] - 2019-04-25
 
 Fix release of `2.3.14` due to npm connectivity issues.
@@ -309,6 +322,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/2.3.0...develop
+[2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
+[2.3.16]: https://github.com/ARKEcosystem/core/compare/2.3.15...2.3.16
 [2.3.15]: https://github.com/ARKEcosystem/core/compare/2.3.14...2.3.15
 [2.3.14]: https://github.com/ARKEcosystem/core/compare/2.3.12...2.3.14
 [2.3.12]: https://github.com/ARKEcosystem/core/compare/2.3.1...2.3.12
@@ -470,3 +485,6 @@ Closed security vulnerabilities:
 [#2464]: https://github.com/ARKEcosystem/core/pull/2464
 [#2471]: https://github.com/ARKEcosystem/core/pull/2471
 [#2476]: https://github.com/ARKEcosystem/core/pull/2476
+[#2482]: https://github.com/ARKEcosystem/core/pull/2482
+[#2486]: https://github.com/ARKEcosystem/core/pull/2486
+[#2487]: https://github.com/ARKEcosystem/core/pull/2487
