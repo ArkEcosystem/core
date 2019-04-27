@@ -12,30 +12,34 @@ let app;
 export async function setUp() {
     process.env.CORE_SKIP_COLD_START = "true";
 
-    app = await setUpContainer({
-        include: [
-            "@arkecosystem/core-event-emitter",
-            "@arkecosystem/core-logger-pino",
-            "@arkecosystem/core-state",
-            "@arkecosystem/core-database-postgres",
-            "@arkecosystem/core-transaction-pool",
-            "@arkecosystem/core-p2p",
-            "@arkecosystem/core-blockchain",
-            "@arkecosystem/core-api",
-            "@arkecosystem/core-forger",
-        ],
-    });
+    try {
+        app = await setUpContainer({
+            include: [
+                "@arkecosystem/core-event-emitter",
+                "@arkecosystem/core-logger-pino",
+                "@arkecosystem/core-state",
+                "@arkecosystem/core-database-postgres",
+                "@arkecosystem/core-transaction-pool",
+                "@arkecosystem/core-p2p",
+                "@arkecosystem/core-blockchain",
+                "@arkecosystem/core-api",
+                "@arkecosystem/core-forger",
+            ],
+        });
 
-    const databaseService = app.resolvePlugin("database");
-    await databaseService.reset();
-    await databaseService.buildWallets();
-    await databaseService.saveRound(
-        secrets.map(secret => ({
-            round: 1,
-            publicKey: Identities.PublicKey.fromPassphrase(secret),
-            voteBalance: Utils.BigNumber.make("245098000000000"),
-        })),
-    );
+        const databaseService = app.resolvePlugin("database");
+        await databaseService.reset();
+        await databaseService.buildWallets();
+        await databaseService.saveRound(
+            secrets.map(secret => ({
+                round: 1,
+                publicKey: Identities.PublicKey.fromPassphrase(secret),
+                voteBalance: Utils.BigNumber.make("245098000000000"),
+            })),
+        );
+    } catch (error) {
+        console.error(error.stack);
+    }
 }
 
 export async function tearDown() {
