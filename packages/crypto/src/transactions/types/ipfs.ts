@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -10,7 +11,7 @@ export class IpfsTransaction extends Transaction {
         return schemas.ipfs;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(1 + data.asset.ipfs.dag.length / 2, true);
 

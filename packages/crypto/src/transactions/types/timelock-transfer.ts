@@ -1,6 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
 import { BigNumber } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -12,7 +13,7 @@ export class TimelockTransferTransaction extends Transaction {
         return schemas.timelockTransfer;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(4 + 1 + 4 + 24, true);
 

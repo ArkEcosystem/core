@@ -106,7 +106,7 @@ export abstract class Transaction implements ITransaction {
     public serialized: Buffer;
     public timestamp: number;
 
-    public abstract serialize(): ByteBuffer;
+    public abstract serialize(options?: ISerializeOptions): ByteBuffer;
     public abstract deserialize(buf: ByteBuffer): void;
 
     public verify(): boolean {

@@ -13,7 +13,7 @@ export interface ITransaction {
     serialized: Buffer;
     timestamp: number;
 
-    serialize(): ByteBuffer;
+    serialize(options?: ISerializeOptions): ByteBuffer;
     deserialize(buf: ByteBuffer): void;
 
     verify(): boolean;

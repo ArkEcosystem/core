@@ -34,7 +34,7 @@ export class Serializer {
         this.serializeCommon(data, buffer);
         this.serializeVendorField(transaction, buffer);
 
-        const typeBuffer: ByteBuffer = transaction.serialize().flip();
+        const typeBuffer: ByteBuffer = transaction.serialize(options).flip();
         buffer.append(typeBuffer);
 
         this.serializeSignatures(data, buffer, options);

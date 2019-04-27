@@ -1,6 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
-import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "../../interfaces";
+import { IMultiSignatureAsset, IMultiSignatureLegacyAsset, ISerializeOptions } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -11,7 +11,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
         return schemas.multiSignature;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
 
         let buffer: ByteBuffer;
