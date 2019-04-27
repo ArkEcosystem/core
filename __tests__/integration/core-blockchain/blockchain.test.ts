@@ -61,7 +61,9 @@ describe("Blockchain", () => {
 
             expect(transactions.length).toBe(transactionsWithoutType2.length);
 
-            expect(transactions.sort()).toEqual(transactionsWithoutType2.map(transaction => transaction.serialized).sort());
+            expect(transactions).toIncludeAllMembers(
+                transactionsWithoutType2.map(transaction => transaction.serialized),
+            );
 
             blockchain.transactionPool.flush();
         });
@@ -262,8 +264,8 @@ describe("Blockchain", () => {
 
             expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
 
-            expect(unconfirmedTransactions.transactions.sort()).toEqual(
-                transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex").sort()),
+            expect(unconfirmedTransactions.transactions).toIncludeAllMembers(
+                transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex")),
             );
 
             blockchain.transactionPool.flush();
