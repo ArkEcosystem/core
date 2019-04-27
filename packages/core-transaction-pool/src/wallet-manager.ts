@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
 export class WalletManager extends Wallets.WalletManager {
@@ -11,7 +11,9 @@ export class WalletManager extends Wallets.WalletManager {
 
     public findByAddress(address: string): Database.IWallet {
         if (address && !this.byAddress[address]) {
-            this.reindex({ ...this.databaseService.walletManager.findByAddress(address) });
+            this.reindex(
+                Object.assign(new Wallets.Wallet(address), this.databaseService.walletManager.findByAddress(address)),
+            );
         }
 
         return this.byAddress[address];
@@ -25,8 +27,9 @@ export class WalletManager extends Wallets.WalletManager {
     public throwIfApplyingFails(transaction: Interfaces.ITransaction): void {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        if (!this.databaseService.walletManager.has(transaction.data.senderPublicKey)) {
-            const senderAddress: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
+        const { senderPublicKey } = transaction.data;
+        if (!this.databaseService.walletManager.has(senderPublicKey)) {
+            const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
                 const message: string = "Cold wallet is not allowed to send until receiving transaction is confirmed.";
@@ -42,10 +45,10 @@ export class WalletManager extends Wallets.WalletManager {
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
         } else {
-            const sender: Database.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
+            const sender: Database.IWallet = this.findByPublicKey(senderPublicKey);
 
             try {
-                TransactionHandlerRegistry.get(transaction.type).canBeApplied(
+                Handlers.Registry.get(transaction.type).canBeApplied(
                     transaction,
                     sender,
                     this.databaseService.walletManager,
@@ -63,7 +66,7 @@ export class WalletManager extends Wallets.WalletManager {
     }
 
     public revertTransactionForSender(transaction: Interfaces.ITransaction): void {
-        TransactionHandlerRegistry.get(transaction.type).revertForSender(
+        Handlers.Registry.get(transaction.type).revertForSender(
             transaction,
             this.findByPublicKey(transaction.data.senderPublicKey),
         );

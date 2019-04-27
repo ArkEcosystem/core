@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, Shared, State } from "@arkecosystem/core-interfaces";
-import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -551,7 +551,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: Database.IWallet = this.walletManager.findByAddress(senderId);
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -632,7 +632,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        TransactionHandlerRegistry.get(transaction.type).emitEvents(transaction, this.emitter);
+        Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

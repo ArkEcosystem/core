@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
-import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
@@ -268,7 +268,7 @@ export class WalletManager implements Database.IWalletManager {
         const { data } = transaction;
         const { type, recipientId, senderPublicKey } = data;
 
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(senderPublicKey);
         const recipient: Database.IWallet = this.findByAddress(recipientId);
 
@@ -309,7 +309,7 @@ export class WalletManager implements Database.IWalletManager {
     public revertTransaction(transaction: Interfaces.ITransaction): void {
         const { type, data } = transaction;
 
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: Database.IWallet = this.byAddress[data.recipientId];
 
