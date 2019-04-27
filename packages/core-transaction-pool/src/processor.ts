@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -123,7 +123,7 @@ export class Processor implements TransactionPool.IProcessor {
                 try {
                     const receivedId: string = transaction.id;
                     const trx: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
-                    const handler = TransactionHandlerRegistry.get(trx.type);
+                    const handler = Handlers.Registry.get(trx.type);
                     if (handler.verify(trx, this.pool.walletManager)) {
                         try {
                             this.walletManager.throwIfApplyingFails(trx);
@@ -195,13 +195,9 @@ export class Processor implements TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return TransactionHandlerRegistry.get(transaction.type).canEnterTransactionPool(
-                transaction,
-                this.pool,
-                this,
-            );
+            return Handlers.Registry.get(transaction.type).canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
-            if (error instanceof errors.InvalidTransactionTypeError) {
+            if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
                     transaction,
                     "ERR_UNSUPPORTED",

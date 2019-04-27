@@ -1,5 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
-import { errors } from "@arkecosystem/core-transactions";
+import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Wallet implements Database.IWallet {
@@ -84,7 +84,7 @@ export class Wallet implements Database.IWallet {
     ): boolean {
         multiSignature = multiSignature || this.multisignature;
         if (!multiSignature) {
-            throw new errors.InvalidMultiSignatureError();
+            throw new Errors.InvalidMultiSignatureError();
         }
 
         const { publicKeys, min } = multiSignature;

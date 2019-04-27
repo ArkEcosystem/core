@@ -1,5 +1,5 @@
 import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
@@ -71,7 +71,7 @@ describe("applyPoolTransactionToSender", () => {
                 .withPassphrase(delegate0.secret)
                 .build()[0];
 
-            const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
+            const transactionHandler = Handlers.Registry.get(transfer.type);
             transactionHandler.applyToSender(transfer, delegateWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
@@ -97,7 +97,7 @@ describe("applyPoolTransactionToSender", () => {
                 .withPassphrase(delegate0.secret)
                 .build()[0];
 
-            const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
+            const transactionHandler = Handlers.Registry.get(transfer.type);
             transactionHandler.applyToSender(transfer, delegateWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
@@ -136,7 +136,7 @@ describe("applyPoolTransactionToSender", () => {
                     .withNetwork("unitnet")
                     .withPassphrase(t.from.passphrase)
                     .build()[0];
-                const transactionHandler = TransactionHandlerRegistry.get(transfer.type);
+                const transactionHandler = Handlers.Registry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.

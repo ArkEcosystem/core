@@ -4,7 +4,7 @@ import { container } from "./mocks/core-container";
 import { state } from "./mocks/state";
 
 import { Wallets } from "@arkecosystem/core-state";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import cloneDeep from "lodash.clonedeep";
@@ -591,7 +591,7 @@ describe("Connection", () => {
     describe("acceptChainedBlock", () => {
         let mockWallet;
         beforeEach(() => {
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
 
             mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
@@ -631,7 +631,7 @@ describe("Connection", () => {
         });
 
         it("should purge and block sender if throwIfApplyingFails() failed for a transaction in the chained block", () => {
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             jest.spyOn(transactionHandler, "canBeApplied").mockImplementation(() => {
                 throw new Error("test error");
             });
@@ -659,7 +659,7 @@ describe("Connection", () => {
         let applyToSender;
         const findByPublicKeyWallet = new Wallets.Wallet("thisIsAnAddressIMadeUpJustLikeThis");
         beforeEach(() => {
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             canBeApplied = jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
             applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockReturnValue();
 
@@ -700,7 +700,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if canBeApplied() failed", async () => {
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             canBeApplied = jest.spyOn(transactionHandler, "canBeApplied").mockImplementation(() => {
                 throw new Error("throw from test");
             });

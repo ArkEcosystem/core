@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
@@ -66,7 +66,7 @@ export class BlockProcessor {
         // TODO: refactor block verification
         if (block.verification.containsMultiSignatures) {
             block.transactions.forEach(transaction => {
-                const handler = TransactionHandlerRegistry.get(transaction.type);
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
                 handler.verify(transaction, this.blockchain.database.walletManager);
             });
 

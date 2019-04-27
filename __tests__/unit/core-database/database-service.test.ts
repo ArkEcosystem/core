@@ -3,7 +3,7 @@ import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { Wallet, WalletManager } from "../../../packages/core-state/src/wallets";
@@ -214,7 +214,7 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             const originalApply = transactionHandler.canBeApplied;
             transactionHandler.canBeApplied = jest.fn(() => true);
 

@@ -4,7 +4,9 @@ import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
+import { Errors } from "../../../packages/core-transactions/src";
+import { Registry, TransactionHandler } from "../../../packages/core-transactions/src/handlers";
+
 import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
@@ -88,31 +90,31 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-    TransactionHandlerRegistry.deregisterCustomTransactionHandler(TestTransactionHandler);
+    Registry.deregisterCustomTransactionHandler(TestTransactionHandler);
 });
 
-describe("TransactionHandlerRegistry", () => {
+describe("Registry", () => {
     it("should register core transaction types", () => {
         expect(() => {
-            TransactionHandlerRegistry.get(TransactionTypes.Transfer);
-            TransactionHandlerRegistry.get(TransactionTypes.SecondSignature);
-            TransactionHandlerRegistry.get(TransactionTypes.DelegateRegistration);
-            TransactionHandlerRegistry.get(TransactionTypes.Vote);
-            TransactionHandlerRegistry.get(TransactionTypes.MultiSignature);
-        }).not.toThrow(errors.InvalidTransactionTypeError);
+            Registry.get(TransactionTypes.Transfer);
+            Registry.get(TransactionTypes.SecondSignature);
+            Registry.get(TransactionTypes.DelegateRegistration);
+            Registry.get(TransactionTypes.Vote);
+            Registry.get(TransactionTypes.MultiSignature);
+        }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 
     it("should register a custom type", () => {
-        expect(() =>
-            TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler),
-        ).not.toThrowError();
+        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError();
+        const a = { a: 23 };
+        const y = [a].map(({ a }) => a);
 
-        expect(TransactionHandlerRegistry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
+        expect(Registry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
         expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
 
     it("should be able to instantiate a custom transaction", () => {
-        TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler);
+        Registry.registerCustomTransactionHandler(TestTransactionHandler);
 
         const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
@@ -141,12 +143,12 @@ describe("TransactionHandlerRegistry", () => {
     });
 
     it("should not be ok when registering the same type again", () => {
-        expect(() =>
-            TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler),
-        ).not.toThrowError(errors.TransactionHandlerAlreadyRegisteredError);
+        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError(
+            Errors.TransactionHandlerAlreadyRegisteredError,
+        );
 
-        expect(() => TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler)).toThrowError(
-            errors.TransactionHandlerAlreadyRegisteredError,
+        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).toThrowError(
+            Errors.TransactionHandlerAlreadyRegisteredError,
         );
     });
 });

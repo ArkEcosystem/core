@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { ITransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
@@ -258,7 +258,7 @@ export class Connection implements TransactionPool.IConnection {
             const { data }: Interfaces.ITransaction = transaction;
             const exists: boolean = this.has(data.id);
             const senderPublicKey: string = data.senderPublicKey;
-            const transactionHandler: ITransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+            const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
             const senderWallet: Database.IWallet = this.walletManager.has(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
@@ -335,7 +335,7 @@ export class Connection implements TransactionPool.IConnection {
 
             // TODO: rework error handling
             try {
-                const transactionHandler: ITransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+                const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
                 transactionHandler.canBeApplied(transaction, senderWallet);
                 transactionHandler.applyToSender(transaction, senderWallet);
             } catch (error) {
@@ -434,7 +434,7 @@ export class Connection implements TransactionPool.IConnection {
         try {
             this.walletManager.throwIfApplyingFails(transaction);
 
-            TransactionHandlerRegistry.get(transaction.type).applyToSender(transaction, senderWallet);
+            Handlers.Registry.get(transaction.type).applyToSender(transaction, senderWallet);
         } catch (error) {
             this.logger.error(error.message);
 
