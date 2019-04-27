@@ -106,9 +106,6 @@ describe("Registry", () => {
 
     it("should register a custom type", () => {
         expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError();
-        const a = { a: 23 };
-        const y = [a].map(({ a }) => a);
-
         expect(Registry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
         expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
