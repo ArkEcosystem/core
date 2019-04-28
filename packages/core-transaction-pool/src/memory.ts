@@ -40,7 +40,11 @@ export class Memory {
                     return 1;
                 }
 
-                return a.data.expiration - b.data.expiration;
+                if (a.data.expiration > 0 && b.data.expiration > 0) {
+                    return a.data.expiration - b.data.expiration;
+                }
+
+                return 0;
             });
 
             this.allIsSorted = true;
@@ -125,16 +129,10 @@ public remember(
         }
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            const maxHeight: number = this.currentHeight() + maxTransactionAge;
-            if (
-                typeof transaction.data.expiration !== "number" ||
-                transaction.data.expiration === 0 ||
-                transaction.data.expiration > maxHeight
-            ) {
-                transaction.data.expiration = maxHeight;
+            if (transaction.data.expiration > 0) {
+                this.byExpiration.push(transaction);
+                this.byExpirationIsSorted = false;
             }
-            this.byExpiration.push(transaction);
-            this.byExpirationIsSorted = false;
         }
 
         if (!databaseReady) {
