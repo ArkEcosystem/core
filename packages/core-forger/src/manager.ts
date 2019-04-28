@@ -136,12 +136,14 @@ export class ForgerManager {
         round: P2P.ICurrentRound,
         networkState: P2P.INetworkState,
     ): Promise<void> {
+        Managers.configManager.setHeight(networkState.nodeHeight);
+
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
         const block: Interfaces.IBlock = delegate.forge(transactions, {
             previousBlock: {
                 id: networkState.lastBlockId,
-                idHex: Managers.configManager.getMilestone(networkState.nodeHeight).block.idFullSha256
+                idHex: Managers.configManager.getMilestone().block.idFullSha256
                     ? networkState.lastBlockId
                     : Blocks.Block.toBytesHex(networkState.lastBlockId),
                 height: networkState.nodeHeight,

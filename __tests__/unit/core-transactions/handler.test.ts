@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { Constants, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
@@ -19,11 +19,11 @@ import {
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
 import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
-import { TransactionHandlerRegistry } from "../../../packages/core-transactions/src/index";
+import { Handlers } from "../../../packages/core-transactions/src/index";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
 
-let wallet: Wallet;
+let wallet: Wallets.Wallet;
 let transaction: Interfaces.ITransactionData;
 let transactionWithSecondSignature: Interfaces.ITransactionData;
 let handler: TransactionHandler;
@@ -34,7 +34,7 @@ beforeEach(() => {
         address: "D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F",
         balance: Utils.BigNumber.make(4527654310),
         publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-    } as Wallet;
+    } as Wallets.Wallet;
 
     transaction = {
         id: "65a4f09a3a19d212a65d27de05d1ae7e0c461e088a35499996667f98d2a3897c",
@@ -65,7 +65,7 @@ beforeEach(() => {
 
 describe("General Tests", () => {
     beforeEach(() => {
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -215,7 +215,7 @@ describe("TransferTransaction", () => {
     beforeEach(() => {
         wallet = walletFixture;
         transaction = transactionFixture;
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -238,7 +238,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9",
             secondPublicKey: null,
-        } as Wallet;
+        } as Wallets.Wallet;
 
         transaction = {
             version: 1,
@@ -259,7 +259,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
         };
 
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -336,7 +336,7 @@ describe("DelegateRegistrationTransaction", () => {
             },
         };
 
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -384,7 +384,7 @@ describe("VoteTransaction", () => {
             balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
             vote: null,
-        } as Wallet;
+        } as Wallets.Wallet;
 
         voteTransaction = {
             id: "73cbce62d69308ff7e69f1a7836106a16dc59907198aea4bb80d340232e53041",
@@ -416,7 +416,7 @@ describe("VoteTransaction", () => {
             },
         };
 
-        handler = TransactionHandlerRegistry.get(voteTransaction.type);
+        handler = Handlers.Registry.get(voteTransaction.type);
         instance = Transactions.TransactionFactory.fromData(voteTransaction);
     });
 
@@ -517,7 +517,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
     let multisignatureTest;
 
     beforeEach(() => {
-        wallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+        wallet = new Wallets.Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
         wallet.balance = Utils.BigNumber.make(100390000000);
         wallet.publicKey = "026f717e50bf3dbb9d8593996df5435ba22217410fc7a132f3d2c942a01a00a202";
         wallet.secondPublicKey = "0380728436880a0a11eadf608c4d4e7f793719e044ee5151074a5f2d5d43cb9066";
@@ -600,7 +600,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             ],
         };
 
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -685,7 +685,7 @@ describe.skip("IpfsTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -711,7 +711,7 @@ describe.skip("TimelockTransferTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -773,7 +773,7 @@ describe.skip("MultiPaymentTransaction", () => {
 
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -799,7 +799,7 @@ describe.skip("DelegateResignationTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 

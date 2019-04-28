@@ -1,7 +1,7 @@
 # ARK Core
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png" />
 </p>
 
 [![Build Status](https://badgen.now.sh/circleci/github/ARKEcosystem/core)](https://circleci.com/gh/ARKEcosystem/core)

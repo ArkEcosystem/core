@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
-import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
@@ -16,10 +16,6 @@ export class WalletManager implements Database.IWalletManager {
     // @TODO: make this private and read-only
     public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    /**
-     * Create a new wallet manager instance.
-     * @constructor
-     */
     constructor() {
         this.reset();
     }
@@ -28,17 +24,10 @@ export class WalletManager implements Database.IWalletManager {
         return Object.values(this.byAddress);
     }
 
-    /**
-     * Get all wallets by publicKey.
-     */
     public allByPublicKey(): Database.IWallet[] {
         return Object.values(this.byPublicKey);
     }
 
-    /**
-     * Get all wallets by username.
-     * @return {Array}
-     */
     public allByUsername(): Database.IWallet[] {
         return Object.values(this.byUsername);
     }
@@ -158,11 +147,7 @@ export class WalletManager implements Database.IWalletManager {
         return delegates as Database.IDelegateWallet[];
     }
 
-    /**
-     * Build vote balances of all delegates.
-     * NOTE: Only called during integrity verification on boot.
-     * @return {void}
-     */
+    // Only called during integrity verification on boot.
     public buildVoteBalances(): void {
         for (const voter of Object.values(this.byPublicKey)) {
             if (voter.vote) {
@@ -172,10 +157,6 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
-    /**
-     * Remove non-delegate wallets that have zero (0) balance from memory.
-     * @return {void}
-     */
     public purgeEmptyNonDelegates(): void {
         for (const wallet of Object.values(this.byPublicKey)) {
             if (this.canBePurged(wallet)) {
@@ -185,11 +166,6 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
-    /**
-     * Apply the given block to a delegate.
-     * @param  {Block} block
-     * @return {void}
-     */
     public applyBlock(block: Interfaces.IBlock): void {
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
@@ -250,11 +226,6 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
-    /**
-     * Remove the given block from a delegate.
-     * @param  {Block} block
-     * @return {void}
-     */
     public revertBlock(block: Interfaces.IBlock): void {
         const delegate: Database.IWallet = this.byPublicKey[block.data.generatorPublicKey];
 
@@ -293,14 +264,11 @@ export class WalletManager implements Database.IWalletManager {
         }
     }
 
-    /**
-     * Apply the given transaction to a delegate.
-     */
     public applyTransaction(transaction: Interfaces.ITransaction): void {
         const { data } = transaction;
         const { type, recipientId, senderPublicKey } = data;
 
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(senderPublicKey);
         const recipient: Database.IWallet = this.findByAddress(recipientId);
 
@@ -338,13 +306,10 @@ export class WalletManager implements Database.IWalletManager {
         this.updateVoteBalances(sender, recipient, data);
     }
 
-    /**
-     * Remove the given transaction from a delegate.
-     */
     public revertTransaction(transaction: Interfaces.ITransaction): void {
         const { type, data } = transaction;
 
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: Database.IWallet = this.byAddress[data.recipientId];
 
@@ -373,11 +338,6 @@ export class WalletManager implements Database.IWalletManager {
         return false;
     }
 
-    /**
-     * Determine if the wallet can be removed from memory.
-     * @param  {Object} wallet
-     * @return {Boolean}
-     */
     public canBePurged(wallet: Database.IWallet): boolean {
         return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
     }

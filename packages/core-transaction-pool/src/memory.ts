@@ -1,35 +1,36 @@
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { app } from "@arkecosystem/core-container";
+import { State } from "@arkecosystem/core-interfaces";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
-import { MemoryTransaction } from "./memory-transaction";
 
 export class Memory {
-    private sequence: number = 0;
-    private all: MemoryTransaction[] = [];
     /**
-     * A boolean flag indicating whether `this.all` is indeed sorted or
-     * temporarily left unsorted. We use lazy sorting of `this.all`:
-     * - insertion just appends at the end (O(1)) + flag it as unsorted
-     * - deletion removes by using splice() (O(n)) + flag it as unsorted
-     * - lookup sorts if it is not sorted (O(n*log(n)) + flag it as sorted
-     *
-     * @TODO: remove the need for a comment
+     * An array of all transactions, possibly sorted by fee (highest fee first).
+     * We use lazy sorting:
+     * - insertion just appends at the end, complexity: O(1) + flag it as unsorted
+     * - deletion removes by using splice(), complexity: O(n) + flag it as unsorted
+     * - lookup sorts if it is not sorted, complexity: O(n*log(n) + flag it as sorted
      */
+    private all: Interfaces.ITransaction[] = [];
     private allIsSorted: boolean = true;
-    private byId: { [key: string]: MemoryTransaction } = {};
-    private bySender: { [key: string]: Set<MemoryTransaction> } = {};
-    private byType: { [key: number]: Set<MemoryTransaction> } = {};
-    private byExpiration: MemoryTransaction[] = [];
+    private byId: { [key: string]: Interfaces.ITransaction } = {};
+    private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
+    private byType: { [key: number]: Set<Interfaces.ITransaction> } = {};
+    /**
+     * Contains only transactions that have expiration, possibly sorted by height (lower first).
+     */
+    private byExpiration: Interfaces.ITransaction[] = [];
     private byExpirationIsSorted: boolean = true;
     private readonly dirty: { added: Set<string>; removed: Set<string> } = {
         added: new Set(),
         removed: new Set(),
     };
 
-    public allSortedByFee(): MemoryTransaction[] {
+    public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
             this.all.sort((a, b) => {
-                const feeA: Utils.BigNumber = a.transaction.data.fee;
-                const feeB: Utils.BigNumber = b.transaction.data.fee;
+                const feeA: Utils.BigNumber = a.data.fee;
+                const feeB: Utils.BigNumber = b.data.fee;
 
                 if (feeA.isGreaterThan(feeB)) {
                     return -1;
@@ -39,7 +40,11 @@ export class Memory {
                     return 1;
                 }
 
-                return a.sequence - b.sequence;
+                if (a.data.expiration > 0 && b.data.expiration > 0) {
+                    return a.data.expiration - b.data.expiration;
+                }
+
+                return 0;
             });
 
             this.allIsSorted = true;
@@ -50,19 +55,19 @@ export class Memory {
 
     public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
         if (!this.byExpirationIsSorted) {
-            this.byExpiration.sort((a, b) => a.expiresAt(maxTransactionAge) - b.expiresAt(maxTransactionAge));
+            this.byExpiration.sort((a, b) => a.data.expiration - b.data.expiration);
             this.byExpirationIsSorted = true;
         }
 
-        const now: number = Crypto.Slots.getTime();
+        const currentHeight: number = this.currentHeight();
         const transactions: Interfaces.ITransaction[] = [];
 
-        for (const MemoryTransaction of this.byExpiration) {
-            if (MemoryTransaction.expiresAt(maxTransactionAge) >= now) {
+        for (const transaction of this.byExpiration) {
+            if (transaction.data.expiration > currentHeight) {
                 break;
             }
 
-            transactions.push(MemoryTransaction.transaction);
+            transactions.push(transaction);
         }
 
         return transactions;
@@ -73,74 +78,61 @@ export class Memory {
             return undefined;
         }
 
-        return this.byId[id].transaction;
+        return this.byId[id];
     }
 
-    public getByType(type: number): Set<MemoryTransaction> {
-        const MemoryTransactions: Set<MemoryTransaction> = this.byType[type];
-
-        if (MemoryTransactions !== undefined) {
-            return MemoryTransactions;
+    public getByType(type: number): Set<Interfaces.ITransaction> {
+        if (this.byType[type] !== undefined) {
+            return this.byType[type];
         }
 
         return new Set();
     }
 
-    public getBySender(senderPublicKey: string): Set<MemoryTransaction> {
-        const MemoryTransactions: Set<MemoryTransaction> = this.bySender[senderPublicKey];
-
-        if (MemoryTransactions !== undefined) {
-            return MemoryTransactions;
+    public getBySender(senderPublicKey: string): Set<Interfaces.ITransaction> {
+        if (this.bySender[senderPublicKey] !== undefined) {
+            return this.bySender[senderPublicKey];
         }
 
         return new Set();
     }
 
-    public remember(MemoryTransaction: MemoryTransaction, maxTransactionAge: number, databaseReady?: boolean): void {
-        const transaction: Interfaces.ITransaction = MemoryTransaction.transaction;
-
+public remember(
+        transaction: Interfaces.ITransaction,
+        maxTransactionAge: number,
+        databaseReady?: boolean
+    ): void {
         assert.strictEqual(this.byId[transaction.id], undefined);
 
-        if (databaseReady) {
-            // Sequence is provided from outside, make sure we avoid duplicates
-            // later when we start using our this.sequence.
-            assert.strictEqual(typeof MemoryTransaction.sequence, "number");
-
-            this.sequence = Math.max(this.sequence, MemoryTransaction.sequence) + 1;
-        } else {
-            // Sequence should only be set during DB load (when sequences come
-            // from the database). In other scenarios sequence is not set and we
-            // set it here.
-            MemoryTransaction.sequence = this.sequence++;
-        }
-
-        this.all.push(MemoryTransaction);
+        this.all.push(transaction);
         this.allIsSorted = false;
 
-        this.byId[transaction.id] = MemoryTransaction;
+        this.byId[transaction.id] = transaction;
 
         const sender: string = transaction.data.senderPublicKey;
         const type: number = transaction.type;
 
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Set.
-            this.bySender[sender] = new Set([MemoryTransaction]);
+            this.bySender[sender] = new Set([transaction]);
         } else {
             // Append to existing transaction ids for this sender.
-            this.bySender[sender].add(MemoryTransaction);
+            this.bySender[sender].add(transaction);
         }
 
         if (this.byType[type] === undefined) {
             // First transaction of this type, create a new Set.
-            this.byType[type] = new Set([MemoryTransaction]);
+            this.byType[type] = new Set([transaction]);
         } else {
             // Append to existing transaction ids for this type.
-            this.byType[type].add(MemoryTransaction);
+            this.byType[type].add(transaction);
         }
 
-        if (MemoryTransaction.expiresAt(maxTransactionAge) !== null) {
-            this.byExpiration.push(MemoryTransaction);
-            this.byExpirationIsSorted = false;
+        if (type !== Enums.TransactionTypes.TimelockTransfer) {
+            if (transaction.data.expiration > 0) {
+                this.byExpiration.push(transaction);
+                this.byExpirationIsSorted = false;
+            }
         }
 
         if (!databaseReady) {
@@ -161,34 +153,33 @@ export class Memory {
         }
 
         if (senderPublicKey === undefined) {
-            senderPublicKey = this.byId[id].transaction.data.senderPublicKey;
+            senderPublicKey = this.byId[id].data.senderPublicKey;
         }
 
-        const MemoryTransaction: MemoryTransaction = this.byId[id];
-        const type: number = this.byId[id].transaction.type;
+        const transaction: Interfaces.ITransaction = this.byId[id];
+        const type: number = this.byId[id].type;
 
         // XXX worst case: O(n)
-        let i: number = this.byExpiration.findIndex(e => e.transaction.id === id);
+        let i: number = this.byExpiration.findIndex(e => e.id === id);
         if (i !== -1) {
             this.byExpiration.splice(i, 1);
         }
 
-        this.bySender[senderPublicKey].delete(MemoryTransaction);
+        this.bySender[senderPublicKey].delete(transaction);
         if (this.bySender[senderPublicKey].size === 0) {
             delete this.bySender[senderPublicKey];
         }
 
-        this.byType[type].delete(MemoryTransaction);
+        this.byType[type].delete(transaction);
         if (this.byType[type].size === 0) {
             delete this.byType[type];
         }
 
         delete this.byId[id];
 
-        i = this.all.findIndex(e => e.transaction.id === id);
+        i = this.all.findIndex(e => e.id === id);
         assert.notStrictEqual(i, -1);
         this.all.splice(i, 1);
-        this.allIsSorted = false;
 
         if (this.dirty.added.has(id)) {
             // This transaction has been added and deleted without data being synced
@@ -224,8 +215,8 @@ export class Memory {
         return this.dirty.added.size + this.dirty.removed.size;
     }
 
-    public pullDirtyAdded(): MemoryTransaction[] {
-        const added: MemoryTransaction[] = [];
+    public pullDirtyAdded(): Interfaces.ITransaction[] {
+        const added: Interfaces.ITransaction[] = [];
 
         for (const id of this.dirty.added) {
             added.push(this.byId[id]);
@@ -241,5 +232,12 @@ export class Memory {
         this.dirty.removed.clear();
 
         return removed;
+    }
+
+    private currentHeight(): number {
+        return app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
     }
 }

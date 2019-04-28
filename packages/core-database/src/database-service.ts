@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
-import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Database, EventEmitter, Logger, Shared, State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -44,8 +44,15 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        await this.loadBlocksFromCurrentRound();
         await this.createGenesisBlock();
+
+        const lastBlock: Interfaces.IBlock = await this.getLastBlock();
+
+        Managers.configManager.setHeight(lastBlock.data.height);
+
+        await this.loadBlocksFromCurrentRound();
+
+        await this.configureState(lastBlock);
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -204,15 +211,14 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
-        let blocks: Interfaces.IBlockData[] = [];
-
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
         const end: number = offset + limit - 1;
 
-        if (app.has("state")) {
-            blocks = app.resolve("state").getLastBlocksByHeight(start, end);
-        }
+        let blocks: Interfaces.IBlockData[] = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlocksByHeight(start, end);
 
         if (blocks.length !== limit) {
             blocks = await this.connection.blocksRepository.heightRange(start, end);
@@ -252,11 +258,13 @@ export class DatabaseService implements Database.IDatabaseService {
         const toGetFromDB = {};
 
         for (const [i, height] of heights.entries()) {
-            if (app.has("state")) {
-                const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
-                if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
-                    blocks[i] = stateBlocks[0];
-                }
+            const stateBlocks = app
+                .resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .getLastBlocksByHeight(height, height);
+
+            if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
+                blocks[i] = stateBlocks[0];
             }
 
             if (blocks[i] === undefined) {
@@ -278,9 +286,14 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocksForRound(roundInfo?: Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
-        const lastBlock: Interfaces.IBlock = app.has("state")
-            ? app.resolve<Blockchain.IStateStorage>("state").getLastBlock()
-            : await this.getLastBlock();
+        let lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
+
+        if (!lastBlock) {
+            lastBlock = await this.getLastBlock();
+        }
 
         if (!lastBlock) {
             return [];
@@ -325,7 +338,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        let commonBlocks: Interfaces.IBlockData[] = app.resolve("state").getCommonBlocks(ids);
+        let commonBlocks: Interfaces.IBlockData[] = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
             commonBlocks = await this.connection.blocksRepository.common(ids);
@@ -336,7 +352,8 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: Interfaces.IBlockData[] = app
-            .resolve("state")
+            .resolvePlugin("state")
+            .getStore()
             .getLastBlockIds()
             .reverse()
             .slice(0, 10);
@@ -534,7 +551,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: Database.IWallet = this.walletManager.findByAddress(senderId);
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -557,6 +574,18 @@ export class DatabaseService implements Database.IDatabaseService {
 
             await this.saveBlock(Blocks.BlockFactory.fromJson(this.config.get("genesisBlock")));
         }
+    }
+
+    private configureState(lastBlock: Interfaces.IBlock): void {
+        const state: State.IStateService = app.resolvePlugin<State.IStateService>("state");
+
+        state.getStore().setLastBlock(lastBlock);
+
+        const { blocktime, block } = Managers.configManager.getMilestone();
+
+        const blocksPerDay: number = Math.ceil(86400 / blocktime);
+        state.getBlocks().resize(blocksPerDay);
+        state.getTransactions().resize(blocksPerDay * block.maxTransactions);
     }
 
     private async initializeActiveDelegates(height: number): Promise<void> {
@@ -603,7 +632,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        TransactionHandlerRegistry.get(transaction.type).emitEvents(transaction, this.emitter);
+        Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

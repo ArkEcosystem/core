@@ -3,14 +3,14 @@ import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
-import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { Wallet, WalletManager } from "../../../packages/core-state/src/wallets";
 import { roundCalculator } from "../../../packages/core-utils/dist";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
-import { StateStorageStub } from "./__fixtures__/state-storage-stub";
+import { stateStorageStub } from "./__fixtures__/state-storage-stub";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
@@ -74,7 +74,6 @@ describe("Database Service", () => {
         it("should deliver blocks for the given heights", async () => {
             const requestHeightsLow = [1, 5, 20];
             const requestHeightsHigh = [100, 200, 500];
-            const stateStorageStub = new StateStorageStub();
             // @ts-ignore
             jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation((heightFrom, heightTo) => {
                 if (requestHeightsHigh[0] <= heightFrom) {
@@ -119,7 +118,9 @@ describe("Database Service", () => {
                 }
             }
 
-            jest.spyOn(container, "has").mockReturnValue(false);
+            jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation(() => {
+                return undefined;
+            });
 
             blocks = await databaseService.getBlocksByHeight(requestHeights);
 
@@ -134,7 +135,6 @@ describe("Database Service", () => {
 
     describe("getBlocksForRound", () => {
         it("should fetch blocks using lastBlock in state-storage", async () => {
-            const stateStorageStub = new StateStorageStub();
             jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(null);
             jest.spyOn(container, "has").mockReturnValue(true);
             jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
@@ -146,7 +146,7 @@ describe("Database Service", () => {
 
             expect(blocks).toBeEmpty();
             expect(stateStorageStub.getLastBlock).toHaveBeenCalled();
-            expect(databaseService.getLastBlock).not.toHaveBeenCalled();
+            expect(databaseService.getLastBlock).toHaveBeenCalled();
         });
 
         it("should fetch blocks using lastBlock in database", async () => {
@@ -214,7 +214,7 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             const originalApply = transactionHandler.canBeApplied;
             transactionHandler.canBeApplied = jest.fn(() => true);
 

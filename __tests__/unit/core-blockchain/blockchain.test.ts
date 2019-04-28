@@ -56,6 +56,7 @@ describe("Blockchain", () => {
     describe("start", () => {
         it("should be ok", async () => {
             jest.spyOn(stateMachine, "transition").mockReturnValueOnce({ actions: [] });
+
             process.env.CORE_SKIP_BLOCKCHAIN = "false";
 
             const started = await blockchain.start(true);
@@ -147,6 +148,7 @@ describe("Blockchain", () => {
 
     describe("getLastBlock", () => {
         it("should be ok", () => {
+            jest.spyOn(container.app, "has").mockReturnValueOnce(true);
             jest.spyOn(container.app, "resolveOptions").mockReturnValueOnce({
                 state: { maxLastBlocks: 50 },
             });

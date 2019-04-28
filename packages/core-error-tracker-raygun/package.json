@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-raygun",
     "description": "Raygun error tracker integration for ARK Core.",
-    "version": "2.3.12",
+    "version": "2.3.18",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,7 +18,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.12",
+        "@arkecosystem/core-container": "^2.3.18",
         "raygun": "^0.10.1"
     },
     "publishConfig": {

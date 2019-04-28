@@ -1,7 +1,7 @@
 import "../../utils";
 
 /* tslint:disable:max-line-length */
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -61,7 +61,9 @@ describe("Blockchain", () => {
 
             expect(transactions.length).toBe(transactionsWithoutType2.length);
 
-            expect(transactions).toEqual(transactionsWithoutType2.map(transaction => transaction.serialized));
+            expect(transactions).toIncludeAllMembers(
+                transactionsWithoutType2.map(transaction => transaction.serialized),
+            );
 
             blockchain.transactionPool.flush();
         });
@@ -262,7 +264,7 @@ describe("Blockchain", () => {
 
             expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
 
-            expect(unconfirmedTransactions.transactions).toEqual(
+            expect(unconfirmedTransactions.transactions).toIncludeAllMembers(
                 transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex")),
             );
 
@@ -308,7 +310,7 @@ async function __resetToHeight1() {
 
         // Index the genesis wallet or else revert block at height 1 fails
         const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
-        const genesis = new Wallet(generator);
+        const genesis = new Wallets.Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
         genesis.username = "genesis";
         blockchain.database.walletManager.reindex(genesis);

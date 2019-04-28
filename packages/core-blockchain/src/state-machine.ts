@@ -1,14 +1,13 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
-import { stateStorage } from "./state-storage";
 
 import { Blockchain } from "./blockchain";
 
@@ -16,9 +15,10 @@ const { BlockFactory } = Blocks;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const stateStorage = app.resolvePlugin<State.IStateService>("state").getStore();
 
 /**
- * @type {IStateStorage}
+ * @type {IStateStore}
  */
 blockchainMachine.state = stateStorage;
 

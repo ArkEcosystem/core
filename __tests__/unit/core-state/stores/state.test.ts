@@ -1,29 +1,40 @@
-import "./mocks/";
-import { container } from "./mocks/container";
-import { logger } from "./mocks/logger";
+import "../mocks/";
+import { container } from "../mocks/container";
+import { logger } from "../mocks/logger";
 
 import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
-import { defaults } from "../../../packages/core-blockchain/src/defaults";
-import "../../utils";
-import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
+import { defaults } from "../../../../packages/core-state/src/defaults";
+import { StateStore } from "../../../../packages/core-state/src/stores/state";
+import "../../../utils";
+import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block, BlockFactory } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
-let stateStorage;
 
+let stateStorage;
 beforeAll(async () => {
-    stateStorage = require("../../../packages/core-blockchain/src").stateStorage;
+    stateStorage = new StateStore();
 });
 
 beforeEach(() => {
-    stateStorage.reset();
+    stateStorage.clear();
 
+    jest.spyOn(container.app, "has").mockReturnValue(true);
     jest.spyOn(container.app, "resolveOptions").mockReturnValue(defaults);
 });
 
 describe("State Storage", () => {
+    describe("getLastHeight", () => {
+        it("should return the last block height", () => {
+            stateStorage.setLastBlock(blocks[0]);
+            stateStorage.setLastBlock(blocks[1]);
+
+            expect(stateStorage.getLastHeight()).toBe(blocks[1].data.height);
+        });
+    });
+
     describe("getLastBlock", () => {
         it("should return null when no last block", () => {
             expect(stateStorage.getLastBlock()).toBeNull();
@@ -233,18 +244,6 @@ describe("State Storage", () => {
             expect(stateStorage.getCachedTransactionIds()).toHaveLength(10);
             stateStorage.removeCachedTransactionIds(transactions.map(tx => tx.id));
             expect(stateStorage.getCachedTransactionIds()).toHaveLength(0);
-        });
-    });
-
-    describe("reset", () => {
-        it("should reset the state", () => {
-            for (let i = 0; i < 100; i++) {
-                stateStorage.setLastBlock(blocks[i]);
-            }
-
-            expect(stateStorage.getLastBlocks()).toHaveLength(100);
-            stateStorage.reset();
-            expect(stateStorage.getLastBlocks()).toHaveLength(0);
         });
     });
 

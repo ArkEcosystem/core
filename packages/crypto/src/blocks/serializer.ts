@@ -38,7 +38,7 @@ export class Serializer {
     }
 
     private static serializeHeader(block: IBlockData, buffer: ByteBuffer): void {
-        const constants = configManager.getMilestone(block.height - 1);
+        const constants = configManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
             if (block.previousBlock.length !== 64) {
