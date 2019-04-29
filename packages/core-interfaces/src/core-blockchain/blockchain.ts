@@ -78,13 +78,13 @@ export interface IBlockchain {
     removeTopBlocks(count: any): Promise<void>;
 
     /**
-     * Process the given block.
+     * Process the given blocks.
      * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
+     * @param  {Block[]} block
      * @param  {Function} callback
      * @return {(Function|void)}
      */
-    processBlock(block: Interfaces.IBlock, callback: any): Promise<any>;
+    processBlocks(block: Interfaces.IBlock[], callback: any): Promise<any>;
 
     /**
      * Called by forger to wake up and sync with the network.

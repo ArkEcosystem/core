@@ -365,32 +365,34 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block: Interfaces.IBlock, callback): Promise<any> {
-        const result: BlockProcessorResult = await this.blockProcessor.process(block);
+    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<any> {
+        const acceptedBlocks: Interfaces.IBlock[] = [];
+        let lastProcessResult: BlockProcessorResult;
+        for (const block of blocks) {
+            lastProcessResult = await this.blockProcessor.process(block);
 
-        if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
-            // broadcast only current block
-            const blocktime: number = config.getMilestone(block.data.height).blocktime;
-
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-                this.p2p.getMonitor().broadcastBlock(block);
+            if (lastProcessResult === BlockProcessorResult.Accepted) {
+                acceptedBlocks.push(block);
             }
         }
 
-        return callback();
-    }
+        if (
+            lastProcessResult === BlockProcessorResult.Accepted ||
+            lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
+        ) {
+            // broadcast only current block
+            const blocktime: number = config.getMilestone(blocks[blocks.length - 1].data.height).blocktime;
 
-    /**
-     * Process the given block.
-     */
-    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<any> {
-        const acceptedBlocks: Interfaces.IBlock[] = [];
-        for (const block of blocks) {
-            const result: BlockProcessorResult = await this.blockProcessor.process(block);
-
-            if (result === BlockProcessorResult.Accepted) {
-                acceptedBlocks.push(block);
+            if (
+                this.state.started &&
+                Crypto.Slots.getSlotNumber() * blocktime <= blocks[blocks.length - 1].data.timestamp
+            ) {
+                this.p2p.getMonitor().broadcastBlock(blocks[blocks.length - 1]);
             }
+        }
+
+        if (acceptedBlocks.length === 0) {
+            return callback();
         }
 
         try {
