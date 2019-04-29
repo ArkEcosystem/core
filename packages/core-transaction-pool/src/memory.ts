@@ -79,7 +79,7 @@ export class Memory {
         for (const transaction of Object.values(this.byId)) {
             const { error } = transaction.validateSchema();
 
-            if (error || !transaction.verify()) {
+            if (error) {
                 transactions.push(transaction);
             }
         }
