@@ -6,7 +6,7 @@ function encodeBlock(block) {
     return models.Block.serialize(camelizeKeys(block), true);
 }
 
-function decodeBlock(buffer) {
+function decodeBlock(buffer: Buffer) {
     const block = models.Block.deserialize(buffer.toString("hex"), true);
     block.totalAmount = (block.totalAmount as Bignum).toFixed();
     block.totalFee = (block.totalFee as Bignum).toFixed();
@@ -27,7 +27,7 @@ function encodeTransaction(transaction) {
     ]);
 }
 
-function decodeTransaction(buffer) {
+function decodeTransaction(buffer: Buffer) {
     const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transaction.fromBytesUnsafe(serialized, id).data;
@@ -50,6 +50,21 @@ function decodeTransaction(buffer) {
     return decamelized;
 }
 
+function encodeRound(round) {
+    return encode([round.id, round.public_key, round.balance, round.round]);
+}
+
+function decodeRound(buffer: Buffer) {
+    const [id, publicKey, balance, round] = decode(buffer);
+
+    return decamelizeKeys({
+        id,
+        publicKey,
+        balance,
+        round,
+    });
+}
+
 export class Codec {
     static get blocks() {
         const codec = createCodec();
@@ -63,6 +78,14 @@ export class Codec {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, encodeTransaction);
         codec.addExtUnpacker(0x4f, decodeTransaction);
+
+        return codec;
+    }
+
+    static get rounds() {
+        const codec = createCodec();
+        codec.addExtPacker(0x5f, Object, encodeRound);
+        codec.addExtUnpacker(0x5f, decodeRound);
 
         return codec;
     }

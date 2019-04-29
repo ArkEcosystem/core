@@ -34,6 +34,7 @@ export class SnapshotManager {
         const metaInfo = {
             blocks: await exportTable("blocks", params),
             transactions: await exportTable("transactions", params),
+            rounds: await exportTable("rounds", params),
             folder: params.meta.folder,
             skipCompression: params.meta.skipCompression,
         };
@@ -53,6 +54,7 @@ export class SnapshotManager {
 
         await importTable("blocks", params);
         await importTable("transactions", params);
+        await importTable("rounds", params);
 
         const lastBlock = await this.database.getLastBlock();
         const height = lastBlock.height as number;
