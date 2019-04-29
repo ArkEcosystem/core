@@ -175,7 +175,7 @@ describe("State Machine", () => {
                 databaseMocks = {
                     getLastBlock: jest
                         .spyOn(blockchain.database, "getLastBlock")
-                        .mockReturnValue(BlockFactory.fromData(genesisBlock)),
+                        .mockResolvedValue(BlockFactory.fromData(genesisBlock)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(true),

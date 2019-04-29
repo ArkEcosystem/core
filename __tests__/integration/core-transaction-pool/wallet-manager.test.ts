@@ -208,7 +208,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         const blockWithRewardVerified = Blocks.BlockFactory.fromData(blockWithReward);
         blockWithRewardVerified.verification.verified = true;
 
-        await blockchain.processBlock(blockWithRewardVerified, () => null);
+        await blockchain.processBlocks([blockWithRewardVerified], () => null);
 
         const delegateWallet = poolWalletManager.findByPublicKey(generatorPublicKey);
 
