@@ -674,7 +674,7 @@ describe("Transaction Guard", () => {
                 const blockVerified = Blocks.BlockFactory.fromData(block);
                 blockVerified.verification.verified = true;
 
-                await blockchain.processBlock(blockVerified, () => null);
+                await blockchain.processBlocks([blockVerified], () => null);
             };
 
             const forgedErrorMessage = id => ({
