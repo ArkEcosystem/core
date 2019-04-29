@@ -9,7 +9,7 @@
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
-        "lint": "./node_modules/tslint/bin/tslint -c ./tslint.json './packages/**/*/src/**/*.ts' --fix",
+        "lint": "./node_modules/tslint/bin/tslint -c ./tslint.json --project tsconfig.json './packages/**/*/src/**/*.ts' --fix",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
         "lint:tests": "./node_modules/tslint/bin/tslint -c ./tslint.json '__tests__/**/*.ts' --fix",
