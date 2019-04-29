@@ -51,7 +51,7 @@ function decodeTransaction(buffer: Buffer) {
 }
 
 function encodeRound(round) {
-    return encode([round.id, round.public_key, round.balance, round.round]);
+    return encode([round.id, round.public_key || round.publicKey, round.balance, round.round]);
 }
 
 function decodeRound(buffer: Buffer) {
