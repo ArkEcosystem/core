@@ -1,20 +1,6 @@
 import { parse, process } from "ipaddr.js";
 import os from "os";
 
-export const isValidPeer = (peer: { ip: string; status?: string | number }): boolean => {
-    peer.ip = sanitizeRemoteAddress(peer.ip);
-
-    if (!peer.ip) {
-        return false;
-    }
-
-    if (isLocalHost(peer.ip)) {
-        return false;
-    }
-
-    return true;
-};
-
 export const isLocalHost = (ip: string): boolean => {
     try {
         const parsed = parse(ip);
@@ -46,4 +32,18 @@ const sanitizeRemoteAddress = (ip: string): string | null => {
     } catch (error) {
         return null;
     }
+};
+
+export const isValidPeer = (peer: { ip: string; status?: string | number }): boolean => {
+    peer.ip = sanitizeRemoteAddress(peer.ip);
+
+    if (!peer.ip) {
+        return false;
+    }
+
+    if (isLocalHost(peer.ip)) {
+        return false;
+    }
+
+    return true;
 };

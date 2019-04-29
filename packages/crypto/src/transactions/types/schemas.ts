@@ -1,24 +1,13 @@
 import deepmerge = require("deepmerge");
 import { TransactionTypes } from "../../enums";
 
-export type TransactionSchema = typeof transactionBaseSchema;
+const signedTransaction = {
+    required: ["id", "signature"],
+};
 
-export function extend(parent, properties): TransactionSchema {
-    return deepmerge(parent, properties);
-}
-
-export function signedSchema(schema: TransactionSchema): TransactionSchema {
-    const signed = extend(schema, signedTransaction);
-    signed.$id = `${schema.$id}Signed`;
-    return signed;
-}
-
-export function strictSchema(schema: TransactionSchema): TransactionSchema {
-    const signed = signedSchema(schema);
-    const strict = extend(signed, strictTransaction);
-    strict.$id = `${schema.$id}Strict`;
-    return strict;
-}
+const strictTransaction = {
+    additionalProperties: false,
+};
 
 export const transactionBaseSchema = {
     $id: null,
@@ -39,13 +28,22 @@ export const transactionBaseSchema = {
     },
 };
 
-const signedTransaction = {
-    required: ["id", "signature"],
-};
+export function extend(parent, properties): TransactionSchema {
+    return deepmerge(parent, properties);
+}
 
-const strictTransaction = {
-    additionalProperties: false,
-};
+export function signedSchema(schema: TransactionSchema): TransactionSchema {
+    const signed = extend(schema, signedTransaction);
+    signed.$id = `${schema.$id}Signed`;
+    return signed;
+}
+
+export function strictSchema(schema: TransactionSchema): TransactionSchema {
+    const signed = signedSchema(schema);
+    const strict = extend(signed, strictTransaction);
+    strict.$id = `${schema.$id}Strict`;
+    return strict;
+}
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
@@ -167,3 +165,5 @@ export const delegateResignation = extend(transactionBaseSchema, {
         amount: { bignumber: { minimum: 0, maximum: 0 } },
     },
 });
+
+export type TransactionSchema = typeof transactionBaseSchema;
