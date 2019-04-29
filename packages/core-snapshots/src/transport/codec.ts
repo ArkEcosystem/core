@@ -31,6 +31,9 @@ function decodeTransaction(buffer) {
     const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transaction.fromBytesUnsafe(serialized, id).data;
+    const { asset } = transaction;
+    transaction.asset = null;
+
     transaction.block_id = blockId;
     transaction.sequence = sequence;
     transaction.timestamp = timestamp;
@@ -38,11 +41,12 @@ function decodeTransaction(buffer) {
     transaction.fee = transaction.fee.toFixed();
     transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null;
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : null;
-    transaction.asset = transaction.asset ? transaction.asset : null;
     transaction.serialized = serialized;
 
     const decamelized = decamelizeKeys(transaction);
     decamelized.serialized = serialized; // FIXME: decamelizeKeys mutilates Buffers
+    decamelized.asset = asset ? asset : null;
+
     return decamelized;
 }
 
