@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger, Shared } from "@arkecosystem/core-interfaces";
 
-import { roundCalculator } from "../../../core-utils/dist";
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
@@ -83,8 +83,8 @@ export class Database {
             );
         }
 
-        const roundInfoStart = roundCalculator.calculateRound(startHeight);
-        const roundInfoEnd = roundCalculator.calculateRound(endHeight);
+        const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(startHeight);
+        const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(endHeight);
 
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {
