@@ -194,7 +194,7 @@ describe("Blockchain", () => {
                 .getStruct();
 
             const transferBlock = createBlock(forgerKeys, [transfer]);
-            await blockchain.processBlock(transferBlock, mockCallback);
+            await blockchain.processBlocks([transferBlock], mockCallback);
 
             const wallet = blockchain.database.walletManager.findByPublicKey(keyPair.publicKey);
             const walletForger = blockchain.database.walletManager.findByPublicKey(forgerKeys.publicKey);
@@ -215,7 +215,7 @@ describe("Blockchain", () => {
             let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const voteBlock = createBlock(nextForgerWallet, [vote]);
-            await blockchain.processBlock(voteBlock, mockCallback);
+            await blockchain.processBlocks([voteBlock], mockCallback);
 
             // Wallet paid a fee of 1 and the vote has been placed.
             expect(wallet.balance).toEqual(Utils.BigNumber.make(124));
@@ -236,7 +236,7 @@ describe("Blockchain", () => {
             nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const unvoteBlock = createBlock(nextForgerWallet, [unvote]);
-            await blockchain.processBlock(unvoteBlock, mockCallback);
+            await blockchain.processBlocks([unvoteBlock], mockCallback);
 
             // Wallet paid a fee of 1 and no longer voted a delegate
             expect(wallet.balance).toEqual(Utils.BigNumber.make(123));
@@ -329,6 +329,6 @@ async function __addBlocks(untilHeight) {
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
         const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
-        await blockchain.processBlock(blockToProcess, () => null);
+        await blockchain.processBlocks([blockToProcess], () => null);
     }
 }
