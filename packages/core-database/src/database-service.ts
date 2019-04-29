@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, Shared, State } from "@arkecosystem/core-interfaces";
-import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -44,14 +44,15 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
+        await this.createGenesisBlock();
+
         const lastBlock: Interfaces.IBlock = await this.getLastBlock();
 
-        if (lastBlock) {
-            Managers.configManager.setHeight(lastBlock.data.height);
-        }
+        Managers.configManager.setHeight(lastBlock.data.height);
 
         await this.loadBlocksFromCurrentRound();
-        await this.createGenesisBlock();
+
+        await this.configureState(lastBlock);
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -215,7 +216,8 @@ export class DatabaseService implements Database.IDatabaseService {
         const end: number = offset + limit - 1;
 
         let blocks: Interfaces.IBlockData[] = app
-            .resolvePlugin<State.IStateStorage>("state")
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
             .getLastBlocksByHeight(start, end);
 
         if (blocks.length !== limit) {
@@ -256,7 +258,10 @@ export class DatabaseService implements Database.IDatabaseService {
         const toGetFromDB = {};
 
         for (const [i, height] of heights.entries()) {
-            const stateBlocks = app.resolvePlugin<State.IStateStorage>("state").getLastBlocksByHeight(height, height);
+            const stateBlocks = app
+                .resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .getLastBlocksByHeight(height, height);
 
             if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
                 blocks[i] = stateBlocks[0];
@@ -281,7 +286,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocksForRound(roundInfo?: Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
-        let lastBlock: Interfaces.IBlock = app.resolvePlugin<State.IStateStorage>("state").getLastBlock();
+        let lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
 
         if (!lastBlock) {
             lastBlock = await this.getLastBlock();
@@ -331,7 +339,8 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         let commonBlocks: Interfaces.IBlockData[] = app
-            .resolvePlugin<State.IStateStorage>("state")
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
             .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
@@ -344,6 +353,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: Interfaces.IBlockData[] = app
             .resolvePlugin("state")
+            .getStore()
             .getLastBlockIds()
             .reverse()
             .slice(0, 10);
@@ -545,7 +555,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: Database.IWallet = this.walletManager.findByAddress(senderId);
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -568,6 +578,18 @@ export class DatabaseService implements Database.IDatabaseService {
 
             await this.saveBlock(Blocks.BlockFactory.fromJson(this.config.get("genesisBlock")));
         }
+    }
+
+    private configureState(lastBlock: Interfaces.IBlock): void {
+        const state: State.IStateService = app.resolvePlugin<State.IStateService>("state");
+
+        state.getStore().setLastBlock(lastBlock);
+
+        const { blocktime, block } = Managers.configManager.getMilestone();
+
+        const blocksPerDay: number = Math.ceil(86400 / blocktime);
+        state.getBlocks().resize(blocksPerDay);
+        state.getTransactions().resize(blocksPerDay * block.maxTransactions);
     }
 
     private async initializeActiveDelegates(height: number): Promise<void> {
@@ -614,7 +636,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        TransactionHandlerRegistry.get(transaction.type).emitEvents(transaction, this.emitter);
+        Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

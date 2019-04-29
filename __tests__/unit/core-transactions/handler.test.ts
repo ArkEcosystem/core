@@ -19,7 +19,7 @@ import {
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
 import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
-import { TransactionHandlerRegistry } from "../../../packages/core-transactions/src/index";
+import { Handlers } from "../../../packages/core-transactions/src/index";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
 
@@ -65,7 +65,7 @@ beforeEach(() => {
 
 describe("General Tests", () => {
     beforeEach(() => {
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -215,7 +215,7 @@ describe("TransferTransaction", () => {
     beforeEach(() => {
         wallet = walletFixture;
         transaction = transactionFixture;
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -259,7 +259,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
         };
 
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -336,7 +336,7 @@ describe("DelegateRegistrationTransaction", () => {
             },
         };
 
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -416,7 +416,7 @@ describe("VoteTransaction", () => {
             },
         };
 
-        handler = TransactionHandlerRegistry.get(voteTransaction.type);
+        handler = Handlers.Registry.get(voteTransaction.type);
         instance = Transactions.TransactionFactory.fromData(voteTransaction);
     });
 
@@ -600,7 +600,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
             ],
         };
 
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -685,7 +685,7 @@ describe.skip("IpfsTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -711,7 +711,7 @@ describe.skip("TimelockTransferTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -773,7 +773,7 @@ describe.skip("MultiPaymentTransaction", () => {
 
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
@@ -799,7 +799,7 @@ describe.skip("DelegateResignationTransaction", () => {
         transaction = transactionFixture;
         wallet = walletFixture;
         wallet.balance = transaction.amount.plus(transaction.fee);
-        handler = TransactionHandlerRegistry.get(transaction.type);
+        handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Blockchain, Container, TransactionPool } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -10,7 +10,6 @@ import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 // import { Crypto, Enums, Managers } from "@arkecosystem/crypto";
 // import { Connection } from "../../../packages/core-transaction-pool/src/connection";
-// import { MemoryTransaction } from "../../../packages/core-transaction-pool/src/memory-transaction";
 // import { delegates, wallets } from "../../utils/fixtures/unitnet";
 
 let container: Container.IContainer;
@@ -150,7 +149,7 @@ describe("Transaction Guard", () => {
             expect(processor.getErrors()).toEqual({});
 
             // simulate forged transaction
-            const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
+            const transactionHandler = Handlers.Registry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
@@ -204,7 +203,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionHandler = TransactionHandlerRegistry.get(transfers[0].type);
+            const transactionHandler = Handlers.Registry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], newWallet);
 
             expect(processor.getErrors()).toEqual({});
@@ -245,7 +244,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionHandler = TransactionHandlerRegistry.get(transfers1[0].type);
+            const transactionHandler = Handlers.Registry.get(transfers1[0].type);
             transactionHandler.applyToRecipient(transfers1[0], newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);

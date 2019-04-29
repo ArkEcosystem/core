@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { errors, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -67,7 +67,8 @@ export class Processor implements TransactionPool.IProcessor {
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: ITransactionsCached = app
-            .resolvePlugin<State.IStateStorage>("state")
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
             .cacheTransactions(transactions);
 
         this.transactions = added;
@@ -84,7 +85,9 @@ export class Processor implements TransactionPool.IProcessor {
             .resolvePlugin<Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.resolvePlugin<State.IStateStorage>("state").removeCachedTransactionIds(forgedIdsSet);
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .removeCachedTransactionIds(forgedIdsSet);
 
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
@@ -194,13 +197,9 @@ export class Processor implements TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return TransactionHandlerRegistry.get(transaction.type).canEnterTransactionPool(
-                transaction,
-                this.pool,
-                this,
-            );
+            return Handlers.Registry.get(transaction.type).canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
-            if (error instanceof errors.InvalidTransactionTypeError) {
+            if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
                     transaction,
                     "ERR_UNSUPPORTED",

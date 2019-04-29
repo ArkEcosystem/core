@@ -1,4 +1,8 @@
 export const state = {
-    cacheTransactions: () => null,
-    removeCachedTransactionIds: () => null,
+    getStore: () => ({
+        cacheTransactions: () => null,
+        getLastBlock: () => ({ data: { height: 0 } }),
+        getLastHeight: () => 1,
+        removeCachedTransactionIds: () => null,
+    }),
 };

@@ -30,7 +30,7 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 if (name === "state") {
-                    return stateStorageStub;
+                    return { getStore: () => stateStorageStub };
                 }
 
                 return {};

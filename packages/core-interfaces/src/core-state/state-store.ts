@@ -1,6 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-export interface IStateStorage {
+export interface IStateStore {
     blockchain: any;
     lastDownloadedBlock: Interfaces.IBlock | null;
     blockPing: any;
