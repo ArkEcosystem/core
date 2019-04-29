@@ -73,6 +73,20 @@ export class Memory {
         return transactions;
     }
 
+    public getInvalid(): Interfaces.ITransaction[] {
+        const transactions: Interfaces.ITransaction[] = [];
+
+        for (const transaction of Object.values(this.byId)) {
+            const { error } = transaction.validateSchema();
+
+            if (error || !transaction.verify()) {
+                transactions.push(transaction);
+            }
+        }
+
+        return transactions;
+    }
+
     public getById(id: string): Interfaces.ITransaction | undefined {
         if (this.byId[id] === undefined) {
             return undefined;
@@ -97,11 +111,7 @@ export class Memory {
         return new Set();
     }
 
-public remember(
-        transaction: Interfaces.ITransaction,
-        maxTransactionAge: number,
-        databaseReady?: boolean
-    ): void {
+    public remember(transaction: Interfaces.ITransaction, maxTransactionAge: number, databaseReady?: boolean): void {
         assert.strictEqual(this.byId[transaction.id], undefined);
 
         this.all.push(transaction);

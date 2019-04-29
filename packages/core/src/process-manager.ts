@@ -77,7 +77,9 @@ class ProcessManager {
         try {
             const { stdout } = shellSync("pm2 jlist");
 
-            return Object.values(JSON.parse(stdout.split("\n").pop())).filter((p: ProcessDescription) => p.name.startsWith(token));
+            return Object.values(JSON.parse(stdout.split("\n").pop())).filter((p: ProcessDescription) =>
+                p.name.startsWith(token),
+            );
         } catch (error) {
             return undefined;
         }

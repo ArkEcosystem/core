@@ -17,8 +17,7 @@ describe("Check that only each transaction was accepted", () => {
             // ignore 2nd sign registration tx type - same as transaction2ndsig.action
             if (txType !== "secondSignRegistration") {
                 const txSent2ndSign = response.data.data.filter(
-                    tx =>
-                        tx.type !== 1 && tx.sender === wallets[2].address, // ignore the initial 2nd signature registration
+                    tx => tx.type !== 1 && tx.sender === wallets[2].address, // ignore the initial 2nd signature registration
                 );
                 expect(txSent2ndSign.length).toBe(1);
             }
