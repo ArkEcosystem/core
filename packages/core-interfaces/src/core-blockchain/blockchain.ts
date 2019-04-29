@@ -84,7 +84,7 @@ export interface IBlockchain {
      * @param  {Function} callback
      * @return {(Function|void)}
      */
-    processBlocks(block: Interfaces.IBlock[], callback: any): Promise<any>;
+    processBlocks(blocks: Interfaces.IBlock[], callback: any): Promise<any>;
 
     /**
      * Called by forger to wake up and sync with the network.

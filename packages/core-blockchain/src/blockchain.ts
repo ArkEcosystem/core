@@ -381,13 +381,11 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
             // broadcast only current block
-            const blocktime: number = config.getMilestone(blocks[blocks.length - 1].data.height).blocktime;
+            const currentBlock = blocks[blocks.length - 1];
+            const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
 
-            if (
-                this.state.started &&
-                Crypto.Slots.getSlotNumber() * blocktime <= blocks[blocks.length - 1].data.timestamp
-            ) {
-                this.p2p.getMonitor().broadcastBlock(blocks[blocks.length - 1]);
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
+                this.p2p.getMonitor().broadcastBlock(currentBlock);
             }
         }
 
@@ -396,15 +394,13 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         try {
-            // save accepted blocks to db
             await this.database.saveBlocks(acceptedBlocks);
         } catch (exceptionSaveBlocks) {
             logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`);
 
             const resetToHeight = async height => {
                 try {
-                    const lastBlockInDb = await this.database.getLastBlock();
-                    return await this.removeTopBlocks(lastBlockInDb.data.height - height);
+                    return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
                 } catch (e) {
                     logger.error(`Could not remove top blocks from database : ${e.stack}`);
                     return resetToHeight(height); // keep trying, we can't do anything while this fails
