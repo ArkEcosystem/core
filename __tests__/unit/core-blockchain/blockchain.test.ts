@@ -11,6 +11,7 @@ import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { config } from "./mocks/config";
+import { database } from "./mocks/database";
 import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { getStorage } from "./mocks/p2p/peer-storage";
@@ -88,11 +89,11 @@ describe("Blockchain", () => {
 
             const blocksToEnqueue = [blocks101to155[54]];
             blockchain.enqueueBlocks(blocksToEnqueue);
-            expect(processQueuePush).toHaveBeenCalledWith(blocksToEnqueue);
+            expect(processQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue });
         });
     });
 
-    describe("processBlock", () => {
+    describe("processBlocks", () => {
         const block3 = BlockFactory.fromData(blocks2to100[1]);
         let getLastBlock;
         let setLastBlock;
@@ -112,7 +113,7 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
 
-            await blockchain.processBlock(BlockFactory.fromData(blocks2to100[2]), mockCallback);
+            await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
@@ -122,11 +123,36 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
 
-            await blockchain.processBlock(lastBlock, mockCallback);
+            await blockchain.processBlocks([lastBlock], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(blockchain.getLastBlock()).toEqual(lastBlock);
+        });
+
+        it("should process a new block with database saveBlocks failing once", async () => {
+            const mockCallback = jest.fn(() => true);
+            blockchain.state.blockchain = {};
+            database.saveBlocks = jest.fn().mockRejectedValueOnce(new Error("oops"));
+            jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(null);
+
+            await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
+        });
+
+        it("should process a new block with database saveBlocks + getLastBlock failing once", async () => {
+            const mockCallback = jest.fn(() => true);
+            blockchain.state.blockchain = {};
+            jest.spyOn(database, "saveBlocks").mockRejectedValueOnce(new Error("oops saveBlocks"));
+            jest.spyOn(database, "getLastBlock").mockRejectedValueOnce(new Error("oops getLastBlock"));
+            jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(null);
+
+            await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
+            await delay(200);
+
+            expect(mockCallback.mock.calls.length).toBe(1);
         });
 
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
@@ -138,7 +164,7 @@ describe("Blockchain", () => {
 
             const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
-            await blockchain.processBlock(lastBlock, mockCallback);
+            await blockchain.processBlocks([lastBlock], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
