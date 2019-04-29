@@ -71,6 +71,8 @@ export class SnapshotManager {
             );
         }
 
+        await this.database.db.one("SELECT setval('rounds_id_seq', (SELECT MAX(id) FROM rounds) + 1)");
+
         this.database.close();
     }
 
