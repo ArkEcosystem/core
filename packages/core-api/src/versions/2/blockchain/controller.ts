@@ -1,6 +1,6 @@
 import { supplyCalculator } from "@arkecosystem/core-utils";
-import Boom from "boom";
-import Hapi from "hapi";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class BlockchainController extends Controller {

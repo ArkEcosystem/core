@@ -1,6 +1,6 @@
+import Joi from "@hapi/joi";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
 import got from "got";
-import Joi from "joi";
 import { basename, extname, resolve } from "path";
 
 export class FileLoader {

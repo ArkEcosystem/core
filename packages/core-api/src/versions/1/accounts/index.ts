@@ -1,4 +1,4 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { registerMethods } from "./methods";
 import { registerRoutes } from "./routes";
 

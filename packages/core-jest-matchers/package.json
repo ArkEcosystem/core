@@ -1,23 +1,23 @@
 {
     "name": "@arkecosystem/core-jest-matchers",
-    "description": "Jest matchers for ARK Core",
     "version": "2.3.21",
+    "description": "Jest matchers for ARK Core",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Erwann Gentric <erwann@ark.io>",
         "Joshua Noack <joshua@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.21",
@@ -37,10 +37,10 @@
         "@types/lodash.isequal": "^4.5.5",
         "@types/lodash.sortby": "^4.7.6"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

@@ -1,4 +1,4 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { VotesController } from "./controller";
 import * as Schema from "./schema";
 

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Crypto } from "@arkecosystem/crypto";
-import Hapi, { ServerMethod } from "hapi";
+import Hapi, { ServerMethod } from "@hapi/hapi";
 
 export class ServerCache {
     public static make(server: Hapi.Server): ServerCache {

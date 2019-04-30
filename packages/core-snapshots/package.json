@@ -1,23 +1,23 @@
 {
     "name": "@arkecosystem/core-snapshots",
-    "description": "Provides live local streamed snapshots functionality for ARK Core",
     "version": "2.3.21",
+    "description": "Provides live local streamed snapshots functionality for ARK Core",
+    "license": "MIT",
     "contributors": [
         "Kristjan Košič <chris@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn copy && yarn compile",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
-        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
+        "prepublishOnly": "yarn build"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.21",
@@ -44,10 +44,10 @@
         "@types/pg-query-stream": "^1.0.2",
         "@types/pluralize": "^0.0.29"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }
