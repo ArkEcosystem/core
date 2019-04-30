@@ -60,6 +60,10 @@ export class Connection implements TransactionPool.IConnection {
             this.removeTransactionById(id);
         }
 
+        this.purgeInvalidTransactions();
+
+        this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
+
         return this;
     }
 
@@ -375,6 +379,10 @@ export class Connection implements TransactionPool.IConnection {
         }
     }
 
+    public purgeInvalidTransactions(): void {
+        this.purgeTransactions("transaction.pool.removed", this.memory.getInvalid());
+    }
+
     public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
         this.purgeExpired();
 
@@ -456,9 +464,13 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
     }
 
-    private purgeExpired() {
-        for (const transaction of this.memory.getExpired(this.options.maxTransactionAge)) {
-            this.emitter.emit("transaction.expired", transaction.data);
+    private purgeExpired(): void {
+        this.purgeTransactions("transaction.expired", this.memory.getExpired(this.options.maxTransactionAge));
+    }
+
+    private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {
+        for (const transaction of transactions) {
+            this.emitter.emit(event, transaction.data);
 
             this.walletManager.revertTransactionForSender(transaction);
 

@@ -37,6 +37,7 @@ export const container = {
             if (name === "event-emitter") {
                 return {
                     emit: () => ({}),
+                    on: () => ({}),
                 };
             }
 

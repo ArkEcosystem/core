@@ -3,9 +3,18 @@ import { TransactionRegistry } from "..";
 import { Hash, HashAlgorithms } from "../../crypto";
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
-import { IKeyPair, ISerializeOptions, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import {
+    IKeyPair,
+    ISchemaValidationResult,
+    ISerializeOptions,
+    ITransaction,
+    ITransactionData,
+    ITransactionJson,
+} from "../../interfaces";
 import { configManager } from "../../managers";
 import { isException } from "../../utils";
+import { validator } from "../../validation";
+import { transactionRegistry } from "../registry";
 import { Serializer } from "../serializer";
 import { TransactionSchema } from "./schemas";
 
@@ -65,6 +74,18 @@ export abstract class Transaction implements ITransaction {
             data.signature,
             data.senderPublicKey,
         );
+    }
+
+    // @TODO: move this to a more appropriate place
+    public validateSchema(strict: boolean = true): ISchemaValidationResult {
+        // FIXME: legacy type 4 need special treatment
+        if (this.data.type === TransactionTypes.MultiSignature) {
+            return { value: this.data, error: null };
+        }
+
+        const { $id } = transactionRegistry.get(this.data.type).getSchema();
+
+        return validator.validate(strict ? `${$id}Strict` : `${$id}`, this.data);
     }
 
     public toJson(): ITransactionJson {

@@ -16,7 +16,7 @@ describe("Storage", () => {
 
     describe("bulkAdd", () => {
         it("should add the transactions provided", () => {
-            const memPoolTransactions = [ transactions.dummy1, transactions.dummy2 ];
+            const memPoolTransactions = [transactions.dummy1, transactions.dummy2];
 
             storage.bulkAdd(memPoolTransactions);
             const allTransactions = storage.loadAll();
@@ -26,11 +26,11 @@ describe("Storage", () => {
 
     describe("bulkRemoveById", () => {
         it("should remove the transactions corresponding to the ids provided", () => {
-            const memPoolTransactions = [ transactions.dummy1, transactions.dummy2 ];
+            const memPoolTransactions = [transactions.dummy1, transactions.dummy2];
             const anotherTransaction = transactions.dummy3;
 
             storage.bulkAdd([...memPoolTransactions, anotherTransaction]);
-            storage.bulkRemoveById([ anotherTransaction.id ]);
+            storage.bulkRemoveById([anotherTransaction.id]);
             const allTransactions = storage.loadAll();
             expect(allTransactions).toMatchObject(memPoolTransactions);
         });
