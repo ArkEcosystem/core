@@ -135,6 +135,9 @@ describe("Transaction Guard", () => {
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate1.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
+            transactionPool.walletManager.reindex(delegateWallet);
+            transactionPool.walletManager.reindex(newWallet);
+
             expect(+delegateWallet.balance).toBe(+delegate1.balance);
             expect(+newWallet.balance).toBe(0);
 
@@ -150,7 +153,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipient(transfers[0], newWallet);
+            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -164,6 +167,9 @@ describe("Transaction Guard", () => {
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate2.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
+
+            transactionPool.walletManager.reindex(delegateWallet);
+            transactionPool.walletManager.reindex(newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate2.balance);
             expect(+newWallet.balance).toBe(0);
@@ -204,7 +210,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipient(transfers[0], newWallet);
+            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -230,6 +236,8 @@ describe("Transaction Guard", () => {
 
             // Make sure it is not considered a cold wallet
             container.resolvePlugin("database").walletManager.reindex(newWallet);
+            transactionPool.walletManager.reindex(delegateWallet);
+            transactionPool.walletManager.reindex(newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance);
             expect(+newWallet.balance).toBe(0);
@@ -245,7 +253,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers1[0].type);
-            transactionHandler.applyToRecipient(transfers1[0], newWallet);
+            transactionHandler.applyToRecipientInPool(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -259,7 +267,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            transactionHandler.applyToRecipient(transfers2[0], delegateWallet);
+            transactionHandler.applyToRecipientInPool(transfers2[0], transactionPool.walletManager);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 

@@ -71,8 +71,11 @@ describe("applyPoolTransactionToSender", () => {
                 .withPassphrase(delegate0.secret)
                 .build()[0];
 
+            poolWalletManager.reindex(delegateWallet);
+            poolWalletManager.reindex(newWallet);
+
             const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSender(transfer, delegateWallet);
+            transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -97,8 +100,11 @@ describe("applyPoolTransactionToSender", () => {
                 .withPassphrase(delegate0.secret)
                 .build()[0];
 
+            poolWalletManager.reindex(delegateWallet);
+            poolWalletManager.reindex(newWallet);
+
             const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSender(transfer, delegateWallet);
+            transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -146,10 +152,7 @@ describe("applyPoolTransactionToSender", () => {
 
                 try {
                     poolWalletManager.throwIfApplyingFails(transfer);
-
-                    const senderWallet = poolWalletManager.findByPublicKey(transfer.data.senderPublicKey);
-                    transactionHandler.applyToSender(transfer, senderWallet);
-
+                    transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
                     expect(t.from).toBe(delegate);
                 } catch (error) {
                     expect(t.from).toBe(walletsGen[0]);
