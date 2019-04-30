@@ -1,4 +1,4 @@
-import Boom from "boom";
+import Boom from "@hapi/boom";
 import { IWebhook } from "../interfaces";
 
 export function transformResource(model): IWebhook {

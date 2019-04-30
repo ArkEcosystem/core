@@ -37,7 +37,7 @@ class ProcessManager {
 
     public status(name: string): ProcessState {
         try {
-            return processManager.describe(name).pm2_env.status;
+            return this.describe(name).pm2_env.status;
         } catch (error) {
             return undefined;
         }

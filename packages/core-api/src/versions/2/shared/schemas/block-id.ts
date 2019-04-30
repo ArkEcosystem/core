@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import * as Joi from "@hapi/joi";
 
 export const blockId = Joi.alternatives().try(
     Joi.string()

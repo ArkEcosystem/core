@@ -9,6 +9,7 @@ import {
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
 import { Keys } from "../../../../packages/crypto/src/identities";
+import { ITransaction } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
@@ -17,7 +18,7 @@ import { Serializer } from "../../../../packages/crypto/src/transactions/seriali
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
 describe("Transaction serializer / deserializer", () => {
-    const checkCommonFields = (deserialized: Transaction, expected) => {
+    const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "timestamp", "senderPublicKey", "fee", "amount"];
         fieldsToCheck.forEach(field => {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());

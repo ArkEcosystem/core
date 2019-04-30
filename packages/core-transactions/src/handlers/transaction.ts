@@ -58,7 +58,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         if (wallet.secondPublicKey) {
-            if (!Transactions.Transaction.verifySecondSignature(data, wallet.secondPublicKey)) {
+            if (!Transactions.Verifier.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
         } else {

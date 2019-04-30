@@ -57,6 +57,10 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
         return Transactions.TransactionFactory.fromBytes(data.serialized).verified;
     }
 
+    if (context === "rounds") {
+        return true;
+    }
+
     return false;
 };
 
@@ -71,6 +75,10 @@ export const canImportRecord = (context, data, lastBlock) => {
 
     if (context === "transactions") {
         return data.timestamp > lastBlock.timestamp;
+    }
+
+    if (context === "rounds") {
+        return true;
     }
 
     return false;

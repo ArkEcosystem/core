@@ -1,6 +1,6 @@
 import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
+import Boom from "@hapi/boom";
 import { generateMnemonic } from "bip39";
-import Boom from "boom";
 import { IWallet } from "../interfaces";
 import { database } from "./services/database";
 import { network } from "./services/network";
@@ -10,7 +10,7 @@ export const blocks = [
     {
         name: "blocks.info",
         async method(params: { id: string }) {
-            const response = await network.sendRequest({ url: `blocks/${params.id}` });
+            const response = await network.sendGET({ path: `blocks/${params.id}` });
 
             if (!response) {
                 return Boom.notFound(`Block ${params.id} could not be found.`);
@@ -32,8 +32,8 @@ export const blocks = [
     {
         name: "blocks.latest",
         async method() {
-            const response = await network.sendRequest({
-                url: "blocks",
+            const response = await network.sendGET({
+                path: "blocks",
                 query: { orderBy: "height:desc", limit: 1 },
             });
 
@@ -43,8 +43,8 @@ export const blocks = [
     {
         name: "blocks.transactions",
         async method(params: { id: string; offset?: number }) {
-            const response = await network.sendRequest({
-                url: `blocks/${params.id}/transactions`,
+            const response = await network.sendGET({
+                path: `blocks/${params.id}/transactions`,
                 query: {
                     offset: params.offset,
                     orderBy: "timestamp:desc",
@@ -88,11 +88,14 @@ export const transactions = [
 
             const { data } = Transactions.TransactionFactory.fromData(transaction);
 
-            if (!Transactions.Transaction.verifyData(data)) {
+            if (!Transactions.Verifier.verifyHash(data)) {
                 return Boom.badData();
             }
 
-            await network.broadcast(transaction);
+            await network.sendPOST({
+                path: "transactions",
+                body: { transactions: [transaction] },
+            });
 
             return transaction;
         },
@@ -119,7 +122,7 @@ export const transactions = [
 
             const transaction: Interfaces.ITransactionData = transactionBuilder.sign(params.passphrase).getStruct();
 
-            if (!Transactions.Transaction.verifyData(transaction)) {
+            if (!Transactions.Verifier.verifyHash(transaction)) {
                 return Boom.badData();
             }
 
@@ -150,7 +153,7 @@ export const transactions = [
     {
         name: "transactions.info",
         async method(params: { id: string }) {
-            const response = await network.sendRequest({ url: `transactions/${params.id}` });
+            const response = await network.sendGET({ path: `transactions/${params.id}` });
 
             if (!response) {
                 return Boom.notFound(`Transaction ${params.id} could not be found.`);
@@ -194,7 +197,7 @@ export const transactions = [
 
                 const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
 
-                if (!Transactions.Transaction.verifyData(transaction)) {
+                if (!Transactions.Verifier.verifyHash(transaction)) {
                     return Boom.badData();
                 }
 
@@ -255,7 +258,7 @@ export const wallets = [
     {
         name: "wallets.info",
         async method(params: { address: string }) {
-            const response = await network.sendRequest({ url: `wallets/${params.address}` });
+            const response = await network.sendGET({ path: `wallets/${params.address}` });
 
             if (!response) {
                 return Boom.notFound(`Wallet ${params.address} could not be found.`);
@@ -277,8 +280,8 @@ export const wallets = [
     {
         name: "wallets.transactions",
         async method(params: { offset?: number; address: string }) {
-            const response = await network.sendRequest({
-                url: "transactions",
+            const response = await network.sendGET({
+                path: "transactions",
                 query: {
                     offset: params.offset || 0,
                     orderBy: "timestamp:desc",

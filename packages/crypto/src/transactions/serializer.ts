@@ -8,7 +8,7 @@ import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
-import { Transaction, TransactionTypeFactory } from "./types";
+import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer {
@@ -201,7 +201,7 @@ export class Serializer {
         buffer.writeUint64(+transaction.fee);
     }
 
-    private static serializeVendorField(transaction: Transaction, buffer: ByteBuffer): void {
+    private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
         if (transaction.hasVendorField()) {
             const { data } = transaction;
             if (data.vendorField) {

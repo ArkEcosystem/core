@@ -80,11 +80,15 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.queue = async.queue((block: Interfaces.IBlockData, cb) => {
+        this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
-                return this.processBlock(Blocks.BlockFactory.fromData(block), cb);
+                return this.processBlocks(blockList.blocks.map(b => Blocks.BlockFactory.fromData(b)), cb);
             } catch (error) {
-                logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
+                logger.error(
+                    `Failed to process ${blockList.blocks.length} blocks from height ${
+                        blockList.blocks[0].height
+                    } in queue.`,
+                );
                 logger.error(error.stack);
                 return cb();
             }
@@ -264,7 +268,7 @@ export class Blockchain implements blockchain.IBlockchain {
             return;
         }
 
-        this.queue.push(blocks);
+        this.queue.push({ blocks });
         this.state.lastDownloadedBlock = BlockFactory.fromData(blocks.slice(-1)[0]);
     }
 
@@ -361,16 +365,50 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block: Interfaces.IBlock, callback): Promise<any> {
-        const result: BlockProcessorResult = await this.blockProcessor.process(block);
+    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<any> {
+        const acceptedBlocks: Interfaces.IBlock[] = [];
+        let lastProcessResult: BlockProcessorResult;
+        for (const block of blocks) {
+            lastProcessResult = await this.blockProcessor.process(block);
 
-        if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
-            // broadcast only current block
-            const blocktime: number = config.getMilestone(block.data.height).blocktime;
-
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-                this.p2p.getMonitor().broadcastBlock(block);
+            if (lastProcessResult === BlockProcessorResult.Accepted) {
+                acceptedBlocks.push(block);
             }
+        }
+
+        if (
+            lastProcessResult === BlockProcessorResult.Accepted ||
+            lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
+        ) {
+            // broadcast only current block
+            const currentBlock = blocks[blocks.length - 1];
+            const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
+
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
+                this.p2p.getMonitor().broadcastBlock(currentBlock);
+            }
+        }
+
+        if (acceptedBlocks.length === 0) {
+            return callback();
+        }
+
+        try {
+            await this.database.saveBlocks(acceptedBlocks);
+        } catch (exceptionSaveBlocks) {
+            logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`);
+
+            const resetToHeight = async height => {
+                try {
+                    return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
+                } catch (e) {
+                    logger.error(`Could not remove top blocks from database : ${e.stack}`);
+                    return resetToHeight(height); // keep trying, we can't do anything while this fails
+                }
+            };
+            await resetToHeight(acceptedBlocks[0].data.height - 1);
+
+            return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
         }
 
         return callback();

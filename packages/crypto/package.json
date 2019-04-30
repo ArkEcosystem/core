@@ -1,7 +1,8 @@
 {
     "name": "@arkecosystem/crypto",
+    "version": "2.3.21",
     "description": "Crypto utilities for the ARK Blockchain",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx.thoorens@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -10,27 +11,27 @@
         "Juan A. Martín <juan@ark.io>",
         "Joshua Noack <joshua@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
-    "browser": "dist/index.umd.js",
-    "module": "dist/index.cjs.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "module": "dist/index.cjs.js",
+    "browser": "dist/index.umd.js",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && tsc",
         "build:watch": "yarn clean && yarn compile -w",
+        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
         "clean": "del dist",
-        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js"
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
     },
     "dependencies": {
         "@faustbrian/dato": "^0.3.0",
+        "@hapi/joi": "^15.0.0",
         "ajv": "^6.10.0",
         "ajv-keywords": "^3.4.0",
-        "bcrypto": "^3.1.5",
+        "bcrypto": "^3.1.6",
         "bignumber.js": "^8.1.1",
         "bip32": "^1.0.4",
         "bip39": "^3.0.1",
@@ -40,7 +41,6 @@
         "bytebuffer": "^5.0.1",
         "create-hash": "^1.2.0",
         "deepmerge": "^3.2.0",
-        "joi": "^14.3.1",
         "lodash.camelcase": "^4.3.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
@@ -69,7 +69,7 @@
         "@types/webpack-merge": "^4.1.5",
         "@types/webpack-node-externals": "^1.6.3",
         "@types/wif": "^2.0.1",
-        "ts-loader": "^5.4.3",
+        "ts-loader": "^5.4.4",
         "webpack-merge": "^4.2.1",
         "webpack-node-externals": "^1.7.2"
     },

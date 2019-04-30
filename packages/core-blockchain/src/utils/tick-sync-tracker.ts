@@ -42,7 +42,7 @@ export function tickSyncTracker(blockCount, count): void {
         const blocksDownloaded = tracker.blocksDownloaded.toLocaleString();
         const networkHeight = tracker.networkHeight.toLocaleString();
         const timeLeft = prettyMs(tracker.remainingInMilliseconds, {
-            secDecimalDigits: 0,
+            secondsDecimalDigits: 0,
         });
 
         app.resolvePlugin<Logger.ILogger>("logger").info(

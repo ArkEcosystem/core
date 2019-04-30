@@ -1,33 +1,33 @@
 {
     "name": "@arkecosystem/core-json-rpc",
+    "version": "2.3.21",
     "description": "A JSON-RPC 2.0 Specification compliant server to interact with the ARK Blockchain.",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.18",
-        "@arkecosystem/core-http-utils": "^2.3.18",
-        "@arkecosystem/core-interfaces": "^2.3.18",
-        "@arkecosystem/core-utils": "^2.3.18",
-        "@arkecosystem/crypto": "^2.3.18",
+        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-http-utils": "^2.3.21",
+        "@arkecosystem/core-interfaces": "^2.3.21",
+        "@arkecosystem/core-utils": "^2.3.21",
+        "@arkecosystem/crypto": "^2.3.21",
+        "@hapi/boom": "^7.4.2",
         "@keyv/sqlite": "^2.0.0",
         "bip39": "^3.0.1",
-        "boom": "^7.3.0",
         "is-reachable": "^3.1.0",
         "keyv": "^3.1.0",
         "lodash.get": "^4.4.2",
@@ -35,20 +35,20 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.3.18",
+        "@arkecosystem/core-p2p": "^2.3.21",
         "@types/bip39": "^2.4.2",
         "@types/boom": "^7.2.1",
-        "@types/is-reachable": "^3.0.0",
+        "@types/is-reachable": "^3.1.0",
         "@types/keyv": "^3.1.0",
         "@types/keyv__sqlite": "^2.0.0",
         "@types/lodash.get": "^4.4.6",
         "@types/uuid": "^3.4.4",
         "@types/wif": "^2.0.1"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

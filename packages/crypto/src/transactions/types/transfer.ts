@@ -21,12 +21,7 @@ export class TransferTransaction extends Transaction {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
         buffer.writeUint64(+data.amount);
-
-        // TODO: revise later, but for now it complicates aip11 signature calculation
-        if (!data.version || data.version === 1 || !options.excludeSignature) {
-            buffer.writeUint32(data.expiration || 0);
-        }
-
+        buffer.writeUint32(data.expiration || 0);
         buffer.append(bs58check.decode(data.recipientId));
 
         return buffer;

@@ -1,46 +1,46 @@
 {
     "name": "@arkecosystem/core-http-utils",
+    "version": "2.3.21",
     "description": "Http Utilities for ARK Core",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.18",
-        "@arkecosystem/core-utils": "^2.3.18",
-        "@arkecosystem/crypto": "^2.3.18",
-        "boom": "^7.3.0",
+        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-utils": "^2.3.21",
+        "@arkecosystem/crypto": "^2.3.21",
+        "@hapi/boom": "^7.4.2",
+        "@hapi/good": "^8.2.0",
+        "@hapi/good-console": "^8.1.0",
+        "@hapi/good-squeeze": "^5.2.0",
+        "@hapi/hapi": "^18.3.1",
         "expand-home-dir": "^0.0.3",
-        "good": "^8.1.2",
-        "good-console": "^8.0.0",
-        "good-squeeze": "^5.1.0",
-        "hapi": "^18.1.0",
         "hapi-trailing-slash": "^3.0.1",
         "nanomatch": "^1.2.13"
     },
     "devDependencies": {
         "@types/boom": "^7.2.1",
-        "@types/hapi": "^18.0.1",
+        "@types/hapi": "^18.0.2",
         "@types/inert": "^5.1.2",
         "@types/micromatch": "^3.1.0",
         "@types/vision": "^5.3.6"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

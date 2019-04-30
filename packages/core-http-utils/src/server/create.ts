@@ -1,4 +1,4 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { monitorServer } from "./monitor";
 
 export async function createServer(options, callback: any = null, plugins?: any[]) {

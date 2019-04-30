@@ -1,5 +1,6 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import { writeFileSync } from "fs";
+import { cidr } from "ip";
 import { PeerRepository } from "./peer-repository";
 
 export class PeerStorage implements P2P.IPeerStorage {
@@ -77,6 +78,10 @@ export class PeerStorage implements P2P.IPeerStorage {
 
     public hasSuspendedPeer(ip: string): boolean {
         return this.peersSuspended.has(ip);
+    }
+
+    public getSameSubnetPeers(ip: string): P2P.IPeer[] {
+        return this.getPeers().filter(peer => cidr(`${peer.ip}/24`) === cidr(`${ip}/24`));
     }
 
     public savePeers(): void {

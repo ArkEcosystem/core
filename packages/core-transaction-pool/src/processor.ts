@@ -14,8 +14,8 @@ import { WalletManager } from "./wallet-manager";
 export class Processor implements TransactionPool.IProcessor {
     private transactions: Interfaces.ITransactionData[] = [];
     private readonly excess: string[] = [];
-    private readonly accept: Map<string, Transactions.Transaction> = new Map();
-    private readonly broadcast: Map<string, Transactions.Transaction> = new Map();
+    private readonly accept: Map<string, Interfaces.ITransaction> = new Map();
+    private readonly broadcast: Map<string, Interfaces.ITransaction> = new Map();
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 

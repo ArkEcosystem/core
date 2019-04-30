@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger, Shared } from "@arkecosystem/core-interfaces";
 
+import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
@@ -12,6 +13,7 @@ export class Database {
     public pgp: any;
     public blocksColumnSet: any;
     public transactionsColumnSet: any;
+    public roundsColumnSet: any;
 
     public async make(connection: PostgresConnection) {
         this.db = connection.db;
@@ -81,6 +83,9 @@ export class Database {
             );
         }
 
+        const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(startHeight);
+        const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(endHeight);
+
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {
                 start: startBlock.height,
@@ -89,6 +94,10 @@ export class Database {
             transactions: rawQuery(this.pgp, queries.transactions.timestampRange, {
                 start: startBlock.timestamp,
                 end: endBlock.timestamp,
+            }),
+            rounds: rawQuery(this.pgp, queries.rounds.roundRange, {
+                start: roundInfoStart.round,
+                end: roundInfoEnd.round,
             }),
         };
     }
@@ -105,6 +114,8 @@ export class Database {
                 return this.blocksColumnSet;
             case "transactions":
                 return this.transactionsColumnSet;
+            case "rounds":
+                return this.roundsColumnSet;
             default:
                 throw new Error("Invalid table name");
         }
@@ -150,6 +161,10 @@ export class Database {
             ],
             { table: "transactions" },
         );
+
+        this.roundsColumnSet = new this.pgp.helpers.ColumnSet(["id", "public_key", "balance", "round"], {
+            table: "rounds",
+        });
     }
 }
 

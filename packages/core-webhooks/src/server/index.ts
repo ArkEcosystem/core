@@ -1,5 +1,5 @@
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import Boom from "boom";
+import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
 import { database } from "../database";
 import { IWebhook } from "../interfaces";

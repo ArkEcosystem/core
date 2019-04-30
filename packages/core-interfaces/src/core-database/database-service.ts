@@ -45,6 +45,8 @@ export interface IDatabaseService {
 
     saveBlock(block: Interfaces.IBlock): Promise<void>;
 
+    saveBlocks(blocks: Interfaces.IBlock[]): Promise<void>;
+
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
     enqueueDeleteBlock(block: Interfaces.IBlock): void;

@@ -40,7 +40,11 @@ export class Memory {
                     return 1;
                 }
 
-                return a.data.expiration - b.data.expiration;
+                if (a.data.expiration > 0 && b.data.expiration > 0) {
+                    return a.data.expiration - b.data.expiration;
+                }
+
+                return 0;
             });
 
             this.allIsSorted = true;
@@ -64,6 +68,20 @@ export class Memory {
             }
 
             transactions.push(transaction);
+        }
+
+        return transactions;
+    }
+
+    public getInvalid(): Interfaces.ITransaction[] {
+        const transactions: Interfaces.ITransaction[] = [];
+
+        for (const transaction of Object.values(this.byId)) {
+            const { error } = transaction.verifySchema();
+
+            if (error) {
+                transactions.push(transaction);
+            }
         }
 
         return transactions;
@@ -93,11 +111,7 @@ export class Memory {
         return new Set();
     }
 
-public remember(
-        transaction: Interfaces.ITransaction,
-        maxTransactionAge: number,
-        databaseReady?: boolean
-    ): void {
+    public remember(transaction: Interfaces.ITransaction, maxTransactionAge: number, databaseReady?: boolean): void {
         assert.strictEqual(this.byId[transaction.id], undefined);
 
         this.all.push(transaction);
@@ -125,16 +139,10 @@ public remember(
         }
 
         if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            const maxHeight: number = this.currentHeight() + maxTransactionAge;
-            if (
-                typeof transaction.data.expiration !== "number" ||
-                transaction.data.expiration === 0 ||
-                transaction.data.expiration > maxHeight
-            ) {
-                transaction.data.expiration = maxHeight;
+            if (transaction.data.expiration > 0) {
+                this.byExpiration.push(transaction);
+                this.byExpirationIsSorted = false;
             }
-            this.byExpiration.push(transaction);
-            this.byExpirationIsSorted = false;
         }
 
         if (!databaseReady) {

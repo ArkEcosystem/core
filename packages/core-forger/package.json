@@ -1,31 +1,31 @@
 {
     "name": "@arkecosystem/core-forger",
+    "version": "2.3.21",
     "description": "Forger for ARK Core",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.18",
-        "@arkecosystem/core-interfaces": "^2.3.18",
-        "@arkecosystem/core-p2p": "^2.3.18",
-        "@arkecosystem/core-utils": "^2.3.18",
-        "@arkecosystem/crypto": "^2.3.18",
+        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-interfaces": "^2.3.21",
+        "@arkecosystem/core-p2p": "^2.3.21",
+        "@arkecosystem/core-utils": "^2.3.21",
+        "@arkecosystem/crypto": "^2.3.21",
         "delay": "^4.2.0",
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
@@ -38,10 +38,10 @@
         "@types/pluralize": "^0.0.29",
         "@types/socketcluster-client": "^13.0.2"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

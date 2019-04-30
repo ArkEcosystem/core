@@ -1,36 +1,36 @@
 {
     "name": "@arkecosystem/core-interfaces",
+    "version": "2.3.21",
     "description": "Interface types for essential ARK Core modules",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.3.18",
+        "@arkecosystem/crypto": "^2.3.21",
         "@faustbrian/dato": "^0.3.0",
-        "awilix": "^4.2.1"
-    },
-    "publishConfig": {
-        "access": "public"
+        "awilix": "^4.2.2"
     },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

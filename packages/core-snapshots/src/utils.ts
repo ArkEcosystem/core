@@ -19,22 +19,30 @@ export const copySnapshot = (sourceFolder, destFolder) => {
         source: {
             blocks: this.getFilePath("blocks", sourceFolder),
             transactions: this.getFilePath("transactions", sourceFolder),
+            rounds: this.getFilePath("rounds", sourceFolder),
         },
         dest: {
             blocks: this.getFilePath("blocks", destFolder),
             transactions: this.getFilePath("transactions", destFolder),
+            rounds: this.getFilePath("rounds", destFolder),
         },
     };
 
     ensureFileSync(paths.dest.blocks);
     ensureFileSync(paths.dest.transactions);
+    ensureFileSync(paths.dest.rounds);
 
-    if (!existsSync(paths.source.blocks) || !existsSync(paths.source.transactions)) {
+    if (
+        !existsSync(paths.source.blocks) ||
+        !existsSync(paths.source.transactions) ||
+        !existsSync(paths.source.rounds)
+    ) {
         app.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist`);
     }
 
     copyFileSync(paths.source.blocks, paths.dest.blocks);
     copyFileSync(paths.source.transactions, paths.dest.transactions);
+    copyFileSync(paths.source.rounds, paths.dest.rounds);
 };
 
 export const calcRecordCount = (table, currentCount, sourceFolder) => {
@@ -63,6 +71,7 @@ export const getSnapshotInfo = folder => {
         folder: snapshotInfo.folder,
         blocks: snapshotInfo.blocks,
         transactions: snapshotInfo.transactions,
+        rounds: snapshotInfo.rounds,
         skipCompression: snapshotInfo.skipCompression,
     };
 };

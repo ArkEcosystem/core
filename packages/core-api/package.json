@@ -1,43 +1,43 @@
 {
     "name": "@arkecosystem/core-api",
+    "version": "2.3.21",
     "description": "Public API for ARK Core",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.18",
-        "@arkecosystem/core-http-utils": "^2.3.18",
-        "@arkecosystem/core-interfaces": "^2.3.18",
-        "@arkecosystem/core-transaction-pool": "^2.3.18",
-        "@arkecosystem/core-utils": "^2.3.18",
-        "@arkecosystem/crypto": "^2.3.18",
+        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-http-utils": "^2.3.21",
+        "@arkecosystem/core-interfaces": "^2.3.21",
+        "@arkecosystem/core-transaction-pool": "^2.3.21",
+        "@arkecosystem/core-utils": "^2.3.21",
+        "@arkecosystem/crypto": "^2.3.21",
         "@arkecosystem/utils": "^0.3.0",
         "@faustbrian/dato": "^0.3.0",
         "@faustbrian/hapi-version": "^0.2.11",
+        "@hapi/boom": "^7.4.2",
+        "@hapi/joi": "^15.0.0",
         "ajv": "^6.10.0",
-        "boom": "^7.3.0",
         "bs58check": "^2.1.2",
         "delay": "^4.2.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
         "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
-        "joi": "^14.3.1",
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
@@ -51,13 +51,13 @@
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
-        "@types/semver": "^6.0.0",
-        "@types/mathjs": "^5.0.1"
-    },
-    "publishConfig": {
-        "access": "public"
+        "@types/mathjs": "^5.0.1",
+        "@types/semver": "^6.0.0"
     },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

@@ -1,32 +1,32 @@
 {
     "name": "@arkecosystem/core-webhooks",
+    "version": "2.3.21",
     "description": "Webhooks for ARK Core",
-    "version": "2.3.18",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.18",
-        "@arkecosystem/core-event-emitter": "^2.3.18",
-        "@arkecosystem/core-http-utils": "^2.3.18",
-        "@arkecosystem/core-interfaces": "^2.3.18",
-        "@arkecosystem/core-utils": "^2.3.18",
-        "boom": "^7.3.0",
+        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-event-emitter": "^2.3.21",
+        "@arkecosystem/core-http-utils": "^2.3.21",
+        "@arkecosystem/core-interfaces": "^2.3.21",
+        "@arkecosystem/core-utils": "^2.3.21",
+        "@hapi/boom": "^7.4.2",
+        "@hapi/joi": "^15.0.0",
         "fs-extra": "^7.0.1",
-        "joi": "^14.3.1",
         "lowdb": "^1.0.0",
         "uuid": "^3.3.2"
     },
@@ -35,10 +35,10 @@
         "@types/fs-extra": "^5.0.5",
         "@types/joi": "^14.3.3"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

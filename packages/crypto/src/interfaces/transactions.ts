@@ -17,6 +17,7 @@ export interface ITransaction {
     deserialize(buf: ByteBuffer): void;
 
     verify(): boolean;
+    verifySchema(strict?: boolean): ISchemaValidationResult;
 
     toJson(): ITransactionJson;
 
