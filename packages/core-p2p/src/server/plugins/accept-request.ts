@@ -43,7 +43,11 @@ const register = async (server, options) => {
                 try {
                     if (monitor.validatePeer(peer)) {
                         monitor.acceptNewPeer(peer);
-                    } else if (!isLocalHost(peer.ip) && request.method === "post") {
+                    } else if (
+                        !isLocalHost(peer.ip) &&
+                        request.method === "post" &&
+                        !request.path.endsWith("/transactions")
+                    ) {
                         return Boom.forbidden();
                     }
                 } catch (error) {
