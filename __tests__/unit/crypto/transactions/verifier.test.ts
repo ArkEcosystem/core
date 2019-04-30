@@ -3,7 +3,7 @@ import "jest-extended";
 import { Utils } from "@arkecosystem/crypto";
 import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
-import { Transaction, TransactionVerifier } from "@arkecosystem/crypto/src/transactions";
+import { Transaction, Verifier } from "@arkecosystem/crypto/src/transactions";
 
 describe("Transaction", () => {
     describe("verify", () => {
@@ -22,12 +22,12 @@ describe("Transaction", () => {
         const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
 
         it("should return true on a valid signature", () => {
-            expect(TransactionVerifier.verifyHash(transaction)).toBeTrue();
+            expect(Verifier.verifyHash(transaction)).toBeTrue();
         });
 
         it("should return false on an invalid signature", () => {
             expect(
-                TransactionVerifier.verifyHash(Object.assign({}, transaction, { senderPublicKey: otherPublicKey })),
+                Verifier.verifyHash(Object.assign({}, transaction, { senderPublicKey: otherPublicKey })),
             ).toBeFalse();
         });
 
@@ -35,7 +35,7 @@ describe("Transaction", () => {
             const transactionWithoutSignature = Object.assign({}, transaction);
             delete transactionWithoutSignature.signature;
 
-            expect(TransactionVerifier.verifyHash(transactionWithoutSignature)).toBeFalse();
+            expect(Verifier.verifyHash(transactionWithoutSignature)).toBeFalse();
         });
     });
 
@@ -56,11 +56,11 @@ describe("Transaction", () => {
         const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
 
         it("should return true on a valid signature", () => {
-            expect(TransactionVerifier.verifySecondSignature(transaction, keys2.publicKey)).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction, keys2.publicKey)).toBeTrue();
         });
 
         it("should return false on an invalid second signature", () => {
-            expect(TransactionVerifier.verifySecondSignature(transaction, otherPublicKey)).toBeFalse();
+            expect(Verifier.verifySecondSignature(transaction, otherPublicKey)).toBeFalse();
         });
 
         it("should return false on a missing second signature", () => {
@@ -68,13 +68,13 @@ describe("Transaction", () => {
             delete transactionWithoutSignature.secondSignature;
             delete transactionWithoutSignature.signSignature;
 
-            expect(TransactionVerifier.verifySecondSignature(transactionWithoutSignature, keys2.publicKey)).toBeFalse();
+            expect(Verifier.verifySecondSignature(transactionWithoutSignature, keys2.publicKey)).toBeFalse();
         });
 
         it("should fail this.getHash for transaction version > 1", () => {
             const transactionV2 = Object.assign({}, transaction, { version: 2 });
 
-            expect(() => TransactionVerifier.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(
+            expect(() => Verifier.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(
                 TransactionVersionError,
             );
         });

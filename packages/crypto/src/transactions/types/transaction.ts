@@ -13,7 +13,7 @@ import {
 } from "../../interfaces";
 import { configManager } from "../../managers";
 import { Serializer } from "../serializer";
-import { TransactionVerifier } from "../verifier";
+import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction implements ITransaction {
@@ -44,15 +44,15 @@ export abstract class Transaction implements ITransaction {
     public abstract deserialize(buf: ByteBuffer): void;
 
     public verify(): boolean {
-        return TransactionVerifier.verify(this.data);
+        return Verifier.verify(this.data);
     }
 
     public verifySecondSignature(publicKey: string): boolean {
-        return TransactionVerifier.verifySecondSignature(this.data, publicKey);
+        return Verifier.verifySecondSignature(this.data, publicKey);
     }
 
     public verifySchema(): ISchemaValidationResult {
-        return TransactionVerifier.verifySchema(this.data);
+        return Verifier.verifySchema(this.data);
     }
 
     public toJson(): ITransactionJson {

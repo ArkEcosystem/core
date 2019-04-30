@@ -6,7 +6,7 @@ import { validator } from "../validation";
 import { transactionRegistry } from "./registry";
 import { Transaction } from "./types";
 
-export class TransactionVerifier {
+export class Verifier {
     public static verify(data: ITransactionData): boolean {
         if (isException(data)) {
             return true;
@@ -16,7 +16,7 @@ export class TransactionVerifier {
             return false;
         }
 
-        return TransactionVerifier.verifyHash(data);
+        return Verifier.verifyHash(data);
     }
 
     public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {

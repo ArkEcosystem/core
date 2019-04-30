@@ -6,7 +6,7 @@ import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
-import { TransactionVerifier } from "../../verifier";
+import { Verifier } from "../../verifier";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -135,7 +135,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public verify(): boolean {
-        return TransactionVerifier.verifyHash(this.data);
+        return Verifier.verifyHash(this.data);
     }
 
     public getStruct(): ITransactionData {

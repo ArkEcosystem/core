@@ -6,7 +6,7 @@ import { deserializer } from "./deserializer";
 import { transactionRegistry } from "./registry";
 import { Serializer } from "./serializer";
 import { Transaction } from "./types/transaction";
-import { TransactionVerifier } from "./verifier";
+import { Verifier } from "./verifier";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
@@ -46,7 +46,7 @@ export class TransactionFactory {
     }
 
     public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
-        const { value, error } = TransactionVerifier.verifySchema(data, strict);
+        const { value, error } = Verifier.verifySchema(data, strict);
 
         if (error !== null && !isException(value)) {
             throw new TransactionSchemaError(error);
@@ -67,7 +67,7 @@ export class TransactionFactory {
             const transaction = deserializer.deserialize(serialized);
             transaction.data.id = Transaction.getId(transaction.data);
 
-            const { value, error } = TransactionVerifier.verifySchema(transaction.data, true);
+            const { value, error } = Verifier.verifySchema(transaction.data, true);
 
             if (error !== null && !isException(value)) {
                 throw new TransactionSchemaError(error);
