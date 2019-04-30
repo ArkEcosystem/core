@@ -1,5 +1,5 @@
 import { Enums } from "@arkecosystem/crypto";
-import Boom from "boom";
+import Boom from "@hapi/boom";
 import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";

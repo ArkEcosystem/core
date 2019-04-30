@@ -1,25 +1,25 @@
 {
     "name": "@arkecosystem/core-blockchain",
-    "description": "Blockchain Manager for ARK Core",
     "version": "2.3.21",
+    "description": "Blockchain Manager for ARK Core",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.21",
@@ -31,7 +31,7 @@
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
-        "pretty-ms": "^4.0.0",
+        "pretty-ms": "^5.0.0",
         "xstate": "^4.5.0"
     },
     "devDependencies": {
@@ -41,10 +41,10 @@
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

@@ -1,7 +1,8 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
-    "description": "Transaction Pool Manager for ARK Core",
     "version": "2.3.21",
+    "description": "Transaction Pool Manager for ARK Core",
+    "license": "MIT",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -9,19 +10,18 @@
         "Vasil Dimov <vd@FreeBSD.org>",
         "Joshua Noack <joshua@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.21",
@@ -50,10 +50,10 @@
         "lodash.clonedeep": "^4.5.0",
         "random-seed": "^0.3.0"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

@@ -1,5 +1,5 @@
 import { Utils } from "@arkecosystem/crypto";
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 
 function isBoolean(value) {
     try {

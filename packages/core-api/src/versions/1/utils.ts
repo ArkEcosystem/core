@@ -1,4 +1,4 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { transformerService } from "../../services/transformer";
 
 function paginate(request: Hapi.Request): any {

@@ -1,31 +1,31 @@
 {
     "name": "@arkecosystem/core-tester-cli",
-    "description": "Tester CLI for ARK Core",
     "version": "2.3.21",
+    "description": "Tester CLI for ARK Core",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "/bin",
         "/dist",
         "/oclif.manifest.json"
     ],
+    "main": "dist/index",
     "bin": {
         "tester": "./bin/run"
     },
     "scripts": {
-        "tester": "./bin/run",
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
-        "postpack": "rm -f oclif.manifest.json",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
+        "tester": "./bin/run"
     },
     "dependencies": {
         "@arkecosystem/core-forger": "^2.3.21",
@@ -38,8 +38,8 @@
         "bip39": "^3.0.1",
         "clipboardy": "^2.0.0",
         "delay": "^4.2.0",
-        "pino": "^5.12.2",
-        "pino-pretty": "^2.6.1",
+        "pino": "^5.12.3",
+        "pino-pretty": "^3.0.0",
         "pluralize": "^7.0.0",
         "pokemon": "^1.2.3"
     },
@@ -49,11 +49,11 @@
         "@types/lodash.fill": "^3.4.6",
         "@types/pluralize": "^0.0.29"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     },
     "oclif": {
         "commands": "./dist/commands",
