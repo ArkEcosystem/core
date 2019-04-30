@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-state",
     "description": "State Management for ARK Core",
-    "version": "2.3.18",
+    "version": "2.3.21",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Joshua Noack <joshua@ark.io>"
@@ -21,11 +21,11 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.18",
-        "@arkecosystem/core-interfaces": "^2.3.18",
-        "@arkecosystem/core-transactions": "^2.3.18",
-        "@arkecosystem/core-utils": "^2.3.18",
-        "@arkecosystem/crypto": "^2.3.18"
+        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-interfaces": "^2.3.21",
+        "@arkecosystem/core-transactions": "^2.3.21",
+        "@arkecosystem/core-utils": "^2.3.21",
+        "@arkecosystem/crypto": "^2.3.21"
     },
     "publishConfig": {
         "access": "public"

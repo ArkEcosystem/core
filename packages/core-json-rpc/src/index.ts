@@ -2,7 +2,6 @@ import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 import { database } from "./server/services/database";
-import { network } from "./server/services/network";
 
 export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
@@ -18,8 +17,6 @@ export const plugin: Container.PluginDescriptor = {
         }
 
         database.init(options.database);
-
-        await network.init();
 
         return startServer(options);
     },
