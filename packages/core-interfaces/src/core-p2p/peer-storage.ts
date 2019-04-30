@@ -23,6 +23,8 @@ export interface IPeerStorage {
     forgetSuspendedPeer(suspension: IPeerSuspension): void;
     hasSuspendedPeer(ip: string): boolean;
 
+    getSameSubnetPeers(ip: string): IPeer[];
+
     savePeers(): void;
 }
 
