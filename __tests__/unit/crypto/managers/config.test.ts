@@ -109,4 +109,14 @@ describe("Configuration", () => {
 
         expect(configManager.getHeight()).toEqual(21600);
     });
+
+    it("should determine if a new milestone is becoming active", () => {
+        for (const milestone of devnet.milestones) {
+            configManager.setHeight(milestone.height);
+            expect(configManager.isNewMilestone()).toBeTrue();
+        }
+
+        configManager.setHeight(999999);
+        expect(configManager.isNewMilestone()).toBeFalse();
+    });
 });

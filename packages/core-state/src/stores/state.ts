@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 
 import { app } from "@arkecosystem/core-container";
-import { Logger, State } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -80,7 +80,13 @@ export class StateStore implements State.IStateStore {
         }
 
         this.lastBlocks = this.lastBlocks.set(block.data.height, block);
+
         Managers.configManager.setHeight(block.data.height);
+
+        if (Managers.configManager.isNewMilestone()) {
+            app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("internal.milestone.changed");
+        }
+
         Transactions.TransactionRegistry.updateStaticFees(block.data.height);
 
         // Delete oldest block if size exceeds the maximum

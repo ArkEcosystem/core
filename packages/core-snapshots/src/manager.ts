@@ -34,6 +34,7 @@ export class SnapshotManager {
         const metaInfo = {
             blocks: await exportTable("blocks", params),
             transactions: await exportTable("transactions", params),
+            rounds: await exportTable("rounds", params),
             folder: params.meta.folder,
             skipCompression: params.meta.skipCompression,
         };
@@ -53,6 +54,7 @@ export class SnapshotManager {
 
         await importTable("blocks", params);
         await importTable("transactions", params);
+        await importTable("rounds", params);
 
         const lastBlock = await this.database.getLastBlock();
         const height = lastBlock.height as number;
@@ -68,6 +70,8 @@ export class SnapshotManager {
                 `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
             );
         }
+
+        await this.database.db.one("SELECT setval('rounds_id_seq', (SELECT MAX(id) FROM rounds) + 1)");
 
         this.database.close();
     }

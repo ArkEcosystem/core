@@ -5,7 +5,7 @@ import { state } from "./mocks/state";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Constants, Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
@@ -957,6 +957,49 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(0);
 
             jest.restoreAllMocks();
+        });
+    });
+
+    describe("purgeInvalidTransactions", () => {
+        it("should flush the pool", () => {
+            // 64 char vendor field
+            Managers.configManager.setHeight(1);
+
+            addTransactions([
+                TransactionFactory.transfer("AabMvWPVKbdTHRcGBpATq9TEMiMD5xeJh9", 2 * 1e8, "#".repeat(64))
+                    .withNetwork("unitnet")
+                    .withPassphrase(delegates[1].passphrase)
+                    .build()[0],
+            ]);
+
+            expect(connection.getPoolSize()).toBe(1);
+
+            connection.purgeInvalidTransactions();
+
+            expect(connection.getPoolSize()).toBe(1);
+
+            // 255 char vendor field
+            Managers.configManager.setHeight(100000);
+
+            addTransactions([
+                TransactionFactory.transfer("AabMvWPVKbdTHRcGBpATq9TEMiMD5xeJh9", 2 * 1e8, "#".repeat(255))
+                    .withNetwork("unitnet")
+                    .withPassphrase(delegates[1].passphrase)
+                    .build()[0],
+            ]);
+
+            connection.purgeInvalidTransactions();
+
+            expect(connection.getPoolSize()).toBe(2);
+
+            // Invalidate transactions with a vendor field longer then 64 chars
+            Managers.configManager.setHeight(1);
+
+            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce();
+
+            connection.purgeInvalidTransactions();
+
+            expect(connection.getPoolSize()).toBe(1);
         });
     });
 });

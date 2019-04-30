@@ -63,6 +63,10 @@ export class ConfigManager {
         return this.height;
     }
 
+    public isNewMilestone(): boolean {
+        return this.milestones.map(milestone => milestone.height).includes(this.height);
+    }
+
     public getMilestone(height?: number): { [key: string]: any } {
         if (!height && this.height) {
             height = this.height;
