@@ -25,6 +25,6 @@ export class VerifySecondSignatureCommand extends BaseCommand {
 
         const { data } = Transactions.TransactionFactory.fromHex(flags.data);
 
-        return handleOutput(flags, Transactions.Transaction.verifySecondSignature(data, flags.publicKey));
+        return handleOutput(flags, Transactions.TransactionVerifier.verifySecondSignature(data, flags.publicKey));
     }
 }

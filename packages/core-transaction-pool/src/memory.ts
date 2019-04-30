@@ -77,7 +77,7 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of Object.values(this.byId)) {
-            const { error } = transaction.validateSchema();
+            const { error } = transaction.verifySchema();
 
             if (error) {
                 transactions.push(transaction);

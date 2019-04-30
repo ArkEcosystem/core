@@ -868,7 +868,7 @@ describe("Connection", () => {
             // a deterministic test.
             const rand = randomSeed.create("0");
 
-            const allTransactions: Transactions.Transaction[] = [];
+            const allTransactions: Interfaces.ITransaction[] = [];
             for (let i = 0; i < nAdd; i++) {
                 const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);

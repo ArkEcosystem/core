@@ -96,7 +96,9 @@ describe("Transactions", () => {
         });
 
         it("should return 422 if it fails to verify the transaction", async () => {
-            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+            const spyVerify = jest
+                .spyOn(Transactions.TransactionVerifier, "verifyHash")
+                .mockImplementation(() => false);
 
             const response = await sendRequest("transactions.create", {
                 amount: 100000000,
@@ -146,7 +148,9 @@ describe("Transactions", () => {
 
             mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
 
-            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+            const spyVerify = jest
+                .spyOn(Transactions.TransactionVerifier, "verifyHash")
+                .mockImplementation(() => false);
 
             const response = await sendRequest("transactions.broadcast", {
                 id: transaction.body.result.id,
@@ -204,7 +208,9 @@ describe("Transactions", () => {
         });
 
         it("should return 422 if it fails to verify the transaction", async () => {
-            const spyVerify = jest.spyOn(Transactions.Transaction, "verifyData").mockImplementation(() => false);
+            const spyVerify = jest
+                .spyOn(Transactions.TransactionVerifier, "verifyHash")
+                .mockImplementation(() => false);
 
             const response = await sendRequest("transactions.bip38.create", {
                 bip38: "this is a top secret passphrase",

@@ -2,10 +2,11 @@ import { Transaction, TransactionFactory } from "../..";
 import { Slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
-import { IKeyPair, ITransactionData } from "../../../interfaces";
+import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
+import { TransactionVerifier } from "../../verifier";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -20,7 +21,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         } as ITransactionData;
     }
 
-    public build(data: Partial<ITransactionData> = {}): Transaction {
+    public build(data: Partial<ITransactionData> = {}): ITransaction {
         return TransactionFactory.fromData({ ...this.data, ...data }, false);
     }
 
@@ -134,7 +135,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public verify(): boolean {
-        return Transaction.verifyData(this.data);
+        return TransactionVerifier.verifyHash(this.data);
     }
 
     public getStruct(): ITransactionData {

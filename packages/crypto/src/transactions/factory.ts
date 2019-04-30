@@ -1,13 +1,12 @@
 // tslint:disable:member-ordering
-import { TransactionTypes } from "../enums";
 import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
-import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
+import { ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
 import { BigNumber, isException } from "../utils";
-import { validator } from "../validation";
 import { deserializer } from "./deserializer";
 import { transactionRegistry } from "./registry";
 import { Serializer } from "./serializer";
 import { Transaction } from "./types/transaction";
+import { TransactionVerifier } from "./verifier";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
@@ -47,7 +46,7 @@ export class TransactionFactory {
     }
 
     public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
-        const { value, error } = this.validateSchema(data, strict);
+        const { value, error } = TransactionVerifier.verifySchema(data, strict);
 
         if (error !== null && !isException(value)) {
             throw new TransactionSchemaError(error);
@@ -68,7 +67,7 @@ export class TransactionFactory {
             const transaction = deserializer.deserialize(serialized);
             transaction.data.id = Transaction.getId(transaction.data);
 
-            const { value, error } = this.validateSchema(transaction.data, true);
+            const { value, error } = TransactionVerifier.verifySchema(transaction.data, true);
 
             if (error !== null && !isException(value)) {
                 throw new TransactionSchemaError(error);
@@ -84,16 +83,5 @@ export class TransactionFactory {
 
             throw new MalformedTransactionBytesError();
         }
-    }
-
-    private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
-        // FIXME: legacy type 4 need special treatment
-        if (data.type === TransactionTypes.MultiSignature) {
-            return { value: data, error: null };
-        }
-
-        const { $id } = transactionRegistry.get(data.type).getSchema();
-
-        return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 }

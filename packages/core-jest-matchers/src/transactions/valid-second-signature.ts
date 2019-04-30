@@ -16,7 +16,7 @@ expect.extend({
         let verified: boolean;
 
         try {
-            verified = Transactions.Transaction.verifySecondSignature(actual, expected.publicKey);
+            verified = Transactions.TransactionVerifier.verifySecondSignature(actual, expected.publicKey);
         } catch (e) {} // tslint:disable-line
 
         return {
