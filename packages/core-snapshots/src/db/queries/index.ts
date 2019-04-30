@@ -14,6 +14,7 @@ export const queries = {
     },
     rounds: {
         deleteFromRound: loadQueryFile(__dirname, "./rounds/delete-from-round.sql"),
+        roundRange: loadQueryFile(__dirname, "./rounds/round-range.sql"),
     },
     truncate: table => `TRUNCATE TABLE ${table} RESTART IDENTITY`,
 };
