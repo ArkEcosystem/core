@@ -12,10 +12,8 @@ import {
     ITransactionJson,
 } from "../../interfaces";
 import { configManager } from "../../managers";
-import { isException } from "../../utils";
-import { validator } from "../../validation";
-import { transactionRegistry } from "../registry";
 import { Serializer } from "../serializer";
+import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction implements ITransaction {
@@ -46,46 +44,15 @@ export abstract class Transaction implements ITransaction {
     public abstract deserialize(buf: ByteBuffer): void;
 
     public verify(): boolean {
-        const { data } = this;
-
-        if (isException(data)) {
-            return true;
-        }
-
-        if (data.type >= 4 && data.type <= 99) {
-            return false;
-        }
-
-        return Transaction.verifyData(data);
+        return Verifier.verify(this.data);
     }
 
-    public static verifyData(data: ITransactionData): boolean {
-        if (data.version && data.version !== 1) {
-            // TODO: enable AIP11 when ready here
-            return false;
-        }
-
-        if (!data.signature) {
-            return false;
-        }
-
-        return Hash.verify(
-            Transaction.getHash(data, { excludeSignature: true, excludeSecondSignature: true }),
-            data.signature,
-            data.senderPublicKey,
-        );
+    public verifySecondSignature(publicKey: string): boolean {
+        return Verifier.verifySecondSignature(this.data, publicKey);
     }
 
-    // @TODO: move this to a more appropriate place
-    public validateSchema(strict: boolean = true): ISchemaValidationResult {
-        // FIXME: legacy type 4 need special treatment
-        if (this.data.type === TransactionTypes.MultiSignature) {
-            return { value: this.data, error: null };
-        }
-
-        const { $id } = transactionRegistry.get(this.data.type).getSchema();
-
-        return validator.validate(strict ? `${$id}Strict` : `${$id}`, this.data);
+    public verifySchema(): ISchemaValidationResult {
+        return Verifier.verifySchema(this.data);
     }
 
     public toJson(): ITransactionJson {
@@ -126,6 +93,7 @@ export abstract class Transaction implements ITransaction {
         return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
     }
 
+    // @TODO: move this out, the transaction itself shouldn't know how signing works
     public static sign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
         const signature: string = Hash.sign(hash, keys);
@@ -146,19 +114,5 @@ export abstract class Transaction implements ITransaction {
         }
 
         return signature;
-    }
-
-    public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
-        const secondSignature = transaction.secondSignature || transaction.signSignature;
-
-        if (!secondSignature) {
-            return false;
-        }
-
-        return Hash.verify(
-            Transaction.getHash(transaction, { excludeSecondSignature: true }),
-            secondSignature,
-            publicKey,
-        );
     }
 }
