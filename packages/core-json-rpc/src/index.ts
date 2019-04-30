@@ -19,8 +19,6 @@ export const plugin: Container.PluginDescriptor = {
 
         database.init(options.database);
 
-        await network.init();
-
         return startServer(options);
     },
     async deregister(container: Container.IContainer, options) {
