@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.21] - 2019-04-30
+
+### Fixed
+
+-   Avoid getting stuck on a peer by picking a random one each time _(JSON-RPC)_ ([#2491])
+-   Fix the asset import and include `rounds` in the snapshot to avoid issues with the peer verifier ([#2502])
+-   Accept requests to /transactions regardless of suspension _(only caused issues for nodes that are completely locked down behind a firewall with no incoming connections)_ ([#2503])
+
 ## [2.3.18] - 2019-04-26
 
 ### Fixed
@@ -321,7 +329,8 @@ Closed security vulnerabilities:
 
 -   Initial Release
 
-[unreleased]: https://github.com/ARKEcosystem/core/compare/2.3.0...develop
+[unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
 [2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
 [2.3.16]: https://github.com/ARKEcosystem/core/compare/2.3.15...2.3.16
 [2.3.15]: https://github.com/ARKEcosystem/core/compare/2.3.14...2.3.15
@@ -488,3 +497,6 @@ Closed security vulnerabilities:
 [#2482]: https://github.com/ARKEcosystem/core/pull/2482
 [#2486]: https://github.com/ARKEcosystem/core/pull/2486
 [#2487]: https://github.com/ARKEcosystem/core/pull/2487
+[#2491]: https://github.com/ARKEcosystem/core/pull/2491
+[#2502]: https://github.com/ARKEcosystem/core/pull/2502
+[#2503]: https://github.com/ARKEcosystem/core/pull/2503
