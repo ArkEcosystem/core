@@ -36,26 +36,6 @@ export class VoteTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        const vote = data.asset.votes[0];
-        if (vote.startsWith("+")) {
-            wallet.vote = vote.slice(1);
-        } else {
-            wallet.vote = null;
-        }
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        const vote = data.asset.votes[0];
-        if (vote.startsWith("+")) {
-            wallet.vote = null;
-        } else {
-            wallet.vote = vote.slice(1);
-        }
-    }
-
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         const vote = transaction.data.asset.votes[0];
 
@@ -74,5 +54,39 @@ export class VoteTransactionHandler extends TransactionHandler {
             !this.typeFromSenderAlreadyInPool(data, pool, processor) &&
             !this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)
         );
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        const { data } = transaction;
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        const vote = data.asset.votes[0];
+        if (vote.startsWith("+")) {
+            sender.vote = vote.slice(1);
+        } else {
+            sender.vote = null;
+        }
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        const { data } = transaction;
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        const vote = data.asset.votes[0];
+        if (vote.startsWith("+")) {
+            sender.vote = null;
+        } else {
+            sender.vote = vote.slice(1);
+        }
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
     }
 }

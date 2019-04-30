@@ -1,7 +1,8 @@
 // tslint:disable:max-classes-per-file
+// tslint:disable:member-ordering
 
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -74,46 +75,36 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        if (
-            data.senderPublicKey === wallet.publicKey ||
-            Identities.Address.fromPublicKey(data.senderPublicKey) === wallet.address
-        ) {
-            wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
-
-            this.apply(transaction, wallet);
-        }
+    public apply(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        this.applyToSender(transaction, walletManager);
+        this.applyToRecipient(transaction, walletManager);
     }
 
-    public applyToRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        if (data.recipientId === wallet.address) {
-            wallet.balance = wallet.balance.plus(data.amount);
-        }
+    public revert(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        this.revertForSender(transaction, walletManager);
+        this.revertForRecipient(transaction, walletManager);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         const { data } = transaction;
-        if (
-            data.senderPublicKey === wallet.publicKey ||
-            Identities.Address.fromPublicKey(data.senderPublicKey) === wallet.address
-        ) {
-            wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
-
-            this.revert(transaction, wallet);
-        }
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        sender.balance = sender.balance.minus(data.amount).minus(data.fee);
     }
 
-    public revertForRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         const { data } = transaction;
-        if (data.recipientId === wallet.address) {
-            wallet.balance = wallet.balance.minus(data.amount);
-        }
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        sender.balance = sender.balance.plus(data.amount).plus(data.fee);
     }
 
-    public abstract apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
-    public abstract revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    protected abstract applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: Database.IWalletManager,
+    ): void;
+    protected abstract revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: Database.IWalletManager,
+    ): void;
 
     /**
      * Database Service
@@ -135,6 +126,22 @@ export abstract class TransactionHandler implements ITransactionHandler {
             `Invalidating transaction of unsupported type '${Enums.TransactionTypes[data.type]}'`,
         );
         return false;
+    }
+
+    public applyToSenderInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+        this.applyToSender(transaction, poolWalletManager);
+    }
+
+    public revertForSenderInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+        this.revertForSender(transaction, poolWalletManager);
+    }
+
+    public applyToRecipientInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+        this.applyToRecipient(transaction, poolWalletManager);
+    }
+
+    public revertForRecipientInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+        this.revertForRecipient(transaction, poolWalletManager);
     }
 
     protected typeFromSenderAlreadyInPool(

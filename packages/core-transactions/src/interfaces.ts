@@ -11,12 +11,8 @@ export interface ITransactionHandler {
         wallet: Database.IWallet,
         walletManager?: Database.IWalletManager,
     ): boolean;
-    applyToSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
-    applyToRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
-    revertForSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
-    revertForRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
-    apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
-    revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void;
+    apply(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void;
+    revert(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void;
 
     canEnterTransactionPool(
         data: Interfaces.ITransactionData,

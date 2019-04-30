@@ -20,19 +20,35 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = null;
-    }
-
     public canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
         return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        const { data } = transaction;
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        sender.secondPublicKey = data.asset.signature.publicKey;
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        const { data } = transaction;
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        sender.secondPublicKey = null;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
     }
 }

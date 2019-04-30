@@ -20,14 +20,6 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
     public canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
@@ -49,5 +41,17 @@ export class TransferTransactionHandler extends TransactionHandler {
         }
 
         return true;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        const { data } = transaction;
+        const recipient = walletManager.findByAddress(data.recipientId);
+        recipient.balance = recipient.balance.plus(data.amount);
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        const { data } = transaction;
+        const recipient = walletManager.findByAddress(data.recipientId);
+        recipient.balance = recipient.balance.minus(data.amount);
     }
 }

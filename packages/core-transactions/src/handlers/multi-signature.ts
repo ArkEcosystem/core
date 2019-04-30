@@ -47,59 +47,42 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        if (data.version === 1) {
-            super.applyToSender(transaction, wallet);
-        } else if (
-            // Only the balance of the sender is updated. The recipient wallet
-            // is made into a multi sig wallet.
-            data.senderPublicKey === wallet.publicKey ||
-            Identities.Address.fromPublicKey(data.senderPublicKey) === wallet.address
-        ) {
-            wallet.balance = wallet.balance.minus(data.amount).minus(data.fee);
-        }
-    }
-
-    public applyToRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        if (data.version === 2) {
-            wallet.multisignature = transaction.data.asset.multiSignature;
-        }
-    }
-
-    public revertForSender(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        if (data.version === 1) {
-            super.revertForSender(transaction, wallet);
-        } else if (
-            data.senderPublicKey === wallet.publicKey ||
-            Identities.Address.fromPublicKey(data.senderPublicKey) === wallet.address
-        ) {
-            wallet.balance = wallet.balance.plus(data.amount).plus(data.fee);
-        }
-    }
-
-    public revertForRecipient(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        if (data.version === 2) {
-            wallet.multisignature = null;
-        }
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.multisignature = transaction.data.asset.multiSignature;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.multisignature = null;
-    }
-
     public canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
         return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        // Nothing else to do for the sender since the recipient wallet
+        // is made into a multi sig wallet.
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+        // Nothing else to do for the sender since the recipient wallet
+        // is made into a multi sig wallet.
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        const { data } = transaction;
+        if (data.version >= 2) {
+            const recipientAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
+            const recipient = walletManager.findByAddress(recipientAddress);
+            recipient.multisignature = transaction.data.asset.multiSignature;
+        }
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        const { data } = transaction;
+        if (data.version >= 2) {
+            const recipientAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
+            const recipient = walletManager.findByAddress(recipientAddress);
+            recipient.multisignature = null;
+        }
     }
 }

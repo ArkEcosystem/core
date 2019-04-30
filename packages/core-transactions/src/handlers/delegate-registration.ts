@@ -34,15 +34,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return super.canBeApplied(transaction, wallet, walletManager);
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        wallet.username = data.asset.delegate.username;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.username = null;
-    }
-
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit("delegate.registered", transaction.data);
     }
@@ -86,5 +77,33 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         return true;
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        const { data } = transaction;
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        sender.username = data.asset.delegate.username;
+
+        walletManager.reindex(sender);
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        const { data } = transaction;
+        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+
+        walletManager.forgetByUsername(sender.username);
+        sender.username = null;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
     }
 }
