@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import * as Joi from "@hapi/joi";
 import { pagination } from "../shared/schemas/pagination";
 
 export const index: object = {

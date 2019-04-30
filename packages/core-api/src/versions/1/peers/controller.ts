@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import Boom from "boom";
-import Hapi from "hapi";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {

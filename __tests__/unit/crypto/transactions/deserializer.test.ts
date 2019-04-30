@@ -7,6 +7,7 @@ import {
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { ITransaction } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
@@ -14,7 +15,7 @@ import { deserializer } from "../../../../packages/crypto/src/transactions/deser
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 
 describe("Transaction serializer / deserializer", () => {
-    const checkCommonFields = (deserialized: Transaction, expected) => {
+    const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "timestamp", "senderPublicKey", "fee", "amount"];
         fieldsToCheck.forEach(field => {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());

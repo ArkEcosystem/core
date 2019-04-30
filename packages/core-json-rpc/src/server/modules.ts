@@ -1,6 +1,6 @@
 import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
+import Boom from "@hapi/boom";
 import { generateMnemonic } from "bip39";
-import Boom from "boom";
 import { IWallet } from "../interfaces";
 import { database } from "./services/database";
 import { network } from "./services/network";
@@ -88,7 +88,7 @@ export const transactions = [
 
             const { data } = Transactions.TransactionFactory.fromData(transaction);
 
-            if (!Transactions.Transaction.verifyData(data)) {
+            if (!Transactions.Verifier.verifyHash(data)) {
                 return Boom.badData();
             }
 
@@ -122,7 +122,7 @@ export const transactions = [
 
             const transaction: Interfaces.ITransactionData = transactionBuilder.sign(params.passphrase).getStruct();
 
-            if (!Transactions.Transaction.verifyData(transaction)) {
+            if (!Transactions.Verifier.verifyHash(transaction)) {
                 return Boom.badData();
             }
 
@@ -197,7 +197,7 @@ export const transactions = [
 
                 const transaction: Interfaces.ITransactionData = transactionBuilder.signWithWif(wallet.wif).getStruct();
 
-                if (!Transactions.Transaction.verifyData(transaction)) {
+                if (!Transactions.Verifier.verifyHash(transaction)) {
                     return Boom.badData();
                 }
 

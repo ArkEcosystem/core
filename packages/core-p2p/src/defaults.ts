@@ -26,6 +26,10 @@ export const defaults = {
      */
     maxPeersBroadcast: 20,
     /**
+     * The maximum authorized number of peers sharing same ip /24 subnet
+     */
+    maxSameSubnetPeers: 5,
+    /**
      * The list of IPs we allow to be added to the peer list.
      */
     whitelist: ["*"],

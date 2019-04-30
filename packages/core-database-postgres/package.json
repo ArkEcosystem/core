@@ -1,24 +1,24 @@
 {
     "name": "@arkecosystem/core-database-postgres",
-    "description": "PostgreSQL integration for ARK Core",
     "version": "2.3.21",
+    "description": "PostgreSQL integration for ARK Core",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn copy && yarn compile",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
-        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.3.21",
@@ -43,10 +43,10 @@
         "@types/lodash.chunk": "^4.2.6",
         "@types/pluralize": "^0.0.29"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

@@ -125,11 +125,11 @@ export class Wallet implements Database.IWallet {
                     .minus(transaction.fee)
                     .toFixed(),
             });
-            audit.push({ "Signature validation": Transactions.Transaction.verifyData(transaction) });
+            audit.push({ "Signature validation": Transactions.Verifier.verifyHash(transaction) });
             // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
             if (this.secondPublicKey) {
                 audit.push({
-                    "Second Signature Verification": Transactions.Transaction.verifySecondSignature(
+                    "Second Signature Verification": Transactions.Verifier.verifySecondSignature(
                         transaction,
                         this.secondPublicKey,
                     ),

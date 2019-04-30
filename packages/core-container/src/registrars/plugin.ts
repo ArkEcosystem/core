@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-interfaces";
+import Hoek from "@hapi/hoek";
 import { asValue } from "awilix";
-import Hoek from "hoek";
 import isString from "lodash.isstring";
 import semver from "semver";
 

@@ -16,7 +16,7 @@ expect.extend({
         let verified: boolean = false;
 
         try {
-            verified = Transactions.Transaction.verifyData(actual);
+            verified = Transactions.Verifier.verifyHash(actual);
         } catch (e) {} // tslint:disable-line
 
         return {
