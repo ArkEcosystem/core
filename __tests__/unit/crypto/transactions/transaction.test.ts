@@ -9,7 +9,7 @@ import {
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
 import { Keys } from "../../../../packages/crypto/src/identities";
-import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
+import { ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory, Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
@@ -18,7 +18,7 @@ let transactionData: ITransactionData;
 let transactionDataJSON;
 
 const createRandomTx = type => {
-    let transaction;
+    let transaction: ITransaction;
 
     switch (type) {
         case 0: {
@@ -61,26 +61,33 @@ const createRandomTx = type => {
         }
 
         case 4: {
-            // multisignature registration
-            // const passphrases = [1, 2, 3].map(() => Math.random().toString(36));
-            // const publicKeys = passphrases.map(passphrase => `+${crypto.getKeys(passphrase).publicKey}`);
-            // const min = Math.min(1, publicKeys.length);
-            // const max = Math.max(1, publicKeys.length);
-            // const minSignatures = Math.floor(Math.random() * (max - min)) + min;
+            configManager.getMilestone().aip11 = true;
+            const passphrases = [Math.random().toString(36), Math.random().toString(36), Math.random().toString(36)];
 
-            // const transactionBuilder = BuilderFactory.multiSignature()
-            //     .multiSignatureAsset({
-            //         keysgroup: publicKeys,
-            //         min: minSignatures,
-            //         lifetime: Math.floor(Math.random() * (72 - 1)) + 1,
-            //     })
-            //     .sign(Math.random().toString(36));
+            const participants = passphrases.map(passphrase => {
+                return Keys.fromPassphrase(passphrase);
+            });
 
-            // for (let i = 0; i < minSignatures; i++) {
-            //     transactionBuilder.multiSignatureSign(passphrases[i]);
-            // }
+            const min = Math.min(1, participants.length);
+            const max = Math.max(1, participants.length);
 
-            // transaction = transactionBuilder.build();
+            const multiSigRegistration = BuilderFactory.multiSignature().min(
+                Math.floor(Math.random() * (max - min)) + min,
+            );
+
+            participants.forEach(participant => {
+                multiSigRegistration.participant(participant.publicKey);
+            });
+
+            multiSigRegistration.senderPublicKey(participants[0].publicKey);
+
+            passphrases.forEach((passphrase, index) => {
+                multiSigRegistration.multiSign(passphrase, index);
+            });
+
+            transaction = multiSigRegistration.sign(passphrases[0]).build();
+
+            configManager.getMilestone().aip11 = false;
             break;
         }
         default: {
@@ -120,7 +127,9 @@ describe("Transaction", () => {
                         delete transaction.data.secondSignature;
                     }
 
+                    // @ts-ignore
                     transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
+                    // @ts-ignore
                     transaction.data.fee = Utils.BigNumber.make(transaction.data.fee).toFixed();
 
                     expect(newTransaction.toJson()).toMatchObject(transaction.data);
@@ -295,8 +304,27 @@ describe("Transaction", () => {
         });
     });
 
-    it("Signatures are verified", () => {
-        [0, 1, 2, 3].map(type => createRandomTx(type)).forEach(tx => expect(tx.verify()).toBeTrue());
+    describe("verify", () => {
+        describe.each([0, 1, 2, 3])("type %s", type => {
+            it("should be ok", () => {
+                const tx = createRandomTx(type);
+                expect(tx.verify()).toBeTrue();
+            });
+        });
+
+        describe("type 4", () => {
+            it("should return false if AIP11 is not activated", () => {
+                const tx = createRandomTx(4);
+                expect(tx.verify()).toBeFalse();
+            });
+
+            it("should return true if AIP11 is activated", () => {
+                const tx = createRandomTx(4);
+                configManager.getMilestone().aip11 = true;
+                expect(tx.verify()).toBeTrue();
+                configManager.getMilestone().aip11 = false;
+            });
+        });
     });
 
     describe("getHash", () => {
@@ -367,8 +395,7 @@ describe("Transaction", () => {
 
         it("should return a valid signature", () => {
             const signature = Transaction.sign(transaction, keys);
-            // @ts-ignore
-            expect(signature.toString("hex")).toBe(
+            expect(signature).toBe(
                 "3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe",
             );
         });
@@ -377,6 +404,20 @@ describe("Transaction", () => {
             expect(() => {
                 Transaction.sign(Object.assign({}, transaction, { version: 110 }), keys);
             }).toThrow(TransactionVersionError);
+        });
+
+        it("should sign version 2 if aip11 milestone is true", () => {
+            expect(() => {
+                Transaction.sign(Object.assign({}, transaction, { version: 2 }), keys);
+            }).toThrow(TransactionVersionError);
+
+            configManager.getMilestone().aip11 = true;
+
+            expect(() => {
+                Transaction.sign(Object.assign({}, transaction, { version: 2 }), keys);
+            }).not.toThrow(TransactionVersionError);
+
+            delete configManager.getMilestone().aip11;
         });
     });
 });

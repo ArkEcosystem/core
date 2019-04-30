@@ -76,7 +76,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
+            const pubKeyHash = this.data.network;
             this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, pubKeyHash);
         }
 
@@ -93,7 +93,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
+            const pubKeyHash = this.data.network;
 
             this.data.recipientId = Address.fromPublicKey(keys.publicKey, pubKeyHash);
         }
