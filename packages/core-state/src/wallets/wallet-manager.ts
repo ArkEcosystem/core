@@ -292,37 +292,18 @@ export class WalletManager implements Database.IWalletManager {
             }
         }
 
-        transactionHandler.applyToSender(transaction, sender);
-
-        if (type === Enums.TransactionTypes.DelegateRegistration) {
-            this.reindex(sender);
-        }
-
-        // TODO: make more generic
-        if (recipient && type === Enums.TransactionTypes.Transfer) {
-            transactionHandler.applyToRecipient(transaction, recipient);
-        }
-
+        transactionHandler.apply(transaction, this);
         this.updateVoteBalances(sender, recipient, data);
     }
 
     public revertTransaction(transaction: Interfaces.ITransaction): void {
-        const { type, data } = transaction;
+        const { data } = transaction;
 
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: Database.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: Database.IWallet = this.byAddress[data.recipientId];
 
-        transactionHandler.revertForSender(transaction, sender);
-
-        // removing the wallet from the delegates index
-        if (type === Enums.TransactionTypes.DelegateRegistration) {
-            delete this.byUsername[data.asset.delegate.username];
-        }
-
-        if (recipient && type === Enums.TransactionTypes.Transfer) {
-            transactionHandler.revertForRecipient(transaction, recipient);
-        }
+        transactionHandler.revert(transaction, this);
 
         // Revert vote balance updates
         this.updateVoteBalances(sender, recipient, data, true);

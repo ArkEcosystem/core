@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Blockchain, Container, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
@@ -135,6 +135,9 @@ describe("Transaction Guard", () => {
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate1.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
 
+            transactionPool.walletManager.reindex(delegateWallet);
+            transactionPool.walletManager.reindex(newWallet);
+
             expect(+delegateWallet.balance).toBe(+delegate1.balance);
             expect(+newWallet.balance).toBe(0);
 
@@ -150,7 +153,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipient(transfers[0], newWallet);
+            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -164,6 +167,9 @@ describe("Transaction Guard", () => {
 
             const delegateWallet = transactionPool.walletManager.findByPublicKey(delegate2.publicKey);
             const newWallet = transactionPool.walletManager.findByPublicKey(publicKey);
+
+            transactionPool.walletManager.reindex(delegateWallet);
+            transactionPool.walletManager.reindex(newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate2.balance);
             expect(+newWallet.balance).toBe(0);
@@ -204,7 +210,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipient(transfers[0], newWallet);
+            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -230,6 +236,8 @@ describe("Transaction Guard", () => {
 
             // Make sure it is not considered a cold wallet
             container.resolvePlugin("database").walletManager.reindex(newWallet);
+            transactionPool.walletManager.reindex(delegateWallet);
+            transactionPool.walletManager.reindex(newWallet);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance);
             expect(+newWallet.balance).toBe(0);
@@ -245,7 +253,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers1[0].type);
-            transactionHandler.applyToRecipient(transfers1[0], newWallet);
+            transactionHandler.applyToRecipientInPool(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -259,7 +267,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            transactionHandler.applyToRecipient(transfers2[0], delegateWallet);
+            transactionHandler.applyToRecipientInPool(transfers2[0], transactionPool.walletManager);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 
@@ -430,6 +438,77 @@ describe("Transaction Guard", () => {
 
             expect(wallet1.username).toBe(undefined);
             expect(wallet2.username).toBe(undefined);
+        });
+
+        it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {
+            const secondSignatureTransaction = TransactionFactory.secondSignature()
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[16].passphrase)
+                .build()[0];
+
+            const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[16].passphrase)
+                .withSecondPassphrase(wallets[17].passphrase)
+                .build()[0];
+
+            let result = await processor.validate([secondSignatureTransaction.data]);
+            expect(result.accept).not.toBeEmpty();
+            expect(result.invalid).toBeEmpty();
+
+            result = await processor.validate([transferTransaction.data]);
+            expect(result.accept).toBeEmpty();
+            expect(result.errors[transferTransaction.id]).toEqual([
+                {
+                    message: `["Failed to apply transaction, because wallet does not allow second signatures."]`,
+                    type: "ERR_APPLY",
+                },
+            ]);
+        });
+
+        describe("MultiSignature", () => {
+            beforeEach(() => {
+                Managers.configManager.getMilestone().aip11 = true;
+            });
+
+            afterEach(() => {
+                Managers.configManager.getMilestone().aip11 = false;
+            });
+
+            it("should accept multi signature registration with AIP11 milestone", async () => {
+                const passphrases = [delegates[0].secret, delegates[1].secret, delegates[2].secret];
+                const participants = passphrases.map(passphrase => Identities.PublicKey.fromPassphrase(passphrase));
+
+                const multiSigRegistration = TransactionFactory.multiSignature(participants, 3)
+                    .withNetwork("unitnet")
+                    .withPassphrase(passphrases[0])
+                    .withPassphraseList(passphrases)
+                    .build()[0];
+
+                const result = await processor.validate([multiSigRegistration.data]);
+                expect(result.accept).not.toBeEmpty();
+                expect(result.invalid).toBeEmpty();
+            });
+
+            it("should not accept multi signature registration without AIP11 milestone", async () => {
+                const passphrases = [delegates[0].secret, delegates[3].secret, delegates[9].secret];
+                const participants = passphrases.map(passphrase => Identities.PublicKey.fromPassphrase(passphrase));
+
+                const multiSigRegistration = TransactionFactory.multiSignature(participants, 3)
+                    .withNetwork("unitnet")
+                    .withPassphrase(passphrases[0])
+                    .withPassphraseList(passphrases)
+                    .build()[0];
+
+                Managers.configManager.getMilestone().aip11 = false;
+                const result = await processor.validate([multiSigRegistration.data]);
+                expect(result.errors[multiSigRegistration.id]).toEqual([
+                    {
+                        message: "Version 2 not supported.",
+                        type: "ERR_UNKNOWN",
+                    },
+                ]);
+            });
         });
 
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
@@ -1120,31 +1199,6 @@ describe("Transaction Guard", () => {
 
     //         jest.restoreAllMocks();
     //     });
-    // it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {
-    //     const secondSignatureTransaction = TransactionFactory.secondSignature()
-    //         .withNetwork("unitnet")
-    //         .withPassphrase(wallets[16].passphrase)
-    //         .build()[0];
-
-    //     const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
-    //         .withNetwork("unitnet")
-    //         .withPassphrase(wallets[16].passphrase)
-    //         .withSecondPassphrase(wallets[17].passphrase)
-    //         .build()[0];
-
-    //     const memPoolTx = new MemPoolTransaction(secondSignatureTransaction);
-    //     jest.spyOn(guard.pool, "senderHasTransactionsOfType").mockReturnValueOnce(true);
-
-    //     expect(guard.__validateTransaction(transferTransaction.data)).toBeFalse();
-    //     expect(guard.errors[transferTransaction.id]).toEqual([
-    //         {
-    //             type: "ERR_PENDING",
-    //             message: `Cannot accept transaction from sender ${
-    //                 transferTransaction.data.senderPublicKey
-    //                 } while its second signature registration is in the pool`,
-    //         },
-    //     ]);
-    // });
     // });
 
     // describe("__removeForgedTransactions", () => {

@@ -11,10 +11,11 @@ export class VoteTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        const { data } = transaction;
-        const vote = data.asset.votes[0];
+        const { data }: Interfaces.ITransaction = transaction;
+        const vote: string = data.asset.votes[0];
+
         if (vote.startsWith("+")) {
             if (wallet.vote) {
                 throw new AlreadyVotedError();
@@ -27,37 +28,15 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
-        if (walletManager) {
-            if (!walletManager.isDelegate(vote.slice(1))) {
-                throw new VotedForNonDelegateError(vote);
-            }
+        if (!databaseWalletManager.isDelegate(vote.slice(1))) {
+            throw new VotedForNonDelegateError(vote);
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        const vote = data.asset.votes[0];
-        if (vote.startsWith("+")) {
-            wallet.vote = vote.slice(1);
-        } else {
-            wallet.vote = undefined;
-        }
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        const vote = data.asset.votes[0];
-        if (vote.startsWith("+")) {
-            wallet.vote = undefined;
-        } else {
-            wallet.vote = vote.slice(1);
-        }
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        const vote = transaction.data.asset.votes[0];
+        const vote: string = transaction.data.asset.votes[0];
 
         emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
             delegate: vote,
@@ -70,9 +49,44 @@ export class VoteTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        return (
-            !this.typeFromSenderAlreadyInPool(data, pool, processor) &&
-            !this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)
-        );
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const vote: string = transaction.data.asset.votes[0];
+
+        if (vote.startsWith("+")) {
+            sender.vote = vote.slice(1);
+        } else {
+            sender.vote = undefined;
+        }
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const vote: string = transaction.data.asset.votes[0];
+
+        if (vote.startsWith("+")) {
+            sender.vote = undefined;
+        } else {
+            sender.vote = vote.slice(1);
+        }
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
     }
 }

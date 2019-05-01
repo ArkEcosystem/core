@@ -1,5 +1,9 @@
 import "jest-extended";
 
+import { configManager } from "../../../../../../packages/crypto/src/managers";
+
+configManager.setFromPreset("testnet");
+
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { Keys } from "../../../../../../packages/crypto/src/identities";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
@@ -61,8 +65,8 @@ describe("Vote Transaction", () => {
         it("establishes the recipient id", () => {
             jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
 
-            builder.sign("this is a top secret passphrase");
-            expect(builder.data.recipientId).toBe("D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib");
+            builder.sign(identity.bip39);
+            expect(builder.data.recipientId).toBe(identity.address);
         });
     });
 

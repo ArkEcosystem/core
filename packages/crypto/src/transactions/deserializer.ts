@@ -1,10 +1,11 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionRegistry } from ".";
 import { TransactionTypes } from "../enums";
-import { TransactionVersionError } from "../errors";
+import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ITransaction, ITransactionData } from "../interfaces";
+import { configManager } from "../managers";
 import { BigNumber } from "../utils";
+import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class Deserializer {
@@ -14,7 +15,7 @@ class Deserializer {
         const buffer: ByteBuffer = this.getByteBuffer(serialized);
         this.deserializeCommon(data, buffer);
 
-        const instance: ITransaction = TransactionRegistry.create(data);
+        const instance: ITransaction = TransactionTypeFactory.create(data);
         this.deserializeVendorField(instance, buffer);
 
         // Deserialize type specific parts
@@ -22,12 +23,12 @@ class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        switch (data.version) {
-            case 1:
-                this.applyV1Compatibility(data);
-                break;
-            default:
-                throw new TransactionVersionError(data.version);
+        if (data.version === 1) {
+            this.applyV1Compatibility(data);
+        } else if (data.version === 2 && configManager.getMilestone().aip11) {
+            // TODO
+        } else {
+            throw new TransactionVersionError(data.version);
         }
 
         instance.serialized = buffer.flip().toBuffer();
@@ -58,6 +59,14 @@ class Deserializer {
     }
 
     private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
+        if (transaction.version === 1) {
+            this.deserializeECDSA(transaction, buf);
+        } else if (transaction.version === 2) {
+            this.deserializeSchnorr(transaction, buf);
+        }
+    }
+
+    private deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer) {
         const currentSignatureLength = (): number => {
             buf.mark();
 
@@ -101,6 +110,32 @@ class Deserializer {
         }
     }
 
+    private deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer) {
+        const canReadNonMultiSignature = () => {
+            return buf.remaining() % 64 === 0 || buf.remaining() % 65 !== 0;
+        };
+
+        if (canReadNonMultiSignature()) {
+            transaction.signature = buf.readBytes(64).toString("hex");
+        }
+
+        if (canReadNonMultiSignature()) {
+            transaction.secondSignature = buf.readBytes(64).toString("hex");
+        }
+
+        if (buf.remaining() && buf.remaining() % 65 === 0) {
+            transaction.signatures = [];
+
+            const count = buf.remaining() / 65;
+            for (let i = 0; i < count; i++) {
+                const multiSignaturePart = buf.readBytes(65).toString("hex");
+                transaction.signatures.push(multiSignaturePart);
+            }
+        } else {
+            throw new MalformedTransactionBytesError();
+        }
+    }
+
     // tslint:disable-next-line:member-ordering
     public applyV1Compatibility(transaction: ITransactionData): void {
         transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
@@ -108,7 +143,7 @@ class Deserializer {
         if (transaction.type === TransactionTypes.Vote) {
             transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
         } else if (transaction.type === TransactionTypes.MultiSignature) {
-            transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k =>
+            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
                 k.startsWith("+") ? k : `+${k}`,
             );
         }

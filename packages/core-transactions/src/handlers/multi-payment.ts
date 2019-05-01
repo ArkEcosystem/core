@@ -10,16 +10,16 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         return;
     }
 
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         return;
     }
 }

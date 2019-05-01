@@ -655,12 +655,12 @@ describe("Connection", () => {
     describe("buildWallets", () => {
         let findByPublicKey;
         let canBeApplied;
-        let applyToSender;
+        let applyToSenderInPool;
         const findByPublicKeyWallet = new Wallets.Wallet("thisIsAnAddressIMadeUpJustLikeThis");
         beforeEach(() => {
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             canBeApplied = jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
-            applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockReturnValue();
+            applyToSenderInPool = jest.spyOn(transactionHandler, "applyToSenderInPool").mockReturnValue();
 
             jest.spyOn(connection.walletManager, "has").mockReturnValue(true);
             findByPublicKey = jest
@@ -682,8 +682,8 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(findByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
-            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet);
-            expect(applyToSender).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet);
+            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
+            expect(applyToSenderInPool).toHaveBeenCalledWith(mockData.dummy1, connection.walletManager);
         });
 
         it("should handle getTransaction() not finding transaction", async () => {
@@ -695,7 +695,7 @@ describe("Connection", () => {
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
             expect(canBeApplied).not.toHaveBeenCalled();
-            expect(applyToSender).not.toHaveBeenCalled();
+            expect(applyToSenderInPool).not.toHaveBeenCalled();
         });
 
         it("should not apply transaction to wallet if canBeApplied() failed", async () => {
@@ -708,8 +708,8 @@ describe("Connection", () => {
             addTransactions([mockData.dummy1]);
             await connection.buildWallets();
 
-            expect(applyToSender).not.toHaveBeenCalled();
-            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet);
+            expect(applyToSenderInPool).not.toHaveBeenCalled();
+            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
             expect(purgeByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });

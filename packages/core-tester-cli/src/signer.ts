@@ -1,4 +1,4 @@
-import { Transactions, Utils } from "@arkecosystem/crypto";
+import { Identities, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Signer {
     protected network: Record<string, any>;
@@ -56,6 +56,28 @@ export class Signer {
             .votesAsset([`+${opts.delegate}`])
             .network(this.network.version)
             .sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
+    public makeMultiSignatureRegistration(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.multiSignature()
+            .multiSignatureAsset({
+                min: opts.min,
+                publicKeys: opts.participants.split(","),
+            })
+            .senderPublicKey(Identities.PublicKey.fromPassphrase(opts.passphrase))
+            .network(this.network.version);
+
+        opts.passphrases.split(",").forEach((passphrase, index) => {
+            transaction.multiSign(passphrase, index);
+        });
+
+        transaction.sign(opts.passphrase);
 
         if (opts.secondPassphrase) {
             transaction.secondSign(opts.secondPassphrase);

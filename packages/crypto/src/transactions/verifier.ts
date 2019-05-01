@@ -1,10 +1,10 @@
 import { Hash } from "../crypto/hash";
 import { TransactionTypes } from "../enums";
 import { ISchemaValidationResult, ITransactionData } from "../interfaces";
+import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
-import { transactionRegistry } from "./registry";
-import { Transaction } from "./types";
+import { Transaction, TransactionTypeFactory } from "./types";
 
 export class Verifier {
     public static verify(data: ITransactionData): boolean {
@@ -12,7 +12,7 @@ export class Verifier {
             return true;
         }
 
-        if (data.type >= 4 && data.type <= 99) {
+        if (data.type >= 4 && data.type <= 99 && !configManager.getMilestone().aip11) {
             return false;
         }
 
@@ -20,34 +20,38 @@ export class Verifier {
     }
 
     public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
-        const secondSignature = transaction.secondSignature || transaction.signSignature;
+        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
 
         if (!secondSignature) {
             return false;
         }
 
-        return Hash.verify(
-            Transaction.getHash(transaction, { excludeSecondSignature: true }),
-            secondSignature,
-            publicKey,
-        );
+        const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
+
+        if (transaction.version === 2) {
+            return Hash.verifySchnorr(hash, secondSignature, publicKey);
+        } else {
+            return Hash.verifyECDSA(hash, secondSignature, publicKey);
+        }
     }
 
     public static verifyHash(data: ITransactionData): boolean {
-        if (data.version && data.version !== 1) {
-            // TODO: enable AIP11 when ready here
+        const { signature, senderPublicKey } = data;
+
+        if (!signature) {
             return false;
         }
 
-        if (!data.signature) {
-            return false;
-        }
+        const hash: Buffer = Transaction.getHash(data, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+        });
 
-        return Hash.verify(
-            Transaction.getHash(data, { excludeSignature: true, excludeSecondSignature: true }),
-            data.signature,
-            data.senderPublicKey,
-        );
+        if (data.version === 2) {
+            return Hash.verifySchnorr(hash, signature, senderPublicKey);
+        } else {
+            return Hash.verifyECDSA(hash, signature, senderPublicKey);
+        }
     }
 
     public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
@@ -56,7 +60,7 @@ export class Verifier {
             return { value: data, error: undefined };
         }
 
-        const { $id } = transactionRegistry.get(data.type).getSchema();
+        const { $id } = TransactionTypeFactory.get(data.type).getSchema();
 
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }

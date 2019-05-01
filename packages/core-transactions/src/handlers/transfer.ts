@@ -11,21 +11,13 @@ export class TransferTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public hasVendorField(): boolean {
         return true;
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
     }
 
     public canEnterTransactionPool(
@@ -33,10 +25,6 @@ export class TransferTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        if (this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
         if (!isRecipientOnActiveNetwork(data)) {
             processor.pushError(
                 data,
@@ -49,5 +37,15 @@ export class TransferTransactionHandler extends TransactionHandler {
         }
 
         return true;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        const recipient: Database.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        recipient.balance = recipient.balance.plus(transaction.data.amount);
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        const recipient: Database.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

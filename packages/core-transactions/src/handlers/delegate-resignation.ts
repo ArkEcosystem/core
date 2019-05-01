@@ -10,20 +10,20 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit("delegate.resigned", transaction.data);
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+        return;
     }
 }

@@ -23,7 +23,8 @@
                 "delegateResignation": 0
             }
         },
-        "vendorFieldLength": 64
+        "vendorFieldLength": 64,
+        "aip11": true
     },
     {
         "height": 75600,

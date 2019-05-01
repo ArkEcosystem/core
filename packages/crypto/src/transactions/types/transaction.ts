@@ -1,5 +1,4 @@
 // tslint:disable:member-ordering
-import { TransactionRegistry } from "..";
 import { Hash, HashAlgorithms } from "../../crypto";
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
@@ -14,13 +13,14 @@ import {
 import { configManager } from "../../managers";
 import { Serializer } from "../serializer";
 import { Verifier } from "../verifier";
+import { TransactionTypeFactory } from "./factory";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction implements ITransaction {
     public static type: TransactionTypes = undefined;
 
     public static toBytes(data: ITransactionData): Buffer {
-        return Serializer.serialize(TransactionRegistry.create(data));
+        return Serializer.serialize(TransactionTypeFactory.create(data));
     }
 
     public get id(): string {
@@ -94,20 +94,22 @@ export abstract class Transaction implements ITransaction {
     }
 
     // @TODO: move this out, the transaction itself shouldn't know how signing works
-    public static sign(transaction: ITransactionData, keys: IKeyPair): string {
-        const hash: Buffer = Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true });
-        const signature: string = Hash.sign(hash, keys);
+    public static sign(transaction: ITransactionData, keys: IKeyPair, options?: ISerializeOptions): string {
+        options = options || { excludeSignature: true, excludeSecondSignature: true };
+        const hash: Buffer = Transaction.getHash(transaction, options);
+        const signature: string = transaction.version === 2 ? Hash.signSchnorr(hash, keys) : Hash.signECDSA(hash, keys);
 
-        if (!transaction.signature) {
+        if (!transaction.signature && !options.excludeMultiSignature) {
             transaction.signature = signature;
         }
 
         return signature;
     }
 
+    // @TODO: move this out, the transaction itself shouldn't know how signing works
     public static secondSign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
-        const signature: string = Hash.sign(hash, keys);
+        const signature: string = transaction.version === 2 ? Hash.signSchnorr(hash, keys) : Hash.signECDSA(hash, keys);
 
         if (!transaction.secondSignature) {
             transaction.secondSignature = signature;

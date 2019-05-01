@@ -147,3 +147,9 @@ export class InvalidMilestoneConfigurationError extends CryptoError {
         super(message);
     }
 }
+
+export class InvalidMultiSignatureAssetError extends CryptoError {
+    constructor() {
+        super(`The multi signature asset is invalid.`);
+    }
+}

@@ -1,7 +1,7 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
-import { IMultiPaymentItem } from "../../interfaces";
+import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
 import { BigNumber } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -13,7 +13,7 @@ export class MultiPaymentTransaction extends Transaction {
         return schemas.multiPayment;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(64, true);
 

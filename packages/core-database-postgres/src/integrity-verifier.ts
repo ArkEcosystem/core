@@ -32,7 +32,7 @@ export class IntegrityVerifier {
         await this.buildDelegates();
 
         this.logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
-        await this.buildMultisignatures();
+        await this.buildMultiSignatures();
 
         this.logger.info(
             `Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
@@ -147,17 +147,23 @@ export class IntegrityVerifier {
         this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
     }
 
-    private async buildMultisignatures(): Promise<void> {
+    private async buildMultiSignatures(): Promise<void> {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-
             if (!wallet.multisignature) {
-                wallet.multisignature = transaction.asset.multisignature;
+                if (transaction.version === 1) {
+                    wallet.multisignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                } else if (transaction.version === 2) {
+                    wallet.multisignature = transaction.asset.multiSignature;
+                } else {
+                    throw new Error(`Invalid multi signature version ${transaction.version}`);
+                }
             }
         }
     }
+
     private verifyWalletsConsistency(): void {
         for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {

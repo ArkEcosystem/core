@@ -1,4 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Wallet implements Database.IWallet {
@@ -77,35 +78,45 @@ export class Wallet implements Database.IWallet {
         return false;
     }
 
-    /**
-     * Verify multi-signatures for the wallet.
-     */
     public verifySignatures(
         transaction: Interfaces.ITransactionData,
-        multisignature: Interfaces.IMultiSignatureAsset,
+        multiSignature?: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
-            return false;
+        multiSignature = multiSignature || this.multisignature;
+        if (!multiSignature) {
+            throw new Errors.InvalidMultiSignatureError();
         }
 
-        const keysgroup = multisignature.keysgroup.map(publicKey =>
-            publicKey.startsWith("+") ? publicKey.slice(1) : publicKey,
-        );
-        const signatures = Object.values(transaction.signatures);
+        const { publicKeys, min }: Interfaces.IMultiSignatureAsset = multiSignature;
+        const { signatures }: Interfaces.ITransactionData = transaction;
 
-        let valid = 0;
-        for (const publicKey of keysgroup) {
-            const signature = this.verifyTransactionSignatures(transaction, signatures, publicKey);
-            if (signature) {
-                signatures.splice(signatures.indexOf(signature), 1);
-                valid++;
-                if (valid === multisignature.min) {
-                    return true;
-                }
+        const hash: Buffer = Transactions.Transaction.getHash(transaction, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+            excludeMultiSignature: true,
+        });
+
+        let verified: boolean = false;
+        let verifiedSignatures: number = 0;
+        for (let i = 0; i < signatures.length; i++) {
+            const signature: string = signatures[i];
+            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+            const partialSignature: string = signature.slice(2, 130);
+            const publicKey: string = publicKeys[publicKeyIndex];
+
+            if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
+                verifiedSignatures++;
+            }
+
+            if (verifiedSignatures === min) {
+                verified = true;
+                break;
+            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
+                break;
             }
         }
 
-        return false;
+        return verified;
     }
 
     /**
@@ -160,13 +171,13 @@ export class Wallet implements Database.IWallet {
             const keysgroup = transaction.asset.multisignature.keysgroup;
             audit.push({ "Multisignature not yet registered": !this.multisignature });
             audit.push({
-                "Multisignature enough keys": keysgroup.length >= transaction.asset.multisignature.min,
+                "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
             });
             audit.push({
                 "Multisignature all keys signed": keysgroup.length === transaction.signatures.length,
             });
             audit.push({
-                "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multisignature),
+                "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multiSignature),
             });
         }
 
@@ -199,33 +210,5 @@ export class Wallet implements Database.IWallet {
      */
     public toString(): string {
         return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
-    }
-
-    /**
-     * Goes through signatures to check if public key matches. Can also remove valid signatures.
-     */
-    private verifyTransactionSignatures(
-        transaction: Interfaces.ITransactionData,
-        signatures: string[],
-        publicKey: string,
-    ): string | undefined {
-        for (const signature of signatures) {
-            if (this.verify(transaction, signature, publicKey)) {
-                return signature;
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Verify the wallet.
-     */
-    private verify(transaction: Interfaces.ITransactionData, signature: string, publicKey: string): boolean {
-        return Crypto.Hash.verify(
-            Transactions.Transaction.getHash(transaction, { excludeSignature: true, excludeSecondSignature: true }),
-            signature,
-            publicKey,
-        );
     }
 }

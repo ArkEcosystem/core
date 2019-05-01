@@ -270,7 +270,7 @@ export class Connection implements TransactionPool.IConnection {
                 : undefined;
 
             if (recipientWallet) {
-                transactionHandler.applyToRecipient(transaction, recipientWallet);
+                transactionHandler.applyToRecipientInPool(transaction, this.walletManager);
             }
 
             if (exists) {
@@ -278,7 +278,7 @@ export class Connection implements TransactionPool.IConnection {
             } else if (senderWallet) {
                 // TODO: rework error handling
                 try {
-                    transactionHandler.canBeApplied(transaction, senderWallet);
+                    transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
                 } catch (error) {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
@@ -292,7 +292,7 @@ export class Connection implements TransactionPool.IConnection {
                     return;
                 }
 
-                transactionHandler.applyToSender(transaction, senderWallet);
+                transactionHandler.applyToSenderInPool(transaction, this.walletManager);
             }
 
             if (
@@ -337,8 +337,8 @@ export class Connection implements TransactionPool.IConnection {
             // TODO: rework error handling
             try {
                 const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
-                transactionHandler.canBeApplied(transaction, senderWallet);
-                transactionHandler.applyToSender(transaction, senderWallet);
+                transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
+                transactionHandler.applyToSenderInPool(transaction, this.walletManager);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
 
@@ -433,13 +433,9 @@ export class Connection implements TransactionPool.IConnection {
 
         this.memory.remember(transaction, this.options.maxTransactionAge);
 
-        // Apply transaction to pool wallet manager.
-        const senderWallet: Database.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
-
         try {
             this.walletManager.throwIfApplyingFails(transaction);
-
-            Handlers.Registry.get(transaction.type).applyToSender(transaction, senderWallet);
+            Handlers.Registry.get(transaction.type).applyToSenderInPool(transaction, this.walletManager);
         } catch (error) {
             this.logger.error(error.message);
 

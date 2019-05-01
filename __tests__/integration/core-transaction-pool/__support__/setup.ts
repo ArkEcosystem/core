@@ -30,40 +30,50 @@ const options = {
 };
 
 export const setUp = async () => {
-    return await setUpContainer({
-        exit: "@arkecosystem/core-blockchain",
-        exclude: ["@arkecosystem/core-transaction-pool"],
-        network: "unitnet",
-    });
+    try {
+        return await setUpContainer({
+            exit: "@arkecosystem/core-blockchain",
+            exclude: ["@arkecosystem/core-transaction-pool"],
+            network: "unitnet",
+        });
+    } catch (error) {
+        console.error(error.stack);
+        return undefined;
+    }
 };
 
 export const setUpFull = async () => {
-    await setUpContainer({
-        exit: "@arkecosystem/core-transaction-pool",
-        exclude: ["@arkecosystem/core-transaction-pool"],
-        network: "unitnet",
-    });
+    try {
+        await setUpContainer({
+            exit: "@arkecosystem/core-transaction-pool",
+            exclude: ["@arkecosystem/core-transaction-pool"],
+            network: "unitnet",
+        });
 
-    app.register("pkg.transaction-pool.opts", asValue(defaultsPool));
+        app.register("pkg.transaction-pool.opts", asValue(defaultsPool));
 
-    await registerWithContainer(require("../../../../packages/core-transaction-pool/src/plugin").plugin, options);
+        await registerWithContainer(require("../../../../packages/core-transaction-pool/src/plugin").plugin, options);
 
-    app.register("pkg.p2p.opts", asValue(defaultsPeer));
+        app.register("pkg.p2p.opts", asValue(defaultsPeer));
 
-    // now registering the plugins that need to be registered after transaction pool
-    // register p2p
-    await registerWithContainer(require("@arkecosystem/core-p2p").plugin, {
-        host: "0.0.0.0",
-        port: 4000,
-        minimumNetworkReach: 5,
-        coldStart: 5,
-    });
+        // now registering the plugins that need to be registered after transaction pool
+        // register p2p
+        await registerWithContainer(require("@arkecosystem/core-p2p").plugin, {
+            host: "0.0.0.0",
+            port: 4000,
+            minimumNetworkReach: 5,
+            coldStart: 5,
+        });
 
-    app.register("pkg.blockchain.opts", asValue(defaultsBlockchain));
+        app.register("pkg.blockchain.opts", asValue(defaultsBlockchain));
 
-    await registerWithContainer(require("@arkecosystem/core-blockchain").plugin, {});
+        await registerWithContainer(require("@arkecosystem/core-blockchain").plugin, {});
 
-    return app;
+        return app;
+    } catch (error) {
+        console.error(error.stack);
+        return undefined;
+    }
 };
 
 export const tearDown = async () => {

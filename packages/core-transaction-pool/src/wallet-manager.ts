@@ -66,9 +66,6 @@ export class WalletManager extends Wallets.WalletManager {
     }
 
     public revertTransactionForSender(transaction: Interfaces.ITransaction): void {
-        Handlers.Registry.get(transaction.type).revertForSender(
-            transaction,
-            this.findByPublicKey(transaction.data.senderPublicKey),
-        );
+        Handlers.Registry.get(transaction.type).revertForSenderInPool(transaction, this);
     }
 }
