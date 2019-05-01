@@ -4,7 +4,7 @@ import { Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import camelCase from "lodash.camelcase";
 import { IDynamicFeeMatch } from "./interfaces";
 
-export function calculateMinimumFee(satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber {
+export const calculateMinimumFee = (satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber => {
     if (satoshiPerByte <= 0) {
         satoshiPerByte = 1;
     }
@@ -19,10 +19,10 @@ export function calculateMinimumFee(satoshiPerByte: number, transaction: Interfa
     const transactionSizeInBytes: number = transaction.serialized.length / 2;
 
     return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
-}
+};
 
 // @TODO: better name
-export function dynamicFeeMatcher(transaction: Interfaces.ITransaction): IDynamicFeeMatch {
+export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynamicFeeMatch => {
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
@@ -96,4 +96,4 @@ export function dynamicFeeMatcher(transaction: Interfaces.ITransaction): IDynami
     }
 
     return { broadcast, enterPool };
-}
+};

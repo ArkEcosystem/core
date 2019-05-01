@@ -2,7 +2,7 @@ import expandHomeDir from "expand-home-dir";
 import { readFileSync } from "fs";
 import { createServer } from "./create";
 
-export async function createSecureServer(options, callback, secure, plugins?: any[]) {
+export const createSecureServer = async (options, callback, secure, plugins?: any[]) => {
     options.host = secure.host;
     options.port = secure.port;
     options.tls = {
@@ -11,4 +11,4 @@ export async function createSecureServer(options, callback, secure, plugins?: an
     };
 
     return createServer(options, callback, plugins);
-}
+};

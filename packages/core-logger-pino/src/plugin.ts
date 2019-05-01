@@ -3,7 +3,7 @@ import { LoggerManager } from "@arkecosystem/core-logger";
 import { defaults } from "./defaults";
 import { PinoLogger } from "./driver";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "logger",

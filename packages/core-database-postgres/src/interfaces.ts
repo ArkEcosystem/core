@@ -5,7 +5,7 @@ export interface IMigration {
     name: string;
 }
 
-export interface ColumnDescriptor {
+export interface IColumnDescriptor {
     name: string;
     supportedOperators?: Database.SearchOperator[];
     prop?: string;

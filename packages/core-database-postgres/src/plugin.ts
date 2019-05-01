@@ -4,7 +4,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { defaults } from "./defaults";
 import { PostgresConnection } from "./postgres-connection";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "database",

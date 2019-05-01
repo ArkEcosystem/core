@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { Transactions } from "@arkecosystem/crypto";
 
-export function transformTransactionLegacy(model) {
+export const transformTransactionLegacy = model => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
@@ -26,4 +26,4 @@ export function transformTransactionLegacy(model) {
         asset: data.asset || {},
         confirmations: model.block ? blockchain.getLastBlock().data.height - model.block.height : 0,
     };
-}
+};

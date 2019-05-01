@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import { DelegatesController } from "./controller";
 import * as Schema from "./schema";
 
-export function registerRoutes(server: Hapi.Server): void {
+export const registerRoutes = (server: Hapi.Server): void => {
     const controller = new DelegatesController();
     server.bind(controller);
 
@@ -88,4 +88,4 @@ export function registerRoutes(server: Hapi.Server): void {
         path: "/delegates/getNextForgers",
         handler: controller.nextForgers,
     });
-}
+};

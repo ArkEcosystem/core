@@ -85,8 +85,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
     public async findAllByWallet(
         wallet: Database.IWallet,
-        paginate?: Database.SearchPaginate,
-        orderBy?: Database.SearchOrderBy[],
+        paginate?: Database.ISearchPaginate,
+        orderBy?: Database.ISearchOrderBy[],
     ): Promise<Database.ITransactionsPaginated> {
         return this.findManyWithCount(
             this.query
@@ -100,7 +100,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     // TODO: Remove with v1
-    public async findAll(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
+    public async findAll(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
@@ -150,7 +150,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
     }
 
-    public async search(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
+    public async search(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,

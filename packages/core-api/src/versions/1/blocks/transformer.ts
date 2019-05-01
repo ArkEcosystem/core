@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 
-export function transformBlockLegacy(model) {
+export const transformBlockLegacy = model => {
     const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
@@ -24,4 +24,4 @@ export function transformBlockLegacy(model) {
         blockSignature: model.blockSignature,
         confirmations: lastBlock ? lastBlock.data.height - model.height : 0,
     };
-}
+};

@@ -6,7 +6,7 @@ import { Memory } from "./memory";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "transaction-pool",

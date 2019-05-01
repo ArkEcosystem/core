@@ -17,7 +17,7 @@ export class MockDatabaseModel implements Database.IModel {
         return;
     }
 
-    public getSearchableFields(): Database.SearchableField[] {
+    public getSearchableFields(): Database.ISearchableField[] {
         return [
             {
                 fieldName: "id",

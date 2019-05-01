@@ -52,7 +52,7 @@ const search = async request => {
     return toPagination(request, blocks, "block");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.blocks.index", index, 6, request => ({
             ...request.query,
@@ -69,4 +69,4 @@ export function registerMethods(server) {
             ...request.query,
             ...paginate(request),
         }));
-}
+};

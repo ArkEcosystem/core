@@ -28,22 +28,22 @@ export const transactionBaseSchema = {
     },
 };
 
-export function extend(parent, properties): TransactionSchema {
+export const extend = (parent, properties): TransactionSchema => {
     return deepmerge(parent, properties);
-}
+};
 
-export function signedSchema(schema: TransactionSchema): TransactionSchema {
+export const signedSchema = (schema: TransactionSchema): TransactionSchema => {
     const signed = extend(schema, signedTransaction);
     signed.$id = `${schema.$id}Signed`;
     return signed;
-}
+};
 
-export function strictSchema(schema: TransactionSchema): TransactionSchema {
+export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
     const signed = signedSchema(schema);
     const strict = extend(signed, strictTransaction);
     strict.$id = `${schema.$id}Strict`;
     return strict;
-}
+};
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",

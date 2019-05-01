@@ -3,7 +3,7 @@ import Boom from "@hapi/boom";
 import Joi from "@hapi/joi";
 import { client } from "./client";
 
-export async function startServer(config) {
+export const startServer = async config => {
     const server = await createServer({
         host: config.host,
         port: config.port,
@@ -83,4 +83,4 @@ export async function startServer(config) {
     ]);
 
     return mountServer("Elasticsearch API", server);
-}
+};

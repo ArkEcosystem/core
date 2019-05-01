@@ -1,6 +1,6 @@
 import { Resolver } from "awilix";
 
-export interface PluginDescriptor {
+export interface IPluginDescriptor {
     alias: string;
     pkg: any;
     defaults?: any;
@@ -15,7 +15,7 @@ export interface IPluginOptions {
     [key: string]: PluginOptionValue | PluginOptionValue[];
 }
 
-export interface PluginConfig<T> {
+export interface IPluginConfig<T> {
     name: string;
     version: string;
     options: IPluginOptions;

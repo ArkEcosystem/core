@@ -7,7 +7,7 @@ import { blockchainMachine } from "./machines/blockchain";
  * The struct used by the plugin container.
  * @type {Object}
  */
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "blockchain",

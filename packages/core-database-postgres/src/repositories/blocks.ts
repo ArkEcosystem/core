@@ -69,7 +69,9 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     }
 
     /* TODO: Remove with v1 */
-    public async findAll(params: Database.SearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
+    public async findAll(
+        params: Database.ISearchParameters,
+    ): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         const selectQuery = this.query.select().from(this.query);
         // Blocks repo atm, doesn't search using any custom parameters
         const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
@@ -90,7 +92,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
     }
 
-    public async search(params: Database.SearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
+    public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.query.select().from(this.query);
         // Blocks repo atm, doesn't search using any custom parameters

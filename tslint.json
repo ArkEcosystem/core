@@ -1,13 +1,13 @@
 {
     "extends": ["tslint:recommended", "tslint-config-prettier"],
     "rules": {
-        "interface-name": false,
         "no-console": false,
         "no-default-export": true,
         "no-null-keyword": true,
         "no-shadowed-variable": false,
         "no-use-before-declare": true,
         "object-literal-sort-keys": false,
+        "only-arrow-functions": true,
         "radix": false,
         "return-undefined": true
     }
