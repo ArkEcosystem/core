@@ -9,7 +9,7 @@ export interface ITransactionHandler {
     canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean;
     apply(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void;
     revert(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void;

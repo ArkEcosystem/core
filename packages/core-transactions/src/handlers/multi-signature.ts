@@ -17,7 +17,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
         const { data } = transaction;
         if (Utils.isException(data)) {
@@ -25,7 +25,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         }
 
         const { publicKeys, min } = data.asset.multiSignature;
-        if (min < 1 || min > publicKeys.length) {
+        if (min < 1 || min > publicKeys.length || min > 16) {
             throw new MultiSignatureMinimumKeysError();
         }
 
@@ -35,7 +35,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
         const multiSigAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
 
-        const recipientWallet = walletManager.findByAddress(multiSigAddress);
+        const recipientWallet = databaseWalletManager.findByAddress(multiSigAddress);
         if (recipientWallet.multisignature) {
             throw new MultiSignatureAlreadyRegisteredError();
         }
@@ -44,7 +44,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new InvalidMultiSignatureError();
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(

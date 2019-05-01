@@ -70,21 +70,3 @@ describe("format vendorFieldHex", () => {
         expect(validate(undefined)).toBeFalse();
     });
 });
-
-describe("format signatures", () => {
-    it("should be ok", () => {
-        const schema = { type: "string", format: "signatures" };
-        const validate = ajv.compile(schema);
-
-        expect(validate("a".repeat(130))).toBeTrue();
-        expect(validate("a".repeat(260))).toBeTrue();
-    });
-
-    it("should not be ok", () => {
-        const schema = { type: "string", format: "signatures" };
-        const validate = ajv.compile(schema);
-
-        expect(validate("a".repeat(1))).toBeFalse();
-        expect(validate("a".repeat(131))).toBeFalse();
-    });
-});

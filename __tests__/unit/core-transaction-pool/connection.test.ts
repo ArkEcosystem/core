@@ -682,7 +682,7 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(findByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
-            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet);
+            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
             expect(applyToSenderInPool).toHaveBeenCalledWith(mockData.dummy1, connection.walletManager);
         });
 
@@ -709,7 +709,7 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(applyToSenderInPool).not.toHaveBeenCalled();
-            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet);
+            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
             expect(purgeByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });

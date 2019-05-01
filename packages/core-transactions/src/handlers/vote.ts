@@ -11,7 +11,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
         const { data } = transaction;
         const vote = data.asset.votes[0];
@@ -27,13 +27,11 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
-        if (walletManager) {
-            if (!walletManager.isDelegate(vote.slice(1))) {
-                throw new VotedForNonDelegateError(vote);
-            }
+        if (!databaseWalletManager.isDelegate(vote.slice(1))) {
+            throw new VotedForNonDelegateError(vote);
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {

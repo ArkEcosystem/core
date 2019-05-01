@@ -278,7 +278,7 @@ export class Connection implements TransactionPool.IConnection {
             } else if (senderWallet) {
                 // TODO: rework error handling
                 try {
-                    transactionHandler.canBeApplied(transaction, senderWallet);
+                    transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
                 } catch (error) {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
@@ -337,7 +337,7 @@ export class Connection implements TransactionPool.IConnection {
             // TODO: rework error handling
             try {
                 const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
-                transactionHandler.canBeApplied(transaction, senderWallet);
+                transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
                 transactionHandler.applyToSenderInPool(transaction, this.walletManager);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);

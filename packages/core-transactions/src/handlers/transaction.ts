@@ -33,18 +33,12 @@ export abstract class TransactionHandler implements ITransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
         const { data } = transaction;
-        if (wallet.multisignature) {
-            if (!wallet.verifySignatures(data, wallet.multisignature)) {
-                throw new InvalidMultiSignatureError();
-            }
-        }
-
         if (
             wallet.balance
                 .minus(data.amount)
@@ -59,17 +53,35 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         if (wallet.secondPublicKey) {
+            // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
+            const databaseWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+            if (!databaseWallet.secondPublicKey) {
+                throw new UnexpectedSecondSignatureError();
+            }
+
             if (!Transactions.Verifier.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
-        } else {
-            if (data.secondSignature || data.signSignature) {
-                // Accept invalid second signature fields prior the applied patch.
-                // NOTE: only applies to devnet.
-                if (!Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField) {
-                    throw new UnexpectedSecondSignatureError();
-                }
+        } else if (data.secondSignature || data.signSignature) {
+            // TODO: get rid of this milestone by adding exceptions, the milestone is solely
+            // necessary because of devnet.
+            if (!Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField) {
+                throw new UnexpectedSecondSignatureError();
             }
+        }
+
+        if (wallet.multisignature) {
+            // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
+            const databaseWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+            if (!databaseWallet.multisignature) {
+                throw new UnexpectedMultiSignatureError();
+            }
+
+            if (!wallet.verifySignatures(data, wallet.multisignature)) {
+                throw new InvalidMultiSignatureError();
+            }
+        } else if (transaction.type !== Enums.TransactionTypes.MultiSignature && transaction.data.signatures) {
+            throw new UnexpectedMultiSignatureError();
         }
 
         return true;
