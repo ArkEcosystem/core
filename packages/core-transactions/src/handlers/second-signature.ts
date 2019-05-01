@@ -1,9 +1,6 @@
 import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import {
-    SecondSignatureAlreadyRegisteredError,
-    SecondSignatureNotSupportedForMultiSignatureWalletError,
-} from "../errors";
+import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class SecondSignatureTransactionHandler extends TransactionHandler {
@@ -21,7 +18,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         }
 
         if (databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey).multisignature) {
-            throw new SecondSignatureNotSupportedForMultiSignatureWalletError();
+            throw new NotSupportedForMultiSignatureWalletError();
         }
 
         return super.canBeApplied(transaction, wallet, databaseWalletManager);

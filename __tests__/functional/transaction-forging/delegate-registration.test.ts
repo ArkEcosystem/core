@@ -106,8 +106,8 @@ describe("Transaction Forging - Delegate Registration", () => {
             .withPassphraseList(passphrases)
             .create();
 
-        await support.expectAcceptAndBroadcast(delegateRegistration, delegateRegistration[0].id);
+        await support.expectInvalidAndError(delegateRegistration, delegateRegistration[0].id);
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(delegateRegistration[0].id);
+        await support.expectTransactionNotForged(delegateRegistration[0].id);
     });
 });
