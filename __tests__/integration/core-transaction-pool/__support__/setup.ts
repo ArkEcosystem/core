@@ -38,7 +38,7 @@ export const setUp = async () => {
         });
     } catch (error) {
         console.error(error.stack);
-        return null;
+        return undefined;
     }
 };
 
@@ -72,7 +72,7 @@ export const setUpFull = async () => {
         return app;
     } catch (error) {
         console.error(error.stack);
-        return null;
+        return undefined;
     }
 };
 
