@@ -61,7 +61,7 @@ describe("Transaction Forging - Vote", () => {
         await support.expectTransactionForged(vote[0].id);
     });
 
-    it.only("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
+    it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
         // Funds to register a multi signature wallet
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(secrets[3]), 50 * 1e8)
             .withPassphrase(secrets[0])
