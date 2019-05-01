@@ -168,6 +168,14 @@ export const multiSignature = extend(transactionBaseSchema, {
                 },
             },
         },
+        signatures: {
+            type: "array",
+            minItems: { $data: "1/asset/multiSignature/min" },
+            maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
+            additionalItems: false,
+            uniqueItems: true,
+            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
     },
 });
 

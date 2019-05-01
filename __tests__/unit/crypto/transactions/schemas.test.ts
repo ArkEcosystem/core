@@ -2,6 +2,7 @@ import { Utils } from "@arkecosystem/crypto";
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKey } from "../../../../packages/crypto/src/identities";
+import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
@@ -487,33 +488,37 @@ describe("Vote Transaction", () => {
     });
 });
 
-describe.skip("Multi Signature Transaction", () => {
+describe("Multi Signature Registration Transaction", () => {
     const passphrase = "passphrase 1";
-    const publicKey = "+03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87";
+    const publicKey = "03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87";
     const passphrases = [passphrase, "passphrase 2", "passphrase 3"];
-    const keysGroup = [
+    const participants = [
         publicKey,
-        "+03dfdaaa7fd28bc9359874b7e33138f4d0afe9937e152c59b83a99fae7eeb94899",
-        "+03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562",
+        "03dfdaaa7fd28bc9359874b7e33138f4d0afe9937e152c59b83a99fae7eeb94899",
+        "03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562",
     ];
 
-    let multiSignatureAsset;
+    let multiSignatureAsset: IMultiSignatureAsset;
 
     beforeAll(() => {
         transactionSchema = TransactionTypeFactory.get(TransactionTypes.MultiSignature).getSchema();
     });
 
     beforeEach(() => {
+        configManager.setFromPreset("testnet");
         transaction = BuilderFactory.multiSignature();
         multiSignatureAsset = {
-            min: 1,
-            keysgroup: keysGroup,
-            lifetime: 72,
+            min: 3,
+            publicKeys: participants,
         };
     });
 
+    afterEach(() => {
+        configManager.setFromPreset("devnet");
+    });
+
     const signTransaction = (tx, values) => {
-        values.map(value => tx.multiSignatureSign(value));
+        values.map((value, index) => tx.multiSign(value, index));
     };
 
     it("should be valid with min of 3", () => {
@@ -533,13 +538,17 @@ describe.skip("Multi Signature Transaction", () => {
         expect(error).toBeUndefined();
     });
 
-    it("should be valid with lifetime of 10", () => {
-        multiSignatureAsset.lifetime = 10;
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
+    it("should be valid with a dynamic number of signatures between min and publicKeys ", () => {
+        multiSignatureAsset.min = 1;
+        [1, 2, 3].forEach(count => {
+            transaction.data.signatures = [];
+            transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+            signTransaction(transaction, passphrases.slice(0, count));
 
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeUndefined();
+            const struct = transaction.getStruct();
+            const { error } = Ajv.validate(transactionSchema.$id, struct);
+            expect(error).toBeUndefined();
+        });
     });
 
     it("should be invalid due to no transaction as object", () => {
@@ -579,25 +588,7 @@ describe.skip("Multi Signature Transaction", () => {
     });
 
     it("should be invalid due to min too high", () => {
-        multiSignatureAsset.min = multiSignatureAsset.keysgroup.length + 1;
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeUndefined();
-    });
-
-    it("should be invalid due to lifetime too low", () => {
-        multiSignatureAsset.lifetime = 0;
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeUndefined();
-    });
-
-    it("should be invalid due to lifetime too high", () => {
-        multiSignatureAsset.lifetime = 100;
+        multiSignatureAsset.min = multiSignatureAsset.publicKeys.length + 1;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
@@ -606,7 +597,7 @@ describe.skip("Multi Signature Transaction", () => {
     });
 
     it("should be invalid due to no public keys", () => {
-        multiSignatureAsset.keysgroup = [];
+        multiSignatureAsset.publicKeys = [];
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
@@ -616,12 +607,13 @@ describe.skip("Multi Signature Transaction", () => {
 
     it("should be invalid due to too many public keys", () => {
         const values = [];
-        multiSignatureAsset.keysgroup = [];
+        multiSignatureAsset.publicKeys = [];
         for (let i = 0; i < 20; i++) {
             const value = `passphrase ${i}`;
             values.push(value);
-            multiSignatureAsset.keysgroup.push(PublicKey.fromPassphrase(value));
+            multiSignatureAsset.publicKeys.push(PublicKey.fromPassphrase(value));
         }
+
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, values);
 
@@ -630,7 +622,7 @@ describe.skip("Multi Signature Transaction", () => {
     });
 
     it("should be invalid due to duplicate public keys", () => {
-        multiSignatureAsset.keysgroup = [publicKey, publicKey];
+        multiSignatureAsset.publicKeys = [publicKey, publicKey];
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
@@ -642,6 +634,17 @@ describe.skip("Multi Signature Transaction", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to empty signatures", () => {
+        multiSignatureAsset.min = 1;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, []);
+
+        const struct = transaction.getStruct();
+        struct.signatures = [];
+        const { error } = Ajv.validate(transactionSchema.$id, struct);
         expect(error).not.toBeUndefined();
     });
 
@@ -661,33 +664,27 @@ describe.skip("Multi Signature Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 
-    it('should be invalid due to no "+" for publicKeys', () => {
-        multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeUndefined();
-    });
-
-    it('should be invalid due to having "-" for publicKeys', () => {
-        multiSignatureAsset.keysgroup = keysGroup.map(value => `-${value.slice(1)}`);
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeUndefined();
-    });
-
-    it("should be invalid due to wrong keysgroup type", () => {
-        multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
+    it("should be invalid due to too few publicKeys", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
         const struct = transaction.getStruct();
-        struct.asset.multisignature = publicKey;
-
+        struct.asset.multiSignature.publicKeys = struct.asset.multiSignature.publicKeys.slice(1);
         const { error } = Ajv.validate(transactionSchema.$id, struct);
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to malformed for publicKeys", () => {
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const struct = transaction.getStruct();
+        struct.asset.multiSignature.publicKeys = participants.map(value => `-${value.slice(1)}`);
+        let { error } = Ajv.validate(transactionSchema.$id, struct);
+        expect(error).not.toBeUndefined();
+
+        struct.asset.multiSignature.publicKeys = participants.map(value => "a");
+        error = Ajv.validate(transactionSchema.$id, struct).error;
         expect(error).not.toBeUndefined();
     });
 
