@@ -43,7 +43,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new InvalidMultiSignatureError();
         }
 
-        return true;
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(
