@@ -88,7 +88,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         if (data.version >= 2) {
             walletManager.findByAddress(
                 Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
-            ).multisignature = null;
+            ).multisignature = undefined;
         }
     }
 }

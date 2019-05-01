@@ -7,7 +7,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
     public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.SearchParameters {
         const searchParameters: Database.SearchParameters = {
             orderBy: [],
-            paginate: null,
+            paginate: undefined,
             parameters: [],
         };
 

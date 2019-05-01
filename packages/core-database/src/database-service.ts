@@ -17,10 +17,10 @@ export class DatabaseService implements Database.IDatabaseService {
     public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
-    public blocksInCurrentRound: Interfaces.IBlock[] = null;
+    public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: Database.IDelegateWallet[] = null;
+    public forgingDelegates: Database.IDelegateWallet[] = undefined;
     public cache: Map<any, any> = new Map();
 
     constructor(
@@ -190,12 +190,12 @@ export class DatabaseService implements Database.IDatabaseService {
         return forgingDelegates;
     }
 
-    public async getBlock(id: string): Promise<Interfaces.IBlock | null> {
+    public async getBlock(id: string): Promise<Interfaces.IBlock | undefined> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
 
         if (!block) {
-            return null;
+            return undefined;
         }
 
         const transactions: Array<{
@@ -322,7 +322,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
 
         if (!block) {
-            return null;
+            return undefined;
         }
 
         const transactions: Array<{
@@ -545,7 +545,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (hasErrors) {
             this.logger.error("FATAL: The database is corrupted");
-            this.logger.error(JSON.stringify(errors, null, 4));
+            this.logger.error(JSON.stringify(errors, undefined, 4));
         }
 
         return !hasErrors;
@@ -593,7 +593,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     private async initializeActiveDelegates(height: number): Promise<void> {
-        this.forgingDelegates = null;
+        this.forgingDelegates = undefined;
 
         const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(height);
 

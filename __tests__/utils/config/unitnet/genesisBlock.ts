@@ -9,6 +9,7 @@ export const genesisBlock = {
     timestamp: 0,
     numberOfTransactions: 255,
     payloadLength: 55608,
+    // tslint:disable-next-line: no-null-keyword
     previousBlock: null,
     generatorPublicKey: "03d04acca0ad922998d258438cc453ce50222b0e761ae9a499ead6a11f3a44b70b",
     transactions: [
@@ -2161,7 +2162,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "026039e8cb61e6050ea0ef22706eecf6f880fcf7581bafda135f0d496ed88e2bbe",
             asset: {
                 signature: {
@@ -2178,7 +2179,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02b717b22da94ce06e2b6f76b20df13cea230fa0c3f411dc45ea98b9a2e2674623",
             asset: {
                 signature: {
@@ -2195,7 +2196,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "032cb55adb5adc85a666b10b101e8ec595bcaa4993f3ce9119375f35ddad6c5104",
             asset: {
                 signature: {
@@ -2212,7 +2213,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02e1714b7bf5c6101368bb47e68e8904b93ed5dd9e358eadee4bef89e1e25e5c76",
             asset: {
                 signature: {
@@ -2229,7 +2230,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "022134c050b767b87991bdb17582302fa1ab6ae0549b0ff36fe1259cc348084e68",
             asset: {
                 signature: {
@@ -2246,7 +2247,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0230dd82d88f144160176270f09ebe50f365d94837563ab7c47630759b45cb4121",
             asset: {
                 signature: {
@@ -2263,7 +2264,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02e9725fb335e3e4a0163a43292428d696a71aa3e02a5d3bf1c400263360b13aa5",
             asset: {
                 signature: {
@@ -2280,7 +2281,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "026f5418fc21d9300c51d4294c2482217db2f756b79899abfd68c57bb8cb7e6d33",
             asset: {
                 signature: {
@@ -2297,7 +2298,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03bf66b51d43f9b373635a04dd785882d5b920463b845127dc50dc61323b6899fa",
             asset: {
                 signature: {
@@ -2314,7 +2315,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f8a36f6c492c081bbe1943764d962eee5dbae0b1b06b299751380a979c620e54",
             asset: {
                 signature: {
@@ -2331,7 +2332,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03167b1b5a15097c60d4510425c8cb9ba440f2d48cbedf184a66e40ef5adde1400",
             asset: {
                 signature: {
@@ -2348,7 +2349,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f9dd1b5a26d9c9919909ed33c3d832734c18e3bd876b24f0a74c96d35d2937d0",
             asset: {
                 signature: {
@@ -2365,7 +2366,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02072106d6946a9de07cdfe30d70683ffcc7bae860fb29025fb8398b4de0e27f3e",
             asset: {
                 signature: {
@@ -2382,7 +2383,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "032994c3c42dbe940d4e1aa91beaff6b6746e917cbe1709a36def3389095afbd4a",
             asset: {
                 signature: {
@@ -2399,7 +2400,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "036c1748887645da79305f6b62da3df56725355538b56a3072ddeb32ee228c016e",
             asset: {
                 signature: {
@@ -2416,7 +2417,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f30cdb63b466e72751b34ebc8f98c68dfcbfd842486128f98b81e8e54c14cf47",
             asset: {
                 signature: {
@@ -2433,7 +2434,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "037a5ab54742b6088fec6c487c37d961de076999eeaa462a9b25fadd131a93a75f",
             asset: {
                 signature: {
@@ -2450,7 +2451,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f40978e58affc1bb5ae6746e1c481f6e4f2093b1fe4f627f33b2b677fc8b82a2",
             asset: {
                 signature: {
@@ -2467,7 +2468,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02d3e51bb756f2522139daccd06aacba36982536338210ac6f43b3dacaf22cde48",
             asset: {
                 signature: {
@@ -2484,7 +2485,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "021b9a39a3281e7f4402021450f561b439fb2faa3b16a15c87b92fcfc5e4aac15c",
             asset: {
                 signature: {
@@ -2501,7 +2502,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "033425c8ebeda418aa1f0d2b7400923d53168e921a8be8ebd3c5584e793c17b038",
             asset: {
                 signature: {
@@ -2518,7 +2519,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03b2d0bc348b254f8bf98612e56af68b52ff84bf0daf35690b4d60455911092efb",
             asset: {
                 signature: {
@@ -2535,7 +2536,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02fb92a875f324b45c5168b0f19c4cd9f23041861640cf13abf07c8919e4754c31",
             asset: {
                 signature: {
@@ -2552,7 +2553,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02aaafe40f4c7b541084802f4fc3d6ffe8e26061478898c3589d449e83de80dc91",
             asset: {
                 signature: {
@@ -2569,7 +2570,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "025acf14ffa2ec86954c252784cd6e3931bbffa5ab8a490afb36ea250c01b72694",
             asset: {
                 signature: {
@@ -2586,7 +2587,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "028e16ce65270805eb06a1671cc5ddcff9f8d8ffce13387118fa5ab0fe39616052",
             asset: {
                 signature: {
@@ -2603,7 +2604,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "031639a30d2a92746da86629be2fa190cff2ba2871a4fbbee4badc9bfd466a0753",
             asset: {
                 signature: {
@@ -2620,7 +2621,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f453fe29be65f3ae31b5c68554e777cf0ae6422fe48e598784adc293e0d1faad",
             asset: {
                 signature: {
@@ -2637,7 +2638,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02a146b249c588574ff70a2f40ccfd27b6cc324209f8858a8f7b5063930d869756",
             asset: {
                 signature: {
@@ -2654,7 +2655,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02dec8953912902e1ea7ca3c6d994b99dc0156165810656d1863e0a239a7ff2f72",
             asset: {
                 signature: {
@@ -2671,7 +2672,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f4a9e1c98fd828d93e96ecc133187174c5d91566d09fa2701fbed36ac70fe445",
             asset: {
                 signature: {
@@ -2688,7 +2689,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0363a68f9cf32ad3d323f4f09cbe883bbb45c8e419d0e54e519a665b135d9be7d9",
             asset: {
                 signature: {
@@ -2705,7 +2706,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "020c8b7e3c16f5a1819e047f4be56f7a95b23b1eeac9078f3917016c6c1c22ecf0",
             asset: {
                 signature: {
@@ -2722,7 +2723,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03a7d7272168c98037e9c3c01f5b4b6a53eb88efb06057bf82785bddae0ade39c5",
             asset: {
                 signature: {
@@ -2739,7 +2740,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0294f19b7b5e338dc911810257a89277a487f35b0dc146fa78c2015d2489ba0db3",
             asset: {
                 signature: {
@@ -2756,7 +2757,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02c48118c725c269653cd46b2836ab1c2d8a89ad7ba214b0b309eec5174b7f590b",
             asset: {
                 signature: {
@@ -2773,7 +2774,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "033401817bf6e94157e8c6ee248e39037d28e0b1fdb1cfab726b06220323e0f29e",
             asset: {
                 signature: {
@@ -2790,7 +2791,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02b4e3968198a714e9a2c81adfde1211a24fea24c578a7033312429a693a4e93c7",
             asset: {
                 signature: {
@@ -2807,7 +2808,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02f238b9dd9e43216c1e63390eb50adf9519d00c00541c29cce98f12ed3bab55fa",
             asset: {
                 signature: {
@@ -2824,7 +2825,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03fcec41228c64a39dffbbe8466b23bc1db40efb1970e32de0360cc828ba953883",
             asset: {
                 signature: {
@@ -2841,7 +2842,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "037f4d9190cfa3c916820a3d410010226c399f6b4278eb07ecf22d41904c1d1217",
             asset: {
                 signature: {
@@ -2858,7 +2859,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "023244209672266ac90bf64d0fbd9903028c2483b33f3cf1a0de41822a3628c749",
             asset: {
                 signature: {
@@ -2875,7 +2876,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0384825d94953e85e3b6c3dc5ee27d363fec7c6dee2c1baa83dd6760458e05a402",
             asset: {
                 signature: {
@@ -2892,7 +2893,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0264d678a13dddf54000ef95a38be00aa6e8698d82cbefa43c5c35808749d5053e",
             asset: {
                 signature: {
@@ -2909,7 +2910,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03412d936ec21e8b69f43c4c4945e24defeb956c777d71b974740fe2f1b90dd4d1",
             asset: {
                 signature: {
@@ -2926,7 +2927,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03882346ba5e7e2874d1cfd1ec8d30f984be9f57021b72f56ec5b4d4aee79caebf",
             asset: {
                 signature: {
@@ -2943,7 +2944,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "039c0311d587b5bf354c2d42965436048dfadaf9d5f6fce7c5f842e5480f298c5c",
             asset: {
                 signature: {
@@ -2960,7 +2961,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02f4fc615d167b6e6e4ffd2c6d63ae7ff621341dacb8b0ab5809b82cd478304bc2",
             asset: {
                 signature: {
@@ -2977,7 +2978,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02d59edc9009c55f4b271e0880ccc2e710eff3a69b5e41ee8f0573d93c639e7cf2",
             asset: {
                 signature: {
@@ -2994,7 +2995,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0223566d2ee34ed38a542e6bab5aa82feada724c86322a42ba544ac0a0d3cb90be",
             asset: {
                 signature: {
@@ -3011,7 +3012,7 @@ export const genesisBlock = {
             type: 1,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "032813004bc61bb9125232369724c23f5d0c417f1690f0beefdae359694ed49eaf",
             asset: {
                 signature: {
@@ -3028,7 +3029,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03a6a69602037a74be19103d7666270ec9898fb25ae9b1a1d7be4e2e3c7c21a4cd",
             asset: {
                 delegate: {
@@ -3046,7 +3047,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02aed6613d71afac9c58f6d7dc50a8b83ef970a965134289b5fdb1316cb5ce4043",
             asset: {
                 delegate: {
@@ -3064,7 +3065,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0224696d2d359eb27ba7f303e2cdad6b205b16958887f297fbb1006862733b93f4",
             asset: {
                 delegate: {
@@ -3082,7 +3083,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0386b0158ffb50648b980feb1cdf8bcf7091c55b46f46a76e54ea53a31b0c10e25",
             asset: {
                 delegate: {
@@ -3100,7 +3101,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03eef7da2ddb36f2becd143e94b96c9bdbcc855dc3a635f300473b692a27de1d0d",
             asset: {
                 delegate: {
@@ -3118,7 +3119,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0286f55873cbda98f6b56d6b63dcd837c86ee2e8effd329a99ad9f724ab913e71f",
             asset: {
                 delegate: {
@@ -3136,7 +3137,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "036627ad7e990668b92abd09cd34cff49737ee5024f949b3cf060104bc26796dfa",
             asset: {
                 delegate: {
@@ -3154,7 +3155,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0261861fce10c2d7329a7c5e9436ddc9f6e4cc7638a0313c365315d71c370aabcc",
             asset: {
                 delegate: {
@@ -3172,7 +3173,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "026bf3b6a49b53bf2fb4c3f3bf129080ab16027748ca3eae99382785deb9f20e64",
             asset: {
                 delegate: {
@@ -3190,7 +3191,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0340c96462c621b849ed19ccbb43ebc99702b36e39eb31df6427d1040148b3e7df",
             asset: {
                 delegate: {
@@ -3208,7 +3209,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0355d22bdc0f63688b11924ae3819b8ef1036f7e74f5ad5f9c7fb508bc219d1793",
             asset: {
                 delegate: {
@@ -3226,7 +3227,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "022f5905a84c78ab156196e220c4d816302d8ff121dca90d19c43b026c17a648f3",
             asset: {
                 delegate: {
@@ -3244,7 +3245,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03743e523107e718ef752267f983fb5d97d033225dede131c1b910c842c6845371",
             asset: {
                 delegate: {
@@ -3262,7 +3263,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03a8e79a66f9abd185f6d273895357bf7f70b9024ea9c6ba6992c70769d2bbcd36",
             asset: {
                 delegate: {
@@ -3280,7 +3281,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "034e97723d50ff5a208279b95de3fa6c8d4cb719a8097bd42d7c35ca5df24d77aa",
             asset: {
                 delegate: {
@@ -3298,7 +3299,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "032998b64be9fec881c3026a5aca7c6a6a726ff9410cdb96d30296724b2822c49d",
             asset: {
                 delegate: {
@@ -3316,7 +3317,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "032bb244b81b8fe941f4f093c44185a4c4e8dd8aa06aea2c89cd31c5cb5095bbcf",
             asset: {
                 delegate: {
@@ -3334,7 +3335,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02e89dbafbcb5b131c7855063d403cc9342b4ec56453c7106d2a5fe09e36fee3b2",
             asset: {
                 delegate: {
@@ -3352,7 +3353,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03492a56295d3074c25f2fd1aadbb5363bd8b771eee4d3fd1fd900b7dba0ee00e5",
             asset: {
                 delegate: {
@@ -3370,7 +3371,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0254315ae8629f844cf258cfd85ee5143a1b63fbdff674c59f7e24650ab9912a14",
             asset: {
                 delegate: {
@@ -3388,7 +3389,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03c636148f8fe31233ae945d442cb82bc98a9183bc6cad582a23135b7b5136ca11",
             asset: {
                 delegate: {
@@ -3406,7 +3407,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0214bd8ac8fcbcb3d04085942a20e8b6294251c5a02e77315d42f48c6ba7c1cd9e",
             asset: {
                 delegate: {
@@ -3424,7 +3425,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03e01363edc5bd7ab7ff7d35485b376ce666270beb620900d928ee3b6a0cb10fb8",
             asset: {
                 delegate: {
@@ -3442,7 +3443,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02f5dec188574f0b819cde2c0247b4f072f8f91ddf042d550921bc319050aed400",
             asset: {
                 delegate: {
@@ -3460,7 +3461,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03f8b1935b22d42ed3b2127e60775299808437a0b641b841bc9376a2898c4f44a1",
             asset: {
                 delegate: {
@@ -3478,7 +3479,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02b63f38feb83a17fad2aacf6f953c557f50c94de636b874da14290bbf63f1517e",
             asset: {
                 delegate: {
@@ -3496,7 +3497,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02b5957878800178932dab3313d6723bbf506f211fcb83cfb1d5ee22f1274a4c68",
             asset: {
                 delegate: {
@@ -3514,7 +3515,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0281a4d86b3393af3011992b3f6be550aac7eee71993e1425562d260e83c6ead66",
             asset: {
                 delegate: {
@@ -3532,7 +3533,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02de366d3711a1a5932022f27d6388e5e75d3c1b8d9440db599b2931b03780368d",
             asset: {
                 delegate: {
@@ -3550,7 +3551,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "032292a0c76cbf0d24faf582afa6323dfe5384e3bfd2bdf0310d3107f02b0e47be",
             asset: {
                 delegate: {
@@ -3568,7 +3569,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "020d8cc9a44b3cb46316879146eef90584d37ea5af3c2aa0c169a3fd7232f0b282",
             asset: {
                 delegate: {
@@ -3586,7 +3587,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0316510c1409d3307d9f205cac58f1a871499c3ffea3878ddbbb48c821cfbc079a",
             asset: {
                 delegate: {
@@ -3604,7 +3605,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "036e5e9b5956c8f56d5ecaef8a24141aa0de681ad89a2318b6c2d4125676576866",
             asset: {
                 delegate: {
@@ -3622,7 +3623,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02f9ec59435f27d92667e7d6e8e929cb4f71cb441a2b403beff607a0894c3377d5",
             asset: {
                 delegate: {
@@ -3640,7 +3641,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "022cc19322e8a4edd93e5988b775b237692fe14e7475e520c757e1b32669faf3da",
             asset: {
                 delegate: {
@@ -3658,7 +3659,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0334cc485a8ff9fbf1ce5221153bec8bfa7f2ece3ce25ff31dacfa1eae91dcf143",
             asset: {
                 delegate: {
@@ -3676,7 +3677,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03a21fb105682f83a4149575fadabc16d836fc255d450bf4e15a6f9733a9c9e46a",
             asset: {
                 delegate: {
@@ -3694,7 +3695,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0374b638d5909814023679e91511744d8be43e7ea92a96ac813fc54170956b9a72",
             asset: {
                 delegate: {
@@ -3712,7 +3713,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0325a3a8faff0d859d0e01d970b6da791c6d40980e6d999ebf50902add2db649ae",
             asset: {
                 delegate: {
@@ -3730,7 +3731,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0234b0c5728ad84f77c363893d8724c1030449dab292bf50985c1b4826116488d5",
             asset: {
                 delegate: {
@@ -3748,7 +3749,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "024fa1bc40902ce33ad42cce978299fdb9cfcd9e550e233713a005cc967fe43339",
             asset: {
                 delegate: {
@@ -3766,7 +3767,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03bf04879563f0dfee9b9733af248847a03c5b9e89a9a81ca028fc0c44349c7170",
             asset: {
                 delegate: {
@@ -3784,7 +3785,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03e03e8ec4c1de10ec8b4fd9269cbf9584927b99fe2585c5cdd8791b06bd806d5b",
             asset: {
                 delegate: {
@@ -3802,7 +3803,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03fe050cd6a95d41f5bf6f6286c7e0c8029a12ebf38101821842993a545fee0154",
             asset: {
                 delegate: {
@@ -3820,7 +3821,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03069b9b610fc540de79e3e3ec75a237a055a0021cedaadde39c260b890eca6453",
             asset: {
                 delegate: {
@@ -3838,7 +3839,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03852d45a7d7657c972fce42344d5be31166be83d227d757980c8edbd4944505ac",
             asset: {
                 delegate: {
@@ -3856,7 +3857,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "03aab25b27a4eedbcbcc8aa4f8e5a722f1ad03db9a107ef68465c6ea1d18337116",
             asset: {
                 delegate: {
@@ -3874,7 +3875,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02d1a5ad2e0a094a430d5158447b9be383d1415c2678c890e39d2c811e27789359",
             asset: {
                 delegate: {
@@ -3892,7 +3893,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "025d124dd255096ab185771bd9284c69bfea670a497b04a1bba054f8feda60fd3a",
             asset: {
                 delegate: {
@@ -3910,7 +3911,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "0316b3dc139c1a35927ecbdcb8d8b628ad06bd4f1869fe3ad0e23c8106678a460f",
             asset: {
                 delegate: {
@@ -3928,7 +3929,7 @@ export const genesisBlock = {
             type: 2,
             fee: Utils.BigNumber.make(0),
             amount: Utils.BigNumber.make(0),
-            recipientId: null,
+            recipientId: undefined,
             senderPublicKey: "02778aa3d5b332965ea2a5ef6ac479ce2478535bc681a098dff1d683ff6eccc417",
             asset: {
                 delegate: {

@@ -35,7 +35,7 @@ describe("State Machine", () => {
 
         describe("checkLater", () => {
             it("should call blockchain.setWakeUp", async () => {
-                const setWakeUp = jest.spyOn(blockchain, "setWakeUp").mockReturnValueOnce(null);
+                const setWakeUp = jest.spyOn(blockchain, "setWakeUp").mockReturnValueOnce(undefined);
                 actionMap.checkLater();
 
                 expect(setWakeUp).toHaveBeenCalledTimes(1);
@@ -154,7 +154,7 @@ describe("State Machine", () => {
 
         describe("exitApp", () => {
             it("should call container forceExit with error message", () => {
-                const forceExit = jest.spyOn(container.app, "forceExit").mockImplementationOnce(() => null);
+                const forceExit = jest.spyOn(container.app, "forceExit").mockImplementationOnce(() => undefined);
                 actionMap.exitApp();
                 expect(forceExit).lastCalledWith("Failed to startup blockchain. Exiting ARK Core!");
             });
@@ -198,9 +198,9 @@ describe("State Machine", () => {
             });
 
             it("should dispatch FAILURE if there is no last block in database and genesis block payload hash != configured nethash", async () => {
-                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(null);
+                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(undefined);
                 const backupConfig = { ...config };
-                config["network.nethash"] = null;
+                config["network.nethash"] = undefined;
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "FAILURE");
 

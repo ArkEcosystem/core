@@ -55,7 +55,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
-        return null;
+        return undefined;
     }
 
     public removeTransaction(transaction: Interfaces.ITransaction): void {
@@ -71,7 +71,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public getTransaction(id: string): Interfaces.ITransaction {
-        return null;
+        return undefined;
     }
 
     public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
@@ -79,11 +79,11 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public getTransactionIdsForForging(start: number, size: number): string[] {
-        return null;
+        return undefined;
     }
 
     public getTransactionsData<T>(start: number, size: number, property: string, maxBytes?: number): T[] {
-        return null;
+        return undefined;
     }
 
     public getTransactionsByType(type: any): any {
@@ -103,7 +103,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public makeProcessor(): TransactionPool.IProcessor {
-        return null;
+        return undefined;
     }
 
     public has(transactionId: string): any {
@@ -115,7 +115,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public blockSender(senderPublicKey: string): Dato {
-        return null;
+        return undefined;
     }
 
     public acceptChainedBlock(block: Blocks.Block): void {

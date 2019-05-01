@@ -57,7 +57,7 @@ export class Verifier {
     public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
         // FIXME: legacy type 4 need special treatment
         if (data.type === TransactionTypes.MultiSignature) {
-            return { value: data, error: null };
+            return { value: data, error: undefined };
         }
 
         const { $id } = TransactionTypeFactory.get(data.type).getSchema();

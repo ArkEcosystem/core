@@ -18,7 +18,7 @@ jest.mock("@arkecosystem/core-container", () => {
                                 return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
                         }
 
-                        return null;
+                        return undefined;
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
@@ -70,9 +70,9 @@ jest.mock("@arkecosystem/core-container", () => {
                     return {
                         getLastBlock: jest.fn().mockReturnValue({ data: { height: 1 }, getHeader: () => ({}) }),
                         pingBlock: jest.fn().mockReturnValue(true),
-                        getLastDownloadedBlock: jest.fn().mockReturnValue(null),
-                        pushPingBlock: jest.fn().mockReturnValue(null),
-                        handleIncomingBlock: jest.fn().mockReturnValue(null),
+                        getLastDownloadedBlock: jest.fn().mockReturnValue(undefined),
+                        pushPingBlock: jest.fn().mockReturnValue(undefined),
+                        handleIncomingBlock: jest.fn().mockReturnValue(undefined),
                     };
                 }
 
@@ -108,7 +108,7 @@ jest.mock("@arkecosystem/core-container", () => {
                             getLastBlock: () => genesisBlock,
                             getLastHeight: () => genesisBlock.data.height,
                             cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
-                            removeCachedTransactionIds: jest.fn().mockReturnValue(null),
+                            removeCachedTransactionIds: jest.fn().mockReturnValue(undefined),
                         }),
                     };
                 }

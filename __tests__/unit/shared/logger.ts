@@ -5,7 +5,7 @@ import { tmpdir } from "os";
 
 export function expectLogger(callback): void {
     let logger: Logger.ILogger;
-    let message: string = "";
+    let message: string;
 
     beforeAll(() => {
         process.env.CORE_PATH_LOG = tmpdir();
@@ -31,7 +31,7 @@ export function expectLogger(callback): void {
         });
     });
 
-    afterEach(() => (message = null));
+    afterEach(() => (message = undefined));
 
     describe("Logger", () => {
         it("should log a message with the [error] level", () => {
@@ -73,7 +73,7 @@ export function expectLogger(callback): void {
             logger.suppressConsoleOutput(true);
 
             logger.info("silent_message");
-            expect(message).toBeNull();
+            expect(message).toBeUndefined();
 
             logger.suppressConsoleOutput(false);
 

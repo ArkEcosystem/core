@@ -89,7 +89,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         walletManager.forgetByUsername(sender.username);
-        sender.username = null;
+        sender.username = undefined;
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {

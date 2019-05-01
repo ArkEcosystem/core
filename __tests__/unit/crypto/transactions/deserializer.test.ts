@@ -339,7 +339,7 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("getBytesV1", () => {
-        let bytes = null;
+        let bytes;
 
         // it('should return Buffer of simply transaction and buffer must be 292 length', () => {
         //   const transaction = {

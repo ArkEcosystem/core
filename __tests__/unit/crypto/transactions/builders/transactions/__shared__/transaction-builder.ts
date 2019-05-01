@@ -18,7 +18,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             it("should have the essential properties", () => {
                 const builder = provider();
 
-                expect(builder).toHaveProperty("data.id", null);
+                expect(builder).toHaveProperty("data.id", undefined);
                 expect(builder).toHaveProperty("data.timestamp");
                 expect(builder).toHaveProperty("data.version");
 
@@ -190,7 +190,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const spySecondSign = jest.spyOn(Transaction, "secondSign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
-                builder.network(23).secondSignWithWif(identitySecond.bip39, null);
+                builder.network(23).secondSignWithWif(identitySecond.bip39, undefined);
 
                 expect(spyKeys).toHaveBeenCalledWith(identitySecond.bip39, {
                     wif: 186,

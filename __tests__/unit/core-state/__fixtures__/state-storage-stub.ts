@@ -4,14 +4,14 @@ import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 export class StateStorageStub implements State.IStateStorage {
     public blockchain: any;
-    public lastDownloadedBlock: Interfaces.IBlock | null;
+    public lastDownloadedBlock: Interfaces.IBlock | undefined;
     public blockPing: any;
     public started: boolean;
-    public forkedBlock: Interfaces.IBlock | null;
+    public forkedBlock: Interfaces.IBlock | undefined;
     public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
-    public numberOfBlocksToRollback: number | null;
+    public numberOfBlocksToRollback: number | undefined;
     public networkStart: boolean;
 
     public cacheTransactions(
@@ -36,7 +36,7 @@ export class StateStorageStub implements State.IStateStorage {
         return 1;
     }
 
-    public getLastBlock(): Interfaces.IBlock | null {
+    public getLastBlock(): Interfaces.IBlock | undefined {
         return undefined;
     }
 

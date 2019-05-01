@@ -14,7 +14,7 @@ export class TransactionFactory {
     }
 
     public static fromBytes(buffer: Buffer): ITransaction {
-        return this.fromSerialized(buffer ? buffer.toString("hex") : null);
+        return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
     }
 
     /**
@@ -47,7 +47,7 @@ export class TransactionFactory {
     public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
         const { value, error } = Verifier.verifySchema(data, strict);
 
-        if (error !== null && !isException(value)) {
+        if (error && !isException(value)) {
             throw new TransactionSchemaError(error);
         }
 
@@ -72,7 +72,7 @@ export class TransactionFactory {
 
             const { value, error } = Verifier.verifySchema(transaction.data, true);
 
-            if (error !== null && !isException(value)) {
+            if (error && !isException(value)) {
                 throw new TransactionSchemaError(error);
             }
 

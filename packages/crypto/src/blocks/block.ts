@@ -12,7 +12,7 @@ export class Block implements IBlock {
         const { value, error } = validator.validate("block", data);
 
         if (
-            error !== null &&
+            error &&
             !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
         ) {
             throw new BlockSchemaError(error);

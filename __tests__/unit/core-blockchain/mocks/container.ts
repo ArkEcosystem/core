@@ -56,10 +56,10 @@ export const container = {
                 return { getStore: () => stateStorageStub };
             }
 
-            return null;
+            return undefined;
         },
         resolveOptions: () => ({}),
         has: () => true,
-        forceExit: () => null,
+        forceExit: () => undefined,
     },
 };

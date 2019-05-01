@@ -118,10 +118,10 @@ describe("Blockchain", () => {
             // FIXME: using jest.spyOn getActiveDelegates with toHaveLastReturnedWith() somehow gets
             // overwritten in afterEach
             // FIXME: wallet.lastBlock needs to be properly restored when reverting
-            forgingDelegates.forEach(forger => (forger.lastBlock = null));
+            forgingDelegates.forEach(forger => (forger.lastBlock = undefined));
             expect(forgingDelegates).toEqual(
                 (blockchain.database as any).forgingDelegates.map(forger => {
-                    forger.lastBlock = null;
+                    forger.lastBlock = undefined;
                     return forger;
                 }),
             );
@@ -240,7 +240,7 @@ describe("Blockchain", () => {
 
             // Wallet paid a fee of 1 and no longer voted a delegate
             expect(wallet.balance).toEqual(Utils.BigNumber.make(123));
-            expect(wallet.vote).toBeNull();
+            expect(wallet.vote).toBeUndefined();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
             expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
@@ -272,7 +272,7 @@ describe("Blockchain", () => {
         });
 
         it("should return object with count == -1 if getTransactionsForForging returned a falsy value", async () => {
-            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(null);
+            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(undefined);
 
             const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
             expect(unconfirmedTransactions.count).toBe(-1);
@@ -329,6 +329,6 @@ async function __addBlocks(untilHeight) {
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
         const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
-        await blockchain.processBlocks([blockToProcess], () => null);
+        await blockchain.processBlocks([blockToProcess], () => undefined);
     }
 }

@@ -16,7 +16,7 @@ describe("validator", () => {
                         "publicKey",
                         "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
                     ).error,
-                ).toBeNull();
+                ).toBeUndefined();
             });
 
             it("should not be ok", () => {
@@ -25,84 +25,89 @@ describe("validator", () => {
                         "publicKey",
                         "Z34da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
                     ).error,
-                ).not.toBeNull();
+                ).not.toBeUndefined();
                 expect(
                     validator.validate("publicKey", "34da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126")
                         .error,
-                ).not.toBeNull();
-                expect(validator.validate("publicKey", "").error).not.toBeNull();
-                expect(validator.validate("publicKey", 1234).error).not.toBeNull();
-                expect(validator.validate("publicKey", null).error).not.toBeNull();
-                expect(validator.validate("publicKey", undefined).error).not.toBeNull();
+                ).not.toBeUndefined();
+                expect(validator.validate("publicKey", "").error).not.toBeUndefined();
+                expect(validator.validate("publicKey", 1234).error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("publicKey", null).error).not.toBeUndefined();
+                expect(validator.validate("publicKey", undefined).error).not.toBeUndefined();
             });
         });
 
         describe("address", () => {
             it("should be ok", () => {
-                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).toBeNull();
+                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).toBeUndefined();
             });
 
             it("should not validate if address is not on the same network", () => {
                 configManager.setFromPreset("unitnet");
-                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeNull();
+                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeUndefined();
             });
 
             it("should not be ok", () => {
-                expect(validator.validate("address", "€TRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeNull();
-                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9").error).not.toBeNull();
+                expect(validator.validate("address", "€TRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeUndefined();
+                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9").error).not.toBeUndefined();
                 expect(
                     validator.validate("address", "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126")
                         .error,
-                ).not.toBeNull();
-                expect(validator.validate("address", "").error).not.toBeNull();
-                expect(validator.validate("address", 1234).error).not.toBeNull();
-                expect(validator.validate("address", null).error).not.toBeNull();
-                expect(validator.validate("address", undefined).error).not.toBeNull();
+                ).not.toBeUndefined();
+                expect(validator.validate("address", "").error).not.toBeUndefined();
+                expect(validator.validate("address", 1234).error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("address", null).error).not.toBeUndefined();
+                expect(validator.validate("address", undefined).error).not.toBeUndefined();
             });
         });
 
         describe("hex", () => {
             it("should be ok", () => {
-                expect(validator.validate("hex", "deadbeef").error).toBeNull();
+                expect(validator.validate("hex", "deadbeef").error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                expect(validator.validate("hex", "€").error).not.toBeNull();
-                expect(validator.validate("hex", 1).error).not.toBeNull();
-                expect(validator.validate("hex", "").error).not.toBeNull();
-                expect(validator.validate("hex", null).error).not.toBeNull();
-                expect(validator.validate("hex", undefined).error).not.toBeNull();
+                expect(validator.validate("hex", "€").error).not.toBeUndefined();
+                expect(validator.validate("hex", 1).error).not.toBeUndefined();
+                expect(validator.validate("hex", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("hex", null).error).not.toBeUndefined();
+                expect(validator.validate("hex", undefined).error).not.toBeUndefined();
             });
         });
 
         describe("base58", () => {
             it("should be ok", () => {
-                expect(validator.validate("base58", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9").error).toBeNull();
+                expect(validator.validate("base58", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9").error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                expect(validator.validate("base58", "€").error).not.toBeNull();
-                expect(validator.validate("base58", 1).error).not.toBeNull();
-                expect(validator.validate("base58", "").error).not.toBeNull();
-                expect(validator.validate("base58", null).error).not.toBeNull();
-                expect(validator.validate("base58", undefined).error).not.toBeNull();
+                expect(validator.validate("base58", "€").error).not.toBeUndefined();
+                expect(validator.validate("base58", 1).error).not.toBeUndefined();
+                expect(validator.validate("base58", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("base58", null).error).not.toBeUndefined();
+                expect(validator.validate("base58", undefined).error).not.toBeUndefined();
             });
         });
 
         describe("alphanumeric", () => {
             it("should be ok", () => {
-                expect(validator.validate("alphanumeric", "abcDE1234").error).toBeNull();
+                expect(validator.validate("alphanumeric", "abcDE1234").error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                expect(validator.validate("alphanumeric", "+12").error).not.toBeNull();
-                expect(validator.validate("alphanumeric", ".1").error).not.toBeNull();
-                expect(validator.validate("alphanumeric", "1.0").error).not.toBeNull();
-                expect(validator.validate("alphanumeric", "€").error).not.toBeNull();
-                expect(validator.validate("alphanumeric", 1).error).not.toBeNull();
-                expect(validator.validate("alphanumeric", "").error).not.toBeNull();
-                expect(validator.validate("alphanumeric", null).error).not.toBeNull();
-                expect(validator.validate("alphanumeric", undefined).error).not.toBeNull();
+                expect(validator.validate("alphanumeric", "+12").error).not.toBeUndefined();
+                expect(validator.validate("alphanumeric", ".1").error).not.toBeUndefined();
+                expect(validator.validate("alphanumeric", "1.0").error).not.toBeUndefined();
+                expect(validator.validate("alphanumeric", "€").error).not.toBeUndefined();
+                expect(validator.validate("alphanumeric", 1).error).not.toBeUndefined();
+                expect(validator.validate("alphanumeric", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("alphanumeric", null).error).not.toBeUndefined();
+                expect(validator.validate("alphanumeric", undefined).error).not.toBeUndefined();
             });
         });
 
@@ -113,7 +118,7 @@ describe("validator", () => {
                         "transactionId",
                         "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
                     ).error,
-                ).toBeNull();
+                ).toBeUndefined();
             });
 
             it("should not be ok", () => {
@@ -122,23 +127,24 @@ describe("validator", () => {
                         "transactionId",
                         "94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
                     ).error,
-                ).not.toBeNull();
+                ).not.toBeUndefined();
                 expect(
                     validator.validate(
                         "transactionId",
                         "94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4111",
                     ).error,
-                ).not.toBeNull();
+                ).not.toBeUndefined();
                 expect(
                     validator.validate(
                         "transactionId",
                         "94c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4@@@",
                     ).error,
-                ).not.toBeNull();
-                expect(validator.validate("transactionId", 1).error).not.toBeNull();
-                expect(validator.validate("transactionId", "").error).not.toBeNull();
-                expect(validator.validate("transactionId", null).error).not.toBeNull();
-                expect(validator.validate("transactionId", undefined).error).not.toBeNull();
+                ).not.toBeUndefined();
+                expect(validator.validate("transactionId", 1).error).not.toBeUndefined();
+                expect(validator.validate("transactionId", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("transactionId", null).error).not.toBeUndefined();
+                expect(validator.validate("transactionId", undefined).error).not.toBeUndefined();
             });
         });
 
@@ -149,13 +155,13 @@ describe("validator", () => {
                         "walletVote",
                         "+034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
                     ).error,
-                ).toBeNull();
+                ).toBeUndefined();
                 expect(
                     validator.validate(
                         "walletVote",
                         "-034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
                     ).error,
-                ).toBeNull();
+                ).toBeUndefined();
             });
 
             it("should not be ok", () => {
@@ -164,28 +170,32 @@ describe("validator", () => {
                         "walletVote",
                         "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
                     ).error,
-                ).not.toBeNull();
-                expect(validator.validate("walletVote", "-^sd").error).not.toBeNull();
-                expect(validator.validate("walletVote", 1234).error).not.toBeNull();
-                expect(validator.validate("walletVote", "").error).not.toBeNull();
-                expect(validator.validate("walletVote", null).error).not.toBeNull();
-                expect(validator.validate("walletVote", undefined).error).not.toBeNull();
+                ).not.toBeUndefined();
+                expect(validator.validate("walletVote", "-^sd").error).not.toBeUndefined();
+                expect(validator.validate("walletVote", 1234).error).not.toBeUndefined();
+                expect(validator.validate("walletVote", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("walletVote", null).error).not.toBeUndefined();
+                expect(validator.validate("walletVote", undefined).error).not.toBeUndefined();
             });
         });
 
         describe("delegateUsername", () => {
             it("should be ok", () => {
-                expect(validator.validate("delegateUsername", "asdf").error).toBeNull();
-                expect(validator.validate("delegateUsername", "_").error).toBeNull();
+                expect(validator.validate("delegateUsername", "asdf").error).toBeUndefined();
+                expect(validator.validate("delegateUsername", "_").error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                expect(validator.validate("delegateUsername", "AbCdEfG").error).not.toBeNull();
-                expect(validator.validate("delegateUsername", "longerthantwentycharacterslong").error).not.toBeNull();
-                expect(validator.validate("delegateUsername", 1234).error).not.toBeNull();
-                expect(validator.validate("delegateUsername", "").error).not.toBeNull();
-                expect(validator.validate("delegateUsername", null).error).not.toBeNull();
-                expect(validator.validate("delegateUsername", undefined).error).not.toBeNull();
+                expect(validator.validate("delegateUsername", "AbCdEfG").error).not.toBeUndefined();
+                expect(
+                    validator.validate("delegateUsername", "longerthantwentycharacterslong").error,
+                ).not.toBeUndefined();
+                expect(validator.validate("delegateUsername", 1234).error).not.toBeUndefined();
+                expect(validator.validate("delegateUsername", "").error).not.toBeUndefined();
+                // tslint:disable-next-line: no-null-keyword
+                expect(validator.validate("delegateUsername", null).error).not.toBeUndefined();
+                expect(validator.validate("delegateUsername", undefined).error).not.toBeUndefined();
             });
         });
 
@@ -196,17 +206,17 @@ describe("validator", () => {
             });
 
             it("should be ok", () => {
-                expect(validator.validate("block", block2).error).toBeNull();
-                expect(validator.validate("block", genesisBlock).error).toBeNull();
+                expect(validator.validate("block", block2).error).toBeUndefined();
+                expect(validator.validate("block", genesisBlock).error).toBeUndefined();
             });
 
             it("should not be ok", () => {
                 block2.numberOfTransactions = 1;
-                expect(validator.validate("block", block2).error).not.toBeNull();
+                expect(validator.validate("block", block2).error).not.toBeUndefined();
                 block2.numberOfTransactions = 11;
-                expect(validator.validate("block", block2).error).not.toBeNull();
+                expect(validator.validate("block", block2).error).not.toBeUndefined();
                 block2.numberOfTransactions = 10;
-                expect(validator.validate("block", block2).error).toBeNull();
+                expect(validator.validate("block", block2).error).toBeUndefined();
             });
         });
     });
@@ -215,7 +225,7 @@ describe("validator", () => {
         it("should extend transaction schema", () => {
             const customTransactionSchema = { $id: "custom" } as TransactionSchema;
             validator.extendTransaction(customTransactionSchema);
-            expect(validator.getInstance().getSchema("custom")).not.toBeNull();
+            expect(validator.getInstance().getSchema("custom")).not.toBeUndefined();
         });
     });
 

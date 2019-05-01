@@ -4,12 +4,12 @@ import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@ark
 
 export class Wallet implements Database.IWallet {
     public address: string;
-    public publicKey: string | null;
-    public secondPublicKey: string | null;
+    public publicKey: string | undefined;
+    public secondPublicKey: string | undefined;
     public balance: Utils.BigNumber;
     public vote: string;
     public voted: boolean;
-    public username: string | null;
+    public username: string | undefined;
     public lastBlock: any;
     public voteBalance: Utils.BigNumber;
     public multisignature?: Interfaces.IMultiSignatureAsset;
@@ -21,15 +21,15 @@ export class Wallet implements Database.IWallet {
 
     constructor(address: string) {
         this.address = address;
-        this.publicKey = null;
-        this.secondPublicKey = null;
+        this.publicKey = undefined;
+        this.secondPublicKey = undefined;
         this.balance = Utils.BigNumber.ZERO;
-        this.vote = null;
+        this.vote = undefined;
         this.voted = false;
-        this.username = null;
-        this.lastBlock = null;
+        this.username = undefined;
+        this.lastBlock = undefined;
         this.voteBalance = Utils.BigNumber.ZERO;
-        this.multisignature = null;
+        this.multisignature = undefined;
         this.producedBlocks = 0;
         this.forgedFees = Utils.BigNumber.ZERO;
         this.forgedRewards = Utils.BigNumber.ZERO;
@@ -71,7 +71,7 @@ export class Wallet implements Database.IWallet {
             this.producedBlocks--;
 
             // TODO: get it back from database?
-            this.lastBlock = null;
+            this.lastBlock = undefined;
             return true;
         }
 

@@ -64,7 +64,7 @@ export abstract class Repository implements IRepository {
         for (const row of await (this.databaseService.connection as any).query.manyOrNone(explainSql)) {
             const line: any = Object.values(row)[0];
             const match = line.match(/rows=([0-9]+)/);
-            if (match !== null) {
+            if (match) {
                 count = Number(match[1]);
             }
         }

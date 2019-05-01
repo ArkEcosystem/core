@@ -40,7 +40,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 }
             }
 
-            return res(null, {
+            return res(undefined, {
                 data: (await handlers[version][method]({ service, req })) || {},
                 headers: getHeaders(),
             });

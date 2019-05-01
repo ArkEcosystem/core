@@ -45,7 +45,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: null,
+            orderBy: undefined,
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -85,7 +85,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: null,
+            orderBy: undefined,
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -116,7 +116,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit,
             offset: parameters.offset,
-            orderBy: null,
+            orderBy: undefined,
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -286,7 +286,7 @@ export class TransactionsRepository extends Repository implements IRepository {
         const results = await this._findManyWithCount(selectQuery, {
             limit: parameters.limit || 100,
             offset: parameters.offset || 0,
-            orderBy: null,
+            orderBy: undefined,
         });
 
         results.rows = await this.__mapBlocksToTransactions(results.rows);
@@ -370,12 +370,12 @@ export class TransactionsRepository extends Repository implements IRepository {
     /**
      * Tries to retrieve the height of the block from the cache
      * @param  {String} blockId
-     * @return {Object|null}
+     * @return {Object|undefined}
      */
     public __getBlockCache(blockId): any {
         const height = this.cache.get(`heights:${blockId}`);
 
-        return height ? { height, id: blockId } : null;
+        return height ? { height, id: blockId } : undefined;
     }
 
     /**
@@ -398,7 +398,7 @@ export class TransactionsRepository extends Repository implements IRepository {
             return this.databaseService.walletManager.findByAddress(senderId).publicKey;
         }
 
-        return null;
+        return undefined;
     }
 
     public __orderBy(selectQuery, parameters, sequenceOrder: "asc" | "desc" = "desc"): void {

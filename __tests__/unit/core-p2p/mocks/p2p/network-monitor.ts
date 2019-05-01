@@ -1,3 +1,3 @@
 export const getMonitor = {
-    getNetworkState: () => null,
+    getNetworkState: () => undefined,
 };

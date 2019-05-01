@@ -27,14 +27,14 @@ export class NSect {
      * @return {Number} the index of the first (lowest) element that satisfies the condition
      */
     public async find(low: number, high: number): Promise<number> {
-        let highestMatching: number = null;
+        let highestMatching: number;
 
         for (;;) {
             const indexesToProbe: number[] = this.calcProbes(low, high);
 
             const temp: number = await this.probe(indexesToProbe);
 
-            if (temp === null) {
+            if (temp === undefined) {
                 break;
             }
 

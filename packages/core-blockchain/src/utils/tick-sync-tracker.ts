@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import prettyMs from "pretty-ms";
 
-let tracker = null;
+let tracker;
 
 export function tickSyncTracker(blockCount, count): void {
     if (!tracker) {
@@ -51,6 +51,6 @@ export function tickSyncTracker(blockCount, count): void {
     }
 
     if (tracker.percent === 100) {
-        tracker = null;
+        tracker = undefined;
     }
 }

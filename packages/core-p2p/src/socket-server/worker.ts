@@ -32,7 +32,7 @@ export class Worker extends SCWorker {
                 // @ts-ignore
                 socket.on(`p2p.${version}.${handler}`, async (data, res) => {
                     try {
-                        return res(null, await this.sendToMasterAsync(`p2p.${version}.${handler}`, data));
+                        return res(undefined, await this.sendToMasterAsync(`p2p.${version}.${handler}`, data));
                     } catch (e) {
                         return res(e);
                     }

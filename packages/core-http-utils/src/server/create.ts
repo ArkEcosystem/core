@@ -1,7 +1,7 @@
 import Hapi from "@hapi/hapi";
 import { monitorServer } from "./monitor";
 
-export async function createServer(options, callback: any = null, plugins?: any[]) {
+export async function createServer(options, callback?: any, plugins?: any[]) {
     const server = new Hapi.Server(options);
 
     if (Array.isArray(plugins)) {

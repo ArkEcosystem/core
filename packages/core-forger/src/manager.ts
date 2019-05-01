@@ -245,7 +245,7 @@ export class ForgerManager {
         return true;
     }
 
-    private isActiveDelegate(publicKey: string): Delegate | null {
+    private isActiveDelegate(publicKey: string): Delegate | undefined {
         return this.delegates.find(delegate => delegate.publicKey === publicKey);
     }
 

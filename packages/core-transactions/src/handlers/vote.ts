@@ -65,7 +65,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         if (vote.startsWith("+")) {
             sender.vote = vote.slice(1);
         } else {
-            sender.vote = null;
+            sender.vote = undefined;
         }
     }
 
@@ -76,7 +76,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
-            sender.vote = null;
+            sender.vote = undefined;
         } else {
             sender.vote = vote.slice(1);
         }

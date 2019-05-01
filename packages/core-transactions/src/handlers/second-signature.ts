@@ -42,7 +42,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey = null;
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey = undefined;
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {

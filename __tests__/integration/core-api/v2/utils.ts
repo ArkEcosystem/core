@@ -95,7 +95,7 @@ class Helpers {
         expect(block.id).toBeString();
         expect(block.version).toBeNumber();
         expect(block.height).toBeNumber();
-        expect(block).toHaveProperty("previous"); // `null` or String
+        expect(block).toHaveProperty("previous"); // `undefined` or String
         expect(block).toHaveProperty("forged");
         expect(block.forged.reward).toBeNumber();
         expect(block.forged.fee).toBeNumber();

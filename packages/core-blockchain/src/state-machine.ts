@@ -278,7 +278,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
         await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
-        stateStorage.numberOfBlocksToRollback = null;
+        stateStorage.numberOfBlocksToRollback = undefined;
 
         logger.info(`Removed ${pluralize("block", random, true)}`);
 

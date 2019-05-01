@@ -11,8 +11,8 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
         this.data.type = TransactionTypes.DelegateRegistration;
         this.data.fee = feeManager.get(TransactionTypes.DelegateRegistration);
         this.data.amount = BigNumber.ZERO;
-        this.data.recipientId = null;
-        this.data.senderPublicKey = null;
+        this.data.recipientId = undefined;
+        this.data.senderPublicKey = undefined;
         this.data.asset = { delegate: {} } as ITransactionAsset;
     }
 

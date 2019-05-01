@@ -48,9 +48,9 @@ export class Delegate {
 
                 this.encryptKeysWithOtp();
             } catch (error) {
-                this.publicKey = null;
-                this.keys = null;
-                this.address = null;
+                this.publicKey = undefined;
+                this.keys = undefined;
+                this.address = undefined;
             }
         } else {
             this.keys = Identities.Keys.fromPassphrase(passphrase);
@@ -65,19 +65,22 @@ export class Delegate {
         const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
         this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
-        this.keys = null;
+        this.keys = undefined;
     }
 
     public decryptKeysWithOtp(): void {
         const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
 
         this.keys = Identities.Keys.fromWIF(wifKey, this.network);
-        this.otp = null;
-        this.encryptedKeys = null;
+        this.otp = undefined;
+        this.encryptedKeys = undefined;
     }
 
     // @TODO: reduce nesting
-    public forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock | null {
+    public forge(
+        transactions: Interfaces.ITransactionData[],
+        options: Record<string, any>,
+    ): Interfaces.IBlock | undefined {
         if (!options.version && (this.encryptedKeys || !this.bip38)) {
             const transactionData: { amount: Utils.BigNumber; fee: Utils.BigNumber } = {
                 amount: Utils.BigNumber.ZERO,
@@ -122,7 +125,7 @@ export class Delegate {
             return block;
         }
 
-        return null;
+        return undefined;
     }
 
     private encryptDataWithOtp(content: string, password: string): string {

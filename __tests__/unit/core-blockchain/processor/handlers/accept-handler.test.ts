@@ -29,7 +29,7 @@ describe("Accept handler", () => {
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
             expect(loggerInfo).toHaveBeenCalledWith("Successfully recovered from fork");
-            expect(blockchain.state.forkedBlock).toBe(null);
+            expect(blockchain.state.forkedBlock).toBe(undefined);
         });
 
         it("should log warning message if transactionPool accepChainedBlock threw an exception", async () => {

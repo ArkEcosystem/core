@@ -34,7 +34,7 @@ describe("Models - Wallet", () => {
             testWallet.producedBlocks = 0;
             testWallet.forgedFees = Utils.BigNumber.ZERO;
             testWallet.forgedRewards = Utils.BigNumber.ZERO;
-            testWallet.lastBlock = null;
+            testWallet.lastBlock = undefined;
 
             block = {
                 id: 1,
@@ -97,7 +97,7 @@ describe("Models - Wallet", () => {
             expect(testWallet.producedBlocks).toBe(walletInit.producedBlocks - 1);
             expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
             expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
-            expect(testWallet.lastBlock).toBeNull();
+            expect(testWallet.lastBlock).toBeUndefined();
         });
 
         it("should revert block if generator public key matches the wallet address", () => {
@@ -109,7 +109,7 @@ describe("Models - Wallet", () => {
             expect(testWallet.producedBlocks).toBe(walletInit.producedBlocks - 1);
             expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
             expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
-            expect(testWallet.lastBlock).toBeNull();
+            expect(testWallet.lastBlock).toBeUndefined();
         });
 
         it("should not revert block if generator public key doesn't match the wallet address / publicKey", () => {
@@ -180,7 +180,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": true },
-                { "Second public key": null },
+                { "Second public key": undefined },
             ]);
         });
 
@@ -196,7 +196,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": true },
-                { "Current username": null },
+                { "Current username": undefined },
                 { "New username": transaction.asset.delegate.username },
             ]);
         });
@@ -215,7 +215,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": true },
-                { "Current vote": null },
+                { "Current vote": undefined },
                 { "New vote": transaction.asset.votes[0] },
             ]);
         });
@@ -295,7 +295,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": false },
-                { "Resignate Delegate": null },
+                { "Resignate Delegate": undefined },
             ]);
         });
 

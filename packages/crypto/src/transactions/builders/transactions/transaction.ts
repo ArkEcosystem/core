@@ -15,7 +15,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     constructor() {
         this.data = {
-            id: null,
+            id: undefined,
             timestamp: Slots.getTime(),
             version: 0x01,
         } as ITransactionData;
@@ -38,7 +38,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public fee(fee: string): TBuilder {
-        if (fee !== null) {
+        if (fee) {
             this.data.fee = BigNumber.make(fee);
         }
 

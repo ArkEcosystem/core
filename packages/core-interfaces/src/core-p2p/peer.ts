@@ -14,8 +14,8 @@ export interface IPeer {
     latency: number;
     headers: Record<string, string | number>;
     state: IPeerState;
-    lastPinged: Dato | null;
-    verificationResult: IPeerVerificationResult | null;
+    lastPinged: Dato | undefined;
+    verificationResult: IPeerVerificationResult | undefined;
 
     setHeaders(headers: Record<string, string>): void;
 
