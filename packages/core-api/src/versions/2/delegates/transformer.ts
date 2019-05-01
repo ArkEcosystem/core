@@ -1,7 +1,7 @@
 import { delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 
-export function transformDelegate(delegate) {
+export const transformDelegate = delegate => {
     const data = {
         username: delegate.username,
         address: delegate.address,
@@ -33,4 +33,4 @@ export function transformDelegate(delegate) {
     }
 
     return data;
-}
+};

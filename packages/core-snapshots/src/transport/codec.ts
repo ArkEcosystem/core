@@ -2,11 +2,11 @@ import { Blocks, Transactions } from "@arkecosystem/crypto";
 import { createCodec, decode, encode } from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 
-function encodeBlock(block) {
+const encodeBlock = block => {
     return Blocks.Block.serialize(camelizeKeys(block), true);
-}
+};
 
-function decodeBlock(buffer: Buffer) {
+const decodeBlock = (buffer: Buffer) => {
     const block = Blocks.Block.deserialize(buffer.toString("hex"), true);
     // @ts-ignore - @TODO: remove ts-ignore
     block.totalAmount = block.totalAmount.toFixed();
@@ -16,9 +16,9 @@ function decodeBlock(buffer: Buffer) {
     block.reward = block.reward.toFixed();
 
     return decamelizeKeys(block);
-}
+};
 
-function encodeTransaction(transaction) {
+const encodeTransaction = transaction => {
     transaction.blockId = transaction.block_id || transaction.blockId;
 
     return encode([
@@ -28,9 +28,9 @@ function encodeTransaction(transaction) {
         transaction.timestamp,
         transaction.serialized,
     ]);
-}
+};
 
-function decodeTransaction(buffer: Buffer) {
+const decodeTransaction = (buffer: Buffer) => {
     const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data;
@@ -51,13 +51,13 @@ function decodeTransaction(buffer: Buffer) {
     decamelized.asset = asset ? asset : undefined;
 
     return decamelized;
-}
+};
 
-function encodeRound(round) {
+const encodeRound = round => {
     return encode([round.id, round.public_key || round.publicKey, round.balance, round.round]);
-}
+};
 
-function decodeRound(buffer: Buffer) {
+const decodeRound = (buffer: Buffer) => {
     const [id, publicKey, balance, round] = decode(buffer);
 
     return decamelizeKeys({
@@ -66,7 +66,7 @@ function decodeRound(buffer: Buffer) {
         balance,
         round,
     });
-}
+};
 
 export class Codec {
     static get blocks() {

@@ -63,7 +63,7 @@ const voters = async request => {
     return toPagination(request, wallets, "wallet");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.delegates.index", index, 8, request => ({
             ...request.query,
@@ -83,4 +83,4 @@ export function registerMethods(server) {
             ...{ id: request.params.id },
             ...paginate(request),
         }));
-}
+};

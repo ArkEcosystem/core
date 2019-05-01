@@ -25,11 +25,11 @@ const show = async request => {
     return respondWithResource(request, transaction, "transaction");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.votes.index", index, 8, request => ({
             ...request.query,
             ...paginate(request),
         }))
         .method("v2.votes.show", show, 8, request => ({ id: request.params.id }));
-}
+};

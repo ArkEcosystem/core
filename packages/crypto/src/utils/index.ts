@@ -6,29 +6,29 @@ import { BigNumber } from "./bignum";
 /**
  * Get human readable string from satoshis
  */
-export function formatSatoshi(amount: BigNumber): string {
+export const formatSatoshi = (amount: BigNumber): string => {
     const localeString = (+amount / SATOSHI).toLocaleString("en", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
     });
 
     return `${localeString} ${configManager.get("network.client.symbol")}`;
-}
+};
 
 /**
  * Check if the given block or transaction id is an exception.
  */
-export function isException(blockOrTransaction: IBlockData | ITransactionData): boolean {
+export const isException = (blockOrTransaction: IBlockData | ITransactionData): boolean => {
     return ["blocks", "transactions"].some(key => {
         const exceptions = configManager.get(`exceptions.${key}`);
         return Array.isArray(exceptions) && exceptions.includes(blockOrTransaction.id);
     });
-}
+};
 
 /**
  * Sort transactions by type, then id.
  */
-export function sortTransactions(transactions: ITransactionData[]): ITransactionData[] {
+export const sortTransactions = (transactions: ITransactionData[]): ITransactionData[] => {
     return transactions.sort((a, b) => {
         if (a.type < b.type) {
             return -1;
@@ -48,9 +48,9 @@ export function sortTransactions(transactions: ITransactionData[]): ITransaction
 
         return 0;
     });
-}
+};
 
-export function isGenesisTransaction(id: string): boolean {
+export const isGenesisTransaction = (id: string): boolean => {
     let genesisTransactions: { [key: string]: boolean };
     let currentNetwork: number;
 
@@ -65,7 +65,7 @@ export function isGenesisTransaction(id: string): boolean {
     }
 
     return genesisTransactions[id];
-}
+};
 
 export const numberToHex = (num: number, padding = 2): string => {
     const indexHex: string = Number(num).toString(16);

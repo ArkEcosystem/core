@@ -96,13 +96,13 @@ export class Container implements container.IContainer {
 
     public resolvePlugin<T = any>(key: string): T {
         try {
-            return this.container.resolve<container.PluginConfig<T>>(key).plugin;
+            return this.container.resolve<container.IPluginConfig<T>>(key).plugin;
         } catch (err) {
             return undefined;
         }
     }
     public resolveOptions(key) {
-        return this.container.resolve<container.PluginConfig<any>>(`pkg.${key}.opts`);
+        return this.container.resolve<container.IPluginConfig<any>>(`pkg.${key}.opts`);
     }
 
     public has(key: string) {

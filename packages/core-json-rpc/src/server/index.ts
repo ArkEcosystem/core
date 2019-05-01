@@ -5,7 +5,7 @@ import { IRequestParameters } from "../interfaces";
 import * as modules from "./modules";
 import { Processor } from "./services/processor";
 
-export async function startServer(options) {
+export const startServer = async options => {
     if (options.allowRemote) {
         app.resolvePlugin<Logger.ILogger>("logger").warn(
             "JSON-RPC server allows remote connections, this is a potential security risk",
@@ -54,4 +54,4 @@ export async function startServer(options) {
     });
 
     return mountServer("JSON-RPC", server);
-}
+};

@@ -1,7 +1,7 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { orderBy } from "@arkecosystem/utils";
 
-export function sortEntries(params: Database.IParameters, entries: any[], defaultValue) {
+export const sortEntries = (params: Database.IParameters, entries: any[], defaultValue) => {
     const [iteratee, order] = params.orderBy ? params.orderBy : defaultValue;
 
     if (["balance", "voteBalance"].includes(iteratee)) {
@@ -11,4 +11,4 @@ export function sortEntries(params: Database.IParameters, entries: any[], defaul
     }
 
     return orderBy(entries, [iteratee], [order as "desc" | "asc"]);
-}
+};

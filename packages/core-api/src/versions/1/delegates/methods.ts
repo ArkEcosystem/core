@@ -69,7 +69,7 @@ const voters = async request => {
     });
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v1.delegates.index", index, 8, request => ({
             ...request.query,
@@ -87,4 +87,4 @@ export function registerMethods(server) {
             ...paginate(request),
         }))
         .method("v1.delegates.voters", voters, 8, request => ({ id: request.query.publicKey }));
-}
+};

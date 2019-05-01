@@ -4,7 +4,7 @@ import { defaults } from "./defaults";
 import { startListeners } from "./listener";
 import { startServer } from "./server";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "webhooks",

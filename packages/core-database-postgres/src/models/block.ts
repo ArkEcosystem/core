@@ -1,10 +1,10 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
-import { ColumnDescriptor } from "../interfaces";
+import { IColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 
 export class Block extends Model {
-    protected columnsDescriptor: ColumnDescriptor[] = [
+    protected columnsDescriptor: IColumnDescriptor[] = [
         {
             name: "id",
             supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],

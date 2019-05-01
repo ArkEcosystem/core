@@ -3,7 +3,7 @@ import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
-export async function validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
+export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
     const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
@@ -39,4 +39,4 @@ export async function validateGenerator(block: Interfaces.IBlock): Promise<boole
     );
 
     return true;
-}
+};
