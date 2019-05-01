@@ -34,6 +34,7 @@ export const transactionBaseSchema = {
             minItems: 1,
             maxItems: 16,
             additionalItems: false,
+            uniqueItems: true,
             items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
         },
     },
@@ -159,7 +160,7 @@ export const multiSignature = extend(transactionBaseSchema, {
                         publicKeys: {
                             type: "array",
                             minItems: 1,
-                            maxItems: 16, // TODO: find sensible limit for max participants
+                            maxItems: 16,
                             additionalItems: false,
                             items: { $ref: "publicKey" },
                         },
