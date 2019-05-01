@@ -72,7 +72,19 @@ export class Storage {
             .prepare(`SELECT LOWER(HEX(serialized)) AS serialized FROM ${this.table};`)
             .all();
 
-        return rows.map(r => Transactions.TransactionFactory.fromHex(r.serialized)).filter(t => t.verified);
+        const transactions: Interfaces.ITransaction[] = [];
+        rows.forEach(row => {
+            try {
+                const transaction = Transactions.TransactionFactory.fromHex(row.serialized);
+                if (transaction.verified) {
+                    transactions.push(transaction);
+                }
+            } catch {
+                //
+            }
+        });
+
+        return transactions;
     }
 
     public deleteAll(): void {
