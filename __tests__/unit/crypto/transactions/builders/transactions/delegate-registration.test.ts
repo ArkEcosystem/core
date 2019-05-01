@@ -42,8 +42,8 @@ describe("Delegate Registration Transaction", () => {
             expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
             expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.DelegateRegistration));
-            expect(builder).toHaveProperty("data.recipientId", null);
-            expect(builder).toHaveProperty("data.senderPublicKey", null);
+            expect(builder).toHaveProperty("data.recipientId", undefined);
+            expect(builder).toHaveProperty("data.senderPublicKey", undefined);
             expect(builder).toHaveProperty("data.asset", { delegate: {} });
         });
 

@@ -39,7 +39,7 @@ export class Processor implements TransactionPool.IProcessor {
             broadcast: Array.from(this.broadcast.keys()),
             invalid: Array.from(this.invalid.keys()),
             excess: this.excess,
-            errors: Object.keys(this.errors).length > 0 ? this.errors : null,
+            errors: Object.keys(this.errors).length > 0 ? this.errors : undefined,
         };
     }
 

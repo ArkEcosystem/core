@@ -111,7 +111,7 @@ describe("Transaction", () => {
 
                     // TODO: Remove both from data when not needed
                     delete transaction.data.signSignature;
-                    if (transaction.data.recipientId === null) {
+                    if (transaction.data.recipientId === undefined) {
                         delete transaction.data.recipientId;
                     }
 
@@ -136,9 +136,9 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => TransactionFactory.fromBytes(null)).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(MalformedTransactionBytesError);
             expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromHex(null)).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromHex(undefined)).toThrow(MalformedTransactionBytesError);
             expect(() => TransactionFactory.fromHex("affe")).toThrow(MalformedTransactionBytesError);
         });
 

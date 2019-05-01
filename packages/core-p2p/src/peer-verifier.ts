@@ -71,12 +71,12 @@ export class PeerVerifier {
      * The caller should ensure that it is a valid state: must have .header.height and .header.id
      * properties.
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
-     * @return {PeerVerificationResut|null} PeerVerificationResut object if the peer's blockchain
-     * is verified to be legit (albeit it may be different than our blockchain), or null if
+     * @return {PeerVerificationResut|undefined} PeerVerificationResut object if the peer's blockchain
+     * is verified to be legit (albeit it may be different than our blockchain), or undefined if
      * the peer's state could not be verified.
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | null> {
+    public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | undefined> {
         const ourHeight: number = await this.ourHeight();
         const claimedHeight = Number(claimedState.header.height);
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
@@ -85,12 +85,12 @@ export class PeerVerifier {
         }
 
         const highestCommonBlockHeight = await this.findHighestCommonBlockHeight(claimedHeight, ourHeight, deadline);
-        if (highestCommonBlockHeight === null) {
-            return null;
+        if (highestCommonBlockHeight === undefined) {
+            return undefined;
         }
 
         if (!(await this.verifyPeerBlocks(highestCommonBlockHeight + 1, claimedHeight, deadline))) {
-            return null;
+            return undefined;
         }
 
         this.log(Severity.DEBUG_EXTRA, "success");
@@ -182,7 +182,7 @@ export class PeerVerifier {
      * @param {Number} claimedHeight peer's claimed height (from `/peer/status`)
      * @param {Number} ourHeight the height of our blockchain
      * @param {Number} deadline operation deadline, in milliseconds since Epoch
-     * @return {Number|null} height; if null is returned this means that the
+     * @return {Number|undefined} height; if undefined is returned this means that the
      * peer's replies didn't make sense and it should be treated as malicious or broken.
      * @throws {Error} if the state verification could not complete before the deadline
      */
@@ -231,7 +231,7 @@ export class PeerVerifier {
             );
 
             if (!highestCommon) {
-                return null;
+                return undefined;
             }
 
             if (!probesHeightById[highestCommon.id]) {
@@ -240,7 +240,7 @@ export class PeerVerifier {
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
                         `peer replied with block id ${highestCommon.id} which we did not ask for`,
                 );
-                return null;
+                return undefined;
             }
 
             if (probesHeightById[highestCommon.id] !== highestCommon.height) {
@@ -251,7 +251,7 @@ export class PeerVerifier {
                         `${highestCommon.height}, however a block with the same id is at ` +
                         `different height ${probesHeightById[highestCommon.id]} in our chain`,
                 );
-                return null;
+                return undefined;
             }
 
             return highestCommon.height;
@@ -261,7 +261,7 @@ export class PeerVerifier {
 
         const highestCommonBlockHeight = await nSect.find(1, Math.min(claimedHeight, ourHeight));
 
-        if (highestCommonBlockHeight === null) {
+        if (highestCommonBlockHeight === undefined) {
             this.log(Severity.INFO, `failure: could not determine a common block`);
         } else {
             this.log(Severity.DEBUG_EXTRA, `highest common block height: ${highestCommonBlockHeight}`);

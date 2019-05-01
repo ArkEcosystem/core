@@ -4,12 +4,12 @@ import { IRoundInfo } from "../shared";
 
 export interface IWallet {
     address: string;
-    publicKey: string | null;
-    secondPublicKey: string | null;
+    publicKey: string | undefined;
+    secondPublicKey: string | undefined;
     balance: Utils.BigNumber;
     vote: string;
     voted: boolean;
-    username: string | null;
+    username: string | undefined;
     lastBlock: any;
     voteBalance: Utils.BigNumber;
     multisignature?: Interfaces.IMultiSignatureAsset;

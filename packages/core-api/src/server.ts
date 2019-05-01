@@ -36,7 +36,7 @@ export class Server {
         }
 
         if (this.config.ssl.enabled) {
-            this.https = await createSecureServer(options, null, this.config.ssl);
+            this.https = await createSecureServer(options, undefined, this.config.ssl);
             this.https.app.config = this.config;
 
             this.registerPlugins("HTTPS", this.https);

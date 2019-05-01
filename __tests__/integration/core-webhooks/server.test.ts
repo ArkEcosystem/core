@@ -28,7 +28,7 @@ const postData = {
     ],
 };
 
-function createWebhook(data = null) {
+function createWebhook(data?: any) {
     return utils.request("POST", "webhooks", data || postData);
 }
 

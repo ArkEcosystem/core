@@ -25,7 +25,15 @@ beforeEach(async () => {
 
     repository = new WalletsBusinessRepository(() => databaseService);
 
-    databaseService = new DatabaseService(null, null, walletManager, repository, null, null, null);
+    databaseService = new DatabaseService(
+        undefined,
+        undefined,
+        walletManager,
+        repository,
+        undefined,
+        undefined,
+        undefined,
+    );
 });
 
 function generateWallets() {
@@ -62,7 +70,7 @@ describe("Wallet Repository", () => {
     describe("all", () => {
         it("should return the local wallets of the connection", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(null);
+            jest.spyOn(walletManager, "allByAddress").mockReturnValue(undefined);
 
             repository.all();
 

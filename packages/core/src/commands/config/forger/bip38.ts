@@ -96,7 +96,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
             delegates.bip38 = Crypto.bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, flags.password);
             delegates.secrets = [];
 
-            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, undefined, 2));
         });
 
         await this.runTasks();

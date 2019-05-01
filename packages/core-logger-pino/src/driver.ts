@@ -18,6 +18,7 @@ export class PinoLogger extends AbstractLogger {
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
+                // tslint:disable-next-line: no-null-keyword
                 base: null,
                 safe: true,
                 level: "trace",
@@ -62,7 +63,7 @@ export class PinoLogger extends AbstractLogger {
                         const line = pinoPretty(json);
 
                         if (line !== undefined) {
-                            return cb(null, line);
+                            return cb(undefined, line);
                         }
                     }
                 } catch (ex) {

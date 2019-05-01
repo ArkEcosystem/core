@@ -45,8 +45,8 @@ describe("Multi Signature Transaction", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
         expect(builder).toHaveProperty("data.fee", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
-        expect(builder).toHaveProperty("data.recipientId", null);
-        expect(builder).toHaveProperty("data.senderPublicKey", null);
+        expect(builder).toHaveProperty("data.recipientId", undefined);
+        expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.asset");
         expect(builder).toHaveProperty("data.asset.multisignature", {});
     });

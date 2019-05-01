@@ -1,3 +1,3 @@
 export const getProcessor = {
-    validateAndAcceptPeer: () => null,
+    validateAndAcceptPeer: () => undefined,
 };

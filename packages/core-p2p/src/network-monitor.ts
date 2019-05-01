@@ -145,7 +145,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                     this.storage.forgetPeer(peer);
 
-                    return null;
+                    return undefined;
                 }
             }),
         );

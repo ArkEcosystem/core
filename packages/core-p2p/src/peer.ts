@@ -9,12 +9,12 @@ export class Peer implements P2P.IPeer {
     public os: string;
     public latency: number;
     public headers: Record<string, string | number>;
-    public lastPinged: Dato | null;
-    public verificationResult: PeerVerificationResult | null;
+    public lastPinged: Dato | undefined;
+    public verificationResult: PeerVerificationResult | undefined;
     public state: P2P.IPeerState = {
-        height: null,
-        forgingAllowed: null,
-        currentSlot: null,
+        height: undefined,
+        forgingAllowed: undefined,
+        currentSlot: undefined,
         header: {},
     };
 
@@ -23,7 +23,7 @@ export class Peer implements P2P.IPeer {
             version: app.getVersion(),
             port,
             nethash: app.getConfig().get("network.nethash"),
-            height: null,
+            height: undefined,
             "Content-Type": "application/json",
         };
     }

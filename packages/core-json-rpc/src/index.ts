@@ -13,7 +13,7 @@ export const plugin: Container.PluginDescriptor = {
         if (!options.enabled) {
             logger.info("JSON-RPC Server is disabled");
 
-            return;
+            return undefined;
         }
 
         database.init(options.database);

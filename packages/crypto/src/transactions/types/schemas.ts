@@ -10,7 +10,7 @@ const strictTransaction = {
 };
 
 export const transactionBaseSchema = {
-    $id: null,
+    $id: undefined,
     type: "object",
     required: ["type", "senderPublicKey", "fee", "timestamp"],
     properties: {

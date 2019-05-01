@@ -93,8 +93,8 @@ describe("Transfer Transaction", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Transfer));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
-        expect(builder).toHaveProperty("data.recipientId", null);
-        expect(builder).toHaveProperty("data.senderPublicKey", null);
+        expect(builder).toHaveProperty("data.recipientId", undefined);
+        expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.expiration", 0);
     });
 

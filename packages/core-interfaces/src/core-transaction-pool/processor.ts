@@ -15,7 +15,7 @@ export interface IProcessorResult {
     broadcast: string[];
     invalid: string[];
     excess: string[];
-    errors: { [key: string]: ITransactionErrorResponse[] } | null;
+    errors: { [key: string]: ITransactionErrorResponse[] } | undefined;
 }
 
 export interface ITransactionErrorResponse {

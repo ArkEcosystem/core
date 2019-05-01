@@ -84,7 +84,7 @@ describe("PeerCommunicator", () => {
         it("should update the height after download", async () => {
             await socketManager.addMock("getBlocks", [genesisBlock]);
 
-            stubPeer.state.height = null;
+            stubPeer.state.height = undefined;
             await communicator.downloadBlocks(stubPeer, 1);
 
             expect(stubPeer.state.height).toBe(1);
@@ -131,7 +131,7 @@ describe("PeerCommunicator", () => {
                 },
             });
 
-            stubPeer.lastPinged = null;
+            stubPeer.lastPinged = undefined;
 
             expect(stubPeer.recentlyPinged()).toBeFalse();
 
@@ -156,7 +156,7 @@ describe("PeerCommunicator", () => {
 
     describe("hasCommonBlocks", () => {
         it("should return false when peer has no common block", async () => {
-            await socketManager.addMock("getCommonBlocks", { common: null });
+            await socketManager.addMock("getCommonBlocks", { common: undefined });
 
             const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
 

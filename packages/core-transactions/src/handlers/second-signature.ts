@@ -25,7 +25,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     }
 
     public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = null;
+        wallet.secondPublicKey = undefined;
     }
 
     public canEnterTransactionPool(

@@ -11,8 +11,8 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
         this.data.type = TransactionTypes.MultiSignature;
         this.data.fee = BigNumber.ZERO;
         this.data.amount = BigNumber.ZERO;
-        this.data.recipientId = null;
-        this.data.senderPublicKey = null;
+        this.data.recipientId = undefined;
+        this.data.senderPublicKey = undefined;
         this.data.asset = { multisignature: {} } as ITransactionAsset;
 
         this.signWithSenderAsRecipient = true;

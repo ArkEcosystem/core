@@ -45,6 +45,6 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     }
 
     public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.multisignature = null;
+        wallet.multisignature = undefined;
     }
 }

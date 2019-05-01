@@ -42,7 +42,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         if (vote.startsWith("+")) {
             wallet.vote = vote.slice(1);
         } else {
-            wallet.vote = null;
+            wallet.vote = undefined;
         }
     }
 
@@ -50,7 +50,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         const { data } = transaction;
         const vote = data.asset.votes[0];
         if (vote.startsWith("+")) {
-            wallet.vote = null;
+            wallet.vote = undefined;
         } else {
             wallet.vote = vote.slice(1);
         }

@@ -99,7 +99,7 @@ describe("Blockchain", () => {
         let setLastBlock;
         beforeEach(() => {
             getLastBlock = jest.fn(() => block3);
-            setLastBlock = jest.fn(() => null);
+            setLastBlock = jest.fn(() => undefined);
             jest.spyOn(blockchain, "state", "get").mockReturnValue({
                 getLastBlock,
                 setLastBlock,
@@ -134,7 +134,7 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
             database.saveBlocks = jest.fn().mockRejectedValueOnce(new Error("oops"));
-            jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(null);
+            jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
             await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
             await delay(200);
@@ -147,7 +147,7 @@ describe("Blockchain", () => {
             blockchain.state.blockchain = {};
             jest.spyOn(database, "saveBlocks").mockRejectedValueOnce(new Error("oops saveBlocks"));
             jest.spyOn(database, "getLastBlock").mockRejectedValueOnce(new Error("oops getLastBlock"));
-            jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(null);
+            jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
             await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
             await delay(200);
@@ -260,7 +260,7 @@ describe("Blockchain", () => {
             expect(() => blockchain.forkBlock(forkedBlock)).toDispatch(blockchain, "FORK");
             expect(blockchain.state.forkedBlock).toBe(forkedBlock);
 
-            blockchain.state.forkedBlock = null; // reset
+            blockchain.state.forkedBlock = undefined; // reset
         });
     });
 
@@ -310,7 +310,7 @@ describe("Blockchain", () => {
 
     describe("pingBlock", () => {
         it("should call state.pingBlock", () => {
-            blockchain.state.blockPing = null;
+            blockchain.state.blockPing = undefined;
 
             // returns false if no state.blockPing
             expect(blockchain.pingBlock(blocks2to100[3])).toBeFalse();
@@ -319,7 +319,7 @@ describe("Blockchain", () => {
 
     describe("pushPingBlock", () => {
         it("should call state.pushPingBlock", () => {
-            blockchain.state.blockPing = null;
+            blockchain.state.blockPing = undefined;
 
             blockchain.pushPingBlock(blocks2to100[3]);
             expect(blockchain.state.blockPing).toBeObject();

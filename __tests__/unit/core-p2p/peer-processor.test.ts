@@ -53,7 +53,7 @@ describe("PeerProcessor", () => {
             communicator.ping = jest.fn();
             const stubPeers = [];
             for (let i = 0; i < 30; i++) {
-                stubPeers.push(createStubPeer({ ip: `1.2.${i}.4`, port: 4000 }))
+                stubPeers.push(createStubPeer({ ip: `1.2.${i}.4`, port: 4000 }));
             }
 
             expect(storage.hasPeers()).toBeFalse();

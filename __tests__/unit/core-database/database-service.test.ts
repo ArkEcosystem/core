@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 
 function createService() {
-    const service = new DatabaseService({}, connection, walletManager, null, null, null, null);
+    const service = new DatabaseService({}, connection, walletManager, undefined, undefined, undefined, undefined);
     service.emitter = emitter;
 
     return service;
@@ -58,7 +58,7 @@ describe("Database Service", () => {
             jest.spyOn(emitter, "emit");
 
             databaseService = createService();
-            jest.spyOn(databaseService, "applyRound").mockImplementation(() => null); // test applyRound logic separately
+            jest.spyOn(databaseService, "applyRound").mockImplementation(() => undefined); // test applyRound logic separately
 
             await databaseService.applyBlock(genesisBlock);
 
@@ -135,12 +135,12 @@ describe("Database Service", () => {
 
     describe("getBlocksForRound", () => {
         it("should fetch blocks using lastBlock in state-storage", async () => {
-            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(undefined);
             jest.spyOn(container, "has").mockReturnValue(true);
             jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
 
             databaseService = createService();
-            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(undefined);
 
             const blocks = await databaseService.getBlocksForRound();
 
@@ -153,7 +153,7 @@ describe("Database Service", () => {
             jest.spyOn(container, "has").mockReturnValue(false);
 
             databaseService = createService();
-            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(undefined);
 
             const blocks = await databaseService.getBlocksForRound();
 

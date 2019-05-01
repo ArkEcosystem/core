@@ -49,7 +49,7 @@ export class PostgresConnection implements Database.IConnection {
 
         this.logger.debug("Connecting to database");
 
-        this.queuedQueries = null;
+        this.queuedQueries = undefined;
         this.cache = new Map();
 
         try {
@@ -66,7 +66,7 @@ export class PostgresConnection implements Database.IConnection {
             app.forceExit("Unable to connect to the database!", error);
         }
 
-        return null;
+        return undefined;
     }
 
     public async connect(): Promise<void> {
@@ -128,7 +128,7 @@ export class PostgresConnection implements Database.IConnection {
 
             throw error;
         } finally {
-            this.queuedQueries = null;
+            this.queuedQueries = undefined;
         }
     }
 
@@ -222,9 +222,7 @@ export class PostgresConnection implements Database.IConnection {
             } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
-                const row = await this.migrationsRepository.findByName(name);
-
-                if (row === null) {
+                if (!(await this.migrationsRepository.findByName(name))) {
                     this.logger.debug(`Migrating ${name}`);
 
                     await this.query.none(migration);
@@ -242,7 +240,7 @@ export class PostgresConnection implements Database.IConnection {
 
         // Also run migration if the asset column is present, but missing values. E.g.
         // after restoring a snapshot without assets even though the database has already been migrated.
-        let runMigration = row === null;
+        let runMigration = !row;
         if (!runMigration) {
             const { missingAsset } = await this.db.one(
                 `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
