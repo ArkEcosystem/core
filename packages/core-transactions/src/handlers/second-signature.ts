@@ -35,17 +35,14 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        sender.secondPublicKey = data.asset.signature.publicKey;
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey =
+            transaction.data.asset.signature.publicKey;
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        sender.secondPublicKey = null;
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey = null;
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {

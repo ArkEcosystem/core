@@ -17,10 +17,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
     // TODO: merge with canBeApplied ?
     // just a quick hack to get multi sig working
     public verify(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): boolean {
-        const { data } = transaction;
-        const senderWallet = walletManager.findByPublicKey(data.senderPublicKey);
+        const senderWallet: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
         if (senderWallet.multisignature) {
-            transaction.isVerified = senderWallet.verifySignatures(data);
+            transaction.isVerified = senderWallet.verifySignatures(transaction.data);
         }
 
         return transaction.isVerified;
@@ -39,7 +39,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
 
-        const { data } = transaction;
+        const { data }: Interfaces.ITransaction = transaction;
+
         if (
             wallet.balance
                 .minus(data.amount)
@@ -55,10 +56,14 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (wallet.secondPublicKey) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const databaseWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const databaseWallet: Database.IWallet = databaseWalletManager.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
+
             if (!databaseWallet.secondPublicKey) {
                 throw new UnexpectedSecondSignatureError();
             }
+
             if (!Transactions.Verifier.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
@@ -72,7 +77,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (wallet.multisignature) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const databaseWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const databaseWallet: Database.IWallet = databaseWalletManager.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
+
             if (!databaseWallet.multisignature) {
                 throw new UnexpectedMultiSignatureError();
             }
@@ -97,15 +105,13 @@ export abstract class TransactionHandler implements ITransactionHandler {
     }
 
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        sender.balance = sender.balance.minus(data.amount).minus(data.fee);
+        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        sender.balance = sender.balance.plus(data.amount).plus(data.fee);
+        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.balance = sender.balance.plus(transaction.data.amount).plus(transaction.data.fee);
     }
 
     protected abstract applyToRecipient(
@@ -161,7 +167,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        const { senderPublicKey, type } = data;
+        const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 
         if (pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             processor.pushError(

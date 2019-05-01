@@ -17,7 +17,8 @@ export class PublicKey {
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset): string {
-        const { min, publicKeys } = asset;
+        const { min, publicKeys }: IMultiSignatureAsset = asset;
+
         publicKeys.forEach(publicKey => {
             if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
                 throw new PublicKeyError(publicKey);
@@ -28,10 +29,10 @@ export class PublicKey {
             throw new InvalidMultiSignatureAssetError();
         }
 
-        const minKey = PublicKey.fromPassphrase(Utils.numberToHex(min));
-        const keys = [minKey, ...publicKeys];
+        const minKey: string = PublicKey.fromPassphrase(Utils.numberToHex(min));
+        const keys: string[] = [minKey, ...publicKeys];
 
-        const keyBuffers = keys.map(key => Buffer.from(key, "hex"));
+        const keyBuffers: Buffer[] = keys.map(key => Buffer.from(key, "hex"));
         return publicKeyCombine(keyBuffers, true).toString("hex");
     }
 

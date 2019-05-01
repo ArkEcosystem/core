@@ -49,7 +49,7 @@ export class TransactionFactory {
     }
 
     public static multiSignature(participants?: string[], min?: number): TransactionFactory {
-        let passphrases;
+        let passphrases: string[];
         if (!participants) {
             passphrases = [secrets[0], secrets[1], secrets[2]];
         }
@@ -60,7 +60,7 @@ export class TransactionFactory {
             Identities.PublicKey.fromPassphrase(secrets[2]),
         ];
 
-        let factory = new TransactionFactory(
+        const factory: TransactionFactory = new TransactionFactory(
             Transactions.BuilderFactory.multiSignature().multiSignatureAsset({
                 publicKeys: participants,
                 min: min || participants.length,
@@ -68,7 +68,7 @@ export class TransactionFactory {
         );
 
         if (passphrases) {
-            factory = factory.withPassphraseList(passphrases);
+            factory.withPassphraseList(passphrases);
         }
 
         factory.builder.senderPublicKey(participants[0]);
@@ -209,12 +209,12 @@ export class TransactionFactory {
                 this.builder.senderPublicKey(this.senderPublicKey);
             }
 
-            let sign = true;
+            let sign: boolean = true;
             if (this.passphraseList && this.passphraseList.length) {
                 sign = this.builder.constructor.name === "MultiSignatureBuilder";
+
                 for (let i = 0; i < this.passphraseList.length; i++) {
-                    const passphrase = this.passphraseList[i];
-                    this.builder.multiSign(passphrase, i);
+                    this.builder.multiSign(this.passphraseList[i], i);
                 }
             }
 

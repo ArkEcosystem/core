@@ -13,8 +13,9 @@ export class VoteTransactionHandler extends TransactionHandler {
         wallet: Database.IWallet,
         databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        const { data } = transaction;
-        const vote = data.asset.votes[0];
+        const { data }: Interfaces.ITransaction = transaction;
+        const vote: string = data.asset.votes[0];
+
         if (vote.startsWith("+")) {
             if (wallet.vote) {
                 throw new AlreadyVotedError();
@@ -35,7 +36,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        const vote = transaction.data.asset.votes[0];
+        const vote: string = transaction.data.asset.votes[0];
 
         emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
             delegate: vote,
@@ -58,9 +59,9 @@ export class VoteTransactionHandler extends TransactionHandler {
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        const vote = data.asset.votes[0];
+        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const vote: string = transaction.data.asset.votes[0];
+
         if (vote.startsWith("+")) {
             sender.vote = vote.slice(1);
         } else {
@@ -71,9 +72,9 @@ export class VoteTransactionHandler extends TransactionHandler {
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        const vote = data.asset.votes[0];
+        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const vote: string = transaction.data.asset.votes[0];
+
         if (vote.startsWith("+")) {
             sender.vote = null;
         } else {

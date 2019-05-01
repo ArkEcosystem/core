@@ -29,15 +29,14 @@ export class Serializer {
      */
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
-        const { data } = transaction;
 
-        this.serializeCommon(data, buffer);
+        this.serializeCommon(transaction.data, buffer);
         this.serializeVendorField(transaction, buffer);
 
         const typeBuffer: ByteBuffer = transaction.serialize(options).flip();
         buffer.append(typeBuffer);
 
-        this.serializeSignatures(data, buffer, options);
+        this.serializeSignatures(transaction.data, buffer, options);
 
         const flippedBuffer: Buffer = buffer.flip().toBuffer();
         transaction.serialized = flippedBuffer;

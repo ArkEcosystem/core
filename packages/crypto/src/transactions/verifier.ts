@@ -20,13 +20,14 @@ export class Verifier {
     }
 
     public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
-        const secondSignature = transaction.secondSignature || transaction.signSignature;
+        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
 
         if (!secondSignature) {
             return false;
         }
 
-        const hash = Transaction.getHash(transaction, { excludeSecondSignature: true });
+        const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
+
         if (transaction.version === 2) {
             return Hash.verifySchnorr(hash, secondSignature, publicKey);
         } else {
@@ -36,11 +37,16 @@ export class Verifier {
 
     public static verifyHash(data: ITransactionData): boolean {
         const { signature, senderPublicKey } = data;
+
         if (!signature) {
             return false;
         }
 
-        const hash = Transaction.getHash(data, { excludeSignature: true, excludeSecondSignature: true });
+        const hash: Buffer = Transaction.getHash(data, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+        });
+
         if (data.version === 2) {
             return Hash.verifySchnorr(hash, signature, senderPublicKey);
         } else {

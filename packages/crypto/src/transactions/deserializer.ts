@@ -23,13 +23,12 @@ class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        const { version } = data;
-        if (version === 1) {
+        if (data.version === 1) {
             this.applyV1Compatibility(data);
-        } else if (version === 2 && configManager.getMilestone().aip11) {
+        } else if (data.version === 2 && configManager.getMilestone().aip11) {
             // TODO
         } else {
-            throw new TransactionVersionError(version);
+            throw new TransactionVersionError(data.version);
         }
 
         instance.serialized = buffer.flip().toBuffer();

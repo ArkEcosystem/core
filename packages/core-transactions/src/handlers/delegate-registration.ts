@@ -15,8 +15,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         wallet: Database.IWallet,
         databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        const { data } = transaction;
-        const { username } = data.asset.delegate;
+        const { data }: Interfaces.ITransaction = transaction;
+        const { username }: { username: string } = data.asset.delegate;
         if (!username) {
             throw new WalletUsernameEmptyError();
         }
@@ -45,7 +45,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
 
-        const { username } = data.asset.delegate;
+        const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
             .filter(tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username);
@@ -63,7 +63,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
         ).map((memTx: any) => memTx.transaction.data);
 
-        const containsDelegateRegistrationForSameNameInPool = delegateRegistrationsInPool.some(
+        const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(
             transaction => transaction.asset.delegate.username === username,
         );
         if (containsDelegateRegistrationForSameNameInPool) {
@@ -77,9 +77,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
-        sender.username = data.asset.delegate.username;
+        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.username = transaction.data.asset.delegate.username;
 
         walletManager.reindex(sender);
     }
@@ -87,8 +86,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        const { data } = transaction;
-        const sender = walletManager.findByPublicKey(data.senderPublicKey);
+        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         walletManager.forgetByUsername(sender.username);
         sender.username = null;

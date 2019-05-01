@@ -18,7 +18,8 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         wallet: Database.IWallet,
         databaseWalletManager: Database.IWalletManager,
     ): boolean {
-        const { data } = transaction;
+        const { data }: Interfaces.ITransaction = transaction;
+
         if (Utils.isException(data)) {
             return true;
         }
@@ -72,20 +73,22 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const { data } = transaction;
+        const { data }: Interfaces.ITransaction = transaction;
+
         if (data.version >= 2) {
-            const recipientAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
-            const recipient = walletManager.findByAddress(recipientAddress);
-            recipient.multisignature = transaction.data.asset.multiSignature;
+            walletManager.findByAddress(
+                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+            ).multisignature = transaction.data.asset.multiSignature;
         }
     }
 
     protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const { data } = transaction;
+        const { data }: Interfaces.ITransaction = transaction;
+
         if (data.version >= 2) {
-            const recipientAddress = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
-            const recipient = walletManager.findByAddress(recipientAddress);
-            recipient.multisignature = null;
+            walletManager.findByAddress(
+                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+            ).multisignature = null;
         }
     }
 }
