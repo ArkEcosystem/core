@@ -65,5 +65,15 @@ describe("Transaction Forging - Second Signature Registration", () => {
         await support.expectInvalidAndError(secondSignature, secondSignature[0].id);
         await support.snoozeForBlock(1);
         await support.expectTransactionNotForged(secondSignature[0].id);
+
+        // Create transfer to assert multi sig wallet can still send funds
+        const transfer = TransactionFactory.transfer(multiSigAddress, 18 * 1e8)
+            .withSenderPublicKey(multiSigPublicKey)
+            .withPassphraseList(passphrases)
+            .create();
+
+        await support.expectAcceptAndBroadcast(transfer, transfer[0].id);
+        await support.snoozeForBlock(1);
+        await support.expectTransactionForged(transfer[0].id);
     });
 });

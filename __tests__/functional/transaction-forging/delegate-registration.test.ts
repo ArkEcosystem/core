@@ -100,7 +100,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await support.snoozeForBlock(1);
         await support.expectTransactionForged(multiSignatureFunds[0].id);
 
-        // Register a delegate
+        // Try to register a delegate which should fail
         const delegateRegistration = TransactionFactory.delegateRegistration()
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)
@@ -109,5 +109,15 @@ describe("Transaction Forging - Delegate Registration", () => {
         await support.expectInvalidAndError(delegateRegistration, delegateRegistration[0].id);
         await support.snoozeForBlock(1);
         await support.expectTransactionNotForged(delegateRegistration[0].id);
+
+        // Create transfer to assert multi sig wallet can still send funds
+        const transfer = TransactionFactory.transfer(multiSigAddress, 29 * 1e8)
+            .withSenderPublicKey(multiSigPublicKey)
+            .withPassphraseList(passphrases)
+            .create();
+
+        await support.expectAcceptAndBroadcast(transfer, transfer[0].id);
+        await support.snoozeForBlock(1);
+        await support.expectTransactionForged(transfer[0].id);
     });
 });
