@@ -440,6 +440,32 @@ describe("Transaction Guard", () => {
             expect(wallet2.username).toBe(null);
         });
 
+        it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {
+            const secondSignatureTransaction = TransactionFactory.secondSignature()
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[16].passphrase)
+                .build()[0];
+
+            const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                .withNetwork("unitnet")
+                .withPassphrase(wallets[16].passphrase)
+                .withSecondPassphrase(wallets[17].passphrase)
+                .build()[0];
+
+            let result = await processor.validate([secondSignatureTransaction.data]);
+            expect(result.accept).not.toBeEmpty();
+            expect(result.invalid).toBeEmpty();
+
+            result = await processor.validate([transferTransaction.data]);
+            expect(result.accept).toBeEmpty();
+            expect(result.errors[transferTransaction.id]).toEqual([
+                {
+                    message: `["Failed to apply transaction, because wallet does not allow second signatures."]`,
+                    type: "ERR_APPLY",
+                },
+            ]);
+        });
+
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
             it("should not validate when changing fields after signing - transfer", async () => {
                 const sender = delegates[21];
@@ -1128,31 +1154,6 @@ describe("Transaction Guard", () => {
 
     //         jest.restoreAllMocks();
     //     });
-    // it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {
-    //     const secondSignatureTransaction = TransactionFactory.secondSignature()
-    //         .withNetwork("unitnet")
-    //         .withPassphrase(wallets[16].passphrase)
-    //         .build()[0];
-
-    //     const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
-    //         .withNetwork("unitnet")
-    //         .withPassphrase(wallets[16].passphrase)
-    //         .withSecondPassphrase(wallets[17].passphrase)
-    //         .build()[0];
-
-    //     const memPoolTx = new MemPoolTransaction(secondSignatureTransaction);
-    //     jest.spyOn(guard.pool, "senderHasTransactionsOfType").mockReturnValueOnce(true);
-
-    //     expect(guard.__validateTransaction(transferTransaction.data)).toBeFalse();
-    //     expect(guard.errors[transferTransaction.id]).toEqual([
-    //         {
-    //             type: "ERR_PENDING",
-    //             message: `Cannot accept transaction from sender ${
-    //                 transferTransaction.data.senderPublicKey
-    //                 } while its second signature registration is in the pool`,
-    //         },
-    //     ]);
-    // });
     // });
 
     // describe("__removeForgedTransactions", () => {
