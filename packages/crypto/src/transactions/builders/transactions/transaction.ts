@@ -76,8 +76,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network;
-            this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, this.data.network);
         }
 
         this.data.signature = Transaction.sign(this.getSigningObject(), keys);
@@ -93,9 +92,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network;
-
-            this.data.recipientId = Address.fromPublicKey(keys.publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(keys.publicKey, this.data.network);
         }
 
         this.data.signature = Transaction.sign(this.getSigningObject(), keys);
@@ -139,8 +136,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             excludeMultiSignature: true,
         });
 
-        const indexHex = numberToHex(index);
-        this.data.signatures.push(`${indexHex}${signature}`);
+        this.data.signatures.push(`${numberToHex(index)}${signature}`);
 
         return this.instance();
     }

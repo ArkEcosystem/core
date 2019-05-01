@@ -5,11 +5,11 @@
  */
 
 import assert from "assert";
+import { secp256k1 } from "bcrypto";
 import aes from "browserify-aes";
 import bs58check from "bs58check";
 import xor from "buffer-xor/inplace";
 import crypto from "crypto";
-import secp256k1 from "secp256k1";
 import { HashAlgorithms } from "../crypto";
 import {
     Bip38CompressionError,

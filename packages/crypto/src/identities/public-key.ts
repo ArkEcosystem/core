@@ -1,4 +1,4 @@
-import { publicKeyCombine } from "secp256k1";
+import { secp256k1 } from "bcrypto";
 import { Utils } from "..";
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
@@ -32,8 +32,11 @@ export class PublicKey {
         const minKey: string = PublicKey.fromPassphrase(Utils.numberToHex(min));
         const keys: string[] = [minKey, ...publicKeys];
 
-        const keyBuffers: Buffer[] = keys.map(key => Buffer.from(key, "hex"));
-        return publicKeyCombine(keyBuffers, true).toString("hex");
+        return keys.reduce((previousValue: string, currentValue: string) =>
+            secp256k1
+                .publicKeyAdd(Buffer.from(previousValue, "hex"), Buffer.from(currentValue, "hex"), true)
+                .toString("hex"),
+        );
     }
 
     public static validate(publicKey: string, networkVersion?: number): boolean {

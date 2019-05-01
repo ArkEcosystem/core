@@ -83,8 +83,11 @@ export class Serializer {
             }
 
             case TransactionTypes.MultiSignature: {
-                const keysgroupBuffer = Buffer.from(transaction.asset.multiSignatureLegacy.keysgroup.join(""), "utf8");
-                const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
+                const keysgroupBuffer: Buffer = Buffer.from(
+                    transaction.asset.multiSignatureLegacy.keysgroup.join(""),
+                    "utf8",
+                );
+                const bb: ByteBuffer = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
 
                 bb.writeByte(transaction.asset.multiSignatureLegacy.min);
                 bb.writeByte(transaction.asset.multiSignatureLegacy.lifetime);
@@ -202,7 +205,8 @@ export class Serializer {
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
         if (transaction.hasVendorField()) {
-            const { data } = transaction;
+            const { data }: ITransaction = transaction;
+
             if (data.vendorField) {
                 const vf: Buffer = Buffer.from(data.vendorField, "utf8");
                 buffer.writeByte(vf.length);
@@ -227,7 +231,8 @@ export class Serializer {
             buffer.append(transaction.signature, "hex");
         }
 
-        const secondSignature = transaction.secondSignature || transaction.signSignature;
+        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
+
         if (secondSignature && !options.excludeSecondSignature) {
             buffer.append(secondSignature, "hex");
         }

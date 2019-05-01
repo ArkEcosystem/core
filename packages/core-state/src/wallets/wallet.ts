@@ -87,22 +87,22 @@ export class Wallet implements Database.IWallet {
             throw new Errors.InvalidMultiSignatureError();
         }
 
-        const { publicKeys, min } = multiSignature;
-        const { signatures } = transaction;
+        const { publicKeys, min }: Interfaces.IMultiSignatureAsset = multiSignature;
+        const { signatures }: Interfaces.ITransactionData = transaction;
 
-        const hash = Transactions.Transaction.getHash(transaction, {
+        const hash: Buffer = Transactions.Transaction.getHash(transaction, {
             excludeSignature: true,
             excludeSecondSignature: true,
             excludeMultiSignature: true,
         });
 
-        let verified = false;
-        let verifiedSignatures = 0;
+        let verified: boolean = false;
+        let verifiedSignatures: number = 0;
         for (let i = 0; i < signatures.length; i++) {
-            const signature = signatures[i];
-            const publicKeyIndex = parseInt(signature.slice(0, 2), 16);
-            const partialSignature = signature.slice(2, 130);
-            const publicKey = publicKeys[publicKeyIndex];
+            const signature: string = signatures[i];
+            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+            const partialSignature: string = signature.slice(2, 130);
+            const publicKey: string = publicKeys[publicKeyIndex];
 
             if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
                 verifiedSignatures++;
