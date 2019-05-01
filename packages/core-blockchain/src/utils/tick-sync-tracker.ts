@@ -4,7 +4,7 @@ import prettyMs from "pretty-ms";
 
 let tracker;
 
-export function tickSyncTracker(blockCount, count): void {
+export const tickSyncTracker = (blockCount, count): void => {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),
@@ -53,4 +53,4 @@ export function tickSyncTracker(blockCount, count): void {
     if (tracker.percent === 100) {
         tracker = undefined;
     }
-}
+};

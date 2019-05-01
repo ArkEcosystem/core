@@ -1,6 +1,6 @@
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
-export function isBlockChained(previousBlock: Interfaces.IBlockData, nextBlock: Interfaces.IBlockData): boolean {
+export const isBlockChained = (previousBlock: Interfaces.IBlockData, nextBlock: Interfaces.IBlockData): boolean => {
     const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
 
@@ -9,4 +9,4 @@ export function isBlockChained(previousBlock: Interfaces.IBlockData, nextBlock: 
     const isAfterPreviousSlot: boolean = previousSlot < nextSlot;
 
     return followsPrevious && isPlusOne && isAfterPreviousSlot;
-}
+};

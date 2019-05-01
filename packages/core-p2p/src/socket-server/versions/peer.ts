@@ -7,7 +7,7 @@ import { MissingCommonBlockError } from "../../errors";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 
-export async function acceptNewPeer({ service, req }: { service: P2P.IPeerService; req }): Promise<void> {
+export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
     const peer = { ip: req.data.ip };
 
     ["nethash", "version", "port", "os"].forEach(key => {
@@ -15,22 +15,22 @@ export async function acceptNewPeer({ service, req }: { service: P2P.IPeerServic
     });
 
     await service.getProcessor().validateAndAcceptPeer(peer);
-}
+};
 
-export function getPeers({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] {
+export const getPeers = ({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] => {
     return service
         .getStorage()
         .getPeers()
         .map(peer => peer.toBroadcast())
         .sort((a, b) => a.latency - b.latency);
-}
+};
 
-export async function getCommonBlocks({
+export const getCommonBlocks = async ({
     req,
 }): Promise<{
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
-}> {
+}> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
 
@@ -42,9 +42,9 @@ export async function getCommonBlocks({
         common: commonBlocks[0],
         lastBlockHeight: blockchain.getLastBlock().data.height,
     };
-}
+};
 
-export async function getStatus(): Promise<P2P.IPeerState> {
+export const getStatus = async (): Promise<P2P.IPeerState> => {
     const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
@@ -53,9 +53,9 @@ export async function getStatus(): Promise<P2P.IPeerState> {
         currentSlot: Crypto.Slots.getSlotNumber(),
         header: lastBlock ? lastBlock.getHeader() : {},
     };
-}
+};
 
-export async function postBlock({ req }): Promise<void> {
+export const postBlock = async ({ req }): Promise<void> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
@@ -74,9 +74,9 @@ export async function postBlock({ req }): Promise<void> {
     }
 
     blockchain.handleIncomingBlock(block, req.headers.remoteAddress, fromForger);
-}
+};
 
-export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
+export const postTransactions = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> => {
     const processor: TransactionPool.IProcessor = app
         .resolvePlugin<TransactionPool.IConnection>("transaction-pool")
         .makeProcessor();
@@ -92,9 +92,9 @@ export async function postTransactions({ service, req }: { service: P2P.IPeerSer
     }
 
     return result.accept;
-}
+};
 
-export async function getBlocks({ req }): Promise<Interfaces.IBlockData[]> {
+export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
     const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
@@ -121,4 +121,4 @@ export async function getBlocks({ req }): Promise<Interfaces.IBlockData[]> {
     );
 
     return blocks || [];
-}
+};

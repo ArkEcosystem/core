@@ -1,7 +1,7 @@
 import Boom from "@hapi/boom";
 import { IWebhook } from "../interfaces";
 
-export function transformResource(model): IWebhook {
+export const transformResource = (model): IWebhook => {
     return {
         id: model.id,
         event: model.event,
@@ -10,8 +10,8 @@ export function transformResource(model): IWebhook {
         enabled: model.enabled,
         conditions: model.conditions,
     };
-}
+};
 
-export function respondWithResource(data) {
+export const respondWithResource = data => {
     return data ? { data: transformResource(data) } : Boom.notFound();
-}
+};

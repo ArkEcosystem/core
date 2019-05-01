@@ -3,7 +3,7 @@ import { defaults } from "./defaults";
 import { startServer } from "./server";
 import { database } from "./server/services/database";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "json-rpc",

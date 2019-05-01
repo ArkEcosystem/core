@@ -1,5 +1,5 @@
-export function transformAccountLegacy(model) {
-    const hasSecondSignature = !!model.secondPublicKey;
+export const transformAccountLegacy = model => {
+    const hasSecondSignature: boolean = !!model.secondPublicKey;
 
     return {
         address: model.address,
@@ -14,4 +14,4 @@ export function transformAccountLegacy(model) {
         unconfirmedSignature: hasSecondSignature ? 1 : 0,
         secondSignature: hasSecondSignature ? 1 : 0,
     };
-}
+};

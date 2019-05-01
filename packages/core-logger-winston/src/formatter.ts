@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { Format } from "logform";
 import { format } from "winston";
 
-export function formatter(colorOutput: boolean = true): Format {
+export const formatter = (colorOutput: boolean = true): Format => {
     const { colorize, combine, timestamp, printf } = format;
 
     return combine(
@@ -39,4 +39,4 @@ export function formatter(colorOutput: boolean = true): Format {
             return `[${dateTime}][${level}]: ${message}`;
         }),
     );
-}
+};

@@ -4,7 +4,7 @@ import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosy
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import sumBy from "lodash.sumby";
 
-function formatDelegates(
+const formatDelegates = (
     delegates: Database.IWallet[],
     lastHeight: number,
 ): Array<{
@@ -13,7 +13,7 @@ function formatDelegates(
     approval: string;
     votes: string;
     voterCount: string;
-}> {
+}> => {
     const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     return delegates.map((delegate: Database.IWallet) => {
@@ -49,9 +49,9 @@ function formatDelegates(
             voterCount: voterCount.padStart(5),
         };
     });
-}
+};
 
-export function handler(request, h) {
+export const handler = (request, h) => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
@@ -109,4 +109,4 @@ export function handler(request, h) {
             }),
         })
         .type("text/plain");
-}
+};

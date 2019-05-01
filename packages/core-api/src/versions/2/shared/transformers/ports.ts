@@ -1,4 +1,4 @@
-export function transformPorts(config: any) {
+export const transformPorts = (config: any) => {
     const result = {};
     const keys = [
         "@arkecosystem/core-p2p",
@@ -28,4 +28,4 @@ export function transformPorts(config: any) {
     }
 
     return result;
-}
+};

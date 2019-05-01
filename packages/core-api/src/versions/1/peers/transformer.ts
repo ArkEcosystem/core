@@ -1,4 +1,4 @@
-export function transformPeerLegacy(model) {
+export const transformPeerLegacy = model => {
     return {
         ip: model.ip,
         port: model.port,
@@ -7,4 +7,4 @@ export function transformPeerLegacy(model) {
         os: model.os,
         delay: model.latency,
     };
-}
+};

@@ -1,10 +1,10 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { ColumnSet, IMain } from "pg-promise";
 import sql, { Query } from "sql";
-import { ColumnDescriptor } from "../interfaces";
+import { IColumnDescriptor } from "../interfaces";
 
 export abstract class Model implements Database.IModel {
-    protected columnsDescriptor: ColumnDescriptor[];
+    protected columnsDescriptor: IColumnDescriptor[];
     protected columnSet: ColumnSet;
 
     public constructor(protected readonly pgp: IMain) {}
@@ -15,7 +15,7 @@ export abstract class Model implements Database.IModel {
         if (!this.columnSet) {
             this.columnSet = this.createColumnSet(
                 this.columnsDescriptor.map(col => {
-                    const colDef: ColumnDescriptor = { name: col.name };
+                    const colDef: IColumnDescriptor = { name: col.name };
 
                     ["prop", "init", "def"].forEach(prop => {
                         if (col.hasOwnProperty(prop)) {
@@ -31,7 +31,7 @@ export abstract class Model implements Database.IModel {
         return this.columnSet;
     }
 
-    public getSearchableFields(): Database.SearchableField[] {
+    public getSearchableFields(): Database.ISearchableField[] {
         return this.columnsDescriptor.map(col => ({
             fieldName: col.prop || col.name,
             supportedOperators: col.supportedOperators,
@@ -56,7 +56,7 @@ export abstract class Model implements Database.IModel {
         });
     }
 
-    private createColumnSet(columns: ColumnDescriptor[]): ColumnSet {
+    private createColumnSet(columns: IColumnDescriptor[]): ColumnSet {
         return new this.pgp.helpers.ColumnSet(columns, {
             table: {
                 table: this.getTable(),

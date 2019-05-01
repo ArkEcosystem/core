@@ -1,6 +1,6 @@
 import { validateJSON } from "../../utils";
 
-export function validateHeaders(headers) {
+export const validateHeaders = headers => {
     if (headers.port) {
         headers.port = +headers.port;
     }
@@ -32,4 +32,4 @@ export function validateHeaders(headers) {
         },
         required: ["version", "nethash", "port"],
     });
-}
+};

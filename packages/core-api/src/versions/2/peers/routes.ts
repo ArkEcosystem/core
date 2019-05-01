@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import { PeersController } from "./controller";
 import * as Schema from "./schema";
 
-export function registerRoutes(server: Hapi.Server): void {
+export const registerRoutes = (server: Hapi.Server): void => {
     const controller = new PeersController();
     server.bind(controller);
 
@@ -29,4 +29,4 @@ export function registerRoutes(server: Hapi.Server): void {
             validate: Schema.show,
         },
     });
-}
+};

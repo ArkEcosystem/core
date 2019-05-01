@@ -3,7 +3,7 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 
-export function transformBlock(model) {
+export const transformBlock = model => {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const generator = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
 
@@ -35,4 +35,4 @@ export function transformBlock(model) {
         transactions: model.numberOfTransactions,
         timestamp: formatTimestamp(model.timestamp),
     };
-}
+};

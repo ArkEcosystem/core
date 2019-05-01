@@ -6,7 +6,7 @@ import * as conditions from "./conditions";
 import { database } from "./database";
 import { IWebhook } from "./interfaces";
 
-export function startListeners(): void {
+export const startListeners = (): void => {
     for (const event of Object.values(ApplicationEvents)) {
         app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").on(event, async payload => {
             const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
@@ -55,4 +55,4 @@ export function startListeners(): void {
             }
         });
     }
-}
+};

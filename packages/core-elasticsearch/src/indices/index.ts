@@ -5,7 +5,7 @@ import { Rounds } from "./rounds";
 import { Transactions } from "./transactions";
 import { Wallets } from "./wallets";
 
-export async function watchIndices(chunkSize: number): Promise<void> {
+export const watchIndices = async (chunkSize: number): Promise<void> => {
     const indicers = [Blocks, Transactions, Wallets, Rounds];
 
     for (const Indicer of indicers) {
@@ -17,4 +17,4 @@ export async function watchIndices(chunkSize: number): Promise<void> {
 
         instance.listen();
     }
-}
+};

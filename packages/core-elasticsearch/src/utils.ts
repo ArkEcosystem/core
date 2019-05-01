@@ -1,7 +1,7 @@
-export function first<T = any>(values: T[]): T {
+export const first = <T = any>(values: T[]): T => {
     return values[0];
-}
+};
 
-export function last<T = any>(values: T[]): T {
+export const last = <T = any>(values: T[]): T => {
     return values[values.length - 1];
-}
+};

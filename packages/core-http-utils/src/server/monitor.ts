@@ -1,4 +1,4 @@
-export async function monitorServer(server) {
+export const monitorServer = async server => {
     return server.register({
         plugin: require("@hapi/good"),
         options: {
@@ -17,4 +17,4 @@ export async function monitorServer(server) {
             },
         },
     });
-}
+};
