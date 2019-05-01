@@ -13,7 +13,6 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return Transactions.MultiSignatureRegistrationTransaction;
     }
 
-    // TODO: only pass walletManager and let tx fetch wallet itself
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
@@ -44,7 +43,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new InvalidMultiSignatureError();
         }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        return true;
     }
 
     public canEnterTransactionPool(
@@ -52,7 +51,11 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            return false;
+        }
+
+        return true;
     }
 
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {

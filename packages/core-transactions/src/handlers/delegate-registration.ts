@@ -41,10 +41,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        if (
-            this.typeFromSenderAlreadyInPool(data, pool, processor) ||
-            this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)
-        ) {
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 

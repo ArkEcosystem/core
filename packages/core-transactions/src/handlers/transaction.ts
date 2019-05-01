@@ -8,6 +8,7 @@ import {
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
     SenderWalletMismatchError,
+    UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
@@ -58,7 +59,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
             if (!databaseWallet.secondPublicKey) {
                 throw new UnexpectedSecondSignatureError();
             }
-
             if (!Transactions.Verifier.verifySecondSignature(data, wallet.secondPublicKey)) {
                 throw new InvalidSecondSignatureError();
             }
@@ -76,7 +76,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
             if (!databaseWallet.multisignature) {
                 throw new UnexpectedMultiSignatureError();
             }
-
             if (!wallet.verifySignatures(data, wallet.multisignature)) {
                 throw new InvalidMultiSignatureError();
             }
@@ -137,6 +136,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             "ERR_UNSUPPORTED",
             `Invalidating transaction of unsupported type '${Enums.TransactionTypes[data.type]}'`,
         );
+
         return false;
     }
 
@@ -170,25 +170,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
                 `Sender ${senderPublicKey} already has a transaction of type '${
                     Enums.TransactionTypes[type]
                 }' in the pool`,
-            );
-
-            return true;
-        }
-
-        return false;
-    }
-
-    protected secondSignatureRegistrationFromSenderAlreadyInPool(
-        data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
-    ): boolean {
-        const { senderPublicKey } = data;
-        if (pool.senderHasTransactionsOfType(senderPublicKey, Enums.TransactionTypes.SecondSignature)) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Cannot accept transaction from sender ${senderPublicKey} while its second signature registration is in the pool`,
             );
 
             return true;

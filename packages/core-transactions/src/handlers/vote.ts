@@ -48,10 +48,11 @@ export class VoteTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        return (
-            !this.typeFromSenderAlreadyInPool(data, pool, processor) &&
-            !this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)
-        );
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            return false;
+        }
+
+        return true;
     }
 
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {

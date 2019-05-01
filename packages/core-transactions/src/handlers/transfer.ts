@@ -25,10 +25,6 @@ export class TransferTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        if (this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
         if (!isRecipientOnActiveNetwork(data)) {
             processor.pushError(
                 data,

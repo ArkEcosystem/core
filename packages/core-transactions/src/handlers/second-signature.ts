@@ -11,13 +11,13 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        databaseWalletManager: Database.IWalletManager,
     ): boolean {
         if (wallet.secondPublicKey) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(
@@ -25,7 +25,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            return false;
+        }
+
+        return true;
     }
 
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
