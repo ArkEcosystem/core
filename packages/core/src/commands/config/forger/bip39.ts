@@ -75,7 +75,7 @@ $ ark config:forger:bip39 --bip39="..."
             delegates.secrets = [flags.bip39];
             delete delegates.bip38;
 
-            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, undefined, 2));
         });
 
         await this.runTasks();

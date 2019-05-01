@@ -341,7 +341,7 @@ describe("Transaction Guard", () => {
 
             const result = await processor.validate(transactions.concat(lastTransaction));
 
-            expect(result.errors).toEqual(null);
+            expect(result.errors).toEqual(undefined);
         });
 
         it.each([3, 5, 8])(
@@ -396,7 +396,7 @@ describe("Transaction Guard", () => {
             const result = await processor.validate(transactions);
             expect(result.accept).toEqual([transactionId]);
             expect(result.broadcast).toEqual([transactionId]);
-            expect(result.errors).toBeNull();
+            expect(result.errors).toBeUndefined();
         });
 
         it("should not validate when multiple wallets register the same username in the same transaction payload", async () => {
@@ -428,8 +428,8 @@ describe("Transaction Guard", () => {
             const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
             const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
 
-            expect(wallet1.username).toBe(null);
-            expect(wallet2.username).toBe(null);
+            expect(wallet1.username).toBe(undefined);
+            expect(wallet2.username).toBe(undefined);
         });
 
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
@@ -673,7 +673,7 @@ describe("Transaction Guard", () => {
                 const blockVerified = Blocks.BlockFactory.fromData(block);
                 blockVerified.verification.verified = true;
 
-                await blockchain.processBlocks([blockVerified], () => null);
+                await blockchain.processBlocks([blockVerified], () => undefined);
             };
 
             const forgedErrorMessage = id => ({

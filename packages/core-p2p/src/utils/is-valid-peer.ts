@@ -26,11 +26,11 @@ export const isLocalHost = (ip: string): boolean => {
     }
 };
 
-const sanitizeRemoteAddress = (ip: string): string | null => {
+const sanitizeRemoteAddress = (ip: string): string | undefined => {
     try {
         return process(ip).toString();
     } catch (error) {
-        return null;
+        return undefined;
     }
 };
 

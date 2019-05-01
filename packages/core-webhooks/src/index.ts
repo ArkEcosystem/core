@@ -11,7 +11,7 @@ export const plugin: Container.PluginDescriptor = {
     async register(container: Container.IContainer, options) {
         if (!options.enabled) {
             container.resolvePlugin<Logger.ILogger>("logger").info("Webhooks are disabled");
-            return;
+            return undefined;
         }
 
         database.make();

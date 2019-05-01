@@ -81,7 +81,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     public async findByTypeAndId(type: any, id: string) {
         const results = await this.findAll({ type, id });
-        return results.rows.length ? results.rows[0] : null;
+        return results.rows.length ? results.rows[0] : undefined;
     }
 
     public async getFeeStatistics(
@@ -116,7 +116,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     private getPublicKeyFromAddress(senderId: string): string {
         const { walletManager }: Database.IDatabaseService = this.databaseServiceProvider();
 
-        return walletManager.has(senderId) ? walletManager.findByAddress(senderId).publicKey : null;
+        return walletManager.has(senderId) ? walletManager.findByAddress(senderId).publicKey : undefined;
     }
 
     private async mapBlocksToTransactions(rows): Promise<Interfaces.ITransactionData[]> {
@@ -163,7 +163,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         // Such that when you try to fetch a block, it'll transparently check the cache first, before querying db.
         const height = this.databaseServiceProvider().cache.get(`heights:${blockId}`);
 
-        return height ? { height, id: blockId } : null;
+        return height ? { height, id: blockId } : undefined;
     }
 
     private cacheBlock({ id, height }: Interfaces.IBlockData): void {

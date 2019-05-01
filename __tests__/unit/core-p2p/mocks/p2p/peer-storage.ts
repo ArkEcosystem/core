@@ -1,3 +1,3 @@
 export const getStorage = {
-    getPeers: () => null,
+    getPeers: () => undefined,
 };

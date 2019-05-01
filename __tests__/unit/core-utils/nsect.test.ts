@@ -15,13 +15,14 @@ async function probe(indexesToProbe: number[]): Promise<number> {
     // from the biggest to the smallest and the first one that satisfies the condition is
     // the one we report.
     for (let i = indexesToProbe.length - 1; i >= 0; i--) {
-        const indexToProbe = indexesToProbe[i];
+        const indexToProbe: number = indexesToProbe[i];
+
         if (searchCondition(data[indexToProbe])) {
             return indexToProbe;
         }
     }
 
-    return null;
+    return undefined;
 }
 
 beforeAll(() => {
@@ -63,7 +64,7 @@ describe("N-section (binary search)", () => {
     it("nonexistent", async () => {
         numberOfProbeCalls = 0;
         searchCondition = element => false;
-        expect(await nSect.find(0, data.length - 1)).toBe(null);
+        expect(await nSect.find(0, data.length - 1)).toBe(undefined);
         expect(numberOfProbeCalls).toBe(1);
     });
 
@@ -125,7 +126,7 @@ describe("N-section (8-ary search)", () => {
     it("nonexistent", async () => {
         numberOfProbeCalls = 0;
         searchCondition = element => false;
-        expect(await nSect.find(0, data.length - 1)).toBe(null);
+        expect(await nSect.find(0, data.length - 1)).toBe(undefined);
         expect(numberOfProbeCalls).toBe(1);
     });
 

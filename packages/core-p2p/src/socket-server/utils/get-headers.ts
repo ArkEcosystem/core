@@ -7,7 +7,7 @@ export const getHeaders = () => {
         version: app.getVersion(),
         port: app.resolveOptions("p2p").port,
         os: require("os").platform(),
-        height: null,
+        height: undefined,
     };
 
     if (app.has("blockchain")) {

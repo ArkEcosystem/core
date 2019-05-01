@@ -20,10 +20,10 @@ describe("Timelock Transfer Transaction", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.TimelockTransfer);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.TimelockTransfer));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
-        expect(builder).toHaveProperty("data.recipientId", null);
-        expect(builder).toHaveProperty("data.senderPublicKey", null);
+        expect(builder).toHaveProperty("data.recipientId", undefined);
+        expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.timelockType", 0x00);
-        expect(builder).toHaveProperty("data.timelock", null);
+        expect(builder).toHaveProperty("data.timelock", undefined);
     });
 
     describe("timelock", () => {

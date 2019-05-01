@@ -48,7 +48,7 @@ export class Serializer {
      */
     private static getBytesV1(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
         let assetSize: number = 0;
-        let assetBytes: Buffer | Uint8Array = null;
+        let assetBytes: Buffer | Uint8Array;
 
         switch (transaction.type) {
             case TransactionTypes.SecondSignature: {
@@ -74,7 +74,7 @@ export class Serializer {
             }
 
             case TransactionTypes.Vote: {
-                if (transaction.asset.votes !== null) {
+                if (transaction.asset.votes) {
                     assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
                     assetSize = assetBytes.length;
                 }

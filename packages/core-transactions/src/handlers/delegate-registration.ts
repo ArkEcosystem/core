@@ -40,7 +40,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.username = null;
+        wallet.username = undefined;
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {

@@ -22,7 +22,15 @@ beforeEach(async () => {
 
     repository = new DelegatesBusinessRepository(() => databaseService);
     walletsRepository = new WalletsBusinessRepository(() => databaseService);
-    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
+    databaseService = new DatabaseService(
+        undefined,
+        undefined,
+        walletManager,
+        walletsRepository,
+        repository,
+        undefined,
+        undefined,
+    );
 });
 
 function generateWallets(): Wallet[] {
@@ -69,7 +77,7 @@ describe("Delegate Repository", () => {
             // @ts-ignore
             jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
+            const actualDelegates = repository.getLocalDelegates({ forgedTotal: undefined });
 
             actualDelegates.forEach(delegate => {
                 expect(delegate.hasOwnProperty("forgedTotal"));

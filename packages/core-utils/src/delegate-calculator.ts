@@ -4,7 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
 
 const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
-export function calculateApproval(delegate, height: number = null): number {
+export function calculateApproval(delegate, height?: number): number {
     const config = app.getConfig();
 
     if (!height) {

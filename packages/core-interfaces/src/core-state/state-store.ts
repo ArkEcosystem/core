@@ -2,14 +2,14 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStore {
     blockchain: any;
-    lastDownloadedBlock: Interfaces.IBlock | null;
+    lastDownloadedBlock: Interfaces.IBlock | undefined;
     blockPing: any;
     started: boolean;
-    forkedBlock: Interfaces.IBlock | null;
+    forkedBlock: Interfaces.IBlock | undefined;
     wakeUpTimeout: any;
     noBlockCounter: number;
     p2pUpdateCounter: number;
-    numberOfBlocksToRollback: number | null;
+    numberOfBlocksToRollback: number | undefined;
     networkStart: boolean;
 
     reset(blockchainMachine): void;
@@ -32,7 +32,7 @@ export interface IStateStore {
     /**
      * Get the last block.
      */
-    getLastBlock(): Interfaces.IBlock | null;
+    getLastBlock(): Interfaces.IBlock | undefined;
 
     /**
      * Sets the last block.

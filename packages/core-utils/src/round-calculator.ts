@@ -11,7 +11,7 @@ export function calculateRound(height: number): Shared.IRoundInfo {
     let maxDelegates: number = 0;
 
     let milestoneHeight: number = height;
-    let milestone = null;
+    let milestone;
 
     for (let i = 0, j = 0; i < milestones.length; i++) {
         if (!milestone || milestone.activeDelegates !== milestones[i].activeDelegates) {

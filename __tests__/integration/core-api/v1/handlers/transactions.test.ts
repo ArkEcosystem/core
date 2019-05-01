@@ -223,7 +223,7 @@ describe("API 1.0 - Transactions", () => {
             const response = await utils.request("GET", "transactions/unconfirmed/get", { id: transaction.id });
             expect(response).toBeSuccessfulResponse();
 
-            if (response.data.success && response.data.transaction !== null) {
+            if (response.data.success && response.data.transaction) {
                 expect(response.data.transaction).toBeObject();
                 expect(response.data.transaction).toHaveProperty("id", transaction.id);
                 expect(response.data.transaction).toHaveProperty("type", transaction.type);

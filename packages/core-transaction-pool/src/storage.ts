@@ -22,7 +22,7 @@ export class Storage {
 
     public disconnect(): void {
         this.database.close();
-        this.database = null;
+        this.database = undefined;
     }
 
     public bulkAdd(data: Interfaces.ITransaction[]): void {

@@ -33,7 +33,7 @@ export abstract class Repository implements Database.IRepository {
             const columnSet = this.model.getColumnSet();
             const columnDef = columnSet.columns.find(col => col.prop === prop || col.name === prop);
 
-            return columnDef ? columnDef.name : null;
+            return columnDef ? columnDef.name : undefined;
         }
 
         return prop;
@@ -85,7 +85,7 @@ export abstract class Repository implements Database.IRepository {
         for (const row of explainedQuery) {
             const line: any = Object.values(row)[0];
             const match = line.match(/rows=([0-9]+)/);
-            if (match !== null) {
+            if (match) {
                 count = Number(match[1]);
             }
         }

@@ -94,7 +94,7 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.invalidVersion);
         }
 
-        return null;
+        return undefined;
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {

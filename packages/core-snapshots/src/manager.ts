@@ -49,7 +49,7 @@ export class SnapshotManager {
 
         if (params.truncate) {
             await this.database.truncate();
-            params.lastBlock = null;
+            params.lastBlock = undefined;
         }
 
         await importTable("blocks", params);

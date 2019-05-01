@@ -10,7 +10,7 @@ export const transactions = [
         sender_public_key: "0208e6835a8f020cfad439c059b89addc1ce21f8cab0af6e6957e22d3720bff8a4",
         recipient_id: "D6Z26L69gdk9qYmTv5uzk3uGepigtHY4ax",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "12500000000000000",
         fee: "0",
         serializedHex:
@@ -23,9 +23,9 @@ export const transactions = [
         sequence: 29,
         timestamp: 0,
         sender_public_key: "0212a11582a28f178b906edbf8e8c447ce1ba86041ee731e595ae4d39ef034c2ad",
-        recipient_id: null,
+        recipient_id: undefined,
         type: 2,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "0",
         fee: "0",
         serializedHex:
@@ -38,9 +38,9 @@ export const transactions = [
         sequence: 30,
         timestamp: 0,
         sender_public_key: "027b320c5429334ecf846122492d12b898a756bf1347aa61f7bf1dcd706315a9fb",
-        recipient_id: null,
+        recipient_id: undefined,
         type: 2,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "0",
         fee: "0",
         serializedHex:
@@ -55,7 +55,7 @@ export const transactions = [
         sender_public_key: "03a3c6fd74a23fbe1e02f08d9c626ebb255b48de7ba8c283ee27c9303be81a2933",
         recipient_id: "DTKn3J3pMjtPLJxZtjvqR5T6DefPzjgGdf",
         type: 3,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "0",
         fee: "100000000",
         serializedHex:
@@ -70,7 +70,7 @@ export const transactions = [
         sender_public_key: "0346e1a1b5cb0720e863e8cf8a91dc8ed827e09fb4a4812f9f4d51f606e5359516",
         recipient_id: "D5L5zXgvqtg7qoGimt5vYhFuf5Ued6iWVr",
         type: 3,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "0",
         fee: "100000000",
         serializedHex:
@@ -85,7 +85,7 @@ export const transactions = [
         sender_public_key: "02257c58004e5ae23716d1c44beea0cca7f5b522a692df367bae9015a4f15c1670",
         recipient_id: "D8vKwaX6ksU3mWg7tJDm7v1dbxy4cMo4dh",
         type: 3,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "0",
         fee: "100000000",
         serializedHex:
@@ -100,7 +100,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "D5pVkhZbSb4UNXvfmF6j7zdau8yGxfKwSv",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "400000000",
         fee: "10000000",
         serializedHex:
@@ -115,7 +115,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "D7u9gSS3KsykEoRys7DxsRNwHjpYoG8mqS",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "4500000000",
         fee: "10000000",
         serializedHex:
@@ -130,7 +130,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "DSQhC4JyfWaxsZKzF9Kfq5knVifCZA5jLK",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "2300000000",
         fee: "10000000",
         serializedHex:
@@ -145,7 +145,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "DFjnYr6USjvtaz9VZv7agd144W77WUiWtN",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "1900000000",
         fee: "10000000",
         serializedHex:
@@ -160,7 +160,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "DHaJZBGNrWLzbWbVTc5TnHMJXKeT6comq9",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "2000000000",
         fee: "10000000",
         serializedHex:
@@ -175,7 +175,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "DQUtJHQToFo9Kbgm6R9afGamvXptDzc2mi",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "3000000000",
         fee: "10000000",
         serializedHex:
@@ -190,7 +190,7 @@ export const transactions = [
         sender_public_key: "03d3fdad9c5b25bf8880e6b519eb3611a5c0b31adebc8455f0e096175b28321aff",
         recipient_id: "DGKgCQ1srb8HZyr47RqQqMvGZ4cDyr4eMo",
         type: 0,
-        vendor_field_hex: null,
+        vendor_field_hex: undefined,
         amount: "4600000000",
         fee: "10000000",
         serializedHex:

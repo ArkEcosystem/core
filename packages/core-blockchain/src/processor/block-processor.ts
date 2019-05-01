@@ -72,7 +72,7 @@ export class BlockProcessor {
                 }) disregarded because verification failed`,
             );
 
-            this.logger.warn(JSON.stringify(block.verification, null, 4));
+            this.logger.warn(JSON.stringify(block.verification, undefined, 4));
 
             return false;
         }
@@ -94,7 +94,7 @@ export class BlockProcessor {
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
 
-                this.logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
+                this.logger.debug(`${JSON.stringify(forgedIds, undefined, 4)}`);
 
                 return true;
             }
