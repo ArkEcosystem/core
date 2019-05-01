@@ -179,6 +179,7 @@ describe("Delegate", () => {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             });
             expect(block.verification).toEqual({
+                containsMultiSignatures: false,
                 errors: [],
                 verified: true,
             });
@@ -201,6 +202,7 @@ describe("Delegate", () => {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             });
             expect(block.verification).toEqual({
+                containsMultiSignatures: false,
                 errors: [],
                 verified: true,
             });
