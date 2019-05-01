@@ -1,6 +1,11 @@
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
-import { WalletUsernameAlreadyRegisteredError, WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
+import {
+    NotSupportedForMultiSignatureWalletError,
+    WalletUsernameAlreadyRegisteredError,
+    WalletUsernameEmptyError,
+    WalletUsernameNotEmptyError,
+} from "../errors";
 import { TransactionHandler } from "./transaction";
 
 const { TransactionTypes } = Enums;
@@ -16,6 +21,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         databaseWalletManager: Database.IWalletManager,
     ): boolean {
         const { data }: Interfaces.ITransaction = transaction;
+
+        if (databaseWalletManager.findByPublicKey(data.senderPublicKey).multisignature) {
+            throw new NotSupportedForMultiSignatureWalletError();
+        }
+
         const { username }: { username: string } = data.asset.delegate;
         if (!username) {
             throw new WalletUsernameEmptyError();
