@@ -13,14 +13,14 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
 export class StateStore implements State.IStateStore {
     // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
-    public lastDownloadedBlock: Interfaces.IBlock | null = null;
-    public blockPing: any = null;
+    public lastDownloadedBlock: Interfaces.IBlock | undefined = undefined;
+    public blockPing: any = undefined;
     public started: boolean = false;
-    public forkedBlock: Interfaces.IBlock | null = null;
-    public wakeUpTimeout: any = null;
+    public forkedBlock: Interfaces.IBlock | undefined = undefined;
+    public wakeUpTimeout: any = undefined;
     public noBlockCounter: number = 0;
     public p2pUpdateCounter: number = 0;
-    public numberOfBlocksToRollback: number | null = null;
+    public numberOfBlocksToRollback: number | undefined = undefined;
     public networkStart: boolean = false;
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
@@ -51,7 +51,7 @@ export class StateStore implements State.IStateStore {
     public clearWakeUpTimeout(): void {
         if (this.wakeUpTimeout) {
             clearTimeout(this.wakeUpTimeout);
-            this.wakeUpTimeout = null;
+            this.wakeUpTimeout = undefined;
         }
     }
 
@@ -65,8 +65,8 @@ export class StateStore implements State.IStateStore {
     /**
      * Get the last block.
      */
-    public getLastBlock(): Interfaces.IBlock | null {
-        return this.lastBlocks.last() || null;
+    public getLastBlock(): Interfaces.IBlock | undefined {
+        return this.lastBlocks.last() || undefined;
     }
 
     /**

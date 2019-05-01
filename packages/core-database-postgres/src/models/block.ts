@@ -20,7 +20,7 @@ export class Block extends Model {
         {
             name: "previous_block",
             prop: "previousBlock",
-            def: null,
+            def: undefined,
             supportedOperators: [Database.SearchOperator.OP_EQ],
         },
         {

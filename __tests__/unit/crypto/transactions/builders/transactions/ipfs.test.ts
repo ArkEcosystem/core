@@ -20,8 +20,8 @@ describe("IPFS Transaction", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.Ipfs);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Ipfs));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
-        expect(builder).toHaveProperty("data.vendorFieldHex", null);
-        expect(builder).toHaveProperty("data.senderPublicKey", null);
+        expect(builder).toHaveProperty("data.vendorFieldHex", undefined);
+        expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.asset", {});
     });
 

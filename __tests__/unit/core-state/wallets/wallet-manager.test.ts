@@ -110,7 +110,7 @@ describe("Wallet Manager", () => {
                 try {
                     await walletManager.applyBlock(block2);
 
-                    expect(null).toBe("this should fail if no error is thrown");
+                    expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
                     expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
                     block2.transactions.slice(0, 1).forEach((transaction, i, total) => {
@@ -130,7 +130,7 @@ describe("Wallet Manager", () => {
                 try {
                     await walletManager.applyBlock(block2);
 
-                    expect(null).toBe("this should fail if no error is thrown");
+                    expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
                     expect(error).toBeInstanceOf(Error);
                     expect(error.message).toBe("Fake error");
@@ -225,7 +225,7 @@ describe("Wallet Manager", () => {
 
                 try {
                     expect(walletManager.applyTransaction(transaction)).rejects.toThrow(InsufficientBalanceError);
-                    expect(null).toBe("this should fail if no error is thrown");
+                    expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
                     expect(+sender.balance.toFixed()).toBe(+balanceFail);
                     expect(+recipient.balance.toFixed()).toBe(0);

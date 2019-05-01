@@ -17,7 +17,7 @@ import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction implements ITransaction {
-    public static type: TransactionTypes = null;
+    public static type: TransactionTypes = undefined;
 
     public static toBytes(data: ITransactionData): Buffer {
         return Serializer.serialize(TransactionRegistry.create(data));
@@ -60,7 +60,7 @@ export abstract class Transaction implements ITransaction {
         data.amount = this.data.amount.toFixed();
         data.fee = this.data.fee.toFixed();
 
-        if (data.vendorFieldHex === null) {
+        if (!data.vendorFieldHex) {
             delete data.vendorFieldHex;
         }
 

@@ -19,7 +19,7 @@ export class Client {
     } = {
         version: app.getVersion(),
         nethash: app.getConfig().get("network.nethash"),
-        port: null,
+        port: undefined,
         "Content-Type": "application/json",
     };
 

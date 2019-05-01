@@ -98,7 +98,7 @@ export class Container implements container.IContainer {
         try {
             return this.container.resolve<container.PluginConfig<T>>(key).plugin;
         } catch (err) {
-            return null;
+            return undefined;
         }
     }
     public resolveOptions(key) {

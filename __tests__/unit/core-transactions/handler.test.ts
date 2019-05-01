@@ -237,7 +237,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             address: "DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj",
             balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9",
-            secondPublicKey: null,
+            secondPublicKey: undefined,
         } as Wallets.Wallet;
 
         transaction = {
@@ -301,14 +301,14 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", () => {
-            expect(wallet.secondPublicKey).toBeNull();
+            expect(wallet.secondPublicKey).toBeUndefined();
             expect(handler.canBeApplied(instance, wallet)).toBeTrue();
 
             handler.applyToSender(instance, wallet);
             expect(wallet.secondPublicKey).toBe("02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8");
 
             handler.revertForSender(instance, wallet);
-            expect(wallet.secondPublicKey).toBeNull();
+            expect(wallet.secondPublicKey).toBeUndefined();
         });
     });
 });
@@ -369,7 +369,7 @@ describe("DelegateRegistrationTransaction", () => {
     describe("revert", () => {
         it("should unset username", () => {
             handler.revertForSender(instance, wallet);
-            expect(wallet.username).toBeNull();
+            expect(wallet.username).toBeUndefined();
         });
     });
 });
@@ -383,7 +383,7 @@ describe("VoteTransaction", () => {
             address: "DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh",
             balance: Utils.BigNumber.make("6453530000000"),
             publicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-            vote: null,
+            vote: undefined,
         } as Wallets.Wallet;
 
         voteTransaction = {
@@ -456,20 +456,20 @@ describe("VoteTransaction", () => {
     describe("apply", () => {
         describe("vote", () => {
             it("should be ok", () => {
-                expect(wallet.vote).toBeNull();
+                expect(wallet.vote).toBeUndefined();
 
                 handler.applyToSender(instance, wallet);
-                expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeUndefined();
             });
 
             it("should not be ok", () => {
                 wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
 
-                expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeUndefined();
 
                 handler.applyToSender(instance, wallet);
 
-                expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeUndefined();
             });
         });
 
@@ -477,12 +477,12 @@ describe("VoteTransaction", () => {
             it("should remove the vote from the wallet", () => {
                 wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
 
-                expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.applyToSender(instance, wallet);
 
-                expect(wallet.vote).toBeNull();
+                expect(wallet.vote).toBeUndefined();
             });
         });
     });
@@ -492,17 +492,17 @@ describe("VoteTransaction", () => {
             it("should remove the vote from the wallet", () => {
                 wallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
 
-                expect(wallet.vote).not.toBeNull();
+                expect(wallet.vote).not.toBeUndefined();
 
                 handler.revertForSender(instance, wallet);
 
-                expect(wallet.vote).toBeNull();
+                expect(wallet.vote).toBeUndefined();
             });
         });
 
         describe("unvote", () => {
             it("should add the vote to the wallet", () => {
-                expect(wallet.vote).toBeNull();
+                expect(wallet.vote).toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.revertForSender(instance, wallet);
@@ -661,9 +661,9 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
 
     describe("apply", () => {
         it("should be ok", () => {
-            wallet.multisignature = null;
+            wallet.multisignature = undefined;
 
-            expect(wallet.multisignature).toBeNull();
+            expect(wallet.multisignature).toBeUndefined();
 
             handler.applyToSender(instance, wallet);
 
@@ -675,7 +675,7 @@ describe.skip("MultiSignatureRegistrationTransaction", () => {
         it("should be ok", () => {
             handler.revertForSender(instance, wallet);
 
-            expect(wallet.multisignature).toBeNull();
+            expect(wallet.multisignature).toBeUndefined();
         });
     });
 });
@@ -810,7 +810,7 @@ describe.skip("DelegateResignationTransaction", () => {
         });
 
         it.skip("should be false if wallet has no registered username", () => {
-            wallet.username = null;
+            wallet.username = undefined;
             expect(() => handler.canBeApplied(instance, wallet)).toThrow(WalletNoUsernameError);
         });
 

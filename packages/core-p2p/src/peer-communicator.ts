@@ -42,10 +42,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const deadline = new Date().getTime() + timeoutMsec;
 
         if (peer.recentlyPinged() && !force) {
-            return;
+            return undefined;
         }
 
-        const body: any = await this.emit(peer, "p2p.peer.getStatus", null, timeoutMsec);
+        const body: any = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
 
         if (!body) {
             throw new PeerStatusResponseError(peer.ip);
@@ -126,7 +126,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         const ajv = new AJV();
-        const errors = ajv.validate(schema, reply) ? null : ajv.errorsText();
+        const errors = ajv.validate(schema, reply) ? undefined : ajv.errorsText();
 
         if (errors) {
             this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${errors}`);
@@ -156,7 +156,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             }
         } catch (e) {
             this.handleSocketError(peer, e);
-            return;
+            return undefined;
         }
 
         return response.data;

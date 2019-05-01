@@ -287,7 +287,7 @@ export class WalletManager implements Database.IWalletManager {
                 this.logger.error(
                     `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${error.message}`,
                 );
-                this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), null, 2)}`);
+                this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), undefined, 2)}`);
                 throw new Error(`Can't apply transaction ${data.id}`);
             }
         }
@@ -399,7 +399,7 @@ export class WalletManager implements Database.IWalletManager {
                     this.logger.warn(
                         `Delegates ${JSON.stringify(
                             mapped,
-                            null,
+                            undefined,
                             4,
                         )} have a matching vote balance of ${Utils.formatSatoshi(voteBalance)}`,
                     );

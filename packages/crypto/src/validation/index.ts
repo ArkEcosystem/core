@@ -35,11 +35,11 @@ export class Validator {
         try {
             this.ajv.validate(schemaKeyRef, data);
 
-            const error = this.ajv.errors !== null ? this.ajv.errorsText() : null;
+            const error = this.ajv.errors ? this.ajv.errorsText() : undefined;
 
             return { value: data, error, errors: this.ajv.errors };
         } catch (error) {
-            return { value: null, error: error.stack, errors: [] };
+            return { value: undefined, error: error.stack, errors: [] };
         }
     }
 

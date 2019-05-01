@@ -35,20 +35,20 @@ function decodeTransaction(buffer: Buffer) {
 
     const transaction: any = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data;
     const { asset } = transaction;
-    transaction.asset = null;
+    transaction.asset = undefined;
 
     transaction.block_id = blockId;
     transaction.sequence = sequence;
     transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();
-    transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null;
-    transaction.recipientId = transaction.recipientId ? transaction.recipientId : null;
+    transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : undefined;
+    transaction.recipientId = transaction.recipientId ? transaction.recipientId : undefined;
     transaction.serialized = serialized;
 
     const decamelized = decamelizeKeys(transaction);
     decamelized.serialized = serialized; // FIXME: decamelizeKeys mutilates Buffers
-    decamelized.asset = asset ? asset : null;
+    decamelized.asset = asset ? asset : undefined;
 
     return decamelized;
 }

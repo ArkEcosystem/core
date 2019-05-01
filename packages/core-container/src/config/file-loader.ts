@@ -101,7 +101,7 @@ export class FileLoader {
             });
 
             const path = `${resolve(process.env.CORE_PATH_CONFIG)}/peers.json`;
-            writeFileSync(path, JSON.stringify(configFile, null, 2));
+            writeFileSync(path, JSON.stringify(configFile, undefined, 2));
         }
     }
 }

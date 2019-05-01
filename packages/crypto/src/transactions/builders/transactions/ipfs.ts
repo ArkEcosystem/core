@@ -11,8 +11,8 @@ export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
         this.data.type = TransactionTypes.Ipfs;
         this.data.fee = feeManager.get(TransactionTypes.Ipfs);
         this.data.amount = BigNumber.ZERO;
-        this.data.vendorFieldHex = null;
-        this.data.senderPublicKey = null;
+        this.data.vendorFieldHex = undefined;
+        this.data.senderPublicKey = undefined;
         this.data.asset = {};
     }
 

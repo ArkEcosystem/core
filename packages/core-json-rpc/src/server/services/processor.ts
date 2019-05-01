@@ -32,7 +32,7 @@ export class Processor {
         );
 
         if (error) {
-            return this.createErrorResponse(payload ? payload.id : null, -32600, new Error(error));
+            return this.createErrorResponse(payload ? payload.id : undefined, -32600, new Error(error));
         }
 
         const { method, params, id } = payload;

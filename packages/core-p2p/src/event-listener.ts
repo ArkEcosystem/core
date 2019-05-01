@@ -11,7 +11,7 @@ export class EventListener {
 
         this.emitter.on("internal.p2p.suspendPeer", ({ peer, punishment }) => {
             if (!storage.hasSuspendedPeer(peer)) {
-                processor.suspend(peer, punishment ? guard.punishment(punishment) : null);
+                processor.suspend(peer, punishment ? guard.punishment(punishment) : undefined);
             }
         });
     }

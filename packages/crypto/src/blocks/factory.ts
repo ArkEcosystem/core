@@ -23,7 +23,7 @@ export class BlockFactory {
     }
 
     public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer ? buffer.toString("hex") : null);
+        return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
     }
 
     public static fromJson(json: IBlockJson): IBlock {

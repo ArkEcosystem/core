@@ -12,8 +12,8 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
         this.data.type = TransactionTypes.SecondSignature;
         this.data.fee = feeManager.get(TransactionTypes.SecondSignature);
         this.data.amount = BigNumber.ZERO;
-        this.data.recipientId = null;
-        this.data.senderPublicKey = null;
+        this.data.recipientId = undefined;
+        this.data.senderPublicKey = undefined;
         this.data.asset = { signature: {} } as ITransactionAsset;
     }
 

@@ -10,7 +10,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
                 return true;
             }
             // genesis payload different as block.serialize stores
-            // block.previous_block with 00000 instead of null
+            // block.previous_block with 00000 instead of undefined
             // it fails on height 2 - chain check
             // TODO: check to improve ser/deser for genesis
             const genesisBlock = Managers.configManager.get("genesisBlock");

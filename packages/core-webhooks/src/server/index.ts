@@ -86,7 +86,7 @@ export async function startServer(config) {
         handler: (request, h) => {
             database.update(request.params.id, request.payload as IWebhook);
 
-            return h.response(null).code(204);
+            return h.response(undefined).code(204);
         },
         options: {
             validate: schema.update,
@@ -100,7 +100,7 @@ export async function startServer(config) {
             try {
                 database.destroy(request.params.id);
 
-                return h.response(null).code(204);
+                return h.response(undefined).code(204);
             } catch (error) {
                 return Boom.notFound();
             }

@@ -11,8 +11,8 @@ export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
         this.data.type = TransactionTypes.Vote;
         this.data.fee = feeManager.get(TransactionTypes.Vote);
         this.data.amount = BigNumber.ZERO;
-        this.data.recipientId = null;
-        this.data.senderPublicKey = null;
+        this.data.recipientId = undefined;
+        this.data.senderPublicKey = undefined;
         this.data.asset = { votes: [] };
 
         this.signWithSenderAsRecipient = true;

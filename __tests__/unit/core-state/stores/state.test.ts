@@ -36,8 +36,8 @@ describe("State Storage", () => {
     });
 
     describe("getLastBlock", () => {
-        it("should return null when no last block", () => {
-            expect(stateStorage.getLastBlock()).toBeNull();
+        it("should return undefined when no last block", () => {
+            expect(stateStorage.getLastBlock()).toBeUndefined();
         });
 
         it("should return the last block", () => {
@@ -261,7 +261,7 @@ describe("State Storage", () => {
 
     describe("pingBlock", () => {
         it("should return false if there is no blockPing", () => {
-            stateStorage.blockPing = null;
+            stateStorage.blockPing = undefined;
             expect(stateStorage.pingBlock(blocks2to100[5])).toBeFalse();
         });
 
@@ -300,7 +300,7 @@ describe("State Storage", () => {
 
     describe("pushPingBlock", () => {
         it("should push the block provided as blockPing", () => {
-            stateStorage.blockPing = null;
+            stateStorage.blockPing = undefined;
 
             stateStorage.pushPingBlock(blocks2to100[5]);
 

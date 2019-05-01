@@ -19,7 +19,7 @@ describe("SearchParameterConverter", () => {
         const searchParameters = searchParameterConverter.convert(params);
 
         expect(searchParameters.orderBy).toHaveLength(0);
-        expect(searchParameters.paginate).toBeNull();
+        expect(searchParameters.paginate).toBeUndefined();
         expect(searchParameters.parameters).toHaveLength(5);
         expect(searchParameters.parameters[0].field).toEqual("id");
         expect(searchParameters.parameters[0].value).toEqual("343-guilty-spark");

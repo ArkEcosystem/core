@@ -45,10 +45,10 @@ export const container = {
                 return transactionPool;
             }
 
-            return null;
+            return undefined;
         },
         resolveOptions: () => ({}),
         has: () => false,
-        forceExit: () => null,
+        forceExit: () => undefined,
     },
 };
