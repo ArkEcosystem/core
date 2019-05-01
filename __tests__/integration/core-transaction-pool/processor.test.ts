@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Blockchain, Container, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
@@ -464,6 +464,51 @@ describe("Transaction Guard", () => {
                     type: "ERR_APPLY",
                 },
             ]);
+        });
+
+        describe("MultiSignature", () => {
+            beforeEach(() => {
+                Managers.configManager.getMilestone().aip11 = true;
+            });
+
+            afterEach(() => {
+                Managers.configManager.getMilestone().aip11 = false;
+            });
+
+            it("should accept multi signature registration with AIP11 milestone", async () => {
+                const passphrases = [delegates[0].secret, delegates[1].secret, delegates[2].secret];
+                const participants = passphrases.map(passphrase => Identities.PublicKey.fromPassphrase(passphrase));
+
+                const multiSigRegistration = TransactionFactory.multiSignature(participants, 3)
+                    .withNetwork("unitnet")
+                    .withPassphrase(passphrases[0])
+                    .withPassphraseList(passphrases)
+                    .build()[0];
+
+                const result = await processor.validate([multiSigRegistration.data]);
+                expect(result.accept).not.toBeEmpty();
+                expect(result.invalid).toBeEmpty();
+            });
+
+            it("should not accept multi signature registration without AIP11 milestone", async () => {
+                const passphrases = [delegates[0].secret, delegates[3].secret, delegates[9].secret];
+                const participants = passphrases.map(passphrase => Identities.PublicKey.fromPassphrase(passphrase));
+
+                const multiSigRegistration = TransactionFactory.multiSignature(participants, 3)
+                    .withNetwork("unitnet")
+                    .withPassphrase(passphrases[0])
+                    .withPassphraseList(passphrases)
+                    .build()[0];
+
+                Managers.configManager.getMilestone().aip11 = false;
+                const result = await processor.validate([multiSigRegistration.data]);
+                expect(result.errors[multiSigRegistration.id]).toEqual([
+                    {
+                        message: "Version 2 not supported.",
+                        type: "ERR_UNKNOWN",
+                    },
+                ]);
+            });
         });
 
         describe("Sign a transaction then change some fields shouldn't pass validation", () => {
