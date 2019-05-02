@@ -14,8 +14,6 @@ export class StartCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(StartCommand);
 
-        process.env.CORE_SKIP_BLOCKCHAIN = "true";
-
         await setUpLite(flags);
 
         if (!app.has("blockchain")) {
