@@ -1,16 +1,16 @@
 import { Identities, Transactions, Utils } from "@arkecosystem/crypto";
 
 export class Signer {
-    protected network: Record<string, any>;
+    protected network: number;
 
-    public constructor(network) {
+    public constructor(network: number) {
         this.network = network;
     }
 
     public makeTransfer(opts: Record<string, any>): any {
         const transaction = Transactions.BuilderFactory.transfer()
             .fee(this.toSatoshi(opts.transferFee))
-            .network(this.network.version)
+            .network(this.network)
             .recipientId(opts.recipient)
             .amount(this.toSatoshi(opts.amount));
 
@@ -30,7 +30,7 @@ export class Signer {
     public makeDelegate(opts: Record<string, any>): any {
         const transaction = Transactions.BuilderFactory.delegateRegistration()
             .fee(this.toSatoshi(opts.delegateFee))
-            .network(this.network.version)
+            .network(this.network)
             .usernameAsset(opts.username)
             .sign(opts.passphrase);
 
@@ -44,7 +44,7 @@ export class Signer {
     public makeSecondSignature(opts: Record<string, any>): any {
         return Transactions.BuilderFactory.secondSignature()
             .fee(this.toSatoshi(opts.signatureFee))
-            .network(this.network.version)
+            .network(this.network)
             .signatureAsset(opts.secondPassphrase)
             .sign(opts.passphrase)
             .getStruct();
@@ -54,7 +54,7 @@ export class Signer {
         const transaction = Transactions.BuilderFactory.vote()
             .fee(this.toSatoshi(opts.voteFee))
             .votesAsset([`+${opts.delegate}`])
-            .network(this.network.version)
+            .network(this.network)
             .sign(opts.passphrase);
 
         if (opts.secondPassphrase) {
@@ -71,7 +71,7 @@ export class Signer {
                 publicKeys: opts.participants.split(","),
             })
             .senderPublicKey(Identities.PublicKey.fromPassphrase(opts.passphrase))
-            .network(this.network.version);
+            .network(this.network);
 
         opts.passphrases.split(",").forEach((passphrase, index) => {
             transaction.multiSign(passphrase, index);

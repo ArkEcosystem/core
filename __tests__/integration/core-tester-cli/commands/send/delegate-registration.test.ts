@@ -1,5 +1,7 @@
-import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
+
+import { httpie } from "@arkecosystem/core-utils";
+import { Managers } from "@arkecosystem/crypto";
 import nock from "nock";
 import pokemon from "pokemon";
 import { DelegateRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/delegate-registration";
@@ -12,10 +14,10 @@ beforeEach(() => {
         .thrice()
         .reply(200, { data: { constants: {} } });
 
-    nock("http://localhost:4000")
-        .get("/config")
+    nock("http://localhost:4003")
+        .get("/api/v2/node/configuration/crypto")
         .thrice()
-        .reply(200, { data: { network: { name: "unitnet" } } });
+        .reply(200, { data: Managers.configManager.getPreset("unitnet") });
 
     jest.spyOn(httpie, "get");
     jest.spyOn(httpie, "post");
