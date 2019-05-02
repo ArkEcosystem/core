@@ -1,8 +1,12 @@
-import { Blocks, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Transactions, Utils } from "@arkecosystem/crypto";
 import { createCodec, decode, encode } from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 
 const encodeBlock = block => {
+    block.total_amount = Utils.BigNumber.make(block.total_amount);
+    block.total_fee = Utils.BigNumber.make(block.total_fee);
+    block.reward = Utils.BigNumber.make(block.reward);
+
     return Blocks.Block.serialize(camelizeKeys(block), true);
 };
 
