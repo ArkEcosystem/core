@@ -9,6 +9,7 @@ export const setUpLite = async (options): Promise<Container.IContainer> => {
         include: [
             "@arkecosystem/core-event-emitter",
             "@arkecosystem/core-logger-pino",
+            "@arkecosystem/core-state",
             "@arkecosystem/core-database-postgres",
             "@arkecosystem/core-snapshots",
         ],
