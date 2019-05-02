@@ -21,6 +21,9 @@
         "@arkecosystem/core-container": "^2.3.21",
         "raygun": "^0.10.1"
     },
+    "devDependencies": {
+        "@types/raygun": "^0.10.1"
+    },
     "engines": {
         "node": ">=10.x"
     },

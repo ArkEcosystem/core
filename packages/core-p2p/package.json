@@ -31,6 +31,7 @@
         "@arkecosystem/crypto": "^2.3.21",
         "@faustbrian/dato": "^0.3.0",
         "@hapi/boom": "^7.4.2",
+        "@hapi/sntp": "^3.1.1",
         "ajv": "^6.10.0",
         "delay": "^4.2.0",
         "hapi-rate-limit": "^3.1.2",
@@ -51,12 +52,12 @@
         "pretty-ms": "^5.0.0",
         "scc-broker-client": "^6.1.0",
         "semver": "^6.0.0",
-        "sntp": "^3.0.2",
         "socketcluster": "^14.3.3",
         "socketcluster-client": "^14.2.2"
     },
     "devDependencies": {
-        "@types/boom": "^7.2.1",
+        "@types/hapi__boom": "^7.4.0",
+        "@types/hapi__sntp": "^3.1.0",
         "@types/ip": "^1.1.0",
         "@types/lodash.chunk": "^4.2.6",
         "@types/lodash.flatten": "^4.4.6",
