@@ -936,6 +936,16 @@
     "@hapi/hoek" "6.x.x"
     "@hapi/joi" "15.x.x"
 
+"@hapi/sntp@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@hapi/sntp/-/sntp-3.1.1.tgz#acc6116692b4be1183f2b3a0e6630ea67a91bee5"
+  integrity sha512-YOy3L9RSk2lf92FwKzzaIMuPVTtTPs7er1SNlXgBC/mqEBbQlUaexCf1MQDWz7MVPH3AQsQGdmRN5kRo8G5huA==
+  dependencies:
+    "@hapi/boom" "7.x.x"
+    "@hapi/bounce" "1.x.x"
+    "@hapi/hoek" "6.x.x"
+    "@hapi/teamwork" "3.x.x"
+
 "@hapi/somever@2.x.x":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@hapi/somever/-/somever-2.1.0.tgz#46ccf2a85ab77635982af15aa4a28c847717bdbf"
@@ -2379,6 +2389,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/hapi__sntp@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@types/hapi__sntp/-/hapi__sntp-3.1.0.tgz#8817bcc3b091ef486ddd4fe5be305d0fa33ed570"
+  integrity sha512-8tKFfiK7vIp9LbfabJ95YegLhLVaNUyT9nqYnWwkt77tQ7hw/QZByPBIENByuLUMa4d8g24L8rdn0EjPyb2cIw==
+
 "@types/inert@^5.1.2":
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/@types/inert/-/inert-5.1.2.tgz#2bb8bef3b2462f904c960654c9edfa39285a85c6"
@@ -2937,11 +2952,6 @@
   integrity sha512-mV6s2VgcBC16Jb+1EwulgRrrZBT93V4JCILkNPg31rvvSK6LRQQGU8R/SUivgHjDZ5LJZu/yL2kMF8j85YQTnA==
   dependencies:
     "@types/node" "*"
-
-"@types/sntp@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/sntp/-/sntp-3.0.0.tgz#03d8604092b9d59d25e5cfd013f27bc3322012be"
-  integrity sha512-HDOfV1OjBm/MObyD/fOApG1gtYjo8m5GPANewDQh8JLDB50iOeRApVrDxlxZY2LLKkBUb8/guYJlBI4rsjRLzA==
 
 "@types/socketcluster-client@*", "@types/socketcluster-client@^13.0.2":
   version "13.0.2"
@@ -12133,16 +12143,6 @@ snapdragon@^0.8.1:
     source-map "^0.5.6"
     source-map-resolve "^0.5.0"
     use "^3.1.0"
-
-sntp@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/sntp/-/sntp-3.0.2.tgz#3f0b5de6115681dce82a9478691f0e5c552de5a3"
-  integrity sha512-MCAPpBPFjNp1fwDVCLSRuWuH9gONtb2R+lS1esC6Mp8lP6jy60FVUtP/Qr0jBvcWAVbhzx06y1b6ptXiy32dug==
-  dependencies:
-    boom "7.x.x"
-    bounce "1.x.x"
-    hoek "6.x.x"
-    teamwork "3.x.x"
 
 snyk-config@^2.2.1:
   version "2.2.1"
