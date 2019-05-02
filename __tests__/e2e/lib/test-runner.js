@@ -213,7 +213,8 @@ class TestRunner {
 
         await delay(2000);
 
-        if (blocksDone.length && Date.now() - blocksDone[blocksDone.length - 1].timestamp > 1000 * 60 * 2) {
+        if (blocksDone.length
+            && Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2) {
             return false; // we stop test execution because now new blocks came in the last 2min
         }
         return this.executeTests(blocksDone);
