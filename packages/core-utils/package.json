@@ -27,6 +27,9 @@
         "got": "^9.6.0",
         "immutable": "^4.0.0-rc.12"
     },
+    "devDependencies": {
+        "@types/got": "^9.4.4"
+    },
     "engines": {
         "node": ">=10.x"
     },

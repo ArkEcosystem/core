@@ -31,8 +31,8 @@
         "nanomatch": "^1.2.13"
     },
     "devDependencies": {
-        "@types/boom": "^7.2.1",
-        "@types/hapi": "^18.0.2",
+        "@types/hapi__boom": "^7.4.0",
+        "@types/hapi__hapi": "^18.2.1",
         "@types/inert": "^5.1.2",
         "@types/micromatch": "^3.1.0",
         "@types/vision": "^5.3.6"

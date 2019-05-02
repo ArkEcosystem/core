@@ -37,7 +37,7 @@
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.3.21",
         "@types/bip39": "^2.4.2",
-        "@types/boom": "^7.2.1",
+        "@types/hapi__boom": "^7.4.0",
         "@types/is-reachable": "^3.1.0",
         "@types/keyv": "^3.1.0",
         "@types/keyv__sqlite": "^2.0.0",
