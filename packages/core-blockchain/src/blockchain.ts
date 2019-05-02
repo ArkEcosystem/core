@@ -365,7 +365,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<any> {
+    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
         for (const block of blocks) {
@@ -390,7 +390,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         if (acceptedBlocks.length === 0) {
-            return callback();
+            return callback([]);
         }
 
         try {
@@ -411,7 +411,7 @@ export class Blockchain implements blockchain.IBlockchain {
             return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
         }
 
-        return callback();
+        return callback(acceptedBlocks);
     }
 
     /**

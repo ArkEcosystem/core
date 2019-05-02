@@ -22,9 +22,6 @@ export class StartCommand extends BaseCommand {
             this.error("The @arkecosystem/core-blockchain plugin is not installed.");
         }
 
-        const startHeight: number = flags.from;
-        const endHeight: number = flags.to;
-
-        await app.resolvePlugin<Blockchain.IBlockchain>("blockchain").replay(startHeight, endHeight);
+        await app.resolvePlugin<Blockchain.IBlockchain>("blockchain").replay(flags.targetHeight);
     }
 }

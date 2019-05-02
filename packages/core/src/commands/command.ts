@@ -81,11 +81,7 @@ export abstract class BaseCommand extends Command {
 
     public static flagsReplay: Record<string, object> = {
         ...BaseCommand.flagsNetwork,
-        from: flags.integer({
-            description: "the height to start from",
-            default: 1,
-        }),
-        to: flags.integer({
+        targetHeight: flags.integer({
             description: "the target height to replay to. If not set, defaults to last block in database.",
             default: -1,
         }),

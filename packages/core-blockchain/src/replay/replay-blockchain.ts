@@ -1,13 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger, P2P, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
-import { BlockProcessorResult } from "../processor";
+import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";
 
 export class ReplayBlockchain extends Blockchain {
+    private logger: Logger.ILogger;
+    private localDatabase: Database.IDatabaseService;
     private walletManager: Wallets.WalletManager;
     private chunkSize: number = 20000;
 
@@ -22,8 +24,9 @@ export class ReplayBlockchain extends Blockchain {
         this.walletManager = new Wallets.WalletManager();
         this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
 
-        const database = app.resolvePlugin<Database.IDatabaseService>("database");
-        database.walletManager = this.walletManager;
+        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
+        this.localDatabase = app.resolvePlugin<Database.IDatabaseService>("database");
+        this.localDatabase.walletManager = this.walletManager;
 
         this.queue.kill();
         this.queue.drain = undefined;
@@ -45,65 +48,45 @@ export class ReplayBlockchain extends Blockchain {
         return;
     }
 
-    // TODO: support dynamic start height
-    public async replay(startHeight = 1, endHeight: number = -1): Promise<void> {
-        const logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-        const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    public async replay(targetHeight: number = -1): Promise<void> {
+        this.logger.info("Starting replay...");
 
-        logger.info("Starting replay...");
+        const lastBlock: Interfaces.IBlock = await this.localDatabase.getLastBlock();
+        const startHeight = 2;
 
-        const lastBlock: Interfaces.IBlock = await database.getLastBlock();
-        let targetHeight = lastBlock.data.height;
-
-        if (endHeight !== -1 && endHeight < lastBlock.data.height) {
-            targetHeight = endHeight;
+        if (targetHeight <= startHeight || targetHeight > lastBlock.data.height) {
+            targetHeight = lastBlock.data.height;
         }
 
         await this.processGenesisBlock();
-        logger.info("Applied geneis block.");
+
+        const replayBatch = async (batch: number) => {
+            const blocks = await this.fetchBatch(startHeight, batch);
+            console.time("CHUNK");
+            this.processBlocks(blocks, async (acceptedBlocks: Interfaces.IBlock[]) => {
+                console.timeEnd("CHUNK");
+
+                if (acceptedBlocks.length !== blocks.length) {
+                    throw new FailedToReplayBlocksError();
+                }
+
+                await replayBatch(batch + 1);
+                console.timeEnd("REPLAY");
+            });
+        };
 
         console.time("REPLAY");
-        for (let i = startHeight + 1; i < targetHeight; i += this.chunkSize) {
-            console.time("CHUNK");
-            const blocks = await database.getBlocks(i, this.chunkSize);
-            let activeDelegates: State.IDelegateWallet[] = [];
+        await replayBatch(1);
+    }
 
-            for (const blockData of blocks) {
-                try {
-                    const { height } = blockData;
-                    const nextHeight = height === 1 ? 1 : height + 1;
-                    const roundInfo = roundCalculator.calculateRound(nextHeight);
-
-                    console.log(`Processing block ${height}...`);
-
-                    const block = Blocks.BlockFactory.fromData(blockData);
-                    const result = await this.blockProcessor.process(block);
-                    if (result !== BlockProcessorResult.Accepted) {
-                        throw new Error("....");
-                    }
-
-                    if (roundCalculator.isNewRound(nextHeight)) {
-                        console.log(`Starting round ${roundCalculator.calculateRound(nextHeight).round}`);
-
-                        const delegates = this.walletManager.loadActiveDelegateList(roundInfo);
-                        activeDelegates = await database.getActiveDelegates(roundInfo, delegates);
-
-                        (database as any).forgingDelegates = activeDelegates;
-                    }
-                } catch (error) {
-                    logger.error(error.stack);
-                    throw error;
-                }
-            }
-
-            console.timeEnd("CHUNK");
-        }
-        console.timeEnd("REPLAY");
+    private async fetchBatch(startHeight: number, batch: number = 1): Promise<Interfaces.IBlock[]> {
+        this.logger.info("Fetching next batch of blocks from database...");
+        const blocks = await this.localDatabase.getBlocks(startHeight + (batch - 1) * this.chunkSize, this.chunkSize);
+        return blocks.map((block: Interfaces.IBlockData) => Blocks.BlockFactory.fromData(block));
     }
 
     private async processGenesisBlock(): Promise<void> {
         const genesisBlock = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
-        const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
         const { transactions } = genesisBlock;
         for (const transaction of transactions) {
@@ -128,7 +111,9 @@ export class ReplayBlockchain extends Blockchain {
         // Initialize the very first round
         const roundInfo = roundCalculator.calculateRound(1);
         const delegates = this.walletManager.loadActiveDelegateList(roundInfo);
-        const activeDelegates = await database.getActiveDelegates(roundInfo, delegates);
-        (database as any).forgingDelegates = activeDelegates;
+        const activeDelegates = await this.localDatabase.getActiveDelegates(roundInfo, delegates);
+        (this.localDatabase as any).forgingDelegates = activeDelegates;
+
+        this.logger.info("Finished loading genesis block.");
     }
 }
