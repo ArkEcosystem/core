@@ -261,11 +261,11 @@ export class Connection implements TransactionPool.IConnection {
             const senderPublicKey: string = data.senderPublicKey;
             const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
-            const senderWallet: Database.IWallet = this.walletManager.has(senderPublicKey)
+            const senderWallet: State.IWallet = this.walletManager.has(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
                 : undefined;
 
-            const recipientWallet: Database.IWallet = this.walletManager.has(data.recipientId)
+            const recipientWallet: State.IWallet = this.walletManager.has(data.recipientId)
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
 
@@ -306,7 +306,7 @@ export class Connection implements TransactionPool.IConnection {
 
         // if delegate in poll wallet manager - apply rewards and fees
         if (this.walletManager.has(block.data.generatorPublicKey)) {
-            const delegateWallet: Database.IWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
+            const delegateWallet: State.IWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
 
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
@@ -332,7 +332,7 @@ export class Connection implements TransactionPool.IConnection {
                 return;
             }
 
-            const senderWallet: Database.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const senderWallet: State.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
             // TODO: rework error handling
             try {

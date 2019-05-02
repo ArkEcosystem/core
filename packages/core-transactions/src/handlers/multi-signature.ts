@@ -1,4 +1,4 @@
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
@@ -15,8 +15,8 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        databaseWalletManager: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         const { data }: Interfaces.ITransaction = transaction;
 
@@ -59,20 +59,20 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
         // Nothing else to do for the sender since the recipient wallet
         // is made into a multi sig wallet.
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
         // Nothing else to do for the sender since the recipient wallet
         // is made into a multi sig wallet.
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {
@@ -82,7 +82,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         }
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {

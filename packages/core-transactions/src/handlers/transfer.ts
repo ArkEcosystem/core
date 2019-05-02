@@ -1,4 +1,4 @@
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
@@ -10,8 +10,8 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        databaseWalletManager: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
@@ -39,13 +39,13 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const recipient: Database.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const recipient: Database.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-api/src/defaults";
 import { plugin } from "../../../../packages/core-api/src/plugin";
@@ -20,7 +20,7 @@ const options = {
     whitelist: ["*"],
 };
 
-async function setUp() {
+const setUp = async () => {
     jest.setTimeout(60000);
 
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
@@ -43,19 +43,19 @@ async function setUp() {
 
     await registerWithContainer(plugin, options);
     await delay(1000); // give some more time for api server to be up
-}
+};
 
-async function tearDown() {
+const tearDown = async () => {
     await app.tearDown();
 
     await plugin.deregister(app, options);
-}
+};
 
-async function calculateRanks() {
+const calculateRanks = async () => {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     const delegateWallets = Object.values(databaseService.walletManager.allByUsername()).sort(
-        (a: Database.IWallet, b: Database.IWallet) => b.voteBalance.comparedTo(a.voteBalance),
+        (a: State.IWallet, b: State.IWallet) => b.voteBalance.comparedTo(a.voteBalance),
     );
 
     sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
@@ -64,6 +64,6 @@ async function calculateRanks() {
 
         databaseService.walletManager.reindex(wallet);
     });
-}
+};
 
 export { calculateRanks, setUp, tearDown };

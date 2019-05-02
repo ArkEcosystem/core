@@ -1,4 +1,4 @@
-import { IWallet } from "../wallet-manager";
+import { IWallet } from "../../core-state/wallets";
 import { IParameters } from "./parameters";
 
 export interface IWalletsPaginated {

@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
@@ -6,7 +6,7 @@ import { sortEntries } from "./utils/sort-entries";
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public all(): Database.IWallet[] {
+    public all(): State.IWallet[] {
         return this.databaseServiceProvider().walletManager.allByAddress();
     }
 
@@ -32,7 +32,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    public findById(id: string): Database.IWallet {
+    public findById(id: string): State.IWallet {
         return this.all().find(wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id);
     }
 

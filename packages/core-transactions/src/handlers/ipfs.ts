@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler } from "./transaction";
 
@@ -9,17 +9,17 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        databaseWalletManager: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 }

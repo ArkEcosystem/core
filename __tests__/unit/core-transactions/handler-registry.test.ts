@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
@@ -66,10 +66,10 @@ class TestTransactionHandler extends TransactionHandler {
         return TestTransaction;
     }
 
-    public apply(transaction: Transactions.Transaction, walletManager: Database.IWalletManager): void {
+    public apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): void {
         return;
     }
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWalletManager): void {
+    public revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): void {
         return;
     }
 
@@ -81,11 +81,11 @@ class TestTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 }

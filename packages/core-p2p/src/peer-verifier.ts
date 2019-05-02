@@ -8,7 +8,7 @@ import { inspect } from "util";
 import { Severity } from "./enums";
 
 interface IDelegateWallets {
-    [publicKey: string]: Database.IDelegateWallet;
+    [publicKey: string]: State.IDelegateWallet;
 }
 
 export class PeerVerificationResult implements P2P.IPeerVerificationResult {

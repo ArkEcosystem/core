@@ -18,7 +18,7 @@ const { TransactionTypes } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let container;
 let emitter: EventEmitter.EventEmitter;
 
@@ -34,12 +34,12 @@ beforeEach(() => {
     jest.restoreAllMocks();
 });
 
-function createService() {
+const createService = () => {
     const service = new DatabaseService({}, connection, walletManager, undefined, undefined, undefined, undefined);
     service.emitter = emitter;
 
     return service;
-}
+};
 
 describe("Database Service", () => {
     it("should listen for emitter events during constructor", () => {

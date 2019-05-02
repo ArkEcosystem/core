@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
@@ -84,7 +84,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findAllByWallet(
-        wallet: Database.IWallet,
+        wallet: State.IWallet,
         paginate?: Database.ISearchPaginate,
         orderBy?: Database.ISearchOrderBy[],
     ): Promise<Database.ITransactionsPaginated> {
@@ -131,7 +131,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
             customOps.forEach(o => {
                 if (o.field === "ownerWallet") {
-                    const wallet: Database.IWallet = o.value;
+                    const wallet: State.IWallet = o.value;
 
                     if (hasNonCustomOps) {
                         selectQuery.and(

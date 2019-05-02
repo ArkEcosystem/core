@@ -1,7 +1,7 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { IWallet } from "../../core-state/wallets";
 import { ITransactionsPaginated } from "../business-repository";
 import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
-import { IWallet } from "../wallet-manager";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
