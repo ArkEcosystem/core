@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
@@ -20,7 +20,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     ): Promise<Database.ITransactionsPaginated> {
         try {
             const result = await this.databaseServiceProvider().connection.transactionsRepository.findAll(
-                this.parseSearchParameters(params, sequenceOrder),
+                this.parseISearchParameters(params, sequenceOrder),
             );
             result.rows = await this.mapBlocksToTransactions(result.rows);
 
@@ -53,7 +53,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findAllByWallet(
-        wallet: Database.IWallet,
+        wallet: State.IWallet,
         parameters?: Database.IParameters,
     ): Promise<Database.ITransactionsPaginated> {
         const { transactionsRepository } = this.databaseServiceProvider().connection;
@@ -102,7 +102,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     public async search(params: any) {
         try {
             const result = await this.databaseServiceProvider().connection.transactionsRepository.search(
-                this.parseSearchParameters(params),
+                this.parseISearchParameters(params),
             );
 
             result.rows = await this.mapBlocksToTransactions(result.rows);
@@ -170,7 +170,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         this.databaseServiceProvider().cache.set(`heights:${id}`, height);
     }
 
-    private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.SearchParameters {
+    private parseISearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.ISearchParameters {
         const databaseService: Database.IDatabaseService = this.databaseServiceProvider();
 
         if (params.senderId) {

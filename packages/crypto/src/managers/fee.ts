@@ -17,7 +17,11 @@ export class FeeManager {
         const fee: BigNumber = this.fees[transaction.type];
 
         if (transaction.type === TransactionTypes.MultiSignature) {
-            return fee.times(transaction.asset.multisignature.keysgroup.length + 1);
+            if (transaction.version === 2) {
+                return fee.times(transaction.asset.multiSignature.publicKeys.length + 1);
+            } else {
+                return fee.times(transaction.asset.multiSignatureLegacy.keysgroup.length + 1);
+            }
         }
 
         return fee;

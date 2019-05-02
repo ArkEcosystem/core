@@ -2,7 +2,7 @@ import "jest-extended";
 
 import "../mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
@@ -14,7 +14,7 @@ import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 let repository;
 
 let walletsRepository: Database.IWalletsBusinessRepository;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeEach(async () => {
@@ -33,7 +33,7 @@ beforeEach(async () => {
     );
 });
 
-function generateWallets(): Wallet[] {
+const generateWallets = (): Wallet[] => {
     return genesisBlock.transactions.map((transaction, index) => {
         // @TODO: switch to unitnet
         const address: string = Address.fromPublicKey(transaction.data.senderPublicKey, 23);
@@ -49,7 +49,7 @@ function generateWallets(): Wallet[] {
             rate: index + 1,
         } as Wallet;
     });
-}
+};
 
 describe("Delegate Repository", () => {
     describe("getLocalDelegates", () => {

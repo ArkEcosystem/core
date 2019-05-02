@@ -1,4 +1,4 @@
-import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
+import { EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler } from "./transaction";
 
@@ -9,21 +9,21 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit("delegate.resigned", transaction.data);
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }

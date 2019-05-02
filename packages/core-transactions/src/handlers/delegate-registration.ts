@@ -1,6 +1,11 @@
-import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
-import { WalletUsernameAlreadyRegisteredError, WalletUsernameEmptyError, WalletUsernameNotEmptyError } from "../errors";
+import {
+    NotSupportedForMultiSignatureWalletError,
+    WalletUsernameAlreadyRegisteredError,
+    WalletUsernameEmptyError,
+    WalletUsernameNotEmptyError,
+} from "../errors";
 import { TransactionHandler } from "./transaction";
 
 const { TransactionTypes } = Enums;
@@ -12,11 +17,16 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
-        const { data } = transaction;
-        const { username } = data.asset.delegate;
+        const { data }: Interfaces.ITransaction = transaction;
+
+        if (databaseWalletManager.findByPublicKey(data.senderPublicKey).multisignature) {
+            throw new NotSupportedForMultiSignatureWalletError();
+        }
+
+        const { username }: { username: string } = data.asset.delegate;
         if (!username) {
             throw new WalletUsernameEmptyError();
         }
@@ -25,22 +35,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             throw new WalletUsernameNotEmptyError();
         }
 
-        if (walletManager) {
-            if (walletManager.findByUsername(username)) {
-                throw new WalletUsernameAlreadyRegisteredError(username);
-            }
+        if (databaseWalletManager.findByUsername(username)) {
+            throw new WalletUsernameAlreadyRegisteredError(username);
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        const { data } = transaction;
-        wallet.username = data.asset.delegate.username;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.username = undefined;
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
@@ -52,14 +51,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        if (
-            this.typeFromSenderAlreadyInPool(data, pool, processor) ||
-            this.secondSignatureRegistrationFromSenderAlreadyInPool(data, pool, processor)
-        ) {
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
-        const { username } = data.asset.delegate;
+        const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
             .filter(tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username);
@@ -77,7 +73,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
         ).map((memTx: any) => memTx.transaction.data);
 
-        const containsDelegateRegistrationForSameNameInPool = delegateRegistrationsInPool.some(
+        const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(
             transaction => transaction.asset.delegate.username === username,
         );
         if (containsDelegateRegistrationForSameNameInPool) {
@@ -86,5 +82,31 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         return true;
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.username = transaction.data.asset.delegate.username;
+
+        walletManager.reindex(sender);
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+        walletManager.forgetByUsername(sender.username);
+        sender.username = undefined;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }

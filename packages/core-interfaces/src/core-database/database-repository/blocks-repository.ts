@@ -1,6 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { IBlocksPaginated } from "../business-repository";
-import { SearchParameters } from "../search";
+import { ISearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface IBlocksRepository extends IRepository {
@@ -27,6 +27,6 @@ export interface IBlocksRepository extends IRepository {
     delete(id: string): Promise<void>;
 
     /* TODO: Remove with V1 */
-    findAll(params: SearchParameters): Promise<IBlocksPaginated>;
-    search(params: SearchParameters): Promise<IBlocksPaginated>;
+    findAll(params: ISearchParameters): Promise<IBlocksPaginated>;
+    search(params: ISearchParameters): Promise<IBlocksPaginated>;
 }

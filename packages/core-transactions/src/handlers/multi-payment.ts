@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler } from "./transaction";
 
@@ -9,17 +9,17 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 }

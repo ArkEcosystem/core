@@ -1,6 +1,6 @@
 import "../mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 import compact from "lodash.compact";
 import uniq from "lodash.uniq";
@@ -13,7 +13,7 @@ import { Address } from "../../../../packages/crypto/src/identities";
 
 let genesisSenders;
 let repository;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeAll(() => {
@@ -36,21 +36,21 @@ beforeEach(async () => {
     );
 });
 
-function generateWallets() {
+const generateWallets = () => {
     return genesisSenders.map((senderPublicKey, index) => ({
         address: Address.fromPublicKey(senderPublicKey),
         balance: Utils.BigNumber.make(index),
     }));
-}
+};
 
-function generateVotes() {
+const generateVotes = () => {
     return genesisSenders.map(senderPublicKey => ({
         address: Address.fromPublicKey(senderPublicKey),
         vote: genesisBlock.transactions[0].data.senderPublicKey,
     }));
-}
+};
 
-function generateFullWallets() {
+const generateFullWallets = () => {
     return genesisSenders.map(senderPublicKey => {
         const address = Address.fromPublicKey(senderPublicKey);
 
@@ -64,7 +64,7 @@ function generateFullWallets() {
             voteBalance: Utils.BigNumber.make(200),
         };
     });
-}
+};
 
 describe("Wallet Repository", () => {
     describe("all", () => {

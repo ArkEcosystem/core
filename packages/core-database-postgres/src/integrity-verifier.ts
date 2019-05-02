@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Logger, State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
@@ -7,7 +7,7 @@ import { QueryExecutor } from "./sql/query-executor";
 export class IntegrityVerifier {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
+    constructor(private readonly query: QueryExecutor, private readonly walletManager: State.IWalletManager) {}
 
     public async run(): Promise<void> {
         this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
@@ -32,7 +32,7 @@ export class IntegrityVerifier {
         await this.buildDelegates();
 
         this.logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
-        await this.buildMultisignatures();
+        await this.buildMultiSignatures();
 
         this.logger.info(
             `Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
@@ -85,7 +85,7 @@ export class IntegrityVerifier {
         }
     }
 
-    private isGenesis(wallet: Database.IWallet): boolean {
+    private isGenesis(wallet: State.IWallet): boolean {
         return app
             .getConfig()
             .get("genesisBlock.transactions")
@@ -147,17 +147,23 @@ export class IntegrityVerifier {
         this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
     }
 
-    private async buildMultisignatures(): Promise<void> {
+    private async buildMultiSignatures(): Promise<void> {
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-
             if (!wallet.multisignature) {
-                wallet.multisignature = transaction.asset.multisignature;
+                if (transaction.version === 1) {
+                    wallet.multisignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                } else if (transaction.version === 2) {
+                    wallet.multisignature = transaction.asset.multiSignature;
+                } else {
+                    throw new Error(`Invalid multi signature version ${transaction.version}`);
+                }
             }
         }
     }
+
     private verifyWalletsConsistency(): void {
         for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {

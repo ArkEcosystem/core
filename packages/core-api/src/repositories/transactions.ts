@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Enums } from "@arkecosystem/crypto";
 import partition from "lodash.partition";
 import snakeCase from "lodash.snakecase";
@@ -94,7 +94,7 @@ export class TransactionsRepository extends Repository implements IRepository {
     }
 
     public async findAllByWallet(
-        wallet: Database.IWallet,
+        wallet: State.IWallet,
         parameters: any = {},
     ): Promise<Database.ITransactionsPaginated> {
         const selectQuery = this.query

@@ -2,7 +2,11 @@ import deepmerge = require("deepmerge");
 import { TransactionTypes } from "../../enums";
 
 const signedTransaction = {
-    required: ["id", "signature"],
+    anyOf: [
+        { required: ["id", "signature"] },
+        { required: ["id", "signature", "signatures"] },
+        { required: ["id", "signatures"] },
+    ],
 };
 
 const strictTransaction = {
@@ -25,25 +29,33 @@ export const transactionBaseSchema = {
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
         signSignature: { $ref: "alphanumeric" },
+        signatures: {
+            type: "array",
+            minItems: 1,
+            maxItems: 16,
+            additionalItems: false,
+            uniqueItems: true,
+            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
     },
 };
 
-export function extend(parent, properties): TransactionSchema {
+export const extend = (parent, properties): TransactionSchema => {
     return deepmerge(parent, properties);
-}
+};
 
-export function signedSchema(schema: TransactionSchema): TransactionSchema {
+export const signedSchema = (schema: TransactionSchema): TransactionSchema => {
     const signed = extend(schema, signedTransaction);
     signed.$id = `${schema.$id}Signed`;
     return signed;
-}
+};
 
-export function strictSchema(schema: TransactionSchema): TransactionSchema {
+export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
     const signed = signedSchema(schema);
     const strict = extend(signed, strictTransaction);
     strict.$id = `${schema.$id}Strict`;
     return strict;
-}
+};
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
@@ -128,9 +140,42 @@ export const vote = extend(transactionBaseSchema, {
 
 export const multiSignature = extend(transactionBaseSchema, {
     $id: "multiSignature",
+    required: ["asset", "signatures"],
     properties: {
         type: { transactionType: TransactionTypes.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["multiSignature"],
+            properties: {
+                multiSignature: {
+                    type: "object",
+                    required: ["min", "publicKeys"],
+                    properties: {
+                        min: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: { $data: "1/publicKeys/length" },
+                        },
+                        publicKeys: {
+                            type: "array",
+                            minItems: 1,
+                            maxItems: 16,
+                            additionalItems: false,
+                            items: { $ref: "publicKey" },
+                        },
+                    },
+                },
+            },
+        },
+        signatures: {
+            type: "array",
+            minItems: { $data: "1/asset/multiSignature/min" },
+            maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
+            additionalItems: false,
+            uniqueItems: true,
+            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
     },
 });
 

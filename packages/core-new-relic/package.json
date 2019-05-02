@@ -21,6 +21,9 @@
         "@arkecosystem/core-container": "^2.3.21",
         "newrelic": "^5.7.0"
     },
+    "devDependencies": {
+        "@types/newrelic": "^4.11.0"
+    },
     "engines": {
         "node": ">=10.x <11.0.0"
     },

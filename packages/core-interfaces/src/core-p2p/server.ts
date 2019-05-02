@@ -1,5 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IDelegateWallet } from "../core-database";
+import { IDelegateWallet } from "../core-state";
 
 export interface IResponse<T> {
     data: T;

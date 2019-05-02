@@ -1,4 +1,4 @@
-export function transformPeer(model) {
+export const transformPeer = model => {
     return {
         ip: model.ip,
         port: +model.port,
@@ -7,4 +7,4 @@ export function transformPeer(model) {
         os: model.os,
         latency: model.latency,
     };
-}
+};

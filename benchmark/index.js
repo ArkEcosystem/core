@@ -27,7 +27,6 @@ benchmarker('core', [{
         name: 'Block.deserialize (150 transactions)',
         scenarios: require('./block/deserialize/150')
     },
-
     {
         name: 'new Transaction (Type 0)',
         scenarios: require('./transaction/create/0')

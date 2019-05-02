@@ -24,14 +24,15 @@
         "@arkecosystem/core-interfaces": "^2.3.21",
         "@arkecosystem/crypto": "^2.3.21",
         "@hapi/boom": "^7.4.2",
-        "@hapi/joi": "^15.0.0",
-        "elasticsearch": "^15.4.1",
+        "@hapi/joi": "^15.0.1",
+        "elasticsearch": "^15.5.0",
         "fs-extra": "^7.0.1"
     },
     "devDependencies": {
         "@types/elasticsearch": "^5.0.32",
         "@types/fs-extra": "^5.0.5",
-        "@types/joi": "^14.3.3"
+        "@types/hapi__boom": "^7.4.0",
+        "@types/hapi__joi": "^15.0.1"
     },
     "engines": {
         "node": ">=10.x"

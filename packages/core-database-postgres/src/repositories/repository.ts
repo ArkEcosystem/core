@@ -49,8 +49,8 @@ export abstract class Repository implements Database.IRepository {
 
     protected async findManyWithCount<T = any>(
         selectQuery: Query<any>,
-        paginate?: Database.SearchPaginate,
-        orderBy?: Database.SearchOrderBy[],
+        paginate?: Database.ISearchPaginate,
+        orderBy?: Database.ISearchOrderBy[],
     ): Promise<{ rows: T; count: number }> {
         if (!!orderBy) {
             orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));

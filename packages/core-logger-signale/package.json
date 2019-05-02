@@ -23,6 +23,9 @@
         "@arkecosystem/core-logger": "^2.3.21",
         "signale": "^1.4.0"
     },
+    "devDependencies": {
+        "@types/signale": "^1.2.1"
+    },
     "engines": {
         "node": ">=10.x"
     },

@@ -116,7 +116,7 @@ export class Block implements IBlock {
         const bytes: Buffer = Block.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
 
-        return Hash.verify(hash, this.data.blockSignature, this.data.generatorPublicKey);
+        return Hash.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
     public toJson(): IBlockJson {
@@ -129,10 +129,11 @@ export class Block implements IBlock {
         return data;
     }
 
-    private verify(): IBlockVerification {
+    public verify(): IBlockVerification {
         const block: IBlockData = this.data;
         const result: IBlockVerification = {
             verified: false,
+            containsMultiSignatures: false,
             errors: [],
         };
 
@@ -168,6 +169,8 @@ export class Block implements IBlock {
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
                 invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
+
+                result.containsMultiSignatures = invalidTransactions.some(tx => !!tx.data.signatures);
             }
 
             if (this.transactions.length !== block.numberOfTransactions) {

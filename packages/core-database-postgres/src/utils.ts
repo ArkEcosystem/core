@@ -5,7 +5,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 import path from "path";
 import { QueryFile } from "pg-promise";
 
-export function camelizeColumns(pgp, data): void {
+export const camelizeColumns = (pgp, data): void => {
     const tmp = data[0];
 
     for (const prop in tmp) {
@@ -19,9 +19,9 @@ export function camelizeColumns(pgp, data): void {
             }
         }
     }
-}
+};
 
-export function loadQueryFile(directory, file): QueryFile {
+export const loadQueryFile = (directory, file): QueryFile => {
     const query: QueryFile = new QueryFile(path.join(directory, file), {
         minify: true,
         params: {
@@ -34,4 +34,4 @@ export function loadQueryFile(directory, file): QueryFile {
     }
 
     return query;
-}
+};

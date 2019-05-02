@@ -8,7 +8,7 @@ import assert from "assert";
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IConnection;
-    public walletManager: Database.IWalletManager;
+    public walletManager: State.IWalletManager;
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     public config = app.getConfig();
@@ -20,13 +20,13 @@ export class DatabaseService implements Database.IDatabaseService {
     public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: Database.IDelegateWallet[] = undefined;
+    public forgingDelegates: State.IDelegateWallet[] = undefined;
     public cache: Map<any, any> = new Map();
 
     constructor(
         options: Record<string, any>,
         connection: Database.IConnection,
-        walletManager: Database.IWalletManager,
+        walletManager: State.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
         delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
         transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
@@ -102,7 +102,7 @@ export class DatabaseService implements Database.IDatabaseService {
                         this.updateDelegateStats(this.forgingDelegates);
                     }
 
-                    const delegates: Database.IDelegateWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+                    const delegates: State.IDelegateWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
                     await this.saveRound(delegates);
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
@@ -153,8 +153,8 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getActiveDelegates(
         roundInfo: Shared.IRoundInfo,
-        delegates?: Database.IDelegateWallet[],
-    ): Promise<Database.IDelegateWallet[]> {
+        delegates?: State.IDelegateWallet[],
+    ): Promise<State.IDelegateWallet[]> {
         const { round } = roundInfo;
 
         if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
@@ -165,7 +165,7 @@ export class DatabaseService implements Database.IDatabaseService {
         if (!delegates || delegates.length === 0) {
             delegates = ((await this.connection.roundsRepository.findById(
                 round,
-            )) as unknown) as Database.IDelegateWallet[];
+            )) as unknown) as State.IDelegateWallet[];
         }
 
         const seedSource: string = round.toString();
@@ -181,7 +181,7 @@ export class DatabaseService implements Database.IDatabaseService {
             currentSeed = Crypto.HashAlgorithms.sha256(currentSeed);
         }
 
-        const forgingDelegates: Database.IDelegateWallet[] = delegates.map(delegate => {
+        const forgingDelegates: State.IDelegateWallet[] = delegates.map(delegate => {
             delegate.round = +delegate.round;
             delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
@@ -442,7 +442,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.saveBlocks(blocks);
     }
 
-    public async saveRound(activeDelegates: Database.IDelegateWallet[]): Promise<void> {
+    public async saveRound(activeDelegates: State.IDelegateWallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
 
         await this.connection.roundsRepository.insert(activeDelegates);
@@ -450,7 +450,7 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("round.created", activeDelegates);
     }
 
-    public updateDelegateStats(delegates: Database.IDelegateWallet[]): void {
+    public updateDelegateStats(delegates: State.IDelegateWallet[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
             return;
         }
@@ -468,7 +468,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 );
 
                 if (producedBlocks.length === 0) {
-                    const wallet: Database.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
+                    const wallet: State.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                     this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
 
@@ -554,7 +554,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
-        const sender: Database.IWallet = this.walletManager.findByAddress(senderId);
+        const sender: State.IWallet = this.walletManager.findByAddress(senderId);
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
         if (!sender.publicKey) {
@@ -566,7 +566,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {
-            return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
+            return transactionHandler.canBeApplied(transaction, sender, this.walletManager) && !dbTransaction;
         } catch {
             return false;
         }
@@ -602,7 +602,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     private async setForgingDelegatesOfRound(
         roundInfo: Shared.IRoundInfo,
-        delegates?: Database.IDelegateWallet[],
+        delegates?: State.IDelegateWallet[],
     ): Promise<void> {
         this.forgingDelegates = await this.getActiveDelegates(roundInfo, delegates);
     }
@@ -610,7 +610,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private async calcPreviousActiveDelegates(
         roundInfo: Shared.IRoundInfo,
         blocks?: Interfaces.IBlock[],
-    ): Promise<Database.IDelegateWallet[]> {
+    ): Promise<State.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
         const tempWalletManager = this.walletManager.cloneDelegateWallets();

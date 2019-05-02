@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
+import { Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import groupBy from "lodash.groupby";
@@ -63,6 +64,16 @@ export class NodeController extends Controller {
                         dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
                     },
                 },
+            };
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
+    public async configurationCrypto() {
+        try {
+            return {
+                data: Managers.configManager.getPreset(this.config.get("network").name),
             };
         } catch (error) {
             return Boom.badImplementation(error);

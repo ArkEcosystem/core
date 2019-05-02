@@ -26,11 +26,28 @@ describe("Fee Manager", () => {
         expect(feeManager.getForTransaction(transaction)).toEqual(Utils.BigNumber.make(111));
     });
 
-    it("should get multisignature fee (keysgroup length + 1)", () => {
+    it("should get multisignature fee", () => {
         const transaction = {
+            version: 2,
             type: TransactionTypes.MultiSignature,
             asset: {
-                multisignature: {
+                multiSignature: {
+                    publicKeys: ["1", "2", "3"],
+                },
+            },
+        } as ITransactionData;
+
+        feeManager.set(TransactionTypes.MultiSignature, 1);
+
+        expect(feeManager.getForTransaction(transaction)).toEqual(Utils.BigNumber.make(4));
+    });
+
+    it("should get multisignature fee (LEGACY)", () => {
+        const transaction = {
+            version: 1,
+            type: TransactionTypes.MultiSignature,
+            asset: {
+                multiSignatureLegacy: {
                     keysgroup: ["1", "2", "3"],
                 },
             },

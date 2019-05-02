@@ -51,7 +51,7 @@ const publicKey = async request => {
     return respondWith({ publicKey: account.publicKey });
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v1.accounts.index", index, 8, request => ({
             ...request.query,
@@ -60,4 +60,4 @@ export function registerMethods(server) {
         .method("v1.accounts.show", show, 8, request => ({ address: request.query.address }))
         .method("v1.accounts.balance", balance, 8, request => ({ address: request.query.address }))
         .method("v1.accounts.publicKey", publicKey, 600, request => ({ address: request.query.address }));
-}
+};

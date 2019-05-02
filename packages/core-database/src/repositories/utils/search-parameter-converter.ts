@@ -1,11 +1,11 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import snakeCase from "lodash.snakecase";
 
-export class SearchParameterConverter implements Database.ISearchParameterConverter {
+export class SearchParameterConverter implements Database.IISearchParameterConverter {
     constructor(private databaseModel: Database.IModel) {}
 
-    public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.SearchParameters {
-        const searchParameters: Database.SearchParameters = {
+    public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.ISearchParameters {
+        const searchParameters: Database.ISearchParameters = {
             orderBy: [],
             paginate: undefined,
             parameters: [],
@@ -27,12 +27,12 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
             this.parseOrderBy(searchParameters, orderBy);
         }
 
-        this.parseSearchParameters(searchParameters, params);
+        this.parseISearchParameters(searchParameters, params);
 
         return searchParameters;
     }
 
-    private parsePaginate(searchParameters: Database.SearchParameters, paginate?: any) {
+    private parsePaginate(searchParameters: Database.ISearchParameters, paginate?: any) {
         if (paginate) {
             searchParameters.paginate = {
                 limit: Number.isInteger(paginate.limit) ? paginate.limit : 100,
@@ -41,7 +41,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
         }
     }
 
-    private parseOrderBy(searchParameters: Database.SearchParameters, orderBy?: any) {
+    private parseOrderBy(searchParameters: Database.ISearchParameters, orderBy?: any) {
         if (orderBy && typeof orderBy === "string") {
             const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
             if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
@@ -53,7 +53,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
         }
     }
 
-    private parseSearchParameters(searchParameters: Database.SearchParameters, params: any) {
+    private parseISearchParameters(searchParameters: Database.ISearchParameters, params: any) {
         const searchableFields = this.databaseModel.getSearchableFields();
         const mapByFieldName = searchableFields.reduce((p, c) => {
             const map = {};
@@ -67,7 +67,7 @@ export class SearchParameterConverter implements Database.ISearchParameterConver
         Object.keys(params)
             .filter(value => !["orderBy", "limit", "offset", "page", "pagination"].includes(value))
             .forEach(fieldName => {
-                const fieldDescriptor = mapByFieldName[fieldName] as Database.SearchableField;
+                const fieldDescriptor = mapByFieldName[fieldName] as Database.ISearchableField;
 
                 /* null op means that the business repo doesn't know how to categorize what to do w/ with this field so
                 let the repo layer decide how it will handle querying this field

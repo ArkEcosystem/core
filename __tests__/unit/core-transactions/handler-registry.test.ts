@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
@@ -66,10 +66,10 @@ class TestTransactionHandler extends TransactionHandler {
         return TestTransaction;
     }
 
-    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): void {
         return;
     }
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): void {
         return;
     }
 
@@ -79,6 +79,14 @@ class TestTransactionHandler extends TransactionHandler {
         processor: TransactionPool.IProcessor,
     ): boolean {
         return true;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }
 
@@ -106,9 +114,8 @@ describe("Registry", () => {
 
     it("should register a custom type", () => {
         expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError();
-
         expect(Registry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
-        expect(Transactions.TransactionRegistry.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
+        expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
 
     it("should be able to instantiate a custom transaction", () => {
@@ -127,14 +134,14 @@ describe("Registry", () => {
             },
         };
 
-        data.signature = Transactions.Transaction.sign(data, keys);
-        data.id = Transactions.Transaction.getId(data);
+        data.signature = Transactions.Signer.sign(data, keys);
+        data.id = Transactions.Utils.getId(data);
 
         const transaction = Transactions.TransactionFactory.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);
         expect(transaction.verified).toBeTrue();
 
-        const bytes = Transactions.Transaction.toBytes(transaction.data);
+        const bytes = Transactions.Utils.toBytes(transaction.data);
         const deserialized = Transactions.TransactionFactory.fromBytes(bytes);
         expect(deserialized.verified);
         expect(deserialized.data.asset.test).toBe(256);

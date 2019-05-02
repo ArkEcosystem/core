@@ -3,9 +3,9 @@ import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVers
 import { ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
 import { BigNumber, isException } from "../utils";
 import { deserializer } from "./deserializer";
-import { transactionRegistry } from "./registry";
 import { Serializer } from "./serializer";
-import { Transaction } from "./types/transaction";
+import { TransactionTypeFactory } from "./types";
+import { Utils } from "./utils";
 import { Verifier } from "./verifier";
 
 export class TransactionFactory {
@@ -27,7 +27,7 @@ export class TransactionFactory {
     public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(buffer);
-            transaction.data.id = id || Transaction.getId(transaction.data);
+            transaction.data.id = id || Utils.getId(transaction.data);
             transaction.isVerified = true;
 
             return transaction;
@@ -37,8 +37,7 @@ export class TransactionFactory {
     }
 
     public static fromJson(json: ITransactionJson): ITransaction {
-        // @ts-ignore
-        const data: ITransactionData = { ...json };
+        const data: ITransactionData = ({ ...json } as unknown) as ITransactionData;
         data.amount = BigNumber.make(data.amount);
         data.fee = BigNumber.make(data.fee);
 
@@ -52,11 +51,15 @@ export class TransactionFactory {
             throw new TransactionSchemaError(error);
         }
 
-        const transaction: ITransaction = transactionRegistry.create(value);
-        deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
+        const transaction: ITransaction = TransactionTypeFactory.create(value);
+
+        if (transaction.data.version === 1) {
+            deserializer.applyV1Compatibility(transaction.data);
+        }
+
         Serializer.serialize(transaction);
 
-        data.id = Transaction.getId(data);
+        data.id = Utils.getId(data);
         transaction.isVerified = transaction.verify();
 
         return transaction;
@@ -65,7 +68,7 @@ export class TransactionFactory {
     private static fromSerialized(serialized: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);
-            transaction.data.id = Transaction.getId(transaction.data);
+            transaction.data.id = Utils.getId(transaction.data);
 
             const { value, error } = Verifier.verifySchema(transaction.data, true);
 

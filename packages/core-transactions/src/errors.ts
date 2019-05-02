@@ -95,6 +95,11 @@ export class SecondSignatureAlreadyRegisteredError extends TransactionError {
         super(`Failed to apply transaction, because second signature is already enabled.`);
     }
 }
+export class NotSupportedForMultiSignatureWalletError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because multi signature is enabled.`);
+    }
+}
 
 export class AlreadyVotedError extends TransactionError {
     constructor() {
@@ -126,6 +131,12 @@ export class MultiSignatureAlreadyRegisteredError extends TransactionError {
     }
 }
 
+export class InvalidMultiSignatureError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the multi signature could not be verified.`);
+    }
+}
+
 export class MultiSignatureMinimumKeysError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because too few keys were provided.`);
@@ -137,11 +148,5 @@ export class MultiSignatureKeyCountMismatchError extends TransactionError {
         super(
             `Failed to apply transaction, because the number of provided keys does not match the number of signatures.`,
         );
-    }
-}
-
-export class InvalidMultiSignatureError extends TransactionError {
-    constructor() {
-        super(`Failed to apply transaction, because the multi signature could not be verified.`);
     }
 }

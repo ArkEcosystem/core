@@ -1,18 +1,21 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { Utils } from "../../../../packages/crypto/src";
 import {
+    MalformedTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { Keys } from "../../../../packages/crypto/src/identities";
 import { ITransaction } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory, Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
+import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
@@ -46,7 +49,7 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields - with vendorFieldHex", () => {
             delete transfer.vendorField;
             const vendorField = "cool vendor field";
-            transfer.vendorFieldHex = new Buffer(vendorField).toString("hex");
+            transfer.vendorFieldHex = Buffer.from(vendorField, "utf8").toString("hex");
 
             const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
@@ -70,7 +73,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.toBytes(transferWithLongVendorfield);
+            const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
             const deserialized = TransactionFactory.fromBytes(serialized);
 
             expect(deserialized.verified).toBeTrue();
@@ -93,7 +96,7 @@ describe("Transaction serializer / deserializer", () => {
 
             transferWithLongVendorfield.vendorField = "y".repeat(255);
             expect(() => {
-                const serialized = Transaction.toBytes(transferWithLongVendorfield);
+                const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
                 TransactionFactory.fromBytes(serialized);
             }).toThrow(TransactionSchemaError);
         });
@@ -155,44 +158,56 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - multi signature", () => {
-        const multiSignature = BuilderFactory.multiSignature()
-            .multiSignatureAsset({
-                keysgroup: [
-                    "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                    "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-                ],
-                lifetime: 72,
-                min: 2,
-            })
-            .version(1)
-            .network(30)
-            .sign("dummy passphrase")
-            .multiSignatureSign("multi passphrase 1")
-            .multiSignatureSign("multi passphrase 2")
-            .getStruct();
+    describe("ser/deserialize - multi signature (LEGACY)", () => {
+        it.skip("should ser/deserialize a legacy multisig registration", () => {
+            const deserialized = TransactionFactory.fromHex(legacyMultiSignatureRegistration.serialized);
 
-        it("should ser/deserialize giving back original fields", () => {
-            const serialized = TransactionFactory.fromData(multiSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            expect(deserialized.id).toEqual(legacyMultiSignatureRegistration.data.id);
+            expect(deserialized.toJson()).toMatchObject(legacyMultiSignatureRegistration.data);
+        });
+    });
 
-            checkCommonFields(deserialized, multiSignature);
+    describe("ser/deserialize - multi signature", () => {
+        let multiSignatureRegistration;
 
-            expect(deserialized.data.asset).toEqual(multiSignature.asset);
+        beforeEach(() => {
+            configManager.setFromPreset("testnet");
+
+            const participant1 = Keys.fromPassphrase("secret 1");
+            const participant2 = Keys.fromPassphrase("secret 2");
+            const participant3 = Keys.fromPassphrase("secret 3");
+
+            multiSignatureRegistration = BuilderFactory.multiSignature()
+                .senderPublicKey(participant1.publicKey)
+                .network(23)
+                .participant(participant1.publicKey)
+                .participant(participant2.publicKey)
+                .participant(participant3.publicKey)
+                .min(3)
+                .multiSign("secret 1", 0)
+                .multiSign("secret 2", 1)
+                .multiSign("secret 3", 2)
+                .sign("secret 1").data;
         });
 
-        it("should ser/deserialize giving back original fields - v2 keysgroup", () => {
-            multiSignature.asset.multisignature.keysgroup = [
-                "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-            ];
+        it("should ser/deserialize a multisig registration", () => {
+            const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            const deserialized = TransactionFactory.fromBytes(transaction.serialized);
 
-            const serialized = TransactionFactory.fromData(multiSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            expect(transaction.isVerified).toBeTrue();
+            expect(deserialized.isVerified).toBeTrue();
+            expect(deserialized.data.asset).toEqual(multiSignatureRegistration.asset);
+            expect(transaction.data.signatures).toEqual(deserialized.data.signatures);
+            checkCommonFields(deserialized, multiSignatureRegistration);
+        });
 
-            checkCommonFields(deserialized, multiSignature);
+        it("should not deserialize a malformed signature", () => {
+            const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            transaction.serialized = transaction.serialized.slice(0, transaction.serialized.length - 2);
 
-            expect(deserialized.data.asset).toEqual(multiSignature.asset);
+            expect(() => TransactionFactory.fromBytes(transaction.serialized)).toThrowError(
+                MalformedTransactionBytesError,
+            );
         });
     });
 

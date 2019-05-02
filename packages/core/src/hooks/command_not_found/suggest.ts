@@ -6,9 +6,9 @@ import * as Levenshtein from "fast-levenshtein";
 import minBy from "lodash.minby";
 import { confirm } from "../../helpers/prompts";
 
-function closest(commandIDs: string[], cmd: string) {
+const closest = (commandIDs: string[], cmd: string) => {
     return minBy(commandIDs, c => Levenshtein.get(cmd, c))!;
-}
+};
 
 export const init: Hook<"init"> = async function(opts) {
     const commandIDs = opts.config.commandIDs;

@@ -48,6 +48,33 @@ export class TransactionFactory {
         );
     }
 
+    public static multiSignature(participants?: string[], min?: number): TransactionFactory {
+        let passphrases: string[];
+        if (!participants) {
+            passphrases = [secrets[0], secrets[1], secrets[2]];
+        }
+
+        participants = participants || [
+            Identities.PublicKey.fromPassphrase(secrets[0]),
+            Identities.PublicKey.fromPassphrase(secrets[1]),
+            Identities.PublicKey.fromPassphrase(secrets[2]),
+        ];
+
+        const factory: TransactionFactory = new TransactionFactory(
+            Transactions.BuilderFactory.multiSignature().multiSignatureAsset({
+                publicKeys: participants,
+                min: min || participants.length,
+            }),
+        );
+
+        if (passphrases) {
+            factory.withPassphraseList(passphrases);
+        }
+
+        factory.builder.senderPublicKey(participants[0]);
+        return factory;
+    }
+
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private fee: Utils.BigNumber;
@@ -55,6 +82,8 @@ export class TransactionFactory {
     private secondPassphrase: string;
     private passphraseList: string[];
     private passphrasePairs: PassphrasePair[];
+    private version: number;
+    private senderPublicKey: string;
 
     public constructor(builder) {
         this.builder = builder;
@@ -74,6 +103,18 @@ export class TransactionFactory {
 
     public withHeight(height: number): TransactionFactory {
         Managers.configManager.setHeight(height);
+
+        return this;
+    }
+
+    public withSenderPublicKey(sender: string): TransactionFactory {
+        this.senderPublicKey = sender;
+
+        return this;
+    }
+
+    public withVersion(version: number): TransactionFactory {
+        this.version = version;
 
         return this;
     }
@@ -127,12 +168,6 @@ export class TransactionFactory {
             );
         }
 
-        if (this.passphraseList && this.passphraseList.length) {
-            return this.passphraseList.map(
-                (passphrase: string) => this.withPassphrase(passphrase).sign<T>(quantity, method)[0],
-            );
-        }
-
         return this.sign<T>(quantity, method);
     }
 
@@ -162,14 +197,33 @@ export class TransactionFactory {
                 }
             }
 
+            if (this.version) {
+                this.builder.version(this.version);
+            }
+
             if (this.fee) {
                 this.builder.fee(this.fee.toFixed());
             }
 
-            this.builder.sign(this.passphrase);
+            if (this.senderPublicKey) {
+                this.builder.senderPublicKey(this.senderPublicKey);
+            }
 
-            if (this.secondPassphrase) {
-                this.builder.secondSign(this.secondPassphrase);
+            let sign: boolean = true;
+            if (this.passphraseList && this.passphraseList.length) {
+                sign = this.builder.constructor.name === "MultiSignatureBuilder";
+
+                for (let i = 0; i < this.passphraseList.length; i++) {
+                    this.builder.multiSign(this.passphraseList[i], i);
+                }
+            }
+
+            if (sign) {
+                this.builder.sign(this.passphrase);
+
+                if (this.secondPassphrase) {
+                    this.builder.secondSign(this.secondPassphrase);
+                }
             }
 
             transactions.push(this.builder[method]());

@@ -1,6 +1,6 @@
 import { Utils } from "@arkecosystem/crypto";
 
-export function transformWallet(model) {
+export const transformWallet = model => {
     return {
         address: model.address,
         publicKey: model.publicKey,
@@ -10,4 +10,4 @@ export function transformWallet(model) {
         isDelegate: !!model.username,
         vote: model.vote,
     };
-}
+};

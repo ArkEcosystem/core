@@ -35,7 +35,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             const bytes = Blocks.Block.serialize(camelizeKeys(data), false);
             const hash = Crypto.HashAlgorithms.sha256(bytes);
 
-            const signatureVerify = Crypto.Hash.verify(hash, data.block_signature, data.generator_public_key);
+            const signatureVerify = Crypto.Hash.verifyECDSA(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
                 app.resolvePlugin<Logger.ILogger>("logger").error(

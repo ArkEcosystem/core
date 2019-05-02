@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length no-empty */
 import "../../core-database/mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { State } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Blocks, Constants, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Address } from "@arkecosystem/crypto/src/identities";
@@ -20,7 +20,7 @@ const block = BlockFactory.fromData(block3);
 const walletData1 = wallets[0];
 const walletData2 = wallets[1];
 
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 
 beforeEach(() => {
     walletManager = new WalletManager();

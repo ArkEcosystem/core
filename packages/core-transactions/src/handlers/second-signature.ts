@@ -1,6 +1,6 @@
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { SecondSignatureAlreadyRegisteredError } from "../errors";
+import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class SecondSignatureTransactionHandler extends TransactionHandler {
@@ -10,22 +10,18 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         if (wallet.secondPublicKey) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
-    }
+        if (databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey).multisignature) {
+            throw new NotSupportedForMultiSignatureWalletError();
+        }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = undefined;
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(
@@ -33,6 +29,31 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey =
+            transaction.data.asset.signature.publicKey;
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey = undefined;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }

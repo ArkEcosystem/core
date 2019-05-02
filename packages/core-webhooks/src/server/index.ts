@@ -6,7 +6,7 @@ import { IWebhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
-export async function startServer(config) {
+export const startServer = async config => {
     const server = await createServer({
         host: config.host,
         port: config.port,
@@ -111,4 +111,4 @@ export async function startServer(config) {
     });
 
     return mountServer("Webhook API", server);
-}
+};

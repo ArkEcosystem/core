@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
-import { Transaction } from "../../../../../../packages/crypto/src/transactions";
+import { Utils } from "../../../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
 import { DelegateRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
@@ -78,7 +78,7 @@ describe("Delegate Registration Transaction", () => {
             });
 
             it("returns the id", () => {
-                expect(builder.getStruct().id).toBe(Transaction.getId(builder.data));
+                expect(builder.getStruct().id).toBe(Utils.getId(builder.data));
             });
             it("returns the signature", () => {
                 expect(builder.getStruct().signature).toBe(builder.data.signature);

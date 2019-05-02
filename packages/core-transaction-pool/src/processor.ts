@@ -123,13 +123,11 @@ export class Processor implements TransactionPool.IProcessor {
                 try {
                     const receivedId: string = transaction.id;
                     const trx: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
-
-                    if (trx.verified) {
+                    const handler = Handlers.Registry.get(trx.type);
+                    if (handler.verify(trx, this.pool.walletManager)) {
                         try {
                             this.walletManager.throwIfApplyingFails(trx);
-
                             const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(trx);
-
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,

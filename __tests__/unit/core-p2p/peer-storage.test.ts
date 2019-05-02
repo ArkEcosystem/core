@@ -2,14 +2,13 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { P2P } from "@arkecosystem/core-interfaces/src";
 import { dato } from "@faustbrian/dato";
 import fs from "fs";
+import { tmpdir } from "os";
+import { P2P } from "../../../packages/core-interfaces/src";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
 import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
-
-jest.mock("fs");
 
 const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
     until: dato(),
@@ -160,12 +159,14 @@ describe("PeerStorage", () => {
         stubPeer.version = "2.3.0";
         storage.setPeer(stubPeer);
 
-        process.env.CORE_PATH_CACHE = ".";
+        process.env.CORE_PATH_CACHE = tmpdir();
+
+        fs.writeFileSync = jest.fn();
 
         storage.savePeers();
 
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-            "./peers.json",
+            `${process.env.CORE_PATH_CACHE}/peers.json`,
             JSON.stringify(
                 storage.getPeers().map(peer => ({
                     ip: peer.ip,

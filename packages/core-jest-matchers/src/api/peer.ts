@@ -13,12 +13,12 @@ declare global {
     }
 }
 
-function isValidPeer(peer) {
+const isValidPeer = peer => {
     const allowedKeys = sortBy(["ip", "port"]);
     const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key));
 
     return isEqual(sortBy(actualKeys), allowedKeys);
-}
+};
 
 expect.extend({
     toBeValidPeer: (actual, expected) => {

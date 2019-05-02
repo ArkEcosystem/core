@@ -2,11 +2,11 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { validateGenerator } from "../utils/validate-generator";
-
 import {
     AcceptBlockHandler,
     AlreadyForgedHandler,
@@ -60,11 +60,20 @@ export class BlockProcessor {
     }
 
     /**
-     * Checks if the given block is verified or an exception.
+     * Checks if the given block is verified or an exception
      */
     private verifyBlock(block: Interfaces.IBlock): boolean {
-        const verified: boolean = block.verification.verified;
+        // TODO: refactor block verification
+        if (block.verification.containsMultiSignatures) {
+            block.transactions.forEach(transaction => {
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                handler.verify(transaction, this.blockchain.database.walletManager);
+            });
 
+            block.verification = block.verify();
+        }
+
+        const { verified } = block.verification;
         if (!verified) {
             this.logger.warn(
                 `Block ${block.data.height.toLocaleString()} (${

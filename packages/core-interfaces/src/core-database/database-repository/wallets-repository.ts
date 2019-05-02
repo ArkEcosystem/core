@@ -1,4 +1,4 @@
-import { IWallet } from "../wallet-manager";
+import { IWallet } from "../../core-state/wallets";
 import { IRepository } from "./repository";
 
 export interface IWalletsRepository extends IRepository {

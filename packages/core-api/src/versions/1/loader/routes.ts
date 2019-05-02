@@ -1,7 +1,7 @@
 import Hapi from "@hapi/hapi";
 import { LoaderController } from "./controller";
 
-export function registerRoutes(server: Hapi.Server): void {
+export const registerRoutes = (server: Hapi.Server): void => {
     const controller = new LoaderController();
     server.bind(controller);
 
@@ -22,4 +22,4 @@ export function registerRoutes(server: Hapi.Server): void {
         path: "/loader/autoconfigure",
         handler: controller.autoconfigure,
     });
-}
+};

@@ -1,11 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import sumBy from "lodash.sumby";
 
-function formatDelegates(
-    delegates: Database.IWallet[],
+const formatDelegates = (
+    delegates: State.IWallet[],
     lastHeight: number,
 ): Array<{
     rank: string;
@@ -13,11 +13,11 @@ function formatDelegates(
     approval: string;
     votes: string;
     voterCount: string;
-}> {
+}> => {
     const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    return delegates.map((delegate: Database.IWallet) => {
-        const filteredVoters: Database.IWallet[] = databaseService.walletManager
+    return delegates.map((delegate: State.IWallet) => {
+        const filteredVoters: State.IWallet[] = databaseService.walletManager
             .allByPublicKey()
             .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance.gt(0.1 * 1e8));
 
@@ -49,9 +49,9 @@ function formatDelegates(
             voterCount: voterCount.padStart(5),
         };
     });
-}
+};
 
-export function handler(request, h) {
+export const handler = (request, h) => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
@@ -60,7 +60,7 @@ export function handler(request, h) {
 
     const supply: number = supplyCalculator.calculate(lastBlock.data.height);
 
-    const allByUsername: Database.IWallet[] = databaseService.walletManager
+    const allByUsername: State.IWallet[] = databaseService.walletManager
         .allByUsername()
         .map((delegate, index) => {
             delegate.rate = delegate.rate || index + 1;
@@ -68,13 +68,13 @@ export function handler(request, h) {
         })
         .sort((a, b) => a.rate - b.rate);
 
-    const active: Database.IWallet[] = allByUsername.slice(0, maxDelegates);
-    const standby: Database.IWallet[] = allByUsername.slice(
+    const active: State.IWallet[] = allByUsername.slice(0, maxDelegates);
+    const standby: State.IWallet[] = allByUsername.slice(
         maxDelegates + 1,
         app.resolveOptions("vote-report").delegateRows,
     );
 
-    const voters: Database.IWallet[] = databaseService.walletManager
+    const voters: State.IWallet[] = databaseService.walletManager
         .allByPublicKey()
         .filter(wallet => wallet.vote && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
 
@@ -109,4 +109,4 @@ export function handler(request, h) {
             }),
         })
         .type("text/plain");
-}
+};

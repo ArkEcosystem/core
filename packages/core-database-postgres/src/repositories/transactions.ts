@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
@@ -84,9 +84,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findAllByWallet(
-        wallet: Database.IWallet,
-        paginate?: Database.SearchPaginate,
-        orderBy?: Database.SearchOrderBy[],
+        wallet: State.IWallet,
+        paginate?: Database.ISearchPaginate,
+        orderBy?: Database.ISearchOrderBy[],
     ): Promise<Database.ITransactionsPaginated> {
         return this.findManyWithCount(
             this.query
@@ -100,7 +100,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     // TODO: Remove with v1
-    public async findAll(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
+    public async findAll(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
@@ -131,7 +131,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
             customOps.forEach(o => {
                 if (o.field === "ownerWallet") {
-                    const wallet: Database.IWallet = o.value;
+                    const wallet: State.IWallet = o.value;
 
                     if (hasNonCustomOps) {
                         selectQuery.and(
@@ -150,7 +150,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
     }
 
-    public async search(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
+    public async search(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,

@@ -3,9 +3,11 @@ import "jest-extended";
 import { Utils } from "@arkecosystem/crypto";
 import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
-import { Transaction, Verifier } from "@arkecosystem/crypto/src/transactions";
+import { Signer, Verifier } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "../../../../packages/crypto/src/managers";
+import { createRandomTx } from "./__support__";
 
-describe("Transaction", () => {
+describe("Verifier", () => {
     describe("verify", () => {
         const keys = Keys.fromPassphrase("secret");
         const transaction: any = {
@@ -17,7 +19,7 @@ describe("Transaction", () => {
             asset: {},
             senderPublicKey: keys.publicKey,
         };
-        Transaction.sign(transaction, keys);
+        Signer.sign(transaction, keys);
 
         const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
 
@@ -37,6 +39,28 @@ describe("Transaction", () => {
 
             expect(Verifier.verifyHash(transactionWithoutSignature)).toBeFalse();
         });
+
+        // Test each type on it's own
+        describe.each([0, 1, 2, 3])("type %s", type => {
+            it("should be ok", () => {
+                const tx = createRandomTx(type);
+                expect(tx.verify()).toBeTrue();
+            });
+        });
+
+        describe("type 4", () => {
+            it("should return false if AIP11 is not activated", () => {
+                const tx = createRandomTx(4);
+                expect(tx.verify()).toBeFalse();
+            });
+
+            it("should return true if AIP11 is activated", () => {
+                const tx = createRandomTx(4);
+                configManager.getMilestone().aip11 = true;
+                expect(tx.verify()).toBeTrue();
+                configManager.getMilestone().aip11 = false;
+            });
+        });
     });
 
     describe("verifySecondSignature", () => {
@@ -51,7 +75,7 @@ describe("Transaction", () => {
             asset: {},
             senderPublicKey: keys1.publicKey,
         };
-        const secondSignature = Transaction.secondSign(transaction, keys2);
+        const secondSignature = Signer.secondSign(transaction, keys2);
         transaction.signSignature = secondSignature;
         const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
 

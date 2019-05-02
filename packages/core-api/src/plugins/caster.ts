@@ -1,17 +1,17 @@
 import { Utils } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
-function isBoolean(value) {
+const isBoolean = value => {
     try {
         return value.toLowerCase() === "true" || value.toLowerCase() === "false";
     } catch (e) {
         return false;
     }
-}
+};
 
-function isNumber(value) {
+const isNumber = value => {
     return !isNaN(value);
-}
+};
 
 export = {
     name: "core-caster",

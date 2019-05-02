@@ -1,5 +1,8 @@
 import { Address, Keys, PrivateKey, PublicKey, WIF } from "../../packages/crypto/src/identities";
 import { IKeyPair } from "../../packages/crypto/src/interfaces";
+import { configManager } from "../../packages/crypto/src/managers";
+
+configManager.setFromPreset("testnet");
 
 interface IIdentity {
     bip39: string;

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
@@ -9,7 +9,7 @@ export class WalletManager extends Wallets.WalletManager {
         "database",
     );
 
-    public findByAddress(address: string): Database.IWallet {
+    public findByAddress(address: string): State.IWallet {
         if (address && !this.byAddress[address]) {
             this.reindex(
                 Object.assign(new Wallets.Wallet(address), this.databaseService.walletManager.findByAddress(address)),
@@ -45,7 +45,7 @@ export class WalletManager extends Wallets.WalletManager {
                 `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
             );
         } else {
-            const sender: Database.IWallet = this.findByPublicKey(senderPublicKey);
+            const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
 
             try {
                 Handlers.Registry.get(transaction.type).canBeApplied(
@@ -66,9 +66,6 @@ export class WalletManager extends Wallets.WalletManager {
     }
 
     public revertTransactionForSender(transaction: Interfaces.ITransaction): void {
-        Handlers.Registry.get(transaction.type).revertForSender(
-            transaction,
-            this.findByPublicKey(transaction.data.senderPublicKey),
-        );
+        Handlers.Registry.get(transaction.type).revertForSenderInPool(transaction, this);
     }
 }
