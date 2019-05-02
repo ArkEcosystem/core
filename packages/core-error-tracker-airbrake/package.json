@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-airbrake",
     "description": "Airbrake error tracker integration for ARK Core.",
-    "version": "2.3.21",
+    "version": "2.3.22",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,7 +18,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-container": "^2.3.22",
         "airbrake-js": "^1.6.6"
     },
     "publishConfig": {

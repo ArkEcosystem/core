@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-bugsnag",
     "description": "Bugsnag error tracker integration for ARK Core.",
-    "version": "2.3.21",
+    "version": "2.3.22",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,7 +18,7 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.21",
+        "@arkecosystem/core-container": "^2.3.22",
         "@bugsnag/js": "^6.0.0"
     },
     "publishConfig": {
