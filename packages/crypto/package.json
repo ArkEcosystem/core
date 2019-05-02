@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@faustbrian/dato": "^0.3.0",
-        "@hapi/joi": "^15.0.0",
+        "@hapi/joi": "^15.0.1",
         "ajv": "^6.10.0",
         "ajv-keywords": "^3.4.0",
         "bcrypto": "^3.1.6",
@@ -39,7 +39,6 @@
         "bs58check": "^2.1.2",
         "buffer-xor": "^2.0.2",
         "bytebuffer": "^5.0.1",
-        "create-hash": "^1.2.0",
         "deepmerge": "^3.2.0",
         "lodash.camelcase": "^4.3.0",
         "lodash.get": "^4.4.2",
@@ -54,9 +53,9 @@
     "devDependencies": {
         "@types/bip32": "^1.0.2",
         "@types/bip39": "^2.4.2",
+        "@types/buffer-xor": "^2.0.0",
         "@types/bytebuffer": "^5.0.40",
-        "@types/create-hash": "^1.2.0",
-        "@types/joi": "^14.3.3",
+        "@types/hapi__joi": "^15.0.1",
         "@types/lodash.camelcase": "^4.3.6",
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
@@ -67,7 +66,7 @@
         "@types/webpack-merge": "^4.1.5",
         "@types/webpack-node-externals": "^1.6.3",
         "@types/wif": "^2.0.1",
-        "ts-loader": "^5.4.4",
+        "ts-loader": "^5.4.5",
         "webpack-merge": "^4.2.1",
         "webpack-node-externals": "^1.7.2"
     },

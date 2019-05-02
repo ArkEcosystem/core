@@ -31,7 +31,7 @@
         "@faustbrian/dato": "^0.3.0",
         "@faustbrian/hapi-version": "^0.2.11",
         "@hapi/boom": "^7.4.2",
-        "@hapi/joi": "^15.0.0",
+        "@hapi/joi": "^15.0.1",
         "ajv": "^6.10.0",
         "bs58check": "^2.1.2",
         "delay": "^4.2.0",
@@ -45,9 +45,9 @@
         "semver": "^6.0.0"
     },
     "devDependencies": {
-        "@types/boom": "^7.2.1",
+        "@types/hapi__boom": "^7.4.0",
+        "@types/hapi__joi": "^15.0.1",
         "@types/ip": "^1.1.0",
-        "@types/joi": "^14.3.3",
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
