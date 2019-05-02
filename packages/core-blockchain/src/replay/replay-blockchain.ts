@@ -62,27 +62,22 @@ export class ReplayBlockchain extends Blockchain {
 
         await this.processGenesisBlock();
 
-        const replayBatch = async (batch: number, lastAcceptedHeight: number = 1) => {
+        const replayBatch = async (batch: number, lastAcceptedHeight: number = 1): Promise<void> => {
             if (lastAcceptedHeight === targetHeight) {
                 this.logger.info("Successfully finished replay to target height.");
-                return;
+                return this.disconnect();
             }
 
             const blocks = await this.fetchBatch(startHeight, batch, lastAcceptedHeight);
-            console.time("CHUNK");
             this.processBlocks(blocks, async (acceptedBlocks: Interfaces.IBlock[]) => {
-                console.timeEnd("CHUNK");
-
                 if (acceptedBlocks.length !== blocks.length) {
                     throw new FailedToReplayBlocksError();
                 }
 
                 await replayBatch(batch + 1, acceptedBlocks[acceptedBlocks.length - 1].data.height);
-                console.timeEnd("REPLAY");
             });
         };
 
-        console.time("REPLAY");
         await replayBatch(1);
     }
 
@@ -91,7 +86,7 @@ export class ReplayBlockchain extends Blockchain {
         batch: number,
         lastAcceptedHeight: number,
     ): Promise<Interfaces.IBlock[]> {
-        this.logger.info("Fetching next batch of blocks from database...");
+        this.logger.info("Fetching blocks from database...");
 
         const offset = startHeight + (batch - 1) * this.chunkSize;
         const count = Math.min(this.targetHeight - lastAcceptedHeight, this.chunkSize);
@@ -130,5 +125,9 @@ export class ReplayBlockchain extends Blockchain {
         (this.localDatabase as any).forgingDelegates = activeDelegates;
 
         this.logger.info("Finished loading genesis block.");
+    }
+
+    private async disconnect(): Promise<void> {
+        await this.localDatabase.connection.disconnect();
     }
 }
