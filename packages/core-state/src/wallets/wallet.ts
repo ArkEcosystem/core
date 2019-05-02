@@ -1,8 +1,8 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { State } from "@arkecosystem/core-interfaces";
 import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
-export class Wallet implements Database.IWallet {
+export class Wallet implements State.IWallet {
     public address: string;
     public publicKey: string | undefined;
     public secondPublicKey: string | undefined;

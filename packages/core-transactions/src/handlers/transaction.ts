@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 // tslint:disable:member-ordering
 
-import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     InsufficientBalanceError,
@@ -16,8 +16,8 @@ import { ITransactionHandler } from "../interfaces";
 export abstract class TransactionHandler implements ITransactionHandler {
     // TODO: merge with canBeApplied ?
     // just a quick hack to get multi sig working
-    public verify(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): boolean {
-        const senderWallet: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
+        const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.multisignature) {
             transaction.isVerified = senderWallet.verifySignatures(transaction.data);
@@ -33,8 +33,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
      */
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        databaseWalletManager: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         // NOTE: Checks if it can be applied based on sender wallet
         // could be merged with `apply` so they are coupled together :thinking_face:
@@ -56,7 +56,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (wallet.secondPublicKey) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const databaseWallet: Database.IWallet = databaseWalletManager.findByPublicKey(
+            const databaseWallet: State.IWallet = databaseWalletManager.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
@@ -77,7 +77,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (wallet.multisignature) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const databaseWallet: Database.IWallet = databaseWalletManager.findByPublicKey(
+            const databaseWallet: State.IWallet = databaseWalletManager.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
@@ -94,33 +94,33 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return true;
     }
 
-    public apply(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    public apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         this.applyToSender(transaction, walletManager);
         this.applyToRecipient(transaction, walletManager);
     }
 
-    public revert(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    public revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         this.revertForSender(transaction, walletManager);
         this.revertForRecipient(transaction, walletManager);
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
-        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.plus(transaction.data.amount).plus(transaction.data.fee);
     }
 
     protected abstract applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Database.IWalletManager,
+        walletManager: State.IWalletManager,
     ): void;
     protected abstract revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Database.IWalletManager,
+        walletManager: State.IWalletManager,
     ): void;
 
     /**
@@ -146,19 +146,19 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    public applyToSenderInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+    public applyToSenderInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
         this.applyToSender(transaction, poolWalletManager);
     }
 
-    public revertForSenderInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+    public revertForSenderInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
         this.revertForSender(transaction, poolWalletManager);
     }
 
-    public applyToRecipientInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+    public applyToRecipientInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
         this.applyToRecipient(transaction, poolWalletManager);
     }
 
-    public revertForRecipientInPool(transaction: any, poolWalletManager: Database.IWalletManager): void {
+    public revertForRecipientInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
         this.revertForRecipient(transaction, poolWalletManager);
     }
 

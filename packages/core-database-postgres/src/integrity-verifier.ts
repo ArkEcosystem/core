@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger } from "@arkecosystem/core-interfaces";
+import { Logger, State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
@@ -7,7 +7,7 @@ import { QueryExecutor } from "./sql/query-executor";
 export class IntegrityVerifier {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    constructor(private readonly query: QueryExecutor, private readonly walletManager: Database.IWalletManager) {}
+    constructor(private readonly query: QueryExecutor, private readonly walletManager: State.IWalletManager) {}
 
     public async run(): Promise<void> {
         this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
@@ -85,7 +85,7 @@ export class IntegrityVerifier {
         }
     }
 
-    private isGenesis(wallet: Database.IWallet): boolean {
+    private isGenesis(wallet: State.IWallet): boolean {
         return app
             .getConfig()
             .get("genesisBlock.transactions")

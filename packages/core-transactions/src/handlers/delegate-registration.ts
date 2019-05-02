@@ -1,4 +1,4 @@
-import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -17,8 +17,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        databaseWalletManager: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         const { data }: Interfaces.ITransaction = transaction;
 
@@ -84,29 +84,29 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.username = transaction.data.asset.delegate.username;
 
         walletManager.reindex(sender);
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         walletManager.forgetByUsername(sender.username);
         sender.username = undefined;
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 }

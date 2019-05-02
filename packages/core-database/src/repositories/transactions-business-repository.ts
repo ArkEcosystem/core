@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
@@ -53,7 +53,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findAllByWallet(
-        wallet: Database.IWallet,
+        wallet: State.IWallet,
         parameters?: Database.IParameters,
     ): Promise<Database.ITransactionsPaginated> {
         const { transactionsRepository } = this.databaseServiceProvider().connection;

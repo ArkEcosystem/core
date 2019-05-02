@@ -1,4 +1,4 @@
-import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
+import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError, VotedForNonDelegateError } from "../errors";
 import { TransactionHandler } from "./transaction";
@@ -10,8 +10,8 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        databaseWalletManager: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         const { data }: Interfaces.ITransaction = transaction;
         const vote: string = data.asset.votes[0];
@@ -56,10 +56,10 @@ export class VoteTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        const sender: Database.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
@@ -69,7 +69,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
         const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -82,11 +82,11 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: Database.IWalletManager): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 }

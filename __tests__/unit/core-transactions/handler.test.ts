@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
@@ -31,7 +31,7 @@ let transaction: Interfaces.ITransactionData;
 let transactionWithSecondSignature: Interfaces.ITransactionData;
 let handler: TransactionHandler;
 let instance: Interfaces.ITransaction;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 
 beforeEach(() => {
     walletManager = new Wallets.WalletManager();

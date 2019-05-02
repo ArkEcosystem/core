@@ -2,7 +2,7 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
@@ -18,7 +18,7 @@ const { TransactionTypes } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let container;
 let emitter: EventEmitter.EventEmitter;
 
@@ -34,12 +34,12 @@ beforeEach(() => {
     jest.restoreAllMocks();
 });
 
-function createService() {
+const createService = () => {
     const service = new DatabaseService({}, connection, walletManager, undefined, undefined, undefined, undefined);
     service.emitter = emitter;
 
     return service;
-}
+};
 
 describe("Database Service", () => {
     it("should listen for emitter events during constructor", () => {

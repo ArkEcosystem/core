@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
@@ -9,7 +9,7 @@ type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public getLocalDelegates(params: Database.IParameters = {}): Database.IWallet[] {
+    public getLocalDelegates(params: Database.IParameters = {}): State.IWallet[] {
         let delegates = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
@@ -100,7 +100,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         };
     }
 
-    public findById(id): Database.IWallet {
+    public findById(id): State.IWallet {
         return this.getLocalDelegates().find(a => a.address === id || a.publicKey === id || a.username === id);
     }
 

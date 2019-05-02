@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
@@ -37,10 +37,7 @@ export class PostgresConnection implements Database.IConnection {
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
-    public constructor(
-        readonly options: Record<string, any>,
-        private readonly walletManager: Database.IWalletManager,
-    ) {}
+    public constructor(readonly options: Record<string, any>, private readonly walletManager: State.IWalletManager) {}
 
     public async make(): Promise<Database.IConnection> {
         if (this.db) {
