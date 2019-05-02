@@ -11,7 +11,7 @@ import {
 import { Keys } from "../../../../packages/crypto/src/identities";
 import { ITransaction } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory, Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
@@ -49,7 +49,7 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields - with vendorFieldHex", () => {
             delete transfer.vendorField;
             const vendorField = "cool vendor field";
-            transfer.vendorFieldHex = new Buffer(vendorField).toString("hex");
+            transfer.vendorFieldHex = Buffer.from(vendorField, "utf8").toString("hex");
 
             const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
@@ -73,7 +73,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.toBytes(transferWithLongVendorfield);
+            const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
             const deserialized = TransactionFactory.fromBytes(serialized);
 
             expect(deserialized.verified).toBeTrue();
@@ -96,7 +96,7 @@ describe("Transaction serializer / deserializer", () => {
 
             transferWithLongVendorfield.vendorField = "y".repeat(255);
             expect(() => {
-                const serialized = Transaction.toBytes(transferWithLongVendorfield);
+                const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
                 TransactionFactory.fromBytes(serialized);
             }).toThrow(TransactionSchemaError);
         });

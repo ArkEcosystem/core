@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { PreviousBlockIdFormatError } from "../errors";
 import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
-import { Transaction } from "../transactions";
+import { Utils } from "../transactions";
 import { Block } from "./block";
 
 export class Serializer {
@@ -17,7 +17,7 @@ export class Serializer {
             .skip(transactions.length * 4);
 
         for (let i = 0; i < transactions.length; i++) {
-            const serialized: Buffer = Transaction.toBytes(transactions[i]);
+            const serialized: Buffer = Utils.toBytes(transactions[i]);
             buffer.writeUint32(serialized.length, serializedHeader.length + i * 4);
             buffer.append(serialized);
         }

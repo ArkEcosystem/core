@@ -3,7 +3,7 @@ import "jest-extended";
 import { Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { Transaction } from "../../../../packages/crypto/src/transactions";
+import { Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
 import { identity } from "../../../utils/identities";
 
 beforeEach(() => configManager.setFromPreset("devnet"));
@@ -21,7 +21,7 @@ describe("Hash", () => {
         };
 
         it("sign and verify should be ok", () => {
-            const hash: Buffer = Transaction.getHash(transaction);
+            const hash: Buffer = TransactionUtils.toHash(transaction);
             const signature: string = Hash.signSchnorr(hash, identity.keys);
 
             expect(Hash.verifySchnorr(hash, signature, identity.publicKey)).toBeTrue();

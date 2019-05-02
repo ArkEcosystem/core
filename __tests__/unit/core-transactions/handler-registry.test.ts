@@ -134,14 +134,14 @@ describe("Registry", () => {
             },
         };
 
-        data.signature = Transactions.Transaction.sign(data, keys);
-        data.id = Transactions.Transaction.getId(data);
+        data.signature = Transactions.Signer.sign(data, keys);
+        data.id = Transactions.Utils.getId(data);
 
         const transaction = Transactions.TransactionFactory.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);
         expect(transaction.verified).toBeTrue();
 
-        const bytes = Transactions.Transaction.toBytes(transaction.data);
+        const bytes = Transactions.Utils.toBytes(transaction.data);
         const deserialized = Transactions.TransactionFactory.fromBytes(bytes);
         expect(deserialized.verified);
         expect(deserialized.data.asset.test).toBe(256);

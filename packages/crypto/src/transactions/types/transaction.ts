@@ -1,28 +1,10 @@
-// tslint:disable:member-ordering
-import { Hash, HashAlgorithms } from "../../crypto";
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
-import {
-    IKeyPair,
-    ISchemaValidationResult,
-    ISerializeOptions,
-    ITransaction,
-    ITransactionData,
-    ITransactionJson,
-} from "../../interfaces";
-import { configManager } from "../../managers";
-import { Serializer } from "../serializer";
+import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { Verifier } from "../verifier";
-import { TransactionTypeFactory } from "./factory";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction implements ITransaction {
-    public static type: TransactionTypes = undefined;
-
-    public static toBytes(data: ITransactionData): Buffer {
-        return Serializer.serialize(TransactionTypeFactory.create(data));
-    }
-
     public get id(): string {
         return this.data.id;
     }
@@ -30,11 +12,16 @@ export abstract class Transaction implements ITransaction {
     public get type(): TransactionTypes {
         return this.data.type;
     }
-
-    public isVerified: boolean;
     public get verified(): boolean {
         return this.isVerified;
     }
+    public static type: TransactionTypes = undefined;
+
+    public static getSchema(): TransactionSchema {
+        throw new NotImplementedError();
+    }
+
+    public isVerified: boolean;
 
     public data: ITransactionData;
     public serialized: Buffer;
@@ -69,52 +56,5 @@ export abstract class Transaction implements ITransaction {
 
     public hasVendorField(): boolean {
         return false;
-    }
-
-    public static getSchema(): TransactionSchema {
-        throw new NotImplementedError();
-    }
-
-    public static getId(transaction: ITransactionData): string {
-        const id: string = Transaction.getHash(transaction).toString("hex");
-
-        // Apply fix for broken type 1 and 4 transactions, which were
-        // erroneously calculated with a recipient id.
-        const { transactionIdFixTable } = configManager.get("exceptions");
-
-        if (transactionIdFixTable && transactionIdFixTable[id]) {
-            return transactionIdFixTable[id];
-        }
-
-        return id;
-    }
-
-    public static getHash(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
-        return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
-    }
-
-    // @TODO: move this out, the transaction itself shouldn't know how signing works
-    public static sign(transaction: ITransactionData, keys: IKeyPair, options?: ISerializeOptions): string {
-        options = options || { excludeSignature: true, excludeSecondSignature: true };
-        const hash: Buffer = Transaction.getHash(transaction, options);
-        const signature: string = transaction.version === 2 ? Hash.signSchnorr(hash, keys) : Hash.signECDSA(hash, keys);
-
-        if (!transaction.signature && !options.excludeMultiSignature) {
-            transaction.signature = signature;
-        }
-
-        return signature;
-    }
-
-    // @TODO: move this out, the transaction itself shouldn't know how signing works
-    public static secondSign(transaction: ITransactionData, keys: IKeyPair): string {
-        const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
-        const signature: string = transaction.version === 2 ? Hash.signSchnorr(hash, keys) : Hash.signECDSA(hash, keys);
-
-        if (!transaction.secondSignature) {
-            transaction.secondSignature = signature;
-        }
-
-        return signature;
     }
 }

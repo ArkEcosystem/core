@@ -90,7 +90,7 @@ export class Wallet implements Database.IWallet {
         const { publicKeys, min }: Interfaces.IMultiSignatureAsset = multiSignature;
         const { signatures }: Interfaces.ITransactionData = transaction;
 
-        const hash: Buffer = Transactions.Transaction.getHash(transaction, {
+        const hash: Buffer = Transactions.Utils.toHash(transaction, {
             excludeSignature: true,
             excludeSecondSignature: true,
             excludeMultiSignature: true,
