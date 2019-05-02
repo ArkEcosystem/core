@@ -48,7 +48,7 @@ class Deserializer {
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
 
-        const constants = configManager.getMilestone(block.height - 1);
+        const constants = configManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
             block.previousBlockHex = buf.readBytes(32).toString("hex");
