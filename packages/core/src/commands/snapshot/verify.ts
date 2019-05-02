@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
-import { setUpLite } from "../../helpers/snapshot";
+import { chooseSnapshot, setUpLite } from "../../helpers/snapshot";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
@@ -12,7 +12,6 @@ export class VerifyCommand extends BaseCommand {
         ...BaseCommand.flagsSnapshot,
         blocks: flags.string({
             description: "blocks to verify, corelates to folder name",
-            required: true,
         }),
         verifySignatures: flags.boolean({
             description: "signature verification",
@@ -26,6 +25,14 @@ export class VerifyCommand extends BaseCommand {
 
         if (!app.has("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
+        }
+
+        if (!flags.blocks) {
+            try {
+                await chooseSnapshot(flags, "What snapshot do you want to verify?");
+            } catch (error) {
+                this.error(error.message);
+            }
         }
 
         await app.resolvePlugin<SnapshotManager>("snapshots").verify(flags);
