@@ -1,16 +1,16 @@
 const {
-    HashAlgorithms,
+    Crypto,
     Transactions
 } = require('@arkecosystem/crypto')
-
 const createHash = require("create-hash");
+
 const nodeSha256 = (bytes) => createHash("sha256").update(bytes).digest()
 
 const data = require('../helpers').getJSONFixture('transaction/deserialized/0');
 const transactionBytes = Transactions.Utils.toBytes(data);
 
 exports['bcrypto.sha256'] = () => {
-    HashAlgorithms.sha256(transactionBytes);
+    Crypto.HashAlgorithms.sha256(transactionBytes);
 };
 
 exports['node.sha256'] = () => {
@@ -18,7 +18,7 @@ exports['node.sha256'] = () => {
 };
 
 exports['bcrypto.sha1'] = () => {
-    HashAlgorithms.sha1(transactionBytes);
+    Crypto.HashAlgorithms.sha1(transactionBytes);
 };
 
 exports['node.sha1'] = () => {
@@ -26,7 +26,7 @@ exports['node.sha1'] = () => {
 };
 
 exports['bcrypto.ripemd160'] = () => {
-    HashAlgorithms.ripemd160(transactionBytes);
+    Crypto.HashAlgorithms.ripemd160(transactionBytes);
 };
 
 exports['node.ripemd160'] = () => {
@@ -34,7 +34,7 @@ exports['node.ripemd160'] = () => {
 };
 
 exports['bcrypto.hash160'] = () => {
-    HashAlgorithms.hash160(transactionBytes);
+    Crypto.HashAlgorithms.hash160(transactionBytes);
 };
 
 exports['node.hash160'] = () => {
@@ -42,7 +42,7 @@ exports['node.hash160'] = () => {
 };
 
 exports['bcrypto.hash256'] = () => {
-    HashAlgorithms.hash256(transactionBytes);
+    Crypto.HashAlgorithms.hash256(transactionBytes);
 };
 
 exports['node.hash256'] = () => {
