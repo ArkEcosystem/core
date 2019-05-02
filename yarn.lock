@@ -2676,13 +2676,6 @@
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.0.tgz#719551d2352d301ac8b81db732acb6bdc28dbdef"
   integrity sha512-1w52Nyx4Gq47uuu0EVcsHBxZFJgurQ+rTKS3qMHxR1GY2T8c2AJYd6vZoZ9q1rupaDjU0yT+Jc2XTyXkjeMA+Q==
 
-"@types/lowdb@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@types/lowdb/-/lowdb-1.0.7.tgz#ad87647f7dc8e9daa9fe98f197956a3c6bc1ced3"
-  integrity sha512-lN+zGYeEYCSI895/lP+vwEhYJW53rA4rxKJjW4YRFUbo+qFMTSyno4YuWsZN8+QFk0FFA6s4eMMgQH1KZPZnIA==
-  dependencies:
-    "@types/lodash" "*"
-
 "@types/mathjs@^5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@types/mathjs/-/mathjs-5.0.1.tgz#b98e163ea396b4f27bec20ee25ffb8fe9e656af8"

@@ -26,14 +26,14 @@ class Database {
         return this.database
             .get("webhooks")
             .find({ id })
-            .value() as IWebhook;
+            .value();
     }
 
     public findByEvent(event: string): IWebhook[] {
         return this.database
             .get("webhooks")
             .filter({ event })
-            .value() as IWebhook[];
+            .value();
     }
 
     public create(data: IWebhook): IWebhook {

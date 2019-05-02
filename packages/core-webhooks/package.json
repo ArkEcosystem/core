@@ -34,7 +34,6 @@
         "@types/fs-extra": "^5.0.5",
         "@types/hapi__boom": "^7.4.0",
         "@types/hapi__joi": "^15.0.1",
-        "@types/lowdb": "^1.0.7",
         "@types/uuid": "^3.4.4"
     },
     "engines": {
