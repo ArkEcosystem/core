@@ -44,7 +44,7 @@ export class ReplayBlockchain extends Blockchain {
         return;
     }
 
-    public async replay(startHeight = 1): Promise<void> {
+    public async replay(startHeight = 1, endHeight: number = -1): Promise<void> {
         const logger = app.resolvePlugin<Logger.ILogger>("logger");
         const database = app.resolvePlugin<Database.IDatabaseService>("database");
 

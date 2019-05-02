@@ -473,6 +473,10 @@ export class Blockchain implements blockchain.IBlockchain {
         return Crypto.Slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
     }
 
+    public async replay(startHeight: number, endHeight?: number): Promise<void> {
+        return;
+    }
+
     /**
      * Get the last block of the blockchain.
      */
