@@ -58,8 +58,8 @@ export class Blockchain implements blockchain.IBlockchain {
     public isStopped: boolean;
     public options: any;
     public queue: async.AsyncQueue<any>;
+    protected blockProcessor: BlockProcessor;
     private actions: any;
-    private blockProcessor: BlockProcessor;
 
     /**
      * Create a new blockchain manager instance.
