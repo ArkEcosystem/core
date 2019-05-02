@@ -4,7 +4,8 @@ import { ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
-import { Transaction, TransactionTypeFactory } from "./types";
+import { TransactionTypeFactory } from "./types";
+import { Utils } from "./utils";
 
 export class Verifier {
     public static verify(data: ITransactionData): boolean {
@@ -26,7 +27,7 @@ export class Verifier {
             return false;
         }
 
-        const hash: Buffer = Transaction.getHash(transaction, { excludeSecondSignature: true });
+        const hash: Buffer = Utils.toHash(transaction, { excludeSecondSignature: true });
 
         if (transaction.version === 2) {
             return Hash.verifySchnorr(hash, secondSignature, publicKey);
@@ -42,7 +43,7 @@ export class Verifier {
             return false;
         }
 
-        const hash: Buffer = Transaction.getHash(data, {
+        const hash: Buffer = Utils.toHash(data, {
             excludeSignature: true,
             excludeSecondSignature: true,
         });

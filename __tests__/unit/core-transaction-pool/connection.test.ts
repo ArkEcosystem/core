@@ -873,7 +873,7 @@ describe("Connection", () => {
                 const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
                 transaction.data.id = fakeTransactionId(i);
                 transaction.data.fee = Utils.BigNumber.make(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
-                transaction.serialized = Transactions.Transaction.toBytes(transaction.data);
+                transaction.serialized = Transactions.Utils.toBytes(transaction.data);
                 allTransactions.push(transaction);
             }
 

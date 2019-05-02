@@ -1,4 +1,4 @@
-import { Transaction, TransactionFactory } from "../..";
+import { TransactionFactory, Utils } from "../..";
 import { Slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
@@ -6,6 +6,7 @@ import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength, numberToHex } from "../../../utils";
+import { Signer } from "../../signer";
 import { Verifier } from "../../verifier";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
@@ -79,7 +80,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, this.data.network);
         }
 
-        this.data.signature = Transaction.sign(this.getSigningObject(), keys);
+        this.data.signature = Signer.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
@@ -95,16 +96,13 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             this.data.recipientId = Address.fromPublicKey(keys.publicKey, this.data.network);
         }
 
-        this.data.signature = Transaction.sign(this.getSigningObject(), keys);
+        this.data.signature = Signer.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
     public secondSign(secondPassphrase: string): TBuilder {
-        this.data.secondSignature = Transaction.secondSign(
-            this.getSigningObject(),
-            Keys.fromPassphrase(secondPassphrase),
-        );
+        this.data.secondSignature = Signer.secondSign(this.getSigningObject(), Keys.fromPassphrase(secondPassphrase));
 
         return this.instance();
     }
@@ -114,7 +112,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
-        this.data.secondSignature = Transaction.secondSign(this.getSigningObject(), keys);
+        this.data.secondSignature = Signer.secondSign(this.getSigningObject(), keys);
 
         return this.instance();
     }
@@ -130,7 +128,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         // TOOD: sanity checks (index < 16, etc.)
 
         const keys: IKeyPair = Keys.fromPassphrase(passphrase);
-        const signature = Transaction.sign(this.getSigningObject(), keys, {
+        const signature = Signer.sign(this.getSigningObject(), keys, {
             excludeSignature: true,
             excludeSecondSignature: true,
             excludeMultiSignature: true,
@@ -151,7 +149,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         }
 
         const struct: ITransactionData = {
-            id: Transaction.getId(this.data).toString(),
+            id: Utils.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
             timestamp: this.data.timestamp,

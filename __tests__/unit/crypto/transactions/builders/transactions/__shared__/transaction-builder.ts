@@ -1,7 +1,7 @@
 import { Slots } from "../../../../../../../packages/crypto/src/crypto";
 import { Keys } from "../../../../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../../../../packages/crypto/src/managers";
-import { Transaction } from "../../../../../../../packages/crypto/src/transactions";
+import { Signer } from "../../../../../../../packages/crypto/src/transactions";
 import { TransactionBuilder } from "../../../../../../../packages/crypto/src/transactions/builders/transactions/transaction";
 import * as Utils from "../../../../../../../packages/crypto/src/utils";
 import { identity, identitySecond } from "../../../../../../utils/identities";
@@ -126,7 +126,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const builder = provider();
 
                 const spyKeys = jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
-                const spySign = jest.spyOn(Transaction, "sign").mockImplementationOnce(jest.fn());
+                const spySign = jest.spyOn(Signer, "sign").mockImplementationOnce(jest.fn());
 
                 builder.sign(identity.bip39);
 
@@ -135,7 +135,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
 
             it("establishes the public key of the sender", () => {
-                const spySign = jest.spyOn(Transaction, "sign").mockImplementationOnce(jest.fn());
+                const spySign = jest.spyOn(Signer, "sign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
                 builder.sign(identity.bip39);
@@ -148,7 +148,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
         describe("signWithWif", () => {
             it("signs this transaction with keys from a wif", () => {
                 const spyKeys = jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
-                const spySign = jest.spyOn(Transaction, "sign").mockImplementationOnce(jest.fn());
+                const spySign = jest.spyOn(Signer, "sign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
                 builder.network(23).signWithWif(identity.bip39);
@@ -160,7 +160,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
 
             it("establishes the public key of the sender", () => {
-                const spySign = jest.spyOn(Transaction, "sign").mockImplementationOnce(jest.fn());
+                const spySign = jest.spyOn(Signer, "sign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
                 builder.signWithWif(identity.wif);
@@ -175,7 +175,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const builder = provider();
 
                 const spyKeys = jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identitySecond.keys);
-                const spySecondSign = jest.spyOn(Transaction, "secondSign").mockImplementationOnce(jest.fn());
+                const spySecondSign = jest.spyOn(Signer, "secondSign").mockImplementationOnce(jest.fn());
 
                 builder.secondSign(identitySecond.bip39);
 
@@ -187,7 +187,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
         describe("secondSignWithWif", () => {
             it("signs this transaction with the keys of a second wif", () => {
                 const spyKeys = jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identitySecond.keys);
-                const spySecondSign = jest.spyOn(Transaction, "secondSign").mockImplementationOnce(jest.fn());
+                const spySecondSign = jest.spyOn(Signer, "secondSign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
                 builder.network(23).secondSignWithWif(identitySecond.bip39, undefined);
