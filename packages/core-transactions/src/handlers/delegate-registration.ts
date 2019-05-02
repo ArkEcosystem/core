@@ -71,7 +71,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
             pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
-        ).map((memTx: any) => memTx.transaction.data);
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
         const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(
             transaction => transaction.asset.delegate.username === username,

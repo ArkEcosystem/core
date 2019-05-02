@@ -118,7 +118,6 @@ export class ReplayBlockchain extends Blockchain {
 
         this.state.setLastBlock(genesisBlock);
 
-        // Initialize the very first round
         const roundInfo = roundCalculator.calculateRound(1);
         const delegates = this.walletManager.loadActiveDelegateList(roundInfo);
         const activeDelegates = await this.localDatabase.getActiveDelegates(roundInfo, delegates);
