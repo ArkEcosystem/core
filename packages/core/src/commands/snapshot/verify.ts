@@ -12,6 +12,7 @@ export class VerifyCommand extends BaseCommand {
         ...BaseCommand.flagsSnapshot,
         blocks: flags.string({
             description: "blocks to verify, corelates to folder name",
+            required: true,
         }),
         verifySignatures: flags.boolean({
             description: "signature verification",
