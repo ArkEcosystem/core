@@ -1,6 +1,7 @@
-import { httpie } from "@arkecosystem/core-utils";
-import { Transactions } from "@arkecosystem/crypto";
 import "jest-extended";
+
+import { httpie } from "@arkecosystem/core-utils";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import nock from "nock";
 import { MultiSignatureRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/multi-signature-registration";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
@@ -12,10 +13,10 @@ beforeEach(() => {
         .thrice()
         .reply(200, { data: { constants: {} } });
 
-    nock("http://localhost:4000")
-        .get("/config")
+    nock("http://localhost:4003")
+        .get("/api/v2/node/configuration/crypto")
         .thrice()
-        .reply(200, { data: { network: { name: "testnet" } } });
+        .reply(200, { data: Managers.configManager.getPreset("unitnet") });
 
     jest.spyOn(httpie, "get");
     jest.spyOn(httpie, "post");
