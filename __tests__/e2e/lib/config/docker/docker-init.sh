@@ -4,14 +4,26 @@ for rawdir in node*/;
   p2pPort="$(expr $(echo "$(echo "${nodeDir}" | sed 's/[^0-9]*//g') + 4000"))"
   apiPort="$(expr $(echo "$(echo "${nodeDir}" | sed 's/[^0-9]*//g') + 4300"))"
   echo "[Docker configuration] Tuning docker-compose files for ${nodeDir}";
-  sed -i "" "s;{{nodeAlias}};${nodeDir};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
-  sed -i "" "s;{{nodeBackend}};${nodeDir}backend;g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
-  sed -i "" "s;{{hostP2pPort}};${p2pPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
-  sed -i "" "s;{{hostApiPort}};${apiPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
-  sed -i "" "s;{{nodeAlias}};${nodeDir};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
-  sed -i "" "s;{{nodeBackend}};${nodeDir}backend;g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
-  sed -i "" "s;{{hostP2pPort}};${p2pPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
-  sed -i "" "s;{{hostApiPort}};${apiPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i "" "s;{{nodeAlias}};${nodeDir};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "" "s;{{nodeBackend}};${nodeDir}backend;g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "" "s;{{hostP2pPort}};${p2pPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "" "s;{{hostApiPort}};${apiPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "" "s;{{nodeAlias}};${nodeDir};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+    sed -i "" "s;{{nodeBackend}};${nodeDir}backend;g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+    sed -i "" "s;{{hostP2pPort}};${p2pPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+    sed -i "" "s;{{hostApiPort}};${apiPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+  else
+    sed -i "s;{{nodeAlias}};${nodeDir};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "s;{{nodeBackend}};${nodeDir}backend;g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "s;{{hostP2pPort}};${p2pPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "s;{{hostApiPort}};${apiPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose-stack.yml;
+    sed -i "s;{{nodeAlias}};${nodeDir};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+    sed -i "s;{{nodeBackend}};${nodeDir}backend;g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+    sed -i "s;{{hostP2pPort}};${p2pPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+    sed -i "s;{{hostApiPort}};${apiPort};g" ${nodeDir}/docker/testnet-e2e/docker-compose.yml;
+  fi
 done
 for nodeNumber in {0..9}
   do
