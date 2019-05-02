@@ -2,7 +2,7 @@ import "jest-extended";
 
 import "../mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";

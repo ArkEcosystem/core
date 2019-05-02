@@ -2,7 +2,7 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
