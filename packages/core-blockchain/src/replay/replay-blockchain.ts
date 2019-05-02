@@ -11,6 +11,7 @@ export class ReplayBlockchain extends Blockchain {
     private logger: Logger.ILogger;
     private localDatabase: Database.IDatabaseService;
     private walletManager: Wallets.WalletManager;
+    private targetHeight: number;
     private chunkSize: number = 20000;
 
     private memoryDatabase: Database.IDatabaseService;
@@ -50,7 +51,6 @@ export class ReplayBlockchain extends Blockchain {
 
     public async replay(targetHeight: number = -1): Promise<void> {
         this.logger.info("Starting replay...");
-
         const lastBlock: Interfaces.IBlock = await this.localDatabase.getLastBlock();
         const startHeight = 2;
 
@@ -58,10 +58,17 @@ export class ReplayBlockchain extends Blockchain {
             targetHeight = lastBlock.data.height;
         }
 
+        this.targetHeight = targetHeight;
+
         await this.processGenesisBlock();
 
-        const replayBatch = async (batch: number) => {
-            const blocks = await this.fetchBatch(startHeight, batch);
+        const replayBatch = async (batch: number, lastAcceptedHeight: number = 1) => {
+            if (lastAcceptedHeight === targetHeight) {
+                this.logger.info("Successfully finished replay to target height.");
+                return;
+            }
+
+            const blocks = await this.fetchBatch(startHeight, batch, lastAcceptedHeight);
             console.time("CHUNK");
             this.processBlocks(blocks, async (acceptedBlocks: Interfaces.IBlock[]) => {
                 console.timeEnd("CHUNK");
@@ -70,7 +77,7 @@ export class ReplayBlockchain extends Blockchain {
                     throw new FailedToReplayBlocksError();
                 }
 
-                await replayBatch(batch + 1);
+                await replayBatch(batch + 1, acceptedBlocks[acceptedBlocks.length - 1].data.height);
                 console.timeEnd("REPLAY");
             });
         };
@@ -79,9 +86,17 @@ export class ReplayBlockchain extends Blockchain {
         await replayBatch(1);
     }
 
-    private async fetchBatch(startHeight: number, batch: number = 1): Promise<Interfaces.IBlock[]> {
+    private async fetchBatch(
+        startHeight: number,
+        batch: number,
+        lastAcceptedHeight: number,
+    ): Promise<Interfaces.IBlock[]> {
         this.logger.info("Fetching next batch of blocks from database...");
-        const blocks = await this.localDatabase.getBlocks(startHeight + (batch - 1) * this.chunkSize, this.chunkSize);
+
+        const offset = startHeight + (batch - 1) * this.chunkSize;
+        const count = Math.min(this.targetHeight - lastAcceptedHeight, this.chunkSize);
+        const blocks = await this.localDatabase.getBlocks(offset, count);
+
         return blocks.map((block: Interfaces.IBlockData) => Blocks.BlockFactory.fromData(block));
     }
 
