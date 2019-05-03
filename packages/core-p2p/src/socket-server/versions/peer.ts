@@ -10,9 +10,9 @@ import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
     const peer = { ip: req.data.ip };
 
-    ["nethash", "version", "port", "os"].forEach(key => {
+    for (const key of ["nethash", "version", "port", "os"]) {
         peer[key] = req.headers[key];
-    });
+    }
 
     await service.getProcessor().validateAndAcceptPeer(peer);
 };

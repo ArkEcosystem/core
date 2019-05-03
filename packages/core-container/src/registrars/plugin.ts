@@ -138,12 +138,12 @@ export class PluginRegistrar {
         const blacklist: any = [];
         const regex = new RegExp(/^\d+$/);
 
-        Object.keys(options).forEach(key => {
+        for (const key of Object.keys(options)) {
             const value = options[key];
             if (isString(value) && !blacklist.includes(key) && regex.test(value)) {
                 options[key] = +value;
             }
-        });
+        }
 
         return options;
     }

@@ -1,6 +1,17 @@
 {
     "extends": ["tslint:recommended", "tslint-config-prettier"],
     "rules": {
+        "ban": [
+            true,
+            {
+                "name": ["assert", "equal"],
+                "message": "Use 'strictEqual' instead."
+            },
+            {
+                "name": ["*", "forEach"],
+                "message": "Use a regular for loop instead."
+            }
+        ],
         "no-console": false,
         "no-default-export": true,
         "no-null-keyword": true,

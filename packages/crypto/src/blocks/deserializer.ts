@@ -91,12 +91,12 @@ class Deserializer {
 
         const transactions: ITransaction[] = [];
         block.transactions = [];
-        transactionLengths.forEach(length => {
+        for (const length of transactionLengths) {
             const transactionBytes = buf.readBytes(length).toBuffer();
             const transaction = TransactionFactory.fromBytes(transactionBytes);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
-        });
+        }
 
         return transactions;
     }

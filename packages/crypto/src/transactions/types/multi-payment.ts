@@ -18,10 +18,11 @@ export class MultiPaymentTransaction extends Transaction {
         const buffer: ByteBuffer = new ByteBuffer(64, true);
 
         buffer.writeUint32(data.asset.payments.length);
-        data.asset.payments.forEach(p => {
+
+        for (const p of data.asset.payments) {
             buffer.writeUint64(+BigNumber.make(p.amount).toFixed());
             buffer.append(bs58check.decode(p.recipientId));
-        });
+        }
 
         return buffer;
     }

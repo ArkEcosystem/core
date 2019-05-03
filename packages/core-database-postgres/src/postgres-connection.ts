@@ -258,10 +258,18 @@ export class PostgresConnection implements Database.IConnection {
         const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
         const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
-        for (const batch of chunk(all, 20000)) {
+        const chunks: Array<
+            Array<{
+                serialized: Buffer;
+                id: string;
+            }>
+        > = chunk(all, 20000);
+
+        for (const chunk of chunks) {
             await this.db.task(task => {
                 const transactions = [];
-                batch.forEach((tx: { serialized: Buffer; id: string }) => {
+
+                for (const tx of chunk) {
                     const transaction = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
                     if (transaction.data.asset) {
                         let transactionId = transaction.id;
@@ -272,17 +280,24 @@ export class PostgresConnection implements Database.IConnection {
                         }
 
                         const query =
-                            this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
-                            ` WHERE id = '${transactionId}'`;
+                            this.pgp.helpers.update(
+                                {
+                                    asset: transaction.data.asset,
+                                },
+                                ["asset"],
+                                "transactions",
+                            ) + ` WHERE id = '${transactionId}'`;
                         transactions.push(task.none(query));
                     }
-                });
+                }
 
                 return task.batch(transactions);
             });
         }
 
-        await this.migrationsRepository.insert({ name });
+        await this.migrationsRepository.insert({
+            name,
+        });
     }
 
     private async registerModels(): Promise<void> {

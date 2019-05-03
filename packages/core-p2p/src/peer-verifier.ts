@@ -215,7 +215,9 @@ export class PeerVerifier {
             }
 
             // Make sure getBlocksByHeight() returned a block for every height we asked.
-            heightsToProbe.forEach(h => assert.strictEqual(typeof probesIdByHeight[h], "string"));
+            for (const height of heightsToProbe) {
+                assert.strictEqual(typeof probesIdByHeight[height], "string");
+            }
 
             const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(", ");
             const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;

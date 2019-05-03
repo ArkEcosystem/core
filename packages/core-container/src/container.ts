@@ -182,6 +182,8 @@ export class Container implements container.IContainer {
         };
 
         // Handle exit events
-        exitEvents.forEach(eventType => process.on(eventType as any, handleExit));
+        for (const eventType of exitEvents) {
+            process.on(eventType as any, handleExit);
+        }
     }
 }

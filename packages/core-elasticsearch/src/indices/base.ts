@@ -54,11 +54,11 @@ export abstract class Index {
     protected bulkUpsert(rows) {
         const actions = [];
 
-        rows.forEach(item => {
+        for (const item of rows) {
             const { action, document } = this.getUpsertQuery(item);
             actions.push(action);
             actions.push(document);
-        });
+        }
 
         return client.bulk(actions);
     }

@@ -109,6 +109,8 @@ export class TransactionsController extends Controller {
             // Remove reverse mapping from TransactionTypes enum.
             const { TransactionTypes } = Enums;
             const data = Object.assign({}, TransactionTypes);
+
+            // tslint:disable-next-line: ban
             Object.values(TransactionTypes)
                 .filter(value => typeof value === "string")
                 .map((type: string) => data[type])
