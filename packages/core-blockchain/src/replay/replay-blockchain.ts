@@ -118,8 +118,13 @@ export class ReplayBlockchain extends Blockchain {
             if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
                 sender.username = transaction.data.asset.delegate.username;
                 this.walletManager.reindex(sender);
+            } else if (transaction.type === Enums.TransactionTypes.Vote) {
+                const vote = transaction.data.asset.votes[0];
+                sender.vote = vote.slice(1);
             }
         }
+
+        this.walletManager.buildVoteBalances();
 
         this.state.setLastBlock(genesisBlock);
 
