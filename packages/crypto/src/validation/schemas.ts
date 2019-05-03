@@ -27,6 +27,11 @@ export const schemas = {
         network: true,
     },
 
+    expiration: {
+        $id: "expiration",
+        expiration: true,
+    },
+
     address: {
         $id: "address",
         allOf: [{ minLength: 34, maxLength: 34 }, { $ref: "base58" }, { addressOnNetwork: true }],
