@@ -14,8 +14,11 @@ import {
 import { ITransactionHandler } from "../interfaces";
 
 export abstract class TransactionHandler implements ITransactionHandler {
-    // TODO: merge with canBeApplied ?
-    // just a quick hack to get multi sig working
+    public abstract getConstructor(): Transactions.TransactionConstructor;
+
+    /**
+     * Wallet logic
+     */
     public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
         const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
@@ -26,11 +29,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return transaction.isVerified;
     }
 
-    public abstract getConstructor(): Transactions.TransactionConstructor;
-
-    /**
-     * Wallet logic
-     */
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
