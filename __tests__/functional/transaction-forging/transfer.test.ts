@@ -97,4 +97,28 @@ describe("Transaction Forging - Transfer", () => {
         await support.snoozeForBlock(1);
         await support.expectTransactionForged(multiSigTransfer[0].id);
     });
+
+    it("should broadcast, accept and forge it [Expiration]", async () => {
+        await support.snoozeForBlock(1);
+
+        const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withExpiration(support.getLastHeight() + 1)
+            .withPassphrase(secrets[0])
+            .create();
+
+        await support.expectAcceptAndBroadcast(transfer, transfer[0].id);
+        await support.snoozeForBlock(1);
+        await support.expectTransactionForged(transfer[0].id);
+    });
+
+    it("should not broadcast, accept and forge it [Expired]", async () => {
+        await support.snoozeForBlock(1);
+
+        const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withExpiration(support.getLastHeight() - 1)
+            .withPassphrase(secrets[0])
+            .create();
+
+        await support.expectHttpieError(transfer, transfer[0].id);
+    });
 });

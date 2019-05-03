@@ -2,7 +2,7 @@ import { CappedSet } from "./capped-set";
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
-import { httpie, IHttpieResponse } from "./httpie";
+import { httpie, HttpieError, IHttpieResponse } from "./httpie";
 import { isBlockChained } from "./is-block-chained";
 import { NSect } from "./nsect";
 import { OrderedCappedMap } from "./ordered-capped-map";
@@ -18,6 +18,7 @@ export {
     formatTimestamp,
     hasSomeProperty,
     httpie,
+    HttpieError,
     IHttpieResponse,
     isBlockChained,
     NSect,

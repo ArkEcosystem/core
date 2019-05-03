@@ -1,5 +1,8 @@
 import "jest-extended";
 
+import { Container, Database, State } from "@arkecosystem/core-interfaces";
+import {} from "@arkecosystem/core-utils";
+import { HttpieError } from "@arkecosystem/core-utils";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { RestClient } from "../../../helpers";
@@ -8,7 +11,7 @@ import { setUpContainer } from "../../../utils/helpers/container";
 
 jest.setTimeout(1200000);
 
-let app;
+let app: Container.IContainer;
 export const setUp = async (): Promise<void> => {
     process.env.CORE_SKIP_COLD_START = "true";
 
@@ -27,15 +30,18 @@ export const setUp = async (): Promise<void> => {
             ],
         });
 
-        const databaseService = app.resolvePlugin("database");
+        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
         await databaseService.reset();
         await databaseService.buildWallets();
         await databaseService.saveRound(
-            secrets.map(secret => ({
-                round: 1,
-                publicKey: Identities.PublicKey.fromPassphrase(secret),
-                voteBalance: Utils.BigNumber.make("245098000000000"),
-            })),
+            secrets.map(
+                secret =>
+                    ({
+                        round: 1,
+                        publicKey: Identities.PublicKey.fromPassphrase(secret),
+                        voteBalance: Utils.BigNumber.make("245098000000000"),
+                    } as State.IDelegateWallet),
+            ),
         );
     } catch (error) {
         console.error(error.stack);
@@ -51,6 +57,13 @@ export const snoozeForBlock = async (sleep: number = 0, height: number = 1): Pro
     const sleepTime = sleep * 1000;
 
     return delay(blockTime + sleepTime);
+};
+
+export const getLastHeight = (): number => {
+    return app
+        .resolvePlugin<State.IStateService>("state")
+        .getStore()
+        .getLastHeight();
 };
 
 export const expectAcceptAndBroadcast = async (transactions, id): Promise<void> => {
@@ -70,6 +83,10 @@ export const expectInvalidAndError = async (transactions, id): Promise<void> => 
 
     expect(body.errors).not.toBeUndefined();
     expect(body.data.invalid).toContain(id);
+};
+
+export const expectHttpieError = async (transactions, id): Promise<void> => {
+    await expect(RestClient.broadcast(transactions)).rejects.toThrowError(HttpieError);
 };
 
 export const expectTransactionForged = async (id): Promise<void> => {

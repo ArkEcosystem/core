@@ -4,7 +4,7 @@ import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
 
-interface PassphrasePair {
+interface IPassphrasePair {
     passphrase: string;
     secondPassphrase: string;
 }
@@ -81,9 +81,10 @@ export class TransactionFactory {
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
     private passphraseList: string[];
-    private passphrasePairs: PassphrasePair[];
+    private passphrasePairs: IPassphrasePair[];
     private version: number;
     private senderPublicKey: string;
+    private expiration: number;
 
     public constructor(builder) {
         this.builder = builder;
@@ -113,6 +114,12 @@ export class TransactionFactory {
         return this;
     }
 
+    public withExpiration(expiration: number): TransactionFactory {
+        this.expiration = expiration;
+
+        return this;
+    }
+
     public withVersion(version: number): TransactionFactory {
         this.version = version;
 
@@ -137,14 +144,14 @@ export class TransactionFactory {
         return this;
     }
 
-    public withPassphrasePair(passphrases: PassphrasePair): TransactionFactory {
+    public withPassphrasePair(passphrases: IPassphrasePair): TransactionFactory {
         this.passphrase = passphrases.passphrase;
         this.secondPassphrase = passphrases.secondPassphrase;
 
         return this;
     }
 
-    public withPassphrasePairs(passphrases: PassphrasePair[]): TransactionFactory {
+    public withPassphrasePairs(passphrases: IPassphrasePair[]): TransactionFactory {
         this.passphrasePairs = passphrases;
 
         return this;
@@ -161,7 +168,7 @@ export class TransactionFactory {
     private make<T>(quantity: number = 1, method: string): T[] {
         if (this.passphrasePairs && this.passphrasePairs.length) {
             return this.passphrasePairs.map(
-                (passphrasePair: PassphrasePair) =>
+                (passphrasePair: IPassphrasePair) =>
                     this.withPassphrase(passphrasePair.passphrase)
                         .withSecondPassphrase(passphrasePair.secondPassphrase)
                         .sign<T>(quantity, method)[0],
@@ -207,6 +214,10 @@ export class TransactionFactory {
 
             if (this.senderPublicKey) {
                 this.builder.senderPublicKey(this.senderPublicKey);
+            }
+
+            if (this.expiration) {
+                this.builder.expiration(this.expiration);
             }
 
             let sign: boolean = true;
