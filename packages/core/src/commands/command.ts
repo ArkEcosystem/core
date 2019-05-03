@@ -79,18 +79,6 @@ export abstract class BaseCommand extends Command {
         }),
     };
 
-    public static flagsReplay: Record<string, object> = {
-        ...BaseCommand.flagsNetwork,
-        targetHeight: flags.integer({
-            description: "the target height to replay to. If not set, defaults to last block in database.",
-            default: -1,
-        }),
-        suffix: flags.string({
-            hidden: true,
-            default: "replay",
-        }),
-    };
-
     protected tasks: Array<{ title: string; task: any }> = [];
 
     protected buildPeerOptions(flags: CommandFlags) {

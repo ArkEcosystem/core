@@ -381,7 +381,7 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
             // broadcast only current block
-            const currentBlock = blocks[blocks.length - 1];
+            const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
             const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
@@ -403,6 +403,7 @@ export class Blockchain implements blockchain.IBlockchain {
                     return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
                 } catch (e) {
                     logger.error(`Could not remove top blocks from database : ${e.stack}`);
+
                     return resetToHeight(height); // keep trying, we can't do anything while this fails
                 }
             };
