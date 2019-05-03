@@ -121,7 +121,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.state.blockchain = nextState;
 
-        nextState.actions.forEach(actionKey => {
+        for (const actionKey of nextState.actions) {
             const action = this.actions[actionKey];
 
             if (action) {
@@ -129,7 +129,7 @@ export class Blockchain implements blockchain.IBlockchain {
             } else {
                 logger.error(`No action '${actionKey}' found`);
             }
-        });
+        }
 
         return nextState;
     }

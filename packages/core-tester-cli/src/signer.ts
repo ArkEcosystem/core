@@ -73,9 +73,9 @@ export class Signer {
             .senderPublicKey(Identities.PublicKey.fromPassphrase(opts.passphrase))
             .network(this.network);
 
-        opts.passphrases.split(",").forEach((passphrase, index) => {
+        for (const [index, passphrase] of opts.passphrases.split(",").entries()) {
             transaction.multiSign(passphrase, index);
-        });
+        }
 
         transaction.sign(opts.passphrase);
 

@@ -168,7 +168,10 @@ export class Block implements IBlock {
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
-                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
+
+                for (const invalidTransaction of invalidTransactions) {
+                    result.errors.push(`=> ${invalidTransaction.serialized.toString("hex")}`);
+                }
 
                 result.containsMultiSignatures = invalidTransactions.some(tx => !!tx.data.signatures);
             }
@@ -190,7 +193,7 @@ export class Block implements IBlock {
             let totalFee: BigNumber = BigNumber.ZERO;
 
             const payloadBuffers: Buffer[] = [];
-            this.transactions.forEach(transaction => {
+            for (const transaction of this.transactions) {
                 const bytes: Buffer = Buffer.from(transaction.data.id, "hex");
 
                 if (appliedTransactions[transaction.data.id]) {
@@ -204,7 +207,7 @@ export class Block implements IBlock {
                 size += bytes.length;
 
                 payloadBuffers.push(bytes);
-            });
+            }
 
             if (!totalAmount.isEqualTo(block.totalAmount)) {
                 result.errors.push("Invalid total amount");

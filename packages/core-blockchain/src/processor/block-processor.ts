@@ -65,10 +65,10 @@ export class BlockProcessor {
     private verifyBlock(block: Interfaces.IBlock): boolean {
         // TODO: refactor block verification
         if (block.verification.containsMultiSignatures) {
-            block.transactions.forEach(transaction => {
+            for (const transaction of block.transactions) {
                 const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
                 handler.verify(transaction, this.blockchain.database.walletManager);
-            });
+            }
 
             block.verification = block.verify();
         }

@@ -150,10 +150,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             }),
         );
 
-        Object.keys(peerErrors).forEach((key: any) => {
+        for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;
             this.logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
-        });
+        }
 
         if (this.initializing) {
             this.logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
@@ -460,11 +460,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         const peerCache: IPeerData[] = restorePeers();
         if (peerCache) {
-            peerCache.forEach(peerA => {
+            for (const peerA of peerCache) {
                 if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {
                     peers.push(peerA);
                 }
-            });
+            }
         }
 
         return Promise.all(

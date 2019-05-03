@@ -73,7 +73,8 @@ export class Storage {
             .all();
 
         const transactions: Interfaces.ITransaction[] = [];
-        rows.forEach(row => {
+
+        for (const row of rows) {
             try {
                 const transaction = Transactions.TransactionFactory.fromHex(row.serialized);
                 if (transaction.verified) {
@@ -82,7 +83,7 @@ export class Storage {
             } catch {
                 //
             }
-        });
+        }
 
         return transactions;
     }

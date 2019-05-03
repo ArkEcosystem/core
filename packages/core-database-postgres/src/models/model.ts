@@ -15,13 +15,15 @@ export abstract class Model implements Database.IModel {
         if (!this.columnSet) {
             this.columnSet = this.createColumnSet(
                 this.columnsDescriptor.map(col => {
-                    const colDef: IColumnDescriptor = { name: col.name };
+                    const colDef: IColumnDescriptor = {
+                        name: col.name,
+                    };
 
-                    ["prop", "init", "def"].forEach(prop => {
+                    for (const prop of ["prop", "init", "def"]) {
                         if (col.hasOwnProperty(prop)) {
                             colDef[prop] = col[prop];
                         }
-                    });
+                    }
 
                     return colDef;
                 }),

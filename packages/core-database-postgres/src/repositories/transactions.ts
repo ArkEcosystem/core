@@ -129,7 +129,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 }
             }
 
-            customOps.forEach(o => {
+            for (const o of customOps) {
                 if (o.field === "ownerWallet") {
                     const wallet: State.IWallet = o.value;
 
@@ -145,7 +145,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                             .or(this.query.recipient_id.equals(wallet.address));
                     }
                 }
-            });
+            }
         }
         return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
     }
