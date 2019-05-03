@@ -80,7 +80,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                     operator: Database.SearchOperator.OP_CUSTOM,
                     value: params[fieldName],
                 });
-                return;
+                continue;
             }
 
             if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LIKE)) {
@@ -89,7 +89,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                     operator: Database.SearchOperator.OP_LIKE,
                     value: `%${params[fieldName]}%`,
                 });
-                return;
+                continue;
             }
 
             // 'between'
@@ -104,7 +104,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                         operator: Database.SearchOperator.OP_EQ,
                         value: params[fieldName],
                     });
-                    return;
+                    continue;
                 } else {
                     if (params[fieldName].hasOwnProperty("from")) {
                         searchParameters.parameters.push({
@@ -120,7 +120,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                             value: params[fieldName].to,
                         });
                     }
-                    return;
+                    continue;
                 }
             }
 
@@ -134,7 +134,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                     operator: Database.SearchOperator.OP_IN,
                     value: params[fieldName],
                 });
-                return;
+                continue;
             }
 
             // if the field supports EQ, then ignore any others.
@@ -144,7 +144,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                     operator: Database.SearchOperator.OP_EQ,
                     value: params[fieldName],
                 });
-                return;
+                continue;
             }
         }
     }
