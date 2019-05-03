@@ -193,10 +193,10 @@ export class WalletManager implements State.IWalletManager {
         const appliedTransactions: Interfaces.ITransaction[] = [];
 
         try {
-            block.transactions.forEach(transaction => {
+            for (const transaction of block.transactions) {
                 this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
-            });
+            }
 
             const applied: boolean = delegate.applyBlock(block.data);
 
@@ -212,9 +212,9 @@ export class WalletManager implements State.IWalletManager {
             this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
 
             // Revert the applied transactions from last to first
-            appliedTransactions
-                .reverse()
-                .forEach((transaction: Interfaces.ITransaction) => this.revertTransaction(transaction));
+            for (const transaction of appliedTransactions.reverse()) {
+                this.revertTransaction(transaction);
+            }
 
             // for (let i = appliedTransactions.length - 1; i >= 0; i--) {
             //     this.revertTransaction(appliedTransactions[i]);
@@ -256,9 +256,9 @@ export class WalletManager implements State.IWalletManager {
         } catch (error) {
             this.logger.error(error.stack);
 
-            revertedTransactions
-                .reverse()
-                .forEach((transaction: Interfaces.ITransaction) => this.applyTransaction(transaction));
+            for (const transaction of revertedTransactions.reverse()) {
+                this.applyTransaction(transaction);
+            }
 
             throw error;
         }

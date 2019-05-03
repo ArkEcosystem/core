@@ -89,11 +89,11 @@ export class Delegate {
 
             const payloadBuffers: Buffer[] = [];
             const sortedTransactions = Utils.sortTransactions(transactions);
-            sortedTransactions.forEach(transaction => {
+            for (const transaction of sortedTransactions) {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
                 payloadBuffers.push(Buffer.from(transaction.id, "hex"));
-            });
+            }
 
             if (this.bip38) {
                 this.decryptKeysWithOtp();

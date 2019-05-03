@@ -170,13 +170,15 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     protected abstract instance(): TBuilder;
 
     private getSigningObject(): ITransactionData {
-        const data: ITransactionData = { ...this.data };
+        const data: ITransactionData = {
+            ...this.data,
+        };
 
-        Object.keys(data).forEach(key => {
+        for (const key of Object.keys(data)) {
             if (["model", "network", "id"].includes(key)) {
                 delete data[key];
             }
-        });
+        }
 
         return data;
     }

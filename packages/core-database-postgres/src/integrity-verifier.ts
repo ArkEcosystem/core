@@ -129,20 +129,20 @@ export class IntegrityVerifier {
         // Register...
         const transactions = await this.query.manyOrNone(queries.integrityVerifier.delegates);
 
-        transactions.forEach(transaction => {
+        for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.username = transaction.asset.delegate.username;
             this.walletManager.reindex(wallet);
-        });
+        }
 
         // Forged Blocks...
         const forgedBlocks = await this.query.manyOrNone(queries.integrityVerifier.delegatesForgedBlocks);
-        forgedBlocks.forEach(block => {
+        for (const block of forgedBlocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
             wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
             wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
             wallet.producedBlocks = +block.totalProduced;
-        });
+        }
 
         this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
     }

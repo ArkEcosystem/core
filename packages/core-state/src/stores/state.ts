@@ -144,7 +144,9 @@ export class StateStore implements State.IStateStore {
     public getCommonBlocks(ids: string[]): Interfaces.IBlockData[] {
         const idsHash = {};
 
-        ids.forEach(id => (idsHash[id] = true));
+        for (const id of ids) {
+            idsHash[id] = true;
+        }
 
         return this.getLastBlocksData()
             .filter(block => idsHash[block.id])
@@ -167,7 +169,9 @@ export class StateStore implements State.IStateStore {
         });
 
         this.cachedTransactionIds = this.cachedTransactionIds.withMutations(cache => {
-            added.forEach(tx => cache.add(tx.id));
+            for (const tx of added) {
+                cache.add(tx.id);
+            }
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
