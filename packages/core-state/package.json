@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-state",
-    "version": "2.3.21",
+    "version": "2.3.22",
     "description": "State Management for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,11 +21,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.21",
-        "@arkecosystem/core-interfaces": "^2.3.21",
-        "@arkecosystem/core-transactions": "^2.3.21",
-        "@arkecosystem/core-utils": "^2.3.21",
-        "@arkecosystem/crypto": "^2.3.21"
+        "@arkecosystem/core-container": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.3.22",
+        "@arkecosystem/core-transactions": "^2.3.22",
+        "@arkecosystem/core-utils": "^2.3.22",
+        "@arkecosystem/crypto": "^2.3.22"
     },
     "engines": {
         "node": ">=10.x"

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.22] - 2019-05-02
+
+### Changed
+
+-   Return transaction timestamp instead of block timestamp for `/v2/*` endpoints in `core-api` ([#2513])
+    -   **Note that the transaction timestamp can be misleading as a transaction can be signed hours or days before it gets forged which is why you should rely on the block timestamp because that is the point in time when the blockchain becomes aware of a transaction.**
+
 ## [2.3.21] - 2019-04-30
 
 ### Fixed
@@ -330,6 +337,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
 [2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
 [2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
 [2.3.16]: https://github.com/ARKEcosystem/core/compare/2.3.15...2.3.16
@@ -500,3 +508,4 @@ Closed security vulnerabilities:
 [#2491]: https://github.com/ARKEcosystem/core/pull/2491
 [#2502]: https://github.com/ARKEcosystem/core/pull/2502
 [#2503]: https://github.com/ARKEcosystem/core/pull/2503
+[#2513]: https://github.com/ARKEcosystem/core/pull/2513
