@@ -540,7 +540,7 @@ describe("Multi Signature Registration Transaction", () => {
 
     it("should be valid with a dynamic number of signatures between min and publicKeys ", () => {
         multiSignatureAsset.min = 1;
-        [1, 2, 3].forEach(count => {
+        for (const count of [1, 2, 3]) {
             transaction.data.signatures = [];
             transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
             signTransaction(transaction, passphrases.slice(0, count));
@@ -548,7 +548,7 @@ describe("Multi Signature Registration Transaction", () => {
             const struct = transaction.getStruct();
             const { error } = Ajv.validate(transactionSchema.$id, struct);
             expect(error).toBeUndefined();
-        });
+        }
     });
 
     it("should be invalid due to no transaction as object", () => {

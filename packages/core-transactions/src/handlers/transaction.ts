@@ -14,8 +14,11 @@ import {
 import { ITransactionHandler } from "../interfaces";
 
 export abstract class TransactionHandler implements ITransactionHandler {
-    // TODO: merge with canBeApplied ?
-    // just a quick hack to get multi sig working
+    public abstract getConstructor(): Transactions.TransactionConstructor;
+
+    /**
+     * Wallet logic
+     */
     public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
         const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
@@ -26,19 +29,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return transaction.isVerified;
     }
 
-    public abstract getConstructor(): Transactions.TransactionConstructor;
-
-    /**
-     * Wallet logic
-     */
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): boolean {
-        // NOTE: Checks if it can be applied based on sender wallet
-        // could be merged with `apply` so they are coupled together :thinking_face:
-
         const { data }: Interfaces.ITransaction = transaction;
 
         if (
@@ -68,9 +63,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
                 throw new InvalidSecondSignatureError();
             }
         } else if (data.secondSignature || data.signSignature) {
-            // TODO: get rid of this milestone by adding exceptions, the milestone is solely
-            // necessary because of devnet.
-            if (!Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField) {
+            const isException =
+                Managers.configManager.get("network.name") === "devnet" &&
+                Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
+            if (!isException) {
                 throw new UnexpectedSecondSignatureError();
             }
         }

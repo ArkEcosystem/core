@@ -59,11 +59,7 @@ export class BlockProcessor {
         return new AcceptBlockHandler(this.blockchain, block);
     }
 
-    /**
-     * Checks if the given block is verified or an exception
-     */
     private verifyBlock(block: Interfaces.IBlock): boolean {
-        // TODO: refactor block verification
         if (block.verification.containsMultiSignatures) {
             for (const transaction of block.transactions) {
                 const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
@@ -89,9 +85,6 @@ export class BlockProcessor {
         return true;
     }
 
-    /**
-     * Checks if the given block contains an already forged transaction.
-     */
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds: string[] = await this.blockchain.database.getForgedTransactionsIds(

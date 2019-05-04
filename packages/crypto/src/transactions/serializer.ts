@@ -2,6 +2,7 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
+import { Utils } from "..";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
@@ -238,8 +239,7 @@ export class Serializer {
         }
 
         if (transaction.signatures) {
-            // TODO: check if still relevant
-            if (transaction.version === 1) {
+            if (transaction.version === 1 && Utils.isException(transaction)) {
                 buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
                 buffer.append(transaction.signatures.join(""), "hex");
             } else if (!options.excludeMultiSignature) {

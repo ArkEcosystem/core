@@ -302,9 +302,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         if (!(await blockchain.database.verifyBlockchain())) {
-            // TODO: multiple attempts? rewind further? restore snapshot?
             blockchain.dispatch("FAILURE");
-
             return;
         }
 
