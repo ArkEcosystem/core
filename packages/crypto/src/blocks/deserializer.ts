@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import { memoize } from "decko";
 import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { TransactionFactory } from "../transactions";
@@ -6,6 +7,7 @@ import { BigNumber } from "../utils";
 import { Block } from "./block";
 
 class Deserializer {
+    @memoize
     public deserialize(
         serializedHex: string,
         headerOnly: boolean = false,

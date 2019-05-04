@@ -1,3 +1,4 @@
+import { memoize } from "decko";
 import { Hash } from "../crypto/hash";
 import { ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
@@ -7,6 +8,7 @@ import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
 
 export class Verifier {
+    @memoize
     public static verify(data: ITransactionData): boolean {
         if (isException(data)) {
             return true;
@@ -19,6 +21,7 @@ export class Verifier {
         return Verifier.verifyHash(data);
     }
 
+    @memoize
     public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
         const secondSignature: string = transaction.secondSignature || transaction.signSignature;
 
@@ -35,6 +38,7 @@ export class Verifier {
         }
     }
 
+    @memoize
     public static verifyHash(data: ITransactionData): boolean {
         const { signature, senderPublicKey } = data;
 
@@ -54,6 +58,7 @@ export class Verifier {
         }
     }
 
+    // @TODO: check if we could memoize this too (schema can change depending on milestone)
     public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
         const { $id } = TransactionTypeFactory.get(data.type).getSchema();
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);

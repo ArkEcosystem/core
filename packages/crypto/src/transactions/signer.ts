@@ -1,9 +1,11 @@
+import { memoize } from "decko";
 import { Hash } from "../crypto";
 import { IKeyPair, ISerializeOptions, ITransactionData } from "../interfaces";
 import { numberToHex } from "../utils";
 import { Utils } from "./utils";
 
 export class Signer {
+    @memoize
     public static sign(transaction: ITransactionData, keys: IKeyPair, options?: ISerializeOptions): string {
         options = options || { excludeSignature: true, excludeSecondSignature: true };
 
@@ -17,6 +19,7 @@ export class Signer {
         return signature;
     }
 
+    @memoize
     public static secondSign(transaction: ITransactionData, keys: IKeyPair): string {
         const hash: Buffer = Utils.toHash(transaction, { excludeSecondSignature: true });
         const signature: string = transaction.version === 2 ? Hash.signSchnorr(hash, keys) : Hash.signECDSA(hash, keys);
@@ -28,6 +31,7 @@ export class Signer {
         return signature;
     }
 
+    @memoize
     public static multiSign(transaction: ITransactionData, keys: IKeyPair, index: number = -1): string {
         if (!transaction.signatures) {
             transaction.signatures = [];

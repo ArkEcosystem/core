@@ -2,6 +2,7 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
+import { memoize } from "decko";
 import { Utils } from "..";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
@@ -13,6 +14,7 @@ import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer {
+    @memoize
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
         const version: number = transaction.version || 1;
 
@@ -28,6 +30,7 @@ export class Serializer {
     /**
      * Serializes the given transaction according to AIP11.
      */
+    @memoize
     public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
 

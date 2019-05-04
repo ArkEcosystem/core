@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import { memoize } from "decko";
 import { PreviousBlockIdFormatError } from "../errors";
 import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
@@ -6,6 +7,7 @@ import { Utils } from "../transactions";
 import { Block } from "./block";
 
 export class Serializer {
+    @memoize
     public static serializeWithTransactions(block: IBlockData): Buffer {
         const transactions: ITransactionData[] = block.transactions || [];
         block.numberOfTransactions = block.numberOfTransactions || transactions.length;
@@ -25,6 +27,7 @@ export class Serializer {
         return buffer.flip().toBuffer();
     }
 
+    @memoize
     public static serialize(block: IBlockData, includeSignature: boolean = true): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
 

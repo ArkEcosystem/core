@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import { memoize } from "decko";
 import { TransactionTypes } from "../enums";
 import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { Address } from "../identities";
@@ -9,6 +10,7 @@ import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class Deserializer {
+    @memoize
     public deserialize(serialized: string | Buffer): ITransaction {
         const data = {} as ITransactionData;
 
