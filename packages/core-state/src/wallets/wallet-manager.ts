@@ -216,12 +216,6 @@ export class WalletManager implements State.IWalletManager {
                 this.revertTransaction(transaction);
             }
 
-            // for (let i = appliedTransactions.length - 1; i >= 0; i--) {
-            //     this.revertTransaction(appliedTransactions[i]);
-            // }
-            // TODO: should revert the delegate applyBlock ?
-            // TBC: whatever situation `delegate.applyBlock(block.data)` is never applied
-
             throw error;
         }
     }
@@ -266,16 +260,11 @@ export class WalletManager implements State.IWalletManager {
 
     public applyTransaction(transaction: Interfaces.ITransaction): void {
         const { data } = transaction;
-        const { type, recipientId, senderPublicKey } = data;
+        const { recipientId, senderPublicKey } = data;
 
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(recipientId);
-
-        // TODO: can/should be removed?
-        if (type === Enums.TransactionTypes.SecondSignature) {
-            data.recipientId = "";
-        }
 
         // handle exceptions / verify that we can apply the transaction to the sender
         if (Utils.isException(data)) {

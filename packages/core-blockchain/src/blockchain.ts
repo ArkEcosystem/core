@@ -151,7 +151,6 @@ export class Blockchain implements blockchain.IBlockchain {
             return true;
         }
 
-        // TODO: this state needs to be set after state.getLastBlock() is available if CORE_ENV=test
         while (!this.state.started && !this.isStopped) {
             await delay(1000);
         }
@@ -291,7 +290,6 @@ export class Blockchain implements blockchain.IBlockchain {
             // tslint:disable-next-line:no-shadowed-variable
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
-            // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
             await this.database.revertBlock(lastBlock);
             this.database.enqueueDeleteBlock(lastBlock);
 

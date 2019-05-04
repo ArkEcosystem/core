@@ -20,9 +20,9 @@ import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "timestamp", "senderPublicKey", "fee", "amount"];
-        fieldsToCheck.forEach(field => {
+        for (const field of fieldsToCheck) {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
-        });
+        }
     };
 
     describe("ser/deserialize - transfer", () => {
@@ -187,7 +187,8 @@ describe("Transaction serializer / deserializer", () => {
                 .multiSign("secret 1", 0)
                 .multiSign("secret 2", 1)
                 .multiSign("secret 3", 2)
-                .sign("secret 1").data;
+                .sign("secret 1")
+                .getStruct();
         });
 
         it("should ser/deserialize a multisig registration", () => {

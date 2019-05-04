@@ -39,7 +39,6 @@ class Deserializer {
             }
         }
 
-        // FIXME: only a workaround
         return { data: block, transactions };
     }
 
