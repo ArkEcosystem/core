@@ -92,16 +92,14 @@ export class Block implements IBlock {
 
         this.verification = this.verify();
 
-        // order of transactions messed up in mainnet V1
-        // TODO: move this to network constants exception using block ids
-        if (
-            this.transactions &&
-            this.data.numberOfTransactions === 2 &&
-            (this.data.height === 3084276 || this.data.height === 34420)
-        ) {
-            const temp = this.transactions[0];
-            this.transactions[0] = this.transactions[1];
-            this.transactions[1] = temp;
+        // Order of transactions messed up in mainnet V1
+        const { wrongTransactionOrder } = configManager.get("exceptions");
+        if (wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
+            const fixedOrderIds = wrongTransactionOrder[this.data.id];
+
+            this.transactions = fixedOrderIds.map((id: string) =>
+                this.transactions.find(transaction => transaction.id === id),
+            );
         }
     }
 
