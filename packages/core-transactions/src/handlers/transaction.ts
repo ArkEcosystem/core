@@ -34,9 +34,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): boolean {
-        // NOTE: Checks if it can be applied based on sender wallet
-        // could be merged with `apply` so they are coupled together :thinking_face:
-
         const { data }: Interfaces.ITransaction = transaction;
 
         if (
@@ -66,9 +63,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
                 throw new InvalidSecondSignatureError();
             }
         } else if (data.secondSignature || data.signSignature) {
-            // TODO: get rid of this milestone by adding exceptions, the milestone is solely
-            // necessary because of devnet.
-            if (!Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField) {
+            const isException =
+                Managers.configManager.get("network.name") === "devnet" &&
+                Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
+            if (!isException) {
                 throw new UnexpectedSecondSignatureError();
             }
         }
