@@ -146,6 +146,9 @@
             },
             "snapshot": {
                 "description": "manage a relay snapshots"
+            },
+            "chain": {
+                "description": "commands to interact with the blockchain"
             }
         },
         "plugins": [

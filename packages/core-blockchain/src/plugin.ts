@@ -2,6 +2,7 @@ import { Container, State } from "@arkecosystem/core-interfaces";
 import { Blockchain } from "./blockchain";
 import { defaults } from "./defaults";
 import { blockchainMachine } from "./machines/blockchain";
+import { ReplayBlockchain } from "./replay";
 
 /**
  * The struct used by the plugin container.
@@ -12,14 +13,20 @@ export const plugin: Container.IPluginDescriptor = {
     defaults,
     alias: "blockchain",
     async register(container: Container.IContainer, options: Container.IPluginOptions) {
-        const blockchain = new Blockchain(options);
+        let blockchain: Blockchain;
+
+        if (options.replay) {
+            blockchain = new ReplayBlockchain();
+        } else {
+            blockchain = new Blockchain(options);
+        }
 
         container
             .resolvePlugin<State.IStateService>("state")
             .getStore()
             .reset(blockchainMachine);
 
-        if (!process.env.CORE_SKIP_BLOCKCHAIN) {
+        if (!process.env.CORE_SKIP_BLOCKCHAIN && !options.replay) {
             await blockchain.start();
         }
 

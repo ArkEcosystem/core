@@ -110,7 +110,7 @@ const encryptRaw = (buffer: Buffer, compressed: boolean, passphrase: string): Bu
 };
 
 const decryptECMult = (buffer: Buffer, passphrase: string): IDecryptResult => {
-    buffer = buffer.slice(1); // FIXME: we can avoid this
+    buffer = buffer.slice(1);
 
     const flag = buffer.readUInt8(1);
 

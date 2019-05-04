@@ -58,8 +58,8 @@ export class Blockchain implements blockchain.IBlockchain {
     public isStopped: boolean;
     public options: any;
     public queue: async.AsyncQueue<any>;
+    protected blockProcessor: BlockProcessor;
     private actions: any;
-    private blockProcessor: BlockProcessor;
 
     /**
      * Create a new blockchain manager instance.
@@ -151,7 +151,6 @@ export class Blockchain implements blockchain.IBlockchain {
             return true;
         }
 
-        // TODO: this state needs to be set after state.getLastBlock() is available if CORE_ENV=test
         while (!this.state.started && !this.isStopped) {
             await delay(1000);
         }
@@ -291,7 +290,6 @@ export class Blockchain implements blockchain.IBlockchain {
             // tslint:disable-next-line:no-shadowed-variable
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
-            // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
             await this.database.revertBlock(lastBlock);
             this.database.enqueueDeleteBlock(lastBlock);
 
@@ -365,7 +363,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<any> {
+    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
         for (const block of blocks) {
@@ -381,7 +379,7 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
             // broadcast only current block
-            const currentBlock = blocks[blocks.length - 1];
+            const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
             const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
@@ -390,7 +388,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         if (acceptedBlocks.length === 0) {
-            return callback();
+            return callback([]);
         }
 
         try {
@@ -403,6 +401,7 @@ export class Blockchain implements blockchain.IBlockchain {
                     return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
                 } catch (e) {
                     logger.error(`Could not remove top blocks from database : ${e.stack}`);
+
                     return resetToHeight(height); // keep trying, we can't do anything while this fails
                 }
             };
@@ -411,7 +410,7 @@ export class Blockchain implements blockchain.IBlockchain {
             return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
         }
 
-        return callback();
+        return callback(acceptedBlocks);
     }
 
     /**
@@ -471,6 +470,10 @@ export class Blockchain implements blockchain.IBlockchain {
         block = block || this.getLastBlock();
 
         return Crypto.Slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
+    }
+
+    public async replay(targetHeight?: number): Promise<void> {
+        return;
     }
 
     /**
