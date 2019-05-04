@@ -1,4 +1,5 @@
 // tslint:disable:member-ordering
+import { memoize } from "decko";
 import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
 import { ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
 import { BigNumber, isException } from "../utils";
@@ -9,10 +10,12 @@ import { Utils } from "./utils";
 import { Verifier } from "./verifier";
 
 export class TransactionFactory {
+    @memoize
     public static fromHex(hex: string): ITransaction {
         return this.fromSerialized(hex);
     }
 
+    @memoize
     public static fromBytes(buffer: Buffer): ITransaction {
         return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
     }
@@ -24,6 +27,7 @@ export class TransactionFactory {
      * NOTE: Only use this internally when it is safe to assume the buffer has already been
      * verified.
      */
+    @memoize
     public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(buffer);
@@ -36,6 +40,7 @@ export class TransactionFactory {
         }
     }
 
+    @memoize
     public static fromJson(json: ITransactionJson): ITransaction {
         const data: ITransactionData = ({ ...json } as unknown) as ITransactionData;
         data.amount = BigNumber.make(data.amount);
@@ -44,6 +49,7 @@ export class TransactionFactory {
         return this.fromData(data);
     }
 
+    @memoize
     public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
         const { value, error } = Verifier.verifySchema(data, strict);
 
@@ -66,6 +72,7 @@ export class TransactionFactory {
         return transaction;
     }
 
+    @memoize
     private static fromSerialized(serialized: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);

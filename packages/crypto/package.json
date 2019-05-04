@@ -39,6 +39,7 @@
         "bs58check": "^2.1.2",
         "buffer-xor": "^2.0.2",
         "bytebuffer": "^5.0.1",
+        "decko": "^1.2.0",
         "deepmerge": "^3.2.0",
         "lodash.camelcase": "^4.3.0",
         "lodash.get": "^4.4.2",

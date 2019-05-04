@@ -1,3 +1,4 @@
+import { memoize } from "decko";
 import { Hash, HashAlgorithms } from "../crypto";
 import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../interfaces";
 import { BigNumber } from "../utils";
@@ -6,6 +7,7 @@ import { deserializer } from "./deserializer";
 
 export class BlockFactory {
     // @TODO: add a proper type hint for data
+    @memoize
     public static make(data: any, keys: IKeyPair): IBlock {
         data.generatorPublicKey = keys.publicKey;
 
@@ -18,14 +20,17 @@ export class BlockFactory {
         return this.fromData(data);
     }
 
+    @memoize
     public static fromHex(hex: string): IBlock {
         return this.fromSerialized(hex);
     }
 
+    @memoize
     public static fromBytes(buffer: Buffer): IBlock {
         return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
     }
 
+    @memoize
     public static fromJson(json: IBlockJson): IBlock {
         // @ts-ignore
         const data: IBlockData = { ...json };
@@ -41,6 +46,7 @@ export class BlockFactory {
         return this.fromData(data);
     }
 
+    @memoize
     public static fromData(data: IBlockData): IBlock {
         data = Block.applySchema(data);
 
@@ -51,6 +57,7 @@ export class BlockFactory {
         return block;
     }
 
+    @memoize
     private static fromSerialized(serialized: string): IBlock {
         const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
         deserialized.data = Block.applySchema(deserialized.data);
