@@ -146,6 +146,51 @@ describe("Block", () => {
             jest.restoreAllMocks();
         });
 
+        it("should verify a block with expiring transactions", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
+                .withNetwork("devnet")
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            transactions[0].expiration = 102;
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeTrue();
+        });
+
+        it("should fail to verify a block with expired transactions", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
+                .withNetwork("devnet")
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            transactions[0].expiration = 52;
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
+        });
+
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
             jest.spyOn(Slots, "getSlotNumber").mockImplementation(height => {
@@ -207,7 +252,7 @@ describe("Block", () => {
             const header = BlockFactory.fromData(data2).getHeader();
             const bignumProperties = ["reward", "totalAmount", "totalFee"];
 
-            Object.keys(data).forEach(key => {
+            for (const key of Object.keys(data)) {
                 if (key !== "transactions") {
                     if (bignumProperties.includes(key)) {
                         expect(header[key]).toEqual(Utils.BigNumber.make(data2[key]));
@@ -215,7 +260,7 @@ describe("Block", () => {
                         expect(header[key]).toEqual(data2[key]);
                     }
                 }
-            });
+            }
 
             expect(header).not.toHaveProperty("transactions");
 

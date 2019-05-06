@@ -53,20 +53,6 @@ const network = (ajv: Ajv) => {
     });
 };
 
-const expiration = (ajv: Ajv) => {
-    ajv.addKeyword("expiration", {
-        compile(schema) {
-            return data => {
-                return schema && (!data || data > configManager.getHeight());
-            };
-        },
-        errors: false,
-        metaSchema: {
-            type: "boolean",
-        },
-    });
-};
-
 const bignumber = (ajv: Ajv) => {
     const instanceOf = ajvKeywords.get("instanceof").definition;
     instanceOf.CONSTRUCTORS.BigNumber = BigNumber;
@@ -176,4 +162,4 @@ const addressOnNetwork = (ajv: Ajv) => {
     });
 };
 
-export const keywords = [bignumber, blockId, expiration, maxBytes, network, transactionType, addressOnNetwork];
+export const keywords = [bignumber, blockId, maxBytes, network, transactionType, addressOnNetwork];

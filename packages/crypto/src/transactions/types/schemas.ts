@@ -64,7 +64,7 @@ export const transfer = extend(transactionBaseSchema, {
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
         vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         recipientId: { $ref: "address" },
-        expiration: { $ref: "expiration" },
+        expiration: { type: "integer", minimum: 0 },
     },
 });
 
