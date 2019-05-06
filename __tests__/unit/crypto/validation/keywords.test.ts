@@ -233,28 +233,4 @@ describe("keyword bignumber", () => {
             expect(validate({ amount: 0 })).toBeFalse();
         });
     });
-
-    describe("keyword expiration", () => {
-        it("should be ok", () => {
-            const schema = { expiration: true };
-
-            Managers.configManager.setHeight(1);
-
-            const validate = ajv.compile(schema);
-            expect(validate(0)).toBeTrue();
-            expect(validate(1)).toBeFalse();
-
-            Managers.configManager.setHeight(1);
-
-            expect(validate(2)).toBeTrue();
-
-            Managers.configManager.setHeight(5);
-
-            expect(validate(2)).toBeFalse();
-            expect(validate(5)).toBeFalse();
-
-            expect(validate("garbage")).toBeFalse();
-            expect(validate(undefined)).toBeTrue();
-        });
-    });
 });
