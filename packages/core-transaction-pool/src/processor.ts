@@ -168,6 +168,10 @@ export class Processor implements TransactionPool.IProcessor {
 
     private validateTransaction(transaction: Interfaces.ITransactionData): boolean {
         const now: number = Crypto.Slots.getTime();
+        const lastHeight: number = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
 
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;
@@ -176,6 +180,14 @@ export class Processor implements TransactionPool.IProcessor {
                 transaction,
                 "ERR_FROM_FUTURE",
                 `Transaction ${transaction.id} is ${secondsInFuture} seconds in the future`,
+            );
+
+            return false;
+        } else if (transaction.expiration > 0 && transaction.expiration <= lastHeight) {
+            this.pushError(
+                transaction,
+                "ERR_EXPIRED",
+                `Transaction ${transaction.id} is expired since ${lastHeight - transaction.expiration} blocks.`,
             );
 
             return false;
