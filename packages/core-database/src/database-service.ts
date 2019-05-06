@@ -77,7 +77,9 @@ export class DatabaseService implements Database.IDatabaseService {
 
         await this.applyRound(block.data.height);
 
-        block.transactions.forEach((transaction: Interfaces.ITransaction) => this.emitTransactionEvents(transaction));
+        for (const transaction of block.transactions) {
+            this.emitTransactionEvents(transaction);
+        }
 
         this.emitter.emit("block.applied", block.data);
     }
@@ -649,13 +651,13 @@ export class DatabaseService implements Database.IDatabaseService {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 
                 if (wallet) {
-                    Object.keys(wallet).forEach(key => {
+                    for (const key of Object.keys(wallet)) {
                         if (["balance"].indexOf(key) !== -1) {
                             return;
                         }
 
                         coldWallet[key] = key !== "voteBalance" ? wallet[key] : Utils.BigNumber.make(wallet[key]);
-                    });
+                    }
                 }
             } catch (err) {
                 this.logger.error(err);

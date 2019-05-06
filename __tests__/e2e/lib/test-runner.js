@@ -48,13 +48,13 @@ class TestRunner {
         await this.launchNodes();
 
         console.log("[test-runner] Executing tests...");
-        await this.executeTests();
+        const executeTestsOk = await this.executeTests();
 
         // write test results to a file
         fs.writeFileSync(`${this.rootPath}/test-results.log`, JSON.stringify(this.testResults, null, 2), "utf8");
 
         // Exiting with exit code = 1 if there are some failed tests - can be then picked up by Travis for example
-        process.exitCode = this.failedTestSuites > 0;
+        process.exitCode = this.failedTestSuites > 0 || !executeTestsOk;
     }
 
     async getNodesInfo() {
@@ -177,8 +177,8 @@ class TestRunner {
         const configuredBlockHeights = Object.keys(configAllTests.events.newBlock);
 
         const blockHeight = await testUtils.getHeight();
-        const lastBlockHeight = blocksDone.length ? blocksDone[blocksDone.length - 1] : blockHeight;
-        blocksDone.push(blockHeight);
+        const lastBlockHeight = blocksDone.length ? blocksDone[blocksDone.length - 1].height : blockHeight;
+        blocksDone.push({ height: blockHeight, timestamp: Date.now() });
 
         if (blockHeight > lastBlockHeight) {
             // new block !
@@ -187,7 +187,7 @@ class TestRunner {
 
             // Quit if there are no more tests or actions waiting
             if (Math.max(...configuredBlockHeights) < blockHeight) {
-                return;
+                return true;
             }
 
             thingsToExecute.forEach(key => {
@@ -212,7 +212,14 @@ class TestRunner {
         }
 
         await delay(2000);
-        await this.executeTests(blocksDone);
+
+        if (
+            blocksDone.length &&
+            Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
+        ) {
+            return false; // we stop test execution because now new blocks came in the last 2min
+        }
+        return this.executeTests(blocksDone);
     }
 
     runJestTest(path) {

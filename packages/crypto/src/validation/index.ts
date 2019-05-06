@@ -16,13 +16,23 @@ export class Validator {
 
     private constructor(options: Record<string, any>) {
         const ajv = new Ajv({
-            ...{ $data: true, schemas, removeAdditional: true, extendRefs: true },
+            ...{
+                $data: true,
+                schemas,
+                removeAdditional: true,
+                extendRefs: true,
+            },
             ...options,
         });
         ajvKeywords(ajv);
 
-        keywords.forEach(addKeyword => addKeyword(ajv));
-        formats.forEach(addFormat => addFormat(ajv));
+        for (const addKeyword of keywords) {
+            addKeyword(ajv);
+        }
+
+        for (const addFormat of formats) {
+            addFormat(ajv);
+        }
 
         this.ajv = ajv;
     }

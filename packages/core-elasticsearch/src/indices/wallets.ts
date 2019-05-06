@@ -20,9 +20,9 @@ export class Wallets extends Index {
                 this.logger.info(`[ES] Indexing ${rows.length} wallets`);
 
                 try {
-                    rows.forEach(row => {
+                    for (const row of rows) {
                         row.id = row.address;
-                    });
+                    }
 
                     await this.bulkUpsert(rows);
                 } catch (error) {

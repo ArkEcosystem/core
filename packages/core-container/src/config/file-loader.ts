@@ -94,11 +94,11 @@ export class FileLoader {
                 configFile.list = [];
             }
 
-            fetchedList.forEach(peer => {
+            for (const peer of fetchedList) {
                 if (!configFile.list.some(seed => seed.ip === peer.ip && seed.port === peer.port)) {
                     configFile.list.push(peer);
                 }
-            });
+            }
 
             const path = `${resolve(process.env.CORE_PATH_CONFIG)}/peers.json`;
             writeFileSync(path, JSON.stringify(configFile, undefined, 2));

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-api",
-    "version": "2.3.21",
+    "version": "2.3.22",
     "description": "Public API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,12 +21,12 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.21",
-        "@arkecosystem/core-http-utils": "^2.3.21",
-        "@arkecosystem/core-interfaces": "^2.3.21",
-        "@arkecosystem/core-transaction-pool": "^2.3.21",
-        "@arkecosystem/core-utils": "^2.3.21",
-        "@arkecosystem/crypto": "^2.3.21",
+        "@arkecosystem/core-container": "^2.3.22",
+        "@arkecosystem/core-http-utils": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.3.22",
+        "@arkecosystem/core-transaction-pool": "^2.3.22",
+        "@arkecosystem/core-utils": "^2.3.22",
+        "@arkecosystem/crypto": "^2.3.22",
         "@arkecosystem/utils": "^0.3.0",
         "@faustbrian/dato": "^0.3.0",
         "@faustbrian/hapi-version": "^0.2.11",

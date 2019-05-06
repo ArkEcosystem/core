@@ -53,7 +53,9 @@ export abstract class Repository implements Database.IRepository {
         orderBy?: Database.ISearchOrderBy[],
     ): Promise<{ rows: T; count: number }> {
         if (!!orderBy) {
-            orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));
+            for (const o of orderBy) {
+                selectQuery.order(this.query[o.field][o.direction]);
+            }
         }
 
         if (!paginate || (!paginate.limit && !paginate.offset)) {

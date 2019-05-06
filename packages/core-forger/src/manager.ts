@@ -162,7 +162,9 @@ export class ForgerManager {
 
         this.client.emitEvent("block.forged", block.data);
 
-        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction));
+        for (const transaction of transactions) {
+            this.client.emitEvent("transaction.forged", transaction);
+        }
     }
 
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {

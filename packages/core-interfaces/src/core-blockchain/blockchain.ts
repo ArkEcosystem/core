@@ -158,4 +158,6 @@ export interface IBlockchain {
      * @return {Object}
      */
     pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
+
+    replay(targetHeight?: number): Promise<void>;
 }

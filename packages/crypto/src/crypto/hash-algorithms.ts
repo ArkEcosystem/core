@@ -15,9 +15,9 @@ export class HashAlgorithms {
 
             sha256.init();
 
-            buffer.forEach(element => {
+            for (const element of buffer) {
                 sha256 = sha256.update(element);
-            });
+            }
 
             return sha256.final();
         }

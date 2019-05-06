@@ -39,7 +39,6 @@ class Deserializer {
             }
         }
 
-        // FIXME: only a workaround
         return { data: block, transactions };
     }
 
@@ -48,7 +47,7 @@ class Deserializer {
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
 
-        const constants = configManager.getMilestone(block.height - 1);
+        const constants = configManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
             block.previousBlockHex = buf.readBytes(32).toString("hex");
@@ -91,12 +90,12 @@ class Deserializer {
 
         const transactions: ITransaction[] = [];
         block.transactions = [];
-        transactionLengths.forEach(length => {
+        for (const length of transactionLengths) {
             const transactionBytes = buf.readBytes(length).toBuffer();
             const transaction = TransactionFactory.fromBytes(transactionBytes);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
-        });
+        }
 
         return transactions;
     }

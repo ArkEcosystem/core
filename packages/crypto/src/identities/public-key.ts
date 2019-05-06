@@ -19,11 +19,11 @@ export class PublicKey {
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset): string {
         const { min, publicKeys }: IMultiSignatureAsset = asset;
 
-        publicKeys.forEach(publicKey => {
+        for (const publicKey of publicKeys) {
             if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
                 throw new PublicKeyError(publicKey);
             }
-        });
+        }
 
         if (min < 1 || min > publicKeys.length) {
             throw new InvalidMultiSignatureAssetError();

@@ -193,10 +193,10 @@ export class WalletManager implements State.IWalletManager {
         const appliedTransactions: Interfaces.ITransaction[] = [];
 
         try {
-            block.transactions.forEach(transaction => {
+            for (const transaction of block.transactions) {
                 this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
-            });
+            }
 
             const applied: boolean = delegate.applyBlock(block.data);
 
@@ -212,15 +212,9 @@ export class WalletManager implements State.IWalletManager {
             this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
 
             // Revert the applied transactions from last to first
-            appliedTransactions
-                .reverse()
-                .forEach((transaction: Interfaces.ITransaction) => this.revertTransaction(transaction));
-
-            // for (let i = appliedTransactions.length - 1; i >= 0; i--) {
-            //     this.revertTransaction(appliedTransactions[i]);
-            // }
-            // TODO: should revert the delegate applyBlock ?
-            // TBC: whatever situation `delegate.applyBlock(block.data)` is never applied
+            for (const transaction of appliedTransactions.reverse()) {
+                this.revertTransaction(transaction);
+            }
 
             throw error;
         }
@@ -256,9 +250,9 @@ export class WalletManager implements State.IWalletManager {
         } catch (error) {
             this.logger.error(error.stack);
 
-            revertedTransactions
-                .reverse()
-                .forEach((transaction: Interfaces.ITransaction) => this.applyTransaction(transaction));
+            for (const transaction of revertedTransactions.reverse()) {
+                this.applyTransaction(transaction);
+            }
 
             throw error;
         }
@@ -266,16 +260,11 @@ export class WalletManager implements State.IWalletManager {
 
     public applyTransaction(transaction: Interfaces.ITransaction): void {
         const { data } = transaction;
-        const { type, recipientId, senderPublicKey } = data;
+        const { recipientId, senderPublicKey } = data;
 
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(recipientId);
-
-        // TODO: can/should be removed?
-        if (type === Enums.TransactionTypes.SecondSignature) {
-            data.recipientId = "";
-        }
 
         // handle exceptions / verify that we can apply the transaction to the sender
         if (Utils.isException(data)) {

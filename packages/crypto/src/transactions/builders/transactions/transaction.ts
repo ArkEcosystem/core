@@ -5,7 +5,7 @@ import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
-import { BigNumber, maxVendorFieldLength, numberToHex } from "../../../utils";
+import { BigNumber, maxVendorFieldLength } from "../../../utils";
 import { Signer } from "../../signer";
 import { Verifier } from "../../verifier";
 
@@ -124,17 +124,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
         this.version(2);
 
-        // TOOD: move to crypto?
-        // TOOD: sanity checks (index < 16, etc.)
-
         const keys: IKeyPair = Keys.fromPassphrase(passphrase);
-        const signature = Signer.sign(this.getSigningObject(), keys, {
-            excludeSignature: true,
-            excludeSecondSignature: true,
-            excludeMultiSignature: true,
-        });
-
-        this.data.signatures.push(`${numberToHex(index)}${signature}`);
+        Signer.multiSign(this.getSigningObject(), keys, index);
 
         return this.instance();
     }
@@ -170,13 +161,15 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     protected abstract instance(): TBuilder;
 
     private getSigningObject(): ITransactionData {
-        const data: ITransactionData = { ...this.data };
+        const data: ITransactionData = {
+            ...this.data,
+        };
 
-        Object.keys(data).forEach(key => {
+        for (const key of Object.keys(data)) {
             if (["model", "network", "id"].includes(key)) {
                 delete data[key];
             }
-        });
+        }
 
         return data;
     }

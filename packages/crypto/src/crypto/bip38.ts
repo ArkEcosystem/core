@@ -110,14 +110,14 @@ const encryptRaw = (buffer: Buffer, compressed: boolean, passphrase: string): Bu
 };
 
 const decryptECMult = (buffer: Buffer, passphrase: string): IDecryptResult => {
-    buffer = buffer.slice(1); // FIXME: we can avoid this
+    buffer = buffer.slice(1);
 
     const flag = buffer.readUInt8(1);
 
     const compressed = (flag & 0x20) !== 0;
     const hasLotSeq = (flag & 0x04) !== 0;
 
-    assert.equal(flag & 0x24, flag, "Invalid private key.");
+    assert.strictEqual(flag & 0x24, flag, "Invalid private key.");
 
     const addressHash = buffer.slice(2, 6);
     const ownerEntropy = buffer.slice(6, 14);

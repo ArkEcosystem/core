@@ -92,16 +92,14 @@ export class Block implements IBlock {
 
         this.verification = this.verify();
 
-        // order of transactions messed up in mainnet V1
-        // TODO: move this to network constants exception using block ids
-        if (
-            this.transactions &&
-            this.data.numberOfTransactions === 2 &&
-            (this.data.height === 3084276 || this.data.height === 34420)
-        ) {
-            const temp = this.transactions[0];
-            this.transactions[0] = this.transactions[1];
-            this.transactions[1] = temp;
+        // Order of transactions messed up in mainnet V1
+        const { wrongTransactionOrder } = configManager.get("exceptions");
+        if (wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
+            const fixedOrderIds = wrongTransactionOrder[this.data.id];
+
+            this.transactions = fixedOrderIds.map((id: string) =>
+                this.transactions.find(transaction => transaction.id === id),
+            );
         }
     }
 
@@ -168,7 +166,10 @@ export class Block implements IBlock {
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
-                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
+
+                for (const invalidTransaction of invalidTransactions) {
+                    result.errors.push(`=> ${invalidTransaction.serialized.toString("hex")}`);
+                }
 
                 result.containsMultiSignatures = invalidTransactions.some(tx => !!tx.data.signatures);
             }
@@ -190,7 +191,7 @@ export class Block implements IBlock {
             let totalFee: BigNumber = BigNumber.ZERO;
 
             const payloadBuffers: Buffer[] = [];
-            this.transactions.forEach(transaction => {
+            for (const transaction of this.transactions) {
                 const bytes: Buffer = Buffer.from(transaction.data.id, "hex");
 
                 if (appliedTransactions[transaction.data.id]) {
@@ -204,7 +205,7 @@ export class Block implements IBlock {
                 size += bytes.length;
 
                 payloadBuffers.push(bytes);
-            });
+            }
 
             if (!totalAmount.isEqualTo(block.totalAmount)) {
                 result.errors.push("Invalid total amount");
