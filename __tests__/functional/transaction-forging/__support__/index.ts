@@ -1,8 +1,6 @@
 import "jest-extended";
 
 import { Container, Database, State } from "@arkecosystem/core-interfaces";
-import {} from "@arkecosystem/core-utils";
-import { HttpieError } from "@arkecosystem/core-utils";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { RestClient } from "../../../helpers";
@@ -83,10 +81,6 @@ export const expectInvalidAndError = async (transactions, id): Promise<void> => 
 
     expect(body.errors).not.toBeUndefined();
     expect(body.data.invalid).toContain(id);
-};
-
-export const expectHttpieError = async (transactions, id): Promise<void> => {
-    await expect(RestClient.broadcast(transactions)).rejects.toThrowError(HttpieError);
 };
 
 export const expectTransactionForged = async (id): Promise<void> => {
