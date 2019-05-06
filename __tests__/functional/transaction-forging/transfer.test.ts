@@ -102,7 +102,7 @@ describe("Transaction Forging - Transfer", () => {
         await support.snoozeForBlock(1);
 
         const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
-            .withExpiration(support.getLastHeight() + 1)
+            .withExpiration(support.getLastHeight() + 2)
             .withPassphrase(secrets[0])
             .create();
 
@@ -115,10 +115,19 @@ describe("Transaction Forging - Transfer", () => {
         await support.snoozeForBlock(1);
 
         const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
-            .withExpiration(support.getLastHeight() - 1)
             .withPassphrase(secrets[0])
+            .withExpiration(support.getLastHeight())
             .create();
 
-        await support.expectHttpieError(transfer, transfer[0].id);
+        const transfer2 = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withPassphrase(secrets[1])
+            .withExpiration(support.getLastHeight() + 1)
+            .create();
+
+        await support.expectInvalidAndError(transfer, transfer[0].id);
+        await support.expectInvalidAndError(transfer2, transfer2[0].id);
+
+        await support.snoozeForBlock(1);
+        await support.expectTransactionNotForged(transfer[0].id);
     });
 });

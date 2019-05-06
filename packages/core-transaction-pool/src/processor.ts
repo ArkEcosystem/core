@@ -183,7 +183,7 @@ export class Processor implements TransactionPool.IProcessor {
             );
 
             return false;
-        } else if (transaction.expiration > 0 && transaction.expiration <= lastHeight) {
+        } else if (transaction.expiration > 0 && transaction.expiration <= lastHeight + 1) {
             this.pushError(
                 transaction,
                 "ERR_EXPIRED",
