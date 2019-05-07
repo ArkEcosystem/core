@@ -162,6 +162,11 @@ export class Wallet implements State.IWallet {
             audit.push({ "New username": username });
         }
 
+        if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
+            audit.push({ "Current username": this.username });
+            audit.push({ "New username": undefined });
+        }
+
         if (transaction.type === Enums.TransactionTypes.Vote) {
             audit.push({ "Current vote": this.vote });
             audit.push({ "New vote": transaction.asset.votes[0] });

@@ -69,7 +69,8 @@ export class Serializer {
                 break;
             }
 
-            case TransactionTypes.DelegateRegistration: {
+            case TransactionTypes.DelegateRegistration:
+            case TransactionTypes.DelegateResignation: {
                 assetBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
                 assetSize = assetBytes.length;
                 break;
