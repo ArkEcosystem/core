@@ -28,6 +28,7 @@ export const schemaNetwork = Joi.object({
         nethash: Joi.string()
             .hex()
             .required(),
+        slip44: Joi.number().positive(),
         wif: Joi.number()
             .positive()
             .required(),

@@ -1,20 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto as arkCrypto, models } from "@arkecosystem/crypto";
+import { Bignum, configManager, crypto, HashAlgorithms, models, Transaction } from "@arkecosystem/crypto";
 import assert from "assert";
-import crypto from "crypto";
-import cloneDeep from "lodash/cloneDeep";
-import pluralize from "pluralize";
-import { WalletManager } from "./wallet-manager";
 
-const { Block, Transaction } = models;
-const { TransactionTypes } = constants;
-
+const { Block } = models;
 
 export class DatabaseService implements Database.IDatabaseService {
-
-    public connection: Database.IDatabaseConnection;
+    public connection: Database.IConnection;
     public walletManager: Database.IWalletManager;
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -22,30 +17,54 @@ export class DatabaseService implements Database.IDatabaseService {
     public options: any;
     public wallets: Database.IWalletsBusinessRepository;
     public delegates: Database.IDelegatesBusinessRepository;
-    public blocksInCurrentRound: any[] = null;
+    public blocksBusinessRepository: Database.IBlocksBusinessRepository;
+    public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
+    public blocksInCurrentRound: models.Block[] = null;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: any[] = null;
+    public forgingDelegates: Database.IDelegateWallet[] = null;
     public cache: Map<any, any> = new Map();
-    private spvFinished: boolean;
 
-    constructor(options: any,
-                connection: Database.IDatabaseConnection,
-                walletManager: Database.IWalletManager,
-                walletsBusinessRepository: Database.IWalletsBusinessRepository,
-                delegatesBusinessRepository: Database.IDelegatesBusinessRepository
+    constructor(
+        options: any,
+        connection: Database.IConnection,
+        walletManager: Database.IWalletManager,
+        walletsBusinessRepository: Database.IWalletsBusinessRepository,
+        delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
+        transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
+        blocksBusinessRepository: Database.IBlocksBusinessRepository,
     ) {
         this.connection = connection;
         this.walletManager = walletManager;
         this.options = options;
         this.wallets = walletsBusinessRepository;
         this.delegates = delegatesBusinessRepository;
+        this.blocksBusinessRepository = blocksBusinessRepository;
+        this.transactionsBusinessRepository = transactionsBusinessRepository;
 
         this.registerListeners();
     }
 
-    public async init() {
+    public async init(): Promise<void> {
+        const lastBlock = await this.getLastBlock();
+        if (lastBlock) {
+            configManager.setHeight(lastBlock.data.height);
+        }
+
         await this.loadBlocksFromCurrentRound();
+    }
+
+    public async restoreCurrentRound(height: number): Promise<void> {
+        await this.initializeActiveDelegates(height);
+        await this.applyRound(height);
+    }
+
+    public async reset(): Promise<void> {
+        await this.connection.blocksRepository.truncate();
+        await this.connection.roundsRepository.truncate();
+        await this.connection.transactionsRepository.truncate();
+
+        await this.saveBlock(new Block(configManager.get("genesisBlock")));
     }
 
     public async applyBlock(block: models.Block) {
@@ -63,25 +82,29 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async applyRound(height: number) {
         const nextHeight = height === 1 ? 1 : height + 1;
-        const maxDelegates = this.config.getMilestone(nextHeight).activeDelegates;
-
-        if (nextHeight % maxDelegates === 1) {
-            const round = Math.floor((nextHeight - 1) / maxDelegates) + 1;
+        if (roundCalculator.isNewRound(nextHeight)) {
+            const roundInfo = roundCalculator.calculateRound(nextHeight);
+            const { round } = roundInfo;
 
             if (
+                nextHeight === 1 ||
                 !this.forgingDelegates ||
                 this.forgingDelegates.length === 0 ||
-                (this.forgingDelegates.length && this.forgingDelegates[0].round !== round)
+                this.forgingDelegates[0].round !== round
             ) {
-                this.logger.info(`Starting Round ${round.toLocaleString()} :dove_of_peace:`);
+                this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
                 try {
-                    this.updateDelegateStats(this.forgingDelegates);
-                    await this.saveWallets(false); // save only modified wallets during the last round
-                    const delegates = this.walletManager.loadActiveDelegateList(maxDelegates, nextHeight); // get active delegate list from in-memory wallet manager
-                    await this.saveRound(delegates); // save next round delegate list non-blocking
-                    this.forgingDelegates = await this.getActiveDelegates(nextHeight, delegates); // generate the new active delegates list
+                    if (nextHeight > 1) {
+                        this.updateDelegateStats(this.forgingDelegates);
+                    }
+
+                    const delegates = this.walletManager.loadActiveDelegateList(roundInfo);
+                    await this.saveRound(delegates);
+                    await this.setForgingDelegatesOfRound(roundInfo, delegates);
                     this.blocksInCurrentRound.length = 0;
+
+                    this.emitter.emit("round.applied");
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
@@ -90,22 +113,22 @@ export class DatabaseService implements Database.IDatabaseService {
             } else {
                 this.logger.warn(
                     // tslint:disable-next-line:max-line-length
-                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger. :warning:`,
+                    `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }
         }
     }
 
-    public async buildWallets(height: number): Promise<boolean> {
+    public async buildWallets(): Promise<boolean> {
         this.walletManager.reset();
 
         try {
-            const success = await this.connection.buildWallets(height);
-            this.spvFinished = true;
-            return success;
+            const result = await this.connection.buildWallets();
+            return result;
         } catch (e) {
             this.logger.error(e.stack);
         }
+
         return false;
     }
 
@@ -129,28 +152,24 @@ export class DatabaseService implements Database.IDatabaseService {
         this.connection.enqueueDeleteRound(height);
     }
 
-    public enqueueSaveBlock(block: models.Block) {
-        this.connection.enqueueSaveBlock(block);
-    }
-
-    public async getActiveDelegates(height: number, delegates?: any[]) {
-        const maxDelegates = this.config.getMilestone(height).activeDelegates;
-        const round = Math.floor((height - 1) / maxDelegates) + 1;
-
+    public async getActiveDelegates(
+        roundInfo: Shared.IRoundInfo,
+        delegates?: Database.IDelegateWallet[],
+    ): Promise<Database.IDelegateWallet[]> {
+        const { round } = roundInfo;
         if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
             return this.forgingDelegates;
         }
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
-            delegates = await this.connection.roundsRepository.findById(round);
+            delegates = ((await this.connection.roundsRepository.findById(
+                round,
+            )) as unknown) as Database.IDelegateWallet[];
         }
 
         const seedSource = round.toString();
-        let currentSeed = crypto
-            .createHash("sha256")
-            .update(seedSource, "utf8")
-            .digest();
+        let currentSeed = HashAlgorithms.sha256(seedSource);
 
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -159,23 +178,21 @@ export class DatabaseService implements Database.IDatabaseService {
                 delegates[newIndex] = delegates[i];
                 delegates[i] = b;
             }
-            currentSeed = crypto
-                .createHash("sha256")
-                .update(currentSeed)
-                .digest();
+            currentSeed = HashAlgorithms.sha256(currentSeed);
         }
 
-        this.forgingDelegates = delegates.map(delegate => {
+        const forgingDelegates = delegates.map(delegate => {
             delegate.round = +delegate.round;
+            delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
         });
 
-        return this.forgingDelegates;
+        return forgingDelegates;
     }
 
     public async getBlock(id: string) {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block = await this.connection.blocksRepository.findById(id);
+        const block: models.IBlockData = await this.connection.blocksRepository.findById(id);
 
         if (!block) {
             return null;
@@ -183,7 +200,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.findByBlockId(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
+        block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
         return new Block(block);
     }
@@ -208,7 +225,63 @@ export class DatabaseService implements Database.IDatabaseService {
         return blocks;
     }
 
-    public async getBlocksForRound(round?: number) {
+    /**
+     * Get the blocks at the given heights.
+     * The transactions for those blocks will not be loaded like in `getBlocks()`.
+     * @param {Array} heights array of arbitrary block heights
+     * @return {Array} array for the corresponding blocks. The element (block) at index `i`
+     * in the resulting array corresponds to the requested height at index `i` in the input
+     * array heights[]. For example, if
+     * heights[0] = 100
+     * heights[1] = 200
+     * heights[2] = 150
+     * then the result array will have the same number of elements (3) and will be:
+     * result[0] = block at height 100
+     * result[1] = block at height 200
+     * result[2] = block at height 150
+     * If some of the requested blocks do not exist in our chain (requested height is larger than
+     * the height of our blockchain), then that element will be `undefined` in the resulting array
+     * @throws Error
+     */
+    public async getBlocksByHeight(heights: number[]) {
+        const blocks = [];
+
+        // Map of height -> index in heights[], e.g. if
+        // heights[5] == 6000000, then
+        // toGetFromDB[6000000] == 5
+        // In this map we only store a subset of the heights - the ones we could not retrieve
+        // from app/state and need to get from the database.
+        const toGetFromDB = {};
+
+        const hasState = app.has("state");
+
+        for (const [i, height] of heights.entries()) {
+            if (hasState) {
+                const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
+                if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
+                    blocks[i] = stateBlocks[0];
+                }
+            }
+
+            if (blocks[i] === undefined) {
+                toGetFromDB[height] = i;
+            }
+        }
+
+        const heightsToGetFromDB = Object.keys(toGetFromDB).map(height => +height);
+        if (heightsToGetFromDB.length > 0) {
+            const blocksByHeights = await this.connection.blocksRepository.findByHeights(heightsToGetFromDB);
+
+            for (const blockFromDB of blocksByHeights) {
+                const index = toGetFromDB[blockFromDB.height];
+                blocks[index] = blockFromDB;
+            }
+        }
+
+        return blocks;
+    }
+
+    public async getBlocksForRound(roundInfo?: Shared.IRoundInfo) {
         let lastBlock;
         if (app.has("state")) {
             lastBlock = app.resolve<Blockchain.IStateStorage>("state").getLastBlock();
@@ -220,15 +293,14 @@ export class DatabaseService implements Database.IDatabaseService {
             return [];
         }
 
-        let height = +lastBlock.data.height;
-        if (!round) {
-            round = roundCalculator.calculateRound(height).round;
+        const height = +lastBlock.data.height;
+        if (!roundInfo) {
+            roundInfo = roundCalculator.calculateRound(height);
         }
 
-        const maxDelegates = this.config.getMilestone(height).activeDelegates;
-        height = round * maxDelegates + 1;
+        const { maxDelegates, roundHeight } = roundInfo;
 
-        const blocks = await this.getBlocks(height - maxDelegates, maxDelegates);
+        const blocks = await this.getBlocks(roundHeight, maxDelegates);
         return blocks.map(b => new Block(b));
     }
 
@@ -250,12 +322,12 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const transactions = await this.connection.transactionsRepository.latestByBlock(block.id);
 
-        block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString("hex")));
+        block.transactions = transactions.map(({ serialized, id }) => Transaction.fromBytesUnsafe(serialized, id).data);
 
         return new Block(block);
     }
 
-    public async getCommonBlocks(ids: string[]) {
+    public async getCommonBlocks(ids: string[]): Promise<models.IBlockData[]> {
         const state = app.resolve("state");
         let commonBlocks = state.getCommonBlocks(ids);
         if (commonBlocks.length < ids.length) {
@@ -305,7 +377,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         let transactions = await this.connection.transactionsRepository.latestByBlocks(ids);
         transactions = transactions.map(tx => {
-            const data = Transaction.deserialize(tx.serialized.toString("hex"));
+            const { data } = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;
         });
@@ -327,13 +399,16 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async revertRound(height: number) {
-        const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
+        const roundInfo = roundCalculator.calculateRound(height);
+        const { round, nextRound, maxDelegates } = roundInfo;
 
         if (nextRound === round + 1 && height >= maxDelegates) {
-            this.logger.info(`Back to previous round: ${round.toLocaleString()} :back:`);
+            this.logger.info(`Back to previous round: ${round.toLocaleString()}`);
 
-            const delegates = await this.calcPreviousActiveDelegates(round);
-            this.forgingDelegates = await this.getActiveDelegates(height, delegates);
+            this.blocksInCurrentRound = await this.getBlocksForRound(roundInfo);
+
+            const delegates = await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound);
+            await this.setForgingDelegatesOfRound(roundInfo, delegates);
 
             await this.deleteRound(nextRound);
         }
@@ -343,7 +418,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.saveBlock(block);
     }
 
-    public async saveRound(activeDelegates: any[]) {
+    public async saveRound(activeDelegates: Database.IDelegateWallet[]) {
         this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
 
         await this.connection.roundsRepository.insert(activeDelegates);
@@ -351,27 +426,12 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("round.created", activeDelegates);
     }
 
-    public async saveWallets(force: boolean) {
-        const wallets = this.walletManager
-            .allByPublicKey()
-            .filter(wallet => wallet.publicKey && (force || wallet.dirty));
-
-        // Remove dirty flags first to not save all dirty wallets in the exit handler
-        // when called during a force insert right after SPV.
-        this.walletManager.clear();
-
-        await this.connection.saveWallets(wallets, force);
-
-        this.logger.info(`${wallets.length} modified ${pluralize("wallet", wallets.length)} committed to database`);
-
-        this.emitter.emit("wallet.saved", wallets.length);
-
-        // NOTE: commented out as more use cases to be taken care of
-        // this.walletManager.purgeEmptyNonDelegates()
-    }
-
-    public updateDelegateStats(delegates: any[]): void {
+    public updateDelegateStats(delegates: Database.IDelegateWallet[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
+            return;
+        }
+
+        if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
             return;
         }
 
@@ -385,13 +445,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 const wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                 if (producedBlocks.length === 0) {
-                    wallet.missedBlocks++;
-                    this.logger.debug(
-                        `Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${
-                            wallet.missedBlocks
-                            }`,
-                    );
-                    wallet.dirty = true;
+                    this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
                     this.emitter.emit("forger.missing", {
                         delegate: wallet,
                     });
@@ -429,7 +483,7 @@ export class DatabaseService implements Database.IDatabaseService {
             errors.push(
                 `Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${
                     blockStats.numberOfTransactions
-                    }`,
+                }`,
             );
         }
 
@@ -438,7 +492,7 @@ export class DatabaseService implements Database.IDatabaseService {
             errors.push(
                 `Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${
                     blockStats.totalFee
-                    }`,
+                }`,
             );
         }
 
@@ -447,7 +501,7 @@ export class DatabaseService implements Database.IDatabaseService {
             errors.push(
                 `Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${
                     blockStats.totalAmount
-                    }`,
+                }`,
             );
         }
 
@@ -457,10 +511,11 @@ export class DatabaseService implements Database.IDatabaseService {
         };
     }
 
-    public async verifyTransaction(transaction: models.Transaction) {
-        const senderId = arkCrypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
+    public async verifyTransaction(transaction: Transaction): Promise<boolean> {
+        const senderId = crypto.getAddress(transaction.data.senderPublicKey, this.config.get("network.pubKeyHash"));
 
         const sender = this.walletManager.findByAddress(senderId); // should exist
+        const transactionHandler = TransactionHandlerRegistry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -469,65 +524,66 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
-        return sender.canApply(transaction.data, []) && !dbTransaction;
+        try {
+            return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
+        } catch {
+            return false;
+        }
     }
 
-    private async calcPreviousActiveDelegates(round: number) {
-        // TODO: cache the blocks of the last X rounds
-        this.blocksInCurrentRound = await this.getBlocksForRound(round);
+    private async initializeActiveDelegates(height: number): Promise<void> {
+        this.forgingDelegates = null;
 
-        // Create temp wallet manager from all delegates
-        const tempWalletManager = new WalletManager();
-        tempWalletManager.index(cloneDeep(this.walletManager.allByUsername()));
+        const roundInfo = roundCalculator.calculateRound(height);
+        const delegates = await this.calcPreviousActiveDelegates(roundInfo);
+        await this.setForgingDelegatesOfRound(roundInfo, delegates);
+    }
+
+    private async setForgingDelegatesOfRound(
+        roundInfo: Shared.IRoundInfo,
+        delegates?: Database.IDelegateWallet[],
+    ): Promise<void> {
+        const activeDelegates = await this.getActiveDelegates(roundInfo, delegates);
+        this.forgingDelegates = activeDelegates;
+    }
+
+    private async calcPreviousActiveDelegates(
+        roundInfo: Shared.IRoundInfo,
+        blocks?: models.Block[],
+    ): Promise<Database.IDelegateWallet[]> {
+        blocks = blocks || (await this.getBlocksForRound(roundInfo));
+
+        const tempWalletManager = this.walletManager.cloneDelegateWallets();
 
         // Revert all blocks in reverse order
+        const index = blocks.length - 1;
         let height = 0;
-        for (let i = this.blocksInCurrentRound.length - 1; i >= 0; i--) {
-            tempWalletManager.revertBlock(this.blocksInCurrentRound[i]);
-            height = this.blocksInCurrentRound[i].data.height;
-        }
+        for (let i = index; i >= 0; i--) {
+            height = blocks[i].data.height;
+            if (height === 1) {
+                break;
+            }
 
-        // The first round has no active delegates
-        if (height === 1) {
-            return [];
+            tempWalletManager.revertBlock(blocks[i]);
         }
-
-        // Assert that the height is the beginning of a round.
-        const { maxDelegates } = roundCalculator.calculateRound(height);
-        assert(height > 1 && height % maxDelegates === 1);
 
         // Now retrieve the active delegate list from the temporary wallet manager.
-        return tempWalletManager.loadActiveDelegateList(maxDelegates, height);
+        return tempWalletManager.loadActiveDelegateList(roundInfo);
     }
 
-    private emitTransactionEvents(transaction) {
+    private emitTransactionEvents(transaction: Transaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        if (transaction.type === TransactionTypes.DelegateRegistration) {
-            this.emitter.emit("delegate.registered", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.DelegateResignation) {
-            this.emitter.emit("delegate.resigned", transaction.data);
-        }
-
-        if (transaction.type === TransactionTypes.Vote) {
-            const vote = transaction.asset.votes[0];
-
-            this.emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
-                delegate: vote,
-                transaction: transaction.data,
-            });
-        }
+        const handler = TransactionHandlerRegistry.get(transaction.type);
+        handler.emitEvents(transaction, this.emitter);
     }
 
-    private registerListeners() {
-
-        this.emitter.on("state:started", () => {
+    private registerListeners(): void {
+        this.emitter.on(ApplicationEvents.StateStarted, () => {
             this.stateStarted = true;
         });
 
-        this.emitter.on("wallet.created.cold", async coldWallet => {
+        this.emitter.on(ApplicationEvents.WalletColdCreated, async coldWallet => {
             try {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 
@@ -544,13 +600,5 @@ export class DatabaseService implements Database.IDatabaseService {
                 this.logger.error(err);
             }
         });
-
-        this.emitter.once("shutdown", async () => {
-            if (!this.spvFinished) {
-                // Prevent dirty wallets to be saved when SPV didn't finish
-                this.walletManager.clear();
-            }
-        });
     }
-
 }

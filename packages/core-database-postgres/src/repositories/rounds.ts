@@ -5,13 +5,13 @@ import { Repository } from "./repository";
 
 const { rounds: sql } = queries;
 
-export class RoundsRepository extends Repository implements  Database.IRoundsRepository {
+export class RoundsRepository extends Repository implements Database.IRoundsRepository {
     /**
      * Find a round by its ID.
      * @param  {Number} round
      * @return {Promise}
      */
-    public async findById(round) {
+    public async findById(round: number): Promise<Database.IRound[]> {
         return this.db.manyOrNone(sql.find, { round });
     }
 
@@ -20,7 +20,7 @@ export class RoundsRepository extends Repository implements  Database.IRoundsRep
      * @param  {Number} round
      * @return {Promise}
      */
-    public async delete(round) {
+    public async delete(round): Promise<void> {
         return this.db.none(sql.delete, { round });
     }
 
@@ -28,7 +28,7 @@ export class RoundsRepository extends Repository implements  Database.IRoundsRep
      * Get the model related to this repository.
      * @return {Round}
      */
-    public getModel() {
+    public getModel(): Round {
         return new Round(this.pgp);
     }
 }

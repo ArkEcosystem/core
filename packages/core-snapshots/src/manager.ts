@@ -3,16 +3,18 @@
 import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Logger } from "@arkecosystem/core-interfaces";
-import pick from "lodash/pick";
+import { roundCalculator } from "@arkecosystem/core-utils";
+
+import pick from "lodash.pick";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
-import { database } from "./db";
+import { database, Database } from "./db";
 import * as utils from "./utils";
 
 import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from "./transport";
 
 export class SnapshotManager {
-    public database: any;
+    public database: Database;
     constructor(readonly options) {}
 
     public async make(connection: PostgresConnection) {
@@ -21,8 +23,8 @@ export class SnapshotManager {
         return this;
     }
 
-    public async exportData(options) {
-        const params = await this.__init(options, true);
+    public async dump(options) {
+        const params = await this.init(options, true);
 
         if (params.skipExportWhenNoChange) {
             logger.info(`Skipping export of snapshot, because ${params.meta.folder} is already up to date.`);
@@ -32,96 +34,103 @@ export class SnapshotManager {
         const metaInfo = {
             blocks: await exportTable("blocks", params),
             transactions: await exportTable("transactions", params),
+            rounds: await exportTable("rounds", params),
             folder: params.meta.folder,
-            codec: options.codec,
             skipCompression: params.meta.skipCompression,
         };
 
         this.database.close();
+
         utils.writeMetaFile(metaInfo);
     }
 
-    public async importData(options) {
-        const params = await this.__init(options);
+    public async import(options) {
+        const params = await this.init(options);
 
         if (params.truncate) {
-            params.lastBlock = await this.database.truncateChain();
+            await this.database.truncate();
+            params.lastBlock = null;
         }
 
         await importTable("blocks", params);
         await importTable("transactions", params);
+        await importTable("rounds", params);
 
         const lastBlock = await this.database.getLastBlock();
+        const height = lastBlock.height as number;
+
         logger.info(
-            `Import from folder ${
-                params.meta.folder
-            } completed. Last block in database: ${lastBlock.height.toLocaleString()} :+1:`,
+            `Import from folder ${params.meta.folder} completed. Last block in database: ${height.toLocaleString()}`,
         );
+
         if (!params.skipRestartRound) {
-            const newLastBlock = await this.database.rollbackChain(lastBlock.height);
+            const roundInfo = roundCalculator.calculateRound(height);
+            const newLastBlock = await this.database.rollbackChain(roundInfo);
             logger.info(
                 `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
             );
         }
 
+        await this.database.db.one("SELECT setval('rounds_id_seq', (SELECT MAX(id) FROM rounds) + 1)");
+
         this.database.close();
     }
 
-    public async verifyData(options) {
-        const params = await this.__init(options);
+    public async verify(options) {
+        const params = await this.init(options);
 
         await Promise.all([verifyTable("blocks", params), verifyTable("transactions", params)]);
     }
 
-    public async truncateChain() {
-        await this.database.truncateChain();
+    public async truncate() {
+        await this.database.truncate();
 
         this.database.close();
     }
 
-    public async rollbackChain(height) {
-        const lastBlock = await this.database.getLastBlock();
-        const config = app.getConfig();
-        const maxDelegates = config.getMilestone(lastBlock.height).activeDelegates;
+    public async rollbackByHeight(height: number) {
+        if (!height || height <= 0) {
+            app.forceExit(`Rollback height ${height.toLocaleString()} is invalid.`);
+        }
 
-        const rollBackHeight = height === -1 ? lastBlock.height : height;
-        if (rollBackHeight >= lastBlock.height || rollBackHeight < 1) {
+        const currentHeight = (await this.database.getLastBlock()).height;
+        const roundInfo = roundCalculator.calculateRound(height);
+        const { round } = roundInfo;
+
+        if (height >= currentHeight) {
             app.forceExit(
-                `Specified rollback block height: ${rollBackHeight.toLocaleString()} is not valid. Current database height: ${lastBlock.height.toLocaleString()}. Exiting.`,
+                `Rollback height ${height.toLocaleString()} is greater than the current height ${currentHeight.toLocaleString()}.`,
             );
         }
 
-        if (height) {
-            const rollBackBlock = await this.database.getBlockByHeight(rollBackHeight);
-            const qTransactionBackup = await this.database.getTransactionsBackupQuery(rollBackBlock.timestamp);
-            await backupTransactionsToJSON(
-                `rollbackTransactionBackup.${+height + 1}.${lastBlock.height}.json`,
-                qTransactionBackup,
-                this.database,
-            );
-        }
+        const rollbackBlock = await this.database.getBlockByHeight(height);
+        const queryTransactionBackup = await this.database.getTransactionsBackupQuery(rollbackBlock.timestamp);
 
-        const newLastBlock = await this.database.rollbackChain(rollBackHeight);
+        await backupTransactionsToJSON(
+            `rollbackTransactionBackup.${+height + 1}.${currentHeight}.json`,
+            queryTransactionBackup,
+            this.database,
+        );
+
+        const newLastBlock = await this.database.rollbackChain(roundInfo);
         logger.info(
-            `Rolling back chain to last finished round ${(
-                newLastBlock.height / maxDelegates
-            ).toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
+            `Rolling back chain to last finished round ${round.toLocaleString()} with last block height ${newLastBlock.height.toLocaleString()}`,
         );
 
         this.database.close();
     }
 
-    /**
-     * Inits the process and creates json with needed paramaters for functions
-     * @param  {JSONObject} from commander or util function {blocks, codec, truncate, signatureVerify, skipRestartRound, start, end}
-     * @return {JSONObject} with merged parameters, adding {lastBlock, database, meta {startHeight, endHeight, folder}, queries {blocks, transactions}}
-     */
-    public async __init(options, exportAction = false) {
+    public async rollbackByNumber(amount: number) {
+        const { height } = await this.database.getLastBlock();
+
+        return this.rollbackByHeight(height - amount);
+    }
+
+    private async init(options, exportAction: boolean = false) {
         const params: any = pick(options, [
             "truncate",
-            "signatureVerify",
             "blocks",
-            "codec",
+            "verifySignatures",
             "skipRestartRound",
             "start",
             "end",
@@ -130,13 +139,13 @@ export class SnapshotManager {
 
         const lastBlock = await this.database.getLastBlock();
         params.lastBlock = lastBlock;
-        params.codec = params.codec || this.options.codec;
         params.chunkSize = this.options.chunkSize || 50000;
 
         if (exportAction) {
             if (!lastBlock) {
                 app.forceExit("Database is empty. Export not possible.");
             }
+
             params.meta = utils.setSnapshotInfo(params, lastBlock);
             params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight);
 
@@ -145,21 +154,23 @@ export class SnapshotManager {
                     params.skipExportWhenNoChange = true;
                     return params;
                 }
+
                 const sourceSnapshotParams = utils.readMetaJSON(params.blocks);
                 params.meta.skipCompression = sourceSnapshotParams.skipCompression;
                 params.meta.startHeight = sourceSnapshotParams.blocks.startHeight;
-                utils.copySnapshot(options.blocks, params.meta.folder, params.codec);
+                utils.copySnapshot(options.blocks, params.meta.folder);
             }
         } else {
             params.meta = utils.getSnapshotInfo(options.blocks);
         }
+
         if (options.trace) {
-            // tslint:disable-next-line:no-console
-            console.info(params.meta);
-            // tslint:disable-next-line:no-console
-            console.info(params.queries);
+            logger.info(params.meta);
+            logger.info(params.queries);
         }
+
         params.database = this.database;
+
         return params;
     }
 }

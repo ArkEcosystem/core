@@ -1,18 +1,13 @@
-import { configManager as crypto, HashAlgorithms } from "@arkecosystem/crypto";
-import get from "lodash/get";
-import set from "lodash/set";
-import { fileLoader, RemoteLoader } from "./loaders";
+import { configManager as crypto } from "@arkecosystem/crypto";
+import get from "lodash.get";
+import set from "lodash.set";
+import { fileLoader } from "./loaders";
 import { Network } from "./network";
 
-class Config {
+export class Config {
     private config: Record<string, any>;
 
     public async setUp(opts) {
-        if (opts.remote) {
-            const remoteLoader = new RemoteLoader(opts);
-            await remoteLoader.setUp();
-        }
-
         const network = Network.setUp(opts);
 
         const { files } = await fileLoader.setUp(network);
@@ -54,12 +49,6 @@ class Config {
         this.config.exceptions = crypto.get("exceptions");
         this.config.milestones = crypto.get("milestones");
         this.config.genesisBlock = crypto.get("genesisBlock");
-
-        // Calculate milestone hash
-        const milestonesBuffer = Buffer.from(JSON.stringify(this.config.milestones));
-        this.config.milestoneHash = HashAlgorithms.sha256(milestonesBuffer)
-            .slice(0, 8)
-            .toString("hex");
     }
 }
 

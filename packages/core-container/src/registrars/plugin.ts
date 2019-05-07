@@ -1,28 +1,18 @@
+import { Container } from "@arkecosystem/core-interfaces";
 import { asValue } from "awilix";
-import expandHomeDir from "expand-home-dir";
-import { existsSync } from "fs";
 import Hoek from "hoek";
-import isString from "lodash/isString";
-import { dirname, resolve } from "path";
+import isString from "lodash.isstring";
 import semver from "semver";
 
 export class PluginRegistrar {
     private container: any;
     private plugins: any;
-    private resolvedPlugins: any;
     private options: any;
     private deregister: any;
-    private pluginsConfigPath: any;
 
-    /**
-     * Create a new plugin manager instance.
-     * @param  {IContainer} container
-     * @param  {Object} options
-     */
-    constructor(container, options: any = {}) {
+    constructor(container: Container.IContainer, options: Record<string, any> = {}) {
         this.container = container;
-        this.plugins = this.__loadPlugins();
-        this.resolvedPlugins = [];
+        this.plugins = container.config.get("plugins");
         this.options = this.__castOptions(options);
         this.deregister = [];
     }
@@ -164,25 +154,10 @@ export class PluginRegistrar {
      * @return {Object}
      */
     public __resolve(plugin) {
-        let item: any = {};
+        let item: any = require(plugin);
 
-        if (isString(plugin)) {
-            if (plugin.startsWith(".")) {
-                plugin = resolve(`${dirname(this.pluginsConfigPath)}/${plugin}`);
-            } else if (!plugin.startsWith("@")) {
-                plugin = resolve(plugin);
-            }
-
-            try {
-                item = require(plugin);
-            } catch (error) {
-                // tslint:disable-next-line:no-console
-                console.error(error);
-            }
-
-            if (!item.plugin) {
-                item = { plugin: item };
-            }
+        if (!item.plugin) {
+            item = { plugin: item };
         }
 
         return item;
@@ -205,25 +180,5 @@ export class PluginRegistrar {
         }
 
         return register;
-    }
-
-    /**
-     * Load plugins from any of the available files (plugins.js or plugins.json).
-     * @return {[Object|void]}
-     */
-    public __loadPlugins() {
-        const files = ["plugins.js", "plugins.json"];
-
-        for (const file of files) {
-            const configPath = resolve(expandHomeDir(`${process.env.CORE_PATH_CONFIG}/${file}`));
-
-            if (existsSync(configPath)) {
-                this.pluginsConfigPath = configPath;
-
-                return require(configPath);
-            }
-        }
-
-        throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
     }
 }

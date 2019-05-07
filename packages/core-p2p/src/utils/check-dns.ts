@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import dns from "dns";
-import shuffle from "lodash/shuffle";
+import shuffle from "lodash.shuffle";
 import util from "util";
 
 export const checkDNS = async hosts => {

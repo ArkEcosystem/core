@@ -1,11 +1,13 @@
-export interface IRepository {
+import { IModel } from "../database-model";
 
-    estimate() : Promise<number>;
+export interface IRepository {
+    getModel(): IModel;
+
+    estimate(): Promise<number>;
 
     truncate(): Promise<void>;
 
-    insert(item: any | any[]) : Promise<void>;
+    insert(item: any | any[]): Promise<void>;
 
-    update(item: any | any[]) : Promise<void>;
-
+    update(item: any | any[]): Promise<void>;
 }

@@ -12,14 +12,12 @@ export const plugin: Container.PluginDescriptor = {
         const logger = container.resolvePlugin<Logger.ILogger>("logger");
 
         if (!options.enabled) {
-            logger.info("JSON-RPC Server is disabled :grey_exclamation:");
+            logger.info("JSON-RPC Server is disabled");
 
             return;
         }
 
         database.init(options.database);
-
-        await network.init();
 
         return startServer(options);
     },

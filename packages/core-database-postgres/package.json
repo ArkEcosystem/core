@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-database-postgres",
-    "description": "PostgreSQL integration for Ark Core",
-    "version": "2.1.2",
+    "description": "PostgreSQL integration for ARK Core",
+    "version": "2.3.22",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -18,39 +18,35 @@
         "build": "yarn clean && yarn copy && yarn compile",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
         "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "copy": "cd src/ && cpy './**/*.sql' --parents ../dist/ && cd ../"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-database": "^2.1.0",
-        "@arkecosystem/core-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/bluebird": "^3.5.25",
-        "@types/lodash.chunk": "^4.2.4",
+        "@arkecosystem/core-container": "^2.3.22",
+        "@arkecosystem/core-database": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.3.22",
+        "@arkecosystem/core-utils": "^2.3.22",
+        "@arkecosystem/crypto": "^2.3.22",
+        "@arkecosystem/utils": "^0.3.0",
+        "@faustbrian/dato": "^0.2.0",
+        "@types/bluebird": "^3.5.26",
+        "@types/lodash.chunk": "^4.2.6",
         "@types/pluralize": "^0.0.29",
         "bluebird": "^3.5.3",
         "cpy-cli": "^2.0.0",
         "lodash.chunk": "^4.2.0",
-        "pg-promise": "^8.5.4",
+        "pg-promise": "^8.6.3",
         "pluralize": "^7.0.0",
         "sql": "^0.78.0"
+    },
+    "devDependencies": {
+        "@types/bluebird": "^3.5.26",
+        "@types/lodash.chunk": "^4.2.6",
+        "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

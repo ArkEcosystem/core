@@ -5,13 +5,13 @@ import { network } from "../../services/network";
 export const walletTransactions = {
     name: "wallets.transactions",
     async method(params) {
-        const response = await network.sendRequest("transactions", {
-            offset: params.offset,
+        const response = await network.sendGET("transactions", {
+            offset: params.offset || 0,
             orderBy: "timestamp:desc",
             ownerId: params.address,
         });
 
-        if (!response) {
+        if (!response.data || !response.data.length) {
             return Boom.notFound(`Wallet ${params.address} could not be found.`);
         }
 

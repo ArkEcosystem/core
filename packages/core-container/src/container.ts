@@ -1,6 +1,5 @@
 import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
-import { execSync } from "child_process";
 import delay from "delay";
 import semver from "semver";
 import { configManager } from "./config";
@@ -8,43 +7,20 @@ import { Environment } from "./environment";
 import { PluginRegistrar } from "./registrars/plugin";
 
 export class Container implements container.IContainer {
-    public options: any;
-    public exitEvents: any;
     /**
      * May be used by CLI programs to suppress the shutdown messages.
      */
     public silentShutdown = false;
-    public hashid: string;
-    public plugins: any;
+    public options: Record<string, any>;
+    public plugins: PluginRegistrar;
     public shuttingDown: boolean;
     public version: string;
     public isReady: boolean = false;
-    public variables: any;
+    public variables: Record<string, any>;
     public config: any;
-    private container = createContainer();
 
-    /**
-     * Create a new container instance.
-     * @constructor
-     */
-    constructor() {
-        /**
-         * The git commit hash of the repository. Used during development to
-         * easily idenfity nodes based on their commit hash and version.
-         */
-        try {
-            this.hashid = execSync("git rev-parse --short=8 HEAD")
-                .toString()
-                .trim();
-        } catch (e) {
-            this.hashid = "unknown";
-        }
-
-        /**
-         * Register any exit signal handling.
-         */
-        this.registerExitHandler(["SIGINT", "exit"]);
-    }
+    private name: string;
+    private readonly container = createContainer();
 
     /**
      * Set up the app.
@@ -53,14 +29,21 @@ export class Container implements container.IContainer {
      * @param  {Object} options
      * @return {void}
      */
-    public async setUp(version: string, variables: any, options: any = {}) {
+    public async setUp(version: string, variables: Record<string, any>, options: Record<string, any> = {}) {
+        // Register any exit signal handling
+        this.registerExitHandler(["SIGINT", "exit"]);
+
+        // Set options and variables
         this.options = options;
         this.variables = variables;
 
         this.setVersion(version);
 
+        this.name = `${this.variables.token}-${this.variables.suffix}`;
+
         // Register the environment variables
-        new Environment(variables).setUp();
+        const environment = new Environment(variables);
+        environment.setUp();
 
         // Mainly used for testing environments!
         if (options.skipPlugins) {
@@ -113,7 +96,6 @@ export class Container implements container.IContainer {
      * @throws {Error}
      */
     public resolve<T = any>(key): T {
-
         try {
             return this.container.resolve<T>(key);
         } catch (err) {
@@ -185,7 +167,6 @@ export class Container implements container.IContainer {
         this.shuttingDown = true;
 
         const logger = this.resolvePlugin<Logger.ILogger>("logger");
-        logger.error(":boom: Container force shutdown :boom:");
         logger.error(message);
 
         if (error) {
@@ -196,18 +177,10 @@ export class Container implements container.IContainer {
     }
 
     /**
-     * Get the application git commit hash.
-     * @throws {String}
-     */
-    public getHashid() {
-        return this.hashid;
-    }
-
-    /**
      * Get the application version.
      * @throws {String}
      */
-    public getVersion() {
+    public getVersion(): string {
         return this.version;
     }
 
@@ -216,7 +189,7 @@ export class Container implements container.IContainer {
      * @param  {String} version
      * @return {void}
      */
-    public setVersion(version) {
+    public setVersion(version: string) {
         if (!semver.valid(version)) {
             this.forceExit(
                 // tslint:disable-next-line:max-line-length
@@ -227,13 +200,17 @@ export class Container implements container.IContainer {
         this.version = version;
     }
 
+    public getName(): string {
+        return this.name;
+    }
+
     /**
      * Handle any exit signals.
      * @return {void}
      */
     private registerExitHandler(exitEvents: string[]) {
         const handleExit = async () => {
-            if (this.shuttingDown) {
+            if (this.shuttingDown || !this.isReady) {
                 return;
             }
 
@@ -242,7 +219,7 @@ export class Container implements container.IContainer {
             const logger = this.resolvePlugin<Logger.ILogger>("logger");
             if (logger) {
                 logger.suppressConsoleOutput(this.silentShutdown);
-                logger.info("Core is trying to gracefully shut down to avoid data corruption :pizza:");
+                logger.info("Core is trying to gracefully shut down to avoid data corruption");
             }
 
             try {
@@ -260,9 +237,6 @@ export class Container implements container.IContainer {
 
                     // Wait for event to be emitted and give time to finish
                     await delay(1000);
-
-                    // Save dirty wallets
-                    await database.saveWallets(false);
                 }
             } catch (error) {
                 // tslint:disable-next-line:no-console

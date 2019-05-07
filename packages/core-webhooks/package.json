@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-webhooks",
-    "description": "Webhooks for Ark Core",
-    "version": "2.1.2",
+    "description": "Webhooks for ARK Core",
+    "version": "2.3.22",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -16,45 +16,33 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-http-utils": "^2.1.0",
-        "@types/fs-extra": "^5.0.4",
-        "@types/joi": "^14.0.1",
-        "@types/sequelize": "^4.27.33",
-        "@types/sqlite3": "^3.1.3",
-        "@types/umzug": "^2.2.0",
-        "axios": "^0.18.0",
+        "@arkecosystem/core-container": "^2.3.22",
+        "@arkecosystem/core-event-emitter": "^2.3.22",
+        "@arkecosystem/core-http-utils": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.3.22",
+        "@arkecosystem/core-utils": "^2.3.22",
         "boom": "^7.3.0",
         "fs-extra": "^7.0.1",
-        "hapi-pagination": "^2.0.1",
-        "joi": "^14.3.0",
-        "sequelize": "^4.42.0",
-        "sqlite3": "^4.0.4",
-        "umzug": "^2.2.0"
+        "hapi-pagination": "^2.1.0",
+        "joi": "^14.3.1",
+        "lowdb": "^1.0.0",
+        "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "@types/boom": "^7.2.1"
+        "@types/boom": "^7.2.1",
+        "@types/fs-extra": "^5.0.5",
+        "@types/joi": "^14.3.2",
+        "@types/sequelize": "^4.27.39",
+        "@types/sqlite3": "^3.1.5",
+        "@types/umzug": "^2.2.0"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

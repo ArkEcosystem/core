@@ -15,6 +15,14 @@ export = <T>(rows: T[], params, filters) =>
             }
         }
 
+        if (filters.hasOwnProperty("like")) {
+            for (const elem of filters.like) {
+                if (params[elem] && !item[elem].includes(params[elem])) {
+                    return false;
+                }
+            }
+        }
+
         if (filters.hasOwnProperty("between")) {
             for (const elem of filters.between) {
                 if (!params[elem]) {

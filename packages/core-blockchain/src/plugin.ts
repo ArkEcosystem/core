@@ -13,7 +13,7 @@ export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "blockchain",
-    async register(container: Container.IContainer, options) {
+    async register(container: Container.IContainer, options: Container.IPluginOptions) {
         const blockchain = new Blockchain(options);
 
         config.init(options);

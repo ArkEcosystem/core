@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-blockchain",
-    "description": "Blockchain Manager for Ark Core",
-    "version": "2.1.2",
+    "description": "Blockchain Manager for ARK Core",
+    "version": "2.3.22",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -19,47 +19,33 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-utils": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/lodash.get": "^4.4.4",
-        "async": "^2.6.1",
-        "awilix": "^4.0.1",
+        "@arkecosystem/core-container": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.3.22",
+        "@arkecosystem/core-utils": "^2.3.22",
+        "@arkecosystem/crypto": "^2.3.22",
+        "async": "^2.6.2",
+        "awilix": "^4.2.1",
         "delay": "^4.1.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^4.0.0",
-        "xstate": "^4.2.2"
+        "xstate": "^4.3.3"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.1.0",
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "@types/async": "^2.0.50",
+        "@arkecosystem/core-p2p": "^2.3.22",
+        "@types/async": "^2.4.1",
+        "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
-        "@types/pretty-ms": "^4.0.0",
-        "axios": "^0.18.0",
-        "axios-mock-adapter": "^1.15.0"
+        "@types/pretty-ms": "^4.0.0"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

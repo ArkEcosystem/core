@@ -1,29 +1,28 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
 
 export interface IPeer {
-    setHeaders(headers: any): void;
+    setHeaders(headers: Record<string, any>): void;
 
     /**
      * Set the given status for the peer.
      * @param  {String} value
      * @return {void}
      */
-    setStatus(value: any): void;
+    setStatus(value: string | number): void;
 
     /**
      * Get information to broadcast.
      * @return {Object}
      */
     toBroadcastInfo(): {
-        ip: any;
+        ip: string;
         port: number;
-        nethash: any;
-        milestoneHash: string;
-        version: any;
-        os: any;
-        status: any;
-        height: any;
-        delay: any;
+        nethash: string;
+        version: string;
+        os: string;
+        status: string | number;
+        height: number;
+        delay: number;
     };
 
     /**
@@ -38,7 +37,7 @@ export interface IPeer {
      * @param  {Transaction[]}      transactions
      * @return {(Object|undefined)}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<any>;
+    postTransactions(transactions: Transaction[]): Promise<any>;
 
     /**
      * Download blocks from peer.
@@ -50,12 +49,12 @@ export interface IPeer {
     /**
      * Perform ping request on this peer if it has not been
      * recently pinged.
-     * @param  {Number} [delay=5000]
+     * @param  {Number} delay operation timeout, in milliseconds
      * @param  {Boolean} force
      * @return {Object}
      * @throws {Error} If fail to get peer status.
      */
-    ping(delay: any, force?: boolean): Promise<any>;
+    ping(delay: number, force?: boolean): Promise<any>;
 
     /**
      * Returns true if this peer was pinged the past 2 minutes.
@@ -75,4 +74,13 @@ export interface IPeer {
      * @return {Boolean}
      */
     hasCommonBlocks(ids: string[]): Promise<any>;
+
+    /**
+     * GET /peer/blocks and return the raw response.
+     * The API is such that the response is supposed to contain blocks at height
+     * afterBlockHeight + 1, afterBlockHeight + 2, and so on up to some limit determined by the peer.
+     * @param  {Number} afterBlockHeight
+     * @return {(Object[]|undefined)}
+     */
+    getPeerBlocks(afterBlockHeight: number): Promise<any>;
 }

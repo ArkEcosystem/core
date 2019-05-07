@@ -1,25 +1,25 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Container, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
 import { config } from "./config";
-import { TransactionPool } from "./connection";
+import { Connection } from "./connection";
 import { defaults } from "./defaults";
-import { transactionPoolManager } from "./manager";
+import { ConnectionManager } from "./manager";
 
 export const plugin: Container.PluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
-    alias: "transactionPool",
+    alias: "transaction-pool",
     async register(container: Container.IContainer, options) {
         config.init(options);
 
         container.resolvePlugin<Logger.ILogger>("logger").info("Connecting to transaction pool");
 
-        await transactionPoolManager.makeConnection(new TransactionPool(options));
+        const connectionManager: ConnectionManager = new ConnectionManager();
 
-        return transactionPoolManager.connection();
+        return connectionManager.createConnection(new Connection(options));
     },
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Disconnecting from transaction pool");
 
-        return transactionPoolManager.connection().disconnect();
+        return container.resolvePlugin<TransactionPool.IConnection>("transaction-pool").disconnect();
     },
 };

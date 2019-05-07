@@ -73,6 +73,10 @@ const startServer = async config => {
         },
     });
 
+    await server.register({
+        plugin: plugins.hapiAjv,
+    });
+
     // await server.register({
     //   plugin: require('./plugins/transaction-pool-ready'),
     //   options: {
@@ -96,13 +100,6 @@ const startServer = async config => {
         plugin: require("./versions/internal"),
         routes: { prefix: "/internal" },
     });
-
-    if (config.remoteInterface) {
-        await server.register({
-            plugin: require("./versions/remote"),
-            routes: { prefix: "/remote" },
-        });
-    }
 
     return mountServer("P2P API", server);
 };

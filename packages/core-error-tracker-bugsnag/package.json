@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-error-tracker-bugsnag",
-    "description": "Bugsnag error tracker integration for Ark Core.",
-    "version": "2.1.2",
+    "description": "Bugsnag error tracker integration for ARK Core.",
+    "version": "2.3.22",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -12,26 +12,19 @@
     ],
     "scripts": {
         "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
-        "@bugsnag/js": "^5.0.2",
-        "@arkecosystem/core-container": "^2.1.0"
+        "@arkecosystem/core-container": "^2.3.22",
+        "@bugsnag/js": "^6.0.0"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

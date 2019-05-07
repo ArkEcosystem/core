@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-interfaces",
-    "description": "Interface types for essential Ark core modules",
-    "version": "2.1.2",
+    "description": "Interface types for essential ARK Core modules",
+    "version": "2.3.22",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -20,15 +20,12 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' --fix",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.1.0",
-        "awilix": "^4.0.1",
-        "eventemitter3": "^3.1.0"
+        "@arkecosystem/crypto": "^2.3.22",
+        "@faustbrian/dato": "^0.2.0",
+        "awilix": "^4.2.1"
     },
     "publishConfig": {
         "access": "public"

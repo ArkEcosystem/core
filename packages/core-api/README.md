@@ -1,12 +1,12 @@
-# Ark Core - Public API
+# ARK Core - Public API
 
 <p align="center">
-    <img src="../../banner.png?sanitize=true" />
+    <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png" />
 </p>
 
 ## Documentation
 
-You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-api.html).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/optional/core-api.html).
 
 ## Security
 
@@ -14,11 +14,8 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
--   [Brian Faust](https://github.com/faustbrian)
--   [Joshua Noack](https://github.com/supaiku0)
--   [Kristjan Košič](https://github.com/kristjank)
--   [All Contributors](../../../../contributors)
+This project exists thanks to all the people who [contribute](../../../../contributors).
 
 ## License
 
-[MIT](LICENSE) © [ArkEcosystem](https://ark.io)
+[MIT](LICENSE) © [ARK Ecosystem](https://ark.io)

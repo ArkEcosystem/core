@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
-    "description": "Forger for Ark Core",
-    "version": "2.1.2",
+    "description": "Forger for ARK Core",
+    "version": "2.3.22",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -18,43 +18,27 @@
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "docs": "../../node_modules/typedoc/bin/typedoc src --out docs",
-        "lint": "../../node_modules/tslint/bin/tslint -c ../../tslint.json 'src/**/*.ts' '__tests__/**/*.ts' --fix",
-        "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
-        "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",
-        "test:debug": "cross-env CORE_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-        "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
-        "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "updates": "../../node_modules/npm-check-updates/bin/npm-check-updates -a"
+        "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.1.0",
-        "@arkecosystem/core-container": "^2.1.0",
-        "@arkecosystem/core-p2p": "^2.1.0",
-        "@arkecosystem/crypto": "^2.1.0",
-        "@types/lodash.isempty": "^4.4.4",
-        "@types/lodash.sample": "^4.2.4",
-        "@types/lodash.uniq": "^4.5.4",
-        "@types/pluralize": "^0.0.29",
-        "axios": "^0.18.0",
-        "delay": "^4.1.0",
+        "@arkecosystem/core-container": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.3.22",
+        "@arkecosystem/core-p2p": "^2.3.22",
+        "@arkecosystem/core-utils": "^2.3.22",
+        "@arkecosystem/crypto": "^2.3.22",
         "lodash.isempty": "^4.4.0",
-        "lodash.sample": "^4.2.1",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-test-utils": "^2.1.0",
-        "axios-mock-adapter": "^1.15.0"
+        "@types/lodash.isempty": "^4.4.6",
+        "@types/lodash.uniq": "^4.5.6",
+        "@types/pluralize": "^0.0.29"
     },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
         "node": ">=10.x"
-    },
-    "jest": {
-        "preset": "../../jest-preset.json"
     }
 }

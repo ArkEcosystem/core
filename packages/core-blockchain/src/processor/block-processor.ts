@@ -71,7 +71,7 @@ export class BlockProcessor {
             this.logger.warn(
                 `Block ${block.data.height.toLocaleString()} (${
                     block.data.id
-                }) disregarded because verification failed :scroll:`,
+                }) disregarded because verification failed`,
             );
             this.logger.warn(JSON.stringify(block.verification, null, 4));
             return false;
@@ -90,7 +90,7 @@ export class BlockProcessor {
             );
             if (forgedIds.length > 0) {
                 this.logger.warn(
-                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions :scroll:`,
+                    `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
                 this.logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
                 return true;

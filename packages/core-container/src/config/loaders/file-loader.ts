@@ -1,6 +1,5 @@
-import { configManager } from "@arkecosystem/crypto";
-import axios from "axios";
 import { existsSync, readdirSync, writeFileSync } from "fs-extra";
+import got from "got";
 import Joi from "joi";
 import { basename, extname, resolve } from "path";
 import { schemaConfig } from "../schema";
@@ -54,6 +53,14 @@ class FileLoader {
             throw new Error("An invalid configuration was provided or is inaccessible due to it's security settings.");
         }
 
+        for (const file of ["peers.json", "plugins.js"]) {
+            const fullPath = `${basePath}/${file}`;
+
+            if (!existsSync(fullPath)) {
+                throw new Error(`The ${fullPath} file could not be found.`);
+            }
+        }
+
         const configTree = {};
         for (const file of readdirSync(basePath)) {
             if ([".js", ".json"].includes(extname(file))) {
@@ -66,34 +73,42 @@ class FileLoader {
 
     /**
      * Build the peer list either from a local file, remote file or object.
-     * @param  {String} configFile
-     * @return {void}
      */
     private async buildPeers(configFile: any): Promise<void> {
+        let fetchedList: Array<{ ip: string; port: number }>;
+
         if (configFile.sources) {
             for (const source of configFile.sources) {
                 // Local File...
                 if (source.startsWith("/")) {
-                    configFile.list = require(source);
-
-                    writeFileSync(configFile, JSON.stringify(configFile, null, 2));
-
+                    fetchedList = require(source);
                     break;
                 }
 
                 // URL...
                 try {
-                    const response = await axios.get(source);
-
-                    configFile.list = response.data;
-
-                    writeFileSync(configFile, JSON.stringify(configFile, null, 2));
-
+                    const { body } = await got.get(source);
+                    fetchedList = JSON.parse(body);
                     break;
                 } catch (error) {
                     //
                 }
             }
+        }
+
+        if (fetchedList) {
+            if (!configFile.list) {
+                configFile.list = [];
+            }
+
+            fetchedList.forEach(peer => {
+                if (!configFile.list.some(seed => seed.ip === peer.ip && seed.port === peer.port)) {
+                    configFile.list.push(peer);
+                }
+            });
+
+            const path = `${resolve(process.env.CORE_PATH_CONFIG)}/peers.json`;
+            writeFileSync(path, JSON.stringify(configFile, null, 2));
         }
     }
 }

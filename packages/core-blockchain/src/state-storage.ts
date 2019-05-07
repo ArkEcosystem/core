@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Logger } from "@arkecosystem/core-interfaces";
-import { configManager, models } from "@arkecosystem/crypto";
+import { configManager, ITransactionData, models, TransactionRegistry } from "@arkecosystem/crypto";
 import assert from "assert";
 import immutable from "immutable";
 import { config } from "./config";
@@ -20,7 +20,7 @@ let _cachedTransactionIds: immutable.OrderedSet<string> = immutable.OrderedSet()
 
 // Map Block instances to block data.
 const _mapToBlockData = (blocks: immutable.Seq<number, models.Block>): immutable.Seq<number, models.IBlockData> =>
-    blocks.map(block => ({ ...block.data, transactions: block.transactions }));
+    blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
 
 /**
  * Represents an in-memory storage for state machine data.
@@ -31,11 +31,10 @@ export class StateStorage implements Blockchain.IStateStorage {
     public blockPing: any;
     public started: boolean;
     public forkedBlock: models.Block | null;
-    public rebuild: boolean;
-    public fastRebuild: boolean;
     public wakeUpTimeout: any;
     public noBlockCounter: number;
     public p2pUpdateCounter: number;
+    public numberOfBlocksToRollback: number | null;
     public networkStart: boolean;
 
     constructor() {
@@ -51,12 +50,11 @@ export class StateStorage implements Blockchain.IStateStorage {
         this.blockPing = null;
         this.started = false;
         this.forkedBlock = null;
-        this.rebuild = true;
-        this.fastRebuild = false;
         this.wakeUpTimeout = null;
         this.noBlockCounter = 0;
         this.p2pUpdateCounter = 0;
         this.networkStart = false;
+        this.numberOfBlocksToRollback = null;
 
         this.clear();
     }
@@ -98,6 +96,7 @@ export class StateStorage implements Blockchain.IStateStorage {
 
         _lastBlocks = _lastBlocks.set(block.data.height, block);
         configManager.setHeight(block.data.height);
+        TransactionRegistry.updateStaticFees(block.data.height);
 
         // Delete oldest block if size exceeds the maximum
         if (_lastBlocks.size > config.get("state.maxLastBlocks")) {
@@ -161,8 +160,8 @@ export class StateStorage implements Blockchain.IStateStorage {
      * Cache the ids of the given transactions.
      */
     public cacheTransactions(
-        transactions: models.ITransactionData[],
-    ): { added: models.ITransactionData[]; notAdded: models.ITransactionData[] } {
+        transactions: ITransactionData[],
+    ): { added: ITransactionData[]; notAdded: ITransactionData[] } {
         const notAdded = [];
         const added = transactions.filter(tx => {
             if (_cachedTransactionIds.has(tx.id)) {

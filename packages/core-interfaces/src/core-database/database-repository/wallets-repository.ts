@@ -9,7 +9,7 @@ export interface IWalletsRepository extends IRepository {
     /**
      * Find a wallet by its address.
      */
-    findByAddress(address: string): Promise<any>
+    findByAddress(address: string): Promise<any>;
 
     /**
      * Get the count of wallets that have a negative balance.

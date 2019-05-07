@@ -1,6 +1,7 @@
-import { models } from "@arkecosystem/crypto";
+import { models, Transaction } from "@arkecosystem/crypto";
+import { IDatabaseService } from "../core-database";
 import { IMonitor } from "../core-p2p";
-import { ITransactionPool } from "../core-transaction-pool";
+import { IConnection } from "../core-transaction-pool";
 import { IStateStorage } from "./state-storage";
 
 export interface IBlockchain {
@@ -17,17 +18,17 @@ export interface IBlockchain {
 
     /**
      * Get the transaction handler.
-     * @return {ITransactionPool}
+     * @return {IConnection}
      */
-    readonly transactionPool: ITransactionPool;
+    readonly transactionPool: IConnection;
 
     /**
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    readonly database: any;
+    readonly database: IDatabaseService;
 
-    dispatch(event: any): any;
+    dispatch(event: string): void;
 
     /**
      * Start the blockchain and wait for it to be ready.
@@ -37,20 +38,11 @@ export interface IBlockchain {
 
     stop(): Promise<void>;
 
-    checkNetwork(): void;
-
     /**
      * Update network status.
      * @return {void}
      */
     updateNetworkStatus(): Promise<any>;
-
-    /**
-     * Rebuild N blocks in the blockchain.
-     * @param  {Number} nblocks
-     * @return {void}
-     */
-    rebuild(nblocks?: number): void;
 
     /**
      * Reset the state of the blockchain.
@@ -69,7 +61,7 @@ export interface IBlockchain {
      * @param  {Array}   transactions
      * @return {void}
      */
-    postTransactions(transactions: models.Transaction[]): Promise<void>;
+    postTransactions(transactions: Transaction[]): Promise<void>;
 
     /**
      * Push a block to the process queue.
@@ -77,12 +69,6 @@ export interface IBlockchain {
      * @return {void}
      */
     handleIncomingBlock(block: models.Block): void;
-
-    /**
-     * Rollback all blocks up to the previous round.
-     * @return {void}
-     */
-    rollbackCurrentRound(): Promise<void>;
 
     /**
      * Remove N number of blocks.
@@ -98,15 +84,6 @@ export interface IBlockchain {
      * @return {void}
      */
     removeTopBlocks(count: any): Promise<void>;
-
-    /**
-     * Hande a block during a rebuild.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
-     * @param  {Function} callback
-     * @return {Object}
-     */
-    rebuildBlock(block: models.Block, callback: any): Promise<any>;
 
     /**
      * Process the given block.
@@ -140,10 +117,10 @@ export interface IBlockchain {
      * @return {Object}
      */
     getUnconfirmedTransactions(
-        blockSize: any,
+        blockSize: number,
     ): {
-        transactions: any[];
-        poolSize: any;
+        transactions: string[];
+        poolSize: number;
         count: number;
     };
 
@@ -153,13 +130,6 @@ export interface IBlockchain {
      * @return {Boolean}
      */
     isSynced(block?: models.Block): boolean;
-
-    /**
-     * Determine if the blockchain is synced after a rebuild.
-     * @param  {Block}  block
-     * @return {Boolean}
-     */
-    isRebuildSynced(block?: models.Block): boolean;
 
     /**
      * Get the last block of the blockchain.
@@ -196,10 +166,4 @@ export interface IBlockchain {
      * @return {Object}
      */
     pushPingBlock(block: models.IBlockData): void;
-
-    /**
-     * Get the list of events that are available.
-     * @return {Array}
-     */
-    getEvents(): string[];
 }

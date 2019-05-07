@@ -1,13 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
-import { crypto, models } from "@arkecosystem/crypto";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { formatTimestamp } from "@arkecosystem/core-utils";
+import { Transaction } from "@arkecosystem/crypto";
 
 export function transformTransaction(model) {
-    const config = app.getConfig();
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const data: any = new models.Transaction(model.serialized.toString("hex"));
+    const { data } = Transaction.fromBytesUnsafe(model.serialized, model.id);
+    const sender = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
+
     const lastBlock = blockchain.getLastBlock();
 
     return {
@@ -15,9 +17,9 @@ export function transformTransaction(model) {
         blockId: model.blockId,
         version: data.version,
         type: data.type,
-        amount: +bignumify(data.amount).toFixed(),
-        fee: +bignumify(data.fee).toFixed(),
-        sender: crypto.getAddress(data.senderPublicKey, config.get("network.pubKeyHash")),
+        amount: +data.amount,
+        fee: +data.fee,
+        sender,
         recipient: data.recipientId,
         signature: data.signature,
         signSignature: data.signSignature,
@@ -25,6 +27,6 @@ export function transformTransaction(model) {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
-        timestamp: formatTimestamp(model.timestamp || data.timestamp),
+        timestamp: formatTimestamp(data.timestamp),
     };
 }

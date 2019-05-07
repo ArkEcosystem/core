@@ -1,61 +1,85 @@
-import { models } from "@arkecosystem/crypto";
-import { Logger } from "../index";
+import { Bignum, IMultiSignatureAsset, ITransactionData, models, Transaction } from "@arkecosystem/crypto";
+import { Logger, Shared } from "../index";
+import { IRoundInfo } from "../shared";
+
+export interface IWallet {
+    address: string;
+    publicKey: string | null;
+    secondPublicKey: string | null;
+    balance: Bignum;
+    vote: string;
+    voted: boolean;
+    username: string | null;
+    lastBlock: any;
+    voteBalance: Bignum;
+    multisignature?: IMultiSignatureAsset;
+    dirty: boolean;
+    producedBlocks: number;
+    forgedFees: Bignum;
+    forgedRewards: Bignum;
+    rate?: number;
+
+    verifySignatures(transaction: ITransactionData, multisignature: IMultiSignatureAsset): boolean;
+}
+
+export type IDelegateWallet = IWallet & { rate: number; round: number };
 
 export interface IWalletManager {
-
     logger: Logger.ILogger;
 
     config: any;
 
     reset(): void;
 
-    allByAddress(): models.Wallet[];
+    allByAddress(): IWallet[];
 
-    allByPublicKey(): models.Wallet[];
+    allByPublicKey(): IWallet[];
 
-    allByUsername(): models.Wallet[];
+    allByUsername(): IWallet[];
 
-    findByAddress(address: string): models.Wallet;
+    findByAddress(address: string): IWallet;
 
     exists(addressOrPublicKey: string): boolean;
 
-    findByPublicKey(publicKey: string): models.Wallet;
+    findByPublicKey(publicKey: string): IWallet;
 
-    findByUsername(username: string): models.Wallet;
+    findByUsername(username: string): IWallet;
 
-    index(wallets: models.Wallet[]): void;
+    index(wallets: IWallet[]): void;
 
-    reindex(wallet: models.Wallet): void;
+    reindex(wallet: IWallet): void;
 
-    clear(): void;
+    cloneDelegateWallets(): IWalletManager;
 
-    loadActiveDelegateList(maxDelegateCount: number, height?: number): any[];
+    loadActiveDelegateList(roundInfo: IRoundInfo): IDelegateWallet[];
 
     buildVoteBalances(): void;
+
+    buildDelegateRanking(delegates: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
     applyBlock(block: models.Block): void;
 
     revertBlock(block: models.Block): void;
 
-    applyTransaction(transaction: models.Transaction): models.Transaction;
+    applyTransaction(transaction: Transaction): void;
 
-    revertTransaction(transaction: models.Transaction): any;
+    revertTransaction(transaction: Transaction): void;
 
     isDelegate(publicKey: string): boolean;
 
-    canBePurged(wallet: models.Wallet): boolean;
+    canBePurged(wallet: IWallet): boolean;
 
     forgetByAddress(address: string): void;
 
-    forgetByPublicKey( publicKey: string): void;
+    forgetByPublicKey(publicKey: string): void;
 
     forgetByUsername(username: string): void;
 
-    setByAddress(address: string, wallet: models.Wallet): void;
+    setByAddress(address: string, wallet: IWallet): void;
 
-    setByPublicKey(publicKey: string, wallet: models.Wallet): void;
+    setByPublicKey(publicKey: string, wallet: IWallet): void;
 
-    setByUsername(username: string, wallet: models.Wallet): void;
+    setByUsername(username: string, wallet: IWallet): void;
 
     purgeEmptyNonDelegates(): void;
 }

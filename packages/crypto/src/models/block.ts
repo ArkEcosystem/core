@@ -1,11 +1,12 @@
-import { createHash } from "crypto";
 import pluralize from "pluralize";
-import { crypto, slots } from "../crypto";
-import { BlockDeserializer } from "../deserializers";
+import { crypto, HashAlgorithms, slots } from "../crypto";
+import { BlockSchemaError } from "../errors";
 import { configManager } from "../managers/config";
-import { BlockSerializer } from "../serializers";
-import { Bignum } from "../utils";
-import { ITransactionData, Transaction } from "./transaction";
+import { ITransactionData, Transaction } from "../transactions";
+import { BlockDeserializer } from "../transactions/deserializers";
+import { BlockSerializer } from "../transactions/serializers";
+import { Bignum, isException } from "../utils";
+import { AjvWrapper } from "../validation";
 
 export interface BlockVerification {
     verified: boolean;
@@ -38,35 +39,6 @@ export interface IBlockData {
     transactions?: ITransactionData[];
 }
 
-/**
- * TODO copy some parts to ArkDocs
- * @classdesc This model holds the block data, its verification and serialization
- *
- * A Block model stores on the db:
- *   - id
- *   - version (version of the block: could be used for changing how they are forged)
- *   - timestamp (related to the genesis block)
- *   - previousBlock (id of the previous block)
- *   - height
- *   - numberOfTransactions
- *   - totalAmount (in arktoshi)
- *   - totalFee (in arktoshi)
- *   - reward (in arktoshi)
- *   - payloadHash (hash of the transactions)
- *   - payloadLength (total length in bytes of the IDs of the transactions)
- *   - generatorPublicKey (public key of the delegate that forged this block)
- *   - blockSignature
- *
- * The `transactions` are stored too, but in a different table.
- *
- * These data is exposed through the `data` attributed as a plain object and
- * serialized through the `serialized` attribute.
- *
- * In the future the IDs could be changed to use the hexadecimal version of them,
- * which would be more efficient for performance, disk usage and bandwidth reasons.
- * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
- */
-
 export class Block implements IBlock {
     /**
      * Create block from data.
@@ -75,9 +47,7 @@ export class Block implements IBlock {
         data.generatorPublicKey = keys.publicKey;
 
         const payloadHash: Buffer = Block.serialize(data, false);
-        const hash = createHash("sha256")
-            .update(payloadHash)
-            .digest();
+        const hash = HashAlgorithms.sha256(payloadHash);
 
         data.blockSignature = crypto.signHash(hash, keys);
         data.id = Block.getId(data);
@@ -89,7 +59,7 @@ export class Block implements IBlock {
      * Deserialize block from hex string.
      */
     public static deserialize(hexString, headerOnly = false): IBlockData {
-        return BlockDeserializer.deserialize(hexString, headerOnly);
+        return BlockDeserializer.deserialize(hexString, headerOnly).data;
     }
 
     /**
@@ -107,10 +77,15 @@ export class Block implements IBlock {
     }
 
     public static getIdHex(data): string {
+        const constants = configManager.getMilestone(data.height);
         const payloadHash: any = Block.serialize(data);
-        const hash = createHash("sha256")
-            .update(payloadHash)
-            .digest();
+
+        const hash = HashAlgorithms.sha256(payloadHash);
+
+        if (constants.block.idFullSha256) {
+            return hash.toString("hex");
+        }
+
         const temp = Buffer.alloc(8);
 
         for (let i = 0; i < 8; i++) {
@@ -124,23 +99,14 @@ export class Block implements IBlock {
         return "0".repeat(16 - temp.length) + temp;
     }
 
-    /**
-     * Get block id from already serialized buffer
-     */
-    public static getIdFromSerialized(serializedBuffer: Buffer): string {
-        const hash = createHash("sha256")
-            .update(serializedBuffer)
-            .digest();
-        const temp = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            temp[i] = hash[7 - i];
-        }
-        return new Bignum(temp.toString("hex"), 16).toFixed();
-    }
-
     public static getId(data): string {
+        const constants = configManager.getMilestone(data.height);
         const idHex = Block.getIdHex(data);
+
+        if (constants.block.idFullSha256) {
+            return idHex;
+        }
+
         return new Bignum(idHex, 16).toFixed();
     }
 
@@ -150,30 +116,38 @@ export class Block implements IBlock {
     public verification: BlockVerification;
 
     constructor(data: IBlockData | string) {
+        let deserialized;
         if (typeof data === "string") {
-            data = Block.deserialize(data);
+            this.serialized = data;
+        } else {
+            this.serialized = Block.serializeFull(data).toString("hex");
         }
 
-        this.serialized = Block.serializeFull(data).toString("hex");
-        this.data = Block.deserialize(this.serialized);
+        deserialized = BlockDeserializer.deserialize(this.serialized);
+        this.data = deserialized.data;
+
+        const { value, error } = AjvWrapper.validate("block", deserialized.data);
+        if (error !== null && !(isException(value) || this.data.transactions.some(tx => isException(tx)))) {
+            throw new BlockSchemaError(error);
+        }
+
+        this.data = value;
 
         // TODO genesis block calculated id is wrong for some reason
-        if (data.height === 1) {
-            this.applyGenesisBlockFix(data);
+        if (this.data.height === 1) {
+            this.applyGenesisBlockFix(data as IBlockData);
         }
 
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
         // also add sequence to keep database sequence
-        const { transactions } = this.data;
-        this.transactions = transactions
-            ? transactions.map((transaction, index) => {
-                  transaction.blockId = this.data.id;
-                  transaction.timestamp = this.data.timestamp;
-                  transaction.sequence = index;
-                  return transaction as Transaction;
-              })
-            : [];
+        const { transactions } = deserialized;
+        this.transactions = transactions.map((transaction, index) => {
+            transaction.data.blockId = this.data.id;
+            transaction.timestamp = this.data.timestamp;
+            transaction.data.sequence = index;
+            return transaction;
+        });
 
         delete this.data.transactions;
 
@@ -217,14 +191,12 @@ export class Block implements IBlock {
      */
     public verifySignature(): boolean {
         const bytes: any = Block.serialize(this.data, false);
-        const hash = createHash("sha256")
-            .update(bytes)
-            .digest();
+        const hash = HashAlgorithms.sha256(bytes);
 
         return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
-    public toJson(): any {
+    public toJson(): IBlockData {
         const blockData = Object.assign({}, this.data) as IBlockData;
         ["reward", "totalAmount", "totalFee"].forEach((key: string) => {
             blockData[key] = +(blockData[key] as Bignum).toFixed();
@@ -280,11 +252,10 @@ export class Block implements IBlock {
             // }
 
             let size = 0;
-            const payloadHash = createHash("sha256");
             const invalidTransactions = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
-                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized}`));
+                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
             }
 
             if (this.transactions.length !== block.numberOfTransactions) {
@@ -301,6 +272,7 @@ export class Block implements IBlock {
             const appliedTransactions = {};
             let totalAmount = Bignum.ZERO;
             let totalFee = Bignum.ZERO;
+            const payloadBuffers = [];
             this.transactions.forEach(transaction => {
                 const bytes = Buffer.from(transaction.data.id, "hex");
 
@@ -314,7 +286,7 @@ export class Block implements IBlock {
                 totalFee = totalFee.plus(transaction.data.fee);
                 size += bytes.length;
 
-                payloadHash.update(bytes);
+                payloadBuffers.push(bytes);
             });
 
             if (!totalAmount.isEqualTo(block.totalAmount)) {
@@ -329,7 +301,7 @@ export class Block implements IBlock {
                 result.errors.push("Payload is too large");
             }
 
-            if (payloadHash.digest().toString("hex") !== block.payloadHash) {
+            if (HashAlgorithms.sha256(payloadBuffers).toString("hex") !== block.payloadHash) {
                 result.errors.push("Invalid payload hash");
             }
         } catch (error) {
@@ -344,6 +316,5 @@ export class Block implements IBlock {
     private applyGenesisBlockFix(data: IBlockData): void {
         this.data.id = data.id;
         this.data.idHex = Block.toBytesHex(this.data.id);
-        delete this.data.previousBlock;
     }
 }

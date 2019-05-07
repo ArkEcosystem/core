@@ -105,12 +105,12 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_10.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    (echo "deb https://deb.nodesource.com/node_11.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     sudo apt-get update
     sudo apt-get install nodejs -y
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash - > /dev/null 2>&1
+    curl -sL https://rpm.nodesource.com/setup_11.x | sudo -E bash - > /dev/null 2>&1
 fi
 
 success "Installed node.js & npm!"
@@ -199,52 +199,14 @@ fi
 
 success "Installed system updates!"
 
-heading "Installing Ark Core..."
+heading "Installing ARK Core..."
 
-cd "$HOME"
+yarn global add @arkecosystem/core
+echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
+export PATH=$(yarn global bin):$PATH
+ark config:publish
 
-if [ -d "ark-core" ]; then
-   heading "Removing existing folder..."
-   rm -rf ark-core
-fi
-
-git clone https://github.com/ArkEcosystem/core.git ~/ark-core
-cd ark-core
-yarn setup
-
-success "Installed Ark Core!"
-
-# setup configuration
-read -p "Would you like to configure the core? [y/N]: " choice
-
-if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-    info "Which network would you like to configure?"
-
-    validNetworks=("mainnet" "devnet" "testnet")
-
-    select opt in "${validNetworks[@]}"; do
-        case "$opt" in
-            "mainnet")
-                mkdir -p "${HOME}/.config/ark-core/mainnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/mainnet/." "${HOME}/.config/ark-core/mainnet"
-                break
-            ;;
-            "devnet")
-                mkdir -p "${HOME}/.config/ark-core/devnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/devnet/." "${HOME}/.config/ark-core/devnet"
-                break
-            ;;
-            "testnet")
-                mkdir -p "${HOME}/.config/ark-core/testnet"
-                cp -rf "${HOME}/ark-core/packages/core/src/config/testnet/." "${HOME}/.config/ark-core/testnet"
-                break
-            ;;
-            *)
-                echo "Invalid option $REPLY"
-            ;;
-        esac
-    done
-fi
+success "Installed ARK Core!"
 
 # setup postgres username, password and database
 read -p "Would you like to configure the database? [y/N]: " choice
@@ -253,6 +215,10 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
     read -p "Enter the database username: " databaseUsername
     read -p "Enter the database password: " databasePassword
     read -p "Enter the database name: " databaseName
+
+    ark env:set CORE_DB_USERNAME $databaseUsername
+    ark env:set CORE_DB_PASSWORD $databasePassword
+    ark env:set CORE_DB_DATABASE $databaseName
 
     userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
     databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
@@ -286,3 +252,5 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
         sudo -i -u postgres psql -c "CREATE DATABASE ${databaseName} WITH OWNER ${databaseUsername};"
     fi
 fi
+
+exec "$BASH"

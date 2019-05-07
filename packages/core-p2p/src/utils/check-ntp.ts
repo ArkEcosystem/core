@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import shuffle from "lodash/shuffle";
+import shuffle from "lodash.shuffle";
 import Sntp from "sntp";
 
 /**

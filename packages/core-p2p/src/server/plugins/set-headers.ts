@@ -13,19 +13,13 @@ const config = app.getConfig();
 const register = async (server, options) => {
     const headers = {
         nethash: config.get("network.nethash"),
-        milestoneHash: config.get("milestoneHash"),
         version: app.getVersion(),
         port: localConfig.get("port"),
         os: require("os").platform(),
         height: null,
     };
 
-    const requiredHeaders = ["nethash", "milestoneHash", "version", "port", "os", "height"];
-
-    if (config.get("network.name") !== "mainnet") {
-        (headers as any).hashid = app.getHashid();
-        requiredHeaders.push("hashid");
-    }
+    const requiredHeaders = ["nethash", "version", "port", "os", "height"];
 
     server.ext({
         type: "onPreResponse",

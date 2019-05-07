@@ -22,7 +22,8 @@
                 "multiPayment": 0,
                 "delegateResignation": 0
             }
-        }
+        },
+        "vendorFieldLength": 64
     },
     {
         "height": 75600,
@@ -33,6 +34,16 @@
         "block": {
             "maxTransactions": 150,
             "maxPayload": 6300000
+        }
+    },
+    {
+        "height": 8128000,
+        "vendorFieldLength": 255
+    },
+    {
+        "height": 8204000,
+        "block": {
+            "idFullSha256": true
         }
     }
 ]

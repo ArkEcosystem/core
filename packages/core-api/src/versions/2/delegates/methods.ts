@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "boom";
-import orderBy from "lodash/orderBy";
 import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
@@ -56,26 +55,12 @@ const voters = async request => {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, paginate(request));
-
-    return toPagination(request, wallets, "wallet");
-};
-
-const voterBalances = async request => {
-    const delegate = await databaseService.delegates.findById(request.params.id);
-
-    if (!delegate) {
-        return Boom.notFound("Delegate not found");
-    }
-
-    const wallets = await databaseService.wallets.all().filter(wallet => wallet.vote === delegate.publicKey);
-
-    const data = {};
-    orderBy(wallets, ["balance"], ["desc"]).forEach(wallet => {
-        data[wallet.address] = +wallet.balance.toFixed();
+    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, {
+        ...request.query,
+        ...paginate(request),
     });
 
-    return { data };
+    return toPagination(request, wallets, "wallet");
 };
 
 export function registerMethods(server) {
@@ -97,6 +82,5 @@ export function registerMethods(server) {
         .method("v2.delegates.voters", voters, 8, request => ({
             ...{ id: request.params.id },
             ...paginate(request),
-        }))
-        .method("v2.delegates.voterBalances", voterBalances, 8, request => ({ id: request.params.id }));
+        }));
 }

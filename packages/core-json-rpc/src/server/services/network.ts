@@ -1,125 +1,83 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { httpie } from "@arkecosystem/core-utils";
 import { configManager } from "@arkecosystem/crypto";
-import axios from "axios";
 import isReachable from "is-reachable";
-import sample from "lodash/sample";
+import sample from "lodash.sample";
 
 class Network {
-    public logger: Logger.ILogger;
-    public p2p: P2P.IMonitor;
-    public config: any;
-    public network: any;
-    public client: any;
-    public peers: any;
-    public server: any;
+    private readonly network: any = configManager.all();
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly p2p: P2P.IMonitor = app.resolvePlugin<P2P.IMonitor>("p2p");
 
-    public async init() {
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
-        this.config = app.getConfig();
-        this.p2p = app.resolvePlugin<P2P.IMonitor>("p2p");
-
-        this.network = configManager.all();
-
-        this.loadRemotePeers();
-
-        this.client = axios.create({
-            headers: {
-                Accept: "application/vnd.core-api.v2+json",
-                "Content-Type": "application/json",
-            },
-            timeout: 3000,
-        });
+    public async sendGET(path, query = {}) {
+        return this.sendRequest("get", path, { query });
     }
 
-    public setServer() {
-        this.server = this.getRandomPeer();
+    public async sendPOST(path, body) {
+        return this.sendRequest("post", path, { body });
     }
 
-    public async sendRequest(url, params = {}) {
-        if (!this.server) {
-            this.setServer();
-        }
-
-        const peer = await this.selectResponsivePeer(this.server);
-        const uri = `http://${peer.ip}:${peer.port}/api/${url}`;
-
+    private async sendRequest(method, url, opts, tries = 0) {
         try {
+            const peer: { ip: string; port: number } = await this.getPeer();
+            const uri: string = `http://${peer.ip}:${peer.port}/api/${url}`;
+
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
-            const response = await this.client.get(uri, { params });
-
-            return response.data;
+            return (await httpie[method](uri, {
+                ...opts,
+                ...{
+                    headers: {
+                        Accept: "application/vnd.core-api.v2+json",
+                        "Content-Type": "application/json",
+                    },
+                    timeout: 3000,
+                },
+            })).body;
         } catch (error) {
             this.logger.error(error.message);
-        }
-    }
 
-    public async broadcast(transaction) {
-        return this.client.post(`http://${this.server.ip}:${this.server.port}/api/transactions`, {
-            transactions: [transaction],
-        });
-    }
+            if (tries > 3) {
+                this.logger.error(`Failed to find a responsive peer after 3 tries.`);
 
-    public async connect(): Promise<any> {
-        if (this.server) {
-            // this.logger.info(`Server is already configured as "${this.server.ip}:${this.server.port}"`)
-            return true;
-        }
-
-        this.setServer();
-
-        try {
-            const peerPort = app.resolveOptions("p2p").port;
-            const response = await axios.get(`http://${this.server.ip}:${peerPort}/config`);
-
-            const plugin = response.data.data.plugins["@arkecosystem/core-api"];
-
-            if (!plugin.enabled) {
-                const index = this.peers.findIndex(peer => peer.ip === this.server.ip);
-                this.peers.splice(index, 1);
-
-                if (!this.peers.length) {
-                    this.loadRemotePeers();
-                }
-
-                return this.connect();
+                return undefined;
             }
 
-            this.server.port = plugin.port;
-        } catch (error) {
-            return this.connect();
+            tries++;
+
+            return this.sendRequest(method, url, opts, tries);
         }
     }
 
-    private getRandomPeer() {
-        this.loadRemotePeers();
-
-        return sample(this.peers);
-    }
-
-    private loadRemotePeers() {
-        this.peers =
-            this.network.name === "testnet"
-                ? [{ ip: "127.0.0.1", port: app.resolveOptions("api").port }]
-                : this.p2p.getPeers();
-
-        if (!this.peers.length) {
-            this.logger.error("No peers found. Shutting down...");
-            process.exit();
-        }
-    }
-
-    private async selectResponsivePeer(peer) {
-        const reachable = await isReachable(`${peer.ip}:${peer.port}`);
+    private async getPeer(): Promise<{ ip: string; port: number }> {
+        const peer: { ip: string; port: number } = sample(this.getPeers());
+        const reachable: boolean = await isReachable(`${peer.ip}:${peer.port}`);
 
         if (!reachable) {
             this.logger.warn(`${peer} is unresponsive. Choosing new peer.`);
 
-            return this.selectResponsivePeer(this.getRandomPeer());
+            return this.getPeer();
         }
 
         return peer;
+    }
+
+    private getPeers(): Array<{ ip: string; port: number }> {
+        const peers =
+            this.network.name === "testnet"
+                ? [{ ip: "localhost", port: app.resolveOptions("api").port }]
+                : this.p2p.getPeers();
+
+        if (!peers.length) {
+            throw new Error("No peers found. Shutting down...");
+        }
+
+        for (const peer of peers) {
+            peer.port = app.resolveOptions("api").port;
+        }
+
+        return peers;
     }
 }
 

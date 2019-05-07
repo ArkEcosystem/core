@@ -4,7 +4,7 @@ export const defaults = {
     /**
      * The minimum peer version we expect
      */
-    minimumVersion: ">=2.1.0",
+    minimumVersions: [">=2.3.0", ">=2.3.0-next.0"],
     /**
      * The number of peers we expect to be available to start a relay
      */
@@ -67,8 +67,4 @@ export const defaults = {
         },
         ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
-    /**
-     * Whether or not we enable the remote API (Caution!)
-     */
-    remoteInterface: false,
 };

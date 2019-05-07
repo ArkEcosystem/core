@@ -8,5 +8,5 @@ export const defaults = {
         host: "localhost:9200",
         log: "info",
     },
-    chunkSize: 50000,
+    chunkSize: 5000,
 };

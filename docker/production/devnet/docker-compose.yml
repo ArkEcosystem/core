@@ -1,0 +1,50 @@
+version: '2'
+services:
+  postgres:
+    image: "postgres:alpine"
+    container_name: postgres-devnet
+    restart: always
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    networks:
+      - core 
+    environment:
+     POSTGRES_PASSWORD: password
+     POSTGRES_DB: core_devnet
+     POSTGRES_USER: node
+
+  core:
+    image: arkecosystem/core:devnet
+    container_name: core-devnet
+    restart: always
+    ports:
+     - "4002:4002"
+     - "4003:4003"
+     - "127.0.0.1:4004:4004"
+     - "127.0.0.1:4005:4005"
+     - "127.0.0.1:8080:8080" 
+    cap_add:
+      - SYS_NICE
+      - SYS_RESOURCE
+      - SYS_TIME
+    volumes:
+     - ~/.config/ark-core:/home/node/.config/ark-core
+     - ~/.local/share/ark-core:/home/node/.local/share/ark-core
+     - ~/.local/state/ark-core:/home/node/.local/state/ark-core
+     - /etc/localtime:/etc/localtime:ro
+     - ./enc:/run/secrets
+    networks:
+      - core 
+    env_file: ./devnet.env
+    tty: true
+    links:
+     - postgres
+    depends_on:
+      - postgres
+volumes:
+  postgres:
+  core:
+networks:
+  core:

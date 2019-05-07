@@ -4,18 +4,11 @@ export const fork = {
         analysing: {
             onEntry: ["analyseFork"],
             on: {
-                REBUILD: "revertBlocks",
                 NOFORK: "exit",
             },
         },
         network: {
-            onEntry: ["checkNetwork"],
-            /* these transitions are not used yet (TODO?)
-      on: {
-        SUCCESS: 'blockchain',
-        FAILURE: 'reset'
-      }
-      */
+            onEntry: ["checkNetwork"], // TODO: implement
         },
         revertBlocks: {},
         exit: {
@@ -23,39 +16,3 @@ export const fork = {
         },
     },
 };
-
-// const fork = {
-//   initial: 'network',
-//   states: {
-//     network: {
-//       onEntry: ['checkNetwork'],
-//       on: {
-//         SUCCESS: 'blockchain',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     blockchain: {
-//       onEntry: ['removeBlocks'],
-//       on: {
-//         SUCCESS: 'wallets',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     wallets: {
-//       onEntry: ['rebuildWallets'],
-//       on: {
-//         SUCCESS: 'success',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     reset: {
-//       onEntry: ['resetNode'],
-//       on: {
-//         RESET: 'success',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     success: {
-//     }
-//   }
-// }
