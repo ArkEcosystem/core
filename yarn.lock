@@ -683,10 +683,10 @@
   dependencies:
     dateformat "^3.0.3"
 
-"@faustbrian/foreman@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@faustbrian/foreman/-/foreman-0.1.0.tgz#e26d69bdb627b7893bb192fb857c470edd834898"
-  integrity sha512-UFNh3r0whpSY/9TKW1gRKxzRSIcralVckzKfPOzJ98dTvvIlGgJO6Bg4dNJH6OEt3PfEKwnOFje5gVxH1N9PEw==
+"@faustbrian/foreman@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@faustbrian/foreman/-/foreman-0.1.1.tgz#635575e2917f00bed8d1a70926d8681300209f6b"
+  integrity sha512-A9UOyktq343jZLRR0oZ6PsuP1U4h5aQQ4H14iCTZukllPF2uIN5N/X1nnh3RZ+M593jltE0tb0lRQm1XC/rlrg==
   dependencies:
     execa "^1.0.0"
 
@@ -2296,6 +2296,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/fs-extra@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-5.1.0.tgz#2a325ef97901504a3828718c390d34b8426a10a1"
+  integrity sha512-AInn5+UBFIK9FK5xc9yP5e3TQSPNNgjHByqYcj9g5elVBnDQcQL7PlO1CIRy2gWlbwK7UPYqi7vRvFA44dCmYQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/glob@*", "@types/glob@^7.1.1":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.1.tgz#aa59a1c6e3fbc421e07ccd31a944c30eba521575"
@@ -2821,6 +2828,11 @@
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-1.2.0.tgz#891e73f735ad5e82e8adae3a99424128e105fb62"
   integrity sha512-7JXpT2rSd4hqd2oBWU1wfEW6x6gX+qPH+gLzGEx+My3wcb67K9Rc02xNQRVn67phusmXm5Yqn4oTP2OW1G5zdQ==
+
+"@types/prompts@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-2.4.0.tgz#b4b8fdb70a635ad6b6b34e05545f8417f639a9c9"
+  integrity sha512-7th8Opn+0XlN0O6qzO7dXOPwL6rigq/EwRS2DntaTHwSw8cLaYKeAPt5dWEKHSL+ffVSUl1itTPUC06+FlsV4Q==
 
 "@types/pump@^1.0.1":
   version "1.0.1"

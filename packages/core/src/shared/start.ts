@@ -26,9 +26,10 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
             cli.action.start(`Starting ${processName}`);
 
-            const flagsProcess: string[] = ["--max-restarts=5", "--kill-timeout=30000"];
+            const flagsProcess: Record<string, boolean | number> = { "max-restarts": 5, "kill-timeout": 30000 };
+
             if (flags.daemon === false) {
-                flagsProcess.push("--no-daemon");
+                flagsProcess["no-daemon"] = true;
             }
 
             processManager.start(
