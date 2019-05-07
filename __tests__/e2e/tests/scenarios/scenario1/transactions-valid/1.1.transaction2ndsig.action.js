@@ -42,6 +42,12 @@ module.exports = async options => {
                     .delegateRegistration()
                     .usernameAsset(wallets[2].address.slice(0, 10).toLowerCase());
                 break;
+            case "ipfs":
+                transaction = Transactions.BuilderFactory
+                    .ipfs()
+                    .version(2)
+                    .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w");
+                break;
         }
 
         return transaction
