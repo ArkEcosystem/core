@@ -86,6 +86,20 @@ export class Signer {
         return transaction.getStruct();
     }
 
+    public makeIpfs(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.ipfs()
+            .fee(this.toSatoshi(opts.ipfsFee))
+            .ipfsAsset(opts.ipfs)
+            .network(this.network)
+            .sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
     private toSatoshi(value): string {
         return Utils.BigNumber.make(value)
             .times(1e8)
