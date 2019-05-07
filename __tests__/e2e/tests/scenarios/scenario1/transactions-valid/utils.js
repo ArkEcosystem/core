@@ -88,6 +88,28 @@ const wallets = {
             address: "AZTrdvGCCcVpJkGZgvCUJkfnuZCpsXtQ9d",
         },
     ],
+    ipfs: [
+        {
+            passphrase: "clip left under rigid palm company direct spell post lake once achieve",
+            address: "AZq1Ek3W68Gw8u6dMF9ZgraDHz8Vyj53Vu"
+          },
+          {
+            passphrase: "dismiss mass lucky require travel spread paddle jaguar hungry act budget coin",
+            address: "AJLHhCq1Le6PMpqMcYEBZUV3dkzjhKryj4"
+          },
+          {
+            passphrase: "seek rib awesome dish agree uncle alpha muscle denial bulb auto machine",
+            address: "AMvM2r5y6JXeNNvjVvm2e1gVJrnxktTPdu"
+          },
+          {
+            passphrase: "behave elbow decline few chef unusual walk cabbage stage wait tonight century",
+            address: "AKpKuENG5v1oG6FUSa5NoYa3SoVaM4LFEr"
+          },
+          {
+            passphrase: "upper coil priority spatial goat huge enforce worth grant unique round either",
+            address: "AcZZkqKnFhACnNKeuaihSD6mMftHBtgeQS"
+          },
+    ]
 };
 
 const arktoshi = 10 ** 8;

@@ -1,6 +1,6 @@
 "use strict";
 
-const { client, transactionBuilder, NetworkManager } = require("@arkecosystem/crypto");
+const { Managers, Transactions } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 
@@ -13,10 +13,10 @@ const exec = util.promisify(require("child_process").exec);
  * @return {void}
  */
 module.exports = async options => {
-    client.setConfig(NetworkManager.findByName("testnet"));
+    Managers.configManager.setFromPreset("testnet");
 
     // first transaction which will be broadcasted to other nodes for forging
-    let transaction = transactionBuilder
+    let transaction = Transactions.BuilderFactory
         .transfer()
         .amount(300 * Math.pow(10, 8))
         .recipientId(utils.randomRecipient.address)
@@ -32,7 +32,7 @@ module.exports = async options => {
     console.log(`[pool-clear] disconnect node : ${JSON.stringify({ stdoutDisconnect, stderrDisconnect })}`);
 
     // second transaction which will not be broadcasted and should be kept in the node pool
-    let transaction2 = transactionBuilder
+    let transaction2 = Transactions.BuilderFactory
         .transfer()
         .amount(300 * Math.pow(10, 8))
         .recipientId(utils.randomRecipient2.address)

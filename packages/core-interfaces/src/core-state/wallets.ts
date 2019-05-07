@@ -13,6 +13,7 @@ export interface IWallet {
     lastBlock: any;
     voteBalance: Utils.BigNumber;
     multisignature?: Interfaces.IMultiSignatureAsset;
+    ipfsHashes: { [ipfsHash: string]: boolean };
     dirty: boolean;
     producedBlocks: number;
     forgedFees: Utils.BigNumber;

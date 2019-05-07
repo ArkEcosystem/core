@@ -27,6 +27,7 @@ export const queries = {
         blockRewards: loadQueryFile(__dirname, "./integrity-verifier/block-rewards.sql"),
         delegates: loadQueryFile(__dirname, "./integrity-verifier/delegates.sql"),
         delegatesForgedBlocks: loadQueryFile(__dirname, "./integrity-verifier/delegates-forged-blocks.sql"),
+        ipfs: loadQueryFile(__dirname, "./integrity-verifier/ipfs.sql"),
         lastForgedBlocks: loadQueryFile(__dirname, "./integrity-verifier/last-forged-blocks.sql"),
         multiSignatures: loadQueryFile(__dirname, "./integrity-verifier/multi-signatures.sql"),
         receivedTransactions: loadQueryFile(__dirname, "./integrity-verifier/received-transactions.sql"),
