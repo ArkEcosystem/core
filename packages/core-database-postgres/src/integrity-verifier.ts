@@ -10,29 +10,32 @@ export class IntegrityVerifier {
     constructor(private readonly query: QueryExecutor, private readonly walletManager: State.IWalletManager) {}
 
     public async run(): Promise<void> {
-        this.logger.info("Integrity Verification - Step 1 of 8: Received Transactions");
+        this.logger.info("Integrity Verification - Step 1 of 9: Received Transactions");
         await this.buildReceivedTransactions();
 
-        this.logger.info("Integrity Verification - Step 2 of 8: Block Rewards");
+        this.logger.info("Integrity Verification - Step 2 of 9: Block Rewards");
         await this.buildBlockRewards();
 
-        this.logger.info("Integrity Verification - Step 3 of 8: Last Forged Blocks");
+        this.logger.info("Integrity Verification - Step 3 of 9: Last Forged Blocks");
         await this.buildLastForgedBlocks();
 
-        this.logger.info("Integrity Verification - Step 4 of 8: Sent Transactions");
+        this.logger.info("Integrity Verification - Step 4 of 9: Sent Transactions");
         await this.buildSentTransactions();
 
-        this.logger.info("Integrity Verification - Step 5 of 8: Second Signatures");
+        this.logger.info("Integrity Verification - Step 5 of 9: Second Signatures");
         await this.buildSecondSignatures();
 
-        this.logger.info("Integrity Verification - Step 6 of 8: Votes");
+        this.logger.info("Integrity Verification - Step 6 of 9: Votes");
         await this.buildVotes();
 
-        this.logger.info("Integrity Verification - Step 7 of 8: Delegates");
+        this.logger.info("Integrity Verification - Step 7 of 9: Delegates");
         await this.buildDelegates();
 
-        this.logger.info("Integrity Verification - Step 8 of 8: MultiSignatures");
+        this.logger.info("Integrity Verification - Step 8 of 9: MultiSignatures");
         await this.buildMultiSignatures();
+
+        this.logger.info("Integrity Verification - Step 9 of 9: Ipfs");
+        await this.buildIpfs();
 
         this.logger.info(
             `Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
@@ -161,6 +164,15 @@ export class IntegrityVerifier {
                     throw new Error(`Invalid multi signature version ${transaction.version}`);
                 }
             }
+        }
+    }
+
+    private async buildIpfs(): Promise<void> {
+        const transactions = await this.query.manyOrNone(queries.integrityVerifier.ipfs);
+
+        for (const transaction of transactions) {
+            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.ipfsHashes[transaction.asset.ipfs] = true;
         }
     }
 
