@@ -75,6 +75,10 @@ export class TransactionFactory {
         return factory;
     }
 
+    public static ipfs(ipfsId: string): TransactionFactory {
+        return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
+    }
+
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private fee: Utils.BigNumber;

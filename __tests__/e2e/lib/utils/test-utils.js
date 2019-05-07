@@ -3,8 +3,6 @@
 const axios = require("axios");
 axios.defaults.adapter = require("axios/lib/adapters/http");
 
-//const { client, transactionBuilder } = require('@arkecosystem/crypto')
-
 class Helpers {
     async GET(path, params = {}, nodeId = 0) {
         return this.request("GET", path, params, nodeId);
