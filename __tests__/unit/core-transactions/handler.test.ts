@@ -643,6 +643,8 @@ describe("Ipfs", () => {
 
         walletManager.reindex(senderWallet);
 
+        transaction = TransactionFactory.ipfs("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w").create()[0];
+
         transaction = {
             asset: {
                 ipfs: "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
@@ -683,6 +685,7 @@ describe("Ipfs", () => {
 
             handler.apply(instance, walletManager);
 
+            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeTrue();
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
         });
     });
@@ -696,9 +699,11 @@ describe("Ipfs", () => {
             handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
+            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeTrue();
 
             handler.revert(instance, walletManager);
 
+            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeUndefined();
             expect(senderWallet.balance).toEqual(balanceBefore);
         });
     });
