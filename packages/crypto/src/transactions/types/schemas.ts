@@ -189,7 +189,8 @@ export const ipfs = extend(transactionBaseSchema, {
             required: ["ipfs"],
             properties: {
                 ipfs: {
-                    $ref: "base58",
+                    allOf: [{ minLength: 2, maxLength: 90 }, { $ref: "base58" }],
+                    // ipfs hash has varying length but we set max limit to twice the length of base58 ipfs sha-256 hash
                 },
             },
         },
