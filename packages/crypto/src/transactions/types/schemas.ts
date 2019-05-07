@@ -21,7 +21,6 @@ export const transactionBaseSchema = {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
         network: { $ref: "networkByte" },
-        expiration: { type: "integer" },
         timestamp: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1, bypassGenesis: true } },
         fee: { bignumber: { minimum: 1, bypassGenesis: true } },
@@ -65,6 +64,7 @@ export const transfer = extend(transactionBaseSchema, {
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
         vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         recipientId: { $ref: "address" },
+        expiration: { type: "integer", minimum: 0 },
     },
 });
 

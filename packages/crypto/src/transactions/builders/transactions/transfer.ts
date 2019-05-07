@@ -16,13 +16,20 @@ export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
         this.data.expiration = 0;
     }
 
+    public expiration(expiration: number): TransferBuilder {
+        this.data.expiration = expiration;
+
+        return this.instance();
+    }
+
     public getStruct(): ITransactionData {
         const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
         struct.recipientId = this.data.recipientId;
         struct.asset = this.data.asset;
         struct.vendorField = this.data.vendorField;
-        // struct.vendorFieldHex = this.vendorFieldHex // v2
+        struct.expiration = this.data.expiration;
+
         return struct;
     }
 
