@@ -109,6 +109,7 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.DelegateRegistration);
             Registry.get(TransactionTypes.Vote);
             Registry.get(TransactionTypes.MultiSignature);
+            Registry.get(TransactionTypes.Ipfs);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 
