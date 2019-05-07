@@ -35,9 +35,7 @@ export interface ITransactionAsset {
     votes?: string[];
     multiSignatureLegacy?: IMultiSignatureLegacyAsset;
     multiSignature?: IMultiSignatureAsset;
-    ipfs?: {
-        dag: string;
-    };
+    ipfs?: string;
     payments?: any;
     [custom: string]: any;
 }
@@ -72,7 +70,6 @@ export interface ITransactionData {
     timelock?: any;
     timelockType?: number;
 
-    ipfsHash?: string;
     payments?: { [key: string]: any };
 }
 

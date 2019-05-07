@@ -184,6 +184,15 @@ export const ipfs = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.Ipfs },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["ipfs"],
+            properties: {
+                ipfs: {
+                    $ref: "base58",
+                },
+            },
+        },
     },
 });
 
