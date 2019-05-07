@@ -13,9 +13,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): boolean {
-        if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
-            throw new IpfsHashAlreadyExists();
-        }
+        // TODO implement unique ipfs hash on blockchain (not just on wallet)
+        // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
+        //     throw new IpfsHashAlreadyExists();
+        // }
 
         return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
