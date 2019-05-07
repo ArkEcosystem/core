@@ -1,5 +1,6 @@
 import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { IpfsHashAlreadyExists } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class IpfsTransactionHandler extends TransactionHandler {
@@ -12,6 +13,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): boolean {
+        if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
+            throw new IpfsHashAlreadyExists();
+        }
+
         return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
@@ -25,10 +30,20 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
+
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.ipfsHashes[transaction.data.asset.ipfs] = true;
+
+        walletManager.reindex(sender);
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
+
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        delete sender.ipfsHashes[transaction.data.asset.ipfs];
+
+        walletManager.reindex(sender);
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {

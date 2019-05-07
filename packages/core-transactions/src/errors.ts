@@ -150,3 +150,9 @@ export class MultiSignatureKeyCountMismatchError extends TransactionError {
         );
     }
 }
+
+export class IpfsHashAlreadyExists extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because this IPFS hash is already registered for the wallet.`);
+    }
+}
