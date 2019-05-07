@@ -198,6 +198,10 @@ export class Block implements IBlock {
                     result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
                 }
 
+                if (transaction.data.expiration > 0 && transaction.data.expiration <= this.data.height) {
+                    result.errors.push(`Encountered expired transaction: ${transaction.data.id}`);
+                }
+
                 appliedTransactions[transaction.data.id] = transaction.data;
 
                 totalAmount = totalAmount.plus(transaction.data.amount);

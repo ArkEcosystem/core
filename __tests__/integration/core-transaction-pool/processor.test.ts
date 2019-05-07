@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Blockchain, Container, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
@@ -51,9 +51,9 @@ describe("Transaction Guard", () => {
                 const poolWallets = newWallets.map(w => transactionPool.walletManager.findByAddress(w.address));
 
                 expect(+delegateWallet.balance).toBe(+delegate.balance);
-                poolWallets.forEach(w => {
-                    expect(+w.balance).toBe(0);
-                });
+                for (const wallet of poolWallets) {
+                    expect(+wallet.balance).toBe(0);
+                }
 
                 const transfer0 = {
                     // transfer from delegate to wallet 0
@@ -201,9 +201,9 @@ describe("Transaction Guard", () => {
             // Index wallets to not encounter cold wallet error
             const allTransactions = [...transfers, ...votes, ...delegateRegs, ...signatures];
 
-            allTransactions.forEach(transaction => {
+            for (const transaction of allTransactions) {
                 container.resolvePlugin("database").walletManager.findByPublicKey(transaction.data.senderPublicKey);
-            });
+            }
 
             // first validate the 1st transfer so that new wallet is updated with the amount
             await processor.validate(transfers.map(tx => tx.data));
@@ -422,7 +422,7 @@ describe("Transaction Guard", () => {
             const result = await processor.validate(delegateRegistrations.map(transaction => transaction.data));
             expect(result.invalid).toEqual(delegateRegistrations.map(transaction => transaction.id));
 
-            delegateRegistrations.forEach(tx => {
+            for (const tx of delegateRegistrations) {
                 expect(processor.getErrors()[tx.id]).toEqual([
                     {
                         type: "ERR_CONFLICT",
@@ -431,7 +431,7 @@ describe("Transaction Guard", () => {
                         }" in transaction payload`,
                     },
                 ]);
-            });
+            }
 
             const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
             const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
@@ -789,6 +789,72 @@ describe("Transaction Guard", () => {
                 const result = await processor.validate(transfers);
 
                 expect(result.errors).toEqual(forgedErrorMessage(realTransferId));
+            });
+        });
+
+        describe("Expiration", () => {
+            it("should accept expiring transactions", async () => {
+                const store = container.resolvePlugin<State.IStateService>("state").getStore();
+
+                const spy = jest.spyOn(store, "getLastHeight").mockReturnValue(100);
+
+                const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .withNetwork("unitnet")
+                    .withPassphrase(wallets[13].passphrase)
+                    .withExpiration(102)
+                    .build()[0];
+
+                const transferTransaction2 = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .withNetwork("unitnet")
+                    .withPassphrase(wallets[12].passphrase)
+                    .withExpiration(0)
+                    .build()[0];
+
+                const result = await processor.validate([transferTransaction.data, transferTransaction2.data]);
+
+                expect(result.accept).toEqual([transferTransaction.id, transferTransaction2.id]);
+                expect(result.broadcast).toEqual([transferTransaction.id, transferTransaction2.id]);
+                expect(result.errors).toBeUndefined();
+
+                spy.mockRestore();
+            });
+
+            it("should reject expired transactions", async () => {
+                const store = container.resolvePlugin<State.IStateService>("state").getStore();
+
+                const spy = jest.spyOn(store, "getLastHeight").mockReturnValue(100);
+
+                const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .withNetwork("unitnet")
+                    .withPassphrase(wallets[16].passphrase)
+                    .withExpiration(50)
+                    .build()[0];
+
+                const transferTransaction2 = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .withNetwork("unitnet")
+                    .withPassphrase(wallets[15].passphrase)
+                    .withExpiration(100)
+                    .build()[0];
+
+                const result = await processor.validate([transferTransaction.data, transferTransaction2.data]);
+
+                expect(result.errors[transferTransaction.id]).toEqual([
+                    {
+                        message: `Transaction ${transferTransaction.id} is expired since ${100 -
+                            transferTransaction.data.expiration} blocks.`,
+                        type: "ERR_EXPIRED",
+                    },
+                ]);
+
+                expect(result.errors[transferTransaction2.id]).toEqual([
+                    {
+                        message: `Transaction ${transferTransaction2.id} is expired since ${100 -
+                            transferTransaction2.data.expiration} blocks.`,
+                        type: "ERR_EXPIRED",
+                    },
+                ]);
+
+                spy.mockRestore();
             });
         });
     });
