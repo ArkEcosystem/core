@@ -1,10 +1,10 @@
 import { dato } from "@faustbrian/dato";
+import { ProcessDescription } from "@faustbrian/foreman";
 import Table from "cli-table3";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../process-manager";
-import { ProcessDescription } from "../types";
 import { renderTable } from "../utils";
 
 export abstract class AbstractStatusCommand extends BaseCommand {
