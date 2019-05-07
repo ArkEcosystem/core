@@ -3,7 +3,7 @@ import { ExecaReturns } from "execa";
 
 class ProcessManager extends Foreman {
     public restart(id: ProcessIdentifier): ExecaReturns {
-        return super.restart(id, ["--update-env"]);
+        return super.restart(id, { "update-env": true });
     }
 
     public list(): Array<Record<string, any>> {
