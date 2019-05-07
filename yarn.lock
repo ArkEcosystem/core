@@ -683,10 +683,10 @@
   dependencies:
     dateformat "^3.0.3"
 
-"@faustbrian/foreman@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@faustbrian/foreman/-/foreman-0.1.1.tgz#635575e2917f00bed8d1a70926d8681300209f6b"
-  integrity sha512-A9UOyktq343jZLRR0oZ6PsuP1U4h5aQQ4H14iCTZukllPF2uIN5N/X1nnh3RZ+M593jltE0tb0lRQm1XC/rlrg==
+"@faustbrian/foreman@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@faustbrian/foreman/-/foreman-0.1.2.tgz#9c387d6228426a0b57de63d3532710cc38f4d1ab"
+  integrity sha512-JwI04M1jv+Ws01tQ3jUlCsZIgmo9/NLhoYnJ0Kq2d1I8FbEAaHjIDrYT5tfab40zNnP0HNB2zEUl0IdG6/Mj0w==
   dependencies:
     execa "^1.0.0"
 

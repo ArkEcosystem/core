@@ -60,7 +60,7 @@
         "@arkecosystem/core-webhooks": "^2.3.22",
         "@arkecosystem/crypto": "^2.3.22",
         "@faustbrian/dato": "^0.3.0",
-        "@faustbrian/foreman": "^0.1.1",
+        "@faustbrian/foreman": "^0.1.2",
         "@oclif/command": "^1.5.13",
         "@oclif/config": "^1.12.12",
         "@oclif/plugin-autocomplete": "^0.1.0",
