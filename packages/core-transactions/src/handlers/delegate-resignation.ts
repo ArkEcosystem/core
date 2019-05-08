@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { WalletUsernameEmptyError } from "../errors";
+import { WalletUsernameEmptyError, WalletUsernameMismatchError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class DelegateResignationTransactionHandler extends TransactionHandler {
@@ -19,6 +19,10 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     ): boolean {
         if (!wallet.username || !transaction.data.asset.delegate.username) {
             throw new WalletUsernameEmptyError();
+        }
+
+        if (wallet.username !== transaction.data.asset.delegate.username) {
+            throw new WalletUsernameMismatchError(wallet.username, transaction.data.asset.delegate.username);
         }
 
         return super.canBeApplied(transaction, wallet, databaseWalletManager);
@@ -47,9 +51,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
-        walletManager.forgetByUsername(sender.username);
-
-        sender.username = undefined;
+        sender.resigned = true;
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
@@ -57,9 +59,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
-        sender.username = transaction.data.asset.delegate.username;
-
-        walletManager.reindex(sender);
+        sender.resigned = false;
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {

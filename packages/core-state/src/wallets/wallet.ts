@@ -10,6 +10,7 @@ export class Wallet implements State.IWallet {
     public vote: string;
     public voted: boolean;
     public username: string | undefined;
+    public resigned: boolean;
     public lastBlock: any;
     public voteBalance: Utils.BigNumber;
     public multisignature?: Interfaces.IMultiSignatureAsset;
@@ -28,6 +29,7 @@ export class Wallet implements State.IWallet {
         this.vote = undefined;
         this.voted = false;
         this.username = undefined;
+        this.resigned = false;
         this.lastBlock = undefined;
         this.voteBalance = Utils.BigNumber.ZERO;
         this.multisignature = undefined;
@@ -165,8 +167,7 @@ export class Wallet implements State.IWallet {
         }
 
         if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
-            audit.push({ "Current username": this.username });
-            audit.push({ "New username": undefined });
+            audit.push({ "Resigned delegate": this.username });
         }
 
         if (transaction.type === Enums.TransactionTypes.Vote) {
@@ -199,10 +200,6 @@ export class Wallet implements State.IWallet {
         if (transaction.type === Enums.TransactionTypes.MultiPayment) {
             const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
-        }
-
-        if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
-            audit.push({ "Resignate Delegate": this.username });
         }
 
         if (!Object.values(Enums.TransactionTypes).includes(transaction.type)) {

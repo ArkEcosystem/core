@@ -10,6 +10,7 @@ export interface IWallet {
     vote: string;
     voted: boolean;
     username: string | undefined;
+    resigned: boolean;
     lastBlock: any;
     voteBalance: Utils.BigNumber;
     multisignature?: Interfaces.IMultiSignatureAsset;

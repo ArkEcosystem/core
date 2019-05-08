@@ -90,6 +90,15 @@ export class WalletUsernameAlreadyRegisteredError extends TransactionError {
     }
 }
 
+export class WalletUsernameMismatchError extends TransactionError {
+    constructor(walletUsername: string, transactionUsername: string) {
+        super(
+            `Failed to apply transaction, because the wallet username '${walletUsername}' ` +
+            `differs from the transaction username '${transactionUsername}'.`
+        );
+    }
+}
+
 export class SecondSignatureAlreadyRegisteredError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because second signature is already enabled.`);
