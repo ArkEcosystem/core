@@ -6,6 +6,7 @@ export interface IPeer {
 
     ip: string;
     port: number;
+    apiPort?: number;
 
     nethash: string;
     version: string;
@@ -29,6 +30,7 @@ export interface IPeer {
 export interface IPeerBroadcast {
     ip: string;
     port: number;
+    apiPort?: number;
     nethash: string;
     version: string;
     os: string;

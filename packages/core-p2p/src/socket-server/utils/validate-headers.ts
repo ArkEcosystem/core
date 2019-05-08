@@ -5,6 +5,10 @@ export const validateHeaders = headers => {
         headers.port = +headers.port;
     }
 
+    if (headers.apiPort) {
+        headers.apiPort = +headers.apiPort;
+    }
+
     return validateJSON(headers, {
         type: "object",
         properties: {
@@ -13,6 +17,11 @@ export const validateHeaders = headers => {
                 format: "ip",
             },
             port: {
+                type: "integer",
+                minimum: 1,
+                maximum: 65535,
+            },
+            apiPort: {
                 type: "integer",
                 minimum: 1,
                 maximum: 65535,
