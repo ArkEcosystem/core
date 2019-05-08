@@ -108,7 +108,7 @@ export class PostgresConnection implements Database.IConnection {
     }
 
     public async buildWallets(): Promise<void> {
-        await new IntegrityVerifier(this.query, this.walletManager).run();
+        await new IntegrityVerifier(this, this.walletManager).run();
     }
 
     public async commitQueuedQueries(): Promise<void> {

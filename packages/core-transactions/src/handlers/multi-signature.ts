@@ -1,4 +1,4 @@
-import { State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
@@ -13,7 +13,9 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return Transactions.MultiSignatureRegistrationTransaction;
     }
 
-    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             if (!wallet.multisignature) {

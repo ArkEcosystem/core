@@ -1,4 +1,4 @@
-import { State } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler } from "./transaction";
 
@@ -7,7 +7,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return Transactions.MultiPaymentTransaction;
     }
 
-    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         return;
     }
 

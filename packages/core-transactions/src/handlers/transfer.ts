@@ -1,4 +1,4 @@
-import { State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
@@ -8,7 +8,7 @@ export class TransferTransactionHandler extends TransactionHandler {
         return Transactions.TransferTransaction;
     }
 
-    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         return;
     }
 

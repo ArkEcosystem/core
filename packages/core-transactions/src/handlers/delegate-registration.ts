@@ -1,4 +1,4 @@
-import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -15,21 +15,23 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return Transactions.DelegateRegistrationTransaction;
     }
 
-    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+
+        const forgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
+
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.username = transaction.asset.delegate.username;
             walletManager.reindex(wallet);
         }
 
-        // Forged Blocks...
-        // const forgedBlocks = await this.query.manyOrNone(queries.integrityVerifier.delegatesForgedBlocks);
-        // for (const block of forgedBlocks) {
-        //     const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
-        //     wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
-        //     wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
-        //     wallet.producedBlocks = +block.totalProduced;
-        // }
+        for (const block of forgedBlocks) {
+            const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+            wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
+            wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
+            wallet.producedBlocks = +block.totalProduced;
+        }
 
         walletManager.buildDelegateRanking(walletManager.allByUsername());
     }

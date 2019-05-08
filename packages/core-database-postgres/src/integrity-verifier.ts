@@ -1,14 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger, State } from "@arkecosystem/core-interfaces";
+import { Database, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { queries } from "./queries";
-import { QueryExecutor } from "./sql/query-executor";
 
 export class IntegrityVerifier {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    constructor(private readonly query: QueryExecutor, private readonly walletManager: State.IWalletManager) {}
+    constructor(
+        private readonly connection: Database.IConnection,
+        private readonly walletManager: State.IWalletManager,
+    ) {}
 
     public async run(): Promise<void> {
         this.logger.info("State Generation - Step 1 of 9: Received Transactions");
@@ -27,13 +28,13 @@ export class IntegrityVerifier {
         for (const transactionHandler of transactionHandlers) {
             this.logger.info(
                 `State Generation - Step ${4 + (transactionHandlers.indexOf(transactionHandler) + 1)} of ${4 +
-                    transactionHandlers.length}: ${transactionHandler.getConstructor.name}`,
+                    transactionHandlers.length}: ${transactionHandler.constructor.name.replace(
+                    "TransactionHandler",
+                    "",
+                )}`,
             );
 
-            const { type } = transactionHandler.getConstructor();
-            const transactions = await this.query.manyOrNone(queries.integrityVerifier.assetsByType, { type });
-
-            transactionHandler.bootstrap(transactions, this.walletManager);
+            await transactionHandler.bootstrap(this.connection, this.walletManager);
         }
 
         this.logger.info(
@@ -45,7 +46,7 @@ export class IntegrityVerifier {
     }
 
     private async buildReceivedTransactions(): Promise<void> {
-        const transactions = await this.query.many(queries.integrityVerifier.receivedTransactions);
+        const transactions = await this.connection.transactionsRepository.getReceivedTransactions();
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByAddress(transaction.recipientId);
@@ -57,7 +58,7 @@ export class IntegrityVerifier {
     }
 
     private async buildBlockRewards(): Promise<void> {
-        const blocks = await this.query.many(queries.integrityVerifier.blockRewards);
+        const blocks = await this.connection.blocksRepository.getBlockRewards();
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
@@ -66,7 +67,7 @@ export class IntegrityVerifier {
     }
 
     private async buildLastForgedBlocks(): Promise<void> {
-        const blocks = await this.query.many(queries.integrityVerifier.lastForgedBlocks);
+        const blocks = await this.connection.blocksRepository.getLastForgedBlocks();
 
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
@@ -75,7 +76,7 @@ export class IntegrityVerifier {
     }
 
     private async buildSentTransactions(): Promise<void> {
-        const transactions = await this.query.many(queries.integrityVerifier.sentTransactions);
+        const transactions = await this.connection.transactionsRepository.getSentTransactions();
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);

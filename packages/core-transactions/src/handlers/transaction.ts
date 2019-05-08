@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 // tslint:disable:member-ordering
 
-import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     InsufficientBalanceError,
@@ -19,7 +19,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Wallet logic
      */
-    public abstract bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void;
+    public abstract async bootstrap(
+        connection: Database.IConnection,
+        walletManager: State.IWalletManager,
+    ): Promise<void>;
 
     public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
         const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
