@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-transactions",
-    "version": "2.3.22",
+    "version": "2.4.0-next.0",
     "description": "Transaction Services for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,8 +19,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.0",
+        "@arkecosystem/crypto": "^2.4.0-next.0",
         "bs58check": "^2.1.2"
     },
     "engines": {

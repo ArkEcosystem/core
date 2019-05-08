@@ -40,7 +40,6 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 
 -   Implement in `@arkecosystem/core-state` to manage the state of in-memory data ([#2479])
 -   Implement a blockchain replay command ([#2526])
--   Initial implementation of AIP18 ([#2508])
 -   Save blocks in batches during sync ([#2500])
 -   Implement v2/node/fees endpoint ([#2393])
 -   Allow setting a vendor field for transactions created via `@arkecosystem/core-json-rpc` ([#2425])
@@ -82,6 +81,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Move mainnet exceptions to config in `@arkecosystem/crypto` ([#2529])
 -   Remove extraneous Client class in `@arkecosystem/crypto` ([#2417])
 -   Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
+-   Invalidate blocks with expired transactions ([#2528])
 
 ### Removed
 
@@ -621,11 +621,11 @@ Closed security vulnerabilities:
 [#2503]: https://github.com/ARKEcosystem/core/pull/2503
 [#2506]: https://github.com/ARKEcosystem/core/pull/2506
 [#2507]: https://github.com/ARKEcosystem/core/pull/2507
-[#2508]: https://github.com/ARKEcosystem/core/pull/2508
 [#2513]: https://github.com/ARKEcosystem/core/pull/2513
 [#2514]: https://github.com/ARKEcosystem/core/pull/2514
 [#2515]: https://github.com/ARKEcosystem/core/pull/2515
 [#2517]: https://github.com/ARKEcosystem/core/pull/2517
 [#2522]: https://github.com/ARKEcosystem/core/pull/2522
 [#2526]: https://github.com/ARKEcosystem/core/pull/2526
+[#2528]: https://github.com/ARKEcosystem/core/pull/2528
 [#2529]: https://github.com/ARKEcosystem/core/pull/2529
