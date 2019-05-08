@@ -134,6 +134,12 @@ export class VotedForNonDelegateError extends TransactionError {
     }
 }
 
+export class VotedForResignedDelegateError extends TransactionError {
+    constructor(vote: string) {
+        super(`Failed to apply transaction, because it votes for a resigned delegate.`);
+    }
+}
+
 export class MultiSignatureAlreadyRegisteredError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because multi signature is already enabled.`);
