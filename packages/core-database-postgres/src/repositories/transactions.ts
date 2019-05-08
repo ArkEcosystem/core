@@ -1,5 +1,5 @@
 import { Database, State } from "@arkecosystem/core-interfaces";
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
 import { Transaction } from "../models";
@@ -43,6 +43,18 @@ export class TransactionsRepository extends Repository implements Database.ITran
         }>
     > {
         return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
+    }
+
+    public async getAssetsByType(type: Enums.TransactionTypes | number): Promise<any> {
+        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { type });
+    }
+
+    public async getReceivedTransactions(): Promise<any> {
+        return this.db.many(queries.stateBuilder.receivedTransactions);
+    }
+
+    public async getSentTransactions(): Promise<any> {
+        return this.db.many(queries.stateBuilder.sentTransactions);
     }
 
     public async forged(ids: string[]): Promise<Interfaces.ITransactionData[]> {

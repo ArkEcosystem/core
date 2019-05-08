@@ -1,5 +1,6 @@
 SELECT sender_public_key,
-       asset
+       asset,
+       version
 FROM transactions
-WHERE TYPE = 3
+WHERE TYPE = ${type}
 ORDER BY timestamp DESC, sequence ASC

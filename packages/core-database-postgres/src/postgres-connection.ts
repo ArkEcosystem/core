@@ -5,13 +5,13 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
-import { IntegrityVerifier } from "./integrity-verifier";
 import { IMigration } from "./interfaces";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
+import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IConnection {
@@ -108,7 +108,7 @@ export class PostgresConnection implements Database.IConnection {
     }
 
     public async buildWallets(): Promise<void> {
-        await new IntegrityVerifier(this.query, this.walletManager).run();
+        await new StateBuilder(this, this.walletManager).run();
     }
 
     public async commitQueuedQueries(): Promise<void> {
