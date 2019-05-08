@@ -79,7 +79,10 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (this.storage.getSameSubnetPeers(peer.ip).length >= app.resolveOptions("p2p").maxSameSubnetPeers) {
+        if (
+            this.storage.getSameSubnetPeers(peer.ip).length >= app.resolveOptions("p2p").maxSameSubnetPeers &&
+            !options.seed
+        ) {
             this.logger.warn(
                 `Rejected ${peer.ip} because we are already at the ${
                     app.resolveOptions("p2p").maxSameSubnetPeers
