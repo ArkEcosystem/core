@@ -28,7 +28,7 @@ export const defaults = {
     /**
      * The maximum authorized number of peers sharing same ip /24 subnet
      */
-    maxSameSubnetPeers: 5,
+    maxSameSubnetPeers: process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET || 5,
     /**
      * The list of IPs we allow to be added to the peer list.
      */
