@@ -1,3 +1,4 @@
+import { flags } from "@oclif/command";
 import { hasSomeProperty } from "@arkecosystem/core-utils";
 import { existsSync } from "fs-extra";
 import { CommandFlags, EnvironmentVars } from "../../types";
