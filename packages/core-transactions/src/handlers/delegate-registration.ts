@@ -33,7 +33,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             wallet.producedBlocks = +block.totalProduced;
         }
 
-        walletManager.buildDelegateRanking(walletManager.allByUsername());
+        walletManager.buildDelegateRanking();
     }
 
     public canBeApplied(

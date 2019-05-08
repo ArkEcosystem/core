@@ -65,7 +65,7 @@ export interface IWalletManager {
 
     applyBlock(block: Interfaces.IBlock): void;
 
-    buildDelegateRanking(delegates: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
+    buildDelegateRanking(delegates?: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
     revertBlock(block: Interfaces.IBlock): void;
 

@@ -31,7 +31,7 @@ export class StateBuilder {
         this.logger.info(`State Generation - Step 2 of ${steps}: Fees`);
         await this.buildSentTransactions();
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < (aip11 ? transactionHandlers.length : 4); i++) {
             const transactionHandler = transactionHandlers[i];
             const transactionName = transactionHandler.constructor.name.replace("TransactionHandler", "");
 
