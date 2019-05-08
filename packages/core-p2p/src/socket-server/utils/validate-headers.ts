@@ -17,10 +17,6 @@ export const validateHeaders = headers => {
                 minimum: 1,
                 maximum: 65535,
             },
-            os: {
-                type: "string",
-                maxLength: 64,
-            },
             nethash: {
                 type: "string",
                 maxLength: 64,
