@@ -92,6 +92,13 @@ export class BlockProcessor {
             );
 
             if (forgedIds.length > 0) {
+                const { transactionPool } = this.blockchain;
+                if (transactionPool) {
+                    for (const forgedId of forgedIds) {
+                        transactionPool.removeTransactionById(forgedId);
+                    }
+                }
+
                 this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
