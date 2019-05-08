@@ -70,7 +70,7 @@ export abstract class Index {
         return Math.ceil((countDB - countES) / this.chunkSize);
     }
 
-    private async countWithDatabase(): Promise<number> {
+    protected async countWithDatabase(): Promise<number> {
         const modelQuery = this.createQuery();
 
         const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
