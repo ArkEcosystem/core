@@ -13,7 +13,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly appConfig = app.getConfig();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
