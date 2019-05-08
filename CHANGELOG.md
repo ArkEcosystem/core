@@ -53,6 +53,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Implement BlockFactory in `@arkecosystem/crypto` ([#2429])
 -   Implement TransactionFactory in `@arkecosystem/crypto` ([#2437])
 -   Integrate end-to-end tests ([#2468])
+-   Initial Implementation of `core-wallet-api` ([#2544])
 
 ### Fixed
 
@@ -631,3 +632,4 @@ Closed security vulnerabilities:
 [#2528]: https://github.com/ARKEcosystem/core/pull/2528
 [#2529]: https://github.com/ARKEcosystem/core/pull/2529
 [#2539]: https://github.com/ARKEcosystem/core/pull/2539
+[#2544]: https://github.com/ARKEcosystem/core/pull/2544
