@@ -6,6 +6,18 @@ import { SearchParameterConverter } from "./utils/search-parameter-converter";
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
+    public async getAssetsByType(type: Enums.TransactionTypes | number): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type);
+    }
+
+    public async getReceivedTransactions(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getReceivedTransactions();
+    }
+
+    public async getSentTransactions(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getSentTransactions();
+    }
+
     public async allVotesBySender(senderPublicKey: any, parameters: any): Promise<Database.ITransactionsPaginated> {
         return this.findAll({
             ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },

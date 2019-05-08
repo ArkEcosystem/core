@@ -13,6 +13,7 @@ export interface IWallet {
     lastBlock: any;
     voteBalance: Utils.BigNumber;
     multisignature?: Interfaces.IMultiSignatureAsset;
+    ipfsHashes: { [ipfsHash: string]: boolean };
     dirty: boolean;
     producedBlocks: number;
     forgedFees: Utils.BigNumber;
@@ -64,7 +65,7 @@ export interface IWalletManager {
 
     applyBlock(block: Interfaces.IBlock): void;
 
-    buildDelegateRanking(delegates: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
+    buildDelegateRanking(delegates?: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
     revertBlock(block: Interfaces.IBlock): void;
 

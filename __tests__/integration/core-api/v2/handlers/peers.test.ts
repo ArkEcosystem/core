@@ -8,12 +8,12 @@ const peers = [
     {
         ip: "1.0.0.99",
         port: 4002,
-        version: "2.3.0-next.3",
+        version: "2.4.0-next.3",
     },
     {
         ip: "1.0.0.98",
         port: 4002,
-        version: "2.3.0-next.1",
+        version: "2.4.0-next.1",
     },
 ];
 

@@ -13,6 +13,7 @@ export class Wallet implements State.IWallet {
     public lastBlock: any;
     public voteBalance: Utils.BigNumber;
     public multisignature?: Interfaces.IMultiSignatureAsset;
+    public ipfsHashes: { [ipfsHash: string]: boolean };
     public dirty: boolean;
     public producedBlocks: number;
     public forgedFees: Utils.BigNumber;
@@ -30,6 +31,7 @@ export class Wallet implements State.IWallet {
         this.lastBlock = undefined;
         this.voteBalance = Utils.BigNumber.ZERO;
         this.multisignature = undefined;
+        this.ipfsHashes = {};
         this.producedBlocks = 0;
         this.forgedFees = Utils.BigNumber.ZERO;
         this.forgedRewards = Utils.BigNumber.ZERO;

@@ -19,4 +19,10 @@ export interface IBlocksBusinessRepository {
     findByHeight(height: number): Promise<Interfaces.IBlockData>;
 
     findByIdOrHeight(idOrHeight: string | number): Promise<Interfaces.IBlockData>;
+
+    getBlockRewards(): Promise<any>;
+
+    getLastForgedBlocks(): Promise<any>;
+
+    getDelegatesForgedBlocks(): Promise<any>;
 }

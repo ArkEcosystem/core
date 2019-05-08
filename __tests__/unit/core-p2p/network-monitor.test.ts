@@ -36,7 +36,7 @@ describe("NetworkMonitor", () => {
                 {
                     ip: stubPeer.ip,
                     port: stubPeer.port,
-                    version: "2.3.0",
+                    version: "2.4.0",
                 },
                 { lessVerbose: true, seed: true },
             );

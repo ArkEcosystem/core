@@ -212,13 +212,24 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - ipfs", () => {
+    describe("ser/deserialize - ipfs", () => {
+        const ipfsIds = [
+            "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
+            "QmYSK2JyM3RyDyB52caZCTKFR3HKniEcMnNJYdk8DQ6KKB",
+            "QmQeUqdjFmaxuJewStqCLUoKrR9khqb4Edw9TfRQQdfWz3",
+            "Qma98bk1hjiRZDTmYmfiUXDj8hXXt7uGA5roU5mfUb3sVG",
+        ];
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
         it("should ser/deserialize giving back original fields", () => {
             const ipfs = BuilderFactory.ipfs()
                 .fee("50000000")
-                .version(1)
-                .network(30)
-                .dag("da304502")
+                .version(2)
+                .network(23)
+                .ipfsAsset(ipfsIds[0])
                 .sign("dummy passphrase")
                 .getStruct();
 
