@@ -68,7 +68,7 @@
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
         "@oclif/plugin-plugins": "^1.7.8",
-        "bip39": "^3.0.1",
+        "bip39": "^3.0.2",
         "chalk": "^2.4.2",
         "clear": "^0.1.0",
         "cli-progress": "^2.1.1",

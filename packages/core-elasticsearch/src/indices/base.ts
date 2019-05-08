@@ -82,19 +82,25 @@ export abstract class Index {
 
     private async countWithElastic(): Promise<number> {
         try {
-            const { count } = await client.count({
+            const { body } = await client.count({
                 index: this.getIndex(),
                 type: this.getType(),
             });
 
-            return +count;
+            return +body.count;
         } catch (error) {
             return 0;
         }
     }
 
     private async exists(doc): Promise<boolean> {
-        return client.exists(this.getReadQuery(doc));
+        try {
+            const { body } = await client.exists(this.getReadQuery(doc));
+
+            return body;
+        } catch (error) {
+            return false;
+        }
     }
 
     private getReadQuery(doc) {

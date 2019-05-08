@@ -27,7 +27,7 @@
         "@hapi/good-squeeze": "^5.2.0",
         "@hapi/hapi": "^18.3.1",
         "expand-home-dir": "^0.0.3",
-        "hapi-trailing-slash": "^3.0.1",
+        "hapi-trailing-slash": "^3.1.0",
         "nanomatch": "^1.2.13"
     },
     "devDependencies": {
