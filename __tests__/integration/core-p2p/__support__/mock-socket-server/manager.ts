@@ -37,6 +37,7 @@ export class MockSocketManager {
                 headers: headers || {
                     version: "2.2.1",
                     port: 4000,
+                    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
                     height: 1,
                     "Content-Type": "application/json",
                 },

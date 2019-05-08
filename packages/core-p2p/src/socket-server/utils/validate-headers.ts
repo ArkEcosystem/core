@@ -17,11 +17,19 @@ export const validateHeaders = headers => {
                 minimum: 1,
                 maximum: 65535,
             },
+            os: {
+                type: "string",
+                maxLength: 64,
+            },
+            nethash: {
+                type: "string",
+                maxLength: 64,
+            },
             version: {
                 type: "string",
                 maxLength: 16,
             },
         },
-        required: ["version", "port"],
+        required: ["version", "nethash", "port"],
     });
 };

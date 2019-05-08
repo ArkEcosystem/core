@@ -4,6 +4,7 @@ export const transformPeerLegacy = model => {
         port: model.port,
         version: model.version,
         height: model.height,
+        os: model.os,
         delay: model.latency,
     };
 };
