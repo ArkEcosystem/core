@@ -1,4 +1,4 @@
-import { EnvironmentVars } from "../types";
+import { EnvironmentVars } from "./types";
 import envfile from "envfile";
 import Table from "cli-table3";
 import { writeFileSync } from "fs-extra";
