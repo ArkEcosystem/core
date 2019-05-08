@@ -82,6 +82,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Remove extraneous Client class in `@arkecosystem/crypto` ([#2417])
 -   Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
 -   Invalidate blocks with expired transactions ([#2528])
+-   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
 
 ### Removed
 
@@ -629,3 +630,4 @@ Closed security vulnerabilities:
 [#2526]: https://github.com/ARKEcosystem/core/pull/2526
 [#2528]: https://github.com/ARKEcosystem/core/pull/2528
 [#2529]: https://github.com/ARKEcosystem/core/pull/2529
+[#2539]: https://github.com/ARKEcosystem/core/pull/2539
