@@ -6,7 +6,6 @@ export const getHeaders = () => {
         nethash: app.getConfig().get("network.nethash"),
         version: app.getVersion(),
         port: app.resolveOptions("p2p").port,
-        os: require("os").platform(),
         height: undefined,
     };
 

@@ -21,12 +21,10 @@ describe("Peer", () => {
     it("should set and get the headers", () => {
         stubPeer.setHeaders({
             nethash: "nethash",
-            os: "os",
             version: "version",
         });
 
         expect(stubPeer.nethash).toEqual("nethash");
-        expect(stubPeer.os).toEqual("os");
         expect(stubPeer.version).toEqual("version");
     });
 });
