@@ -14,9 +14,11 @@ export class Client {
     private headers: {
         version: string;
         port: number;
+        nethash: string;
         "Content-Type": "application/json";
     } = {
         version: app.getVersion(),
+        nethash: app.getConfig().get("network.nethash"),
         port: undefined,
         "Content-Type": "application/json",
     };

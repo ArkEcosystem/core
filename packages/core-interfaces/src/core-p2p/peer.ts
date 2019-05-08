@@ -7,7 +7,9 @@ export interface IPeer {
     ip: string;
     port: number;
 
+    nethash: string;
     version: string;
+    os: string;
 
     latency: number;
     headers: Record<string, string | number>;
@@ -27,7 +29,9 @@ export interface IPeer {
 export interface IPeerBroadcast {
     ip: string;
     port: number;
+    nethash: string;
     version: string;
+    os: string;
     height: number;
     latency: number;
 }

@@ -21,6 +21,7 @@ beforeAll(async () => {
 beforeEach(async () => {
     peerMock = createStubPeer({ ip: "1.0.0.99", port: 4002 });
     Object.assign(peerMock, peerMock.headers);
+    peerMock.nethash = "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
 });
 
 describe("PeerGuard", () => {
@@ -56,6 +57,7 @@ describe("PeerGuard", () => {
 
         const dummy = createStubPeer({
             ip: "dummy-ip-addr",
+            nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
             version: "2.1.1",
             status: 200,
             state: {},

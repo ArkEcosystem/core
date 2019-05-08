@@ -4,6 +4,7 @@ export const transformPeer = model => {
         port: +model.port,
         version: model.version,
         height: model.state ? model.state.height : model.height,
+        os: model.os,
         latency: model.latency,
     };
 };
