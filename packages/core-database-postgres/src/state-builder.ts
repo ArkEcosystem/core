@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 
-export class IntegrityVerifier {
+export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     constructor(
@@ -12,27 +12,30 @@ export class IntegrityVerifier {
     ) {}
 
     public async run(): Promise<void> {
-        this.logger.info("State Generation - Step 1 of 9: Received Transactions");
-        await this.buildReceivedTransactions();
+        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
+        let steps = 2 + transactionHandlers.length;
 
-        this.logger.info("State Generation - Step 2 of 9: Block Rewards");
+        // FIXME: skip state generation of new tx types unless we are on testnet (until develop is on 2.6)
+        const aip11 =
+            Managers.configManager.getMilestone().aip11 && Managers.configManager.get("network.name") === "testnet";
+        if (!aip11) {
+            steps -= 5;
+        }
+
+        this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
 
-        this.logger.info("State Generation - Step 3 of 9: Last Forged Blocks");
+        this.logger.info(`State Generation - Step 2 of ${steps}: Last Forged Blocks`);
         await this.buildLastForgedBlocks();
 
-        this.logger.info("State Generation - Step 4 of 9: Sent Transactions");
+        this.logger.info(`State Generation - Step 2 of ${steps}: Fees`);
         await this.buildSentTransactions();
 
-        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
-        for (const transactionHandler of transactionHandlers) {
-            this.logger.info(
-                `State Generation - Step ${4 + (transactionHandlers.indexOf(transactionHandler) + 1)} of ${4 +
-                    transactionHandlers.length}: ${transactionHandler.constructor.name.replace(
-                    "TransactionHandler",
-                    "",
-                )}`,
-            );
+        for (let i = 0; i < 4; i++) {
+            const transactionHandler = transactionHandlers[i];
+            const transactionName = transactionHandler.constructor.name.replace("TransactionHandler", "");
+
+            this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${transactionName}`);
 
             await transactionHandler.bootstrap(this.connection, this.walletManager);
         }
@@ -43,18 +46,6 @@ export class IntegrityVerifier {
         this.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         this.verifyWalletsConsistency();
-    }
-
-    private async buildReceivedTransactions(): Promise<void> {
-        const transactions = await this.connection.transactionsRepository.getReceivedTransactions();
-
-        for (const transaction of transactions) {
-            const wallet = this.walletManager.findByAddress(transaction.recipientId);
-
-            wallet
-                ? (wallet.balance = Utils.BigNumber.make(transaction.amount))
-                : this.logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`);
-        }
     }
 
     private async buildBlockRewards(): Promise<void> {
@@ -81,10 +72,6 @@ export class IntegrityVerifier {
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
-
-            if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                this.logger.warn(`Negative balance: ${wallet}`);
-            }
         }
     }
 
