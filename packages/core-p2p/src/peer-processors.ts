@@ -138,7 +138,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.storage.forgetSuspendedPeer(suspension);
 
         const connection: SCClientSocket = this.connector.connection(peer);
-        if (connection.getState() !== connection.OPEN) {
+        if (connection && connection.getState() !== connection.OPEN) {
             // if after suspension peer socket is not open, we just "destroy" the socket connection
             // and we don't try to "accept" the peer again, so it will be definitively removed as there will be no reference to it
             connection.destroy();
