@@ -7,6 +7,10 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return Transactions.MultiPaymentTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        return;
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

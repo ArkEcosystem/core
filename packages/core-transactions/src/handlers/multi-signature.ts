@@ -13,6 +13,21 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return Transactions.MultiSignatureRegistrationTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            if (!wallet.multisignature) {
+                if (transaction.version === 1) {
+                    wallet.multisignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                } else if (transaction.version === 2) {
+                    wallet.multisignature = transaction.asset.multiSignature;
+                } else {
+                    throw new Error(`Invalid multi signature version ${transaction.version}`);
+                }
+            }
+        }
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

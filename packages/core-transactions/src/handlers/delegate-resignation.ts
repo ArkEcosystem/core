@@ -7,6 +7,10 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return Transactions.DelegateResignationTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        return;
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

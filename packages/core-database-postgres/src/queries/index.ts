@@ -33,7 +33,7 @@ export const queries = {
         receivedTransactions: loadQueryFile(__dirname, "./integrity-verifier/received-transactions.sql"),
         secondSignatures: loadQueryFile(__dirname, "./integrity-verifier/second-signatures.sql"),
         sentTransactions: loadQueryFile(__dirname, "./integrity-verifier/sent-transactions.sql"),
-        votes: loadQueryFile(__dirname, "./integrity-verifier/votes.sql"),
+        assetsByType: loadQueryFile(__dirname, "./integrity-verifier/assets-by-type.sql"),
     },
     transactions: {
         findByBlock: loadQueryFile(__dirname, "./transactions/find-by-block.sql"),

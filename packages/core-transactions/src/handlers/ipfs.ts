@@ -7,6 +7,13 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return Transactions.IpfsTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.ipfsHashes[transaction.asset.ipfs] = true;
+        }
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

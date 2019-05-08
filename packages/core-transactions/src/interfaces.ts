@@ -4,6 +4,8 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 export interface ITransactionHandler {
     getConstructor(): Transactions.TransactionConstructor;
 
+    bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void;
+
     verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean;
 
     canBeApplied(

@@ -19,6 +19,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Wallet logic
      */
+    public abstract bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void;
+
     public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
         const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 

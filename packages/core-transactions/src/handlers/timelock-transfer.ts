@@ -7,6 +7,10 @@ export class TimelockTransferTransactionHandler extends TransactionHandler {
         return Transactions.TimelockTransferTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        return;
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

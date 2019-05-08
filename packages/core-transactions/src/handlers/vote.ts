@@ -8,6 +8,27 @@ export class VoteTransactionHandler extends TransactionHandler {
         return Transactions.VoteTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+
+            if (!wallet.voted) {
+                const vote = transaction.asset.votes[0];
+
+                if (vote.startsWith("+")) {
+                    wallet.vote = vote.slice(1);
+                }
+
+                // NOTE: The "voted" property is only used within this loop to avoid an issue
+                // that results in not properly applying "unvote" transactions as the "vote" property
+                // would be empty in that case and return a false result.
+                wallet.voted = true;
+            }
+        }
+
+        walletManager.buildVoteBalances();
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

@@ -8,6 +8,13 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return Transactions.SecondSignatureRegistrationTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.secondPublicKey = transaction.asset.signature.publicKey;
+        }
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

@@ -8,6 +8,10 @@ export class TransferTransactionHandler extends TransactionHandler {
         return Transactions.TransferTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        return;
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

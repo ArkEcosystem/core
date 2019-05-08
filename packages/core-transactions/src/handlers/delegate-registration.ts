@@ -15,6 +15,25 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return Transactions.DelegateRegistrationTransaction;
     }
 
+    public bootstrap(transactions: Interfaces.ITransactionData[], walletManager: State.IWalletManager): void {
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.username = transaction.asset.delegate.username;
+            walletManager.reindex(wallet);
+        }
+
+        // Forged Blocks...
+        // const forgedBlocks = await this.query.manyOrNone(queries.integrityVerifier.delegatesForgedBlocks);
+        // for (const block of forgedBlocks) {
+        //     const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+        //     wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
+        //     wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
+        //     wallet.producedBlocks = +block.totalProduced;
+        // }
+
+        walletManager.buildDelegateRanking(walletManager.allByUsername());
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

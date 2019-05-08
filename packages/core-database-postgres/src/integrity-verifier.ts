@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { queries } from "./queries";
 import { QueryExecutor } from "./sql/query-executor";
@@ -10,35 +11,33 @@ export class IntegrityVerifier {
     constructor(private readonly query: QueryExecutor, private readonly walletManager: State.IWalletManager) {}
 
     public async run(): Promise<void> {
-        this.logger.info("Integrity Verification - Step 1 of 9: Received Transactions");
+        this.logger.info("State Generation - Step 1 of 9: Received Transactions");
         await this.buildReceivedTransactions();
 
-        this.logger.info("Integrity Verification - Step 2 of 9: Block Rewards");
+        this.logger.info("State Generation - Step 2 of 9: Block Rewards");
         await this.buildBlockRewards();
 
-        this.logger.info("Integrity Verification - Step 3 of 9: Last Forged Blocks");
+        this.logger.info("State Generation - Step 3 of 9: Last Forged Blocks");
         await this.buildLastForgedBlocks();
 
-        this.logger.info("Integrity Verification - Step 4 of 9: Sent Transactions");
+        this.logger.info("State Generation - Step 4 of 9: Sent Transactions");
         await this.buildSentTransactions();
 
-        this.logger.info("Integrity Verification - Step 5 of 9: Second Signatures");
-        await this.buildSecondSignatures();
+        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
+        for (const transactionHandler of transactionHandlers) {
+            this.logger.info(
+                `State Generation - Step ${4 + (transactionHandlers.indexOf(transactionHandler) + 1)} of ${4 +
+                    transactionHandlers.length}: ${transactionHandler.getConstructor.name}`,
+            );
 
-        this.logger.info("Integrity Verification - Step 6 of 9: Votes");
-        await this.buildVotes();
+            const { type } = transactionHandler.getConstructor();
+            const transactions = await this.query.manyOrNone(queries.integrityVerifier.assetsByType, { type });
 
-        this.logger.info("Integrity Verification - Step 7 of 9: Delegates");
-        await this.buildDelegates();
-
-        this.logger.info("Integrity Verification - Step 8 of 9: MultiSignatures");
-        await this.buildMultiSignatures();
-
-        this.logger.info("Integrity Verification - Step 9 of 9: Ipfs");
-        await this.buildIpfs();
+            transactionHandler.bootstrap(transactions, this.walletManager);
+        }
 
         this.logger.info(
-            `Integrity verified! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
+            `State Generation complete! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
         );
         this.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
@@ -94,86 +93,6 @@ export class IntegrityVerifier {
             .get("genesisBlock.transactions")
             .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)
             .includes(wallet.publicKey);
-    }
-
-    private async buildSecondSignatures() {
-        const transactions = await this.query.manyOrNone(queries.integrityVerifier.secondSignatures);
-
-        for (const transaction of transactions) {
-            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.secondPublicKey = transaction.asset.signature.publicKey;
-        }
-    }
-
-    private async buildVotes(): Promise<void> {
-        const transactions = await this.query.manyOrNone(queries.integrityVerifier.votes);
-
-        for (const transaction of transactions) {
-            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-
-            if (!wallet.voted) {
-                const vote = transaction.asset.votes[0];
-
-                if (vote.startsWith("+")) {
-                    wallet.vote = vote.slice(1);
-                }
-
-                // NOTE: The "voted" property is only used within this loop to avoid an issue
-                // that results in not properly applying "unvote" transactions as the "vote" property
-                // would be empty in that case and return a false result.
-                wallet.voted = true;
-            }
-        }
-
-        this.walletManager.buildVoteBalances();
-    }
-
-    private async buildDelegates(): Promise<void> {
-        // Register...
-        const transactions = await this.query.manyOrNone(queries.integrityVerifier.delegates);
-
-        for (const transaction of transactions) {
-            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.username = transaction.asset.delegate.username;
-            this.walletManager.reindex(wallet);
-        }
-
-        // Forged Blocks...
-        const forgedBlocks = await this.query.manyOrNone(queries.integrityVerifier.delegatesForgedBlocks);
-        for (const block of forgedBlocks) {
-            const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
-            wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
-            wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
-            wallet.producedBlocks = +block.totalProduced;
-        }
-
-        this.walletManager.buildDelegateRanking(this.walletManager.allByUsername());
-    }
-
-    private async buildMultiSignatures(): Promise<void> {
-        const transactions = await this.query.manyOrNone(queries.integrityVerifier.multiSignatures);
-
-        for (const transaction of transactions) {
-            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            if (!wallet.multisignature) {
-                if (transaction.version === 1) {
-                    wallet.multisignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
-                } else if (transaction.version === 2) {
-                    wallet.multisignature = transaction.asset.multiSignature;
-                } else {
-                    throw new Error(`Invalid multi signature version ${transaction.version}`);
-                }
-            }
-        }
-    }
-
-    private async buildIpfs(): Promise<void> {
-        const transactions = await this.query.manyOrNone(queries.integrityVerifier.ipfs);
-
-        for (const transaction of transactions) {
-            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.ipfsHashes[transaction.asset.ipfs] = true;
-        }
     }
 
     private verifyWalletsConsistency(): void {
