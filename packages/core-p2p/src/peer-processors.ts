@@ -69,16 +69,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!this.guard.isValidNetwork(peer) && !options.seed) {
-            this.logger.debug(
-                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${this.appConfig.get(
-                    "network.nethash",
-                )} - Received: ${peer.nethash}`,
-            );
-
-            return false;
-        }
-
         if (
             this.storage.getSameSubnetPeers(peer.ip).length >= app.resolveOptions("p2p").maxSameSubnetPeers &&
             !options.seed

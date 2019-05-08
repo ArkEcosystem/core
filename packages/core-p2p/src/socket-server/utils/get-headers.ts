@@ -3,7 +3,6 @@ import { Blockchain } from "@arkecosystem/core-interfaces";
 
 export const getHeaders = () => {
     const headers = {
-        nethash: app.getConfig().get("network.nethash"),
         version: app.getVersion(),
         port: app.resolveOptions("p2p").port,
         os: require("os").platform(),

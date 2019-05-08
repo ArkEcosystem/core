@@ -109,7 +109,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private parseHeaders(peer: P2P.IPeer, response): void {
-        for (const key of ["nethash", "os", "version"]) {
+        for (const key of ["os", "version"]) {
             peer[key] = response.headers[key] || peer[key];
         }
 

@@ -113,12 +113,6 @@ export class PeerGuard implements P2P.IPeerGuard {
             .minimumVersions.some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
     }
 
-    public isValidNetwork(peer: P2P.IPeer): boolean {
-        const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-
-        return nethash === app.getConfig().get("network.nethash");
-    }
-
     public isValidPort(peer: P2P.IPeer): boolean {
         return peer.port === app.resolveOptions("p2p").port;
     }

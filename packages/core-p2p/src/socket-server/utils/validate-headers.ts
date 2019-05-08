@@ -21,15 +21,11 @@ export const validateHeaders = headers => {
                 type: "string",
                 maxLength: 64,
             },
-            nethash: {
-                type: "string",
-                maxLength: 64,
-            },
             version: {
                 type: "string",
                 maxLength: 16,
             },
         },
-        required: ["version", "nethash", "port"],
+        required: ["version", "port"],
     });
 };
