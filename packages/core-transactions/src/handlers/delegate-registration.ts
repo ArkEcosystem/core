@@ -17,8 +17,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
-
-        const forgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
+        const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
+        const lastForgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -31,6 +31,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
             wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
             wallet.producedBlocks = +block.totalProduced;
+        }
+
+        for (const block of lastForgedBlocks) {
+            const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+            wallet.lastBlock = block;
         }
 
         walletManager.buildDelegateRanking();

@@ -13,20 +13,17 @@ export class StateBuilder {
 
     public async run(): Promise<void> {
         const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
-        let steps = 2 + transactionHandlers.length;
+        let steps = transactionHandlers.length + 1;
 
         // FIXME: skip state generation of new tx types unless we are on testnet (until develop is on 2.6)
         const aip11 =
             Managers.configManager.getMilestone().aip11 && Managers.configManager.get("network.name") === "testnet";
         if (!aip11) {
-            steps -= 5;
+            steps -= 4;
         }
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
-
-        this.logger.info(`State Generation - Step 2 of ${steps}: Last Forged Blocks`);
-        await this.buildLastForgedBlocks();
 
         this.logger.info(`State Generation - Step 2 of ${steps}: Fees`);
         await this.buildSentTransactions();
@@ -54,15 +51,6 @@ export class StateBuilder {
         for (const block of blocks) {
             const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
             wallet.balance = wallet.balance.plus(block.reward);
-        }
-    }
-
-    private async buildLastForgedBlocks(): Promise<void> {
-        const blocks = await this.connection.blocksRepository.getLastForgedBlocks();
-
-        for (const block of blocks) {
-            const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
-            wallet.lastBlock = block;
         }
     }
 

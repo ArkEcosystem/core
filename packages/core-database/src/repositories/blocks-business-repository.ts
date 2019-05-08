@@ -13,6 +13,10 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         return this.databaseServiceProvider().connection.blocksRepository.getLastForgedBlocks();
     }
 
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
+    }
+
     /* TODO: Remove with v1 */
     public async findAll(
         params: Database.IParameters,

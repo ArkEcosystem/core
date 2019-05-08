@@ -23,4 +23,6 @@ export interface IBlocksBusinessRepository {
     getBlockRewards(): Promise<any>;
 
     getLastForgedBlocks(): Promise<any>;
+
+    getDelegatesForgedBlocks(): Promise<any>;
 }

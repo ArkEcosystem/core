@@ -39,6 +39,10 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.many(queries.stateBuilder.lastForgedBlocks);
     }
 
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.db.many(queries.stateBuilder.delegatesForgedBlocks);
+    }
+
     public async common(ids: string[]): Promise<Interfaces.IBlockData[]> {
         return this.db.manyOrNone(queries.blocks.common, { ids });
     }
