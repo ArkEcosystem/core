@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-database-postgres",
-    "version": "2.3.22",
+    "version": "2.4.0-next.0",
     "description": "PostgreSQL integration for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,11 +21,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-database": "^2.3.22",
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
+        "@arkecosystem/core-container": "^2.4.0-next.0",
+        "@arkecosystem/core-database": "^2.4.0-next.0",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.0",
+        "@arkecosystem/core-utils": "^2.4.0-next.0",
+        "@arkecosystem/crypto": "^2.4.0-next.0",
         "@arkecosystem/utils": "^0.3.0",
         "@faustbrian/dato": "^0.3.0",
         "@types/bluebird": "^3.5.26",

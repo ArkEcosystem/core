@@ -54,6 +54,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Implement BlockFactory in `@arkecosystem/crypto` ([#2429])
 -   Implement TransactionFactory in `@arkecosystem/crypto` ([#2437])
 -   Integrate end-to-end tests ([#2468])
+-   Implement IPFS (AIP11) ([#2537])
 
 ### Fixed
 
@@ -82,6 +83,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Move mainnet exceptions to config in `@arkecosystem/crypto` ([#2529])
 -   Remove extraneous Client class in `@arkecosystem/crypto` ([#2417])
 -   Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
+-   Invalidate blocks with expired transactions ([#2528])
 
 ### Removed
 
@@ -628,4 +630,6 @@ Closed security vulnerabilities:
 [#2517]: https://github.com/ARKEcosystem/core/pull/2517
 [#2522]: https://github.com/ARKEcosystem/core/pull/2522
 [#2526]: https://github.com/ARKEcosystem/core/pull/2526
+[#2528]: https://github.com/ARKEcosystem/core/pull/2528
 [#2529]: https://github.com/ARKEcosystem/core/pull/2529
+[#2537]: https://github.com/ARKEcosystem/core/pull/2537
