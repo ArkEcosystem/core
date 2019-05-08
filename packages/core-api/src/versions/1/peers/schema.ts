@@ -10,10 +10,6 @@ export const getPeers: object = {
             type: "string",
             maxLength: 20,
         },
-        os: {
-            type: "string",
-            maxLength: 64,
-        },
         version: {
             type: "string",
             maxLength: 11,

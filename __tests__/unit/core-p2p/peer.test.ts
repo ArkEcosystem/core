@@ -20,11 +20,9 @@ describe("Peer", () => {
 
     it("should set and get the headers", () => {
         stubPeer.setHeaders({
-            os: "os",
             version: "version",
         });
 
-        expect(stubPeer.os).toEqual("os");
         expect(stubPeer.version).toEqual("version");
     });
 });

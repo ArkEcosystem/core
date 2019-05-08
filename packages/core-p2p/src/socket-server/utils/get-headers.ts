@@ -5,7 +5,6 @@ export const getHeaders = () => {
     const headers = {
         version: app.getVersion(),
         port: app.resolveOptions("p2p").port,
-        os: require("os").platform(),
         height: undefined,
     };
 

@@ -5,7 +5,6 @@ import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public version: string;
-    public os: string;
     public latency: number;
     public headers: Record<string, string | number>;
     public lastPinged: Dato | undefined;
@@ -31,7 +30,7 @@ export class Peer implements P2P.IPeer {
     }
 
     public setHeaders(headers: Record<string, string>): void {
-        for (const key of ["os", "version"]) {
+        for (const key of ["version"]) {
             this[key] = headers[key] || this[key];
         }
     }
@@ -53,7 +52,6 @@ export class Peer implements P2P.IPeer {
             ip: this.ip,
             port: +this.port,
             version: this.version,
-            os: this.os,
             height: this.state.height,
             latency: this.latency,
         };
