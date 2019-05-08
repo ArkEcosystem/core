@@ -1,5 +1,6 @@
+import { hasSomeProperty } from "@arkecosystem/core-utils";
 import { existsSync } from "fs-extra";
-import { CommandFlags } from "../../types";
+import { CommandFlags, EnvironmentVars } from "../../types";
 import { BaseCommand } from "../command";
 import { updateEnvironmentVariables } from "../../utils";
 
@@ -21,6 +22,8 @@ $ ark config:db --password=password
 `,
     ];
 
+    private static readonly validFlags: string[] = ["host", "username", "database", "password"];
+
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         host: flags.string({
@@ -38,7 +41,11 @@ $ ark config:db --password=password
     };
 
     public async run(): Promise<void> {
-        const { args, paths } = await this.parseWithNetwork(DatabaseCommand);
+        const { flags, paths } = await this.parseWithNetwork(DatabaseCommand);
+
+        if (!this.hasValidFlag(flags)) {
+            this.error("Please specify at least one configuration flag.");
+        }
 
         const envFile = `${paths.config}/.env`;
 
@@ -46,14 +53,18 @@ $ ark config:db --password=password
             this.error(`No environment file found at ${envFile}`);
         }
 
-        const variables: Record<string, any> = {};
+        const variables: EnvironmentVars = {};
 
-        for (const arg in ["host", "username", "database", "password"]) {
-            if (args[arg] !== undefined) {
-                variables[`CORE_DB_${arg.toUppercase()}`] = args[arg];
+        for (const flag in DatabaseCommand.validFlags) {
+            if (flags[flag] !== undefined) {
+                variables[`CORE_DB_${flag.toUpperCase()}`] = flags[flag];
             }
         }
 
         updateEnvironmentVariables(envFile, variables);
+    }
+
+    private hasValidFlag(flags: CommandFlags): boolean {
+        return hasSomeProperty(flags, DatabaseCommand.validFlags);
     }
 }
