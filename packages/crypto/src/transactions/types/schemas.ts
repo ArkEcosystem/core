@@ -184,6 +184,16 @@ export const ipfs = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.Ipfs },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["ipfs"],
+            properties: {
+                ipfs: {
+                    allOf: [{ minLength: 2, maxLength: 90 }, { $ref: "base58" }],
+                    // ipfs hash has varying length but we set max limit to twice the length of base58 ipfs sha-256 hash
+                },
+            },
+        },
     },
 });
 

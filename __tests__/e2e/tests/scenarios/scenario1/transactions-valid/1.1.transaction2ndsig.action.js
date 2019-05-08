@@ -1,6 +1,6 @@
 "use strict";
 
-const { client, transactionBuilder, NetworkManager } = require("@arkecosystem/crypto");
+const { Managers, Transactions } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { delegates } = require("../../../../lib/utils/testnet");
@@ -11,7 +11,7 @@ const { delegates } = require("../../../../lib/utils/testnet");
  * @return {void}
  */
 module.exports = async options => {
-    client.setConfig(NetworkManager.findByName("testnet"));
+    Managers.configManager.setFromPreset("testnet");
 
     const transactions = [];
     Object.keys(utils.wallets).forEach(txType => {
@@ -29,18 +29,24 @@ module.exports = async options => {
         let transaction;
         switch (type) {
             case "transfer":
-                transaction = transactionBuilder
+                transaction = Transactions.BuilderFactory
                     .transfer()
                     .amount(2 * Math.pow(10, 8))
                     .recipientId(wallets[1].address);
                 break;
             case "vote":
-                transaction = transactionBuilder.vote().votesAsset([`+${delegates[2].publicKey}`]);
+                transaction = Transactions.BuilderFactory.vote().votesAsset([`+${delegates[2].publicKey}`]);
                 break;
             case "delegateRegistration":
-                transaction = transactionBuilder
+                transaction = Transactions.BuilderFactory
                     .delegateRegistration()
                     .usernameAsset(wallets[2].address.slice(0, 10).toLowerCase());
+                break;
+            case "ipfs":
+                transaction = Transactions.BuilderFactory
+                    .ipfs()
+                    .version(2)
+                    .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w");
                 break;
         }
 

@@ -46,6 +46,10 @@ export class TransactionHandlerRegistry {
         throw new InvalidTransactionTypeError(type);
     }
 
+    public all(): TransactionHandler[] {
+        return [...this.coreTransactionHandlers.values(), ...this.customTransactionHandlers.values()];
+    }
+
     public registerCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();

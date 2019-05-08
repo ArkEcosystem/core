@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
@@ -62,6 +62,10 @@ class TestTransaction extends Transactions.Transaction {
 
 // tslint:disable-next-line:max-classes-per-file
 class TestTransactionHandler extends TransactionHandler {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        return;
+    }
+
     public getConstructor(): Transactions.TransactionConstructor {
         return TestTransaction;
     }
@@ -109,6 +113,7 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.DelegateRegistration);
             Registry.get(TransactionTypes.Vote);
             Registry.get(TransactionTypes.MultiSignature);
+            Registry.get(TransactionTypes.Ipfs);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 

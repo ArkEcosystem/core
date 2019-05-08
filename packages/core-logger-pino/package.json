@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-logger-pino",
-    "version": "2.3.22",
+    "version": "2.4.0-next.2",
     "description": "Pino integration for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,9 +19,9 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-logger": "^2.3.22",
+        "@arkecosystem/core-container": "^2.4.0-next.2",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.2",
+        "@arkecosystem/core-logger": "^2.4.0-next.2",
         "pino": "^5.12.3",
         "pino-pretty": "^3.0.0",
         "pump": "^3.0.0",
@@ -30,7 +30,7 @@
         "split2": "^3.1.1"
     },
     "devDependencies": {
-        "@types/pino": "^5.8.6",
+        "@types/pino": "^5.8.7",
         "@types/pump": "^1.0.1",
         "@types/readable-stream": "^2.3.1",
         "@types/split2": "^2.1.6"

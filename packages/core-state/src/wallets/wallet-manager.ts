@@ -322,7 +322,9 @@ export class WalletManager implements State.IWalletManager {
         this.byUsername = {};
     }
 
-    public buildDelegateRanking(delegates: State.IWallet[], roundInfo?: Shared.IRoundInfo): State.IDelegateWallet[] {
+    public buildDelegateRanking(delegates?: State.IWallet[], roundInfo?: Shared.IRoundInfo): State.IDelegateWallet[] {
+        delegates = delegates || this.allByUsername();
+
         const equalVotesMap = new Map();
         let delegateWallets = delegates
             .sort((a, b) => {

@@ -1,4 +1,4 @@
-import { EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -13,6 +13,32 @@ const { TransactionTypes } = Enums;
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateRegistrationTransaction;
+    }
+
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
+        const lastForgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
+
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.username = transaction.asset.delegate.username;
+            walletManager.reindex(wallet);
+        }
+
+        for (const block of forgedBlocks) {
+            const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+            wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
+            wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
+            wallet.producedBlocks = +block.totalProduced;
+        }
+
+        for (const block of lastForgedBlocks) {
+            const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+            wallet.lastBlock = block;
+        }
+
+        walletManager.buildDelegateRanking();
     }
 
     public canBeApplied(

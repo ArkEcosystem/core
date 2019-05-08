@@ -1,5 +1,5 @@
 import { flags } from "@oclif/command";
-import bip39 from "bip39";
+import { validateMnemonic } from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
 import { CommandFlags } from "../../../types";
@@ -35,7 +35,7 @@ $ ark config:forger:bip39 --bip39="..."
                 name: "bip39",
                 message: "Please enter your delegate passphrase",
                 validate: value =>
-                    !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+                    !validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
             },
             {
                 type: "confirm",
@@ -65,7 +65,7 @@ $ ark config:forger:bip39 --bip39="..."
         });
 
         this.addTask("Validate passphrase", async () => {
-            if (!bip39.validateMnemonic(flags.bip39)) {
+            if (!validateMnemonic(flags.bip39)) {
                 this.error(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
         });

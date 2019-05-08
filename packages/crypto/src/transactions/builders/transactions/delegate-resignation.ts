@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../../../enums";
-import { ITransactionData } from "../../../interfaces";
+import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
 import { TransactionBuilder } from "./transaction";

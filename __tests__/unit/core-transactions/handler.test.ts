@@ -630,30 +630,81 @@ describe("MultiSignatureRegistrationTransaction", () => {
     });
 });
 
-describe.skip("IpfsTransaction", () => {
+describe("Ipfs", () => {
+    beforeAll(() => {
+        Managers.configManager.setFromPreset("testnet");
+    });
+
     beforeEach(() => {
-        transaction = transactionFixture;
-        senderWallet = walletFixture;
-        senderWallet.balance = transaction.amount.plus(transaction.fee);
+        senderWallet = new Wallets.Wallet("AXYxHAFdRC41VdFPS2jvmsvtSQPtCfUgon");
+        senderWallet.balance = Utils.BigNumber.make("6453530000000");
+        senderWallet.publicKey = "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087";
+        senderWallet.secondPublicKey = undefined;
+
+        walletManager.reindex(senderWallet);
+
+        transaction = TransactionFactory.ipfs("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w").create()[0];
+
+        transaction = {
+            asset: {
+                ipfs: "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
+            },
+            fee: Utils.BigNumber.make(500000000),
+            amount: Utils.BigNumber.ZERO,
+            id: "210a785d6e4a8d04f918a5126e3503a8b247d20ff7792e3c05c8a7f10be927b3",
+            network: 23,
+            senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
+            signature:
+                "9f325478e3a51d15e0979d08ef8f0b6a9b45febec7cc52f648550a2164d212a07a56d126c4662d47add5791ffd38156c6ab744fbd7d10a0ad481da2164c447be",
+            timestamp: 67108989,
+            type: 5,
+            version: 2,
+        };
+
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 
-    describe("canApply", () => {
+    describe("canBeApplied", () => {
         it("should be true", () => {
             expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
         });
 
-        it("should be false", () => {
-            instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
-                SenderWalletMismatchError,
-            );
-        });
-
         it("should be false if wallet has insufficient funds", () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
+
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(InsufficientBalanceError);
+        });
+    });
+
+    describe("apply", () => {
+        it("should apply ipfs transaction", () => {
+            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
+
+            const balanceBefore = senderWallet.balance;
+
+            handler.apply(instance, walletManager);
+
+            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeTrue();
+            expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
+        });
+    });
+
+    describe("revert", () => {
+        it("should be ok", () => {
+            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
+
+            const balanceBefore = senderWallet.balance;
+
+            handler.apply(instance, walletManager);
+
+            expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
+            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeTrue();
+
+            handler.revert(instance, walletManager);
+
+            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeUndefined();
+            expect(senderWallet.balance).toEqual(balanceBefore);
         });
     });
 });

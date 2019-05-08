@@ -5,6 +5,18 @@ import { SearchParameterConverter } from "./utils/search-parameter-converter";
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
+    public async getBlockRewards(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getBlockRewards();
+    }
+
+    public async getLastForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getLastForgedBlocks();
+    }
+
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
+    }
+
     /* TODO: Remove with v1 */
     public async findAll(
         params: Database.IParameters,

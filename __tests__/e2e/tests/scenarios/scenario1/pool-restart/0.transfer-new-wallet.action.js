@@ -1,6 +1,6 @@
 "use strict";
 
-const { client, transactionBuilder, NetworkManager } = require("@arkecosystem/crypto");
+const { Managers, Transactions } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const { delegates } = require("../../../../lib/utils/testnet");
 const testUtils = require("../../../../lib/utils/test-utils");
@@ -11,9 +11,9 @@ const testUtils = require("../../../../lib/utils/test-utils");
  * @return {void}
  */
 module.exports = async options => {
-    client.setConfig(NetworkManager.findByName("testnet"));
+    Managers.configManager.setFromPreset("testnet");
 
-    let transaction1 = transactionBuilder
+    let transaction1 = Transactions.BuilderFactory
         .transfer()
         .amount(1000 * Math.pow(10, 8))
         .recipientId(utils.senderWallet.address)
