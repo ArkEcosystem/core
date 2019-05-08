@@ -56,15 +56,15 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
+            // const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
-            this.logger.debug(
-                `Rejected peer ${
-                    peer.ip
-                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
-                    peer.version
-                }`,
-            );
+            // this.logger.debug(
+            //    `Rejected peer ${
+            //    peer.ip
+            //    } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
+            //    peer.version
+            //    }`,
+            // );
 
             return false;
         }
@@ -83,11 +83,11 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             this.storage.getSameSubnetPeers(peer.ip).length >= app.resolveOptions("p2p").maxSameSubnetPeers &&
             !options.seed
         ) {
-            this.logger.warn(
-                `Rejected ${peer.ip} because we are already at the ${
-                    app.resolveOptions("p2p").maxSameSubnetPeers
-                } limit for peers sharing the same /24 subnet.`,
-            );
+            // this.logger.warn(
+            //     `Rejected ${peer.ip} because we are already at the ${
+            //         app.resolveOptions("p2p").maxSameSubnetPeers
+            //     } limit for peers sharing the same /24 subnet.`,
+            // );
             return false;
         }
 
