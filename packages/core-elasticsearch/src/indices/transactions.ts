@@ -28,7 +28,7 @@ export class Transactions extends Index {
                     return data;
                 });
 
-                const timestamps = rows.map(row => row.data.timestamp);
+                const timestamps = rows.map(row => row.timestamp);
                 this.logger.info(
                     `[ES] Indexing ${rows.length} transactions [${first(timestamps)} to ${last(timestamps)}]`,
                 );

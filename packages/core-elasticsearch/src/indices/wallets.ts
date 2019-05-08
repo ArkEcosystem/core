@@ -1,4 +1,5 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { State } from "@arkecosystem/core-interfaces";
 import { Index } from "./base";
 
 export class Wallets extends Index {
@@ -6,21 +7,18 @@ export class Wallets extends Index {
         const iterations: number = await this.getIterations();
 
         for (let i = 0; i < iterations; i++) {
-            const modelQuery = this.createQuery();
+            const offset: number = this.chunkSize * i;
 
-            const query = modelQuery
-                .select()
-                .from(modelQuery)
-                .limit(this.chunkSize)
-                .offset(this.chunkSize * i);
-
-            const rows = await (this.database.connection as any).query.manyOrNone(query.toQuery());
+            const rows: State.IWallet[] = this.database.walletManager
+                .allByAddress()
+                .slice(offset, offset + this.chunkSize);
 
             if (rows.length) {
                 this.logger.info(`[ES] Indexing ${rows.length} wallets`);
 
                 try {
                     for (const row of rows) {
+                        // @ts-ignore
                         row.id = row.address;
                     }
 
@@ -34,5 +32,9 @@ export class Wallets extends Index {
 
     public listen(): void {
         this.emitter.on(ApplicationEvents.RoundApplied, () => this.index());
+    }
+
+    protected async countWithDatabase(): Promise<number> {
+        return Object.keys(this.database.walletManager.allByAddress()).length;
     }
 }

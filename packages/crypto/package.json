@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/crypto",
-    "version": "2.4.0-next.2",
+    "version": "2.4.0-next.3",
     "description": "Crypto utilities for the ARK Blockchain",
     "license": "MIT",
     "contributors": [
@@ -21,7 +21,6 @@
     "scripts": {
         "build": "yarn clean && tsc",
         "build:watch": "yarn clean && yarn compile -w",
-        "bundle": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
         "prepublishOnly": "yarn build"
@@ -31,10 +30,10 @@
         "@hapi/joi": "^15.0.1",
         "ajv": "^6.10.0",
         "ajv-keywords": "^3.4.0",
-        "bcrypto": "^3.1.6",
+        "bcrypto": "^3.1.10",
         "bignumber.js": "^8.1.1",
         "bip32": "^1.0.4",
-        "bip39": "^3.0.1",
+        "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
         "bs58": "^4.0.1",
         "bs58check": "^2.1.2",
@@ -64,12 +63,7 @@
         "@types/node-forge": "^0.8.2",
         "@types/otplib": "^7.0.0",
         "@types/pluralize": "^0.0.29",
-        "@types/webpack-merge": "^4.1.5",
-        "@types/webpack-node-externals": "^1.6.3",
-        "@types/wif": "^2.0.1",
-        "ts-loader": "^5.4.5",
-        "webpack-merge": "^4.2.1",
-        "webpack-node-externals": "^1.7.2"
+        "@types/wif": "^2.0.1"
     },
     "publishConfig": {
         "access": "public"
