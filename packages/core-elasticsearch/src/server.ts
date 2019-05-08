@@ -22,13 +22,13 @@ export const startServer = async config => {
             path: "/",
             async handler(request) {
                 try {
-                    const { hits } = await client.search(request.payload);
+                    const { body } = await client.search(request.payload);
 
                     return {
                         meta: {
-                            count: hits.total,
+                            count: body.hits.total,
                         },
-                        data: hits.hits.map(result => result._source),
+                        data: body.hits.hits.map(result => result._source),
                     };
                 } catch (error) {
                     return Boom.badRequest(error.message);

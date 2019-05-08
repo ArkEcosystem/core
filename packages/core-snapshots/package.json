@@ -36,7 +36,7 @@
         "xcase": "^2.0.1"
     },
     "devDependencies": {
-        "@types/fs-extra": "^5.0.5",
+        "@types/fs-extra": "^5.1.0",
         "@types/lodash.pick": "^4.4.6",
         "@types/msgpack-lite": "^0.1.6",
         "@types/pg-query-stream": "^1.0.2",

@@ -23,14 +23,13 @@
         "@arkecosystem/core-http-utils": "^2.4.0-next.2",
         "@arkecosystem/core-interfaces": "^2.4.0-next.2",
         "@arkecosystem/crypto": "^2.4.0-next.2",
+        "@elastic/elasticsearch": "^7.0.0-rc.3",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.0.1",
-        "elasticsearch": "^15.5.0",
         "fs-extra": "^7.0.1"
     },
     "devDependencies": {
-        "@types/elasticsearch": "^5.0.32",
-        "@types/fs-extra": "^5.0.5",
+        "@types/fs-extra": "^5.1.0",
         "@types/hapi__boom": "^7.4.0",
         "@types/hapi__joi": "^15.0.1"
     },

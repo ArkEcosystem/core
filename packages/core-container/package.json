@@ -36,7 +36,7 @@
         "semver": "^6.0.0"
     },
     "devDependencies": {
-        "@types/fs-extra": "^5.0.5",
+        "@types/fs-extra": "^5.1.0",
         "@types/got": "^9.4.4",
         "@types/hapi__hoek": "^6.2.0",
         "@types/hapi__joi": "^15.0.1",

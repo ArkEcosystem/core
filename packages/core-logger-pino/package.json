@@ -30,7 +30,7 @@
         "split2": "^3.1.1"
     },
     "devDependencies": {
-        "@types/pino": "^5.8.6",
+        "@types/pino": "^5.8.7",
         "@types/pump": "^1.0.1",
         "@types/readable-stream": "^2.3.1",
         "@types/split2": "^2.1.6"
