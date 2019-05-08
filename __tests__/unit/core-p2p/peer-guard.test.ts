@@ -27,7 +27,6 @@ beforeEach(async () => {
 describe("PeerGuard", () => {
     describe("isValidVersion", () => {
         it("should be a valid version", () => {
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.3.0" } })).toBeTrue();
             expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.4.0" } })).toBeTrue();
             expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.5.0" } })).toBeTrue();
             expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.6.0" } })).toBeTrue();

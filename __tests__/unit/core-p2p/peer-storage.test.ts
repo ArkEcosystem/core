@@ -156,7 +156,7 @@ describe("PeerStorage", () => {
     });
 
     it("should cache the peers into file", () => {
-        stubPeer.version = "2.3.0";
+        stubPeer.version = "2.4.0";
         storage.setPeer(stubPeer);
 
         process.env.CORE_PATH_CACHE = tmpdir();
