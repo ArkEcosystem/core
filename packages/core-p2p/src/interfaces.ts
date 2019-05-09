@@ -2,7 +2,7 @@ import { P2P } from "@arkecosystem/core-interfaces";
 
 export interface IPeerData {
     ip: string;
-    port: number;
+    ports: P2P.IPeerPorts;
     version: string;
 }
 

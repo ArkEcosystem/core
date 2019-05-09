@@ -25,7 +25,7 @@ export class PeerConnector implements P2P.IPeerConnector {
         }
 
         connection = create({
-            port: peer.port,
+            port: peer.ports.p2p,
             hostname: peer.ip,
         });
 
@@ -44,7 +44,7 @@ export class PeerConnector implements P2P.IPeerConnector {
         const connection = this.connection(peer);
 
         if (connection) {
-            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.port}`);
+            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.ports.p2p}`);
 
             connection.destroy();
 

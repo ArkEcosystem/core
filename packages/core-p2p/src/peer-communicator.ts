@@ -71,12 +71,12 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             }
 
             const { config } = pingResponse;
-            for (const plugin of Object.values(config.plugins)) {
+            for (const [name, plugin] of Object.entries(config.plugins)) {
                 try {
                     const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
 
-                    if (status !== 200) {
-                        throw new PeerVerificationFailedError();
+                    if (status === 200) {
+                        peer.ports[name] = plugin.port;
                     }
                 } catch (error) {
                     throw new PeerVerificationFailedError();

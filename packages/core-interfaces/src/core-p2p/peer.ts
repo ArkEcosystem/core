@@ -1,11 +1,16 @@
 import { Dato } from "@faustbrian/dato";
 import { IPeerVerificationResult } from "./peer-verifier";
 
+export interface IPeerPorts {
+    p2p: number;
+    [name: string]: number;
+}
+
 export interface IPeer {
     readonly url: string;
 
     ip: string;
-    port: number;
+    ports: IPeerPorts;
 
     version: string;
 
@@ -23,7 +28,7 @@ export interface IPeer {
 
 export interface IPeerBroadcast {
     ip: string;
-    port: number;
+    ports: IPeerPorts;
     version: string;
     height: number;
     latency: number;
