@@ -12,22 +12,10 @@ export class DelegateResignationTransaction extends Transaction {
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
-        const delegateBytes: Buffer = Buffer.from(this.data.asset.delegate.username, "utf8");
-        const buffer: ByteBuffer = new ByteBuffer(delegateBytes.length, true);
-
-        buffer.writeByte(delegateBytes.length);
-        buffer.append(delegateBytes, "hex");
-
-        return buffer;
+        return new ByteBuffer(0);
     }
 
     public deserialize(buf: ByteBuffer): void {
-        const usernamelength: number = buf.readUint8();
-
-        this.data.asset = {
-            delegate: {
-                username: buf.readString(usernamelength),
-            },
-        };
+        return;
     }
 }

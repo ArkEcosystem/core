@@ -135,7 +135,7 @@ export class WalletManager implements State.IWalletManager {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                `This indicates an issue with the genesis block & delegates.`,
+                    `This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -320,9 +320,7 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public buildDelegateRanking(delegates?: State.IWallet[], roundInfo?: Shared.IRoundInfo): State.IDelegateWallet[] {
-        delegates = delegates || this.allByUsername();
-
-        delegates = delegates.filter(w => !w.resigned)
+        delegates = (delegates || this.allByUsername()).filter((w: State.IWallet) => !w.resigned);
 
         const equalVotesMap = new Map();
         let delegateWallets = delegates

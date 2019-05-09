@@ -215,24 +215,6 @@ export const multiPayment = extend(transactionBaseSchema, {
 
 export const delegateResignation = extend(transactionBaseSchema, {
     $id: "delegateResignation",
-    required: ["asset"],
-    properties: {
-        type: { transactionType: TransactionTypes.DelegateResignation },
-        amount: { bignumber: { minimum: 0, maximum: 0 } },
-        asset: {
-            type: "object",
-            required: ["delegate"],
-            properties: {
-                delegate: {
-                    type: "object",
-                    required: ["username"],
-                    properties: {
-                        username: { $ref: "delegateUsername" },
-                    },
-                },
-            },
-        },
-    },
 });
 
 export type TransactionSchema = typeof transactionBaseSchema;

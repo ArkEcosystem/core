@@ -1,6 +1,6 @@
 import { Enums } from "@arkecosystem/crypto";
 
-const { TransactionTypes } = Enums;
+const { DelegateRegistration } = Enums.TransactionTypes;
 
 export {};
 
@@ -17,8 +17,7 @@ expect.extend({
     toBeDelegateType: received => {
         return {
             message: () => "Expected value to be a valid DELEGATE transaction.",
-            pass: received.type === TransactionTypes.DelegateRegistration ||
-                  received.type === TransactionTypes.DelegateResignation,
+            pass: received.type === DelegateRegistration,
         };
     },
 });

@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { WalletUsernameEmptyError, WalletUsernameMismatchError } from "../errors";
+import { WalletUsernameEmptyError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class DelegateResignationTransactionHandler extends TransactionHandler {
@@ -17,12 +17,8 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): boolean {
-        if (!wallet.username || !transaction.data.asset.delegate.username) {
+        if (!wallet.username) {
             throw new WalletUsernameEmptyError();
-        }
-
-        if (wallet.username !== transaction.data.asset.delegate.username) {
-            throw new WalletUsernameMismatchError(wallet.username, transaction.data.asset.delegate.username);
         }
 
         return super.canBeApplied(transaction, wallet, databaseWalletManager);
@@ -38,8 +34,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         processor: TransactionPool.IProcessor,
     ): boolean {
         if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            processor.pushError(data, "ERR_PENDING",
-                `Delegate resignation for "${data.asset.delegate.username}" already in the pool`);
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Delegate resignation for "${data.asset.delegate.username}" already in the pool`,
+            );
             return false;
         }
 
