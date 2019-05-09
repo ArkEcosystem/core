@@ -56,9 +56,7 @@ export class Connection implements TransactionPool.IConnection {
 
         const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(all.map(t => t.id));
 
-        for (const id of forgedIds) {
-            this.removeTransactionById(id);
-        }
+        this.removeTransactionsById(forgedIds);
 
         this.purgeInvalidTransactions();
 
@@ -125,6 +123,12 @@ export class Connection implements TransactionPool.IConnection {
         this.syncToPersistentStorageIfNecessary();
 
         this.emitter.emit("transaction.pool.removed", id);
+    }
+
+    public removeTransactionsById(ids: string[]): void {
+        for (const id of ids) {
+            this.removeTransactionById(id);
+        }
     }
 
     public getTransaction(id: string): Interfaces.ITransaction {
