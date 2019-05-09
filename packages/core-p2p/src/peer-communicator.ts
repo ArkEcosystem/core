@@ -7,10 +7,10 @@ import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { IPeerPingResponse } from "./interfaces";
+import { IPeerConfig, IPeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
-import { socketEmit } from "./utils";
+import { isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements P2P.IPeerCommunicator {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -54,6 +54,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
+            if (!this.validatePeerConfig(peer, pingResponse.config)) {
+                throw new PeerVerificationFailedError();
+            }
+
             const peerVerifier = new PeerVerifier(this, peer);
 
             if (deadline <= new Date().getTime()) {
@@ -83,6 +87,20 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         peer.lastPinged = dato();
         peer.state = pingResponse.state;
         return pingResponse.state;
+    }
+
+    public validatePeerConfig(peer: P2P.IPeer, config: IPeerConfig): boolean {
+        if (config.network.nethash !== app.getConfig().get("network.nethash")) {
+            return false;
+        }
+
+        if (!isValidVersion(peer)) {
+            return false;
+        }
+
+        peer.version = config.version;
+
+        return true;
     }
 
     public async getPeers(peer: P2P.IPeer): Promise<any> {
