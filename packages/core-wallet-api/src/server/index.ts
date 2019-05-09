@@ -4,7 +4,7 @@ import * as handlers from "./handlers";
 export const startServer = async config => {
     const server = await createServer({
         host: "0.0.0.0",
-        port: 4040,
+        port: config.port,
     });
 
     await server.register({
