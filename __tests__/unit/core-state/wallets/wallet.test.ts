@@ -204,7 +204,7 @@ describe("Models - Wallet", () => {
 
         it("should return correct audit data for delegate resignation type", () => {
             const transaction = TransactionFactory.delegateResignation()
-                .withNetwork("devnet")
+                .withNetwork("unitnet")
                 .withPassphrase("super secret passphrase")
                 .create()[0];
             const audit = testWallet.auditApply(transaction);
