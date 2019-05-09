@@ -33,7 +33,7 @@ $ ark config:db --password=password
         host: flags.string({
             description: "the host of the database"
         }),
-        port: flags.string({
+        port: flags.integer({
             description: "the port of the database"
         }),
         username: flags.string({
