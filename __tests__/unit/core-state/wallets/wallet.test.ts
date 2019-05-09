@@ -214,8 +214,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": true },
-                { "Current username": undefined },
-                { "New username": undefined },
+                { "Resigned delegate": testWallet.username },
             ]);
         });
 
