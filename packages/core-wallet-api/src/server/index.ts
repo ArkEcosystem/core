@@ -25,18 +25,20 @@ export const startServer = async () => {
 
     server.route([{ method: "GET", path: "/config", ...handlers.config }]);
 
-    server.route({
-        method: "*",
-        path: "/{path*}",
-        handler: {
-            proxy: {
-                protocol: "http",
-                host: app.resolveOptions("api").host,
-                port: app.resolveOptions("api").port,
-                passThrough: true,
+    if (app.has("api")) {
+        server.route({
+            method: "*",
+            path: "/{path*}",
+            handler: {
+                proxy: {
+                    protocol: "http",
+                    host: app.resolveOptions("api").host,
+                    port: app.resolveOptions("api").port,
+                    passThrough: true,
+                },
             },
-        },
-    });
+        });
+    }
 
     return mountServer("Wallet API", server);
 };
