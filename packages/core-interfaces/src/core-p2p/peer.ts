@@ -35,23 +35,3 @@ export interface IPeerState {
     currentSlot: number;
     header: Record<string, any>; // @TODO: rename, those are block headers but the name is horrible
 }
-
-export interface IPeerConfig {
-    version: string;
-    network: {
-        version: string;
-        name: string;
-        nethash: string;
-        explorer: string;
-        token: {
-            name: string;
-            symbol: string;
-        };
-    };
-    plugins: { [key: string]: { enabled: boolean; port: number } };
-}
-
-export interface IPeerPingResponse {
-    state: IPeerState;
-    config: IPeerConfig;
-}

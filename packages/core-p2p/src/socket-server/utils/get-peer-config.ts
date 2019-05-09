@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { IPeerConfig } from "../../interfaces";
 
-export const getPeerConfig = (): P2P.IPeerConfig => {
+export const getPeerConfig = (): IPeerConfig => {
     const transformPlugins = plugins => {
         const allowed: string[] = ["@arkecosystem/core-api"];
 

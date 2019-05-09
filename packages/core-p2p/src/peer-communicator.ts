@@ -7,6 +7,7 @@ import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
+import { IPeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
 import { socketEmit } from "./utils";
@@ -46,7 +47,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return undefined;
         }
 
-        const pingResponse: P2P.IPeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
+        const pingResponse: IPeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
 
         if (!pingResponse) {
             throw new PeerStatusResponseError(peer.ip);

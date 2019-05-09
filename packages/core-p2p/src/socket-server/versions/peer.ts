@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { isBlockChained } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { isBlockChained } from "../../../../core-utils/dist";
 import { MissingCommonBlockError } from "../../errors";
+import { IPeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
@@ -39,7 +40,7 @@ export const getCommonBlocks = async ({
     };
 };
 
-export const getStatus = async (): Promise<P2P.IPeerPingResponse> => {
+export const getStatus = async (): Promise<IPeerPingResponse> => {
     const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
