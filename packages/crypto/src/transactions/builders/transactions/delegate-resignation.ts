@@ -17,7 +17,6 @@ export class DelegateResignationBuilder extends TransactionBuilder<DelegateResig
     public getStruct(): ITransactionData {
         const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
-        struct.asset = this.data.asset;
         return struct;
     }
 

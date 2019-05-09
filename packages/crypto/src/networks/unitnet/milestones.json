@@ -20,7 +20,7 @@
                 "ipfs": 500000000,
                 "timelockTransfer": 0,
                 "multiPayment": 0,
-                "delegateResignation": 0
+                "delegateResignation": 2500000000
             }
         },
         "vendorFieldLength": 64,

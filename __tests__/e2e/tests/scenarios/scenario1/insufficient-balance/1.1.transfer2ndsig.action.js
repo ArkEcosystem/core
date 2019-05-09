@@ -13,8 +13,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory
-            .transfer()
+        Transactions.BuilderFactory.transfer()
             .amount(1100 * Math.pow(10, 8))
             .recipientId(utils.transfer2ndsigRecipient.address)
             .vendorField("transfer with 2nd signature with insufficient balance")

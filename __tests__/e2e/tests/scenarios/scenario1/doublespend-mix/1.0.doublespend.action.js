@@ -30,8 +30,7 @@ module.exports = async options => {
         let transaction;
         switch (type) {
             case "transfer":
-                transaction = Transactions.BuilderFactory
-                    .transfer()
+                transaction = Transactions.BuilderFactory.transfer()
                     .amount(utils.transferAmount)
                     .recipientId(wallets[1].address);
                 break;
@@ -42,9 +41,9 @@ module.exports = async options => {
                 transaction = Transactions.BuilderFactory.secondSignature().signatureAsset(wallets[1].passphrase);
                 break;
             case "delegateRegistration":
-                transaction = Transactions.BuilderFactory
-                    .delegateRegistration()
-                    .usernameAsset(wallets[0].address.slice(0, 10).toLowerCase());
+                transaction = Transactions.BuilderFactory.delegateRegistration().usernameAsset(
+                    wallets[0].address.slice(0, 10).toLowerCase(),
+                );
                 break;
         }
 

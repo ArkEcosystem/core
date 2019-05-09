@@ -16,8 +16,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     // first transaction which will be broadcasted to other nodes for forging
-    let transaction = Transactions.BuilderFactory
-        .transfer()
+    let transaction = Transactions.BuilderFactory.transfer()
         .amount(300 * Math.pow(10, 8))
         .recipientId(utils.randomRecipient.address)
         .vendorField("transaction to add to pool before disconnecting node")
@@ -32,8 +31,7 @@ module.exports = async options => {
     console.log(`[pool-clear] disconnect node : ${JSON.stringify({ stdoutDisconnect, stderrDisconnect })}`);
 
     // second transaction which will not be broadcasted and should be kept in the node pool
-    let transaction2 = Transactions.BuilderFactory
-        .transfer()
+    let transaction2 = Transactions.BuilderFactory.transfer()
         .amount(300 * Math.pow(10, 8))
         .recipientId(utils.randomRecipient2.address)
         .vendorField("transaction to add to pool before stopping node")

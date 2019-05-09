@@ -80,21 +80,27 @@ describe("Delegate Registration Transaction", () => {
             it("returns the id", () => {
                 expect(builder.getStruct().id).toBe(Utils.getId(builder.data));
             });
+
             it("returns the signature", () => {
                 expect(builder.getStruct().signature).toBe(builder.data.signature);
             });
+
             it("returns the second signature", () => {
                 expect(builder.getStruct().secondSignature).toBe(builder.data.secondSignature);
             });
+
             it("returns the timestamp", () => {
                 expect(builder.getStruct().timestamp).toBe(builder.data.timestamp);
             });
+
             it("returns the transaction type", () => {
                 expect(builder.getStruct().type).toBe(builder.data.type);
             });
+
             it("returns the fee", () => {
                 expect(builder.getStruct().fee).toBe(builder.data.fee);
             });
+
             it("returns the sender public key", () => {
                 expect(builder.getStruct().senderPublicKey).toBe(builder.data.senderPublicKey);
             });
@@ -102,9 +108,11 @@ describe("Delegate Registration Transaction", () => {
             it("returns the amount", () => {
                 expect(builder.getStruct().amount).toBe(builder.data.amount);
             });
+
             it("returns the recipient id", () => {
                 expect(builder.getStruct().recipientId).toBe(builder.data.recipientId);
             });
+
             it("returns the asset", () => {
                 expect(builder.getStruct().asset).toBe(builder.data.asset);
             });

@@ -13,8 +13,7 @@ const testUtils = require("../../../../lib/utils/test-utils");
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
-    let transaction1 = Transactions.BuilderFactory
-        .transfer()
+    let transaction1 = Transactions.BuilderFactory.transfer()
         .amount(1000 * Math.pow(10, 8))
         .recipientId(utils.senderWallet.address)
         .vendorField("send coins to new wallet")
