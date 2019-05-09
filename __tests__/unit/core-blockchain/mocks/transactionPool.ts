@@ -3,4 +3,5 @@ export const transactionPool = {
     purgeByBlock: () => undefined,
     acceptChainedBlock: () => undefined,
     purgeSendersWithInvalidTransactions: () => undefined,
+    removeTransactionById: () => undefined,
 };
