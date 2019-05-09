@@ -1,3 +1,4 @@
+import { P2P } from "@arkecosystem/core-interfaces";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import semver from "semver";
@@ -6,28 +7,19 @@ import { Controller } from "../shared/controller";
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const allPeers = await this.blockchain.p2p.getStorage().getPeers();
+            const allPeers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
 
             let result = allPeers.sort((a, b) => a.latency - b.latency);
-            // @ts-ignore
-            result = request.query.port
-                ? // @ts-ignore
-                  result.filter(peer => peer.port === (request.query as any).port)
-                : result;
-            // @ts-ignore
             result = request.query.version
-                ? // @ts-ignore
-                  result.filter(peer => peer.version === (request.query as any).version)
+                ? result.filter(peer => peer.version === (request.query as any).version)
                 : result;
-            // @ts-ignore
-            result = result.slice(0, request.query.limit || 100);
+            result = result.slice(0, +request.query.limit || 100);
 
-            // @ts-ignore
-            if (request.query.orderBy) {
-                // @ts-ignore
-                const order = request.query.orderBy.split(":");
+            const orderBy: string = request.query.orderBy as string;
+            if (orderBy) {
+                const order = orderBy.split(":");
 
-                if (["port", "status"].includes(order[0])) {
+                if (["status"].includes(order[0])) {
                     result =
                         order[1].toUpperCase() === "ASC"
                             ? result.sort((a, b) => a[order[0]] - b[order[0]])
@@ -50,8 +42,8 @@ export class PeersController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = await this.blockchain.p2p.getStorage().getPeers();
-            const peer = peers.find(p => p.ip === request.params.ip);
+            const peers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
+            const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
 
             if (!peer) {
                 return Boom.notFound("Peer not found");
@@ -65,14 +57,9 @@ export class PeersController extends Controller {
 
     public async suspended(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = this.blockchain.p2p.getStorage().getSuspendedPeers();
+            const peers: P2P.IPeerSuspension[] = this.blockchain.p2p.getStorage().getSuspendedPeers();
 
-            return super.respondWithCollection(
-                request,
-                // @ts-ignore
-                Object.values(peers).map(peer => peer.peer),
-                "peer",
-            );
+            return super.respondWithCollection(request, Object.values(peers).map(peer => peer.peer), "peer");
         } catch (error) {
             return Boom.badImplementation(error);
         }

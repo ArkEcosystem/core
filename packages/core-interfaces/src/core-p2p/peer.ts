@@ -15,8 +15,6 @@ export interface IPeer {
     lastPinged: Dato | undefined;
     verificationResult: IPeerVerificationResult | undefined;
 
-    setHeaders(headers: Record<string, string>): void;
-
     isVerified(): boolean;
     isForked(): boolean;
     recentlyPinged(): boolean;

@@ -67,7 +67,7 @@ class Network {
         let peers: P2P.IPeer[] = this.p2p.getStorage().getPeers();
 
         if (!peers.length && this.network.name === "testnet") {
-            peers = [new Peer("127.0.0.1", app.resolveOptions("api").port)];
+            peers = [new Peer("127.0.0.1")];
         }
 
         if (!peers.length) {

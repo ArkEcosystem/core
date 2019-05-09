@@ -141,8 +141,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return;
         }
 
-        const newPeer = new Peer(peer.ip, peer.port);
-        newPeer.setHeaders(peer);
+        const newPeer: P2P.IPeer = new Peer(peer.ip);
 
         try {
             this.storage.setPendingPeer(peer);

@@ -1,11 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
+import { IResponseConfig } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
 import { socketEmit } from "./utils";
@@ -63,6 +65,20 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
+
+            const responseConfig: IResponseConfig = await this.emit(peer, "p2p.peer.getConfig");
+
+            for (const plugin of Object.values(responseConfig.plugins)) {
+                try {
+                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+
+                    if (status !== 200) {
+                        throw new PeerVerificationFailedError();
+                    }
+                } catch (error) {
+                    throw new PeerVerificationFailedError();
+                }
+            }
         }
 
         peer.lastPinged = dato();
@@ -109,10 +125,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private parseHeaders(peer: P2P.IPeer, response): void {
-        for (const key of ["version"]) {
-            peer[key] = response.headers[key] || peer[key];
-        }
-
         if (response.headers.height) {
             peer.state.height = +response.headers.height;
         }

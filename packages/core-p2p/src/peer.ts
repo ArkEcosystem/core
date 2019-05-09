@@ -4,6 +4,7 @@ import { Dato, dato } from "@faustbrian/dato";
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
+    public readonly port: number = app.resolveOptions("p2p").port;
     public version: string;
     public latency: number;
     public headers: Record<string, string | number>;
@@ -16,10 +17,9 @@ export class Peer implements P2P.IPeer {
         header: {},
     };
 
-    constructor(readonly ip: string, readonly port: number) {
+    constructor(readonly ip: string) {
         this.headers = {
             version: app.getVersion(),
-            port,
             height: undefined,
             "Content-Type": "application/json",
         };
@@ -27,12 +27,6 @@ export class Peer implements P2P.IPeer {
 
     get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
-    }
-
-    public setHeaders(headers: Record<string, string>): void {
-        for (const key of ["version"]) {
-            this[key] = headers[key] || this[key];
-        }
     }
 
     public isVerified(): boolean {
