@@ -9,7 +9,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        // XXX should we do something here?
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+
+        for (const transaction of transactions) {
+            walletManager.findByPublicKey(transaction.senderPublicKey).resigned = true;
+        }
     }
 
     public canBeApplied(
@@ -48,17 +52,13 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-
-        sender.resigned = true;
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).resigned = true;
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-
-        sender.resigned = false;
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).resigned = false;
     }
 
     protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {

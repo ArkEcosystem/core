@@ -5,7 +5,7 @@ import {
     NoVoteError,
     UnvoteMismatchError,
     VotedForNonDelegateError,
-    VotedForResignedDelegateError
+    VotedForResignedDelegateError,
 } from "../errors";
 import { TransactionHandler } from "./transaction";
 
@@ -57,7 +57,7 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
-        const delegatePublicKey = vote.slice(1);
+        const delegatePublicKey: string = vote.slice(1);
 
         if (!databaseWalletManager.isDelegate(delegatePublicKey)) {
             throw new VotedForNonDelegateError(vote);
