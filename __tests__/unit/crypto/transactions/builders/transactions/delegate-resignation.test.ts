@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
+import { configManager, feeManager } from "../../../../../../packages/crypto/src/managers";
 import { Utils } from "../../../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
 import { DelegateResignationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";
@@ -9,12 +9,14 @@ import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 
 let builder: DelegateResignationBuilder;
 
+beforeEach(() => {
+    builder = BuilderFactory.delegateResignation();
+
+    configManager.getMilestone().aip11 = true;
+});
+
 describe("Delegate Resignation Transaction", () => {
     describe("verify", () => {
-        beforeEach(() => {
-            builder = BuilderFactory.delegateResignation();
-        });
-
         it("should be valid with a signature", () => {
             const actual = builder.sign("dummy passphrase");
 
@@ -31,10 +33,6 @@ describe("Delegate Resignation Transaction", () => {
     });
 
     describe("properties", () => {
-        beforeEach(() => {
-            builder = BuilderFactory.delegateResignation();
-        });
-
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateResignation);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
@@ -49,10 +47,6 @@ describe("Delegate Resignation Transaction", () => {
 
     // FIXME problems with ark-js V1
     describe("getStruct", () => {
-        beforeEach(() => {
-            builder = BuilderFactory.delegateResignation();
-        });
-
         it("should fail if the transaction is not signed", () => {
             expect(() => builder.getStruct()).toThrow(/transaction.*sign/);
         });
