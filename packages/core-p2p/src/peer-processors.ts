@@ -39,12 +39,12 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     }
 
     public async validateAndAcceptPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
-        if (this.validatePeer(peer, options)) {
+        if (this.validatePeerIp(peer, options)) {
             await this.acceptNewPeer(peer, options);
         }
     }
 
-    public validatePeer(peer, options: P2P.IAcceptNewPeerOptions = {}): boolean {
+    public validatePeerIp(peer, options: P2P.IAcceptNewPeerOptions = {}): boolean {
         if (app.resolveOptions("p2p").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
@@ -54,7 +54,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
+        if (!this.guard.isWhitelisted(peer)) {
             // const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
             // this.logger.debug(

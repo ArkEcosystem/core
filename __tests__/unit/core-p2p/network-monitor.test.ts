@@ -28,7 +28,7 @@ describe("NetworkMonitor", () => {
         it("should start without error and set blockchain forceWakeup", async () => {
             const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
 
-            jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
+            jest.spyOn(processor, "validatePeerIp").mockReturnValueOnce(true);
 
             await monitor.start({ networkStart: false });
 
@@ -76,7 +76,7 @@ describe("NetworkMonitor", () => {
             communicator.getPeers = jest.fn().mockReturnValue([{ ip: "1.1.1.1" }, { ip: "2.2.2.2" }]);
 
             const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
-            const validatePeer = jest.spyOn(processor, "validatePeer").mockReturnValue(true);
+            const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
 
             await monitor.discoverPeers();
 
@@ -84,7 +84,7 @@ describe("NetworkMonitor", () => {
             expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
             expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
 
-            validatePeer.mockRestore();
+            validatePeerIp.mockRestore();
         });
     });
 

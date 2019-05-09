@@ -4,9 +4,9 @@ import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { isBlockChained } from "../../../../core-utils/dist";
 import { MissingCommonBlockError } from "../../errors";
-import { IResponseConfig } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
+import { getPeerConfig } from "../utils/get-peer-config";
 
 export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
     await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
@@ -39,14 +39,17 @@ export const getCommonBlocks = async ({
     };
 };
 
-export const getStatus = async (): Promise<P2P.IPeerState> => {
+export const getStatus = async (): Promise<P2P.IPeerPingResponse> => {
     const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
-        height: lastBlock ? lastBlock.data.height : 0,
-        forgingAllowed: Crypto.Slots.isForgingAllowed(),
-        currentSlot: Crypto.Slots.getSlotNumber(),
-        header: lastBlock ? lastBlock.getHeader() : {},
+        state: {
+            height: lastBlock ? lastBlock.data.height : 0,
+            forgingAllowed: Crypto.Slots.isForgingAllowed(),
+            currentSlot: Crypto.Slots.getSlotNumber(),
+            header: lastBlock ? lastBlock.getHeader() : {},
+        },
+        config: getPeerConfig(),
     };
 };
 
@@ -116,44 +119,4 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
     );
 
     return blocks || [];
-};
-
-export const getConfig = async (): Promise<IResponseConfig> => {
-    const transformPlugins = plugins => {
-        const allowed: string[] = ["@arkecosystem/core-api"];
-
-        const result: { [key: string]: { enabled: boolean; port: number } } = {};
-
-        for (let [name, options] of Object.entries(plugins) as any) {
-            if (allowed.includes(name)) {
-                if (options.server) {
-                    options = options.server;
-                }
-
-                result[name] = {
-                    enabled: !!options.enabled,
-                    port: +options.port,
-                };
-            }
-        }
-
-        return result;
-    };
-
-    const appConfig = app.getConfig();
-
-    return {
-        version: app.getVersion(),
-        network: {
-            version: appConfig.get("network.pubKeyHash"),
-            name: appConfig.get("network.name"),
-            nethash: appConfig.get("network.nethash"),
-            explorer: appConfig.get("network.client.explorer"),
-            token: {
-                name: appConfig.get("network.client.token"),
-                symbol: appConfig.get("network.client.symbol"),
-            },
-        },
-        plugins: transformPlugins(appConfig.config.plugins),
-    };
 };

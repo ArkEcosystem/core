@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
@@ -7,7 +7,6 @@ import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { IResponseConfig } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
 import { socketEmit } from "./utils";
@@ -47,9 +46,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return undefined;
         }
 
-        const body: any = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
+        const pingResponse: P2P.IPeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
 
-        if (!body) {
+        if (!pingResponse) {
             throw new PeerStatusResponseError(peer.ip);
         }
 
@@ -60,15 +59,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new PeerPingTimeoutError(timeoutMsec);
             }
 
-            peer.verificationResult = await peerVerifier.checkState(body, deadline);
+            peer.verificationResult = await peerVerifier.checkState(pingResponse, deadline);
 
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
 
-            const responseConfig: IResponseConfig = await this.emit(peer, "p2p.peer.getConfig");
-
-            for (const plugin of Object.values(responseConfig.plugins)) {
+            const { config } = pingResponse;
+            for (const plugin of Object.values(config.plugins)) {
                 try {
                     const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
 
@@ -82,8 +80,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         peer.lastPinged = dato();
-        peer.state = body;
-        return body;
+        peer.state = pingResponse.state;
+        return pingResponse.state;
     }
 
     public async getPeers(peer: P2P.IPeer): Promise<any> {

@@ -71,7 +71,7 @@ describe("NetworkMonitor", () => {
             const validateAndAcceptPeer = jest
                 .spyOn(processor, "validateAndAcceptPeer")
                 .mockImplementationOnce(jest.fn());
-            jest.spyOn(processor, "validatePeer").mockReturnValueOnce(true);
+            jest.spyOn(processor, "validatePeerIp").mockReturnValueOnce(true);
 
             // @ts-ignore
             monitor.config = { ignoreMinimumNetworkReach: true };

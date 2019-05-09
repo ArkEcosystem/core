@@ -19,7 +19,7 @@ beforeEach(() => {
 describe("PeerProcessor", () => {
     describe("validateAndAcceptPeer", () => {
         it("should accept the peer", async () => {
-            processor.validatePeer = jest.fn(() => true);
+            processor.validatePeerIp = jest.fn(() => true);
             communicator.ping = jest.fn();
 
             expect(storage.hasPeers()).toBeFalse();
