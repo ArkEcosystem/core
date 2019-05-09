@@ -98,15 +98,13 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public isValidVersion(peer: P2P.IPeer): boolean {
-        const version: string = (peer.version || (peer.headers && peer.headers.version)) as string;
-
-        if (!semver.valid(version)) {
+        if (!semver.valid(peer.version)) {
             return false;
         }
 
         return app
             .resolveOptions("p2p")
-            .minimumVersions.some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
+            .minimumVersions.some((minimumVersion: string) => semver.satisfies(peer.version, minimumVersion));
     }
 
     public isValidPort(peer: P2P.IPeer): boolean {

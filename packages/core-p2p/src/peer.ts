@@ -7,7 +7,6 @@ export class Peer implements P2P.IPeer {
     public readonly port: number = app.resolveOptions("p2p").port;
     public version: string;
     public latency: number;
-    public headers: Record<string, string | number>;
     public lastPinged: Dato | undefined;
     public verificationResult: PeerVerificationResult | undefined;
     public state: P2P.IPeerState = {
@@ -17,13 +16,7 @@ export class Peer implements P2P.IPeer {
         header: {},
     };
 
-    constructor(readonly ip: string) {
-        this.headers = {
-            version: app.getVersion(),
-            height: undefined,
-            "Content-Type": "application/json",
-        };
-    }
+    constructor(readonly ip: string) {}
 
     get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;

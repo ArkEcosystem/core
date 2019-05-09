@@ -119,7 +119,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     ): Promise<Interfaces.IBlockData[]> {
         return this.emit(peer, "p2p.peer.getBlocks", {
             lastBlockHeight: afterBlockHeight,
-            headers: peer.headers,
+            headers: {
+                "Content-Type": "application/json",
+            },
             timeout: timeoutMsec || 10000,
         });
     }
@@ -153,12 +155,19 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         try {
             this.connector.forgetError(peer);
 
-            const timeBeforeSocketCall = new Date().getTime();
-
-            this.updateHeaders(peer);
+            const timeBeforeSocketCall: number = new Date().getTime();
 
             const connection: SCClientSocket = this.connector.connect(peer);
-            response = await socketEmit(peer.ip, connection, event, data, peer.headers, timeout);
+            response = await socketEmit(
+                peer.ip,
+                connection,
+                event,
+                data,
+                {
+                    "Content-Type": "application/json",
+                },
+                timeout,
+            );
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response);
@@ -172,16 +181,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         return response.data;
-    }
-
-    private updateHeaders(peer: P2P.IPeer) {
-        if (app.has("blockchain")) {
-            const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
-
-            if (lastBlock) {
-                peer.headers.height = lastBlock.data.height;
-            }
-        }
     }
 
     private handleSocketError(peer: P2P.IPeer, error: Error): void {

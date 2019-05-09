@@ -11,15 +11,6 @@ export class Client {
     public hosts: IRelayHost[];
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private host: IRelayHost;
-    private headers: {
-        version: string;
-        port: number;
-        "Content-Type": "application/json";
-    } = {
-        version: app.getVersion(),
-        port: undefined,
-        "Content-Type": "application/json",
-    };
 
     constructor(hosts: IRelayHost[]) {
         this.hosts = hosts.map(host => {
@@ -30,8 +21,6 @@ export class Client {
         });
 
         this.host = this.hosts[0];
-
-        this.headers.port = this.host.port;
     }
 
     public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
@@ -131,7 +120,9 @@ export class Client {
                 this.host.socket,
                 event,
                 data,
-                this.headers,
+                {
+                    "Content-Type": "application/json",
+                },
                 timeout,
             );
 

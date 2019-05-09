@@ -10,7 +10,6 @@ export interface IPeer {
     version: string;
 
     latency: number;
-    headers: Record<string, string | number>;
     state: IPeerState;
     lastPinged: Dato | undefined;
     verificationResult: IPeerVerificationResult | undefined;
@@ -34,5 +33,5 @@ export interface IPeerState {
     height: number;
     forgingAllowed: boolean;
     currentSlot: number;
-    header: Record<string, any>;
+    header: Record<string, any>; // @TODO: rename, those are block headers but the name is horrible
 }

@@ -40,7 +40,7 @@ export const getCommonBlocks = async ({
 };
 
 export const getStatus = async (): Promise<P2P.IPeerState> => {
-    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+    const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
         height: lastBlock ? lastBlock.data.height : 0,
