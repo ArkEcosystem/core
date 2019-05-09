@@ -13,7 +13,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly appConfig = app.getConfig();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
@@ -65,16 +64,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             //    peer.version
             //    }`,
             // );
-
-            return false;
-        }
-
-        if (!this.guard.isValidNetwork(peer) && !options.seed) {
-            this.logger.debug(
-                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${this.appConfig.get(
-                    "network.nethash",
-                )} - Received: ${peer.nethash}`,
-            );
 
             return false;
         }

@@ -6,7 +6,6 @@ export interface IPeerGuard {
     analyze(peer: IPeer): IPunishment;
     isWhitelisted(peer: IPeer): boolean;
     isValidVersion(peer: IPeer): boolean;
-    isValidNetwork(peer: IPeer): boolean;
     isValidPort(peer: IPeer): boolean;
 }
 

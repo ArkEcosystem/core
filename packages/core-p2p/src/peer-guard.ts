@@ -86,10 +86,6 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.highLatency);
         }
 
-        if (!this.isValidNetwork(peer)) {
-            return this.createPunishment(this.offences.invalidNetwork);
-        }
-
         if (!this.isValidVersion(peer)) {
             return this.createPunishment(this.offences.invalidVersion);
         }
@@ -111,12 +107,6 @@ export class PeerGuard implements P2P.IPeerGuard {
         return app
             .resolveOptions("p2p")
             .minimumVersions.some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
-    }
-
-    public isValidNetwork(peer: P2P.IPeer): boolean {
-        const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-
-        return nethash === app.getConfig().get("network.nethash");
     }
 
     public isValidPort(peer: P2P.IPeer): boolean {

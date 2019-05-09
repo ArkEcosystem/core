@@ -66,6 +66,10 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
+    public removeTransactionsById(ids: string[]): void {
+        return;
+    }
+
     public getTransactionsForForging(blockSize: number): string[] {
         return [];
     }
