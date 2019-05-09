@@ -12,6 +12,9 @@ export class DatabaseCommand extends BaseCommand {
         `Set the database host
 $ ark config:db --host=localhost
 `,
+        `Set the database port
+$ ark config:db --port=5432
+`,
         `Set the name of the database user
 $ ark config:db --username=ark
 `,
@@ -23,12 +26,15 @@ $ ark config:db --password=password
 `,
     ];
 
-    private static readonly validFlags: string[] = ["host", "username", "database", "password"];
+    private static readonly validFlags: string[] = ["host", "port", "username", "database", "password"];
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         host: flags.string({
             description: "the host of the database"
+        }),
+        port: flags.string({
+            description: "the port of the database"
         }),
         username: flags.string({
             description: "the name of the database user",
