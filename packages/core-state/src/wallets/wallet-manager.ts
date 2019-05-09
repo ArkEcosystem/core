@@ -129,7 +129,7 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public loadActiveDelegateList(roundInfo: Shared.IRoundInfo): State.IDelegateWallet[] {
-        const delegates: State.IWallet[] = this.buildDelegateRanking(undefined, roundInfo);
+        const delegates: State.IWallet[] = this.buildDelegateRanking(roundInfo);
         const { maxDelegates } = roundInfo;
 
         if (delegates.length < maxDelegates) {
@@ -319,8 +319,8 @@ export class WalletManager implements State.IWalletManager {
         this.byUsername = {};
     }
 
-    public buildDelegateRanking(delegates?: State.IWallet[], roundInfo?: Shared.IRoundInfo): State.IDelegateWallet[] {
-        delegates = (delegates || this.allByUsername()).filter((w: State.IWallet) => !w.resigned);
+    public buildDelegateRanking(roundInfo?: Shared.IRoundInfo): State.IDelegateWallet[] {
+        const delegates: State.IWallet[] = this.allByUsername().filter((w: State.IWallet) => !w.resigned);
 
         const equalVotesMap = new Map();
         let delegateWallets = delegates
