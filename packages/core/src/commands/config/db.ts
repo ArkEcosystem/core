@@ -62,7 +62,7 @@ $ ark config:db --password=password
 
         const variables: EnvironmentVars = {};
 
-        for (const flag in DatabaseCommand.validFlags) {
+        for (const flag of DatabaseCommand.validFlags) {
             if (flags[flag] !== undefined) {
                 variables[`CORE_DB_${flag.toUpperCase()}`] = flags[flag];
             }
