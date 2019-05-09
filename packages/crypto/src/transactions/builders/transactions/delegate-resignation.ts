@@ -9,6 +9,7 @@ export class DelegateResignationBuilder extends TransactionBuilder<DelegateResig
         super();
 
         this.data.type = TransactionTypes.DelegateResignation;
+        this.data.version = 2;
         this.data.fee = feeManager.get(TransactionTypes.DelegateResignation);
         this.data.amount = BigNumber.ZERO;
         this.data.senderPublicKey = undefined;
