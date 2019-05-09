@@ -19,13 +19,6 @@ export class PeersController extends Controller {
             if (orderBy) {
                 const order = orderBy.split(":");
 
-                if (["status"].includes(order[0])) {
-                    result =
-                        order[1].toUpperCase() === "ASC"
-                            ? result.sort((a, b) => a[order[0]] - b[order[0]])
-                            : result.sort((a, b) => a[order[0]] + b[order[0]]);
-                }
-
                 if (order[0] === "version") {
                     result =
                         order[1].toUpperCase() === "ASC"

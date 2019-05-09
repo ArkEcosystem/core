@@ -28,7 +28,7 @@ export class PeersController extends Controller {
             if (request.query.orderBy) {
                 // @ts-ignore
                 const order = request.query.orderBy.split(":");
-                if (["status", "version"].includes(order[0])) {
+                if (order[0] === "version") {
                     peers =
                         order[1].toUpperCase() === "ASC"
                             ? peers.sort((a, b) => a[order[0]] - b[order[0]])
