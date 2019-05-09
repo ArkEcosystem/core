@@ -6,7 +6,9 @@ import { PeerVerificationResult } from "./peer-verifier";
 export class Peer implements P2P.IPeer {
     public nethash: string;
     public version: string;
-    public apiPort: number;
+    public apiPort?: number;
+    public walletApiPort?: number;
+
     public os: string;
     public latency: number;
     public headers: Record<string, string | number>;
@@ -55,7 +57,8 @@ export class Peer implements P2P.IPeer {
         return {
             ip: this.ip,
             port: +this.port,
-            apiPort: this.apiPort,
+            apiPort: +this.apiPort,
+            walletApiPort: +this.walletApiPort,
             nethash: this.nethash,
             version: this.version,
             os: this.os,

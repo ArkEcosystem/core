@@ -9,6 +9,10 @@ export const validateHeaders = headers => {
         headers.apiPort = +headers.apiPort;
     }
 
+    if (headers.walletApiPort) {
+        headers.walletApiPort = +headers.walletApiPort;
+    }
+
     return validateJSON(headers, {
         type: "object",
         properties: {
@@ -22,6 +26,11 @@ export const validateHeaders = headers => {
                 maximum: 65535,
             },
             apiPort: {
+                type: "integer",
+                minimum: 1,
+                maximum: 65535,
+            },
+            walletApiPort: {
                 type: "integer",
                 minimum: 1,
                 maximum: 65535,
