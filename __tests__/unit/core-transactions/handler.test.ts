@@ -16,7 +16,7 @@ import {
     SenderWalletMismatchError,
     UnexpectedSecondSignatureError,
     UnvoteMismatchError,
-    WalletNoUsernameError,
+    WalletUsernameEmptyError,
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
 import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
@@ -799,7 +799,11 @@ describe.skip("MultiPaymentTransaction", () => {
     });
 });
 
-describe.skip("DelegateResignationTransaction", () => {
+describe("DelegateResignationTransaction", () => {
+    beforeAll(() => {
+        Managers.configManager.setFromPreset("testnet");
+    });
+
     beforeEach(() => {
         transaction = transactionFixture;
         senderWallet = walletFixture;
@@ -809,17 +813,17 @@ describe.skip("DelegateResignationTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should be truth", () => {
+        it("should be true if wallet has registered username", () => {
             senderWallet.username = "dummy";
             expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
         });
 
-        it.skip("should be false if wallet has no registered username", () => {
+        it("should throw if wallet has no registered username", () => {
             senderWallet.username = undefined;
-            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(WalletNoUsernameError);
+            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(WalletUsernameEmptyError);
         });
 
-        it("should be false if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(InsufficientBalanceError);
         });
