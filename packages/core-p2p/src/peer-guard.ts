@@ -107,10 +107,6 @@ export class PeerGuard implements P2P.IPeerGuard {
             .minimumVersions.some((minimumVersion: string) => semver.satisfies(peer.version, minimumVersion));
     }
 
-    public isValidPort(peer: P2P.IPeer): boolean {
-        return peer.port === app.resolveOptions("p2p").port;
-    }
-
     private createPunishment(offence: P2P.IOffence): P2P.IPunishment {
         return {
             until: offence.until(),
