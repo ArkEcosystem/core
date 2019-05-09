@@ -805,9 +805,13 @@ describe("DelegateResignationTransaction", () => {
     });
 
     beforeEach(() => {
-        transaction = transactionFixture;
+        transaction = TransactionFactory.delegateResignation().create()[0];
+
         senderWallet = walletFixture;
         senderWallet.balance = transaction.amount.plus(transaction.fee);
+        senderWallet.username = "tiredDelegate";
+        senderWallet.publicKey = transaction.senderPublicKey;
+
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
