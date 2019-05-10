@@ -9,6 +9,7 @@ import {
     InvalidSecondSignatureError,
     SenderWalletMismatchError,
     UnexpectedMultiSignatureError,
+    UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
@@ -40,6 +41,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
         databaseWalletManager: State.IWalletManager,
     ): boolean {
         const { data }: Interfaces.ITransaction = transaction;
+
+        if (data.nonce.isEqualTo(wallet.nonce.plus(1))) {
+            throw new UnexpectedNonceError(data.nonce, wallet.nonce.plus(1));
+        }
 
         if (
             wallet.balance

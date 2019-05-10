@@ -300,8 +300,6 @@ export class PostgresConnection implements Database.IConnection {
     }
 
     private async migrateTransactionsTableToNonceColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
-        return;
-
         const row: IMigration = await this.migrationsRepository.findByName(name);
         if (row) {
             return;
@@ -311,7 +309,7 @@ export class PostgresConnection implements Database.IConnection {
 
         await this.query.none(migration);
 
-        // TODO
+        // TODO: migrate transaction timestamps and then remove DEFAULT from column
 
         await this.migrationsRepository.insert({
             name,

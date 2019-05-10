@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -25,7 +25,7 @@ export class StateBuilder {
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
 
-        this.logger.info(`State Generation - Step 2 of ${steps}: Fees`);
+        this.logger.info(`State Generation - Step 2 of ${steps}: Fees & Nonces`);
         await this.buildSentTransactions();
 
         for (let i = 0; i < (aip11 ? transactionHandlers.length : 4); i++) {
@@ -60,6 +60,7 @@ export class StateBuilder {
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
+            wallet.nonce = Utils.BigNumber.make(transaction.nonce);
         }
     }
 

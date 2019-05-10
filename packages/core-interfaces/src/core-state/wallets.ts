@@ -55,6 +55,8 @@ export interface IWalletManager {
 
     findByUsername(username: string): IWallet;
 
+    getNonce(publicKey: string): Utils.BigNumber;
+
     index(wallets: IWallet[]): void;
 
     reindex(wallet: IWallet): void;
