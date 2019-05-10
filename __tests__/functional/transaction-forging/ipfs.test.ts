@@ -95,8 +95,8 @@ describe("Transaction Forging - IPFS", () => {
         await expect(multiSignature.id).toBeForged();
 
         // Send funds to multi signature wallet
-        const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature[0].asset.multiSignature);
-        const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature[0].asset.multiSignature);
+        const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
+        const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
         const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 20 * 1e8)
             .withPassphrase(secrets[0])
