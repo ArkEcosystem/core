@@ -22,5 +22,6 @@ export interface INetworkMonitor {
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster;
     setServer(server: SocketCluster): void;
+    stopServer(): void;
     resetSuspendedPeers(): Promise<void>;
 }

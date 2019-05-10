@@ -47,5 +47,6 @@ export const plugin: Container.IPluginDescriptor = {
 
         const service = container.resolvePlugin<P2P.IPeerService>("p2p");
         service.getStorage().savePeers();
+        service.getMonitor().stopServer();
     },
 };

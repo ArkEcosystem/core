@@ -54,6 +54,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.server = server;
     }
 
+    public stopServer(): void {
+        if (this.server) {
+            this.server.removeAllListeners();
+            this.server.destroy();
+            this.server = undefined;
+        }
+    }
+
     public isColdStartActive(): boolean {
         if (process.env.CORE_SKIP_COLD_START) {
             return false;
