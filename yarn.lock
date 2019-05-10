@@ -10317,13 +10317,6 @@ podium@3.x.x:
     hoek "6.x.x"
     joi "14.x.x"
 
-pokemon@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/pokemon/-/pokemon-2.0.0.tgz#bf9c4f73ca4615df95a407f881e983ea5fb291ad"
-  integrity sha512-x+c9qNrB5y+2Ltt4mQGG56Rw6AvnzxhRm7/DRX9nSLjurTy+R7gMg3vUxzjJK2AhnaoQeFs3NPyK5fwnM3kVWg==
-  dependencies:
-    unique-random-array "^2.0.0"
-
 port-numbers@^4.0.7:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/port-numbers/-/port-numbers-4.0.8.tgz#f0d965754f5bd2a26fb6f582ea19099707d877de"

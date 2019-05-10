@@ -40,8 +40,7 @@
         "delay": "^4.2.0",
         "pino": "^5.12.3",
         "pino-pretty": "^3.0.0",
-        "pluralize": "^7.0.0",
-        "pokemon": "^2.0.0"
+        "pluralize": "^7.0.0"
     },
     "devDependencies": {
         "@types/bip39": "^2.4.2",
