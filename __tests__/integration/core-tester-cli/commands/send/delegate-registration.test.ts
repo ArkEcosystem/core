@@ -3,7 +3,6 @@ import "jest-extended";
 import { httpie } from "@arkecosystem/core-utils";
 import { Managers } from "@arkecosystem/crypto";
 import nock from "nock";
-import pokemon from "pokemon";
 import { DelegateRegistrationCommand } from "../../../../../packages/core-tester-cli/src/commands/send/delegate-registration";
 import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "../../shared";
 
@@ -34,7 +33,6 @@ describe("Commands - Delegate Registration", () => {
             number: 1,
         };
 
-        const expectedDelegateName = "mr_bojangles";
         // call to delegates/{publicKey}/voters returns zero delegates
         nock("http://localhost:4003")
             .get("/api/v2/delegates")
@@ -42,7 +40,6 @@ describe("Commands - Delegate Registration", () => {
                 meta: { pageCount: 1 },
                 data: [],
             });
-        jest.spyOn(pokemon, "random").mockImplementation(() => expectedDelegateName);
 
         const expectedTransactions = [];
         captureTransactions(nock, expectedTransactions);
@@ -55,7 +52,7 @@ describe("Commands - Delegate Registration", () => {
             fee: arkToSatoshi(opts.delegateFee),
             asset: {
                 delegate: {
-                    username: expectedDelegateName,
+                    username: expectedTransactions[1].asset.delegate.username,
                 },
             },
         });
