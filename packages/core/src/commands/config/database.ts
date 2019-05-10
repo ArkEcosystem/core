@@ -53,15 +53,7 @@ $ ark config:database --password=password
         const envFile: string = `${paths.config}/.env`;
 
         if (this.hasValidFlag(flags)) {
-            const variables: EnvironmentVars = {};
-
-            for (const flag of DatabaseCommand.validFlags) {
-                if (flags[flag] !== undefined) {
-                    variables[`CORE_DB_${flag.toUpperCase()}`] = flags[flag];
-                }
-            }
-
-            updateEnvironmentVariables(envFile, variables);
+            updateEnvironmentVariables(envFile, this.conform(flags));
 
             return;
         }
@@ -84,13 +76,13 @@ $ ark config:database --password=password
                 type: "text",
                 name: "database",
                 message: "What database do you want to use?",
-                initial: flags.token,
+                initial: `${flags.token}_${flags.network}`,
             },
             {
                 type: "text",
                 name: "username",
                 message: "What username do you want to use?",
-                initial: `${flags.token}_${flags.network}`,
+                initial: flags.token,
             },
             {
                 type: "password",
@@ -106,11 +98,23 @@ $ ark config:database --password=password
         ]);
 
         if (response.confirm) {
-            updateEnvironmentVariables(envFile, response);
+            updateEnvironmentVariables(envFile, this.conform(response));
         }
     }
 
     private hasValidFlag(flags: CommandFlags): boolean {
         return hasSomeProperty(flags, DatabaseCommand.validFlags);
+    }
+
+    private conform(flags: CommandFlags): EnvironmentVars {
+        const variables: EnvironmentVars = {};
+
+        for (const flag of DatabaseCommand.validFlags) {
+            if (flags[flag] !== undefined) {
+                variables[`CORE_DB_${flag.toUpperCase()}`] = flags[flag];
+            }
+        }
+
+        return variables;
     }
 }
