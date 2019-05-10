@@ -1,14 +1,72 @@
 import "jest-extended";
 
 import ajv from "ajv";
+import { ITransactionData } from "../../../../packages/crypto/src/interfaces/transactions";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
+import { BigNumber } from "../../../../packages/crypto/src/utils";
 import { validator } from "../../../../packages/crypto/src/validation";
 import { block2, genesisBlock } from "../../../utils/fixtures/unitnet/blocks";
 
 describe("validator", () => {
     describe("validate", () => {
+        describe("transaction", () => {
+            const transaction = {
+                type: 0,
+                amount: BigNumber.make(1000),
+                fee: BigNumber.make(2000),
+                recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
+                asset: {},
+                senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+            } as ITransactionData;
+
+            it("should expect a timestamp if version = 1 or absent", () => {
+                expect(validator.validate("transferSigned", transaction).error).toEqual(
+                    "data should have required property '.timestamp'",
+                );
+
+                transaction.version = 1;
+                expect(validator.validate("transferSigned", transaction).error).toEqual(
+                    "data should have required property '.timestamp'",
+                );
+
+                transaction.timestamp = 12222;
+                expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
+            });
+
+            it("should expect a nonce if version = 2 or higher", () => {
+                transaction.version = 2;
+
+                expect(validator.validate("transferSigned", transaction).error).toEqual(
+                    "data should have required property '.nonce'",
+                );
+
+                transaction.nonce = BigNumber.ZERO;
+                expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
+            });
+        });
+
+        describe("transaction ", () => {
+            const transaction = {
+                type: 0,
+                amount: BigNumber.make(1000),
+                fee: BigNumber.make(2000),
+                recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
+                timestamp: 141738,
+                asset: {},
+                senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+                signature:
+                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+            };
+
+            expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
+        });
+
         describe("publicKey", () => {
             it("should be ok", () => {
                 expect(
