@@ -14,5 +14,12 @@ export class EventListener {
                 processor.suspend(peer, punishment ? guard.punishment(punishment) : undefined);
             }
         });
+
+        const exitHandler = () => {
+            service.getMonitor().stopServer();
+        };
+
+        process.on("SIGINT", exitHandler);
+        process.on("exit", exitHandler);
     }
 }
