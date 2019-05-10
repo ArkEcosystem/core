@@ -41,6 +41,7 @@ export interface IConnection {
     purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void;
     removeTransaction(transaction: Interfaces.ITransaction): void;
     removeTransactionById(id: string, senderPublicKey?: string): void;
+    removeTransactionsById(ids: string[]): void;
     removeTransactionsForSender(senderPublicKey: string): void;
     senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean;
 }
