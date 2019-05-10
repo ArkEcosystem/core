@@ -84,6 +84,7 @@ export class TransactionFactory {
 
     private builder: any;
     private network: Types.NetworkName = "testnet";
+    private nonce: Utils.BigNumber;
     private fee: Utils.BigNumber;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
@@ -117,6 +118,12 @@ export class TransactionFactory {
 
     public withSenderPublicKey(sender: string): TransactionFactory {
         this.senderPublicKey = sender;
+
+        return this;
+    }
+
+    public withNonce(nonce: Utils.BigNumber): TransactionFactory {
+        this.nonce = nonce;
 
         return this;
     }
@@ -217,6 +224,12 @@ export class TransactionFactory {
 
             if (this.version) {
                 this.builder.version(this.version);
+            }
+
+            if (this.nonce) {
+                this.builder.nonce(this.nonce);
+            } else if (this.builder.data.version > 1) {
+                throw new Error("Missing nonce for new protocol transactions");
             }
 
             if (this.fee) {
