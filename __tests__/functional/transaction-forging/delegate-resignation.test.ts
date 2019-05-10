@@ -18,29 +18,29 @@ describe("Transaction Forging - Delegate Resignation", () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+            await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(initialFunds[0].id);
+            await expect(initialFunds.id).toBeForged();
 
             // Register a delegate
             const transactionsRegister = TransactionFactory.delegateRegistration()
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsRegister, transactionsRegister[0].id);
+            await expect(transactionsRegister).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsRegister[0].id);
+            await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign = TransactionFactory.delegateResignation()
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsResign, transactionsResign[0].id);
+            await expect(transactionsResign).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsResign[0].id);
+            await expect(transactionsResign.id).toBeForged();
         });
 
         it("should broadcast, reject and not forge it", async () => {
@@ -50,20 +50,20 @@ describe("Transaction Forging - Delegate Resignation", () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+            await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(initialFunds[0].id);
+            await expect(initialFunds.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign = TransactionFactory.delegateResignation()
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectInvalidAndError(transactionsResign, transactionsResign[0].id);
+            await expect(transactionsResign.id).toBeRejected();
             await support.snoozeForBlock(1);
-            await support.expectTransactionNotForged(transactionsResign[0].id);
+            await expect(transactionsResign.id).not.toBeForged();
         });
 
         it("should broadcast, reject and not forge it if the delegate already resigned", async () => {
@@ -73,38 +73,38 @@ describe("Transaction Forging - Delegate Resignation", () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+            await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(initialFunds[0].id);
+            await expect(initialFunds.id).toBeAccepted();
 
             // Register a delegate
             const transactionsRegister = TransactionFactory.delegateRegistration()
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsRegister, transactionsRegister[0].id);
+            await expect(transactionsRegister).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsRegister[0].id);
+            await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign1 = TransactionFactory.delegateResignation()
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsResign1, transactionsResign1[0].id);
+            await expect(transactionsResign1).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsResign1[0].id);
+            await expect(transactionsResign1.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign2 = TransactionFactory.delegateResignation()
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectInvalidAndError(transactionsResign2, transactionsResign2[0].id);
+            await expect(transactionsResign2.id).toBeRejected();
             await support.snoozeForBlock(1);
-            await support.expectTransactionNotForged(transactionsResign2[0].id);
+            await expect(transactionsResign2.id).not.toBeForged();
         });
     });
 
@@ -117,38 +117,38 @@ describe("Transaction Forging - Delegate Resignation", () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+            await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(initialFunds[0].id);
+            await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
             const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
+            await expect(secondSignature).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(secondSignature[0].id);
+            await expect(secondSignature.id).toBeForged();
 
             // Register a delegate
             const transactionsRegister = TransactionFactory.delegateRegistration()
                 .withPassphrasePair({ passphrase, secondPassphrase })
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsRegister, transactionsRegister[0].id);
+            await expect(transactionsRegister).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsRegister[0].id);
+            await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign = TransactionFactory.delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsResign, transactionsResign[0].id);
+            await expect(transactionsResign).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsResign[0].id);
+            await expect(transactionsResign.id).toBeForged();
         });
 
         it("should broadcast, reject and not forge it", async () => {
@@ -159,29 +159,29 @@ describe("Transaction Forging - Delegate Resignation", () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+            await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(initialFunds[0].id);
+            await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
             const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
+            await expect(secondSignature).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(secondSignature[0].id);
+            await expect(secondSignature.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign = TransactionFactory.delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
-                .create();
+                .createOne();
 
-            await support.expectInvalidAndError(transactionsResign, transactionsResign[0].id);
+            await expect(transactionsResign.id).toBeRejected();
             await support.snoozeForBlock(1);
-            await support.expectTransactionNotForged(transactionsResign[0].id);
+            await expect(transactionsResign.id).not.toBeForged();
         });
 
         it("should broadcast, reject and not forge it if the delegate already resigned", async () => {
@@ -192,47 +192,47 @@ describe("Transaction Forging - Delegate Resignation", () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+            await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(initialFunds[0].id);
+            await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
             const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
+            await expect(secondSignature).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(secondSignature[0].id);
+            await expect(secondSignature.id).toBeForged();
 
             // Register a delegate
             const transactionsRegister = TransactionFactory.delegateRegistration()
                 .withPassphrasePair({ passphrase, secondPassphrase })
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsRegister, transactionsRegister[0].id);
+            await expect(transactionsRegister).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsRegister[0].id);
+            await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign1 = TransactionFactory.delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
-                .create();
+                .createOne();
 
-            await support.expectAcceptAndBroadcast(transactionsResign1, transactionsResign1[0].id);
+            await expect(transactionsResign1).toBeAccepted();
             await support.snoozeForBlock(1);
-            await support.expectTransactionForged(transactionsResign1[0].id);
+            await expect(transactionsResign1.id).toBeForged();
 
             // Resign a delegate
             const transactionsResign2 = TransactionFactory.delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
-                .create();
+                .createOne();
 
-            await support.expectInvalidAndError(transactionsResign2, transactionsResign2[0].id);
+            await expect(transactionsResign2.id).toBeRejected();
             await support.snoozeForBlock(1);
-            await support.expectTransactionNotForged(transactionsResign2[0].id);
+            await expect(transactionsResign2.id).not.toBeForged();
         });
     });
 });
