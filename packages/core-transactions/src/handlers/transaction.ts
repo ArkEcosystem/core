@@ -108,11 +108,13 @@ export abstract class TransactionHandler implements ITransactionHandler {
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
+        sender.nonce = sender.nonce.plus(1);
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.plus(transaction.data.amount).plus(transaction.data.fee);
+        sender.nonce = sender.nonce.minus(1);
     }
 
     protected abstract applyToRecipient(

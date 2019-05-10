@@ -7,6 +7,7 @@ export interface IWallet {
     publicKey: string | undefined;
     secondPublicKey: string | undefined;
     balance: Utils.BigNumber;
+    nonce: Utils.BigNumber;
     vote: string;
     voted: boolean;
     username: string | undefined;
