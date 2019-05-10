@@ -33,8 +33,7 @@ module.exports = async options => {
         let transaction;
         switch (type) {
             case "transfer":
-                transaction = Transactions.BuilderFactory
-                    .transfer()
+                transaction = Transactions.BuilderFactory.transfer()
                     .amount(utils.transferAmount)
                     .recipientId(wallets[1].address);
                 break;
@@ -42,9 +41,9 @@ module.exports = async options => {
                 transaction = Transactions.BuilderFactory.vote().votesAsset([`+${delegates[2].publicKey}`]);
                 break;
             case "delegateRegistration":
-                transaction = Transactions.BuilderFactory
-                    .delegateRegistration()
-                    .usernameAsset(wallets[2].address.slice(0, 10).toLowerCase());
+                transaction = Transactions.BuilderFactory.delegateRegistration().usernameAsset(
+                    wallets[2].address.slice(0, 10).toLowerCase(),
+                );
                 break;
         }
 

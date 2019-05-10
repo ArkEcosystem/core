@@ -26,8 +26,7 @@ module.exports = async options => {
         let transaction;
         switch (type) {
             case "transfer":
-                transaction = Transactions.BuilderFactory
-                    .transfer()
+                transaction = Transactions.BuilderFactory.transfer()
                     .amount(2 * Math.pow(10, 8))
                     .recipientId(wallets[1].address);
                 break;
@@ -37,14 +36,13 @@ module.exports = async options => {
             case "secondSignRegistration":
                 transaction = Transactions.BuilderFactory.secondSignature().signatureAsset(wallets[1].passphrase);
                 break;
-                case "delegateRegistration":
-                transaction = Transactions.BuilderFactory
-                    .delegateRegistration()
-                    .usernameAsset(wallets[0].address.slice(0, 10).toLowerCase());
+            case "delegateRegistration":
+                transaction = Transactions.BuilderFactory.delegateRegistration().usernameAsset(
+                    wallets[0].address.slice(0, 10).toLowerCase(),
+                );
                 break;
             case "ipfs":
-                transaction = Transactions.BuilderFactory
-                    .ipfs()
+                transaction = Transactions.BuilderFactory.ipfs()
                     .version(2)
                     .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w");
                 break;

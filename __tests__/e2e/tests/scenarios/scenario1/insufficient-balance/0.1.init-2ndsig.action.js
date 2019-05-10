@@ -13,8 +13,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory
-            .secondSignature()
+        Transactions.BuilderFactory.secondSignature()
             .signatureAsset(utils.transfer2ndsigSender2.passphrase)
             .fee(5 * Math.pow(10, 8))
             .sign(utils.transfer2ndsigSender.passphrase)

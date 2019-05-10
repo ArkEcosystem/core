@@ -14,14 +14,12 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory
-            .vote()
+        Transactions.BuilderFactory.vote()
             .votesAsset([`+${delegates[2].publicKey}`])
             .fee(1 * Math.pow(10, 8))
             .sign(utils.doubleVoteSender.passphrase)
             .getStruct(),
-        Transactions.BuilderFactory
-            .vote()
+        Transactions.BuilderFactory.vote()
             .votesAsset([`+${delegates[3].publicKey}`])
             .fee(1 * Math.pow(10, 8))
             .sign(utils.doubleVoteSender.passphrase)
