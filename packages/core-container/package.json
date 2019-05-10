@@ -22,7 +22,7 @@
         "@arkecosystem/core-interfaces": "^2.4.0-next.3",
         "@arkecosystem/crypto": "^2.4.0-next.3",
         "@hapi/hoek": "^6.2.1",
-        "@hapi/joi": "^15.0.1",
+        "@hapi/joi": "^15.0.2",
         "awilix": "^4.2.2",
         "delay": "^4.2.0",
         "env-paths": "^2.2.0",

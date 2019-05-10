@@ -9,14 +9,14 @@ export class HDWallet {
     /**
      * Get root node from the given mnemonic with an optional passphrase.
      */
-    public static fromMnemonic(mnemonic: string, passphrase?: string): bip32.BIP32 {
+    public static fromMnemonic(mnemonic: string, passphrase?: string): bip32.BIP32Interface {
         return bip32.fromSeed(mnemonicToSeedSync(mnemonic, passphrase), configManager.get("network"));
     }
 
     /**
      * Get bip32 node from keys.
      */
-    public static fromKeys(keys: IKeyPair, chainCode: Buffer): bip32.BIP32 {
+    public static fromKeys(keys: IKeyPair, chainCode: Buffer): bip32.BIP32Interface {
         if (!keys.compressed) {
             throw new TypeError("BIP32 only allows compressed keys.");
         }
@@ -27,7 +27,7 @@ export class HDWallet {
     /**
      * Get key pair from the given node.
      */
-    public static getKeys(node: bip32.BIP32): IKeyPair {
+    public static getKeys(node: bip32.BIP32Interface): IKeyPair {
         return {
             publicKey: node.publicKey.toString("hex"),
             privateKey: node.privateKey.toString("hex"),
@@ -38,14 +38,14 @@ export class HDWallet {
     /**
      * Derives a node from the coin type as specified by slip44.
      */
-    public static deriveSlip44(root: bip32.BIP32, hardened: boolean = true): bip32.BIP32 {
+    public static deriveSlip44(root: bip32.BIP32Interface, hardened: boolean = true): bip32.BIP32Interface {
         return root.derivePath(`m/44'/${this.slip44}${hardened ? "'" : ""}`);
     }
 
     /**
      * Derives a node from the network as specified by AIP20.
      */
-    public static deriveNetwork(root: bip32.BIP32): bip32.BIP32 {
+    public static deriveNetwork(root: bip32.BIP32Interface): bip32.BIP32Interface {
         return this.deriveSlip44(root).deriveHardened(configManager.get("network.aip20") || 1);
     }
 }
