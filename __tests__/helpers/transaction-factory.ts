@@ -165,6 +165,10 @@ export class TransactionFactory {
         return this.make<Interfaces.ITransactionData>(quantity, "getStruct");
     }
 
+    public createOne(): Interfaces.ITransactionData {
+        return this.create(1)[0];
+    }
+
     public build(quantity: number = 1): Interfaces.ITransaction[] {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }

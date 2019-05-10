@@ -19,20 +19,20 @@ describe("Transaction Forging - IPFS", () => {
         // Initial Funds
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+        await expect(initialFunds).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(initialFunds[0].id);
+        await expect(initialFunds.id).toBeForged();
 
         // Submit ipfs transaction
         const transactions = TransactionFactory.ipfs(ipfsIds[0])
             .withPassphrase(passphrase)
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
+        await expect(transactions).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(transactions[0].id);
+        await expect(transactions.id).toBeForged();
     });
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
@@ -42,40 +42,40 @@ describe("Transaction Forging - IPFS", () => {
         // Initial Funds
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+        await expect(initialFunds).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(initialFunds[0].id);
+        await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
         const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
             .withPassphrase(passphrase)
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
+        await expect(secondSignature).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(secondSignature[0].id);
+        await expect(secondSignature.id).toBeForged();
 
         // Submit ipfs transaction
         const transactions = TransactionFactory.ipfs(ipfsIds[1])
             .withPassphrasePair({ passphrase, secondPassphrase })
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
+        await expect(transactions).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(transactions[0].id);
+        await expect(transactions.id).toBeForged();
     });
 
     it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
         // Funds to register a multi signature wallet
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(secrets[3]), 50 * 1e8)
             .withPassphrase(secrets[0])
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+        await expect(initialFunds).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(initialFunds[0].id);
+        await expect(initialFunds.id).toBeForged();
 
         // Register a multi signature wallet with defaults
         const passphrases = [secrets[3], secrets[4], secrets[5]];
@@ -88,11 +88,11 @@ describe("Transaction Forging - IPFS", () => {
         const multiSignature = TransactionFactory.multiSignature(participants, 3)
             .withPassphrase(secrets[3])
             .withPassphraseList(passphrases)
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(multiSignature, multiSignature[0].id);
+        await expect(multiSignature).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(multiSignature[0].id);
+        await expect(multiSignature.id).toBeForged();
 
         // Send funds to multi signature wallet
         const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature[0].asset.multiSignature);
@@ -100,20 +100,20 @@ describe("Transaction Forging - IPFS", () => {
 
         const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 20 * 1e8)
             .withPassphrase(secrets[0])
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(multiSignatureFunds, multiSignatureFunds[0].id);
+        await expect(multiSignatureFunds).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(multiSignatureFunds[0].id);
+        await expect(multiSignatureFunds.id).toBeForged();
 
         // Submit ipfs transaction
         const transactions = TransactionFactory.ipfs(ipfsIds[0])
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(transactions, transactions[0].id);
+        await expect(transactions).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(transactions[0].id);
+        await expect(transactions.id).toBeForged();
     });
 });
