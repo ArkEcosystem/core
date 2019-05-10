@@ -61,7 +61,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
                 .withPassphrase(passphrase)
                 .createOne();
 
-            await expect(transactionsResign.id).toBeRejected();
+            await expect(transactionsResign).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(transactionsResign.id).not.toBeForged();
         });
@@ -102,7 +102,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
                 .withPassphrase(passphrase)
                 .createOne();
 
-            await expect(transactionsResign2.id).toBeRejected();
+            await expect(transactionsResign2).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(transactionsResign2.id).not.toBeForged();
         });
