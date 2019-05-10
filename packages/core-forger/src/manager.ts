@@ -7,7 +7,7 @@ import uniq from "lodash.uniq";
 import pluralize from "pluralize";
 import { Client } from "./client";
 import { Delegate } from "./delegate";
-import { HostNoResponseError } from "./errors";
+import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -48,14 +48,16 @@ export class ForgerManager {
             return;
         }
 
+        let timeout: number;
         try {
             await this.loadRound();
-
-            await this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
-
+            timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
             this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
+            timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
+        } finally {
+            await this.checkLater(timeout);
         }
     }
 
@@ -111,11 +113,10 @@ export class ForgerManager {
 
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
-            if (error instanceof HostNoResponseError) {
+            if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 this.logger.warn(error.message);
             } else {
                 this.logger.error(error.stack);
-                this.logger.error(`Forging failed: ${error.message}`);
 
                 if (!isEmpty(this.round)) {
                     this.logger.info(
