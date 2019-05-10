@@ -44,13 +44,13 @@ beforeEach(async () => {
 });
 
 describe("NetworkMonitor", () => {
-    describe("cleanPeers", () => {
+    describe("cleansePeers", () => {
         it("should be ok", async () => {
             storage.setPeer(new Peer("0.0.0.11", 4444));
 
             const previousLength = storage.getPeers().length;
 
-            await monitor.cleanPeers(true);
+            await monitor.cleansePeers(true);
 
             expect(storage.getPeers().length).toBeLessThan(previousLength);
         });
