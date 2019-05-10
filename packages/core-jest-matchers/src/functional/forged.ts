@@ -1,4 +1,4 @@
-import { httpie } from "@arkecosystem/core-utils";
+import got from "got";
 
 export {};
 
@@ -16,12 +16,12 @@ expect.extend({
         let pass: boolean = false;
 
         try {
-            const { body } = await httpie.get(`http://localhost:4003/api/v2/transactions/${id}`);
+            const { body } = await got.get(`http://localhost:4003/api/v2/transactions/${id}`);
 
-            pass = body.data.id === id;
-        } catch (error) {
-            // do nothing...
-        }
+            const parsedBody = JSON.parse(body);
+
+            pass = parsedBody.data.id === id;
+        } catch (e) {} // tslint:disable-line
 
         return {
             pass,
