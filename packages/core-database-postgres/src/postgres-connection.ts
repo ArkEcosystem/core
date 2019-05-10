@@ -218,6 +218,8 @@ export class PostgresConnection implements Database.IConnection {
                 await this.query.none(migration);
             } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
+            } else if (name === "20190510000000-add-nonce-column-to-transactions-table") {
+                await this.migrateTransactionsTableToNonceColumn(name, migration);
             } else {
                 if (!(await this.migrationsRepository.findByName(name))) {
                     this.logger.debug(`Migrating ${name}`);
@@ -229,9 +231,6 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    /**
-     * Migrate transactions table to asset column.
-     */
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
         const row: IMigration = await this.migrationsRepository.findByName(name);
 
@@ -251,7 +250,7 @@ export class PostgresConnection implements Database.IConnection {
         if (!runMigration) {
             return;
         }
-        this.logger.warn(`Migrating transactions table. This may take a while.`);
+        this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
 
@@ -294,6 +293,25 @@ export class PostgresConnection implements Database.IConnection {
                 return task.batch(transactions);
             });
         }
+
+        await this.migrationsRepository.insert({
+            name,
+        });
+    }
+
+    private async migrateTransactionsTableToNonceColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
+        return;
+
+        const row: IMigration = await this.migrationsRepository.findByName(name);
+        if (row) {
+            return;
+        }
+
+        this.logger.warn(`Migrating transactions table to nonces. This may take a while.`);
+
+        await this.query.none(migration);
+
+        // TODO
 
         await this.migrationsRepository.insert({
             name,
