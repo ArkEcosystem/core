@@ -953,6 +953,16 @@
     "@hapi/oppsy" "2.x.x"
     pumpify "1.x.x"
 
+"@hapi/h2o2@^8.3.0":
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/@hapi/h2o2/-/h2o2-8.3.0.tgz#9783fb54005cc8e05fb75a1eba975035ad469127"
+  integrity sha512-JKFqewDvVBXwhIHFIuFjtndzW5SDA1oi7qohwYW/igqfDdOAwYq9cYlpGVPg+KeeDCESDNJCl7bPQt+oQgirOw==
+  dependencies:
+    "@hapi/boom" "7.x.x"
+    "@hapi/hoek" "6.x.x"
+    "@hapi/joi" "15.x.x"
+    "@hapi/wreck" "15.x.x"
+
 "@hapi/hapi@^18.3.1":
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/@hapi/hapi/-/hapi-18.3.1.tgz#936d1e24551b11486eabd6a4974bea4ec2127669"
@@ -10306,13 +10316,6 @@ podium@3.x.x:
   dependencies:
     hoek "6.x.x"
     joi "14.x.x"
-
-pokemon@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/pokemon/-/pokemon-2.0.0.tgz#bf9c4f73ca4615df95a407f881e983ea5fb291ad"
-  integrity sha512-x+c9qNrB5y+2Ltt4mQGG56Rw6AvnzxhRm7/DRX9nSLjurTy+R7gMg3vUxzjJK2AhnaoQeFs3NPyK5fwnM3kVWg==
-  dependencies:
-    unique-random-array "^2.0.0"
 
 port-numbers@^4.0.7:
   version "4.0.8"

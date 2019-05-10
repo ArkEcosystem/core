@@ -1,6 +1,5 @@
-import envfile from "envfile";
-import { existsSync, writeFileSync } from "fs-extra";
 import { CommandFlags } from "../../types";
+import { updateEnvironmentVariables } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class SetCommand extends BaseCommand {
@@ -24,16 +23,6 @@ $ ark env:set CORE_LOG_LEVEL info
     public async run(): Promise<void> {
         const { args, paths } = await this.parseWithNetwork(SetCommand);
 
-        const envFile = `${paths.config}/.env`;
-
-        if (!existsSync(envFile)) {
-            this.error(`No environment file found at ${envFile}`);
-        }
-
-        const env = envfile.parseFileSync(envFile);
-
-        env[args.key] = args.value;
-
-        writeFileSync(envFile, envfile.stringifySync(env));
+        updateEnvironmentVariables(`${paths.config}/.env`, { [args.key]: args.value });
     }
 }
