@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, P2P } from "@arkecosystem/core-interfaces";
+import SocketCluster from "socketcluster";
 
 export class EventListener {
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -14,5 +15,17 @@ export class EventListener {
                 processor.suspend(peer, punishment ? guard.punishment(punishment) : undefined);
             }
         });
+
+        const exitHandler = () => {
+            const server: SocketCluster = service.getMonitor().getServer();
+
+            if (server) {
+                server.removeAllListeners();
+                server.destroy();
+            }
+        };
+
+        process.on("SIGINT", exitHandler);
+        process.on("exit", exitHandler);
     }
 }
