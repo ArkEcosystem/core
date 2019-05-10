@@ -25,7 +25,7 @@ expect.extend({
 
         return {
             pass,
-            message: () => (pass ? `expected ${id} to be forged` : `expected ${id} not to be forged`),
+            message: () => `expected ${id} ${this.isNot ? "not" : ""} to be forged`,
         };
     },
 });

@@ -27,7 +27,7 @@ expect.extend({
 
         return {
             pass,
-            message: () => (pass ? `expected ${id} to be rejected` : `expected ${id} not to be rejected`),
+            message: () => `expected ${id} ${this.isNot ? "not" : ""} to be rejected`,
         };
     },
 });

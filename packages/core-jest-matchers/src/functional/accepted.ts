@@ -30,8 +30,7 @@ expect.extend({
 
         return {
             pass,
-            message: () =>
-                pass ? `expected ${transaction.id} to be accepted` : `expected ${transaction.id} not to be accepted`,
+            message: () => `expected ${transaction.id} ${this.isNot ? "not" : ""} to be accepted`,
         };
     },
 });
