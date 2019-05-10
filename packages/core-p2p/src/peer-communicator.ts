@@ -184,11 +184,13 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 this.logger.error(`Socket data validation error (peer ${peer.ip}) : ${error.message}`);
                 // don't suspend peer for validation error
                 break;
-            case "Error":
             case "TimeoutError": // socketcluster timeout error
-            case "CoreSocketNotOpenError":
             case SocketErrors.Timeout:
                 peer.latency = -1;
+                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                break;
+            case "Error":
+            case "CoreSocketNotOpenError":
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });
                 break;
             default:
