@@ -1,5 +1,4 @@
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
-import pokemon from "pokemon";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -165,6 +164,10 @@ export class TransactionFactory {
         return this.make<Interfaces.ITransactionData>(quantity, "getStruct");
     }
 
+    public createOne(): Interfaces.ITransactionData {
+        return this.create(1)[0];
+    }
+
     public build(quantity: number = 1): Interfaces.ITransaction[] {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }
@@ -248,10 +251,8 @@ export class TransactionFactory {
     }
 
     private getRandomUsername(): string {
-        return pokemon
-            .random()
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, "_")
-            .substring(0, 20);
+        return Math.random()
+            .toString(36)
+            .toLowerCase();
     }
 }

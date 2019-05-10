@@ -13,11 +13,11 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         // Funds to register a multi signature wallet
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
             .withPassphrase(secrets[0])
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+        await expect(initialFunds).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(initialFunds[0].id);
+        await expect(initialFunds.id).toBeForged();
 
         // Register a multi signature wallet with defaults
         const passphrases = [passphrase, secrets[1], secrets[2]];
@@ -30,11 +30,11 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         const multiSignature = TransactionFactory.multiSignature(participants, 3)
             .withPassphrase(passphrase)
             .withPassphraseList(passphrases)
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(multiSignature, multiSignature[0].id);
+        await expect(multiSignature).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(multiSignature[0].id);
+        await expect(multiSignature.id).toBeForged();
     });
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
@@ -42,20 +42,20 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         // Make a fresh wallet for the second signature tests
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(initialFunds, initialFunds[0].id);
+        await expect(initialFunds).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(initialFunds[0].id);
+        await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
         const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
             .withPassphrase(passphrase)
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(secondSignature, secondSignature[0].id);
+        await expect(secondSignature).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(secondSignature[0].id);
+        await expect(secondSignature.id).toBeForged();
 
         // Register a multi signature wallet with defaults
         const passphrases = [passphrase, secrets[3], secrets[4]];
@@ -68,10 +68,10 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         const multiSignature = TransactionFactory.multiSignature(participants, 3)
             .withPassphraseList(passphrases)
             .withPassphrasePair({ passphrase, secondPassphrase })
-            .create();
+            .createOne();
 
-        await support.expectAcceptAndBroadcast(multiSignature, multiSignature[0].id);
+        await expect(multiSignature).toBeAccepted();
         await support.snoozeForBlock(1);
-        await support.expectTransactionForged(multiSignature[0].id);
+        await expect(multiSignature.id).toBeForged();
     });
 });
