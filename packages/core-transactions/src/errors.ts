@@ -66,6 +66,12 @@ export class InvalidSecondSignatureError extends TransactionError {
     }
 }
 
+export class WalletAlreadyResignedError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet already resigned as delegate.`);
+    }
+}
+
 export class WalletUsernameEmptyError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the username is empty.`);
@@ -122,6 +128,12 @@ export class UnvoteMismatchError extends TransactionError {
 export class VotedForNonDelegateError extends TransactionError {
     constructor(vote: string) {
         super(`Failed to apply transaction, because only delegates can be voted.`);
+    }
+}
+
+export class VotedForResignedDelegateError extends TransactionError {
+    constructor(vote: string) {
+        super(`Failed to apply transaction, because it votes for a resigned delegate.`);
     }
 }
 

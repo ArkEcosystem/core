@@ -14,8 +14,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     // B => C
-    let transaction2 = Transactions.BuilderFactory
-        .transfer()
+    let transaction2 = Transactions.BuilderFactory.transfer()
         .amount(250 * Math.pow(10, 8))
         .recipientId(utils.c.address)
         .vendorField("transfer B => C")

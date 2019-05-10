@@ -31,6 +31,10 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.delegateRegistration().usernameAsset(username));
     }
 
+    public static delegateResignation(): TransactionFactory {
+        return new TransactionFactory(Transactions.BuilderFactory.delegateResignation());
+    }
+
     public static vote(publicKey?: string): TransactionFactory {
         return new TransactionFactory(
             Transactions.BuilderFactory.vote().votesAsset([

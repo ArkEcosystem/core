@@ -28,7 +28,7 @@ export const defaults = {
             ipfs: 250,
             timelockTransfer: 500,
             multiPayment: 500,
-            delegateResignation: 400000,
+            delegateResignation: 100,
         },
     },
 };

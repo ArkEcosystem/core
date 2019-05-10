@@ -538,8 +538,7 @@ describe("Wallet Manager", () => {
 
             walletManager.buildVoteBalances();
 
-            let delegates = walletManager.allByUsername();
-            delegates = walletManager.buildDelegateRanking(delegates);
+            const delegates = walletManager.buildDelegateRanking();
 
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[i];

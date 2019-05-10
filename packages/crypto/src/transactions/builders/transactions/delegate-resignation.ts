@@ -9,15 +9,15 @@ export class DelegateResignationBuilder extends TransactionBuilder<DelegateResig
         super();
 
         this.data.type = TransactionTypes.DelegateResignation;
+        this.data.version = 2;
         this.data.fee = feeManager.get(TransactionTypes.DelegateResignation);
         this.data.amount = BigNumber.ZERO;
-        this.data.asset = {};
+        this.data.senderPublicKey = undefined;
     }
 
     public getStruct(): ITransactionData {
         const struct: ITransactionData = super.getStruct();
         struct.amount = this.data.amount;
-        struct.asset = this.data.asset;
         return struct;
     }
 
