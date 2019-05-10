@@ -77,7 +77,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
 
             await expect(initialFunds).toBeAccepted();
             await support.snoozeForBlock(1);
-            await expect(initialFunds.id).toBeAccepted();
+            await expect(initialFunds.id).toBeForged();
 
             // Register a delegate
             const transactionsRegister = TransactionFactory.delegateRegistration()
