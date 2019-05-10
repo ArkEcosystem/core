@@ -195,11 +195,19 @@ export class Serializer {
     }
 
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
+        transaction.version = transaction.version || 0x01;
+
         buffer.writeByte(0xff); // fill, to disambiguate from v1
-        buffer.writeByte(transaction.version || 0x01); // version
+        buffer.writeByte(transaction.version);
         buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash")); // ark = 0x17, devnet = 0x30
         buffer.writeByte(transaction.type);
-        buffer.writeUint32(transaction.timestamp);
+
+        if (transaction.version === 1) {
+            buffer.writeUint32(transaction.timestamp);
+        } else {
+            buffer.writeUint64(+transaction.nonce);
+        }
+
         buffer.append(transaction.senderPublicKey, "hex");
         buffer.writeUint64(+transaction.fee);
     }

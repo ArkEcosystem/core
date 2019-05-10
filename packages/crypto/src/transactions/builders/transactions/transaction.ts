@@ -18,6 +18,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data = {
             id: undefined,
             timestamp: Slots.getTime(),
+            nonce: BigNumber.ZERO,
             version: 0x01,
         } as ITransactionData;
     }
@@ -28,6 +29,12 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     public version(version: number): TBuilder {
         this.data.version = version;
+
+        return this.instance();
+    }
+
+    public nonce(nonce: BigNumber): TBuilder {
+        this.data.nonce = nonce;
 
         return this.instance();
     }
