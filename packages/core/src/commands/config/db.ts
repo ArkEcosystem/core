@@ -39,7 +39,7 @@ $ ark config:db --password=password
         username: flags.string({
             description: "the name of the database user",
         }),
-        name: flags.string({
+        database: flags.string({
             description: "the name of the database that should be used",
         }),
         password: flags.string({
