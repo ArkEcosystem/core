@@ -1,7 +1,7 @@
-import envfile from "envfile";
-import { existsSync, writeFileSync } from "fs-extra";
+import { existsSync } from "fs-extra";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
+import { updateEnvironmentVariables } from "../../utils";
 
 export class SetCommand extends BaseCommand {
     public static description: string = "Set the value of an environment variable";
@@ -30,10 +30,6 @@ $ ark env:set CORE_LOG_LEVEL info
             this.error(`No environment file found at ${envFile}`);
         }
 
-        const env = envfile.parseFileSync(envFile);
-
-        env[args.key] = args.value;
-
-        writeFileSync(envFile, envfile.stringifySync(env));
+        updateEnvironmentVariables(envFile, { [args.key]: args.value });
     }
 }
