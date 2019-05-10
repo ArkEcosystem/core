@@ -1,9 +1,9 @@
-import { flags } from "@oclif/command";
 import { hasSomeProperty } from "@arkecosystem/core-utils";
-import { existsSync } from "fs-extra";
+import { flags } from "@oclif/command";
+import prompts from "prompts";
 import { CommandFlags, EnvironmentVars } from "../../types";
-import { BaseCommand } from "../command";
 import { updateEnvironmentVariables } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class DatabaseCommand extends BaseCommand {
     public static description: string = "Update the Database configuration";
@@ -26,49 +26,88 @@ $ ark config:database --password=password
 `,
     ];
 
-    private static readonly validFlags: string[] = ["host", "port", "username", "database", "password"];
-
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         host: flags.string({
-            description: "the host of the database"
+            description: "the host of the database",
         }),
         port: flags.integer({
-            description: "the port of the database"
-        }),
-        username: flags.string({
-            description: "the name of the database user",
+            description: "the port of the database",
         }),
         database: flags.string({
             description: "the name of the database that should be used",
+        }),
+        username: flags.string({
+            description: "the name of the database user",
         }),
         password: flags.string({
             description: "the password for the database that should be used",
         }),
     };
 
+    private static readonly validFlags: string[] = ["host", "port", "database", "username", "password"];
+
     public async run(): Promise<void> {
         const { flags, paths } = await this.parseWithNetwork(DatabaseCommand);
 
-        if (!this.hasValidFlag(flags)) {
-            this.error("Please specify at least one configuration flag.");
-        }
+        const envFile: string = `${paths.config}/.env`;
 
-        const envFile = `${paths.config}/.env`;
+        if (this.hasValidFlag(flags)) {
+            const variables: EnvironmentVars = {};
 
-        if (!existsSync(envFile)) {
-            this.error(`No environment file found at ${envFile}`);
-        }
-
-        const variables: EnvironmentVars = {};
-
-        for (const flag of DatabaseCommand.validFlags) {
-            if (flags[flag] !== undefined) {
-                variables[`CORE_DB_${flag.toUpperCase()}`] = flags[flag];
+            for (const flag of DatabaseCommand.validFlags) {
+                if (flags[flag] !== undefined) {
+                    variables[`CORE_DB_${flag.toUpperCase()}`] = flags[flag];
+                }
             }
+
+            updateEnvironmentVariables(envFile, variables);
+
+            return;
         }
 
-        updateEnvironmentVariables(envFile, variables);
+        // Interactive CLI
+        const response = await prompts([
+            {
+                type: "text",
+                name: "host",
+                message: "What host do you want to use?",
+                initial: "localhost",
+            },
+            {
+                type: "text",
+                name: "port",
+                message: "What port do you want to use?",
+                initial: 5432,
+            },
+            {
+                type: "text",
+                name: "database",
+                message: "What database do you want to use?",
+                initial: flags.token,
+            },
+            {
+                type: "text",
+                name: "username",
+                message: "What username do you want to use?",
+                initial: `${flags.token}_${flags.network}`,
+            },
+            {
+                type: "password",
+                name: "password",
+                message: "What password do you want to use?",
+                initial: "password",
+            },
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Can you confirm?",
+            },
+        ]);
+
+        if (response.confirm) {
+            updateEnvironmentVariables(envFile, response);
+        }
     }
 
     private hasValidFlag(flags: CommandFlags): boolean {
