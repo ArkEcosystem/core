@@ -54,6 +54,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.server = server;
     }
 
+    public stopServer(): void {
+        if (this.server) {
+            this.server.removeAllListeners();
+            this.server.destroy();
+            this.server = undefined;
+        }
+    }
+
     public isColdStartActive(): boolean {
         if (process.env.CORE_SKIP_COLD_START) {
             return false;
@@ -102,7 +110,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         try {
             await this.discoverPeers();
-            await this.cleanPeers();
+            await this.cleansePeers();
         } catch (error) {
             this.logger.error(`Network Status: ${error.message}`);
         }
@@ -120,7 +128,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
-    public async cleanPeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
+    public async cleansePeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
         const peers = this.storage.getPeers();
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
@@ -194,7 +202,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
         if (!this.isColdStartActive()) {
-            await this.cleanPeers(true, true);
+            await this.cleansePeers(true, true);
         }
 
         return NetworkState.analyze(this, this.storage);
@@ -204,7 +212,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.logger.info(`Refreshing ${this.storage.getPeers().length} peers after fork.`);
 
         // Reset all peers, except peers banned because of causing a fork.
-        await this.cleanPeers(false, true);
+        await this.cleansePeers(false, true);
         await this.resetSuspendedPeers();
 
         // Ban peer who caused the fork
@@ -216,7 +224,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.isColdStartActive()) {
-            await this.cleanPeers(false, true);
+            await this.cleansePeers(false, true);
             await this.resetSuspendedPeers();
         }
 
