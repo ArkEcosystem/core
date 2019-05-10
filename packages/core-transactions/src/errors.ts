@@ -66,6 +66,12 @@ export class InvalidSecondSignatureError extends TransactionError {
     }
 }
 
+export class WalletAlreadyResignedError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet already resigned as delegate.`);
+    }
+}
+
 export class WalletUsernameEmptyError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the username is empty.`);

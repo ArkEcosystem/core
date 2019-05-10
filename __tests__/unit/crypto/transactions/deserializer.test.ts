@@ -249,7 +249,7 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .version(1)
-                .network(30)
+                .network(23)
                 .timelock(12, 0x00)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -270,7 +270,7 @@ describe("Transaction serializer / deserializer", () => {
             const multiPayment = BuilderFactory.multiPayment()
                 .fee("50000000")
                 .version(1)
-                .network(30)
+                .network(23)
                 .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
                 .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 5000)
                 .sign("dummy passphrase")
@@ -285,12 +285,12 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - delegate resignation", () => {
+    describe("ser/deserialize - delegate resignation", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateResignation = BuilderFactory.delegateResignation()
                 .fee("50000000")
                 .version(1)
-                .network(30)
+                .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
 
