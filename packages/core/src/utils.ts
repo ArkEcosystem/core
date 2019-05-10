@@ -1,4 +1,7 @@
+import { EnvironmentVars } from "./types";
+import envfile from "envfile";
 import Table from "cli-table3";
+import { writeFileSync } from "fs-extra";
 
 export const renderTable = (head: string[], callback: any): void => {
     const table = new Table({
@@ -9,4 +12,14 @@ export const renderTable = (head: string[], callback: any): void => {
     callback(table);
 
     console.log(table.toString());
+};
+
+export const updateEnvironmentVariables = (path: string, variables: EnvironmentVars): void => {
+    const env = envfile.parseFileSync(path);
+
+    for (const [key, value] of Object.entries(variables)) {
+    	env[key] = value;
+    }
+
+    writeFileSync(path, envfile.stringifySync(env));
 };
