@@ -1,9 +1,9 @@
-import { flags } from "@oclif/command";
 import { hasSomeProperty } from "@arkecosystem/core-utils";
+import { flags } from "@oclif/command";
 import { existsSync } from "fs-extra";
 import { CommandFlags, EnvironmentVars } from "../../types";
-import { BaseCommand } from "../command";
 import { updateEnvironmentVariables } from "../../utils";
+import { BaseCommand } from "../command";
 
 export class DatabaseCommand extends BaseCommand {
     public static description: string = "Update the Database configuration";
@@ -26,15 +26,13 @@ $ ark config:database --password=password
 `,
     ];
 
-    private static readonly validFlags: string[] = ["host", "port", "username", "database", "password"];
-
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         host: flags.string({
-            description: "the host of the database"
+            description: "the host of the database",
         }),
         port: flags.integer({
-            description: "the port of the database"
+            description: "the port of the database",
         }),
         username: flags.string({
             description: "the name of the database user",
@@ -46,6 +44,8 @@ $ ark config:database --password=password
             description: "the password for the database that should be used",
         }),
     };
+
+    private static readonly validFlags: string[] = ["host", "port", "username", "database", "password"];
 
     public async run(): Promise<void> {
         const { flags, paths } = await this.parseWithNetwork(DatabaseCommand);
