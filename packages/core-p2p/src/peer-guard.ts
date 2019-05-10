@@ -49,9 +49,9 @@ export class PeerGuard implements P2P.IPeerGuard {
             until: () => dato().addMinutes(15),
             reason: "Fork",
         },
-        socketNotOpen: {
+        socketGotClosed: {
             until: () => dato().addMinutes(5),
-            reason: "Socket not open",
+            reason: "Socket got closed",
         },
     };
 
@@ -71,7 +71,7 @@ export class PeerGuard implements P2P.IPeerGuard {
         const connection: SCClientSocket = this.connector.connection(peer);
 
         if (connection && connection.getState() !== connection.OPEN) {
-            return this.createPunishment(this.offences.socketNotOpen);
+            return this.createPunishment(this.offences.socketGotClosed);
         }
 
         if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {

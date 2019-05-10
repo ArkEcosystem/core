@@ -153,30 +153,32 @@ export class Container implements container.IContainer {
 
     private registerExitHandler(exitEvents: string[]): void {
         const handleExit = async () => {
-            if (this.shuttingDown || !this.isReady) {
+            if (this.shuttingDown) {
                 return;
             }
 
             this.shuttingDown = true;
 
-            const logger: Logger.ILogger = this.resolvePlugin<Logger.ILogger>("logger");
-            if (logger) {
-                logger.suppressConsoleOutput(this.silentShutdown);
-                logger.info("Core is trying to gracefully shut down to avoid data corruption");
+            if (this.isReady) {
+                const logger: Logger.ILogger = this.resolvePlugin<Logger.ILogger>("logger");
+                if (logger) {
+                    logger.suppressConsoleOutput(this.silentShutdown);
+                    logger.info("Core is trying to gracefully shut down to avoid data corruption");
+                }
+
+                try {
+                    // Notify plugins about shutdown
+                    this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("shutdown");
+
+                    // Wait for event to be emitted and give time to finish
+                    await delay(1000);
+                } catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.error(error.stack);
+                }
+
+                await this.plugins.tearDown();
             }
-
-            try {
-                // Notify plugins about shutdown
-                this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("shutdown");
-
-                // Wait for event to be emitted and give time to finish
-                await delay(1000);
-            } catch (error) {
-                // tslint:disable-next-line:no-console
-                console.error(error.stack);
-            }
-
-            await this.plugins.tearDown();
 
             process.exit();
         };
