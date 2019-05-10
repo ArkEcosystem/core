@@ -33,7 +33,6 @@ export class DelegateRegistrationCommand extends SendCommand {
         for (const [address, wallet] of Object.entries(wallets)) {
             wallets[address].username = Math.random()
                 .toString(36)
-                .substring(20)
                 .toLowerCase();
 
             transactions.push(
