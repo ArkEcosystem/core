@@ -71,6 +71,8 @@ $ ark config:database --password=password
                 name: "port",
                 message: "What port do you want to use?",
                 initial: 5432,
+                validate: value =>
+                    (value < 1 || value > 65535) ? `The port must be in the range of 1-65535.` : true,
             },
             {
                 type: "text",
