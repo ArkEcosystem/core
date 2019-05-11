@@ -40,7 +40,7 @@ export class InvalidTransactionTypeError extends TransactionError {
 
 export class UnexpectedNonceError extends TransactionError {
     constructor(actual: Utils.BigNumber, expected: Utils.BigNumber) {
-        super(`Found nonce '${actual.toFixed()}' but expected nonce '${expected.toFixed()}'.`);
+        super(`Got nonce '${actual.toFixed()}' but expected '${expected.toFixed()}'.`);
     }
 }
 

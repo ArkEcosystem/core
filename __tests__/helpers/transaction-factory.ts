@@ -1,4 +1,5 @@
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
+import { getSenderNonce } from "../functional/transaction-forging/__support__";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -196,10 +197,25 @@ export class TransactionFactory {
         return this.sign<T>(quantity, method);
     }
 
+    private getNonce(): Utils.BigNumber {
+        if (this.nonce) {
+            return this.nonce;
+        }
+
+        try {
+            // TODO: need a general solution for nonces, this only
+            // works for functional tests
+            return getSenderNonce(this.senderPublicKey);
+        } catch {
+            return Utils.BigNumber.ZERO;
+        }
+    }
+
     private sign<T>(quantity: number, method: string): T[] {
         Managers.configManager.setFromPreset(this.network);
 
         const transactions: T[] = [];
+        let nonce = this.getNonce();
 
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
@@ -226,9 +242,8 @@ export class TransactionFactory {
                 this.builder.version(this.version);
             }
 
-            if (this.nonce) {
-                this.builder.nonce(this.nonce);
-            }
+            nonce = nonce.plus(1);
+            this.builder.nonce(nonce);
 
             if (Managers.configManager.getMilestone().aip11) {
                 if (this.builder.data.version < 2) {
