@@ -179,8 +179,8 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
-                .withNetwork("devnet")
+            const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 10)
+                .withNetwork("testnet")
                 .withPassphrase("super cool passphrase")
                 .create();
 
