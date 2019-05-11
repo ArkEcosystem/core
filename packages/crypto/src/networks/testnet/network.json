@@ -12,6 +12,6 @@
   "client": {
     "token": "OSMOSE",
     "symbol": "OSM",
-    "explorer": "http://127.0.0.1:4200"
+    "explorer": "http://testnet.osmose.world"
   }
 }

@@ -22,6 +22,7 @@
         "multiPayment": 0,
         "delegateResignation": 0
       }
-    }
+    },
+    "vendorFieldLength": 64
   }
 ]
