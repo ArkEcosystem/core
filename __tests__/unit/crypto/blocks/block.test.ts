@@ -441,21 +441,6 @@ describe("Block", () => {
             id: "11773170219525190460",
             transactions: [
                 {
-                    type: 3,
-                    network: 0x17,
-                    timestamp: 25028325,
-                    senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
-                    fee: Utils.BigNumber.make(100000000),
-                    amount: Utils.BigNumber.make(0),
-                    asset: {
-                        votes: ["+020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92"],
-                    },
-                    signature:
-                        "3045022100be28bdd7dc7117de903eccf97e3afbe87e1a32ee25b0b9bf814b35c6773ed51802202c8d62e708aa7afc08dbfcfd4640d105fe97337fb6145a8d916f2ce11c920255",
-                    recipientId: "ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38",
-                    id: "bace38ea544678f951cdd4abc269be24b4f5bab925ff6d5b480657952eb5aa65",
-                },
-                {
                     id: "7a1a43098cd253db395514220f69e3b99afaabb2bfcf5ecfa3b99727b367344b",
                     network: 0x17,
                     type: 1,
@@ -470,6 +455,21 @@ describe("Block", () => {
                             publicKey: "02135e2ebd97d1f1ab5141b4269defc6e5650848062c40baaf869d72571526e6c6",
                         },
                     },
+                },
+                {
+                    type: 3,
+                    network: 0x17,
+                    timestamp: 25028325,
+                    senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
+                    fee: Utils.BigNumber.make(100000000),
+                    amount: Utils.BigNumber.make(0),
+                    asset: {
+                        votes: ["+020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92"],
+                    },
+                    signature:
+                        "3045022100be28bdd7dc7117de903eccf97e3afbe87e1a32ee25b0b9bf814b35c6773ed51802202c8d62e708aa7afc08dbfcfd4640d105fe97337fb6145a8d916f2ce11c920255",
+                    recipientId: "ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38",
+                    id: "bace38ea544678f951cdd4abc269be24b4f5bab925ff6d5b480657952eb5aa65",
                 },
             ],
         };
