@@ -228,8 +228,16 @@ export class TransactionFactory {
 
             if (this.nonce) {
                 this.builder.nonce(this.nonce);
-            } else if (this.builder.data.version > 1) {
-                throw new Error("Missing nonce for new protocol transactions");
+            }
+
+            if (Managers.configManager.getMilestone().aip11) {
+                if (this.builder.data.version < 2) {
+                    throw new Error("AIP11 is active, transaction version 2 expected.");
+                }
+
+                if (this.builder.data.nonce.isZero()) {
+                    throw new Error("AIP11 is active, expected a non-zero nonce.");
+                }
             }
 
             if (this.fee) {

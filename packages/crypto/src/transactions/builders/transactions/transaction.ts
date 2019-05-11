@@ -19,7 +19,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             id: undefined,
             timestamp: Slots.getTime(),
             nonce: BigNumber.ZERO,
-            version: 0x01,
+            version: configManager.getMilestone().aip11 ? 0x02 : 0x01,
         } as ITransactionData;
     }
 
@@ -150,13 +150,18 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             id: Utils.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
-            timestamp: this.data.timestamp,
             version: this.data.version,
             type: this.data.type,
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
             network: this.data.network,
         } as ITransactionData;
+
+        if (this.data.version === 1) {
+            struct.timestamp = this.data.timestamp;
+        } else {
+            struct.nonce = this.data.nonce;
+        }
 
         if (Array.isArray(this.data.signatures)) {
             struct.signatures = this.data.signatures;
