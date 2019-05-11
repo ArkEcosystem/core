@@ -64,7 +64,7 @@ export const getLastHeight = (): number => {
 };
 
 export const getSenderNonce = (senderPublicKey: string): Utils.BigNumber => {
-    return app.resolvePlugin<State.IWalletManager>("state").getNonce(senderPublicKey);
+    return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(senderPublicKey);
 };
 
 export const passphrases = {

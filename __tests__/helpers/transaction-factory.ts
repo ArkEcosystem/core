@@ -214,6 +214,10 @@ export class TransactionFactory {
     private sign<T>(quantity: number, method: string): T[] {
         Managers.configManager.setFromPreset(this.network);
 
+        if (!this.senderPublicKey) {
+            this.senderPublicKey = Identities.PublicKey.fromPassphrase(this.passphrase);
+        }
+
         const transactions: T[] = [];
         let nonce = this.getNonce();
 
@@ -259,13 +263,11 @@ export class TransactionFactory {
                 this.builder.fee(this.fee.toFixed());
             }
 
-            if (this.senderPublicKey) {
-                this.builder.senderPublicKey(this.senderPublicKey);
-            }
-
             if (this.expiration) {
                 this.builder.expiration(this.expiration);
             }
+
+            this.builder.senderPublicKey(this.senderPublicKey);
 
             let sign: boolean = true;
             if (this.passphraseList && this.passphraseList.length) {

@@ -29,6 +29,7 @@ expect.extend({
                 parsedBody.data.broadcast.includes(transaction.id);
         } catch (e) {
             error = e.message;
+            console.error(error);
         }
 
         return {
