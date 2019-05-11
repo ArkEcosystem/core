@@ -17,8 +17,8 @@ export const transformTransaction = model => {
         blockId: model.blockId,
         version: data.version,
         type: data.type,
-        amount: +data.amount,
-        fee: +data.fee,
+        amount: data.amount.toFixed(),
+        fee: data.fee.toFixed(),
         sender,
         recipient: data.recipientId,
         signature: data.signature,
@@ -27,6 +27,7 @@ export const transformTransaction = model => {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
-        timestamp: formatTimestamp(data.timestamp),
+        timestamp: data.version === 1 ? formatTimestamp(data.timestamp) : undefined,
+        nonce: data.version > 1 ? data.nonce.toFixed() : undefined,
     };
 };
