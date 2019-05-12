@@ -23,6 +23,12 @@
         "delegateResignation": 0
       }
     },
-    "vendorFieldLength": 64
+    "vendorFieldLength": 255
+  },
+  {
+    "height": 50000,
+    "block": {
+        "idFullSha256": true
+    }
   }
 ]
