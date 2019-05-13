@@ -21,7 +21,7 @@ class TestTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return extend(transactionBaseSchema, {
             $id: "test",
-            required: ["recipientId", "amount", "asset"],
+            required: ["recipientId", "asset"],
             properties: {
                 type: { transactionType: TEST_TRANSACTION_TYPE },
                 recipientId: { $ref: "address" },

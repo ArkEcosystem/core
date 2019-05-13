@@ -58,7 +58,7 @@ export const container = {
 
             return undefined;
         },
-        resolveOptions: () => ({}),
+        resolveOptions: plugin => ({}),
         has: () => true,
         forceExit: () => undefined,
     },

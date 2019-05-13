@@ -388,24 +388,31 @@ describe("State Machine", () => {
                 await expect(() => actionMap.startForkRecovery()).toDispatch(blockchain, "SUCCESS");
 
                 expect(loggerInfo).toHaveBeenCalledWith("Starting fork recovery");
-                methodsCalled.forEach(method => {
+                for (const method of methodsCalled) {
                     expect(method).toHaveBeenCalled();
-                });
+                }
             });
         });
 
         describe("rollbackDatabase", () => {
             afterEach(() => jest.restoreAllMocks());
 
+            beforeEach(() => {
+                jest.spyOn(container.app, "resolveOptions").mockImplementation(plugin =>
+                    plugin === "blockchain"
+                        ? {
+                              databaseRollback: {
+                                  maxBlockRewind: 14,
+                                  steps: 3,
+                              },
+                          }
+                        : {},
+                );
+            });
+
             it("should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes - and dispatch SUCCESS", async () => {
                 const loggerInfo = jest.spyOn(logger, "info");
 
-                jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-                    databaseRollback: {
-                        maxBlockRewind: 14,
-                        steps: 3,
-                    },
-                });
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 jest.spyOn(blockchain.database, "verifyBlockchain")
@@ -428,12 +435,6 @@ describe("State Machine", () => {
 
             it(`should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes
                     and dispatch FAILURE as verifyBlockchain never passed`, async () => {
-                jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-                    databaseRollback: {
-                        maxBlockRewind: 14,
-                        steps: 3,
-                    },
-                });
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 // @ts-ignore
