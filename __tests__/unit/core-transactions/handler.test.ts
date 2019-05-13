@@ -16,6 +16,8 @@ import {
     SenderWalletMismatchError,
     UnexpectedSecondSignatureError,
     UnvoteMismatchError,
+    VotedForResignedDelegateError,
+    WalletAlreadyResignedError,
     WalletUsernameEmptyError,
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
@@ -23,7 +25,6 @@ import { TransactionHandler } from "../../../packages/core-transactions/src/hand
 import { Handlers } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
 import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
-import { wallet as walletFixture } from "../crypto/transactions/__fixtures__/wallet";
 
 let senderWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
@@ -34,43 +35,32 @@ let instance: Interfaces.ITransaction;
 let walletManager: State.IWalletManager;
 
 beforeEach(() => {
+    Managers.configManager.setFromPreset("testnet");
+
     walletManager = new Wallets.WalletManager();
 
-    senderWallet = new Wallets.Wallet("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F");
+    senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
     senderWallet.balance = Utils.BigNumber.make(4527654310);
-    senderWallet.publicKey = "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087";
+    senderWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
 
-    recipientWallet = new Wallets.Wallet("D7g4i3TuD8GEbeU2tt3a5fKZny3vyvD64r");
-    recipientWallet.publicKey = "03d04acca0ad922998d258438cc453ce50222b0e761ae9a499ead6a11f3a44b70b";
+    recipientWallet = new Wallets.Wallet("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd");
+    recipientWallet.publicKey = "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d";
 
     walletManager.reindex(senderWallet);
     walletManager.reindex(recipientWallet);
 
-    transaction = {
-        id: "65a4f09a3a19d212a65d27de05d1ae7e0c461e088a35499996667f98d2a3897c",
-        signature:
-            "304402206974568da7c363155decbc20ddc17746a2e7e663901c426f5a41411374cc6d18022052f4353ec93227713f9907f2bb2549e6bc42584b736aa5f9ff36e2c239154648",
-        timestamp: 54836734,
-        type: 0,
-        fee: Utils.BigNumber.make(10000000),
-        senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-        amount: Utils.BigNumber.make(10000000),
-        recipientId: "D7g4i3TuD8GEbeU2tt3a5fKZny3vyvD64r",
-    };
+    transaction = TransactionFactory
+        .transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
+        .withFee(10000000)
+        .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+        .createOne();
 
-    transactionWithSecondSignature = {
-        id: "e3b29bba60d5f1f2aad2087dea44644f166b00ae3db1a16a99b622dc4f3900f8",
-        signature:
-            "304402206974568da7c363155decbc20ddc17746a2e7e663901c426f5a41411374cc6d18022052f4353ec93227713f9907f2bb2549e6bc42584b736aa5f9ff36e2c239154648",
-        secondSignature:
-            "304402202d0ae57c6a0afb225443b56c6e049cb08df48b5813362f7e11574b96f225738f0220055b5a941cc70100404a7788c57b37e2e806acf58c4284c567dc53477f546540",
-        timestamp: 54836734,
-        type: 0,
-        fee: Utils.BigNumber.make(10000000),
-        senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-        amount: Utils.BigNumber.make(10000000),
-        recipientId: "D7g4i3TuD8GEbeU2tt3a5fKZny3vyvD64r",
-    };
+    transactionWithSecondSignature = TransactionFactory
+        .transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
+        .withFee(10000000)
+        .withSecondPassphrase("venue below waste gather spin cruise title still boost mother flash tuna")
+        .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+        .createOne();
 });
 
 describe("General Tests", () => {
@@ -84,12 +74,6 @@ describe("General Tests", () => {
             expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
         });
 
-        it("should be true if the transaction has a second signature but wallet does not, when ignoreInvalidSecondSignatureField=true", () => {
-            Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField = true;
-            instance = Transactions.TransactionFactory.fromData(transactionWithSecondSignature);
-            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
-        });
-
         it("should be false if wallet publicKey does not match tx senderPublicKey", () => {
             instance.data.senderPublicKey = "a".repeat(66);
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
@@ -98,7 +82,6 @@ describe("General Tests", () => {
         });
 
         it("should be false if the transaction has a second signature but wallet does not", () => {
-            delete Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
             instance = Transactions.TransactionFactory.fromData(transactionWithSecondSignature);
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
                 UnexpectedSecondSignatureError,
@@ -197,8 +180,6 @@ describe("General Tests", () => {
 
 describe("TransferTransaction", () => {
     beforeEach(() => {
-        senderWallet = walletFixture;
-        transaction = transactionFixture;
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
@@ -219,31 +200,17 @@ describe("TransferTransaction", () => {
 
 describe("SecondSignatureRegistrationTransaction", () => {
     beforeEach(() => {
-        senderWallet = new Wallets.Wallet("DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj");
+        senderWallet = new Wallets.Wallet("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd");
         senderWallet.balance = Utils.BigNumber.make("6453530000000");
-        senderWallet.publicKey = "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9";
+        senderWallet.publicKey = "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d";
         senderWallet.secondPublicKey = undefined;
 
         walletManager.reindex(senderWallet);
 
-        transaction = {
-            version: 1,
-            network: 30,
-            type: 1,
-            timestamp: 53995738,
-            senderPublicKey: "03cba4fd60f856ad034ee0a9146432757ae35956b640c26fb6674061924b05a5c9",
-            fee: Utils.BigNumber.make(500000000),
-            asset: {
-                signature: {
-                    publicKey: "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8",
-                },
-            },
-            signature:
-                "3044022064e7abe87c186b201eaeeb9587097432816c94b52b85520a70da1d78b93456aa0220205e263a278c64771d46038f116c37dc16c86e73664e7e829951d7c5544c6d3e",
-            amount: Utils.BigNumber.ZERO,
-            recipientId: "DSD9Wi2rfqzDb3REUB5MELQGrsUAjY67gj",
-            id: "e5a4cf622a24d459987f093e14a14c6b0492834358f86099afe1a2d14457cf31",
-        };
+        transaction = TransactionFactory.secondSignature("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .withFee(500000000)
+            .withPassphrase("venue below waste gather spin cruise title still boost mother flash tuna")
+            .createOne();
 
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
@@ -255,7 +222,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
 
         it("should be false if wallet already has a second signature", () => {
-            senderWallet.secondPublicKey = "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8";
+            senderWallet.secondPublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
 
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
                 SecondSignatureAlreadyRegisteredError,
@@ -275,7 +242,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
             handler.apply(instance, walletManager);
             expect(senderWallet.secondPublicKey).toBe(
-                "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8",
+                "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
         });
 
@@ -284,7 +251,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
             handler.apply(instance, walletManager);
             expect(senderWallet.secondPublicKey).toBe(
-                "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8",
+                "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
@@ -300,7 +267,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
             handler.apply(instance, walletManager);
             expect(senderWallet.secondPublicKey).toBe(
-                "02d5cfcbc4920d041d2a54b29e1f69173536796fd50f62af0f88ad6adc6df07cb8",
+                "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
             handler.revert(instance, walletManager);
@@ -311,28 +278,12 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
 describe("DelegateRegistrationTransaction", () => {
     beforeEach(() => {
-        senderWallet = walletFixture;
 
-        walletManager.reindex(senderWallet);
-
-        transaction = {
-            version: 1,
-            id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            type: 2,
-            timestamp: 36482198,
-            amount: Utils.BigNumber.ZERO,
-            fee: Utils.BigNumber.make(10000000),
-            recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
-            senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
-            signature:
-                "304402205881204c6e515965098099b0e20a7bf104cd1bad6cfe8efd1641729fcbfdbf1502203cfa3bd9efb2ad250e2709aaf719ac0db04cb85d27a96bc8149aeaab224de82b",
-            asset: {
-                delegate: {
-                    username: "dummy",
-                    publicKey: ("a" as any).repeat(66),
-                },
-            },
-        };
+        transaction = TransactionFactory
+            .delegateRegistration("dummy")
+            .withFee(10000000)
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
@@ -381,48 +332,24 @@ describe("VoteTransaction", () => {
     let delegateWallet;
 
     beforeEach(() => {
-        senderWallet = new Wallets.Wallet("DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh");
-        senderWallet.balance = Utils.BigNumber.make("6453530000000");
-        senderWallet.publicKey = "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087";
         senderWallet.vote = undefined;
 
-        const delegatePublicKey = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
-        delegateWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(delegatePublicKey));
-        delegateWallet.publicKey = delegatePublicKey;
+        delegateWallet = new Wallets.Wallet("ARAibxGqLQJTo1bWMJfu5fCc88rdWWjqgv");
+        delegateWallet.publicKey = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
         delegateWallet.username = "test";
 
         walletManager.reindex(senderWallet);
         walletManager.reindex(delegateWallet);
 
-        voteTransaction = {
-            id: "73cbce62d69308ff7e69f1a7836106a16dc59907198aea4bb80d340232e53041",
-            signature:
-                "3045022100f53da6eb18ca7954bb7c620ceeaf5cb3433685d173401146aea35ee8e5f5c95002204ea57f573745c8f5c57b256e38397d3e1977bdbfac295128320401c6117bb2f3",
-            timestamp: 54833694,
-            type: 3,
-            fee: Utils.BigNumber.make(100000000),
-            senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-            amount: Utils.BigNumber.ZERO,
-            recipientId: "DLvBAvLePTJ9DfDzby5AAkqPqwCVDCT647",
-            asset: {
-                votes: ["+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
-            },
-        };
+        voteTransaction = TransactionFactory.vote("038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17")
+            .withFee(100000000)
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
-        unvoteTransaction = {
-            id: "d714bc0443208f9281ad83f9f3d941628b875c84f65a09601148ce87ca879cb9",
-            signature:
-                "3045022100957106a924eb40df6ff530cff80fede0195c30284fdb5671e736c7d0b57696f6022072b0fd80af235d79701e9aea74ef48366ef9f5aecedbb5d502e6392569c059c8",
-            timestamp: 54833718,
-            type: 3,
-            fee: Utils.BigNumber.make(100000000),
-            senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-            amount: Utils.BigNumber.ZERO,
-            recipientId: "DLvBAvLePTJ9DfDzby5AAkqPqwCVDCT647",
-            asset: {
-                votes: ["-02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af"],
-            },
-        };
+        unvoteTransaction = TransactionFactory.unvote("038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17")
+            .withFee(100000000)
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
         handler = Handlers.Registry.get(voteTransaction.type);
         instance = Transactions.TransactionFactory.fromData(voteTransaction);
@@ -434,13 +361,13 @@ describe("VoteTransaction", () => {
         });
 
         it("should be true if the unvote is valid and the wallet has voted", () => {
-            senderWallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+            senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
             instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
             expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
         });
 
         it("should be false if wallet has already voted", () => {
-            senderWallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+            senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(AlreadyVotedError);
         });
 
@@ -471,7 +398,7 @@ describe("VoteTransaction", () => {
             });
 
             it("should not be ok", () => {
-                senderWallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+                senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
 
                 expect(senderWallet.vote).not.toBeUndefined();
 
@@ -483,7 +410,7 @@ describe("VoteTransaction", () => {
 
         describe("unvote", () => {
             it("should remove the vote from the wallet", () => {
-                senderWallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+                senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
 
                 expect(senderWallet.vote).not.toBeUndefined();
 
@@ -498,7 +425,7 @@ describe("VoteTransaction", () => {
     describe("revert", () => {
         describe("vote", () => {
             it("should remove the vote from the wallet", () => {
-                senderWallet.vote = "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af";
+                senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
 
                 expect(senderWallet.vote).not.toBeUndefined();
 
@@ -515,7 +442,7 @@ describe("VoteTransaction", () => {
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.revert(instance, walletManager);
 
-                expect(senderWallet.vote).toBe("02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af");
+                expect(senderWallet.vote).toBe("038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
             });
         });
     });
@@ -528,7 +455,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
 
-        senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
+        senderWallet = new Wallets.Wallet("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd");
         senderWallet.balance = Utils.BigNumber.make(100390000000);
         senderWallet.publicKey = transaction.senderPublicKey;
 
@@ -636,30 +563,7 @@ describe("Ipfs", () => {
     });
 
     beforeEach(() => {
-        senderWallet = new Wallets.Wallet("AXYxHAFdRC41VdFPS2jvmsvtSQPtCfUgon");
-        senderWallet.balance = Utils.BigNumber.make("6453530000000");
-        senderWallet.publicKey = "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087";
-        senderWallet.secondPublicKey = undefined;
-
-        walletManager.reindex(senderWallet);
-
-        transaction = TransactionFactory.ipfs("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w").create()[0];
-
-        transaction = {
-            asset: {
-                ipfs: "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
-            },
-            fee: Utils.BigNumber.make(500000000),
-            amount: Utils.BigNumber.ZERO,
-            id: "210a785d6e4a8d04f918a5126e3503a8b247d20ff7792e3c05c8a7f10be927b3",
-            network: 23,
-            senderPublicKey: "02a47a2f594635737d2ce9898680812ff7fa6aaa64ddea1360474c110e9985a087",
-            signature:
-                "9f325478e3a51d15e0979d08ef8f0b6a9b45febec7cc52f648550a2164d212a07a56d126c4662d47add5791ffd38156c6ab744fbd7d10a0ad481da2164c447be",
-            timestamp: 67108989,
-            type: 5,
-            version: 2,
-        };
+        transaction = TransactionFactory.ipfs("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w").createOne();
 
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
@@ -712,7 +616,6 @@ describe("Ipfs", () => {
 describe.skip("TimelockTransferTransaction", () => {
     beforeEach(() => {
         transaction = transactionFixture;
-        senderWallet = walletFixture;
         senderWallet.balance = transaction.amount.plus(transaction.fee);
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
@@ -776,7 +679,6 @@ describe.skip("MultiPaymentTransaction", () => {
             },
         };
 
-        senderWallet = walletFixture;
         senderWallet.balance = transaction.amount.plus(transaction.fee);
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
@@ -800,17 +702,22 @@ describe.skip("MultiPaymentTransaction", () => {
 });
 
 describe("DelegateResignationTransaction", () => {
-    beforeAll(() => {
-        Managers.configManager.setFromPreset("testnet");
-    });
+
+    let voteTransaction;
 
     beforeEach(() => {
-        transaction = TransactionFactory.delegateResignation().create()[0];
+        transaction = TransactionFactory.delegateResignation()
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
-        senderWallet = walletFixture;
-        senderWallet.balance = transaction.amount.plus(transaction.fee);
+        voteTransaction = TransactionFactory.vote("03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37")
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
+
         senderWallet.username = "tiredDelegate";
-        senderWallet.publicKey = transaction.senderPublicKey;
+        delete senderWallet.resigned;
+
+        walletManager.reindex(senderWallet);
 
         handler = Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
@@ -830,6 +737,60 @@ describe("DelegateResignationTransaction", () => {
         it("should throw if wallet has insufficient funds", () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(InsufficientBalanceError);
+        });
+    });
+
+    describe("apply", () => {
+        it("should apply delegate resignation", () => {
+            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
+
+            handler.apply(instance, walletManager);
+            expect(senderWallet.resigned).toBeTrue();
+        });
+
+        it("should fail when already resigned", () => {
+            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
+
+            handler.apply(instance, walletManager);
+            expect(senderWallet.resigned).toBeTrue();
+
+            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
+                WalletAlreadyResignedError,
+            );
+        });
+
+        it("should fail when not a delegate", () => {
+            senderWallet.username = undefined;
+
+            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
+                WalletUsernameEmptyError,
+            );
+        });
+
+        it("should fail when voting for a resigned delegate", () => {
+            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
+
+            handler.apply(instance, walletManager);
+            expect(senderWallet.resigned).toBeTrue();
+
+            const vote = Transactions.TransactionFactory.fromData(voteTransaction);
+            const voteHandler = Handlers.Registry.get(vote.type);
+
+            expect(() => voteHandler.canBeApplied(vote, senderWallet, walletManager)).toThrow(
+                VotedForResignedDelegateError,
+            );
+        });
+    });
+
+    describe("revert", () => {
+        it("should be ok", () => {
+            expect(senderWallet.resigned).toBeUndefined();
+            expect(handler.canBeApplied(instance, senderWallet, walletManager)).toBeTrue();
+
+            handler.apply(instance, walletManager);
+            expect(senderWallet.resigned).toBeTrue();
+            handler.revert(instance, walletManager);
+            expect(senderWallet.resigned).toBeFalse();
         });
     });
 });

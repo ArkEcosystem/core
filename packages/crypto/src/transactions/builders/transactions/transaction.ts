@@ -33,8 +33,10 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return this.instance();
     }
 
-    public nonce(nonce: BigNumber): TBuilder {
-        this.data.nonce = nonce;
+    public nonce(nonce: string): TBuilder {
+        if (nonce) {
+            this.data.nonce = BigNumber.make(nonce);
+        }
 
         return this.instance();
     }
