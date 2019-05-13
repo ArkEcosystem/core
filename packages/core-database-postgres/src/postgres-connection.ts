@@ -218,8 +218,6 @@ export class PostgresConnection implements Database.IConnection {
                 await this.query.none(migration);
             } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
-            } else if (name === "20190510000000-add-nonce-column-to-transactions-table") {
-                await this.migrateTransactionsTableToNonceColumn(name, migration);
             } else {
                 if (!(await this.migrationsRepository.findByName(name))) {
                     this.logger.debug(`Migrating ${name}`);
@@ -293,23 +291,6 @@ export class PostgresConnection implements Database.IConnection {
                 return task.batch(transactions);
             });
         }
-
-        await this.migrationsRepository.insert({
-            name,
-        });
-    }
-
-    private async migrateTransactionsTableToNonceColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
-        const row: IMigration = await this.migrationsRepository.findByName(name);
-        if (row) {
-            return;
-        }
-
-        this.logger.warn(`Migrating transactions table to nonces. This may take a while.`);
-
-        await this.query.none(migration);
-
-        // TODO: migrate transaction timestamps and then remove DEFAULT from column
 
         await this.migrationsRepository.insert({
             name,

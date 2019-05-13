@@ -13,5 +13,4 @@ export const migrations = [
     loadQueryFile(__dirname, "./20181204400000-add-recipient_id-index-to-transactions-table.sql"),
     loadQueryFile(__dirname, "./20190307000000-drop-wallets-table.sql"),
     loadQueryFile(__dirname, "./20190313000000-add-asset-column-to-transactions-table.sql"),
-    loadQueryFile(__dirname, "./20190510000000-add-nonce-column-to-transactions-table.sql"),
 ];
