@@ -17,8 +17,8 @@ export const transactionBaseSchema = {
     $id: undefined,
     type: "object",
     if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
-    then: { required: ["type", "senderPublicKey", "fee", "timestamp"] },
-    else: { required: ["type", "senderPublicKey", "fee", "nonce"] },
+    then: { required: ["type", "senderPublicKey", "fee", "amount", "timestamp"] },
+    else: { required: ["type", "senderPublicKey", "fee", "amount", "nonce"] },
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
@@ -61,7 +61,7 @@ export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
-    required: ["recipientId", "amount"],
+    required: ["recipientId"],
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
