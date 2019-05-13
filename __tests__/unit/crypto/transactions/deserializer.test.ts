@@ -19,7 +19,13 @@ import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
-        const fieldsToCheck = ["version", "network", "type", "timestamp", "senderPublicKey", "fee", "amount"];
+        const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount"];
+        if (deserialized.data.version === 1) {
+            fieldsToCheck.push("timestamp");
+        } else {
+            fieldsToCheck.push("nonce");
+        }
+
         for (const field of fieldsToCheck) {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
         }
