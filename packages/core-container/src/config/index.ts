@@ -56,6 +56,7 @@ export class Config {
                     transactions: Joi.array().items(Joi.string()),
                     outlookTable: Joi.object(),
                     transactionIdFixTable: Joi.object(),
+                    wrongTransactionOrder: Joi.object(),
                 }).default({
                     exceptions: {},
                 }),
