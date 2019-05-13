@@ -24,6 +24,7 @@
             }
         },
         "ignoreInvalidSecondSignatureField": true,
+        "ignoreExpiredTransactions": true,
         "vendorFieldLength": 64
     },
     {
@@ -57,5 +58,9 @@
         "block": {
             "idFullSha256": true
         }
+    },
+    {
+        "height": 2300000,
+        "ignoreExpiredTransactions": false
     }
 ]
