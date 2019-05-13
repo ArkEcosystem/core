@@ -7,7 +7,8 @@
     "block": {
       "version": 0,
       "maxTransactions": 150,
-      "maxPayload": 6291456
+      "maxPayload": 6291456,
+      "idFullSha256": true
     },
     "epoch": "2019-05-09T11:45:57.917Z",
     "fees": {
@@ -24,11 +25,5 @@
       }
     },
     "vendorFieldLength": 255
-  },
-  {
-    "height": 50000,
-    "block": {
-        "idFullSha256": true
-    }
   }
 ]

@@ -1,7 +1,7 @@
 [
   {
     "height": 1,
-    "reward": 100000000,
+    "reward": 0,
     "activeDelegates": 42,
     "blocktime": 8,
     "block": {
@@ -24,5 +24,13 @@
       }
     },
     "vendorFieldLength": 64
+  },
+  {
+    "height": 50000,
+    "reward": 100000000,
+    "vendorFieldLength": 255,
+    "block": {
+      "idFullSha256": true
+    }
   }
 ]

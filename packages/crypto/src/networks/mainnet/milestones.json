@@ -1,13 +1,14 @@
 [
   {
     "height": 1,
-    "reward": 100000000,
+    "reward": 0,
     "activeDelegates": 42,
     "blocktime": 8,
     "block": {
       "version": 0,
       "maxTransactions": 150,
-      "maxPayload": 6291456
+      "maxPayload": 6291456,
+      "idFullSha256": true
     },
     "epoch": "2019-05-09T11:45:55.408Z",
     "fees": {
@@ -23,6 +24,6 @@
         "delegateResignation": 0
       }
     },
-    "vendorFieldLength": 64
+    "vendorFieldLength": 255
   }
 ]
