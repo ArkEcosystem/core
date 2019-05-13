@@ -9,6 +9,7 @@ import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } f
 import { dato } from "@faustbrian/dato";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
+import shuffle from "lodash.shuffle";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -804,14 +805,18 @@ describe("Connection", () => {
             jest.restoreAllMocks();
         });
 
-        const generateTestTransactions = (n: number): Interfaces.ITransaction[] => {
+        const generateTestTransactions = (n: number, nDifferentSenders?: number): Interfaces.ITransaction[] => {
+            if (nDifferentSenders === undefined) {
+                nDifferentSenders = n;
+            }
+
             const testTransactions: Interfaces.ITransaction[] = [];
 
             for (let i = 0; i < n; i++) {
                 const transaction = TransactionFactory
                     .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
                     .withNetwork("unitnet")
-                    .withPassphrase(String(i))
+                    .withPassphrase(String(i % nDifferentSenders))
                     .build()[0];
                 testTransactions.push(transaction)
             }
@@ -901,6 +906,74 @@ describe("Connection", () => {
             );
 
             expect(topFeesReceived).toEqual(topFeesExpected);
+        });
+
+        it("sort by fee, nonce", () => {
+            const nTransactions = 500;
+            const nDifferentSenders = 50;
+
+            // Non-randomized nonces, used for each sender. Make sure there are enough
+            // elements in this array, so that each transaction of a given sender gets
+            // an unique nonce for that sender.
+            const nonces = [];
+            for (let i = 0; i < Math.ceil(nTransactions / nDifferentSenders); i++) {
+                nonces.push(i);
+            }
+
+            const rand = randomSeed.create("0");
+
+            const testTransactions: Interfaces.ITransaction[] =
+                generateTestTransactions(nTransactions, nDifferentSenders);
+
+            let noncesBySender = {};
+
+            for (let i = 0; i < nTransactions; i++) {
+                const fee = rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI);
+                testTransactions[i].data.fee = Utils.BigNumber.make(fee);
+
+                const sender = testTransactions[i].data.senderPublicKey;
+
+                if (noncesBySender[sender] === undefined) {
+                    noncesBySender[sender] = shuffle(nonces);
+                }
+                const nonce = noncesBySender[sender].shift();
+                testTransactions[i].data.nonce = Utils.BigNumber.make(nonce);
+
+                testTransactions[i].serialized = Transactions.Utils.toBytes(testTransactions[i].data);
+            }
+
+            connection.addTransactions(testTransactions);
+
+            const sortedTransactions = connection.getTransactions(0, nTransactions).map(serialized =>
+                Transactions.TransactionFactory.fromBytes(serialized),
+            );
+
+            expect(sortedTransactions.length).toEqual(testTransactions.length);
+
+            const firstTransaction = sortedTransactions[0];
+
+            noncesBySender = {};
+            noncesBySender[firstTransaction.data.senderPublicKey] = [ firstTransaction.data.nonce ];
+
+            for (let i = 1; i < sortedTransactions.length; i++) {
+                const prevTransaction = sortedTransactions[i - 1];
+                const curTransaction = sortedTransactions[i];
+
+                expect(prevTransaction.data.fee.isLessThan(curTransaction.data.fee)).toBeFalse();
+
+                const curSender = curTransaction.data.senderPublicKey;
+
+                if (noncesBySender[curSender] === undefined) {
+                    noncesBySender[curSender] = [];
+                }
+                noncesBySender[curSender].push(curTransaction.data.nonce);
+
+                for (let j = 1; j < noncesBySender[curSender]; j++) {
+                    const prevNonce = noncesBySender[curSender][j - 1];
+                    const curNonce = noncesBySender[curSender][j];
+                    expect(prevNonce.isLessThan(curNonce)).toBeTrue();
+                }
+            }
         });
     });
 
