@@ -246,17 +246,9 @@ export class TransactionFactory {
                 this.builder.version(this.version);
             }
 
-            nonce = nonce.plus(1);
-            this.builder.nonce(nonce);
-
-            if (Managers.configManager.getMilestone().aip11) {
-                if (this.builder.data.version < 2) {
-                    throw new Error("AIP11 is active, transaction version 2 expected.");
-                }
-
-                if (this.builder.data.nonce.isZero()) {
-                    throw new Error("AIP11 is active, expected a non-zero nonce.");
-                }
+            if (this.builder.data.version > 1 && Managers.configManager.getMilestone().aip11) {
+                nonce = nonce.plus(1);
+                this.builder.nonce(nonce);
             }
 
             if (this.fee) {

@@ -42,7 +42,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
     ): boolean {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (!data.nonce.isEqualTo(wallet.nonce.plus(1))) {
+        if (data.version > 1 && !data.nonce.isEqualTo(wallet.nonce.plus(1))) {
             throw new UnexpectedNonceError(data.nonce, wallet.nonce.plus(1));
         }
 

@@ -79,7 +79,8 @@ export interface ITransactionJson {
     network?: number;
 
     type: TransactionTypes;
-    timestamp: number;
+    timestamp?: number;
+    nonce?: string;
     senderPublicKey: string;
 
     fee: string;

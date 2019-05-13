@@ -54,7 +54,7 @@ export class TransactionFactory {
         const transaction: ITransaction = TransactionTypeFactory.create(value);
 
         const { version } = transaction.data;
-        if (!version || version === 1) {
+        if (version === 1) {
             deserializer.applyV1Compatibility(transaction.data);
         }
 
