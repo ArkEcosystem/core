@@ -16,7 +16,7 @@ const strictTransaction = {
 export const transactionBaseSchema = {
     $id: undefined,
     type: "object",
-    required: ["type", "senderPublicKey", "fee", "timestamp"],
+    required: ["type", "senderPublicKey", "fee", "amount", "timestamp"],
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
