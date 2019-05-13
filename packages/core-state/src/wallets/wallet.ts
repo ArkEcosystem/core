@@ -154,6 +154,13 @@ export class Wallet implements State.IWallet {
             }
         }
 
+        if (transaction.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.nonce)) {
+            audit.push({
+                "Invalid Nonce": transaction.nonce,
+                "Wallet Nonce": this.nonce
+            })
+        }
+
         if (transaction.type === Enums.TransactionTypes.Transfer) {
             audit.push({ Transfer: true });
         }
@@ -211,9 +218,6 @@ export class Wallet implements State.IWallet {
         return audit;
     }
 
-    /**
-     * Get formatted wallet address and balance as string.
-     */
     public toString(): string {
         return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
     }

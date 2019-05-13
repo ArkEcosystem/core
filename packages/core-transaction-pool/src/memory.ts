@@ -26,49 +26,6 @@ export class Memory {
         removed: new Set(),
     };
 
-    /**
-     * Sort `this.all` by fee (highest fee first) with the exception that transactions
-     * from the same sender must be ordered lowest `nonce` first.
-     */
-    private sortAll(): void {
-        this.all.sort((a, b) => {
-            const feeA: Utils.BigNumber = a.data.fee;
-            const feeB: Utils.BigNumber = b.data.fee;
-
-            if (feeA.isGreaterThan(feeB)) {
-                return -1;
-            }
-
-            if (feeA.isLessThan(feeB)) {
-                return 1;
-            }
-
-            if (a.data.expiration > 0 && b.data.expiration > 0) {
-                return a.data.expiration - b.data.expiration;
-            }
-
-            return 0;
-        });
-
-        const indexBySender = {};
-        for (let i = 0; i < this.all.length; i++) {
-            const transaction: Interfaces.ITransaction = this.all[i];
-            const sender: string = transaction.data.senderPublicKey;
-            if (indexBySender[sender] === undefined) {
-                indexBySender[sender] = [];
-            }
-            indexBySender[sender].push(i);
-
-            for (let j = 0; j < indexBySender[sender].length - 1; j++) {
-                const prevIndex: number = indexBySender[sender][j];
-                if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
-                    this.all.splice(i + 1, 0, this.all[prevIndex]);
-                    this.all.splice(prevIndex, 1);
-                }
-            }
-        }
-    }
-
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
             this.sortAll();
@@ -268,6 +225,49 @@ export class Memory {
         this.dirty.removed.clear();
 
         return removed;
+    }
+
+    /**
+     * Sort `this.all` by fee (highest fee first) with the exception that transactions
+     * from the same sender must be ordered lowest `nonce` first.
+     */
+    private sortAll(): void {
+        this.all.sort((a, b) => {
+            const feeA: Utils.BigNumber = a.data.fee;
+            const feeB: Utils.BigNumber = b.data.fee;
+
+            if (feeA.isGreaterThan(feeB)) {
+                return -1;
+            }
+
+            if (feeA.isLessThan(feeB)) {
+                return 1;
+            }
+
+            if (a.data.expiration > 0 && b.data.expiration > 0) {
+                return a.data.expiration - b.data.expiration;
+            }
+
+            return 0;
+        });
+
+        const indexBySender = {};
+        for (let i = 0; i < this.all.length; i++) {
+            const transaction: Interfaces.ITransaction = this.all[i];
+            const sender: string = transaction.data.senderPublicKey;
+            if (indexBySender[sender] === undefined) {
+                indexBySender[sender] = [];
+            }
+            indexBySender[sender].push(i);
+
+            for (let j = 0; j < indexBySender[sender].length - 1; j++) {
+                const prevIndex: number = indexBySender[sender][j];
+                if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
+                    this.all.splice(i + 1, 0, this.all[prevIndex]);
+                    this.all.splice(prevIndex, 1);
+                }
+            }
+        }
     }
 
     private currentHeight(): number {

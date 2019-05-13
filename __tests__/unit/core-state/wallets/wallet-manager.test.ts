@@ -140,19 +140,19 @@ describe("Wallet Manager", () => {
 
         describe.skip("the delegate of the block is not indexed", () => {
             describe("not genesis block", () => {
-                it("throw an Error", () => {});
+                it("throw an Error", () => { });
             });
 
             describe("genesis block", () => {
-                it("generates a new wallet", () => {});
+                it("generates a new wallet", () => { });
             });
         });
     });
 
     describe.skip("revertBlock", () => {
-        it("should revert all transactions of the block", () => {});
+        it("should revert all transactions of the block", () => { });
 
-        it("should revert the block of the delegate", () => {});
+        it("should revert the block of the delegate", () => { });
     });
 
     describe("applyTransaction", () => {
@@ -279,6 +279,7 @@ describe("Wallet Manager", () => {
             const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
                 .fee("125")
+                .nonce("1")
                 .sign("secret")
                 .build();
 
@@ -314,6 +315,7 @@ describe("Wallet Manager", () => {
             const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
                 .fee("125")
+                .nonce("1")
                 .sign("secret")
                 .build();
 
@@ -329,6 +331,7 @@ describe("Wallet Manager", () => {
             const unvoteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`-${delegateKeys.publicKey}`])
                 .fee("125")
+                .nonce("2")
                 .sign("secret")
                 .build();
 

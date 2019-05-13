@@ -8,8 +8,8 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import cloneDeep from "lodash.clonedeep";
-import randomSeed from "random-seed";
 import shuffle from "lodash.shuffle";
+import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -953,7 +953,7 @@ describe("Connection", () => {
             const firstTransaction = sortedTransactions[0];
 
             noncesBySender = {};
-            noncesBySender[firstTransaction.data.senderPublicKey] = [ firstTransaction.data.nonce ];
+            noncesBySender[firstTransaction.data.senderPublicKey] = [firstTransaction.data.nonce];
 
             for (let i = 1; i < sortedTransactions.length; i++) {
                 const prevTransaction = sortedTransactions[i - 1];
