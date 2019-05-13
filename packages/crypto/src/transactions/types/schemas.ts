@@ -58,7 +58,7 @@ export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
-    required: ["recipientId", "amount"],
+    required: ["recipientId"],
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
