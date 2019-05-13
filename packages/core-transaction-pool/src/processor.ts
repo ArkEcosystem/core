@@ -117,7 +117,7 @@ export class Processor implements TransactionPool.IProcessor {
                     "ERR_TOO_LARGE",
                     `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
                 );
-            } else if (this.pool.hasExceededMaxTransactions(transaction)) {
+            } else if (this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
                 this.excess.push(transaction.id);
             } else if (this.validateTransaction(transaction)) {
                 try {

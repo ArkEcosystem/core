@@ -1119,7 +1119,7 @@ describe("Transaction Guard", () => {
     //             .withPassphrase(wallets[10].passphrase)
     //             .create(3);
 
-    //         jest.spyOn(processor.pool, "hasExceededMaxTransactions").mockImplementationOnce(tx => true);
+    //         jest.spyOn(processor.pool, "hasExceededMaxTransactions").mockImplementationOnce(senderPublicKey => true);
 
     //         processor.__filterAndTransformTransactions(transactions);
 
