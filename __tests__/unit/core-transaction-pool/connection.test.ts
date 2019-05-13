@@ -347,7 +347,7 @@ describe("Connection", () => {
             ]);
 
             expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeTrue();
         });
 
@@ -358,7 +358,7 @@ describe("Connection", () => {
             addTransactions([mockData.dummy4, mockData.dummy5, mockData.dummy6]);
 
             expect(connection.getPoolSize()).toBe(3);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeFalse();
         });
 
@@ -377,7 +377,7 @@ describe("Connection", () => {
             ]);
 
             expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeFalse();
         });
     });
@@ -830,11 +830,9 @@ describe("Connection", () => {
 
             for (let i = 0; i < testSize * 2; i++) {
                 connection.getPoolSize();
-                for (const sender of ["nonexistent", mockData.dummy1.data.senderPublicKey]) {
-                    connection.getSenderSize(sender);
-                    // @FIXME: Uhm excuse me, what the?
-                    // @ts-ignore
-                    connection.hasExceededMaxTransactions(sender);
+                for (const senderPublicKey of ["nonexistent", mockData.dummy1.data.senderPublicKey]) {
+                    connection.getSenderSize(senderPublicKey);
+                    connection.hasExceededMaxTransactions(senderPublicKey);
                 }
                 connection.getTransaction(fakeTransactionId(i));
                 connection.getTransactions(0, i);

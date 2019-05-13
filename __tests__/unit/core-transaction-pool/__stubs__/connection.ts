@@ -98,7 +98,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
+    public hasExceededMaxTransactions(senderPublicKey: string): boolean {
         return true;
     }
 
