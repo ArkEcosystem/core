@@ -22,7 +22,8 @@ beforeAll(async () => {
 
     const peerMocks = peers
         .map(mock => {
-            const peerMock = new Peer(mock.ip, mock.port);
+            const peerMock = new Peer(mock.ip);
+            peerMock.ports.p2p = mock.port;
             peerMock.version = mock.version;
             return peerMock;
         })
@@ -35,9 +36,7 @@ beforeAll(async () => {
     }
 });
 
-afterAll(async () => {
-    await tearDown();
-});
+afterAll(async () => await tearDown());
 
 describe("API 2.0 - Peers", () => {
     describe("GET /peers", () => {

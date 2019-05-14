@@ -47,6 +47,7 @@ export class PeersController extends Controller {
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const peers = await this.p2p.getStorage().getPeers();
+
             if (!peers) {
                 return super.respondWith("No peers found", true);
             }
