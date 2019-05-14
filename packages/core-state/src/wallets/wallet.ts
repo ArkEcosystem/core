@@ -41,9 +41,6 @@ export class Wallet implements State.IWallet {
         this.forgedRewards = Utils.BigNumber.ZERO;
     }
 
-    /**
-     * Add block data to this wallet.
-     */
     public applyBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
@@ -62,9 +59,6 @@ export class Wallet implements State.IWallet {
         return false;
     }
 
-    /**
-     * Remove block data from this wallet.
-     */
     public revertBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
@@ -82,6 +76,14 @@ export class Wallet implements State.IWallet {
         }
 
         return false;
+    }
+
+    public incrementNonce(): void {
+        this.nonce = this.nonce.plus(1);
+    }
+
+    public decrementNonce(): void {
+        this.nonce = this.nonce.minus(1);
     }
 
     public verifySignatures(
@@ -125,9 +127,6 @@ export class Wallet implements State.IWallet {
         return verified;
     }
 
-    /**
-     * Audit the specified transaction.
-     */
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
@@ -157,8 +156,8 @@ export class Wallet implements State.IWallet {
         if (transaction.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.nonce)) {
             audit.push({
                 "Invalid Nonce": transaction.nonce,
-                "Wallet Nonce": this.nonce
-            })
+                "Wallet Nonce": this.nonce,
+            });
         }
 
         if (transaction.type === Enums.TransactionTypes.Transfer) {

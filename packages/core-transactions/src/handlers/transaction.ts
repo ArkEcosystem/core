@@ -113,13 +113,13 @@ export abstract class TransactionHandler implements ITransactionHandler {
     protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
-        sender.nonce = sender.nonce.plus(1);
+        sender.incrementNonce();
     }
 
     protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.plus(transaction.data.amount).plus(transaction.data.fee);
-        sender.nonce = sender.nonce.minus(1);
+        sender.decrementNonce();
     }
 
     protected abstract applyToRecipient(
@@ -154,19 +154,25 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    public applyToSenderInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
+    public applyToSenderInPool(transaction: Interfaces.ITransaction, poolWalletManager: State.IWalletManager): void {
+        // TOOD: this is working around the fact that the tx pool needs to increment the nonce
+        // before applying it, but it's not exactly the best solution.
+        poolWalletManager.findByPublicKey(transaction.data.senderPublicKey).decrementNonce();
         this.applyToSender(transaction, poolWalletManager);
     }
 
-    public revertForSenderInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
+    public revertForSenderInPool(transaction: Interfaces.ITransaction, poolWalletManager: State.IWalletManager): void {
         this.revertForSender(transaction, poolWalletManager);
     }
 
-    public applyToRecipientInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
+    public applyToRecipientInPool(transaction: Interfaces.ITransaction, poolWalletManager: State.IWalletManager): void {
         this.applyToRecipient(transaction, poolWalletManager);
     }
 
-    public revertForRecipientInPool(transaction: any, poolWalletManager: State.IWalletManager): void {
+    public revertForRecipientInPool(
+        transaction: Interfaces.ITransaction,
+        poolWalletManager: State.IWalletManager,
+    ): void {
         this.revertForRecipient(transaction, poolWalletManager);
     }
 
