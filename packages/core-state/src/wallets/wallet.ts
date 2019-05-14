@@ -83,6 +83,7 @@ export class Wallet implements State.IWallet {
     }
 
     public decrementNonce(): void {
+        console.assert(this.nonce.isGreaterThanOrEqualTo(1));
         this.nonce = this.nonce.minus(1);
     }
 
