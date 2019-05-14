@@ -69,8 +69,7 @@ export class Server {
     }
 
     private async registerPlugins(name: string, server: Hapi.Server): Promise<void> {
-        // TODO: enable after mainnet migration
-        // await server.register({ plugin: plugins.contentType })
+        await server.register({ plugin: plugins.contentType });
 
         await server.register({
             plugin: plugins.corsHeaders,
