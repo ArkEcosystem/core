@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Shared } from "@arkecosystem/core-interfaces";
+import assert = require("assert");
 
 export const isNewRound = (height: number): boolean => {
     const { config } = app.getConfig();
@@ -54,7 +55,7 @@ export const calculateRound = (height: number): Shared.IRoundInfo => {
                 nextMilestone.activeDelegates !== milestone.activeDelegates &&
                 nextMilestone.height > milestone.height
             ) {
-                console.assert(isNewRound(nextMilestone.height));
+                assert(isNewRound(nextMilestone.height));
                 delegateCountChanged = true;
                 maxDelegates = nextMilestone.activeDelegates;
                 milestoneHeight = nextMilestone.height - milestone.height;
@@ -65,7 +66,7 @@ export const calculateRound = (height: number): Shared.IRoundInfo => {
         }
 
         if (delegateCountChanged) {
-            console.assert(milestoneHeight % milestone.activeDelegates === 0);
+            assert(milestoneHeight % milestone.activeDelegates === 0);
             round += milestoneHeight / milestone.activeDelegates;
             roundHeight += milestoneHeight;
         }
