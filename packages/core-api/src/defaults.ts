@@ -1,5 +1,3 @@
-import { resolve } from "path";
-
 export const defaults = {
     enabled: false,
     host: process.env.CORE_API_HOST || "0.0.0.0",
@@ -64,10 +62,5 @@ export const defaults = {
         ],
     },
     whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    plugins: [
-        {
-            plugin: resolve(__dirname, "./handlers"),
-            routes: { prefix: "/api" },
-        },
-    ],
+    plugins: [],
 };

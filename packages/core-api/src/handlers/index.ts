@@ -9,16 +9,14 @@ import * as Transactions from "./transactions";
 import * as Votes from "./votes";
 import * as Wallets from "./wallets";
 
-const register = async (server: Hapi.Server): Promise<void> => {
-    const modules = [Blockchain, Blocks, Delegates, Node, Peers, Rounds, Transactions, Votes, Wallets];
-
-    for (const module of modules) {
-        module.register(server);
-    }
-};
-
 export = {
-    register,
+    async register(server: Hapi.Server): Promise<void> {
+        const modules = [Blockchain, Blocks, Delegates, Node, Peers, Rounds, Transactions, Votes, Wallets];
+
+        for (const module of modules) {
+            module.register(server);
+        }
+    },
     name: "Public API",
     version: "2.0.0",
 };

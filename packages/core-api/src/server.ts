@@ -124,6 +124,11 @@ export class Server {
             },
         });
 
+        await server.register({
+            plugin: require("./handlers"),
+            routes: { prefix: "/api" },
+        });
+
         for (const plugin of this.config.plugins) {
             if (typeof plugin.plugin === "string") {
                 plugin.plugin = require(plugin.plugin);
@@ -131,6 +136,15 @@ export class Server {
 
             await server.register(plugin);
         }
+
+        // @TODO: remove this with the release of 3.0 - adds support for /api and /api/v2
+        server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+            const path: string = request.url.pathname.replace("/v2", "");
+
+            request.setUrl(request.url.search ? `${path}${request.url.search}` : path);
+
+            return h.continue;
+        });
 
         await mountServer(`Public ${name.toUpperCase()} API`, server);
     }
