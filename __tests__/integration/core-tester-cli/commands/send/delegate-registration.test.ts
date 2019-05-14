@@ -14,7 +14,7 @@ beforeEach(() => {
         .reply(200, { data: { constants: {} } });
 
     nock("http://localhost:4003")
-        .get("/api/v2/node/configuration/crypto")
+        .get("/api/node/configuration/crypto")
         .thrice()
         .reply(200, { data: Managers.configManager.getPreset("unitnet") });
 
