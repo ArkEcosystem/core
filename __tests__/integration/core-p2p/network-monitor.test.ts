@@ -46,7 +46,10 @@ beforeEach(async () => {
 describe("NetworkMonitor", () => {
     describe("cleanPeers", () => {
         it("should be ok", async () => {
-            storage.setPeer(new Peer("0.0.0.11", 4444));
+            const peer: P2P.IPeer = new Peer("0.0.0.11");
+            peer.ports.p2p = 4444;
+
+            storage.setPeer(peer);
 
             const previousLength = storage.getPeers().length;
 

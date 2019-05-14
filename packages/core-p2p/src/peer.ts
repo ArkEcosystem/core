@@ -25,6 +25,10 @@ export class Peer implements P2P.IPeer {
         return `${this.ports.p2p % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.ports.p2p}`;
     }
 
+    get port(): number {
+        return this.ports.p2p;
+    }
+
     public isVerified(): boolean {
         return this.verificationResult instanceof PeerVerificationResult;
     }

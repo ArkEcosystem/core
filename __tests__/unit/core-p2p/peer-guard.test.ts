@@ -20,37 +20,9 @@ beforeAll(async () => {
 
 beforeEach(async () => {
     peerMock = createStubPeer({ ip: "1.0.0.99", port: 4002 });
-    Object.assign(peerMock, peerMock.headers);
 });
 
 describe("PeerGuard", () => {
-    describe("isValidVersion", () => {
-        it("should be a valid version", () => {
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.4.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.5.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.6.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.6.666" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.7.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.8.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.9.0" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.9.934" } })).toBeTrue();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "3.0.0" } })).toBeTrue();
-        });
-
-        it("should be an invalid version", () => {
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "1.0.0" } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "1.0" } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "---aaa" } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2490" } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: 2 as any } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: -10.2 as any } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: {} as any } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: true as any } })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...({ version: () => "1" } as any) })).toBeFalse();
-            expect(guard.isValidVersion({ ...peerMock, ...{ version: "2.0.0.0" } })).toBeFalse();
-        });
-    });
-
     describe("analyze", () => {
         const convertToMinutes = actual => Math.ceil(actual.diff(dato()) / 1000) / 60;
 

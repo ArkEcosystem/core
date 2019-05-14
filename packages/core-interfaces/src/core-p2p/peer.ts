@@ -8,9 +8,10 @@ export interface IPeerPorts {
 
 export interface IPeer {
     readonly url: string;
+    readonly port: number;
 
-    ip: string;
-    ports: IPeerPorts;
+    readonly ip: string;
+    readonly ports: IPeerPorts;
 
     version: string;
 

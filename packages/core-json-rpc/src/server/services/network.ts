@@ -22,7 +22,7 @@ class Network {
     private async sendRequest(method: string, path: string, opts, tries: number = 0) {
         try {
             const peer: P2P.IPeer = await this.getPeer();
-            const uri: string = `http://${peer.ip}:${peer.port}/api/${path}`;
+            const uri: string = `http://${peer.ip}:${peer.ports.api}/api/${path}`;
 
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
@@ -72,10 +72,6 @@ class Network {
 
         if (!peers.length) {
             throw new Error("No peers found.");
-        }
-
-        for (const peer of peers) {
-            peer.port = app.resolveOptions("api").port;
         }
 
         return peers;
