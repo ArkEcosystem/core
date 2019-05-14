@@ -18,16 +18,14 @@ module.exports = async options => {
         const wallets = utils.wallets[txType];
         const transferAmount = 100 * Math.pow(10, 8);
         transactions.push(
-            Transactions.BuilderFactory
-                .transfer()
+            Transactions.BuilderFactory.transfer()
                 .amount(transferAmount)
                 .recipientId(wallets[0].address)
                 //.vendorField(`init for ${txType}`)
                 .fee(0.1 * Math.pow(10, 8))
                 .sign(delegates[0].passphrase)
                 .getStruct(),
-            Transactions.BuilderFactory
-                .transfer()
+            Transactions.BuilderFactory.transfer()
                 .amount(transferAmount)
                 .recipientId(wallets[2].address)
                 //.vendorField(`init for ${txType} - 2nd signed`)

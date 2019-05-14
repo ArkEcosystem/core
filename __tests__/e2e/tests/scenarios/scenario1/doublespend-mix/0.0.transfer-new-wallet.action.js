@@ -21,16 +21,14 @@ module.exports = async options => {
             const wallets = secondTxsTypes[secondTxType];
             const transferAmount = _balanceNeededFromTxMix(firstTxType, secondTxType);
             transactions.push(
-                Transactions.BuilderFactory
-                    .transfer()
+                Transactions.BuilderFactory.transfer()
                     .amount(transferAmount)
                     .recipientId(wallets[0].address)
                     .vendorField(`init double spend ${firstTxType} - ${secondTxType}`)
                     .fee(0.1 * Math.pow(10, 8))
                     .sign(delegates[0].passphrase)
                     .getStruct(),
-                Transactions.BuilderFactory
-                    .transfer()
+                Transactions.BuilderFactory.transfer()
                     .amount(utils.fees.secondSignRegistration + transferAmount)
                     .recipientId(wallets[2].address)
                     .vendorField(`init double spend ${firstTxType} - ${secondTxType}`)

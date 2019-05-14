@@ -1,10 +1,9 @@
 import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { EventEmitter, P2P } from "@arkecosystem/core-interfaces";
 import { create, SCClientSocket } from "socketcluster-client";
 import { PeerRepository } from "./peer-repository";
 
 export class PeerConnector implements P2P.IPeerConnector {
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private readonly connections: PeerRepository<SCClientSocket> = new PeerRepository<SCClientSocket>();
     private readonly errors: Map<string, string> = new Map<string, string>();
@@ -32,8 +31,6 @@ export class PeerConnector implements P2P.IPeerConnector {
         this.connections.set(peer.ip, connection);
 
         this.connection(peer).on("error", err => {
-            this.logger.debug(`Socket error for peer ${peer.ip}: "${err}"`);
-
             this.emitter.emit("internal.p2p.suspendPeer", { peer });
         });
 
@@ -44,8 +41,6 @@ export class PeerConnector implements P2P.IPeerConnector {
         const connection = this.connection(peer);
 
         if (connection) {
-            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.ports.p2p}`);
-
             connection.destroy();
 
             this.connections.forget(peer.ip);

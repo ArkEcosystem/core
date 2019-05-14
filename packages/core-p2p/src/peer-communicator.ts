@@ -217,6 +217,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 peer.latency = -1;
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });
                 break;
+            case "Error":
+            case "CoreSocketNotOpenError":
+                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                break;
             default:
                 this.logger.error(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });

@@ -45,7 +45,7 @@ describe("NetworkMonitor", () => {
         });
     });
 
-    describe("cleanPeers", () => {
+    describe("cleansePeers", () => {
         it("should remove the unresponsive peers", async () => {
             storage.setPeer(stubPeer);
 
@@ -55,7 +55,7 @@ describe("NetworkMonitor", () => {
                     throw new Error("yo");
                 }),
             } as any);
-            await monitor.cleanPeers();
+            await monitor.cleansePeers();
             expect(storage.hasPeers()).toBeFalse();
             mockGetPeer.mockRestore();
         });

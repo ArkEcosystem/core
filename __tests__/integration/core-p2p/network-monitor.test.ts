@@ -44,7 +44,7 @@ beforeEach(async () => {
 });
 
 describe("NetworkMonitor", () => {
-    describe("cleanPeers", () => {
+    describe("cleansePeers", () => {
         it("should be ok", async () => {
             const peer: P2P.IPeer = new Peer("0.0.0.11");
             peer.ports.p2p = 4444;
@@ -53,7 +53,7 @@ describe("NetworkMonitor", () => {
 
             const previousLength = storage.getPeers().length;
 
-            await monitor.cleanPeers(true);
+            await monitor.cleansePeers(true);
 
             expect(storage.getPeers().length).toBeLessThan(previousLength);
         });

@@ -54,7 +54,10 @@ describe("API 2.0 - Blocks", () => {
                     expect(response).toBePaginated();
                     expect(response.data.data).toBeArray();
 
-                    response.data.data.forEach(utils.expectBlock);
+                    for (const block of response.data.data) {
+                        utils.expectBlock(block);
+                    }
+
                     expect(response.data.data.sort((a, b) => a.height > b.height)).toEqual(response.data.data);
                 });
             },
@@ -108,6 +111,23 @@ describe("API 2.0 - Blocks", () => {
             (header, request) => {
                 it("should GET all the transactions for the given block by id", async () => {
                     const response = await utils[request]("GET", `blocks/${genesisBlock.id}/transactions`);
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    const transaction = response.data.data[0];
+                    utils.expectTransaction(transaction);
+                    expect(transaction.blockId).toBe(genesisBlock.id);
+                });
+            },
+        );
+    });
+
+    describe("GET /blocks/:height/transactions", () => {
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            'using the "%s" header',
+            (header, request) => {
+                it("should GET all the transactions for the given block by id", async () => {
+                    const response = await utils[request]("GET", `blocks/${genesisBlock.height}/transactions`);
                     expect(response).toBeSuccessfulResponse();
                     expect(response.data.data).toBeArray();
 

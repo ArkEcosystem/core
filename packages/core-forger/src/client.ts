@@ -15,7 +15,11 @@ export class Client {
     constructor(hosts: IRelayHost[]) {
         this.hosts = hosts.map(host => {
             host.socket = socketCluster.create(host);
-            host.socket.on("error", err => this.logger.error(err.message));
+            host.socket.on("error", err => {
+                if (err.message !== "Socket hung up") {
+                    this.logger.error(err.message);
+                }
+            });
 
             return host;
         });
@@ -59,8 +63,6 @@ export class Client {
         try {
             return NetworkState.parse(await this.emit<P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000));
         } catch (err) {
-            this.logger.error(`Could not retrieve network state: ${this.host.hostname}: ${err.message}`);
-
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
@@ -96,7 +98,6 @@ export class Client {
     }
 
     public async selectHost(): Promise<void> {
-        // if no socket is connected, we give it 1 second
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
                 if (host.socket.getState() === host.socket.OPEN) {
@@ -108,7 +109,11 @@ export class Client {
             await delay(100);
         }
 
-        this.logger.debug(`No open socket connection to any host : ${this.hosts.map(host => host.hostname).join()}.`);
+        this.logger.debug(
+            `No open socket connection to any host: ${JSON.stringify(
+                this.hosts.map(host => `${host.hostname}:${host.port}`),
+            )}.`,
+        );
 
         throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
     }

@@ -16,7 +16,7 @@ const strictTransaction = {
 export const transactionBaseSchema = {
     $id: undefined,
     type: "object",
-    required: ["type", "senderPublicKey", "fee", "timestamp"],
+    required: ["type", "senderPublicKey", "fee", "amount", "timestamp"],
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
@@ -58,7 +58,7 @@ export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
-    required: ["recipientId", "amount"],
+    required: ["recipientId"],
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },

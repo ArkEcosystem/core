@@ -3,7 +3,6 @@ import "jest-extended";
 import { Container, Database, State } from "@arkecosystem/core-interfaces";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
-import { RestClient } from "../../../helpers";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../../../utils/helpers/container";
 
@@ -62,35 +61,6 @@ export const getLastHeight = (): number => {
         .resolvePlugin<State.IStateService>("state")
         .getStore()
         .getLastHeight();
-};
-
-export const expectAcceptAndBroadcast = async (transactions, id): Promise<void> => {
-    const { body } = await RestClient.broadcast(transactions);
-
-    if (body.data.invalid.length) {
-        console.log(body.errors);
-    }
-
-    expect(body.errors).toBeUndefined();
-    expect(body.data.accept).toContain(id);
-    expect(body.data.broadcast).toContain(id);
-};
-
-export const expectInvalidAndError = async (transactions, id): Promise<void> => {
-    const { body } = await RestClient.broadcast(transactions);
-
-    expect(body.errors).not.toBeUndefined();
-    expect(body.data.invalid).toContain(id);
-};
-
-export const expectTransactionForged = async (id): Promise<void> => {
-    const { body } = await RestClient.get(`transactions/${id}`);
-
-    expect(body.data.id).toBe(id);
-};
-
-export const expectTransactionNotForged = async (id): Promise<void> => {
-    await expect(RestClient.get(`transactions/${id}`)).rejects.toThrowError("Response code 404 (Not Found)");
 };
 
 export const passphrases = {

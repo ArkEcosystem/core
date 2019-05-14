@@ -10,6 +10,7 @@ export interface IWallet {
     vote: string;
     voted: boolean;
     username: string | undefined;
+    resigned: boolean;
     lastBlock: any;
     voteBalance: Utils.BigNumber;
     multisignature?: Interfaces.IMultiSignatureAsset;
@@ -65,7 +66,7 @@ export interface IWalletManager {
 
     applyBlock(block: Interfaces.IBlock): void;
 
-    buildDelegateRanking(delegates?: IWallet[], roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
+    buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
     revertBlock(block: Interfaces.IBlock): void;
 

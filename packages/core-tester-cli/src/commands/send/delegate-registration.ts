@@ -1,5 +1,4 @@
 import { Identities } from "@arkecosystem/crypto";
-import pokemon from "pokemon";
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";
@@ -32,10 +31,9 @@ export class DelegateRegistrationCommand extends SendCommand {
         const transactions = [];
 
         for (const [address, wallet] of Object.entries(wallets)) {
-            wallets[address].username = pokemon
-                .random()
-                .toLowerCase()
-                .replace(/ /g, "_");
+            wallets[address].username = Math.random()
+                .toString(36)
+                .toLowerCase();
 
             transactions.push(
                 this.signer.makeDelegate({

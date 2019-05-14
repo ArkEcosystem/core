@@ -6,7 +6,7 @@ import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 
 export class BIP39Command extends BaseCommand {
-    public static description: string = "Configure the forging delegate (BIP38)";
+    public static description: string = "Configure the forging delegate (BIP39)";
 
     public static examples: string[] = [
         `Configure a delegate using a BIP39 passphrase

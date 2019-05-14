@@ -197,24 +197,22 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     // @TODO: move this to a more appropriate place
-    public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
+    public hasExceededMaxTransactions(senderPublicKey: string): boolean {
         this.purgeExpired();
 
-        if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
-            if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
+        if (this.options.allowedSenders.includes(senderPublicKey)) {
+            if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
-                    `Transaction pool: allowing sender public key: ${
-                        transaction.senderPublicKey
-                    } (listed in options.allowedSenders), thus skipping throttling.`,
+                    `Transaction pool: allowing sender public key: ${senderPublicKey} (listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
-                this.loggedAllowedSenders.push(transaction.senderPublicKey);
+                this.loggedAllowedSenders.push(senderPublicKey);
             }
 
             return false;
         }
 
-        return this.memory.getBySender(transaction.senderPublicKey).size >= this.options.maxTransactionsPerSender;
+        return this.memory.getBySender(senderPublicKey).size >= this.options.maxTransactionsPerSender;
     }
 
     public flush(): void {
