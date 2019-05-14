@@ -260,14 +260,29 @@ export class Memory {
             }
             indexBySender[sender].push(i);
 
+            let nMoved = 0;
+
             for (let j = 0; j < indexBySender[sender].length - 1; j++) {
                 const prevIndex: number = indexBySender[sender][j];
                 if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
-                    this.all.splice(i + 1, 0, this.all[prevIndex]);
-                    this.all.splice(prevIndex, 1);
+                    const newIndex = i + 1 + nMoved;
+                    this.all.splice(newIndex, 0, this.all[prevIndex]);
+                    this.all[prevIndex] = undefined;
+
+                    indexBySender[sender][j] = newIndex;
+
+                    nMoved++;
                 }
             }
+
+            if (nMoved > 0) {
+                indexBySender[sender].sort((a, b) => a - b);
+            }
+
+            i += nMoved;
         }
+
+        this.all = this.all.filter(t => t !== undefined);
     }
 
     private currentHeight(): number {

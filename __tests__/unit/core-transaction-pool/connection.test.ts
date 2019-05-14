@@ -814,7 +814,7 @@ describe("Connection", () => {
 
             for (let i = 0; i < n; i++) {
                 const transaction = TransactionFactory
-                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5", i + 1)
                     .withNetwork("unitnet")
                     .withPassphrase(String(i % nDifferentSenders))
                     .build()[0];
@@ -909,8 +909,8 @@ describe("Connection", () => {
         });
 
         it("sort by fee, nonce", () => {
-            const nTransactions = 500;
-            const nDifferentSenders = 50;
+            const nTransactions = 1000;
+            const nDifferentSenders = 100;
 
             // Non-randomized nonces, used for each sender. Make sure there are enough
             // elements in this array, so that each transaction of a given sender gets
@@ -942,9 +942,17 @@ describe("Connection", () => {
                 testTransactions[i].serialized = Transactions.Utils.toBytes(testTransactions[i].data);
             }
 
+            // const timerLabelAdd = `time to add ${testTransactions.length} transactions`;
+            // console.time(timerLabelAdd);
             connection.addTransactions(testTransactions);
+            // console.timeEnd(timerLabelAdd);
 
-            const sortedTransactions = connection.getTransactions(0, nTransactions).map(serialized =>
+            // const timerLabelSort = `time to sort ${testTransactions.length} transactions`;
+            // console.time(timerLabelSort);
+            const sortedTransactionsSerialized = connection.getTransactions(0, nTransactions);
+            // console.timeEnd(timerLabelSort);
+
+            const sortedTransactions = sortedTransactionsSerialized.map(serialized =>
                 Transactions.TransactionFactory.fromBytes(serialized),
             );
 
@@ -952,27 +960,36 @@ describe("Connection", () => {
 
             const firstTransaction = sortedTransactions[0];
 
-            noncesBySender = {};
-            noncesBySender[firstTransaction.data.senderPublicKey] = [firstTransaction.data.nonce];
+            const lastNonceBySender = {};
+            lastNonceBySender[firstTransaction.data.senderPublicKey] = firstTransaction.data.nonce;
 
             for (let i = 1; i < sortedTransactions.length; i++) {
                 const prevTransaction = sortedTransactions[i - 1];
+                const prevSender = prevTransaction.data.senderPublicKey;
+
                 const curTransaction = sortedTransactions[i];
-
-                expect(prevTransaction.data.fee.isLessThan(curTransaction.data.fee)).toBeFalse();
-
                 const curSender = curTransaction.data.senderPublicKey;
 
-                if (noncesBySender[curSender] === undefined) {
-                    noncesBySender[curSender] = [];
+                if (prevTransaction.data.fee.isLessThan(curTransaction.data.fee)) {
+                    expect(prevSender).toEqual(curSender);
                 }
-                noncesBySender[curSender].push(curTransaction.data.nonce);
 
-                for (let j = 1; j < noncesBySender[curSender]; j++) {
-                    const prevNonce = noncesBySender[curSender][j - 1];
-                    const curNonce = noncesBySender[curSender][j];
-                    expect(prevNonce.isLessThan(curNonce)).toBeTrue();
+                if (prevSender !== curSender) {
+                    let j;
+                    for (j = i - 2; j >= 0 && sortedTransactions[j].data.senderPublicKey === prevSender; j--) {
+                        // Find the leftmost transaction in a sequence of transactions from the same
+                        // sender, ending at prevTransaction. That leftmost transaction's fee must
+                        // be greater or equal to the fee of curTransaction.
+                    }
+                    j++;
+                    expect(sortedTransactions[j].data.fee.isGreaterThanOrEqualTo(curTransaction.data.fee)).toBeTrue();
                 }
+
+                if (lastNonceBySender[curSender] !== undefined) {
+                    expect(lastNonceBySender[curSender].isLessThan(curTransaction.data.nonce)).toBeTrue();
+                }
+
+                lastNonceBySender[curSender] = curTransaction.data.nonce;
             }
         });
     });
