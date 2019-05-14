@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import * as Joi from "@hapi/joi";
 
 export const pagination = {
@@ -10,5 +11,5 @@ export const pagination = {
     limit: Joi.number()
         .integer()
         .min(1)
-        .max(100),
+        .max(app.resolveOptions("api").pagination.limit),
 };
