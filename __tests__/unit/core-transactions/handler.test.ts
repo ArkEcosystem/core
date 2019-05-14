@@ -49,14 +49,12 @@ beforeEach(() => {
     walletManager.reindex(senderWallet);
     walletManager.reindex(recipientWallet);
 
-    transaction = TransactionFactory
-        .transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
+    transaction = TransactionFactory.transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
         .withFee(10000000)
         .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
         .createOne();
 
-    transactionWithSecondSignature = TransactionFactory
-        .transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
+    transactionWithSecondSignature = TransactionFactory.transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
         .withFee(10000000)
         .withSecondPassphrase("venue below waste gather spin cruise title still boost mother flash tuna")
         .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
@@ -148,6 +146,7 @@ describe("General Tests", () => {
         it("should be ok", () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
+            senderWallet.nonce = Utils.BigNumber.make(1);
 
             handler.revert(instance, walletManager);
             expect(senderWallet.balance).toEqual(
@@ -156,10 +155,13 @@ describe("General Tests", () => {
                     .plus(instance.data.fee),
             );
 
+            expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
         });
 
         it("should not fail due to case mismatch", () => {
+            senderWallet.nonce = Utils.BigNumber.make(1);
+
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             const instance = Transactions.TransactionFactory.fromData(transaction);
 
@@ -173,6 +175,7 @@ describe("General Tests", () => {
                     .plus(instance.data.fee),
             );
 
+            expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
         });
     });
@@ -207,7 +210,9 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
         walletManager.reindex(senderWallet);
 
-        transaction = TransactionFactory.secondSignature("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+        transaction = TransactionFactory.secondSignature(
+            "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
+        )
             .withFee(500000000)
             .withPassphrase("venue below waste gather spin cruise title still boost mother flash tuna")
             .createOne();
@@ -278,9 +283,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
 describe("DelegateRegistrationTransaction", () => {
     beforeEach(() => {
-
-        transaction = TransactionFactory
-            .delegateRegistration("dummy")
+        transaction = TransactionFactory.delegateRegistration("dummy")
             .withFee(10000000)
             .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .createOne();
@@ -320,7 +323,11 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should unset username", () => {
+            senderWallet.nonce = Utils.BigNumber.make(1);
+
             handler.revert(instance, walletManager);
+
+            expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(senderWallet.username).toBeUndefined();
         });
     });
@@ -346,7 +353,9 @@ describe("VoteTransaction", () => {
             .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .createOne();
 
-        unvoteTransaction = TransactionFactory.unvote("038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17")
+        unvoteTransaction = TransactionFactory.unvote(
+            "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
+        )
             .withFee(100000000)
             .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .createOne();
@@ -426,22 +435,27 @@ describe("VoteTransaction", () => {
         describe("vote", () => {
             it("should remove the vote from the wallet", () => {
                 senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
+                senderWallet.nonce = Utils.BigNumber.make(1);
 
                 expect(senderWallet.vote).not.toBeUndefined();
 
                 handler.revert(instance, walletManager);
 
+                expect(senderWallet.nonce.isZero()).toBeTrue();
                 expect(senderWallet.vote).toBeUndefined();
             });
         });
 
         describe("unvote", () => {
             it("should add the vote to the wallet", () => {
+                senderWallet.nonce = Utils.BigNumber.make(1);
+
                 expect(senderWallet.vote).toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.revert(instance, walletManager);
 
+                expect(senderWallet.nonce.isZero()).toBeTrue();
                 expect(senderWallet.vote).toBe("038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
             });
         });
@@ -549,8 +563,11 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", () => {
+            senderWallet.nonce = Utils.BigNumber.make(1);
+
             handler.revert(instance, walletManager);
 
+            expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(senderWallet.multisignature).toBeUndefined();
             expect(recipientWallet.multisignature).toBeUndefined();
         });
@@ -702,7 +719,6 @@ describe.skip("MultiPaymentTransaction", () => {
 });
 
 describe("DelegateResignationTransaction", () => {
-
     let voteTransaction;
 
     beforeEach(() => {
@@ -762,9 +778,7 @@ describe("DelegateResignationTransaction", () => {
         it("should fail when not a delegate", () => {
             senderWallet.username = undefined;
 
-            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(
-                WalletUsernameEmptyError,
-            );
+            expect(() => handler.canBeApplied(instance, senderWallet, walletManager)).toThrow(WalletUsernameEmptyError);
         });
 
         it("should fail when voting for a resigned delegate", () => {
