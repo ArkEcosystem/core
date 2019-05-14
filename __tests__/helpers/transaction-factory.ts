@@ -1,5 +1,6 @@
+import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
-import { getSenderNonce } from "../functional/transaction-forging/__support__";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -81,6 +82,15 @@ export class TransactionFactory {
 
     public static ipfs(ipfsId: string): TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
+    }
+
+    public static getNonce(publicKey: string): Utils.BigNumber {
+        try {
+            return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(publicKey);
+        } catch {
+            return Utils.BigNumber.ZERO;
+        }
+
     }
 
     private builder: any;
@@ -184,6 +194,14 @@ export class TransactionFactory {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }
 
+    public getNonce(): Utils.BigNumber {
+        if (this.nonce) {
+            return this.nonce;
+        }
+
+        return TransactionFactory.getNonce(this.senderPublicKey);
+    }
+
     private make<T>(quantity: number = 1, method: string): T[] {
         if (this.passphrasePairs && this.passphrasePairs.length) {
             return this.passphrasePairs.map(
@@ -195,20 +213,6 @@ export class TransactionFactory {
         }
 
         return this.sign<T>(quantity, method);
-    }
-
-    private getNonce(): Utils.BigNumber {
-        if (this.nonce) {
-            return this.nonce;
-        }
-
-        try {
-            // TODO: need a general solution for nonces, this only
-            // works for functional tests
-            return getSenderNonce(this.senderPublicKey);
-        } catch {
-            return Utils.BigNumber.ZERO;
-        }
     }
 
     private sign<T>(quantity: number, method: string): T[] {
