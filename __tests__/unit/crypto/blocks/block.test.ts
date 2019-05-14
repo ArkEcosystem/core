@@ -4,7 +4,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
-import { slots } from "../../../../packages/crypto/src/crypto";
+import { Slots } from "../../../../packages/crypto/src/crypto";
 import { IBlock } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import * as networks from "../../../../packages/crypto/src/networks";
@@ -75,7 +75,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with incorrect timestamp", () => {
-            jest.spyOn(slots, "getSlotNumber").mockImplementation(timestamp => (timestamp ? 2 : 0));
+            jest.spyOn(Slots, "getSlotNumber").mockImplementation(timestamp => (timestamp ? 2 : 0));
             const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
@@ -146,9 +146,54 @@ describe("Block", () => {
             jest.restoreAllMocks();
         });
 
+        it("should verify a block with expiring transactions", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
+                .withNetwork("devnet")
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            transactions[0].expiration = 102;
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeTrue();
+        });
+
+        it("should fail to verify a block with expired transactions", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 10)
+                .withNetwork("testnet")
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            transactions[0].expiration = 52;
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
+        });
+
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
-            jest.spyOn(slots, "getSlotNumber").mockImplementation(height => {
+            jest.spyOn(Slots, "getSlotNumber").mockImplementation(height => {
                 throw errorMessage;
             });
             const block = BlockFactory.fromData(dummyBlock);
@@ -207,7 +252,7 @@ describe("Block", () => {
             const header = BlockFactory.fromData(data2).getHeader();
             const bignumProperties = ["reward", "totalAmount", "totalFee"];
 
-            Object.keys(data).forEach(key => {
+            for (const key of Object.keys(data)) {
                 if (key !== "transactions") {
                     if (bignumProperties.includes(key)) {
                         expect(header[key]).toEqual(Utils.BigNumber.make(data2[key]));
@@ -215,7 +260,7 @@ describe("Block", () => {
                         expect(header[key]).toEqual(data2[key]);
                     }
                 }
-            });
+            }
 
             expect(header).not.toHaveProperty("transactions");
 
@@ -396,21 +441,6 @@ describe("Block", () => {
             id: "11773170219525190460",
             transactions: [
                 {
-                    type: 3,
-                    network: 0x17,
-                    timestamp: 25028325,
-                    senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
-                    fee: Utils.BigNumber.make(100000000),
-                    amount: Utils.BigNumber.make(0),
-                    asset: {
-                        votes: ["+020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92"],
-                    },
-                    signature:
-                        "3045022100be28bdd7dc7117de903eccf97e3afbe87e1a32ee25b0b9bf814b35c6773ed51802202c8d62e708aa7afc08dbfcfd4640d105fe97337fb6145a8d916f2ce11c920255",
-                    recipientId: "ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38",
-                    id: "bace38ea544678f951cdd4abc269be24b4f5bab925ff6d5b480657952eb5aa65",
-                },
-                {
                     id: "7a1a43098cd253db395514220f69e3b99afaabb2bfcf5ecfa3b99727b367344b",
                     network: 0x17,
                     type: 1,
@@ -425,6 +455,21 @@ describe("Block", () => {
                             publicKey: "02135e2ebd97d1f1ab5141b4269defc6e5650848062c40baaf869d72571526e6c6",
                         },
                     },
+                },
+                {
+                    type: 3,
+                    network: 0x17,
+                    timestamp: 25028325,
+                    senderPublicKey: "02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd",
+                    fee: Utils.BigNumber.make(100000000),
+                    amount: Utils.BigNumber.make(0),
+                    asset: {
+                        votes: ["+020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92"],
+                    },
+                    signature:
+                        "3045022100be28bdd7dc7117de903eccf97e3afbe87e1a32ee25b0b9bf814b35c6773ed51802202c8d62e708aa7afc08dbfcfd4640d105fe97337fb6145a8d916f2ce11c920255",
+                    recipientId: "ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38",
+                    id: "bace38ea544678f951cdd4abc269be24b4f5bab925ff6d5b480657952eb5aa65",
                 },
             ],
         };

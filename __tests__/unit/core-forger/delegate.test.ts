@@ -36,8 +36,8 @@ describe("Delegate", () => {
             it("should fail with an invalid passphrase", () => {
                 const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "invalid-password");
 
-                expect(delegate.publicKey).toBeNull();
-                expect(delegate.address).toBeNull();
+                expect(delegate.publicKey).toBeUndefined();
+                expect(delegate.address).toBeUndefined();
                 expect(delegate.bip38).toBeFalse();
             });
         });
@@ -80,7 +80,7 @@ describe("Delegate", () => {
 
             expect(delegate.otp).toBeString();
             expect(delegate.encryptedKeys).toBeString();
-            expect(delegate.keys).toBeNull();
+            expect(delegate.keys).toBeUndefined();
         });
 
         it("should fail without an OTP secret", () => {
@@ -102,12 +102,12 @@ describe("Delegate", () => {
 
             expect(delegate.otp).toBeString();
             expect(delegate.encryptedKeys).toBeString();
-            expect(delegate.keys).toBeNull();
+            expect(delegate.keys).toBeUndefined();
 
             delegate.decryptKeysWithOtp();
 
-            expect(delegate.otp).toBeNull();
-            expect(delegate.encryptedKeys).toBeNull();
+            expect(delegate.otp).toBeUndefined();
+            expect(delegate.encryptedKeys).toBeUndefined();
             expect(delegate.keys).toBeObject();
         });
 
@@ -127,7 +127,7 @@ describe("Delegate", () => {
 
             expect(delegate.otp).toBeString();
             expect(delegate.encryptedKeys).toBeString();
-            expect(delegate.keys).toBeNull();
+            expect(delegate.keys).toBeUndefined();
 
             delegate.encryptedKeys = undefined;
 
@@ -179,6 +179,7 @@ describe("Delegate", () => {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             });
             expect(block.verification).toEqual({
+                containsMultiSignatures: false,
                 errors: [],
                 verified: true,
             });
@@ -201,6 +202,7 @@ describe("Delegate", () => {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             });
             expect(block.verification).toEqual({
+                containsMultiSignatures: false,
                 errors: [],
                 verified: true,
             });
@@ -216,7 +218,7 @@ describe("Delegate", () => {
             };
 
             const block = delegate.forge(transactions, options);
-            expect(block).toBeNull();
+            expect(block).toBeUndefined();
         });
 
         it("should not forge a block if bip38 is on but encryptedKeys is not set", () => {
@@ -224,7 +226,7 @@ describe("Delegate", () => {
             delegate.encryptedKeys = undefined;
 
             const block = delegate.forge(transactions, optionsDefault);
-            expect(block).toBeNull();
+            expect(block).toBeUndefined();
         });
     });
 });

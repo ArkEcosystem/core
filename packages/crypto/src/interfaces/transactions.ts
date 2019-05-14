@@ -13,10 +13,11 @@ export interface ITransaction {
     serialized: Buffer;
     timestamp: number;
 
-    serialize(): ByteBuffer;
+    serialize(options?: ISerializeOptions): ByteBuffer;
     deserialize(buf: ByteBuffer): void;
 
     verify(): boolean;
+    verifySchema(strict?: boolean): ISchemaValidationResult;
 
     toJson(): ITransactionJson;
 
@@ -32,10 +33,9 @@ export interface ITransactionAsset {
         publicKey?: string;
     };
     votes?: string[];
-    multisignature?: IMultiSignatureAsset;
-    ipfs?: {
-        dag: string;
-    };
+    multiSignatureLegacy?: IMultiSignatureLegacyAsset;
+    multiSignature?: IMultiSignatureAsset;
+    ipfs?: string;
     payments?: any;
     [custom: string]: any;
 }
@@ -70,7 +70,6 @@ export interface ITransactionData {
     timelock?: any;
     timelockType?: number;
 
-    ipfsHash?: string;
     payments?: { [key: string]: any };
 }
 
@@ -119,13 +118,19 @@ export interface IMultiPaymentItem {
     recipientId: string;
 }
 
+export interface IMultiSignatureLegacyAsset {
+    min: number;
+    lifetime: number;
+    keysgroup: string[];
+}
+
 export interface IMultiSignatureAsset {
     min: number;
-    keysgroup: string[];
-    lifetime: number;
+    publicKeys: string[];
 }
 
 export interface ISerializeOptions {
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
+    excludeMultiSignature?: boolean;
 }

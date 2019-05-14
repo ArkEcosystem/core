@@ -12,7 +12,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.type = TransactionTypes.MultiPayment;
         this.data.fee = feeManager.get(TransactionTypes.MultiPayment);
         this.data.payments = {};
-        this.data.vendorFieldHex = null;
+        this.data.vendorFieldHex = undefined;
         this.data.asset = {
             payments: [],
         };

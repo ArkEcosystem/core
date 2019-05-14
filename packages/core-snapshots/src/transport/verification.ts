@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Managers, Transactions } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
 export const verifyData = (context, data, prevData, verifySignatures) => {
@@ -10,15 +10,11 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
                 return true;
             }
             // genesis payload different as block.serialize stores
-            // block.previous_block with 00000 instead of null
+            // block.previous_block with 00000 instead of undefined
             // it fails on height 2 - chain check
-            // hardcoding for now
-            // TODO: check to improve ser/deser for genesis, add mainnet
-            if (
-                data.height === 2 &&
-                data.previous_block === "13114381566690093367" &&
-                prevData.id === "12760288562212273414"
-            ) {
+            // TODO: check to improve ser/deser for genesis
+            const genesisBlock = Managers.configManager.get("genesisBlock");
+            if (data.height === 2 && data.previous_block === genesisBlock.id) {
                 return true;
             }
 
@@ -39,7 +35,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             const bytes = Blocks.Block.serialize(camelizeKeys(data), false);
             const hash = Crypto.HashAlgorithms.sha256(bytes);
 
-            const signatureVerify = Crypto.Hash.verify(hash, data.block_signature, data.generator_public_key);
+            const signatureVerify = Crypto.Hash.verifyECDSA(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
                 app.resolvePlugin<Logger.ILogger>("logger").error(
@@ -61,6 +57,10 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
         return Transactions.TransactionFactory.fromBytes(data.serialized).verified;
     }
 
+    if (context === "rounds") {
+        return true;
+    }
+
     return false;
 };
 
@@ -75,6 +75,10 @@ export const canImportRecord = (context, data, lastBlock) => {
 
     if (context === "transactions") {
         return data.timestamp > lastBlock.timestamp;
+    }
+
+    if (context === "rounds") {
+        return true;
     }
 
     return false;

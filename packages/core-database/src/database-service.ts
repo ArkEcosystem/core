@@ -1,14 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Blockchain, Database, EventEmitter, Logger, Shared } from "@arkecosystem/core-interfaces";
-import { TransactionHandler, TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Database, EventEmitter, Logger, Shared, State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class DatabaseService implements Database.IDatabaseService {
     public connection: Database.IConnection;
-    public walletManager: Database.IWalletManager;
+    public walletManager: State.IWalletManager;
     public logger = app.resolvePlugin<Logger.ILogger>("logger");
     public emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     public config = app.getConfig();
@@ -17,16 +17,16 @@ export class DatabaseService implements Database.IDatabaseService {
     public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
-    public blocksInCurrentRound: Interfaces.IBlock[] = null;
+    public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
     public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: Database.IDelegateWallet[] = null;
+    public forgingDelegates: State.IDelegateWallet[] = undefined;
     public cache: Map<any, any> = new Map();
 
     constructor(
         options: Record<string, any>,
         connection: Database.IConnection,
-        walletManager: Database.IWalletManager,
+        walletManager: State.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
         delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
         transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
@@ -44,8 +44,15 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        await this.loadBlocksFromCurrentRound();
         await this.createGenesisBlock();
+
+        const lastBlock: Interfaces.IBlock = await this.getLastBlock();
+
+        Managers.configManager.setHeight(lastBlock.data.height);
+
+        await this.loadBlocksFromCurrentRound();
+
+        await this.configureState(lastBlock);
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -70,7 +77,9 @@ export class DatabaseService implements Database.IDatabaseService {
 
         await this.applyRound(block.data.height);
 
-        block.transactions.forEach((transaction: Interfaces.ITransaction) => this.emitTransactionEvents(transaction));
+        for (const transaction of block.transactions) {
+            this.emitTransactionEvents(transaction);
+        }
 
         this.emitter.emit("block.applied", block.data);
     }
@@ -95,7 +104,7 @@ export class DatabaseService implements Database.IDatabaseService {
                         this.updateDelegateStats(this.forgingDelegates);
                     }
 
-                    const delegates: Database.IDelegateWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+                    const delegates: State.IDelegateWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
                     await this.saveRound(delegates);
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
@@ -146,8 +155,8 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getActiveDelegates(
         roundInfo: Shared.IRoundInfo,
-        delegates?: Database.IDelegateWallet[],
-    ): Promise<Database.IDelegateWallet[]> {
+        delegates?: State.IDelegateWallet[],
+    ): Promise<State.IDelegateWallet[]> {
         const { round } = roundInfo;
 
         if (this.forgingDelegates && this.forgingDelegates.length && this.forgingDelegates[0].round === round) {
@@ -158,7 +167,7 @@ export class DatabaseService implements Database.IDatabaseService {
         if (!delegates || delegates.length === 0) {
             delegates = ((await this.connection.roundsRepository.findById(
                 round,
-            )) as unknown) as Database.IDelegateWallet[];
+            )) as unknown) as State.IDelegateWallet[];
         }
 
         const seedSource: string = round.toString();
@@ -174,7 +183,7 @@ export class DatabaseService implements Database.IDatabaseService {
             currentSeed = Crypto.HashAlgorithms.sha256(currentSeed);
         }
 
-        const forgingDelegates: Database.IDelegateWallet[] = delegates.map(delegate => {
+        const forgingDelegates: State.IDelegateWallet[] = delegates.map(delegate => {
             delegate.round = +delegate.round;
             delegate.username = this.walletManager.findByPublicKey(delegate.publicKey).username;
             return delegate;
@@ -183,12 +192,12 @@ export class DatabaseService implements Database.IDatabaseService {
         return forgingDelegates;
     }
 
-    public async getBlock(id: string): Promise<Interfaces.IBlock | null> {
+    public async getBlock(id: string): Promise<Interfaces.IBlock | undefined> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
 
         if (!block) {
-            return null;
+            return undefined;
         }
 
         const transactions: Array<{
@@ -204,15 +213,14 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
-        let blocks: Interfaces.IBlockData[] = [];
-
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
         const end: number = offset + limit - 1;
 
-        if (app.has("state")) {
-            blocks = app.resolve("state").getLastBlocksByHeight(start, end);
-        }
+        let blocks: Interfaces.IBlockData[] = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlocksByHeight(start, end);
 
         if (blocks.length !== limit) {
             blocks = await this.connection.blocksRepository.heightRange(start, end);
@@ -252,11 +260,13 @@ export class DatabaseService implements Database.IDatabaseService {
         const toGetFromDB = {};
 
         for (const [i, height] of heights.entries()) {
-            if (app.has("state")) {
-                const stateBlocks = app.resolve("state").getLastBlocksByHeight(height, height);
-                if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
-                    blocks[i] = stateBlocks[0];
-                }
+            const stateBlocks = app
+                .resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .getLastBlocksByHeight(height, height);
+
+            if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
+                blocks[i] = stateBlocks[0];
             }
 
             if (blocks[i] === undefined) {
@@ -278,9 +288,14 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getBlocksForRound(roundInfo?: Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
-        const lastBlock: Interfaces.IBlock = app.has("state")
-            ? app.resolve<Blockchain.IStateStorage>("state").getLastBlock()
-            : await this.getLastBlock();
+        let lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
+
+        if (!lastBlock) {
+            lastBlock = await this.getLastBlock();
+        }
 
         if (!lastBlock) {
             return [];
@@ -309,7 +324,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const block: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
 
         if (!block) {
-            return null;
+            return undefined;
         }
 
         const transactions: Array<{
@@ -325,7 +340,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        let commonBlocks: Interfaces.IBlockData[] = app.resolve("state").getCommonBlocks(ids);
+        let commonBlocks: Interfaces.IBlockData[] = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
             commonBlocks = await this.connection.blocksRepository.common(ids);
@@ -336,7 +354,8 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: Interfaces.IBlockData[] = app
-            .resolve("state")
+            .resolvePlugin("state")
+            .getStore()
             .getLastBlockIds()
             .reverse()
             .slice(0, 10);
@@ -421,7 +440,11 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.saveBlock(block);
     }
 
-    public async saveRound(activeDelegates: Database.IDelegateWallet[]): Promise<void> {
+    public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
+        await this.connection.saveBlocks(blocks);
+    }
+
+    public async saveRound(activeDelegates: State.IDelegateWallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
 
         await this.connection.roundsRepository.insert(activeDelegates);
@@ -429,7 +452,7 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit("round.created", activeDelegates);
     }
 
-    public updateDelegateStats(delegates: Database.IDelegateWallet[]): void {
+    public updateDelegateStats(delegates: State.IDelegateWallet[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
             return;
         }
@@ -447,7 +470,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 );
 
                 if (producedBlocks.length === 0) {
-                    const wallet: Database.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
+                    const wallet: State.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                     this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
 
@@ -524,7 +547,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (hasErrors) {
             this.logger.error("FATAL: The database is corrupted");
-            this.logger.error(JSON.stringify(errors, null, 4));
+            this.logger.error(JSON.stringify(errors, undefined, 4));
         }
 
         return !hasErrors;
@@ -533,8 +556,8 @@ export class DatabaseService implements Database.IDatabaseService {
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
-        const sender: Database.IWallet = this.walletManager.findByAddress(senderId); // should exist
-        const transactionHandler: TransactionHandler = TransactionHandlerRegistry.get(transaction.type);
+        const sender: State.IWallet = this.walletManager.findByAddress(senderId);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -545,7 +568,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {
-            return transactionHandler.canBeApplied(transaction, sender) && !dbTransaction;
+            return transactionHandler.canBeApplied(transaction, sender, this.walletManager) && !dbTransaction;
         } catch {
             return false;
         }
@@ -559,8 +582,20 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
+    private configureState(lastBlock: Interfaces.IBlock): void {
+        const state: State.IStateService = app.resolvePlugin<State.IStateService>("state");
+
+        state.getStore().setLastBlock(lastBlock);
+
+        const { blocktime, block } = Managers.configManager.getMilestone();
+
+        const blocksPerDay: number = Math.ceil(86400 / blocktime);
+        state.getBlocks().resize(blocksPerDay);
+        state.getTransactions().resize(blocksPerDay * block.maxTransactions);
+    }
+
     private async initializeActiveDelegates(height: number): Promise<void> {
-        this.forgingDelegates = null;
+        this.forgingDelegates = undefined;
 
         const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(height);
 
@@ -569,7 +604,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     private async setForgingDelegatesOfRound(
         roundInfo: Shared.IRoundInfo,
-        delegates?: Database.IDelegateWallet[],
+        delegates?: State.IDelegateWallet[],
     ): Promise<void> {
         this.forgingDelegates = await this.getActiveDelegates(roundInfo, delegates);
     }
@@ -577,7 +612,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private async calcPreviousActiveDelegates(
         roundInfo: Shared.IRoundInfo,
         blocks?: Interfaces.IBlock[],
-    ): Promise<Database.IDelegateWallet[]> {
+    ): Promise<State.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
         const tempWalletManager = this.walletManager.cloneDelegateWallets();
@@ -603,7 +638,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit("transaction.applied", transaction.data);
 
-        TransactionHandlerRegistry.get(transaction.type).emitEvents(transaction, this.emitter);
+        Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {
@@ -616,13 +651,13 @@ export class DatabaseService implements Database.IDatabaseService {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 
                 if (wallet) {
-                    Object.keys(wallet).forEach(key => {
+                    for (const key of Object.keys(wallet)) {
                         if (["balance"].indexOf(key) !== -1) {
                             return;
                         }
 
                         coldWallet[key] = key !== "voteBalance" ? wallet[key] : Utils.BigNumber.make(wallet[key]);
-                    });
+                    }
                 }
             } catch (err) {
                 this.logger.error(err);

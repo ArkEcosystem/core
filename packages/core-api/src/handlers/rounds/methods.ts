@@ -18,10 +18,10 @@ const delegates = async request => {
     return respondWithCollection(delegates, "round-delegate");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     const { activeDelegates, blocktime } = config.getMilestone();
 
     ServerCache.make(server).method("v2.rounds.delegates", delegates, activeDelegates * blocktime, request => ({
         id: request.params.id,
     }));
-}
+};

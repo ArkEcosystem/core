@@ -1,6 +1,6 @@
-export type ProcessDescription = Record<string, any>;
-
 export type CommandFlags = Record<string, any>;
+
+export type EnvironmentVars = Record<string, string | number>;
 
 export type Options = Record<string, any>;
 

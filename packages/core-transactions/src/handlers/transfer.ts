@@ -1,4 +1,4 @@
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
@@ -8,29 +8,34 @@ export class TransferTransactionHandler extends TransactionHandler {
         return Transactions.TransferTransaction;
     }
 
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getReceivedTransactions();
+
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByAddress(transaction.recipientId);
+            wallet.balance = wallet.balance.plus(transaction.amount);
+        }
+    }
+
     public canBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public hasVendorField(): boolean {
         return true;
     }
 
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
         if (!isRecipientOnActiveNetwork(data)) {
-            guard.pushError(
+            processor.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
                 `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
@@ -41,5 +46,15 @@ export class TransferTransactionHandler extends TransactionHandler {
         }
 
         return true;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        recipient.balance = recipient.balance.plus(transaction.data.amount);
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

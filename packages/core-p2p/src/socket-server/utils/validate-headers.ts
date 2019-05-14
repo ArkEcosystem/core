@@ -1,6 +1,6 @@
 import { validateJSON } from "../../utils";
 
-export function validateHeaders(headers) {
+export const validateHeaders = headers => {
     if (headers.port) {
         headers.port = +headers.port;
     }
@@ -17,19 +17,11 @@ export function validateHeaders(headers) {
                 minimum: 1,
                 maximum: 65535,
             },
-            os: {
-                type: "string",
-                maxLength: 64,
-            },
-            nethash: {
-                type: "string",
-                maxLength: 64,
-            },
             version: {
                 type: "string",
                 maxLength: 16,
             },
         },
-        required: ["version", "nethash", "port"],
+        required: ["version", "port"],
     });
-}
+};

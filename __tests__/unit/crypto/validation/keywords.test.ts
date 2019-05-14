@@ -1,11 +1,9 @@
 import "jest-extended";
 
+import { Managers, Utils, Validation } from "../../../../packages/crypto";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import { BigNumber } from "../../../../packages/crypto/src/utils";
-import { validator } from "../../../../packages/crypto/src/validation";
 
-const ajv = validator.getInstance();
+const ajv = Validation.validator.getInstance();
 
 describe("keyword maxBytes", () => {
     it("should be ok", () => {
@@ -18,7 +16,6 @@ describe("keyword maxBytes", () => {
         expect(validate("⊁".repeat(21))).toBeTrue();
         expect(validate("⊁".repeat(22))).toBeFalse();
         expect(validate({})).toBeFalse();
-        expect(validate(null)).toBeFalse();
         expect(validate(undefined)).toBeFalse();
     });
 });
@@ -32,17 +29,16 @@ describe("keyword network", () => {
         expect(validate(23)).toBeFalse();
         expect(validate("a")).toBeFalse();
 
-        configManager.setFromPreset("mainnet");
+        Managers.configManager.setFromPreset("mainnet");
 
         expect(validate(23)).toBeTrue();
         expect(validate(30)).toBeFalse();
 
-        configManager.setFromPreset("devnet");
+        Managers.configManager.setFromPreset("devnet");
 
         expect(validate(30)).toBeTrue();
         expect(validate(23)).toBeFalse();
         expect(validate({})).toBeFalse();
-        expect(validate(null)).toBeFalse();
         expect(validate(undefined)).toBeFalse();
     });
 });
@@ -57,7 +53,6 @@ describe("keyword transactionType", () => {
         expect(validate(-1)).toBeFalse();
         expect(validate("")).toBeFalse();
         expect(validate("0")).toBeFalse();
-        expect(validate(null)).toBeFalse();
         expect(validate(undefined)).toBeFalse();
     });
 });
@@ -88,10 +83,9 @@ describe("keyword blockId", () => {
         expect(validate("nein")).toBeFalse();
         expect(validate({})).toBeFalse();
         expect(validate("")).toBeFalse();
-        expect(validate(null)).toBeFalse();
         expect(validate(undefined)).toBeFalse();
         expect(validate(1243)).toBeFalse();
-        expect(validate(BigNumber.make(0))).toBeFalse();
+        expect(validate(Utils.BigNumber.make(0))).toBeFalse();
     });
 
     it("should be ok (genesis)", () => {
@@ -105,7 +99,7 @@ describe("keyword blockId", () => {
         const validate = ajv.compile(schema);
 
         expect(validate({ height: 1, previousBlock: "" })).toBeTrue();
-        expect(validate({ height: 1, previousBlock: null })).toBeTrue();
+        expect(validate({ height: 1, previousBlock: undefined })).toBeTrue();
         expect(validate({ height: 1, previousBlock: 0 })).toBeTrue();
 
         expect(validate({ height: 1, previousBlock: "abc" })).toBeFalse();
@@ -113,7 +107,6 @@ describe("keyword blockId", () => {
         expect(validate({ height: 1, previousBlock: "1234" })).toBeFalse();
 
         expect(validate({ height: 2, previousBlock: "" })).toBeFalse();
-        expect(validate({ height: 2, previousBlock: null })).toBeFalse();
         expect(validate({ height: 2, previousBlock: 0 })).toBeFalse();
     });
 });
@@ -159,24 +152,23 @@ describe("keyword bignumber", () => {
         const schema = { bignumber: { minimum: 100, maximum: 2000 }, additionalItems: false };
         const validate = ajv.compile(schema);
 
-        [100, 1e2, 1020.0, 500, 2000].forEach(value => {
+        for (const value of [100, 1e2, 1020.0, 500, 2000]) {
             expect(validate(value)).toBeTrue();
             expect(validate(String(value))).toBeTrue();
-            expect(validate(BigNumber.make(value))).toBeTrue();
-        });
+            expect(validate(Utils.BigNumber.make(value))).toBeTrue();
+        }
 
-        [1e8, 1999.000001, 1 / 1e8, -100, -500, -2000.1].forEach(value => {
+        for (const value of [1e8, 1999.000001, 1 / 1e8, -100, -500, -2000.1]) {
             expect(validate(value)).toBeFalse();
             expect(validate(String(value))).toBeFalse();
-            expect(validate(BigNumber.make(value))).toBeFalse();
-        });
+            expect(validate(Utils.BigNumber.make(value))).toBeFalse();
+        }
     });
 
     it("should not accept garbage", () => {
         const schema = { bignumber: {} };
         const validate = ajv.compile(schema);
 
-        expect(validate(null)).toBeFalse();
         expect(validate(undefined)).toBeFalse();
         expect(validate({})).toBeFalse();
         expect(validate(/d+/)).toBeFalse();
@@ -199,8 +191,8 @@ describe("keyword bignumber", () => {
 
             const validate = ajv.compile(schema);
             expect(validate(data)).toBeTrue();
-            expect(data.amount).toBeInstanceOf(BigNumber);
-            expect(data.amount).toEqual(BigNumber.make(100));
+            expect(data.amount).toBeInstanceOf(Utils.BigNumber);
+            expect(data.amount).toEqual(Utils.BigNumber.make(100));
         });
 
         it("should cast string to Bignumber", () => {
@@ -217,8 +209,8 @@ describe("keyword bignumber", () => {
 
             const validate = ajv.compile(schema);
             expect(validate(data)).toBeTrue();
-            expect(data.amount).toBeInstanceOf(BigNumber);
-            expect(data.amount).toEqual(BigNumber.make(100));
+            expect(data.amount).toBeInstanceOf(Utils.BigNumber);
+            expect(data.amount).toEqual(Utils.BigNumber.make(100));
         });
     });
 

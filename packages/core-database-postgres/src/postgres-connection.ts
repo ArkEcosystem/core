@@ -1,17 +1,17 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
-import { IntegrityVerifier } from "./integrity-verifier";
 import { IMigration } from "./interfaces";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
+import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IConnection {
@@ -37,10 +37,7 @@ export class PostgresConnection implements Database.IConnection {
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
-    public constructor(
-        readonly options: Record<string, any>,
-        private readonly walletManager: Database.IWalletManager,
-    ) {}
+    public constructor(readonly options: Record<string, any>, private readonly walletManager: State.IWalletManager) {}
 
     public async make(): Promise<Database.IConnection> {
         if (this.db) {
@@ -49,7 +46,7 @@ export class PostgresConnection implements Database.IConnection {
 
         this.logger.debug("Connecting to database");
 
-        this.queuedQueries = null;
+        this.queuedQueries = undefined;
         this.cache = new Map();
 
         try {
@@ -66,7 +63,7 @@ export class PostgresConnection implements Database.IConnection {
             app.forceExit("Unable to connect to the database!", error);
         }
 
-        return null;
+        return undefined;
     }
 
     public async connect(): Promise<void> {
@@ -111,7 +108,7 @@ export class PostgresConnection implements Database.IConnection {
     }
 
     public async buildWallets(): Promise<void> {
-        await new IntegrityVerifier(this.query, this.walletManager).run();
+        await new StateBuilder(this, this.walletManager).run();
     }
 
     public async commitQueuedQueries(): Promise<void> {
@@ -128,7 +125,7 @@ export class PostgresConnection implements Database.IConnection {
 
             throw error;
         } finally {
-            this.queuedQueries = null;
+            this.queuedQueries = undefined;
         }
     }
 
@@ -184,6 +181,31 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
+    public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
+        try {
+            const queries = [this.blocksRepository.insert(blocks.map(block => block.data))];
+
+            for (const block of blocks) {
+                if (block.transactions.length > 0) {
+                    queries.push(
+                        this.transactionsRepository.insert(
+                            block.transactions.map(tx => ({
+                                ...tx.data,
+                                timestamp: tx.timestamp,
+                                serialized: tx.serialized,
+                            })),
+                        ),
+                    );
+                }
+            }
+
+            await this.db.tx(t => t.batch(queries));
+        } catch (err) {
+            this.logger.error(err.message);
+            throw err;
+        }
+    }
+
     /**
      * Run all migrations.
      * @return {void}
@@ -197,9 +219,7 @@ export class PostgresConnection implements Database.IConnection {
             } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
-                const row = await this.migrationsRepository.findByName(name);
-
-                if (row === null) {
+                if (!(await this.migrationsRepository.findByName(name))) {
                     this.logger.debug(`Migrating ${name}`);
 
                     await this.query.none(migration);
@@ -217,7 +237,7 @@ export class PostgresConnection implements Database.IConnection {
 
         // Also run migration if the asset column is present, but missing values. E.g.
         // after restoring a snapshot without assets even though the database has already been migrated.
-        let runMigration = row === null;
+        let runMigration = !row;
         if (!runMigration) {
             const { missingAsset } = await this.db.one(
                 `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
@@ -238,10 +258,18 @@ export class PostgresConnection implements Database.IConnection {
         const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
         const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
-        for (const batch of chunk(all, 20000)) {
+        const chunks: Array<
+            Array<{
+                serialized: Buffer;
+                id: string;
+            }>
+        > = chunk(all, 20000);
+
+        for (const chunk of chunks) {
             await this.db.task(task => {
                 const transactions = [];
-                batch.forEach((tx: { serialized: Buffer; id: string }) => {
+
+                for (const tx of chunk) {
                     const transaction = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
                     if (transaction.data.asset) {
                         let transactionId = transaction.id;
@@ -252,17 +280,24 @@ export class PostgresConnection implements Database.IConnection {
                         }
 
                         const query =
-                            this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
-                            ` WHERE id = '${transactionId}'`;
+                            this.pgp.helpers.update(
+                                {
+                                    asset: transaction.data.asset,
+                                },
+                                ["asset"],
+                                "transactions",
+                            ) + ` WHERE id = '${transactionId}'`;
                         transactions.push(task.none(query));
                     }
-                });
+                }
 
                 return task.batch(transactions);
             });
         }
 
-        await this.migrationsRepository.insert({ name });
+        await this.migrationsRepository.insert({
+            name,
+        });
     }
 
     private async registerModels(): Promise<void> {

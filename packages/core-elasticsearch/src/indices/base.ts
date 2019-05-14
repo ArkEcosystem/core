@@ -54,11 +54,11 @@ export abstract class Index {
     protected bulkUpsert(rows) {
         const actions = [];
 
-        rows.forEach(item => {
+        for (const item of rows) {
             const { action, document } = this.getUpsertQuery(item);
             actions.push(action);
             actions.push(document);
-        });
+        }
 
         return client.bulk(actions);
     }
@@ -70,7 +70,7 @@ export abstract class Index {
         return Math.ceil((countDB - countES) / this.chunkSize);
     }
 
-    private async countWithDatabase(): Promise<number> {
+    protected async countWithDatabase(): Promise<number> {
         const modelQuery = this.createQuery();
 
         const query = modelQuery.select(modelQuery.count("count")).from(modelQuery);
@@ -82,19 +82,25 @@ export abstract class Index {
 
     private async countWithElastic(): Promise<number> {
         try {
-            const { count } = await client.count({
+            const { body } = await client.count({
                 index: this.getIndex(),
                 type: this.getType(),
             });
 
-            return +count;
+            return +body.count;
         } catch (error) {
             return 0;
         }
     }
 
     private async exists(doc): Promise<boolean> {
-        return client.exists(this.getReadQuery(doc));
+        try {
+            const { body } = await client.exists(this.getReadQuery(doc));
+
+            return body;
+        } catch (error) {
+            return false;
+        }
     }
 
     private getReadQuery(doc) {

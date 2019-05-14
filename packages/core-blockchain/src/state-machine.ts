@@ -1,14 +1,13 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
-import { stateStorage } from "./state-storage";
 
 import { Blockchain } from "./blockchain";
 
@@ -16,9 +15,10 @@ const { BlockFactory } = Blocks;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const stateStorage = app.resolvePlugin<State.IStateService>("state").getStore();
 
 /**
- * @type {IStateStorage}
+ * @type {IStateStore}
  */
 blockchainMachine.state = stateStorage;
 
@@ -278,7 +278,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
         await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
-        stateStorage.numberOfBlocksToRollback = null;
+        stateStorage.numberOfBlocksToRollback = undefined;
 
         logger.info(`Removed ${pluralize("block", random, true)}`);
 
@@ -291,7 +291,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = app.resolveOptions("p2p").databaseRollback;
+        const { maxBlockRewind, steps } = app.resolveOptions("blockchain").databaseRollback;
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);
@@ -302,9 +302,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         if (!(await blockchain.database.verifyBlockchain())) {
-            // TODO: multiple attempts? rewind further? restore snapshot?
             blockchain.dispatch("FAILURE");
-
             return;
         }
 

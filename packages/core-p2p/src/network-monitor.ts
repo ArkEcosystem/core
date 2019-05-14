@@ -54,6 +54,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.server = server;
     }
 
+    public stopServer(): void {
+        if (this.server) {
+            this.server.removeAllListeners();
+            this.server.destroy();
+            this.server = undefined;
+        }
+    }
+
     public isColdStartActive(): boolean {
         if (process.env.CORE_SKIP_COLD_START) {
             return false;
@@ -102,7 +110,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         try {
             await this.discoverPeers();
-            await this.cleanPeers();
+            await this.cleansePeers();
         } catch (error) {
             this.logger.error(`Network Status: ${error.message}`);
         }
@@ -120,7 +128,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
-    public async cleanPeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
+    public async cleansePeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
         const peers = this.storage.getPeers();
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
@@ -145,15 +153,15 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                     this.storage.forgetPeer(peer);
 
-                    return null;
+                    return undefined;
                 }
             }),
         );
 
-        Object.keys(peerErrors).forEach((key: any) => {
+        for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;
             this.logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
-        });
+        }
 
         if (this.initializing) {
             this.logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`);
@@ -194,7 +202,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
         if (!this.isColdStartActive()) {
-            await this.cleanPeers(true, true);
+            await this.cleansePeers(true, true);
         }
 
         return NetworkState.analyze(this, this.storage);
@@ -204,11 +212,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.logger.info(`Refreshing ${this.storage.getPeers().length} peers after fork.`);
 
         // Reset all peers, except peers banned because of causing a fork.
-        await this.cleanPeers(false, true);
+        await this.cleansePeers(false, true);
         await this.resetSuspendedPeers();
 
         // Ban peer who caused the fork
-        const forkedBlock = app.resolve("state").forkedBlock;
+        const forkedBlock = app.resolvePlugin("state").getStore().forkedBlock;
         if (forkedBlock) {
             this.processor.suspend(forkedBlock.ip);
         }
@@ -216,11 +224,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.isColdStartActive()) {
-            await this.cleanPeers(false, true);
+            await this.cleansePeers(false, true);
             await this.resetSuspendedPeers();
         }
 
-        const lastBlock = app.resolve("state").getLastBlock();
+        const lastBlock = app
+            .resolvePlugin("state")
+            .getStore()
+            .getLastBlock();
 
         const allPeers: P2P.IPeer[] = [
             ...this.storage.getPeers(),
@@ -290,7 +301,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
             const networkHeight: number = this.getNetworkHeight();
 
-            if (!networkHeight) {
+            if (!networkHeight || networkHeight <= fromBlockHeight) {
+                // networkHeight is what we believe network height is, so even if it is <= our height, we download blocks
                 return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
             }
 
@@ -456,11 +468,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         const peerCache: IPeerData[] = restorePeers();
         if (peerCache) {
-            peerCache.forEach(peerA => {
+            for (const peerA of peerCache) {
                 if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {
                     peers.push(peerA);
                 }
-            });
+            }
         }
 
         return Promise.all(

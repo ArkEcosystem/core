@@ -1,12 +1,12 @@
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import Boom from "boom";
+import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
 import { database } from "../database";
 import { IWebhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
-export async function startServer(config) {
+export const startServer = async config => {
     const server = await createServer({
         host: config.host,
         port: config.port,
@@ -86,7 +86,7 @@ export async function startServer(config) {
         handler: (request, h) => {
             database.update(request.params.id, request.payload as IWebhook);
 
-            return h.response(null).code(204);
+            return h.response(undefined).code(204);
         },
         options: {
             validate: schema.update,
@@ -100,7 +100,7 @@ export async function startServer(config) {
             try {
                 database.destroy(request.params.id);
 
-                return h.response(null).code(204);
+                return h.response(undefined).code(204);
             } catch (error) {
                 return Boom.notFound();
             }
@@ -111,4 +111,4 @@ export async function startServer(config) {
     });
 
     return mountServer("Webhook API", server);
-}
+};

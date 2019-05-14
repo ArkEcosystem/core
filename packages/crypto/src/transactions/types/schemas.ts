@@ -1,34 +1,26 @@
 import deepmerge = require("deepmerge");
 import { TransactionTypes } from "../../enums";
 
-export type TransactionSchema = typeof transactionBaseSchema;
+const signedTransaction = {
+    anyOf: [
+        { required: ["id", "signature"] },
+        { required: ["id", "signature", "signatures"] },
+        { required: ["id", "signatures"] },
+    ],
+};
 
-export function extend(parent, properties): TransactionSchema {
-    return deepmerge(parent, properties);
-}
-
-export function signedSchema(schema: TransactionSchema): TransactionSchema {
-    const signed = extend(schema, signedTransaction);
-    signed.$id = `${schema.$id}Signed`;
-    return signed;
-}
-
-export function strictSchema(schema: TransactionSchema): TransactionSchema {
-    const signed = signedSchema(schema);
-    const strict = extend(signed, strictTransaction);
-    strict.$id = `${schema.$id}Strict`;
-    return strict;
-}
+const strictTransaction = {
+    additionalProperties: false,
+};
 
 export const transactionBaseSchema = {
-    $id: null,
+    $id: undefined,
     type: "object",
-    required: ["type", "senderPublicKey", "fee", "timestamp"],
+    required: ["type", "senderPublicKey", "fee", "amount", "timestamp"],
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
         network: { $ref: "networkByte" },
-        expiration: { type: "integer" },
         timestamp: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1, bypassGenesis: true } },
         fee: { bignumber: { minimum: 1, bypassGenesis: true } },
@@ -36,25 +28,43 @@ export const transactionBaseSchema = {
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
         signSignature: { $ref: "alphanumeric" },
+        signatures: {
+            type: "array",
+            minItems: 1,
+            maxItems: 16,
+            additionalItems: false,
+            uniqueItems: true,
+            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
     },
 };
 
-const signedTransaction = {
-    required: ["id", "signature"],
+export const extend = (parent, properties): TransactionSchema => {
+    return deepmerge(parent, properties);
 };
 
-const strictTransaction = {
-    additionalProperties: false,
+export const signedSchema = (schema: TransactionSchema): TransactionSchema => {
+    const signed = extend(schema, signedTransaction);
+    signed.$id = `${schema.$id}Signed`;
+    return signed;
+};
+
+export const strictSchema = (schema: TransactionSchema): TransactionSchema => {
+    const signed = signedSchema(schema);
+    const strict = extend(signed, strictTransaction);
+    strict.$id = `${schema.$id}Strict`;
+    return strict;
 };
 
 export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
-    required: ["recipientId", "amount"],
+    required: ["recipientId"],
     properties: {
         type: { transactionType: TransactionTypes.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
         vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         recipientId: { $ref: "address" },
+        expiration: { type: "integer", minimum: 0 },
     },
 });
 
@@ -130,9 +140,42 @@ export const vote = extend(transactionBaseSchema, {
 
 export const multiSignature = extend(transactionBaseSchema, {
     $id: "multiSignature",
+    required: ["asset", "signatures"],
     properties: {
         type: { transactionType: TransactionTypes.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["multiSignature"],
+            properties: {
+                multiSignature: {
+                    type: "object",
+                    required: ["min", "publicKeys"],
+                    properties: {
+                        min: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: { $data: "1/publicKeys/length" },
+                        },
+                        publicKeys: {
+                            type: "array",
+                            minItems: 1,
+                            maxItems: 16,
+                            additionalItems: false,
+                            items: { $ref: "publicKey" },
+                        },
+                    },
+                },
+            },
+        },
+        signatures: {
+            type: "array",
+            minItems: { $data: "1/asset/multiSignature/min" },
+            maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
+            additionalItems: false,
+            uniqueItems: true,
+            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
     },
 });
 
@@ -141,6 +184,16 @@ export const ipfs = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionTypes.Ipfs },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["ipfs"],
+            properties: {
+                ipfs: {
+                    allOf: [{ minLength: 2, maxLength: 90 }, { $ref: "base58" }],
+                    // ipfs hash has varying length but we set max limit to twice the length of base58 ipfs sha-256 hash
+                },
+            },
+        },
     },
 });
 
@@ -167,3 +220,5 @@ export const delegateResignation = extend(transactionBaseSchema, {
         amount: { bignumber: { minimum: 0, maximum: 0 } },
     },
 });
+
+export type TransactionSchema = typeof transactionBaseSchema;

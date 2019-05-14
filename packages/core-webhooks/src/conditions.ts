@@ -1,47 +1,47 @@
-export function between(actual, expected) {
+export const between = (actual, expected) => {
     return actual > expected.min && actual < expected.max;
-}
+};
 
-export function contains(actual, expected) {
+export const contains = (actual, expected) => {
     return actual.includes(expected);
-}
+};
 
-export function eq(actual, expected) {
+export const eq = (actual, expected) => {
     return actual === expected;
-}
+};
 
-export function falsy(actual) {
+export const falsy = actual => {
     return actual === false;
-}
+};
 
-export function gt(actual, expected) {
+export const gt = (actual, expected) => {
     return actual > expected;
-}
+};
 
-export function gte(actual, expected) {
+export const gte = (actual, expected) => {
     return actual >= expected;
-}
+};
 
-export function lt(actual, expected) {
+export const lt = (actual, expected) => {
     return actual < expected;
-}
+};
 
-export function lte(actual, expected) {
+export const lte = (actual, expected) => {
     return actual <= expected;
-}
+};
 
-export function ne(actual, expected) {
+export const ne = (actual, expected) => {
     return actual !== expected;
-}
+};
 
-export function notBetween(actual, expected) {
+export const notBetween = (actual, expected) => {
     return !between(actual, expected);
-}
+};
 
-export function regexp(actual, expected) {
+export const regexp = (actual, expected) => {
     return new RegExp(expected).test(actual);
-}
+};
 
-export function truthy(actual) {
+export const truthy = actual => {
     return actual === true;
-}
+};

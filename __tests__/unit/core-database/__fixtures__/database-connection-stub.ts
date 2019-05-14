@@ -11,7 +11,7 @@ export class DatabaseConnectionStub implements Database.IConnection {
     public options: any;
 
     public buildWallets(): Promise<void> {
-        return null;
+        return undefined;
     }
 
     public commitQueuedQueries(): any {}
@@ -37,6 +37,10 @@ export class DatabaseConnectionStub implements Database.IConnection {
     }
 
     public saveBlock(block: Blocks.Block): Promise<any> {
+        return undefined;
+    }
+
+    public saveBlocks(blocks: Blocks.Block[]): Promise<any> {
         return undefined;
     }
 }

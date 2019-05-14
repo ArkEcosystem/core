@@ -2,7 +2,7 @@ import "../mocks/core-container";
 
 import { checkNTP } from "../../../../packages/core-p2p/src/utils";
 
-jest.mock("sntp", () => {
+jest.mock("@hapi/sntp", () => {
     return {
         time: jest.fn().mockImplementation(options => {
             if (options.host === "notime.unknown.not") {

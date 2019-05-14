@@ -1,10 +1,10 @@
 import { Database } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
-import { ColumnDescriptor } from "../interfaces";
+import { IColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 
 export class Transaction extends Model {
-    protected columnsDescriptor: ColumnDescriptor[] = [
+    protected columnsDescriptor: IColumnDescriptor[] = [
         {
             name: "id",
             supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
@@ -39,7 +39,7 @@ export class Transaction extends Model {
             name: "recipient_id",
             prop: "recipientId",
             supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
-            def: null,
+            def: undefined,
         },
         {
             name: "type",
@@ -49,7 +49,7 @@ export class Transaction extends Model {
             name: "vendor_field_hex",
             prop: "vendorFieldHex",
             supportedOperators: [Database.SearchOperator.OP_LIKE],
-            def: null,
+            def: undefined,
         },
         {
             name: "amount",

@@ -42,10 +42,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const deadline = new Date().getTime() + timeoutMsec;
 
         if (peer.recentlyPinged() && !force) {
-            return;
+            return undefined;
         }
 
-        const body: any = await this.emit(peer, "p2p.peer.getStatus", null, timeoutMsec);
+        const body: any = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
 
         if (!body) {
             throw new PeerStatusResponseError(peer.ip);
@@ -109,9 +109,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private parseHeaders(peer: P2P.IPeer, response): void {
-        ["nethash", "os", "version"].forEach(key => {
+        for (const key of ["version"]) {
             peer[key] = response.headers[key] || peer[key];
-        });
+        }
 
         if (response.headers.height) {
             peer.state.height = +response.headers.height;
@@ -126,7 +126,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         const ajv = new AJV();
-        const errors = ajv.validate(schema, reply) ? null : ajv.errorsText();
+        const errors = ajv.validate(schema, reply) ? undefined : ajv.errorsText();
 
         if (errors) {
             this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${errors}`);
@@ -156,16 +156,15 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             }
         } catch (e) {
             this.handleSocketError(peer, e);
-            return;
+            return undefined;
         }
 
         return response.data;
     }
 
     private updateHeaders(peer: P2P.IPeer) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-        if (blockchain) {
-            const lastBlock = blockchain.getLastBlock();
+        if (app.has("blockchain")) {
+            const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
             if (lastBlock) {
                 peer.headers.height = lastBlock.data.height;
@@ -188,6 +187,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
                 peer.latency = -1;
+                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                break;
+            case "Error":
+            case "CoreSocketNotOpenError":
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });
                 break;
             default:

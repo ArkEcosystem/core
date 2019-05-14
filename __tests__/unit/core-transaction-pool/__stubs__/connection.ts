@@ -1,11 +1,34 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { Blocks, Enums, Interfaces } from "@arkecosystem/crypto";
 import { Dato } from "@faustbrian/dato";
+import { ITransactionsProcessed } from "../../../../packages/core-transaction-pool/src/interfaces";
+import { Memory } from "../../../../packages/core-transaction-pool/src/memory";
+import { Storage } from "../../../../packages/core-transaction-pool/src/storage";
+import { WalletManager } from "../../../../packages/core-transaction-pool/src/wallet-manager";
 
 export class Connection implements TransactionPool.IConnection {
     public options: any;
     public loggedAllowedSenders: string[];
     public walletManager: any;
+    public memory: any;
+    public storage: any;
+
+    constructor({
+        options,
+        walletManager,
+        memory,
+        storage,
+    }: {
+        options: Record<string, any>;
+        walletManager: WalletManager;
+        memory: Memory;
+        storage: Storage;
+    }) {
+        this.options = options;
+        this.walletManager = walletManager;
+        this.memory = memory;
+        this.storage = storage;
+    }
 
     public async make(): Promise<this> {
         return this;
@@ -27,17 +50,12 @@ export class Connection implements TransactionPool.IConnection {
         return 0;
     }
 
-    public addTransactions(
-        transactions: Interfaces.ITransaction[],
-    ): {
-        added: Interfaces.ITransaction[];
-        notAdded: TransactionPool.IAddTransactionErrorResponse[];
-    } {
+    public addTransactions(transactions: Interfaces.ITransaction[]): ITransactionsProcessed {
         return { added: [], notAdded: [] };
     }
 
     public addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
-        return null;
+        return undefined;
     }
 
     public removeTransaction(transaction: Interfaces.ITransaction): void {
@@ -48,12 +66,16 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
+    public removeTransactionsById(ids: string[]): void {
+        return;
+    }
+
     public getTransactionsForForging(blockSize: number): string[] {
         return [];
     }
 
     public getTransaction(id: string): Interfaces.ITransaction {
-        return null;
+        return undefined;
     }
 
     public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
@@ -61,11 +83,11 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public getTransactionIdsForForging(start: number, size: number): string[] {
-        return null;
+        return undefined;
     }
 
-    public getTransactionsData(start: number, size: number, property: string, maxBytes?: number): string[] | Buffer[] {
-        return null;
+    public getTransactionsData<T>(start: number, size: number, property: string, maxBytes?: number): T[] {
+        return undefined;
     }
 
     public getTransactionsByType(type: any): any {
@@ -76,7 +98,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
+    public hasExceededMaxTransactions(senderPublicKey: string): boolean {
         return true;
     }
 
@@ -84,7 +106,11 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public transactionExists(transactionId: string): any {
+    public makeProcessor(): TransactionPool.IProcessor {
+        return undefined;
+    }
+
+    public has(transactionId: string): any {
         return;
     }
 
@@ -93,7 +119,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public blockSender(senderPublicKey: string): Dato {
-        return null;
+        return undefined;
     }
 
     public acceptChainedBlock(block: Blocks.Block): void {
@@ -112,7 +138,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public purgeBlock(block: Blocks.Block): void {
+    public purgeByBlock(block: Blocks.Block): void {
         return;
     }
 

@@ -2,7 +2,7 @@ import Boom from "boom";
 import Hapi from "hapi";
 import { transformerService } from "../services/transformer";
 
-function paginate(request: Hapi.Request): any {
+export const paginate = (request: Hapi.Request): any => {
     const pagination = {
         // @ts-ignore
         offset: (request.query.page - 1) * request.query.limit || 0,
@@ -17,48 +17,38 @@ function paginate(request: Hapi.Request): any {
     }
 
     return pagination;
-}
+};
 
-function respondWithResource(data, transformer): any {
+export const respondWithResource = (data, transformer): object => {
     return data ? { data: transformerService.toResource(data, transformer) } : Boom.notFound();
-}
+};
 
-function respondWithCollection(data, transformer): object {
+export const respondWithCollection = (data, transformer): object => {
     return {
         data: transformerService.toCollection(data, transformer),
     };
-}
+};
 
-function respondWithCache(data, h): any {
+export const respondWithCache = (data, h): any => {
     const { value, cached } = data;
     const lastModified = cached ? new Date(cached.stored) : new Date();
 
     return value.isBoom
         ? h.response(value.output.payload).code(value.output.statusCode)
         : h.response(value).header("Last-modified", lastModified.toUTCString());
-}
+};
 
-function toResource(data, transformer): object {
+export const toResource = (data, transformer): object => {
     return transformerService.toResource(data, transformer);
-}
+};
 
-function toCollection(data, transformer): object {
+export const toCollection = (data, transformer): object => {
     return transformerService.toCollection(data, transformer);
-}
+};
 
-function toPagination(data, transformer): object {
+export const toPagination = (data, transformer): object => {
     return {
         results: transformerService.toCollection(data.rows, transformer),
         totalCount: data.count,
     };
-}
-
-export {
-    paginate,
-    respondWithResource,
-    respondWithCollection,
-    respondWithCache,
-    toResource,
-    toCollection,
-    toPagination,
 };

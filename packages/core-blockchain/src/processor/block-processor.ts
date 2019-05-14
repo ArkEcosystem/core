@@ -2,11 +2,11 @@
 
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Blockchain } from "../blockchain";
 import { validateGenerator } from "../utils/validate-generator";
-
 import {
     AcceptBlockHandler,
     AlreadyForgedHandler,
@@ -59,12 +59,17 @@ export class BlockProcessor {
         return new AcceptBlockHandler(this.blockchain, block);
     }
 
-    /**
-     * Checks if the given block is verified or an exception.
-     */
     private verifyBlock(block: Interfaces.IBlock): boolean {
-        const verified: boolean = block.verification.verified;
+        if (block.verification.containsMultiSignatures) {
+            for (const transaction of block.transactions) {
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                handler.verify(transaction, this.blockchain.database.walletManager);
+            }
 
+            block.verification = block.verify();
+        }
+
+        const { verified } = block.verification;
         if (!verified) {
             this.logger.warn(
                 `Block ${block.data.height.toLocaleString()} (${
@@ -72,7 +77,7 @@ export class BlockProcessor {
                 }) disregarded because verification failed`,
             );
 
-            this.logger.warn(JSON.stringify(block.verification, null, 4));
+            this.logger.warn(JSON.stringify(block.verification, undefined, 4));
 
             return false;
         }
@@ -80,9 +85,6 @@ export class BlockProcessor {
         return true;
     }
 
-    /**
-     * Checks if the given block contains an already forged transaction.
-     */
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds: string[] = await this.blockchain.database.getForgedTransactionsIds(
@@ -90,11 +92,16 @@ export class BlockProcessor {
             );
 
             if (forgedIds.length > 0) {
+                const { transactionPool } = this.blockchain;
+                if (transactionPool) {
+                    transactionPool.removeTransactionsById(forgedIds);
+                }
+
                 this.logger.warn(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
 
-                this.logger.debug(`${JSON.stringify(forgedIds, null, 4)}`);
+                this.logger.debug(`${JSON.stringify(forgedIds, undefined, 4)}`);
 
                 return true;
             }

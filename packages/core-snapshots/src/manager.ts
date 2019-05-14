@@ -34,6 +34,7 @@ export class SnapshotManager {
         const metaInfo = {
             blocks: await exportTable("blocks", params),
             transactions: await exportTable("transactions", params),
+            rounds: await exportTable("rounds", params),
             folder: params.meta.folder,
             skipCompression: params.meta.skipCompression,
         };
@@ -47,26 +48,30 @@ export class SnapshotManager {
         const params = await this.init(options);
 
         if (params.truncate) {
-            params.lastBlock = await this.database.truncate();
+            await this.database.truncate();
+            params.lastBlock = undefined;
         }
 
         await importTable("blocks", params);
         await importTable("transactions", params);
+        await importTable("rounds", params);
 
         const lastBlock = await this.database.getLastBlock();
+        const height = lastBlock.height as number;
 
         logger.info(
-            `Import from folder ${
-                params.meta.folder
-            } completed. Last block in database: ${lastBlock.height.toLocaleString()}`,
+            `Import from folder ${params.meta.folder} completed. Last block in database: ${height.toLocaleString()}`,
         );
 
         if (!params.skipRestartRound) {
-            const newLastBlock = await this.database.rollbackChain(lastBlock.height);
+            const roundInfo = roundCalculator.calculateRound(height);
+            const newLastBlock = await this.database.rollbackChain(roundInfo);
             logger.info(
                 `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
             );
         }
+
+        await this.database.db.one("SELECT setval('rounds_id_seq', (SELECT MAX(id) FROM rounds) + 1)");
 
         this.database.close();
     }

@@ -1,24 +1,28 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { Utils } from "../../../../packages/crypto/src";
 import {
+    MalformedTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
+import { Keys } from "../../../../packages/crypto/src/identities";
+import { ITransaction } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { Transaction, TransactionFactory } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory, Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
+import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
 describe("Transaction serializer / deserializer", () => {
-    const checkCommonFields = (deserialized: Transaction, expected) => {
+    const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "timestamp", "senderPublicKey", "fee", "amount"];
-        fieldsToCheck.forEach(field => {
+        for (const field of fieldsToCheck) {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
-        });
+        }
     };
 
     describe("ser/deserialize - transfer", () => {
@@ -45,7 +49,7 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields - with vendorFieldHex", () => {
             delete transfer.vendorField;
             const vendorField = "cool vendor field";
-            transfer.vendorFieldHex = new Buffer(vendorField).toString("hex");
+            transfer.vendorFieldHex = Buffer.from(vendorField, "utf8").toString("hex");
 
             const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
@@ -69,7 +73,7 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = Transaction.toBytes(transferWithLongVendorfield);
+            const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
             const deserialized = TransactionFactory.fromBytes(serialized);
 
             expect(deserialized.verified).toBeTrue();
@@ -92,7 +96,7 @@ describe("Transaction serializer / deserializer", () => {
 
             transferWithLongVendorfield.vendorField = "y".repeat(255);
             expect(() => {
-                const serialized = Transaction.toBytes(transferWithLongVendorfield);
+                const serialized = TransactionUtils.toBytes(transferWithLongVendorfield);
                 TransactionFactory.fromBytes(serialized);
             }).toThrow(TransactionSchemaError);
         });
@@ -154,54 +158,78 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - multi signature", () => {
-        const multiSignature = BuilderFactory.multiSignature()
-            .multiSignatureAsset({
-                keysgroup: [
-                    "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                    "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-                ],
-                lifetime: 72,
-                min: 2,
-            })
-            .version(1)
-            .network(30)
-            .sign("dummy passphrase")
-            .multiSignatureSign("multi passphrase 1")
-            .multiSignatureSign("multi passphrase 2")
-            .getStruct();
+    describe("ser/deserialize - multi signature (LEGACY)", () => {
+        it.skip("should ser/deserialize a legacy multisig registration", () => {
+            const deserialized = TransactionFactory.fromHex(legacyMultiSignatureRegistration.serialized);
 
-        it("should ser/deserialize giving back original fields", () => {
-            const serialized = TransactionFactory.fromData(multiSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, multiSignature);
-
-            expect(deserialized.data.asset).toEqual(multiSignature.asset);
-        });
-
-        it("should ser/deserialize giving back original fields - v2 keysgroup", () => {
-            multiSignature.asset.multisignature.keysgroup = [
-                "+0376982a97dadbc65e694743d386084548a65431a82ce935ac9d957b1cffab2784",
-                "+03793904e0df839809bc89f2839e1ae4f8b1ea97ede6592b7d1e4d0ee194ca2998",
-            ];
-
-            const serialized = TransactionFactory.fromData(multiSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, multiSignature);
-
-            expect(deserialized.data.asset).toEqual(multiSignature.asset);
+            expect(deserialized.id).toEqual(legacyMultiSignatureRegistration.data.id);
+            expect(deserialized.toJson()).toMatchObject(legacyMultiSignatureRegistration.data);
         });
     });
 
-    describe.skip("ser/deserialize - ipfs", () => {
+    describe("ser/deserialize - multi signature", () => {
+        let multiSignatureRegistration;
+
+        beforeEach(() => {
+            configManager.setFromPreset("testnet");
+
+            const participant1 = Keys.fromPassphrase("secret 1");
+            const participant2 = Keys.fromPassphrase("secret 2");
+            const participant3 = Keys.fromPassphrase("secret 3");
+
+            multiSignatureRegistration = BuilderFactory.multiSignature()
+                .senderPublicKey(participant1.publicKey)
+                .network(23)
+                .participant(participant1.publicKey)
+                .participant(participant2.publicKey)
+                .participant(participant3.publicKey)
+                .min(3)
+                .multiSign("secret 1", 0)
+                .multiSign("secret 2", 1)
+                .multiSign("secret 3", 2)
+                .sign("secret 1")
+                .getStruct();
+        });
+
+        it("should ser/deserialize a multisig registration", () => {
+            const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            const deserialized = TransactionFactory.fromBytes(transaction.serialized);
+
+            expect(transaction.isVerified).toBeTrue();
+            expect(deserialized.isVerified).toBeTrue();
+            expect(deserialized.data.asset).toEqual(multiSignatureRegistration.asset);
+            expect(transaction.data.signatures).toEqual(deserialized.data.signatures);
+            checkCommonFields(deserialized, multiSignatureRegistration);
+        });
+
+        it("should not deserialize a malformed signature", () => {
+            const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            transaction.serialized = transaction.serialized.slice(0, transaction.serialized.length - 2);
+
+            expect(() => TransactionFactory.fromBytes(transaction.serialized)).toThrowError(
+                MalformedTransactionBytesError,
+            );
+        });
+    });
+
+    describe("ser/deserialize - ipfs", () => {
+        const ipfsIds = [
+            "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
+            "QmYSK2JyM3RyDyB52caZCTKFR3HKniEcMnNJYdk8DQ6KKB",
+            "QmQeUqdjFmaxuJewStqCLUoKrR9khqb4Edw9TfRQQdfWz3",
+            "Qma98bk1hjiRZDTmYmfiUXDj8hXXt7uGA5roU5mfUb3sVG",
+        ];
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
         it("should ser/deserialize giving back original fields", () => {
             const ipfs = BuilderFactory.ipfs()
                 .fee("50000000")
-                .version(1)
-                .network(30)
-                .dag("da304502")
+                .version(2)
+                .network(23)
+                .ipfsAsset(ipfsIds[0])
                 .sign("dummy passphrase")
                 .getStruct();
 
@@ -221,7 +249,7 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .version(1)
-                .network(30)
+                .network(23)
                 .timelock(12, 0x00)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -242,7 +270,7 @@ describe("Transaction serializer / deserializer", () => {
             const multiPayment = BuilderFactory.multiPayment()
                 .fee("50000000")
                 .version(1)
-                .network(30)
+                .network(23)
                 .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
                 .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 5000)
                 .sign("dummy passphrase")
@@ -257,12 +285,12 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - delegate resignation", () => {
+    describe("ser/deserialize - delegate resignation", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateResignation = BuilderFactory.delegateResignation()
                 .fee("50000000")
                 .version(1)
-                .network(30)
+                .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
 
@@ -323,7 +351,7 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("getBytesV1", () => {
-        let bytes = null;
+        let bytes;
 
         // it('should return Buffer of simply transaction and buffer must be 292 length', () => {
         //   const transaction = {

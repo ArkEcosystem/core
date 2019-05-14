@@ -1,7 +1,7 @@
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { IWallet } from "../../core-state/wallets";
 import { ITransactionsPaginated } from "../business-repository";
-import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
-import { IWallet } from "../wallet-manager";
+import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface ITransactionsRepository extends IRepository {
@@ -35,6 +35,12 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
+    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
+
+    getReceivedTransactions(): Promise<any>;
+
+    getSentTransactions(): Promise<any>;
+
     forged(ids: string[]): Promise<Interfaces.ITransactionData[]>;
 
     statistics(): Promise<{
@@ -52,9 +58,9 @@ export interface ITransactionsRepository extends IRepository {
 
     findAllByWallet(
         wallet: IWallet,
-        paginate?: SearchPaginate,
-        orderBy?: SearchOrderBy[],
+        paginate?: ISearchPaginate,
+        orderBy?: ISearchOrderBy[],
     ): Promise<ITransactionsPaginated>;
 
-    search(parameters: SearchParameters): Promise<ITransactionsPaginated>;
+    search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

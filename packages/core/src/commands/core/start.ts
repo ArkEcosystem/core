@@ -43,6 +43,9 @@ $ ark core:start --no-daemon
             hidden: true,
             default: "core",
         }),
+        env: flags.string({
+            default: "production",
+        }),
     };
 
     public getClass() {

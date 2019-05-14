@@ -2,41 +2,42 @@
 
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
+import { Utils } from "..";
 import { TransactionTypes } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
-import { Transaction } from "./types";
+import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer {
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
         const version: number = transaction.version || 1;
 
-        switch (version) {
-            case 1:
-                return this.getBytesV1(transaction, options);
-            default:
-                throw new TransactionVersionError(version);
+        if (version === 1) {
+            return this.getBytesV1(transaction, options);
+        } else if (version === 2 && configManager.getMilestone().aip11) {
+            return this.getBytesV2(transaction, options);
+        } else {
+            throw new TransactionVersionError(version);
         }
     }
 
     /**
      * Serializes the given transaction according to AIP11.
      */
-    public static serialize(transaction: ITransaction): Buffer {
+    public static serialize(transaction: ITransaction, options: ISerializeOptions = {}): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
-        const { data } = transaction;
 
-        this.serializeCommon(data, buffer);
+        this.serializeCommon(transaction.data, buffer);
         this.serializeVendorField(transaction, buffer);
 
-        const typeBuffer: ByteBuffer = transaction.serialize().flip();
+        const typeBuffer: ByteBuffer = transaction.serialize(options).flip();
         buffer.append(typeBuffer);
 
-        this.serializeSignatures(data, buffer);
+        this.serializeSignatures(transaction.data, buffer, options);
 
         const flippedBuffer: Buffer = buffer.flip().toBuffer();
         transaction.serialized = flippedBuffer;
@@ -49,7 +50,7 @@ export class Serializer {
      */
     private static getBytesV1(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
         let assetSize: number = 0;
-        let assetBytes: Buffer | Uint8Array = null;
+        let assetBytes: Buffer | Uint8Array;
 
         switch (transaction.type) {
             case TransactionTypes.SecondSignature: {
@@ -75,7 +76,7 @@ export class Serializer {
             }
 
             case TransactionTypes.Vote: {
-                if (transaction.asset.votes !== null) {
+                if (transaction.asset.votes) {
                     assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
                     assetSize = assetBytes.length;
                 }
@@ -83,11 +84,14 @@ export class Serializer {
             }
 
             case TransactionTypes.MultiSignature: {
-                const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(""), "utf8");
-                const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
+                const keysgroupBuffer: Buffer = Buffer.from(
+                    transaction.asset.multiSignatureLegacy.keysgroup.join(""),
+                    "utf8",
+                );
+                const bb: ByteBuffer = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
 
-                bb.writeByte(transaction.asset.multisignature.min);
-                bb.writeByte(transaction.asset.multisignature.lifetime);
+                bb.writeByte(transaction.asset.multiSignatureLegacy.min);
+                bb.writeByte(transaction.asset.multiSignatureLegacy.lifetime);
 
                 for (const byte of keysgroupBuffer) {
                     bb.writeByte(byte);
@@ -186,6 +190,10 @@ export class Serializer {
         return Buffer.from(buffer);
     }
 
+    private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
+        return this.serialize(TransactionTypeFactory.create(transaction), options);
+    }
+
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
         buffer.writeByte(0xff); // fill, to disambiguate from v1
         buffer.writeByte(transaction.version || 0x01); // version
@@ -196,9 +204,10 @@ export class Serializer {
         buffer.writeUint64(+transaction.fee);
     }
 
-    private static serializeVendorField(transaction: Transaction, buffer: ByteBuffer): void {
+    private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
         if (transaction.hasVendorField()) {
-            const { data } = transaction;
+            const { data }: ITransaction = transaction;
+
             if (data.vendorField) {
                 const vf: Buffer = Buffer.from(data.vendorField, "utf8");
                 buffer.writeByte(vf.length);
@@ -214,20 +223,28 @@ export class Serializer {
         }
     }
 
-    private static serializeSignatures(transaction: ITransactionData, buffer: ByteBuffer): void {
-        if (transaction.signature) {
+    private static serializeSignatures(
+        transaction: ITransactionData,
+        buffer: ByteBuffer,
+        options: ISerializeOptions = {},
+    ): void {
+        if (transaction.signature && !options.excludeSignature) {
             buffer.append(transaction.signature, "hex");
         }
 
-        if (transaction.secondSignature) {
-            buffer.append(transaction.secondSignature, "hex");
-        } else if (transaction.signSignature) {
-            buffer.append(transaction.signSignature, "hex");
+        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
+
+        if (secondSignature && !options.excludeSecondSignature) {
+            buffer.append(secondSignature, "hex");
         }
 
         if (transaction.signatures) {
-            buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
-            buffer.append(transaction.signatures.join(""), "hex");
+            if (transaction.version === 1 && Utils.isException(transaction)) {
+                buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
+                buffer.append(transaction.signatures.join(""), "hex");
+            } else if (!options.excludeMultiSignature) {
+                buffer.append(transaction.signatures.join(""), "hex");
+            }
         }
     }
 }

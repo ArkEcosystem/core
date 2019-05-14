@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import {
     paginate,
     respondWithCache,
@@ -17,6 +17,7 @@ export class Controller {
     protected readonly databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     protected paginate(request: Hapi.Request): any {
+        // @ts-ignore
         return paginate(request);
     }
 

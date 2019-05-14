@@ -22,6 +22,8 @@ export interface IConnection {
 
     saveBlock(block: Interfaces.IBlock): Promise<void>;
 
+    saveBlocks(blocks: Interfaces.IBlock[]): Promise<void>;
+
     deleteBlock(block: Interfaces.IBlock): Promise<void>;
 
     enqueueDeleteBlock(block: Interfaces.IBlock): void;

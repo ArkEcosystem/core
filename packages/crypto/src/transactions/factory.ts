@@ -1,13 +1,12 @@
 // tslint:disable:member-ordering
-import { TransactionTypes } from "../enums";
 import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
-import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
+import { ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
 import { BigNumber, isException } from "../utils";
-import { validator } from "../validation";
 import { deserializer } from "./deserializer";
-import { transactionRegistry } from "./registry";
 import { Serializer } from "./serializer";
-import { Transaction } from "./types/transaction";
+import { TransactionTypeFactory } from "./types";
+import { Utils } from "./utils";
+import { Verifier } from "./verifier";
 
 export class TransactionFactory {
     public static fromHex(hex: string): ITransaction {
@@ -15,7 +14,7 @@ export class TransactionFactory {
     }
 
     public static fromBytes(buffer: Buffer): ITransaction {
-        return this.fromSerialized(buffer ? buffer.toString("hex") : null);
+        return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
     }
 
     /**
@@ -28,7 +27,7 @@ export class TransactionFactory {
     public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(buffer);
-            transaction.data.id = id || Transaction.getId(transaction.data);
+            transaction.data.id = id || Utils.getId(transaction.data);
             transaction.isVerified = true;
 
             return transaction;
@@ -38,8 +37,7 @@ export class TransactionFactory {
     }
 
     public static fromJson(json: ITransactionJson): ITransaction {
-        // @ts-ignore
-        const data: ITransactionData = { ...json };
+        const data: ITransactionData = ({ ...json } as unknown) as ITransactionData;
         data.amount = BigNumber.make(data.amount);
         data.fee = BigNumber.make(data.fee);
 
@@ -47,17 +45,22 @@ export class TransactionFactory {
     }
 
     public static fromData(data: ITransactionData, strict: boolean = true): ITransaction {
-        const { value, error } = this.validateSchema(data, strict);
+        const { value, error } = Verifier.verifySchema(data, strict);
 
-        if (error !== null && !isException(value)) {
+        if (error && !isException(value)) {
             throw new TransactionSchemaError(error);
         }
 
-        const transaction: ITransaction = transactionRegistry.create(value);
-        deserializer.applyV1Compatibility(transaction.data); // TODO: generalize this kinda stuff
+        const transaction: ITransaction = TransactionTypeFactory.create(value);
+
+        const { version } = transaction.data;
+        if (!version || version === 1) {
+            deserializer.applyV1Compatibility(transaction.data);
+        }
+
         Serializer.serialize(transaction);
 
-        data.id = Transaction.getId(data);
+        data.id = Utils.getId(data);
         transaction.isVerified = transaction.verify();
 
         return transaction;
@@ -66,11 +69,11 @@ export class TransactionFactory {
     private static fromSerialized(serialized: string): ITransaction {
         try {
             const transaction = deserializer.deserialize(serialized);
-            transaction.data.id = Transaction.getId(transaction.data);
+            transaction.data.id = Utils.getId(transaction.data);
 
-            const { value, error } = this.validateSchema(transaction.data, true);
+            const { value, error } = Verifier.verifySchema(transaction.data, true);
 
-            if (error !== null && !isException(value)) {
+            if (error && !isException(value)) {
                 throw new TransactionSchemaError(error);
             }
 
@@ -84,16 +87,5 @@ export class TransactionFactory {
 
             throw new MalformedTransactionBytesError();
         }
-    }
-
-    private static validateSchema(data: ITransactionData, strict: boolean): ISchemaValidationResult {
-        // FIXME: legacy type 4 need special treatment
-        if (data.type === TransactionTypes.MultiSignature) {
-            return { value: data, error: null };
-        }
-
-        const { $id } = transactionRegistry.get(data.type).getSchema();
-
-        return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 }

@@ -1,4 +1,4 @@
-import { Hash, HashAlgorithms, slots } from "../crypto";
+import { Hash, HashAlgorithms, Slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
@@ -12,7 +12,7 @@ export class Block implements IBlock {
         const { value, error } = validator.validate("block", data);
 
         if (
-            error !== null &&
+            error &&
             !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
         ) {
             throw new BlockSchemaError(error);
@@ -92,16 +92,14 @@ export class Block implements IBlock {
 
         this.verification = this.verify();
 
-        // order of transactions messed up in mainnet V1
-        // TODO: move this to network constants exception using block ids
-        if (
-            this.transactions &&
-            this.data.numberOfTransactions === 2 &&
-            (this.data.height === 3084276 || this.data.height === 34420)
-        ) {
-            const temp = this.transactions[0];
-            this.transactions[0] = this.transactions[1];
-            this.transactions[1] = temp;
+        // Order of transactions messed up in mainnet V1
+        const { wrongTransactionOrder } = configManager.get("exceptions");
+        if (wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
+            const fixedOrderIds = wrongTransactionOrder[this.data.id];
+
+            this.transactions = fixedOrderIds.map((id: string) =>
+                this.transactions.find(transaction => transaction.id === id),
+            );
         }
     }
 
@@ -116,7 +114,7 @@ export class Block implements IBlock {
         const bytes: Buffer = Block.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
 
-        return Hash.verify(hash, this.data.blockSignature, this.data.generatorPublicKey);
+        return Hash.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
 
     public toJson(): IBlockJson {
@@ -129,10 +127,11 @@ export class Block implements IBlock {
         return data;
     }
 
-    private verify(): IBlockVerification {
+    public verify(): IBlockVerification {
         const block: IBlockData = this.data;
         const result: IBlockVerification = {
             verified: false,
+            containsMultiSignatures: false,
             errors: [],
         };
 
@@ -159,7 +158,7 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block version");
             }
 
-            if (slots.getSlotNumber(block.timestamp) > slots.getSlotNumber()) {
+            if (Slots.getSlotNumber(block.timestamp) > Slots.getSlotNumber()) {
                 result.errors.push("Invalid block timestamp");
             }
 
@@ -167,7 +166,12 @@ export class Block implements IBlock {
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
-                invalidTransactions.forEach(tx => result.errors.push(`=> ${tx.serialized.toString("hex")}`));
+
+                for (const invalidTransaction of invalidTransactions) {
+                    result.errors.push(`=> ${invalidTransaction.serialized.toString("hex")}`);
+                }
+
+                result.containsMultiSignatures = invalidTransactions.some(tx => !!tx.data.signatures);
             }
 
             if (this.transactions.length !== block.numberOfTransactions) {
@@ -187,11 +191,20 @@ export class Block implements IBlock {
             let totalFee: BigNumber = BigNumber.ZERO;
 
             const payloadBuffers: Buffer[] = [];
-            this.transactions.forEach(transaction => {
+            for (const transaction of this.transactions) {
                 const bytes: Buffer = Buffer.from(transaction.data.id, "hex");
 
                 if (appliedTransactions[transaction.data.id]) {
                     result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
+                }
+
+                if (transaction.data.expiration > 0 && transaction.data.expiration <= this.data.height) {
+                    const isException =
+                        configManager.get("network.name") === "devnet" &&
+                        configManager.getMilestone().ignoreExpiredTransactions;
+                    if (!isException) {
+                        result.errors.push(`Encountered expired transaction: ${transaction.data.id}`);
+                    }
                 }
 
                 appliedTransactions[transaction.data.id] = transaction.data;
@@ -201,7 +214,7 @@ export class Block implements IBlock {
                 size += bytes.length;
 
                 payloadBuffers.push(bytes);
-            });
+            }
 
             if (!totalAmount.isEqualTo(block.totalAmount)) {
                 result.errors.push("Invalid total amount");

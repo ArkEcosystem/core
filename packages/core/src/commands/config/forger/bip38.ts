@@ -1,6 +1,6 @@
 import { Crypto, Identities, Managers } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
-import bip39 from "bip39";
+import { validateMnemonic } from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
 import wif from "wif";
@@ -40,7 +40,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
                 name: "bip39",
                 message: "Please enter your delegate passphrase",
                 validate: value =>
-                    !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+                    !validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
             },
             {
                 type: "password",
@@ -77,7 +77,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
         });
 
         this.addTask("Validate passphrase", async () => {
-            if (!bip39.validateMnemonic(flags.bip39)) {
+            if (!validateMnemonic(flags.bip39)) {
                 this.error(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
         });
@@ -96,7 +96,7 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
             delegates.bip38 = Crypto.bip38.encrypt(decodedWIF.privateKey, decodedWIF.compressed, flags.password);
             delegates.secrets = [];
 
-            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, undefined, 2));
         });
 
         await this.runTasks();

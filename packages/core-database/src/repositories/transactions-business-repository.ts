@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
@@ -62,7 +62,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     // @TODO: simplify this
     public async findAllByWallet(
-        wallet: Database.IWallet,
+        wallet: State.IWallet,
         parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
         const { transactionsRepository }: Database.IConnection = this.databaseServiceProvider().connection;
@@ -87,7 +87,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     public async findByTypeAndId(type: number, id: string) {
         const results = await this.search({ type, id });
-        return results.rows.length ? results.rows[0] : null;
+        return results.rows.length ? results.rows[0] : undefined;
     }
 
     public async getFeeStatistics(
@@ -105,10 +105,22 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         );
     }
 
+    public async getAssetsByType(type: Enums.TransactionTypes | number): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type);
+    }
+
+    public async getReceivedTransactions(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getReceivedTransactions();
+    }
+
+    public async getSentTransactions(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getSentTransactions();
+    }
+
     private getPublicKeyFromAddress(senderId: string): string {
         const { walletManager }: Database.IDatabaseService = this.databaseServiceProvider();
 
-        return walletManager.exists(senderId) ? walletManager.findByAddress(senderId).publicKey : null;
+        return walletManager.has(senderId) ? walletManager.findByAddress(senderId).publicKey : undefined;
     }
 
     private async mapBlocksToTransactions(rows): Promise<Interfaces.ITransactionData[]> {
@@ -155,14 +167,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         // Such that when you try to fetch a block, it'll transparently check the cache first, before querying db.
         const height = this.databaseServiceProvider().cache.get(`heights:${blockId}`);
 
-        return height ? { height, id: blockId } : null;
+        return height ? { height, id: blockId } : undefined;
     }
 
     private cacheBlock({ id, height }: Interfaces.IBlockData): void {
         this.databaseServiceProvider().cache.set(`heights:${id}`, height);
     }
 
-    private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.SearchParameters {
+    private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.ISearchParameters {
         const databaseService: Database.IDatabaseService = this.databaseServiceProvider();
 
         if (params.senderId) {
@@ -197,7 +209,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             delete params.ownerId;
         }
 
-        const searchParameters: Database.SearchParameters = new SearchParameterConverter(
+        const searchParameters: Database.ISearchParameters = new SearchParameterConverter(
             databaseService.connection.transactionsRepository.getModel(),
         ).convert(params);
 

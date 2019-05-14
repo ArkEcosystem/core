@@ -16,7 +16,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
 
     public async findAllByGenerator(
         generatorPublicKey: string,
-        paginate: Database.SearchPaginate,
+        paginate: Database.ISearchPaginate,
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
@@ -42,7 +42,19 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         }
     }
 
-    private parseSearchParams(params: Database.IParameters): Database.SearchParameters {
+    public async getBlockRewards(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getBlockRewards();
+    }
+
+    public async getLastForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getLastForgedBlocks();
+    }
+
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
+    }
+
+    private parseSearchParams(params: Database.IParameters): Database.ISearchParameters {
         const blocksRepository: Database.IBlocksRepository = this.databaseServiceProvider().connection.blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
 

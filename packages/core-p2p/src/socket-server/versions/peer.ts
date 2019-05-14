@@ -1,6 +1,5 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
-import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { isBlockChained } from "../../../../core-utils/dist";
@@ -8,33 +7,30 @@ import { MissingCommonBlockError } from "../../errors";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 
-const transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
-export async function acceptNewPeer({ service, req }: { service: P2P.IPeerService; req }): Promise<void> {
+export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
     const peer = { ip: req.data.ip };
 
-    ["nethash", "version", "port", "os"].forEach(key => {
+    for (const key of ["version", "port"]) {
         peer[key] = req.headers[key];
-    });
+    }
 
     await service.getProcessor().validateAndAcceptPeer(peer);
-}
+};
 
-export function getPeers({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] {
+export const getPeers = ({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] => {
     return service
         .getStorage()
         .getPeers()
         .map(peer => peer.toBroadcast())
         .sort((a, b) => a.latency - b.latency);
-}
+};
 
-export async function getCommonBlocks({
+export const getCommonBlocks = async ({
     req,
 }): Promise<{
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
-}> {
+}> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
 
@@ -46,20 +42,20 @@ export async function getCommonBlocks({
         common: commonBlocks[0],
         lastBlockHeight: blockchain.getLastBlock().data.height,
     };
-}
+};
 
-export async function getStatus(): Promise<P2P.IPeerState> {
+export const getStatus = async (): Promise<P2P.IPeerState> => {
     const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
         height: lastBlock ? lastBlock.data.height : 0,
-        forgingAllowed: Crypto.slots.isForgingAllowed(),
-        currentSlot: Crypto.slots.getSlotNumber(),
+        forgingAllowed: Crypto.Slots.isForgingAllowed(),
+        currentSlot: Crypto.Slots.getSlotNumber(),
         header: lastBlock ? lastBlock.getHeader() : {},
     };
-}
+};
 
-export async function postBlock({ req }): Promise<void> {
+export const postBlock = async ({ req }): Promise<void> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
@@ -78,24 +74,27 @@ export async function postBlock({ req }): Promise<void> {
     }
 
     blockchain.handleIncomingBlock(block, req.headers.remoteAddress, fromForger);
-}
+};
 
-export async function postTransactions({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> {
-    const guard: TransactionPool.IGuard = new TransactionGuard(transactionPool);
-    const result: TransactionPool.IValidationResult = await guard.validate(req.data.transactions);
+export const postTransactions = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> => {
+    const processor: TransactionPool.IProcessor = app
+        .resolvePlugin<TransactionPool.IConnection>("transaction-pool")
+        .makeProcessor();
+
+    const result: TransactionPool.IProcessorResult = await processor.validate(req.data.transactions);
 
     if (result.invalid.length > 0) {
         throw new InvalidTransactionsError();
     }
 
     if (result.broadcast.length > 0) {
-        service.getMonitor().broadcastTransactions(guard.getBroadcastTransactions());
+        service.getMonitor().broadcastTransactions(processor.getBroadcastTransactions());
     }
 
     return result.accept;
-}
+};
 
-export async function getBlocks({ req }): Promise<Interfaces.IBlockData[]> {
+export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
     const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
@@ -112,7 +111,7 @@ export async function getBlocks({ req }): Promise<Interfaces.IBlockData[]> {
         blocks = await database.getBlocks(reqBlockHeight, 400);
     }
 
-    logger.info(
+    app.resolvePlugin<Logger.ILogger>("logger").info(
         `${req.headers.remoteAddress} has downloaded ${pluralize("block", blocks.length, true)} from height ${(!isNaN(
             reqBlockHeight,
         )
@@ -122,4 +121,4 @@ export async function getBlocks({ req }): Promise<Interfaces.IBlockData[]> {
     );
 
     return blocks || [];
-}
+};

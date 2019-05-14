@@ -1,9 +1,9 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
-import Boom from "boom";
-import Joi from "joi";
+import Boom from "@hapi/boom";
+import Joi from "@hapi/joi";
 import { client } from "./client";
 
-export async function startServer(config) {
+export const startServer = async config => {
     const server = await createServer({
         host: config.host,
         port: config.port,
@@ -22,13 +22,13 @@ export async function startServer(config) {
             path: "/",
             async handler(request) {
                 try {
-                    const { hits } = await client.search(request.payload);
+                    const { body } = await client.search(request.payload);
 
                     return {
                         meta: {
-                            count: hits.total,
+                            count: body.hits.total,
                         },
-                        data: hits.hits.map(result => result._source),
+                        data: body.hits.hits.map(result => result._source),
                     };
                 } catch (error) {
                     return Boom.badRequest(error.message);
@@ -83,4 +83,4 @@ export async function startServer(config) {
     ]);
 
     return mountServer("Elasticsearch API", server);
-}
+};

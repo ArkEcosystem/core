@@ -1,5 +1,5 @@
-import { Database } from "@arkecosystem/core-interfaces";
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Database, State } from "@arkecosystem/core-interfaces";
+import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import partition from "lodash.partition";
 import { Transaction } from "../models";
@@ -7,7 +7,7 @@ import { queries } from "../queries";
 import { Repository } from "./repository";
 
 export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
-    public async search(parameters: Database.SearchParameters): Promise<Database.ITransactionsPaginated> {
+    public async search(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
@@ -96,6 +96,18 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
     }
 
+    public async getAssetsByType(type: Enums.TransactionTypes | number): Promise<any> {
+        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { type });
+    }
+
+    public async getReceivedTransactions(): Promise<any> {
+        return this.db.many(queries.stateBuilder.receivedTransactions);
+    }
+
+    public async getSentTransactions(): Promise<any> {
+        return this.db.many(queries.stateBuilder.sentTransactions);
+    }
+
     public async forged(ids: string[]): Promise<Interfaces.ITransactionData[]> {
         return this.db.manyOrNone(queries.transactions.forged, { ids });
     }
@@ -122,7 +134,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 .from(this.query)
                 .where(
                     this.query.timestamp.gte(
-                        Crypto.slots.getTime(
+                        Crypto.Slots.getTime(
                             dato()
                                 .subDays(days)
                                 .toMilliseconds(),
@@ -135,9 +147,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async findAllByWallet(
-        wallet: Database.IWallet,
-        paginate?: Database.SearchPaginate,
-        orderBy?: Database.SearchOrderBy[],
+        wallet: State.IWallet,
+        paginate?: Database.ISearchPaginate,
+        orderBy?: Database.ISearchOrderBy[],
     ): Promise<Database.ITransactionsPaginated> {
         return this.findManyWithCount(
             this.query

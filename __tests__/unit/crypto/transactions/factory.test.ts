@@ -1,16 +1,39 @@
 import "jest-extended";
 
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { MalformedTransactionBytesError, TransactionSchemaError } from "../../../../packages/crypto/src/errors";
+import {
+    MalformedTransactionBytesError,
+    TransactionSchemaError,
+    UnkownTransactionError,
+} from "../../../../packages/crypto/src/errors";
+import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { Serializer, TransactionFactory } from "../../../../packages/crypto/src/transactions";
+import {
+    Serializer,
+    Transaction,
+    TransactionFactory,
+    Utils as TransactionUtils,
+} from "../../../../packages/crypto/src/transactions";
 import { transaction as transactionFixture } from "../fixtures/transaction";
+import { transaction as transactionDataFixture } from "../fixtures/transaction";
+import { createRandomTx } from "./__support__";
 
-function expectTransaction({ data }): void {
+let transactionData: ITransactionData;
+let transactionDataJSON;
+
+const expectTransaction = ({ data }): void => {
     expect(data).toEqual(transactionFixture);
-}
+};
 
-beforeEach(() => configManager.setFromPreset("devnet"));
+beforeEach(() => {
+    configManager.setFromPreset("devnet");
+
+    transactionData = { ...transactionDataFixture };
+    transactionDataJSON = {
+        ...transactionData,
+        ...{ amount: transactionData.amount.toFixed(), fee: transactionData.fee.toFixed() },
+    };
+});
 
 const transaction: Interfaces.ITransaction = TransactionFactory.fromData(transactionFixture);
 const transactionJson: Interfaces.ITransactionJson = transaction.toJson();
@@ -49,6 +72,16 @@ describe("TransactionFactory", () => {
                 MalformedTransactionBytesError,
             );
         });
+
+        // Old tests
+        it("should be ok", () => {
+            const bytes = TransactionUtils.toBytes(transactionData);
+            const id = transactionData.id;
+
+            const transaction = TransactionFactory.fromBytesUnsafe(bytes, id);
+            expect(transaction).toBeInstanceOf(Transaction);
+            expect(transaction.toJson()).toEqual(transactionDataJSON);
+        });
     });
 
     describe(".fromData", () => {
@@ -63,6 +96,22 @@ describe("TransactionFactory", () => {
                     ...{ fee: Utils.BigNumber.make(0) },
                 }),
             ).toThrowError(TransactionSchemaError);
+        });
+
+        // Old tests
+        it("should match transaction id", () => {
+            [0, 1, 2, 3]
+                .map(type => createRandomTx(type))
+                .forEach(transaction => {
+                    const originalId = transaction.data.id;
+                    const newTransaction = TransactionFactory.fromData(transaction.data);
+                    expect(newTransaction.data.id).toEqual(originalId);
+                });
+        });
+
+        it("should throw when getting garbage", () => {
+            expect(() => TransactionFactory.fromData({} as ITransactionData)).toThrow(UnkownTransactionError);
+            expect(() => TransactionFactory.fromData({ type: 0 } as ITransactionData)).toThrow(TransactionSchemaError);
         });
     });
 

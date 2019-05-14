@@ -18,14 +18,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-unit-2'
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-unit-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-unit'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-unit-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-unit-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -45,21 +69,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -96,14 +105,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-unit-2'
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-unit-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-unit'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-unit-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-unit-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -123,21 +156,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -182,14 +200,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-functional-2'
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-functional-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-functional'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-functional-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-functional-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -209,21 +251,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -268,14 +295,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-functional-2'
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-functional-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-functional'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-functional-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-functional-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -295,21 +346,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -354,14 +390,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-2'
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -381,21 +441,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -465,14 +510,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-2'
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -492,21 +561,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -565,14 +619,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark-2'
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-benchmark-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -592,21 +670,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Benchmark
           command: cd ~/core && yarn bench
@@ -625,14 +688,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark-2'
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-benchmark-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -652,6 +739,44 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
+      - run:
+          name: Benchmark
+          command: cd ~/core && yarn bench
+  test-node10-e2e:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install nvm 10
+          command: source ~/.bashrc && nvm install 10 && nvm use 10
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
+      - restore_cache:
+          key: 'ark-node10-e2e-{{ checksum "checksum.txt" }}-1-2'
+      - restore_cache:
+          key: 'ark-node10-e2e-{{ checksum "checksum.txt" }}-1-1'
+      - run:
+          name: Install yarn
+          command: >-
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add
+            - && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo
+            tee /etc/apt/sources.list.d/yarn.list && sudo apt-get update && sudo
+            apt-get install yarn
+      - run:
+          name: Docker swarm init
+          command: docker swarm init
+      - run:
+          name: Install and build packages
+          command: >-
+            source ~/.bashrc && nvm use 10 && yarn && yarn bootstrap && yarn
+            build && cd __tests__/e2e && yarn install
+      - save_cache:
+          key: 'ark-node10-e2e-{{ checksum "checksum.txt" }}-1-2'
+          paths:
             - ./packages/core-logger/node_modules
             - ./packages/core-logger-pino/node_modules
             - ./packages/core-logger-signale/node_modules
@@ -659,17 +784,202 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'ark-node10-e2e-{{ checksum "checksum.txt" }}-1-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
       - run:
-          name: Benchmark
-          command: cd ~/core && yarn bench
+          name: Generate files
+          command: >-
+            source ~/.bashrc && nvm use 10 && node --version && cd __tests__/e2e
+            && yarn generate -c 3 -v 10
+      - run:
+          name: Make scripts executable
+          command: >-
+            sudo chmod +x __tests__/e2e/dist/docker* && sudo chmod +x
+            __tests__/e2e/dist/node0/docker/testnet-e2e/entrypoint.sh && sudo
+            chmod +x __tests__/e2e/dist/node1/docker/testnet-e2e/entrypoint.sh
+            && sudo chmod +x
+            __tests__/e2e/dist/node2/docker/testnet-e2e/entrypoint.sh && sudo
+            chmod +x __tests__/e2e/dist/node0/ark.sh && sudo chmod +x
+            __tests__/e2e/dist/node1/ark.sh && sudo chmod +x
+            __tests__/e2e/dist/node2/ark.sh
+      - run:
+          name: Docker init and start
+          command: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
+      - run:
+          name: Wait 10 sec for docker containers to be up
+          command: sleep 10
+      - run:
+          name: Run tests
+          command: >-
+            cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source
+            ~/.bashrc && nvm use 10 && yarn run-tests -s scenario1
+      - run:
+          name: Output results - node0
+          when: always
+          command: >-
+            cat __tests__/e2e/dist/node0/output.log && cat
+            __tests__/e2e/dist/node0/errors.log
+      - run:
+          name: Output results - node1
+          when: always
+          command: >-
+            cat __tests__/e2e/dist/node1/output.log && cat
+            __tests__/e2e/dist/node1/errors.log
+      - run:
+          name: Output results - node2
+          when: always
+          command: >-
+            cat __tests__/e2e/dist/node2/output.log && cat
+            __tests__/e2e/dist/node2/errors.log
+  test-node11-e2e:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install nvm 11
+          command: source ~/.bashrc && nvm install 11 && nvm use 11
+      - run:
+          name: Generate cache key
+          command: >-
+            find ./packages/ -name package.json -print0 | sort -z | xargs -r0
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
+      - restore_cache:
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-2'
+      - restore_cache:
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-1'
+      - run:
+          name: Install yarn
+          command: >-
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add
+            - && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo
+            tee /etc/apt/sources.list.d/yarn.list && sudo apt-get update && sudo
+            apt-get install yarn
+      - run:
+          name: Docker swarm init
+          command: docker swarm init
+      - run:
+          name: Install and build packages
+          command: >-
+            source ~/.bashrc && nvm use 11 && yarn && yarn bootstrap && yarn
+            build && cd __tests__/e2e && yarn install
+      - save_cache:
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'ark-node11-e2e-{{ checksum "checksum.txt" }}-2-1'
+          paths:
+            - ./packages/core/node_modules
+            - ./packages/core-api/node_modules
+            - ./packages/core-blockchain/node_modules
+            - ./packages/core-container/node_modules
+            - ./packages/core-database/node_modules
+            - ./packages/core-database-postgres/node_modules
+            - ./packages/core-elasticsearch/node_modules
+            - ./packages/core-error-tracker-airbrake/node_modules
+            - ./packages/core-error-tracker-bugsnag/node_modules
+            - ./packages/core-error-tracker-raygun/node_modules
+            - ./packages/core-error-tracker-rollbar/node_modules
+            - ./packages/core-error-tracker-sentry/node_modules
+            - ./packages/core-event-emitter/node_modules
+            - ./packages/core-forger/node_modules
+            - ./packages/core-http-utils/node_modules
+            - ./packages/core-interfaces/node_modules
+            - ./packages/core-jest-matchers/node_modules
+            - ./packages/core-json-rpc/node_modules
+      - run:
+          name: Generate files
+          command: >-
+            source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e
+            && yarn generate -c 3 -v 11
+      - run:
+          name: Make scripts executable
+          command: >-
+            sudo chmod +x __tests__/e2e/dist/docker* && sudo chmod +x
+            __tests__/e2e/dist/node0/docker/testnet-e2e/entrypoint.sh && sudo
+            chmod +x __tests__/e2e/dist/node1/docker/testnet-e2e/entrypoint.sh
+            && sudo chmod +x
+            __tests__/e2e/dist/node2/docker/testnet-e2e/entrypoint.sh && sudo
+            chmod +x __tests__/e2e/dist/node0/ark.sh && sudo chmod +x
+            __tests__/e2e/dist/node1/ark.sh && sudo chmod +x
+            __tests__/e2e/dist/node2/ark.sh
+      - run:
+          name: Docker init and start
+          command: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
+      - run:
+          name: Wait 10 sec for docker containers to be up
+          command: sleep 10
+      - run:
+          name: Run tests
+          command: >-
+            cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source
+            ~/.bashrc && nvm use 11 && yarn run-tests -s scenario1
+      - run:
+          name: Output results - node0
+          when: always
+          command: >-
+            cat __tests__/e2e/dist/node0/output.log && cat
+            __tests__/e2e/dist/node0/errors.log
+      - run:
+          name: Output results - node1
+          when: always
+          command: >-
+            cat __tests__/e2e/dist/node1/output.log && cat
+            __tests__/e2e/dist/node1/errors.log
+      - run:
+          name: Output results - node2
+          when: always
+          command: >-
+            cat __tests__/e2e/dist/node2/output.log && cat
+            __tests__/e2e/dist/node2/errors.log
   test-node10-integration-1:
     working_directory: ~/core
     environment:
@@ -696,14 +1006,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-2'
+      - restore_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node10-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node10-{{ checksum "checksum.txt" }}-1-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -723,21 +1057,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -807,14 +1126,38 @@ jobs:
           name: Generate cache key
           command: >-
             find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-            echo ./package.json | xargs md5sum | md5sum - > checksum.txt
+            echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
+            md5sum - > checksum.txt
       - restore_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-2'
+      - restore_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-1'
       - run:
           name: Install and build packages
           command: yarn setup
       - save_cache:
-          key: 'core-node11-{{ checksum "checksum.txt" }}-1'
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-2'
+          paths:
+            - ./packages/core-logger/node_modules
+            - ./packages/core-logger-pino/node_modules
+            - ./packages/core-logger-signale/node_modules
+            - ./packages/core-logger-winston/node_modules
+            - ./packages/core-new-relic/node_modules
+            - ./packages/core-p2p/node_modules
+            - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
+            - ./packages/core-tester-cli/node_modules
+            - ./packages/core-transaction-pool/node_modules
+            - ./packages/core-transactions/node_modules
+            - ./packages/core-utils/node_modules
+            - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
+            - ./packages/core-webhooks/node_modules
+            - ./packages/crypto/node_modules
+            - ./node_modules
+            - ./__tests__/e2e/node_modules
+      - save_cache:
+          key: 'core-node11-{{ checksum "checksum.txt" }}-1-1'
           paths:
             - ./packages/core/node_modules
             - ./packages/core-api/node_modules
@@ -834,21 +1177,6 @@ jobs:
             - ./packages/core-interfaces/node_modules
             - ./packages/core-jest-matchers/node_modules
             - ./packages/core-json-rpc/node_modules
-            - ./packages/core-logger/node_modules
-            - ./packages/core-logger-pino/node_modules
-            - ./packages/core-logger-signale/node_modules
-            - ./packages/core-logger-winston/node_modules
-            - ./packages/core-new-relic/node_modules
-            - ./packages/core-p2p/node_modules
-            - ./packages/core-snapshots/node_modules
-            - ./packages/core-tester-cli/node_modules
-            - ./packages/core-transaction-pool/node_modules
-            - ./packages/core-transactions/node_modules
-            - ./packages/core-utils/node_modules
-            - ./packages/core-vote-report/node_modules
-            - ./packages/core-webhooks/node_modules
-            - ./packages/crypto/node_modules
-            - ./node_modules
       - run:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
@@ -902,6 +1230,8 @@ workflows:
       - test-node11-functional
       - test-node10-benchmark
       - test-node11-benchmark
+      - test-node10-e2e
+      - test-node11-e2e
       - test-node10-integration-0
       - test-node10-integration-1
       - test-node11-integration-0

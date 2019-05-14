@@ -1,8 +1,8 @@
-import { ColumnDescriptor } from "../interfaces";
+import { IColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 
 export class Migration extends Model {
-    protected columnsDescriptor: ColumnDescriptor[] = [
+    protected columnsDescriptor: IColumnDescriptor[] = [
         {
             name: "name",
         },

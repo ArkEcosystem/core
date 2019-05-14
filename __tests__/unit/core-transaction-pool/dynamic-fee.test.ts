@@ -2,7 +2,7 @@ import { container } from "./mocks/core-container";
 
 import { Utils } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
-import { calculateFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
+import { calculateMinimumFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
 import { transactions } from "./__fixtures__/transactions";
 
 describe("static fees", () => {
@@ -46,15 +46,15 @@ describe("dynamic fees", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
 
-        transactions.dynamicFeeNormalDummy1.data.fee = calculateFee(
+        transactions.dynamicFeeNormalDummy1.data.fee = calculateMinimumFee(
             dynamicFeeConfig.minFeeBroadcast,
             transactions.dynamicFeeNormalDummy1,
         ).plus(100);
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeTrue();
 
         // testing with transaction fee === min fee for transaction broadcast
-        transactions.dummy3.data.fee = calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy3);
-        transactions.dummy4.data.fee = calculateFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy4);
+        transactions.dummy3.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy3);
+        transactions.dummy4.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy4);
         expect(dynamicFeeMatcher(transactions.dummy3).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy4).broadcast).toBeTrue();
     });
@@ -63,15 +63,15 @@ describe("dynamic fees", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).enterPool).toBeTrue();
 
-        transactions.dynamicFeeNormalDummy1.data.fee = calculateFee(
+        transactions.dynamicFeeNormalDummy1.data.fee = calculateMinimumFee(
             dynamicFeeConfig.minFeePool,
             transactions.dynamicFeeNormalDummy1,
         ).plus(100);
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeTrue();
 
         // testing with transaction fee === min fee for transaction enter pool
-        transactions.dummy3.data.fee = calculateFee(dynamicFeeConfig.minFeePool, transactions.dummy3);
-        transactions.dummy4.data.fee = calculateFee(dynamicFeeConfig.minFeePool, transactions.dummy4);
+        transactions.dummy3.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeePool, transactions.dummy3);
+        transactions.dummy4.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeePool, transactions.dummy4);
         expect(dynamicFeeMatcher(transactions.dummy3).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy4).enterPool).toBeTrue();
     });
@@ -85,17 +85,17 @@ describe("dynamic fees", () => {
     });
 });
 
-describe("calculateFee", () => {
+describe("calculateMinimumFee", () => {
     it("should correctly calculate the transaction fee based on transaction size and addonBytes", () => {
         jest.spyOn(container.app, "resolveOptions").mockReturnValue({
             ...defaults,
             ...{ dynamicFees: { addonBytes: { transfer: 137 } } },
         });
 
-        expect(calculateFee(3, transactions.dummy1)).toEqual(
+        expect(calculateMinimumFee(3, transactions.dummy1)).toEqual(
             Utils.BigNumber.make(137 + transactions.dummy1.serialized.length / 2).times(3),
         );
-        expect(calculateFee(6, transactions.dummy1)).toEqual(
+        expect(calculateMinimumFee(6, transactions.dummy1)).toEqual(
             Utils.BigNumber.make(137 + transactions.dummy1.serialized.length / 2).times(6),
         );
 
@@ -104,13 +104,13 @@ describe("calculateFee", () => {
             ...{ dynamicFees: { addonBytes: { transfer: 0 } } },
         });
 
-        expect(calculateFee(9, transactions.dummy1)).toEqual(
+        expect(calculateMinimumFee(9, transactions.dummy1)).toEqual(
             Utils.BigNumber.make(transactions.dummy1.serialized.length / 2).times(9),
         );
     });
 
     it("should default satoshiPerByte to 1 if value provided is <= 0", () => {
-        expect(calculateFee(-50, transactions.dummy1)).toEqual(calculateFee(1, transactions.dummy1));
-        expect(calculateFee(0, transactions.dummy1)).toEqual(calculateFee(1, transactions.dummy1));
+        expect(calculateMinimumFee(-50, transactions.dummy1)).toEqual(calculateMinimumFee(1, transactions.dummy1));
+        expect(calculateMinimumFee(0, transactions.dummy1)).toEqual(calculateMinimumFee(1, transactions.dummy1));
     });
 });

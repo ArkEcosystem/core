@@ -1,9 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
-import { TransactionGuard } from "@arkecosystem/core-transaction-pool";
-import { Enums } from "@arkecosystem/crypto";
-import Boom from "boom";
-import Hapi from "hapi";
+import { Enums, Interfaces } from "@arkecosystem/crypto";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
@@ -22,18 +21,13 @@ export class TransactionsController extends Controller {
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            if (!this.transactionPool.options.enabled) {
-                return Boom.serverUnavailable("Transaction pool is disabled.");
-            }
-
-            const guard = new TransactionGuard(this.transactionPool);
-
-            const result = await guard.validate((request.payload as any).transactions);
+            const processor: TransactionPool.IProcessor = this.transactionPool.makeProcessor();
+            const result = await processor.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
                 app.resolvePlugin<P2P.IPeerService>("p2p")
                     .getMonitor()
-                    .broadcastTransactions(guard.getBroadcastTransactions());
+                    .broadcastTransactions(processor.getBroadcastTransactions());
             }
 
             return {
@@ -63,10 +57,6 @@ export class TransactionsController extends Controller {
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            if (!this.transactionPool.options.enabled) {
-                return Boom.serverUnavailable("Transaction pool is disabled.");
-            }
-
             const pagination = super.paginate(request);
 
             const transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
@@ -88,11 +78,8 @@ export class TransactionsController extends Controller {
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            if (!this.transactionPool.options.enabled) {
-                return Boom.serverUnavailable("Transaction pool is disabled.");
-            }
+            const transaction: Interfaces.ITransaction = this.transactionPool.getTransaction(request.params.id);
 
-            const transaction = this.transactionPool.getTransaction(request.params.id);
             if (!transaction) {
                 return Boom.notFound("Transaction not found");
             }
@@ -121,6 +108,8 @@ export class TransactionsController extends Controller {
             // Remove reverse mapping from TransactionTypes enum.
             const { TransactionTypes } = Enums;
             const data = Object.assign({}, TransactionTypes);
+
+            // tslint:disable-next-line: ban
             Object.values(TransactionTypes)
                 .filter(value => typeof value === "string")
                 .map((type: string) => data[type])

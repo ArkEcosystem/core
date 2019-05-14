@@ -2,9 +2,10 @@ import { Utils } from "@arkecosystem/crypto";
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
 import { TransactionTypes } from "../../../../packages/crypto/src/enums";
 import { PublicKey } from "../../../../packages/crypto/src/identities";
+import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
-import { TransactionRegistry } from "../../../../packages/crypto/src/transactions";
+import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 
@@ -17,7 +18,7 @@ describe("Transfer Transaction", () => {
     const amount = 10 * ARKTOSHI;
 
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.Transfer).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.Transfer).getSchema();
     });
 
     beforeEach(() => {
@@ -31,7 +32,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be valid with correct data", () => {
@@ -43,7 +44,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be valid with up to 64 bytes in vendor field", () => {
@@ -54,7 +55,7 @@ describe("Transfer Transaction", () => {
             .vendorField("a".repeat(64))
             .sign("passphrase");
         let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
 
         transaction
             .recipientId(address)
@@ -64,7 +65,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         error = Ajv.validate(transactionSchema.$id, transaction.getStruct()).error;
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be invalid with more than 64 bytes in vendor field", () => {
@@ -78,7 +79,7 @@ describe("Transfer Transaction", () => {
         transaction.sign("passphrase");
 
         let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
 
         transaction
             .recipientId(address)
@@ -90,22 +91,22 @@ describe("Transfer Transaction", () => {
         transaction.sign("passphrase");
 
         error = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to no transaction as object", () => {
         const { error } = Ajv.validate(transactionSchema.$id, "test");
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to no address", () => {
         transaction
-            .recipientId(null)
+            .recipientId(undefined)
             .amount(amount)
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to invalid address", () => {
@@ -118,7 +119,7 @@ describe("Transfer Transaction", () => {
         struct.recipientId = "woop";
 
         const { error } = Ajv.validate(transactionSchema.$id, struct);
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero amount", () => {
@@ -128,7 +129,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
@@ -139,7 +140,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to wrong transaction type", () => {
@@ -147,7 +148,7 @@ describe("Transfer Transaction", () => {
         transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be valid due to missing network byte", () => {
@@ -158,7 +159,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be valid due to correct network byte", () => {
@@ -170,7 +171,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be invalid due to wrong network byte", () => {
@@ -182,7 +183,7 @@ describe("Transfer Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be valid after a network change", () => {
@@ -199,7 +200,7 @@ describe("Transfer Transaction", () => {
         expect(transfer.data.network).toBe(30);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
 
         configManager.setFromPreset("mainnet");
 
@@ -212,7 +213,7 @@ describe("Transfer Transaction", () => {
             .build();
 
         expect(transfer.data.network).toBe(23);
-        expect(Ajv.validate(transactionSchema.$id, transaction.getStruct()).error).toBeNull();
+        expect(Ajv.validate(transactionSchema.$id, transaction.getStruct()).error).toBeUndefined();
 
         configManager.setFromPreset("devnet");
     });
@@ -232,14 +233,14 @@ describe("Transfer Transaction", () => {
         expect(transfer.data.senderPublicKey).not.toBe(senderPublicKey);
 
         const { value, error } = Ajv.validate(transactionSchema.$id, transfer.data);
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
         expect(value.senderPublicKey).toBe(senderPublicKey);
     });
 });
 
 describe("Second Signature Transaction", () => {
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.SecondSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.SecondSignature).getSchema();
     });
 
     beforeEach(() => {
@@ -250,7 +251,7 @@ describe("Second Signature Transaction", () => {
         transaction.signatureAsset("second passphrase").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be valid with correct data", () => {
@@ -260,12 +261,12 @@ describe("Second Signature Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be invalid due to no transaction as object", () => {
         const { error } = Ajv.validate(transactionSchema.$id, "test");
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-zero amount", () => {
@@ -275,7 +276,7 @@ describe("Second Signature Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
@@ -285,7 +286,7 @@ describe("Second Signature Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to second signature", () => {
@@ -296,7 +297,7 @@ describe("Second Signature Transaction", () => {
             .secondSign("second passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to wrong transaction type", () => {
@@ -304,13 +305,13 @@ describe("Second Signature Transaction", () => {
         transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 });
 
 describe("Delegate Registration Transaction", () => {
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.DelegateRegistration).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.DelegateRegistration).getSchema();
     });
 
     beforeEach(() => {
@@ -321,12 +322,12 @@ describe("Delegate Registration Transaction", () => {
         transaction.usernameAsset("delegate1").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be invalid due to no transaction as object", () => {
         const { error } = Ajv.validate(transactionSchema.$id, {});
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-zero amount", () => {
@@ -336,28 +337,28 @@ describe("Delegate Registration Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to space in username", () => {
         transaction.usernameAsset("test 123").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-alphanumeric in username", () => {
         transaction.usernameAsset("£££").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to username too long", () => {
         transaction.usernameAsset("1234567890123456789012345").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to undefined username", () => {
@@ -365,30 +366,30 @@ describe("Delegate Registration Transaction", () => {
         const struct = transaction.getStruct();
         struct.asset.delegate.username = undefined;
         const { error } = Ajv.validate(transactionSchema.$id, struct);
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to no username", () => {
         transaction.usernameAsset("").sign("passphrase");
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to capitals in username", () => {
         transaction.usernameAsset("I_AM_INVALID").sign("passphrase");
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to wrong transaction type", () => {
         transaction = BuilderFactory.transfer();
         transaction
-            .recipientId(null)
+            .recipientId(undefined)
             .amount(10 * ARKTOSHI)
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 });
 
@@ -403,7 +404,7 @@ describe("Vote Transaction", () => {
     ];
 
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.Vote).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.Vote).getSchema();
     });
 
     beforeEach(() => {
@@ -414,19 +415,19 @@ describe("Vote Transaction", () => {
         transaction.votesAsset([vote]).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be valid with 1 unvote", () => {
         transaction.votesAsset([unvote]).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be invalid due to no transaction as object", () => {
         const { error } = Ajv.validate(transactionSchema.$id, "test");
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-zero amount", () => {
@@ -436,7 +437,7 @@ describe("Vote Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
@@ -446,28 +447,28 @@ describe("Vote Transaction", () => {
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to no votes", () => {
         transaction.votesAsset([]).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to more than 1 vote", () => {
         transaction.votesAsset(votes).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to invalid votes", () => {
         transaction.votesAsset(invalidVotes).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to wrong vote type", () => {
@@ -475,7 +476,7 @@ describe("Vote Transaction", () => {
         struct.asset.votes = vote;
 
         const { error } = Ajv.validate(transactionSchema.$id, struct);
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to wrong transaction type", () => {
@@ -483,37 +484,41 @@ describe("Vote Transaction", () => {
         wrongTransaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, wrongTransaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 });
 
-describe.skip("Multi Signature Transaction", () => {
+describe("Multi Signature Registration Transaction", () => {
     const passphrase = "passphrase 1";
-    const publicKey = "+03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87";
+    const publicKey = "03e8021105a6c202097e97e6c6d650942d913099bf6c9f14a6815df1023dde3b87";
     const passphrases = [passphrase, "passphrase 2", "passphrase 3"];
-    const keysGroup = [
+    const participants = [
         publicKey,
-        "+03dfdaaa7fd28bc9359874b7e33138f4d0afe9937e152c59b83a99fae7eeb94899",
-        "+03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562",
+        "03dfdaaa7fd28bc9359874b7e33138f4d0afe9937e152c59b83a99fae7eeb94899",
+        "03de72ef9d3ebf1b374f1214f5b8dde823690ab2aa32b4b8b3226cc568aaed1562",
     ];
 
-    let multiSignatureAsset;
+    let multiSignatureAsset: IMultiSignatureAsset;
 
     beforeAll(() => {
-        transactionSchema = TransactionRegistry.get(TransactionTypes.MultiSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.MultiSignature).getSchema();
     });
 
     beforeEach(() => {
+        configManager.setFromPreset("testnet");
         transaction = BuilderFactory.multiSignature();
         multiSignatureAsset = {
-            min: 1,
-            keysgroup: keysGroup,
-            lifetime: 72,
+            min: 3,
+            publicKeys: participants,
         };
     });
 
+    afterEach(() => {
+        configManager.setFromPreset("devnet");
+    });
+
     const signTransaction = (tx, values) => {
-        values.map(value => tx.multiSignatureSign(value));
+        values.map((value, index) => tx.multiSign(value, index));
     };
 
     it("should be valid with min of 3", () => {
@@ -522,7 +527,7 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
     it("should be valid with 3 public keys", () => {
@@ -530,21 +535,25 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+        expect(error).toBeUndefined();
     });
 
-    it("should be valid with lifetime of 10", () => {
-        multiSignatureAsset.lifetime = 10;
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
+    it("should be valid with a dynamic number of signatures between min and publicKeys ", () => {
+        multiSignatureAsset.min = 1;
+        for (const count of [1, 2, 3]) {
+            transaction.data.signatures = [];
+            transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+            signTransaction(transaction, passphrases.slice(0, count));
 
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).toBeNull();
+            const struct = transaction.getStruct();
+            const { error } = Ajv.validate(transactionSchema.$id, struct);
+            expect(error).toBeUndefined();
+        }
     });
 
     it("should be invalid due to no transaction as object", () => {
         const { error } = Ajv.validate(transactionSchema.$id, "test");
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-zero amount", () => {
@@ -555,7 +564,7 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
@@ -566,7 +575,7 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to min too low", () => {
@@ -575,74 +584,68 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to min too high", () => {
-        multiSignatureAsset.min = multiSignatureAsset.keysgroup.length + 1;
+        multiSignatureAsset.min = multiSignatureAsset.publicKeys.length + 1;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
-    });
-
-    it("should be invalid due to lifetime too low", () => {
-        multiSignatureAsset.lifetime = 0;
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
-    });
-
-    it("should be invalid due to lifetime too high", () => {
-        multiSignatureAsset.lifetime = 100;
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to no public keys", () => {
-        multiSignatureAsset.keysgroup = [];
+        multiSignatureAsset.publicKeys = [];
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to too many public keys", () => {
         const values = [];
-        multiSignatureAsset.keysgroup = [];
+        multiSignatureAsset.publicKeys = [];
         for (let i = 0; i < 20; i++) {
             const value = `passphrase ${i}`;
             values.push(value);
-            multiSignatureAsset.keysgroup.push(PublicKey.fromPassphrase(value));
+            multiSignatureAsset.publicKeys.push(PublicKey.fromPassphrase(value));
         }
+
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, values);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to duplicate public keys", () => {
-        multiSignatureAsset.keysgroup = [publicKey, publicKey];
+        multiSignatureAsset.publicKeys = [publicKey, publicKey];
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to no signatures", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to empty signatures", () => {
+        multiSignatureAsset.min = 1;
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, []);
+
+        const struct = transaction.getStruct();
+        struct.signatures = [];
+        const { error } = Ajv.validate(transactionSchema.$id, struct);
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to not enough signatures", () => {
@@ -650,7 +653,7 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, passphrases.slice(1));
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to too many signatures", () => {
@@ -658,37 +661,31 @@ describe.skip("Multi Signature Transaction", () => {
         signTransaction(transaction, ["wrong passphrase", ...passphrases]);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 
-    it('should be invalid due to no "+" for publicKeys', () => {
-        multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
-    });
-
-    it('should be invalid due to having "-" for publicKeys', () => {
-        multiSignatureAsset.keysgroup = keysGroup.map(value => `-${value.slice(1)}`);
-        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
-        signTransaction(transaction, passphrases);
-
-        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
-    });
-
-    it("should be invalid due to wrong keysgroup type", () => {
-        multiSignatureAsset.keysgroup = keysGroup.map(value => value.slice(1));
+    it("should be invalid due to too few publicKeys", () => {
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
 
         const struct = transaction.getStruct();
-        struct.asset.multisignature = publicKey;
-
+        struct.asset.multiSignature.publicKeys = struct.asset.multiSignature.publicKeys.slice(1);
         const { error } = Ajv.validate(transactionSchema.$id, struct);
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to malformed for publicKeys", () => {
+        transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
+        signTransaction(transaction, passphrases);
+
+        const struct = transaction.getStruct();
+        struct.asset.multiSignature.publicKeys = participants.map(value => `-${value.slice(1)}`);
+        let { error } = Ajv.validate(transactionSchema.$id, struct);
+        expect(error).not.toBeUndefined();
+
+        struct.asset.multiSignature.publicKeys = participants.map(value => "a");
+        error = Ajv.validate(transactionSchema.$id, struct).error;
+        expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to wrong transaction type", () => {
@@ -696,6 +693,6 @@ describe.skip("Multi Signature Transaction", () => {
         transaction.usernameAsset("delegate_name").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeNull();
+        expect(error).not.toBeUndefined();
     });
 });

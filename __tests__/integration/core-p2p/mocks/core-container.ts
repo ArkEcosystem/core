@@ -1,8 +1,8 @@
 import { Managers } from "@arkecosystem/crypto";
-import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import { blocks2to100 } from "../../../utils/fixtures";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
+import { defaults } from "./p2p-options";
 
 Managers.configManager.setFromPreset("unitnet");
 
@@ -18,14 +18,14 @@ jest.mock("@arkecosystem/core-container", () => {
                                 return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
                         }
 
-                        return null;
+                        return undefined;
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
                     }),
                 };
             },
-            getVersion: () => "2.3.0",
+            getVersion: () => "2.4.0",
             has: () => true,
             resolvePlugin: name => {
                 if (name === "logger") {
@@ -70,9 +70,9 @@ jest.mock("@arkecosystem/core-container", () => {
                     return {
                         getLastBlock: jest.fn().mockReturnValue({ data: { height: 1 }, getHeader: () => ({}) }),
                         pingBlock: jest.fn().mockReturnValue(true),
-                        getLastDownloadedBlock: jest.fn().mockReturnValue(null),
-                        pushPingBlock: jest.fn().mockReturnValue(null),
-                        handleIncomingBlock: jest.fn().mockReturnValue(null),
+                        getLastDownloadedBlock: jest.fn().mockReturnValue(undefined),
+                        pushPingBlock: jest.fn().mockReturnValue(undefined),
+                        handleIncomingBlock: jest.fn().mockReturnValue(undefined),
                     };
                 }
 
@@ -82,7 +82,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     };
                 }
 
-                if (name === "transactionPool") {
+                if (name === "transaction-pool") {
                     return {
                         transactionExists: jest.fn().mockReturnValue(false),
                         isSenderBlocked: jest.fn().mockReturnValue(false),
@@ -91,9 +91,25 @@ jest.mock("@arkecosystem/core-container", () => {
                         walletManager: {
                             canApply: jest.fn().mockReturnValue(true),
                         },
+                        makeProcessor: jest.fn().mockReturnValue({
+                            validate: jest.fn().mockImplementation(() => {
+                                throw new Error("The payload contains invalid transaction.");
+                            }),
+                        }),
                         options: {
                             maxTransactionBytes: 10e6,
                         },
+                    };
+                }
+
+                if (name === "state") {
+                    return {
+                        getStore: () => ({
+                            getLastBlock: () => genesisBlock,
+                            getLastHeight: () => genesisBlock.data.height,
+                            cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
+                            removeCachedTransactionIds: jest.fn().mockReturnValue(undefined),
+                        }),
                     };
                 }
 
@@ -104,7 +120,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     return defaults;
                 }
 
-                if (name === "transactionPool") {
+                if (name === "transaction-pool") {
                     return {
                         maxTransactionsPerRequest: 30,
                     };
@@ -113,14 +129,6 @@ jest.mock("@arkecosystem/core-container", () => {
                 return {};
             },
             resolve: name => {
-                if (name === "state") {
-                    return {
-                        getLastBlock: () => genesisBlock,
-                        cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
-                        removeCachedTransactionIds: jest.fn().mockReturnValue(null),
-                    };
-                }
-
                 return {};
             },
         },

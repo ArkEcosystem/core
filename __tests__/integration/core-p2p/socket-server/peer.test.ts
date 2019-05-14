@@ -1,9 +1,11 @@
 import "jest-extended";
 
 import "../mocks/core-container";
+import { defaults } from "../mocks/p2p-options";
 
 import { Blocks, Managers } from "@arkecosystem/crypto/src";
 import delay from "delay";
+import SocketCluster from "socketcluster";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
 import { createPeerService } from "../../../helpers/peers";
@@ -13,24 +15,25 @@ import { wallets } from "../../../utils/fixtures/unitnet/wallets";
 
 Managers.configManager.setFromPreset("unitnet");
 
+let server: SocketCluster;
 let socket;
 let emit;
 
 const headers = {
     version: "2.1.0",
     port: "4009",
-    nethash: "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
     height: 1,
     "Content-Type": "application/json",
 };
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test";
+    defaults.remoteAccess = []; // empty for rate limit tests
 
     const { service, processor } = createPeerService();
 
-    await startSocketServer(service, { server: { port: 4007 } });
-    await delay(3000);
+    server = await startSocketServer(service, { server: { port: 4007 } });
+    await delay(1000);
 
     socket = socketCluster.create({
         port: 4007,
@@ -170,6 +173,26 @@ describe("Peer socket endpoint", () => {
 
             expect(onSocketError).toHaveBeenCalled();
             expect(socket.getState()).toBe("closed");
+        });
+
+        it("should not be disconnected and banned if is configured in remoteAccess", async () => {
+            // need to restart the server for config changes to be updated
+            defaults.remoteAccess = ["127.0.0.1", "::ffff:127.0.0.1"];
+            server.destroy();
+            await delay(2000);
+            const { service } = createPeerService();
+            server = await startSocketServer(service, { server: { port: 4007 } });
+
+            await delay(1000);
+
+            for (let i = 0; i < 30; i++) {
+                const { data } = await emit("p2p.peer.getStatus", {
+                    headers,
+                });
+                expect(data.height).toBeNumber();
+            }
+
+            expect(socket.getState()).toBe("open");
         });
     });
 });

@@ -1,15 +1,17 @@
 import "jest-extended";
 
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { errors, TransactionHandler, TransactionHandlerRegistry } from "../../../packages/core-transactions/src";
+import { Errors } from "../../../packages/core-transactions/src";
+import { Registry, TransactionHandler } from "../../../packages/core-transactions/src/handlers";
+
 import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
 const { TransactionTypes } = Enums;
-const { slots } = Crypto;
+const { Slots } = Crypto;
 
 const TEST_TRANSACTION_TYPE = 100;
 
@@ -19,7 +21,7 @@ class TestTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return extend(transactionBaseSchema, {
             $id: "test",
-            required: ["recipientId", "amount", "asset"],
+            required: ["recipientId", "asset"],
             properties: {
                 type: { transactionType: TEST_TRANSACTION_TYPE },
                 recipientId: { $ref: "address" },
@@ -60,19 +62,35 @@ class TestTransaction extends Transactions.Transaction {
 
 // tslint:disable-next-line:max-classes-per-file
 class TestTransactionHandler extends TransactionHandler {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        return;
+    }
+
     public getConstructor(): Transactions.TransactionConstructor {
         return TestTransaction;
     }
 
-    public apply(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): void {
         return;
     }
-    public revert(transaction: Transactions.Transaction, wallet: Database.IWallet): void {
+    public revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): void {
         return;
     }
 
-    public canEnterTransactionPool(data: Interfaces.ITransactionData, guard: TransactionPool.IGuard): boolean {
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
         return true;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }
 
@@ -84,36 +102,34 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-    TransactionHandlerRegistry.deregisterCustomTransactionHandler(TestTransactionHandler);
+    Registry.deregisterCustomTransactionHandler(TestTransactionHandler);
 });
 
-describe("TransactionHandlerRegistry", () => {
+describe("Registry", () => {
     it("should register core transaction types", () => {
         expect(() => {
-            TransactionHandlerRegistry.get(TransactionTypes.Transfer);
-            TransactionHandlerRegistry.get(TransactionTypes.SecondSignature);
-            TransactionHandlerRegistry.get(TransactionTypes.DelegateRegistration);
-            TransactionHandlerRegistry.get(TransactionTypes.Vote);
-            TransactionHandlerRegistry.get(TransactionTypes.MultiSignature);
-        }).not.toThrow(errors.InvalidTransactionTypeError);
+            Registry.get(TransactionTypes.Transfer);
+            Registry.get(TransactionTypes.SecondSignature);
+            Registry.get(TransactionTypes.DelegateRegistration);
+            Registry.get(TransactionTypes.Vote);
+            Registry.get(TransactionTypes.MultiSignature);
+            Registry.get(TransactionTypes.Ipfs);
+        }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 
     it("should register a custom type", () => {
-        expect(() =>
-            TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler),
-        ).not.toThrowError();
-
-        expect(TransactionHandlerRegistry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
-        expect(Transactions.TransactionRegistry.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
+        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError();
+        expect(Registry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
+        expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
     });
 
     it("should be able to instantiate a custom transaction", () => {
-        TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler);
+        Registry.registerCustomTransactionHandler(TestTransactionHandler);
 
         const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
             type: TEST_TRANSACTION_TYPE,
-            timestamp: slots.getTime(),
+            timestamp: Slots.getTime(),
             senderPublicKey: keys.publicKey,
             fee: Utils.BigNumber.make("10000000"),
             amount: Utils.BigNumber.make("200000000"),
@@ -123,26 +139,26 @@ describe("TransactionHandlerRegistry", () => {
             },
         };
 
-        data.signature = Transactions.Transaction.sign(data, keys);
-        data.id = Transactions.Transaction.getId(data);
+        data.signature = Transactions.Signer.sign(data, keys);
+        data.id = Transactions.Utils.getId(data);
 
         const transaction = Transactions.TransactionFactory.fromData(data);
         expect(transaction).toBeInstanceOf(TestTransaction);
         expect(transaction.verified).toBeTrue();
 
-        const bytes = Transactions.Transaction.toBytes(transaction.data);
+        const bytes = Transactions.Utils.toBytes(transaction.data);
         const deserialized = Transactions.TransactionFactory.fromBytes(bytes);
         expect(deserialized.verified);
         expect(deserialized.data.asset.test).toBe(256);
     });
 
     it("should not be ok when registering the same type again", () => {
-        expect(() =>
-            TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler),
-        ).not.toThrowError(errors.TransactionHandlerAlreadyRegisteredError);
+        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError(
+            Errors.TransactionHandlerAlreadyRegisteredError,
+        );
 
-        expect(() => TransactionHandlerRegistry.registerCustomTransactionHandler(TestTransactionHandler)).toThrowError(
-            errors.TransactionHandlerAlreadyRegisteredError,
+        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).toThrowError(
+            Errors.TransactionHandlerAlreadyRegisteredError,
         );
     });
 });

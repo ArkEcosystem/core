@@ -1,5 +1,9 @@
 import "jest-extended";
 
+import { configManager } from "../../../../../../packages/crypto/src/managers";
+
+configManager.setFromPreset("testnet");
+
 import { Utils } from "@arkecosystem/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { Keys } from "../../../../../../packages/crypto/src/identities";
@@ -31,8 +35,8 @@ describe("Second Signature Transaction", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.SecondSignature);
         expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.SecondSignature));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
-        expect(builder).toHaveProperty("data.recipientId", null);
-        expect(builder).toHaveProperty("data.senderPublicKey", null);
+        expect(builder).toHaveProperty("data.recipientId", undefined);
+        expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.asset");
         expect(builder).toHaveProperty("data.asset.signature", {});
     });

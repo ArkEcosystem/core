@@ -2,30 +2,38 @@ import "jest-extended";
 
 import "../mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
-import { DelegatesBusinessRepository, Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { Address } from "../../../../packages/crypto/src/identities";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
 let repository;
 
 let walletsRepository: Database.IWalletsBusinessRepository;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeEach(async () => {
-    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new DelegatesBusinessRepository(() => databaseService);
     walletsRepository = new WalletsBusinessRepository(() => databaseService);
-    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
+    databaseService = new DatabaseService(
+        undefined,
+        undefined,
+        walletManager,
+        walletsRepository,
+        repository,
+        undefined,
+        undefined,
+    );
 });
 
-function generateWallets(): Wallet[] {
+const generateWallets = (): Wallet[] => {
     return genesisBlock.transactions.map((transaction, index) => {
         // @TODO: switch to unitnet
         const address: string = Address.fromPublicKey(transaction.data.senderPublicKey, 23);
@@ -41,7 +49,7 @@ function generateWallets(): Wallet[] {
             rate: index + 1,
         } as Wallet;
     });
-}
+};
 
 describe("Delegate Repository", () => {
     describe("search", () => {
@@ -50,7 +58,11 @@ describe("Delegate Repository", () => {
             { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
             { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
         ];
-        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}];
+
+        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map(delegate => {
+            const wallet = new Wallet("");
+            return Object.assign(wallet, delegate);
+        });
 
         beforeEach(() => {
             const wallets = generateWallets();
@@ -58,7 +70,6 @@ describe("Delegate Repository", () => {
         });
 
         it("should return the local wallets of the connection that are delegates", () => {
-            // @ts-ignore
             jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
             const { rows } = repository.search();
@@ -71,12 +82,12 @@ describe("Delegate Repository", () => {
             // @ts-ignore
             jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const { rows } = repository.search({ forgedTotal: null });
+            const { rows } = repository.search({ forgedTotal: undefined });
 
-            rows.forEach(delegate => {
+            for (const delegate of rows) {
                 expect(delegate.hasOwnProperty("forgedTotal"));
                 expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
-            });
+            }
         });
 
         it("should be ok without params", () => {

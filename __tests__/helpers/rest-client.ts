@@ -10,6 +10,6 @@ export class RestClient {
     }
 
     public static async broadcast<T = any>(transactions): Promise<IHttpieResponse<T>> {
-        return RestClient.post("transactions", { transactions });
+        return this.post("transactions", { transactions });
     }
 }

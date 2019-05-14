@@ -4,7 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
 
 const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
-export function calculateApproval(delegate, height: number = null): number {
+export const calculateApproval = (delegate, height?: number): number => {
     const config = app.getConfig();
 
     if (!height) {
@@ -21,11 +21,11 @@ export function calculateApproval(delegate, height: number = null): number {
         .times(100)
         .dividedBy(totalSupply)
         .toFixed(2);
-}
+};
 
-export function calculateForgedTotal(delegate): number {
+export const calculateForgedTotal = (delegate): number => {
     const forgedFees = Utils.BigNumber.make(delegate.forgedFees);
     const forgedRewards = Utils.BigNumber.make(delegate.forgedRewards);
 
     return +forgedFees.plus(forgedRewards).toFixed();
-}
+};

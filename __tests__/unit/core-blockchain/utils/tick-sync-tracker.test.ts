@@ -41,7 +41,7 @@ describe("tickSyncTracker", () => {
     });
 
     it("should stop tracker when percent == 100", () => {
-        tickSyncTracker(60, 60); // should set tracker = null, so when we call again tickSyncTracker it is reset
+        tickSyncTracker(60, 60); // should set tracker = undefined, so when we call again tickSyncTracker it is reset
 
         const now = new Date();
         const nowMinus8Ms = new Date();

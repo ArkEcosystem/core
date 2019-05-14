@@ -1,16 +1,16 @@
+import "../../utils";
+
 import "./mocks/";
 import { blockchain } from "./mocks/blockchain";
 import { config } from "./mocks/config";
 import { container } from "./mocks/container";
 import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
-
-import "../../utils";
+import { stateStorageStub as stateStorage } from "./stubs/state-storage";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
-import { stateStorage } from "../../../packages/core-blockchain/src/state-storage";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 
 const { BlockFactory } = Blocks;
@@ -35,7 +35,7 @@ describe("State Machine", () => {
 
         describe("checkLater", () => {
             it("should call blockchain.setWakeUp", async () => {
-                const setWakeUp = jest.spyOn(blockchain, "setWakeUp").mockReturnValueOnce(null);
+                const setWakeUp = jest.spyOn(blockchain, "setWakeUp").mockReturnValueOnce(undefined);
                 actionMap.checkLater();
 
                 expect(setWakeUp).toHaveBeenCalledTimes(1);
@@ -154,7 +154,7 @@ describe("State Machine", () => {
 
         describe("exitApp", () => {
             it("should call container forceExit with error message", () => {
-                const forceExit = jest.spyOn(container.app, "forceExit").mockImplementationOnce(() => null);
+                const forceExit = jest.spyOn(container.app, "forceExit").mockImplementationOnce(() => undefined);
                 actionMap.exitApp();
                 expect(forceExit).lastCalledWith("Failed to startup blockchain. Exiting ARK Core!");
             });
@@ -175,7 +175,7 @@ describe("State Machine", () => {
                 databaseMocks = {
                     getLastBlock: jest
                         .spyOn(blockchain.database, "getLastBlock")
-                        .mockReturnValue(BlockFactory.fromData(genesisBlock)),
+                        .mockResolvedValue(BlockFactory.fromData(genesisBlock)),
                     // @ts-ignore
                     saveBlock: jest.spyOn(blockchain.database, "saveBlock").mockReturnValue(true),
                     verifyBlockchain: jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(true),
@@ -198,9 +198,9 @@ describe("State Machine", () => {
             });
 
             it("should dispatch FAILURE if there is no last block in database and genesis block payload hash != configured nethash", async () => {
-                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(null);
+                jest.spyOn(blockchain.database, "getLastBlock").mockReturnValue(undefined);
                 const backupConfig = { ...config };
-                config["network.nethash"] = null;
+                config["network.nethash"] = undefined;
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "FAILURE");
 
@@ -264,7 +264,7 @@ describe("State Machine", () => {
                     // @ts-ignore
                     data: {
                         height: 2,
-                        timestamp: Crypto.slots.getTime(),
+                        timestamp: Crypto.Slots.getTime(),
                     },
                 });
                 // @ts-ignore
@@ -388,24 +388,31 @@ describe("State Machine", () => {
                 await expect(() => actionMap.startForkRecovery()).toDispatch(blockchain, "SUCCESS");
 
                 expect(loggerInfo).toHaveBeenCalledWith("Starting fork recovery");
-                methodsCalled.forEach(method => {
+                for (const method of methodsCalled) {
                     expect(method).toHaveBeenCalled();
-                });
+                }
             });
         });
 
         describe("rollbackDatabase", () => {
             afterEach(() => jest.restoreAllMocks());
 
+            beforeEach(() => {
+                jest.spyOn(container.app, "resolveOptions").mockImplementation(plugin =>
+                    plugin === "blockchain"
+                        ? {
+                              databaseRollback: {
+                                  maxBlockRewind: 14,
+                                  steps: 3,
+                              },
+                          }
+                        : {},
+                );
+            });
+
             it("should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes - and dispatch SUCCESS", async () => {
                 const loggerInfo = jest.spyOn(logger, "info");
 
-                jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-                    databaseRollback: {
-                        maxBlockRewind: 14,
-                        steps: 3,
-                    },
-                });
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 jest.spyOn(blockchain.database, "verifyBlockchain")
@@ -428,12 +435,6 @@ describe("State Machine", () => {
 
             it(`should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes
                     and dispatch FAILURE as verifyBlockchain never passed`, async () => {
-                jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-                    databaseRollback: {
-                        maxBlockRewind: 14,
-                        steps: 3,
-                    },
-                });
                 // @ts-ignore
                 const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
                 // @ts-ignore

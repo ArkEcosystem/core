@@ -1,11 +1,13 @@
-import { Transaction, TransactionFactory } from "../..";
-import { slots } from "../../../crypto";
+import { TransactionFactory, Utils } from "../..";
+import { Slots } from "../../../crypto";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
-import { IKeyPair, ITransactionData } from "../../../interfaces";
+import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
+import { Signer } from "../../signer";
+import { Verifier } from "../../verifier";
 
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
@@ -14,13 +16,13 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     constructor() {
         this.data = {
-            id: null,
-            timestamp: slots.getTime(),
+            id: undefined,
+            timestamp: Slots.getTime(),
             version: 0x01,
         } as ITransactionData;
     }
 
-    public build(data: Partial<ITransactionData> = {}): Transaction {
+    public build(data: Partial<ITransactionData> = {}): ITransaction {
         return TransactionFactory.fromData({ ...this.data, ...data }, false);
     }
 
@@ -37,7 +39,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public fee(fee: string): TBuilder {
-        if (fee !== null) {
+        if (fee) {
             this.data.fee = BigNumber.make(fee);
         }
 
@@ -75,11 +77,10 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
-            this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(Keys.fromPassphrase(passphrase).publicKey, this.data.network);
         }
 
-        this.data.signature = Transaction.sign(this.getSigningObject(), keys);
+        this.data.signature = Signer.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
@@ -92,21 +93,16 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data.senderPublicKey = keys.publicKey;
 
         if (this.signWithSenderAsRecipient) {
-            const pubKeyHash = this.data.network || configManager.get("network.pubKeyHash");
-
-            this.data.recipientId = Address.fromPublicKey(keys.publicKey, pubKeyHash);
+            this.data.recipientId = Address.fromPublicKey(keys.publicKey, this.data.network);
         }
 
-        this.data.signature = Transaction.sign(this.getSigningObject(), keys);
+        this.data.signature = Signer.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
     public secondSign(secondPassphrase: string): TBuilder {
-        this.data.secondSignature = Transaction.secondSign(
-            this.getSigningObject(),
-            Keys.fromPassphrase(secondPassphrase),
-        );
+        this.data.secondSignature = Signer.secondSign(this.getSigningObject(), Keys.fromPassphrase(secondPassphrase));
 
         return this.instance();
     }
@@ -116,34 +112,35 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             wif: networkWif || configManager.get("network.wif"),
         } as NetworkType);
 
-        this.data.secondSignature = Transaction.secondSign(this.getSigningObject(), keys);
+        this.data.secondSignature = Signer.secondSign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
-    public multiSignatureSign(passphrase: string): TBuilder {
-        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
-
+    public multiSign(passphrase: string, index: number): TBuilder {
         if (!this.data.signatures) {
             this.data.signatures = [];
         }
 
-        this.data.signatures.push(Transaction.sign(this.getSigningObject(), keys));
+        this.version(2);
+
+        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
+        Signer.multiSign(this.getSigningObject(), keys, index);
 
         return this.instance();
     }
 
     public verify(): boolean {
-        return Transaction.verifyData(this.data);
+        return Verifier.verifyHash(this.data);
     }
 
     public getStruct(): ITransactionData {
-        if (!this.data.senderPublicKey || !this.data.signature) {
+        if (!this.data.senderPublicKey || (!this.data.signature && !this.data.signatures)) {
             throw new MissingTransactionSignatureError();
         }
 
         const struct: ITransactionData = {
-            id: Transaction.getId(this.data).toString(),
+            id: Utils.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
             timestamp: this.data.timestamp,
@@ -164,13 +161,15 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     protected abstract instance(): TBuilder;
 
     private getSigningObject(): ITransactionData {
-        const data: ITransactionData = { ...this.data };
+        const data: ITransactionData = {
+            ...this.data,
+        };
 
-        Object.keys(data).forEach(key => {
+        for (const key of Object.keys(data)) {
             if (["model", "network", "id"].includes(key)) {
                 delete data[key];
             }
-        });
+        }
 
         return data;
     }

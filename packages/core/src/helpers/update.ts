@@ -9,7 +9,7 @@ import semver from "semver";
 
 import { configManager } from "./config";
 
-async function getLatestVersion(name: string, channel: string): Promise<string> {
+const getLatestVersion = async (name: string, channel: string): Promise<string> => {
     try {
         const version = await latestVersion(name, { version: channel });
 
@@ -17,9 +17,9 @@ async function getLatestVersion(name: string, channel: string): Promise<string> 
     } catch (error) {
         return undefined;
     }
-}
+};
 
-function ensureCacheFile(config: IConfig): string {
+const ensureCacheFile = (config: IConfig): string => {
     ensureDirSync(config.cacheDir);
 
     const fileName = join(config.cacheDir, "update");
@@ -27,9 +27,9 @@ function ensureCacheFile(config: IConfig): string {
     closeSync(openSync(fileName, "w"));
 
     return fileName;
-}
+};
 
-export async function installFromChannel(pkg, channel) {
+export const installFromChannel = async (pkg, channel) => {
     const { stdout, stderr } = await shell(`yarn global add ${pkg}@${channel}`);
 
     if (stderr) {
@@ -37,10 +37,10 @@ export async function installFromChannel(pkg, channel) {
     }
 
     console.log(stdout);
-}
+};
 
-export function getRegistryChannel(config: IConfig): string {
-    const channels: string[] = ["alpha", "beta", "rc", "next"];
+export const getRegistryChannel = (config: IConfig): string => {
+    const channels: string[] = ["next"];
 
     let channel: string = "latest";
     for (const item of channels) {
@@ -50,9 +50,9 @@ export function getRegistryChannel(config: IConfig): string {
     }
 
     return channel;
-}
+};
 
-export function needsRefresh(config: IConfig): boolean {
+export const needsRefresh = (config: IConfig): boolean => {
     const cacheFile = ensureCacheFile(config);
 
     try {
@@ -63,9 +63,9 @@ export function needsRefresh(config: IConfig): boolean {
     } catch (err) {
         return true;
     }
-}
+};
 
-export async function checkForUpdates({ config, error, warn }): Promise<any> {
+export const checkForUpdates = async ({ config, error, warn }): Promise<any> => {
     const state = {
         ready: false,
         name: config.name,
@@ -111,4 +111,4 @@ export async function checkForUpdates({ config, error, warn }): Promise<any> {
     }
 
     return state;
-}
+};

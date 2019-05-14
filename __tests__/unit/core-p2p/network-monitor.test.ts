@@ -36,7 +36,7 @@ describe("NetworkMonitor", () => {
                 {
                     ip: stubPeer.ip,
                     port: stubPeer.port,
-                    version: "2.3.0",
+                    version: "2.4.0",
                 },
                 { lessVerbose: true, seed: true },
             );
@@ -45,7 +45,7 @@ describe("NetworkMonitor", () => {
         });
     });
 
-    describe("cleanPeers", () => {
+    describe("cleansePeers", () => {
         it("should remove the unresponsive peers", async () => {
             storage.setPeer(stubPeer);
 
@@ -55,7 +55,7 @@ describe("NetworkMonitor", () => {
                     throw new Error("yo");
                 }),
             } as any);
-            await monitor.cleanPeers();
+            await monitor.cleansePeers();
             expect(storage.hasPeers()).toBeFalse();
             mockGetPeer.mockRestore();
         });
@@ -135,13 +135,18 @@ describe("NetworkMonitor", () => {
 
             const spySuspend = jest.spyOn(processor, "suspend");
 
-            state.forkedBlock = { ip: "1.1.1.1" };
+            const spyStateStore = jest.spyOn(state, "getStore").mockReturnValueOnce({
+                ...state.getStore(),
+                ...{ forkedBlock: { ip: "1.1.1.1" } },
+            });
 
             await monitor.refreshPeersAfterFork();
 
             expect(monitor.resetSuspendedPeers).toHaveBeenCalled();
             expect(spySuspend).toHaveBeenCalledWith("1.1.1.1");
             expect(connector.disconnect).toHaveBeenCalled();
+
+            spyStateStore.mockRestore();
         });
     });
 
@@ -274,6 +279,27 @@ describe("NetworkMonitor", () => {
                 expectedBlocks.push({ id: `11${1 + i * 400}` });
             }
             expect(await monitor.syncWithNetwork(1)).toEqual(expectedBlocks);
+        });
+
+        it("should still download blocks from 1 peer if network height === our height", async () => {
+            const mockBlock = { id: "123456" };
+
+            communicator.getPeerBlocks = jest.fn().mockReturnValue([mockBlock]);
+
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.1.1.1",
+                    port: 4000,
+                    state: {
+                        height: 20,
+                        currentSlot: 2,
+                        forgingAllowed: true,
+                    },
+                    verificationResult: { forked: false },
+                }),
+            );
+
+            expect(await monitor.syncWithNetwork(20)).toEqual([mockBlock]);
         });
     });
 

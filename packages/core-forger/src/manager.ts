@@ -7,7 +7,7 @@ import uniq from "lodash.uniq";
 import pluralize from "pluralize";
 import { Client } from "./client";
 import { Delegate } from "./delegate";
-import { HostNoResponseError } from "./errors";
+import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -48,14 +48,16 @@ export class ForgerManager {
             return;
         }
 
+        let timeout: number;
         try {
             await this.loadRound();
-
-            await this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
-
+            timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
             this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
+            timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
+        } finally {
+            await this.checkLater(timeout);
         }
     }
 
@@ -92,7 +94,7 @@ export class ForgerManager {
                     await this.client.syncWithNetwork();
                 }
 
-                return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
             }
 
             const networkState: P2P.INetworkState = await this.client.getNetworkState();
@@ -109,13 +111,12 @@ export class ForgerManager {
                 await this.forgeNewBlock(delegate, this.round, networkState);
             }
 
-            return this.checkLater(Crypto.slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
-            if (error instanceof HostNoResponseError) {
+            if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 this.logger.warn(error.message);
             } else {
                 this.logger.error(error.stack);
-                this.logger.error(`Forging failed: ${error.message}`);
 
                 if (!isEmpty(this.round)) {
                     this.logger.info(
@@ -136,12 +137,14 @@ export class ForgerManager {
         round: P2P.ICurrentRound,
         networkState: P2P.INetworkState,
     ): Promise<void> {
+        Managers.configManager.setHeight(networkState.nodeHeight);
+
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
         const block: Interfaces.IBlock = delegate.forge(transactions, {
             previousBlock: {
                 id: networkState.lastBlockId,
-                idHex: Managers.configManager.getMilestone(networkState.nodeHeight).block.idFullSha256
+                idHex: Managers.configManager.getMilestone().block.idFullSha256
                     ? networkState.lastBlockId
                     : Blocks.Block.toBytesHex(networkState.lastBlockId),
                 height: networkState.nodeHeight,
@@ -160,7 +163,9 @@ export class ForgerManager {
 
         this.client.emitEvent("block.forged", block.data);
 
-        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction));
+        for (const transaction of transactions) {
+            this.client.emitEvent("transaction.forged", transaction);
+        }
     }
 
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
@@ -243,7 +248,7 @@ export class ForgerManager {
         return true;
     }
 
-    private isActiveDelegate(publicKey: string): Delegate | null {
+    private isActiveDelegate(publicKey: string): Delegate | undefined {
         return this.delegates.find(delegate => delegate.publicKey === publicKey);
     }
 

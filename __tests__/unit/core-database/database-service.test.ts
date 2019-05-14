@@ -2,15 +2,15 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions";
+import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
-import { Wallet, WalletManager } from "../../../packages/core-database/src";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
+import { Wallet, WalletManager } from "../../../packages/core-state/src/wallets";
 import { roundCalculator } from "../../../packages/core-utils/dist";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
-import { StateStorageStub } from "./__fixtures__/state-storage-stub";
+import { stateStorageStub } from "./__fixtures__/state-storage-stub";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
@@ -18,7 +18,7 @@ const { TransactionTypes } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let container;
 let emitter: EventEmitter.EventEmitter;
 
@@ -34,12 +34,12 @@ beforeEach(() => {
     jest.restoreAllMocks();
 });
 
-function createService() {
-    const service = new DatabaseService({}, connection, walletManager, null, null, null, null);
+const createService = () => {
+    const service = new DatabaseService({}, connection, walletManager, undefined, undefined, undefined, undefined);
     service.emitter = emitter;
 
     return service;
-}
+};
 
 describe("Database Service", () => {
     it("should listen for emitter events during constructor", () => {
@@ -58,7 +58,7 @@ describe("Database Service", () => {
             jest.spyOn(emitter, "emit");
 
             databaseService = createService();
-            jest.spyOn(databaseService, "applyRound").mockImplementation(() => null); // test applyRound logic separately
+            jest.spyOn(databaseService, "applyRound").mockImplementation(() => undefined); // test applyRound logic separately
 
             await databaseService.applyBlock(genesisBlock);
 
@@ -74,7 +74,6 @@ describe("Database Service", () => {
         it("should deliver blocks for the given heights", async () => {
             const requestHeightsLow = [1, 5, 20];
             const requestHeightsHigh = [100, 200, 500];
-            const stateStorageStub = new StateStorageStub();
             // @ts-ignore
             jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation((heightFrom, heightTo) => {
                 if (requestHeightsHigh[0] <= heightFrom) {
@@ -119,7 +118,9 @@ describe("Database Service", () => {
                 }
             }
 
-            jest.spyOn(container, "has").mockReturnValue(false);
+            jest.spyOn(stateStorageStub, "getLastBlocksByHeight").mockImplementation(() => {
+                return undefined;
+            });
 
             blocks = await databaseService.getBlocksByHeight(requestHeights);
 
@@ -134,26 +135,25 @@ describe("Database Service", () => {
 
     describe("getBlocksForRound", () => {
         it("should fetch blocks using lastBlock in state-storage", async () => {
-            const stateStorageStub = new StateStorageStub();
-            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(undefined);
             jest.spyOn(container, "has").mockReturnValue(true);
             jest.spyOn(container, "resolve").mockReturnValue(stateStorageStub);
 
             databaseService = createService();
-            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(undefined);
 
             const blocks = await databaseService.getBlocksForRound();
 
             expect(blocks).toBeEmpty();
             expect(stateStorageStub.getLastBlock).toHaveBeenCalled();
-            expect(databaseService.getLastBlock).not.toHaveBeenCalled();
+            expect(databaseService.getLastBlock).toHaveBeenCalled();
         });
 
         it("should fetch blocks using lastBlock in database", async () => {
             jest.spyOn(container, "has").mockReturnValue(false);
 
             databaseService = createService();
-            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(null);
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(undefined);
 
             const blocks = await databaseService.getBlocksForRound();
 
@@ -214,7 +214,7 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = TransactionHandlerRegistry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             const originalApply = transactionHandler.canBeApplied;
             transactionHandler.canBeApplied = jest.fn(() => true);
 

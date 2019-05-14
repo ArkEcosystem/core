@@ -1,8 +1,8 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { TransactionsController } from "./controller";
 import * as Schema from "./schema";
 
-export function registerRoutes(server: Hapi.Server): void {
+export const registerRoutes = (server: Hapi.Server): void => {
     const controller = new TransactionsController();
     server.bind(controller);
 
@@ -78,4 +78,4 @@ export function registerRoutes(server: Hapi.Server): void {
         path: "/transactions/fees",
         handler: controller.fees,
     });
-}
+};

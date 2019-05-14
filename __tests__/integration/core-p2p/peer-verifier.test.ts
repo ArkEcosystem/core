@@ -41,12 +41,12 @@ describe("Peer Verifier", () => {
         });
 
         it("different chains, including the genesis block", async () => {
-            await socketManager.addMock("getCommonBlocks", { common: null });
+            await socketManager.addMock("getCommonBlocks", { common: undefined });
 
             const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
             const state = { header: { height: 1, id: "123" } };
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-            expect(result).toBeNull();
+            expect(result).toBeUndefined();
         });
 
         it("bogus replies for common block", async () => {
@@ -65,7 +65,7 @@ describe("Peer Verifier", () => {
                 const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
                 const state = { header: { height: 1, id: "123" } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-                expect(result).toBeNull();
+                expect(result).toBeUndefined();
             }
         });
 
@@ -92,7 +92,7 @@ describe("Peer Verifier", () => {
                 const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
                 const state = { header: { height: 2, id: block2.id } };
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
-                expect(result).toBeNull();
+                expect(result).toBeUndefined();
             }
         });
 

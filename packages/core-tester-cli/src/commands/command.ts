@@ -16,10 +16,6 @@ export abstract class BaseCommand extends Command {
             description: "API port",
             default: 4003,
         }),
-        portP2P: flags.integer({
-            description: "P2P port",
-            default: 4000,
-        }),
     };
 
     public static flagsSend = {
@@ -66,21 +62,20 @@ export abstract class BaseCommand extends Command {
     };
 
     protected api: HttpClient;
-    protected p2p: HttpClient;
     protected signer: Signer;
-    protected network: Record<string, any>;
     protected constants: Record<string, any>;
+
+    protected get network(): number {
+        return this.constants.pubKeyHash;
+    }
 
     protected async make(command): Promise<any> {
         const { args, flags } = this.parse(command);
 
-        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/`);
-        this.p2p = new HttpClient(`${flags.host}:${flags.portP2P}/`);
+        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/v2/`);
 
-        await this.setupConstants();
-        await this.setupNetwork();
-
-        Managers.configManager.setFromPreset(this.network.name);
+        await this.setupConfiguration();
+        await this.setupConfigurationForCrypto();
 
         this.signer = new Signer(this.network);
 
@@ -92,7 +87,7 @@ export abstract class BaseCommand extends Command {
 
         Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-        this.signer = new Signer(Managers.configManager.all());
+        this.signer = new Signer(Managers.configManager.all().network.pubKeyHash);
 
         return { args, flags };
     }
@@ -106,7 +101,7 @@ export abstract class BaseCommand extends Command {
             let recipientId = transaction.recipientId;
 
             if (!recipientId) {
-                recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+                recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network);
             }
 
             logger.info(
@@ -201,7 +196,7 @@ export abstract class BaseCommand extends Command {
         return Utils.formatSatoshi(satoshi);
     }
 
-    private async setupConstants() {
+    private async setupConfiguration() {
         try {
             const { data } = await this.api.get("node/configuration");
 
@@ -212,11 +207,11 @@ export abstract class BaseCommand extends Command {
         }
     }
 
-    private async setupNetwork() {
+    private async setupConfigurationForCrypto() {
         try {
-            const { data } = await this.p2p.get("config");
+            const { data: dataCrypto } = await this.api.get("node/configuration/crypto");
 
-            this.network = data.network;
+            Managers.configManager.setConfig(dataCrypto);
         } catch (error) {
             logger.error(error.message);
             process.exit(1);

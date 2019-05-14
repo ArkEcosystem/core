@@ -1,16 +1,16 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger, Shared } from "@arkecosystem/core-interfaces";
+import { Database, Logger, Shared, State } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
-export async function validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
+export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
     const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
-    const delegates: Database.IDelegateWallet[] = await database.getActiveDelegates(roundInfo);
-    const slot: number = Crypto.slots.getSlotNumber(block.data.timestamp);
-    const forgingDelegate: Database.IDelegateWallet = delegates[slot % delegates.length];
+    const delegates: State.IDelegateWallet[] = await database.getActiveDelegates(roundInfo);
+    const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+    const forgingDelegate: State.IDelegateWallet = delegates[slot % delegates.length];
 
     const generatorUsername: string = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
 
@@ -39,4 +39,4 @@ export async function validateGenerator(block: Interfaces.IBlock): Promise<boole
     );
 
     return true;
-}
+};

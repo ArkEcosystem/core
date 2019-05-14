@@ -1,6 +1,7 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
     "@arkecosystem/core-logger-pino": {},
+    "@arkecosystem/core-state": {},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -27,7 +28,7 @@ module.exports = {
                 ipfs: 250,
                 timelockTransfer: 500,
                 multiPayment: 500,
-                delegateResignation: 400000,
+                delegateResignation: 100,
             },
         },
     },
@@ -39,6 +40,7 @@ module.exports = {
         coldStart: 5,
     },
     "@arkecosystem/core-blockchain": {},
+    "@arkecosystem/core-wallet-api": {},
     "@arkecosystem/core-api": {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",

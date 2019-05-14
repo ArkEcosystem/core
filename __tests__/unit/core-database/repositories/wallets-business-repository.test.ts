@@ -1,19 +1,20 @@
 import "jest-extended";
 import "../mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 import compact from "lodash.compact";
 import uniq from "lodash.uniq";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
-import { Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Wallets } from "../../../../packages/core-state/src";
 import { Address } from "../../../../packages/crypto/src/identities";
 
 let genesisSenders;
 let repository;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeAll(() => {
@@ -21,29 +22,36 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
-    walletManager = new WalletManager();
+    walletManager = new Wallets.WalletManager();
 
     repository = new WalletsBusinessRepository(() => databaseService);
 
-    databaseService = new DatabaseService(null, null, walletManager, repository, null, null, null);
+    databaseService = new DatabaseService(
+        undefined,
+        undefined,
+        walletManager,
+        repository,
+        undefined,
+        undefined,
+        undefined,
+    );
 });
 
-function generateWallets() {
+const generateWallets = () => {
     return genesisSenders.map((senderPublicKey, index) => ({
         address: Address.fromPublicKey(senderPublicKey),
         balance: Utils.BigNumber.make(index),
     }));
-}
+};
 
-function generateVotes() {
+const generateVotes = () => {
     return genesisSenders.map(senderPublicKey => ({
         address: Address.fromPublicKey(senderPublicKey),
         vote: genesisBlock.transactions[0].data.senderPublicKey,
     }));
-}
+};
 
-function generateFullWallets() {
+const generateFullWallets = () => {
     return genesisSenders.map(senderPublicKey => {
         const address = Address.fromPublicKey(senderPublicKey);
 
@@ -57,7 +65,7 @@ function generateFullWallets() {
             voteBalance: Utils.BigNumber.make(200),
         };
     });
-}
+};
 
 describe("Wallet Repository", () => {
     describe("search", () => {
@@ -323,7 +331,7 @@ describe("Wallet Repository", () => {
                 { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
                 { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
             ].forEach(o => {
-                const wallet = new Wallet(o.address);
+                const wallet = new Wallets.Wallet(o.address);
                 wallet.balance = o.balance;
                 walletManager.reindex(wallet);
             });

@@ -2,9 +2,9 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import prettyMs from "pretty-ms";
 
-let tracker = null;
+let tracker;
 
-export function tickSyncTracker(blockCount, count): void {
+export const tickSyncTracker = (blockCount, count): void => {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),
@@ -42,7 +42,7 @@ export function tickSyncTracker(blockCount, count): void {
         const blocksDownloaded = tracker.blocksDownloaded.toLocaleString();
         const networkHeight = tracker.networkHeight.toLocaleString();
         const timeLeft = prettyMs(tracker.remainingInMilliseconds, {
-            secDecimalDigits: 0,
+            secondsDecimalDigits: 0,
         });
 
         app.resolvePlugin<Logger.ILogger>("logger").info(
@@ -51,6 +51,6 @@ export function tickSyncTracker(blockCount, count): void {
     }
 
     if (tracker.percent === 100) {
-        tracker = null;
+        tracker = undefined;
     }
-}
+};

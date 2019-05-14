@@ -35,7 +35,7 @@ const search = async request => {
     return toPagination(transactions, "transaction");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.transactions.index", index, 8, request => ({
             ...request.query,
@@ -47,4 +47,4 @@ export function registerMethods(server) {
             ...request.query,
             ...paginate(request),
         }));
-}
+};

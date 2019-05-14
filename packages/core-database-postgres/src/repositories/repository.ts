@@ -33,7 +33,7 @@ export abstract class Repository implements Database.IRepository {
             const columnSet = this.model.getColumnSet();
             const columnDef = columnSet.columns.find(col => col.prop === prop || col.name === prop);
 
-            return columnDef ? columnDef.name : null;
+            return columnDef ? columnDef.name : undefined;
         }
 
         return prop;
@@ -49,11 +49,13 @@ export abstract class Repository implements Database.IRepository {
 
     protected async findManyWithCount<T = any>(
         selectQuery: Query<any>,
-        paginate?: Database.SearchPaginate,
-        orderBy?: Database.SearchOrderBy[],
+        paginate?: Database.ISearchPaginate,
+        orderBy?: Database.ISearchOrderBy[],
     ): Promise<{ rows: T; count: number }> {
         if (!!orderBy) {
-            orderBy.forEach(o => selectQuery.order(this.query[o.field][o.direction]));
+            for (const o of orderBy) {
+                selectQuery.order(this.query[o.field][o.direction]);
+            }
         }
 
         if (!paginate || (!paginate.limit && !paginate.offset)) {
@@ -85,7 +87,7 @@ export abstract class Repository implements Database.IRepository {
         for (const row of explainedQuery) {
             const line: any = Object.values(row)[0];
             const match = line.match(/rows=([0-9]+)/);
-            if (match !== null) {
+            if (match) {
                 count = Number(match[1]);
             }
         }

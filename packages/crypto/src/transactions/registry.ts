@@ -4,9 +4,7 @@ import {
     MissingMilestoneFeeError,
     TransactionAlreadyRegisteredError,
     TransactionTypeInvalidRangeError,
-    UnkownTransactionError,
 } from "../errors";
-import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { feeManager } from "../managers/fee";
 import { validator } from "../validation";
@@ -19,6 +17,7 @@ import {
     SecondSignatureRegistrationTransaction,
     TimelockTransferTransaction,
     Transaction,
+    TransactionTypeFactory,
     TransferTransaction,
     VoteTransaction,
 } from "./types";
@@ -33,6 +32,8 @@ class TransactionRegistry {
     private readonly customTypes: Map<number, TransactionConstructor> = new Map<number, TransactionConstructor>();
 
     constructor() {
+        TransactionTypeFactory.initialize(this.coreTypes, this.customTypes);
+
         this.registerCoreType(TransferTransaction);
         this.registerCoreType(SecondSignatureRegistrationTransaction);
         this.registerCoreType(DelegateRegistrationTransaction);
@@ -42,25 +43,6 @@ class TransactionRegistry {
         this.registerCoreType(TimelockTransferTransaction);
         this.registerCoreType(MultiPaymentTransaction);
         this.registerCoreType(DelegateResignationTransaction);
-    }
-
-    public create(data: ITransactionData): ITransaction {
-        const instance: ITransaction = new (this.get(data.type) as any)() as Transaction;
-        instance.data = data;
-
-        return instance;
-    }
-
-    public get(type: TransactionTypes | number): TransactionConstructor {
-        if (this.coreTypes.has(type)) {
-            return this.coreTypes.get(type);
-        }
-
-        if (this.customTypes.has(type)) {
-            return this.customTypes.get(type);
-        }
-
-        throw new UnkownTransactionError(type);
     }
 
     public registerCustomType(constructor: TransactionConstructor): void {

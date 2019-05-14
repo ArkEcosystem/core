@@ -1,7 +1,28 @@
 import { app } from "@arkecosystem/core-container";
 import { Shared } from "@arkecosystem/core-interfaces";
 
-export function calculateRound(height: number): Shared.IRoundInfo {
+export const isNewRound = (height: number): boolean => {
+    const { config } = app.getConfig();
+
+    // Since milestones are merged, find the first milestone to introduce the delegate count.
+    let milestone;
+    for (let i = config.milestones.length - 1; i >= 0; i--) {
+        const temp = config.milestones[i];
+        if (temp.height > height) {
+            continue;
+        }
+
+        if (!milestone || temp.activeDelegates === milestone.activeDelegates) {
+            milestone = temp;
+        } else {
+            break;
+        }
+    }
+
+    return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
+};
+
+export const calculateRound = (height: number): Shared.IRoundInfo => {
     const config = app.getConfig();
     const { milestones } = config.config;
 
@@ -11,7 +32,7 @@ export function calculateRound(height: number): Shared.IRoundInfo {
     let maxDelegates: number = 0;
 
     let milestoneHeight: number = height;
-    let milestone = null;
+    let milestone;
 
     for (let i = 0, j = 0; i < milestones.length; i++) {
         if (!milestone || milestone.activeDelegates !== milestones[i].activeDelegates) {
@@ -62,25 +83,4 @@ export function calculateRound(height: number): Shared.IRoundInfo {
     }
 
     return { round, roundHeight, nextRound, maxDelegates };
-}
-
-export function isNewRound(height: number): boolean {
-    const { config } = app.getConfig();
-
-    // Since milestones are merged, find the first milestone to introduce the delegate count.
-    let milestone;
-    for (let i = config.milestones.length - 1; i >= 0; i--) {
-        const temp = config.milestones[i];
-        if (temp.height > height) {
-            continue;
-        }
-
-        if (!milestone || temp.activeDelegates === milestone.activeDelegates) {
-            milestone = temp;
-        } else {
-            break;
-        }
-    }
-
-    return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
-}
+};

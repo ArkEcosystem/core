@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "fs";
 import { IPeerData } from "../interfaces";
 import { validateJSON } from "./validate-json";
 
-export function restorePeers(): IPeerData[] {
+export const restorePeers = (): IPeerData[] => {
     const path: string = `${process.env.CORE_PATH_CACHE}/peers.json`;
 
     if (!existsSync(path)) {
@@ -47,4 +47,4 @@ export function restorePeers(): IPeerData[] {
     } catch (error) {
         return [];
     }
-}
+};

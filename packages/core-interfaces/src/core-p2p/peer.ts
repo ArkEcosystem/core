@@ -7,15 +7,13 @@ export interface IPeer {
     ip: string;
     port: number;
 
-    nethash: string;
     version: string;
-    os: string;
 
     latency: number;
     headers: Record<string, string | number>;
     state: IPeerState;
-    lastPinged: Dato | null;
-    verificationResult: IPeerVerificationResult | null;
+    lastPinged: Dato | undefined;
+    verificationResult: IPeerVerificationResult | undefined;
 
     setHeaders(headers: Record<string, string>): void;
 
@@ -29,9 +27,7 @@ export interface IPeer {
 export interface IPeerBroadcast {
     ip: string;
     port: number;
-    nethash: string;
     version: string;
-    os: string;
     height: number;
     latency: number;
 }

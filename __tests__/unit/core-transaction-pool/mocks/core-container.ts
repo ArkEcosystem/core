@@ -8,11 +8,10 @@ export const container = {
                 get: () => ({}),
             };
         },
+        has: plugin => {
+            return true;
+        },
         resolve: name => {
-            if (name === "state") {
-                return state;
-            }
-
             return {};
         },
         resolvePlugin: name => {
@@ -38,11 +37,16 @@ export const container = {
             if (name === "event-emitter") {
                 return {
                     emit: () => ({}),
+                    on: () => ({}),
                 };
             }
 
             if (name === "database") {
                 return database;
+            }
+
+            if (name === "state") {
+                return state;
             }
 
             return {};

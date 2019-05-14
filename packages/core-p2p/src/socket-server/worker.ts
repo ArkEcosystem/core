@@ -32,7 +32,7 @@ export class Worker extends SCWorker {
                 // @ts-ignore
                 socket.on(`p2p.${version}.${handler}`, async (data, res) => {
                     try {
-                        return res(null, await this.sendToMasterAsync(`p2p.${version}.${handler}`, data));
+                        return res(undefined, await this.sendToMasterAsync(`p2p.${version}.${handler}`, data));
                     } catch (e) {
                         return res(e);
                     }
@@ -170,7 +170,7 @@ export class Worker extends SCWorker {
     }
 
     private hasExceededRateLimit(remoteAddress: string): boolean {
-        if ((this.config.whitelist || []).includes(remoteAddress)) {
+        if ([...this.config.whitelist, ...this.config.remoteAccess].includes(remoteAddress)) {
             return false;
         }
 

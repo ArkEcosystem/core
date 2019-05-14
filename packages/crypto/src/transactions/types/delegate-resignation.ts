@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -10,7 +11,7 @@ export class DelegateResignationTransaction extends Transaction {
         return schemas.delegateResignation;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         return new ByteBuffer(0);
     }
 

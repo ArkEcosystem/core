@@ -1,8 +1,7 @@
 import { Validation } from "@arkecosystem/crypto";
-import { Server } from "hapi";
+import { Server } from "@hapi/hapi";
 import get from "lodash.get";
 import { IRequestParameters, IResponse, IResponseError } from "../../interfaces";
-import { network } from "./network";
 
 export class Processor {
     public async resource<T = any>(
@@ -33,7 +32,7 @@ export class Processor {
         );
 
         if (error) {
-            return this.createErrorResponse(payload ? payload.id : null, -32600, new Error(error));
+            return this.createErrorResponse(payload ? payload.id : undefined, -32600, new Error(error));
         }
 
         const { method, params, id } = payload;
@@ -56,8 +55,6 @@ export class Processor {
                     return this.createErrorResponse(id, -32602, error);
                 }
             }
-
-            await network.connect();
 
             const result = await targetMethod(params);
 

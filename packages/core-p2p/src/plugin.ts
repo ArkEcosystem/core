@@ -10,7 +10,7 @@ import { PeerService } from "./peer-service";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 
-export function makePeerService(): PeerService {
+export const makePeerService = (): PeerService => {
     const storage = new PeerStorage();
     const connector = new PeerConnector();
 
@@ -20,9 +20,9 @@ export function makePeerService(): PeerService {
     const monitor = new NetworkMonitor({ storage, processor, communicator });
 
     return new PeerService({ storage, processor, connector, communicator, monitor, guard });
-}
+};
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "p2p",
@@ -47,11 +47,6 @@ export const plugin: Container.PluginDescriptor = {
 
         const service = container.resolvePlugin<P2P.IPeerService>("p2p");
         service.getStorage().savePeers();
-
-        const server = service.getMonitor().getServer();
-        if (server) {
-            server.removeAllListeners("fail");
-            server.destroy();
-        }
+        service.getMonitor().stopServer();
     },
 };

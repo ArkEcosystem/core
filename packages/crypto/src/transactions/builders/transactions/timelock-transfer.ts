@@ -11,10 +11,10 @@ export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransfer
         this.data.type = TransactionTypes.TimelockTransfer;
         this.data.fee = feeManager.get(TransactionTypes.TimelockTransfer);
         this.data.amount = BigNumber.ZERO;
-        this.data.recipientId = null;
-        this.data.senderPublicKey = null;
+        this.data.recipientId = undefined;
+        this.data.senderPublicKey = undefined;
         this.data.timelockType = 0x00;
-        this.data.timelock = null;
+        this.data.timelock = undefined;
         this.data.asset = {};
     }
 

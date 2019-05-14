@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
@@ -30,7 +30,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         this.applyOrder(params);
 
         // Execute...
-        let delegates: Database.IWallet[] = this.databaseServiceProvider().walletManager.allByUsername();
+        let delegates: State.IWallet[] = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,
@@ -58,7 +58,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
     }
 
     // @TODO: simplify this
-    public findById(id): Database.IWallet {
+    public findById(id): State.IWallet {
         return this.search().rows.find(a => a.address === id || a.publicKey === id || a.username === id);
     }
 

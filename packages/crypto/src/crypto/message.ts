@@ -11,7 +11,7 @@ export class Message {
 
         return {
             publicKey: keys.publicKey,
-            signature: Hash.sign(this.createHash(message), keys),
+            signature: Hash.signECDSA(this.createHash(message), keys),
             message,
         };
     }
@@ -25,13 +25,13 @@ export class Message {
 
         return {
             publicKey: keys.publicKey,
-            signature: Hash.sign(this.createHash(message), keys),
+            signature: Hash.signECDSA(this.createHash(message), keys),
             message,
         };
     }
 
     public static verify({ message, publicKey, signature }: IMessage): boolean {
-        return Hash.verify(this.createHash(message), signature, publicKey);
+        return Hash.verifyECDSA(this.createHash(message), signature, publicKey);
     }
 
     private static createHash(message: string): Buffer {

@@ -5,7 +5,7 @@ import { queries } from "../queries";
 import { Repository } from "./repository";
 
 export class BlocksRepository extends Repository implements Database.IBlocksRepository {
-    public async search(params: Database.SearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
+    public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.query.select().from(this.query);
         // Blocks repo atm, doesn't search using any custom parameters
@@ -53,6 +53,18 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
 
     public async count(): Promise<number> {
         return (await this.db.one(queries.blocks.count)).count;
+    }
+
+    public async getBlockRewards(): Promise<any> {
+        return this.db.many(queries.stateBuilder.blockRewards);
+    }
+
+    public async getLastForgedBlocks(): Promise<any> {
+        return this.db.many(queries.stateBuilder.lastForgedBlocks);
+    }
+
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.db.many(queries.stateBuilder.delegatesForgedBlocks);
     }
 
     public async common(ids: string[]): Promise<Interfaces.IBlockData[]> {

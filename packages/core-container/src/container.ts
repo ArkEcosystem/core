@@ -96,13 +96,13 @@ export class Container implements container.IContainer {
 
     public resolvePlugin<T = any>(key: string): T {
         try {
-            return this.container.resolve<container.PluginConfig<T>>(key).plugin;
+            return this.container.resolve<container.IPluginConfig<T>>(key).plugin;
         } catch (err) {
-            return null;
+            return undefined;
         }
     }
     public resolveOptions(key) {
-        return this.container.resolve<container.PluginConfig<any>>(`pkg.${key}.opts`);
+        return this.container.resolve<container.IPluginConfig<any>>(`pkg.${key}.opts`);
     }
 
     public has(key: string) {
@@ -153,35 +153,39 @@ export class Container implements container.IContainer {
 
     private registerExitHandler(exitEvents: string[]): void {
         const handleExit = async () => {
-            if (this.shuttingDown || !this.isReady) {
+            if (this.shuttingDown) {
                 return;
             }
 
             this.shuttingDown = true;
 
-            const logger: Logger.ILogger = this.resolvePlugin<Logger.ILogger>("logger");
-            if (logger) {
-                logger.suppressConsoleOutput(this.silentShutdown);
-                logger.info("Core is trying to gracefully shut down to avoid data corruption");
+            if (this.isReady) {
+                const logger: Logger.ILogger = this.resolvePlugin<Logger.ILogger>("logger");
+                if (logger) {
+                    logger.suppressConsoleOutput(this.silentShutdown);
+                    logger.info("Core is trying to gracefully shut down to avoid data corruption");
+                }
+
+                try {
+                    // Notify plugins about shutdown
+                    this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("shutdown");
+
+                    // Wait for event to be emitted and give time to finish
+                    await delay(1000);
+                } catch (error) {
+                    // tslint:disable-next-line:no-console
+                    console.error(error.stack);
+                }
+
+                await this.plugins.tearDown();
             }
-
-            try {
-                // Notify plugins about shutdown
-                this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("shutdown");
-
-                // Wait for event to be emitted and give time to finish
-                await delay(1000);
-            } catch (error) {
-                // tslint:disable-next-line:no-console
-                console.error(error.stack);
-            }
-
-            await this.plugins.tearDown();
 
             process.exit();
         };
 
         // Handle exit events
-        exitEvents.forEach(eventType => process.on(eventType as any, handleExit));
+        for (const eventType of exitEvents) {
+            process.on(eventType as any, handleExit);
+        }
     }
 }

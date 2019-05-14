@@ -93,6 +93,18 @@ describe("API 2.0 - Blocks", () => {
         });
     });
 
+    describe("GET /blocks/:height/transactions", () => {
+        it("should GET all the transactions for the given block by id", async () => {
+            const response = await utils.request("GET", `blocks/${genesisBlock.height}/transactions`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+
+            const transaction = response.data.data[0];
+            utils.expectTransaction(transaction);
+            expect(transaction.blockId).toBe(genesisBlock.id);
+        });
+    });
+
     describe("POST /blocks/search", () => {
         it("should POST a search for blocks with the exact specified blockId", async () => {
             const response = await utils.request("POST", "blocks/search", {

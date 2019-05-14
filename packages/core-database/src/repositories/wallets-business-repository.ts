@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
@@ -25,7 +25,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
         this.applyOrder(params);
 
-        const wallets: Database.IWallet[] = sortEntries(
+        const wallets: State.IWallet[] = sortEntries(
             params,
             filterRows(this.databaseServiceProvider().walletManager.allByAddress(), params, query),
             ["balance", "desc"],
@@ -42,7 +42,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     }
 
     // @TODO: simplify this
-    public findById(id: string): Database.IWallet {
+    public findById(id: string): State.IWallet {
         return this.search().rows.find(
             wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id,
         );

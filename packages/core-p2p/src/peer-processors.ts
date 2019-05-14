@@ -5,6 +5,7 @@ import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import prettyMs from "pretty-ms";
 import { SCClientSocket } from "socketcluster-client";
+import { PeerPingTimeoutError } from "./errors";
 import { Peer } from "./peer";
 import { PeerSuspension } from "./peer-suspension";
 import { isValidPeer } from "./utils";
@@ -13,7 +14,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly appConfig = app.getConfig();
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
@@ -56,26 +56,28 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         }
 
         if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-            const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
+            // const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
-            this.logger.debug(
-                `Rejected peer ${
-                    peer.ip
-                } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
-                    peer.version
-                }`,
-            );
+            // this.logger.debug(
+            //    `Rejected peer ${
+            //    peer.ip
+            //    } as it doesn't meet the minimum version requirements. Expected: ${minimumVersions} - Received: ${
+            //    peer.version
+            //    }`,
+            // );
 
             return false;
         }
 
-        if (!this.guard.isValidNetwork(peer) && !options.seed) {
-            this.logger.debug(
-                `Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${this.appConfig.get(
-                    "network.nethash",
-                )} - Received: ${peer.nethash}`,
-            );
-
+        if (
+            this.storage.getSameSubnetPeers(peer.ip).length >= app.resolveOptions("p2p").maxSameSubnetPeers &&
+            !options.seed
+        ) {
+            // this.logger.warn(
+            //     `Rejected ${peer.ip} because we are already at the ${
+            //         app.resolveOptions("p2p").maxSameSubnetPeers
+            //     } limit for peers sharing the same /24 subnet.`,
+            // );
             return false;
         }
 
@@ -98,6 +100,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.connector.disconnect(peer);
 
         if (!punishment) {
+            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.port} without punishment.`);
             return;
         }
 
@@ -126,7 +129,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.storage.forgetSuspendedPeer(suspension);
 
         const connection: SCClientSocket = this.connector.connection(peer);
-        if (connection.getState() !== connection.OPEN) {
+        if (connection && connection.getState() !== connection.OPEN) {
             // if after suspension peer socket is not open, we just "destroy" the socket connection
             // and we don't try to "accept" the peer again, so it will be definitively removed as there will be no reference to it
             connection.destroy();
@@ -156,7 +159,10 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
             this.emitter.emit("peer.added", newPeer);
         } catch (error) {
-            this.logger.debug(`Could not accept new peer ${newPeer.ip}:${newPeer.port}: ${error}`);
+            if (error instanceof PeerPingTimeoutError) {
+                newPeer.latency = -1;
+            }
+
             this.suspend(newPeer);
         } finally {
             this.storage.forgetPendingPeer(peer);

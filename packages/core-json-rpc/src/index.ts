@@ -2,9 +2,8 @@ import { Container, Logger } from "@arkecosystem/core-interfaces";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 import { database } from "./server/services/database";
-import { network } from "./server/services/network";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "json-rpc",
@@ -14,12 +13,10 @@ export const plugin: Container.PluginDescriptor = {
         if (!options.enabled) {
             logger.info("JSON-RPC Server is disabled");
 
-            return;
+            return undefined;
         }
 
         database.init(options.database);
-
-        await network.init();
 
         return startServer(options);
     },

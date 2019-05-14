@@ -24,7 +24,7 @@ jest.mock("@arkecosystem/core-container", () => {
                                 return [];
                         }
 
-                        return null;
+                        return undefined;
                     },
                     config: { milestones: [{ activeDelegates: 51, height: 1 }] },
                     getMilestone: () => ({
@@ -37,7 +37,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     }),
                 };
             },
-            getVersion: () => "2.3.0",
+            getVersion: () => "2.4.0",
             has: () => true,
             resolvePlugin: name => {
                 if (name === "logger") {
@@ -60,22 +60,18 @@ jest.mock("@arkecosystem/core-container", () => {
                     return p2p;
                 }
 
-                return {};
-            },
-            resolve: name => {
                 if (name === "state") {
                     return state;
                 }
 
                 return {};
             },
+            resolve: name => {
+                return {};
+            },
             resolveOptions: name => {
                 if (name === "p2p") {
                     return defaults;
-                }
-
-                if (name === "transactionPool") {
-                    return null;
                 }
 
                 return {};

@@ -12,7 +12,7 @@ export class BlockFactory {
         const payloadHash: Buffer = Block.serialize(data, false);
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
-        data.blockSignature = Hash.sign(hash, keys);
+        data.blockSignature = Hash.signECDSA(hash, keys);
         data.id = Block.getId(data);
 
         return this.fromData(data);
@@ -23,7 +23,7 @@ export class BlockFactory {
     }
 
     public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer ? buffer.toString("hex") : null);
+        return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
     }
 
     public static fromJson(json: IBlockJson): IBlock {

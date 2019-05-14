@@ -1,6 +1,7 @@
 import bs58check from "bs58check";
 import { HashAlgorithms } from "../crypto";
 import { PublicKeyError } from "../errors";
+import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { PublicKey } from "./public-key";
 
@@ -25,6 +26,10 @@ export class Address {
         buffer.copy(payload, 1);
 
         return bs58check.encode(payload);
+    }
+
+    public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
+        return this.fromPublicKey(PublicKey.fromMultiSignatureAsset(asset), networkVersion);
     }
 
     public static fromPrivateKey(privateKey, networkVersion?: number): string {

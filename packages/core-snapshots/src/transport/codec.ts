@@ -1,12 +1,16 @@
-import { Blocks, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Transactions, Utils } from "@arkecosystem/crypto";
 import { createCodec, decode, encode } from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 
-function encodeBlock(block) {
-    return Blocks.Block.serialize(camelizeKeys(block), true);
-}
+const encodeBlock = block => {
+    block.total_amount = Utils.BigNumber.make(block.total_amount);
+    block.total_fee = Utils.BigNumber.make(block.total_fee);
+    block.reward = Utils.BigNumber.make(block.reward);
 
-function decodeBlock(buffer) {
+    return Blocks.Block.serialize(camelizeKeys(block), true);
+};
+
+const decodeBlock = (buffer: Buffer) => {
     const block = Blocks.Block.deserialize(buffer.toString("hex"), true);
     // @ts-ignore - @TODO: remove ts-ignore
     block.totalAmount = block.totalAmount.toFixed();
@@ -16,9 +20,9 @@ function decodeBlock(buffer) {
     block.reward = block.reward.toFixed();
 
     return decamelizeKeys(block);
-}
+};
 
-function encodeTransaction(transaction) {
+const encodeTransaction = transaction => {
     transaction.blockId = transaction.block_id || transaction.blockId;
 
     return encode([
@@ -28,26 +32,45 @@ function encodeTransaction(transaction) {
         transaction.timestamp,
         transaction.serialized,
     ]);
-}
+};
 
-function decodeTransaction(buffer) {
+const decodeTransaction = (buffer: Buffer) => {
     const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data;
+    const { asset } = transaction;
+    transaction.asset = undefined;
+
     transaction.block_id = blockId;
     transaction.sequence = sequence;
     transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();
-    transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : null;
-    transaction.recipientId = transaction.recipientId ? transaction.recipientId : null;
-    transaction.asset = transaction.asset ? transaction.asset : null;
+    transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : undefined;
+    transaction.recipientId = transaction.recipientId ? transaction.recipientId : undefined;
     transaction.serialized = serialized;
 
     const decamelized = decamelizeKeys(transaction);
     decamelized.serialized = serialized; // FIXME: decamelizeKeys mutilates Buffers
+    decamelized.asset = asset ? asset : undefined;
+
     return decamelized;
-}
+};
+
+const encodeRound = round => {
+    return encode([round.id, round.public_key || round.publicKey, round.balance, round.round]);
+};
+
+const decodeRound = (buffer: Buffer) => {
+    const [id, publicKey, balance, round] = decode(buffer);
+
+    return decamelizeKeys({
+        id,
+        publicKey,
+        balance,
+        round,
+    });
+};
 
 export class Codec {
     static get blocks() {
@@ -62,6 +85,14 @@ export class Codec {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, encodeTransaction);
         codec.addExtUnpacker(0x4f, decodeTransaction);
+
+        return codec;
+    }
+
+    static get rounds() {
+        const codec = createCodec();
+        codec.addExtPacker(0x5f, Object, encodeRound);
+        codec.addExtUnpacker(0x5f, decodeRound);
 
         return codec;
     }

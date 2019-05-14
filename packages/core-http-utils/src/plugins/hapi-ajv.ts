@@ -1,6 +1,6 @@
 import { Validation } from "@arkecosystem/crypto";
-import Boom from "boom";
-import Hapi from "hapi";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 
 const name = "hapi-ajv";
 
@@ -23,7 +23,7 @@ export const hapiAjv = {
                     .takeover();
             }
 
-            return Boom.badData(errors[0].message);
+            return Boom.badData(errors.map(error => error.message).join(","));
         };
 
         server.ext({

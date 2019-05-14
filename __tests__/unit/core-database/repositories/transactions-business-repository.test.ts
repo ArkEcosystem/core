@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Enums } from "@arkecosystem/crypto";
 import { TransactionsBusinessRepository } from "../../../../packages/core-database/src/repositories/transactions-business-repository";
 import { DatabaseConnectionStub } from "../__fixtures__/database-connection-stub";
@@ -83,8 +83,8 @@ describe("Transactions Business Repository", () => {
 
         it("should return no rows if senderId is an invalid address", async () => {
             databaseService.walletManager = {
-                exists: addressOrPublicKey => false,
-            } as Database.IWalletManager;
+                has: addressOrPublicKey => false,
+            } as State.IWalletManager;
             databaseService.connection.transactionsRepository = {
                 search: async parameters => parameters,
                 getModel: () => new MockDatabaseModel(),
@@ -100,9 +100,9 @@ describe("Transactions Business Repository", () => {
 
         it("should lookup senders address from senderId", async () => {
             databaseService.walletManager = {
-                exists: addressOrPublicKey => true,
+                has: addressOrPublicKey => true,
                 findByAddress: address => ({ publicKey: "pubKey" }),
-            } as Database.IWalletManager;
+            } as State.IWalletManager;
 
             databaseService.connection.transactionsRepository = {
                 search: async parameters => parameters,
@@ -145,7 +145,7 @@ describe("Transactions Business Repository", () => {
             const expectedWallet = {};
             databaseService.walletManager = {
                 findByAddress: address => expectedWallet,
-            } as Database.IWalletManager;
+            } as State.IWalletManager;
 
             await transactionsBusinessRepository.search({
                 ownerId: "ownerId",
@@ -212,10 +212,10 @@ describe("Transactions Business Repository", () => {
             }));
 
             databaseService.walletManager = {
-                exists: addressOrPublicKey => false,
-            } as Database.IWalletManager;
+                has: addressOrPublicKey => false,
+            } as State.IWalletManager;
 
-            jest.spyOn(databaseService.walletManager, "exists").mockReturnValue(false);
+            jest.spyOn(databaseService.walletManager, "has").mockReturnValue(false);
 
             await transactionsBusinessRepository.search({
                 addresses: ["addy1", "addy2"],
@@ -238,8 +238,8 @@ describe("Transactions Business Repository", () => {
                     ]),
                 }),
             );
-            expect(databaseService.walletManager.exists).toHaveBeenNthCalledWith(1, "addy1");
-            expect(databaseService.walletManager.exists).toHaveBeenNthCalledWith(2, "addy2");
+            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(1, "addy1");
+            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(2, "addy2");
         });
 
         it("should cache blocks if cache-miss ", async () => {

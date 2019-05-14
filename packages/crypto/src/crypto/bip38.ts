@@ -5,11 +5,11 @@
  */
 
 import assert from "assert";
+import { secp256k1 } from "bcrypto";
 import aes from "browserify-aes";
 import bs58check from "bs58check";
 import xor from "buffer-xor/inplace";
 import crypto from "crypto";
-import secp256k1 from "secp256k1";
 import { HashAlgorithms } from "../crypto";
 import {
     Bip38CompressionError,
@@ -28,15 +28,22 @@ const SCRYPT_PARAMS = {
 };
 const NULL = Buffer.alloc(0);
 
-export function encrypt(privateKey: Buffer, compressed: boolean, passphrase: string): string {
-    return bs58check.encode(encryptRaw(privateKey, compressed, passphrase));
-}
+const getPublicKey = (buffer: Buffer, compressed: boolean): Buffer => {
+    return Buffer.from(Keys.fromPrivateKey(buffer, compressed).publicKey, "hex");
+};
 
-export function decrypt(bip38: string, passphrase): IDecryptResult {
-    return decryptRaw(bs58check.decode(bip38), passphrase);
-}
+const getAddressPrivate = (privateKey: Buffer, compressed: boolean): string => {
+    const publicKey = getPublicKey(privateKey, compressed);
+    const buffer = HashAlgorithms.hash160(publicKey);
+    const payload = Buffer.alloc(21);
 
-export function verify(bip38: string): boolean {
+    payload.writeUInt8(0x00, 0);
+    buffer.copy(payload, 1);
+
+    return bs58check.encode(payload);
+};
+
+export const verify = (bip38: string): boolean => {
     const decoded = bs58check.decodeUnsafe(bip38);
     if (!decoded) {
         return false;
@@ -68,9 +75,9 @@ export function verify(bip38: string): boolean {
     }
 
     return true;
-}
+};
 
-function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {
+const encryptRaw = (buffer: Buffer, compressed: boolean, passphrase: string): Buffer => {
     if (buffer.length !== 32) {
         throw new PrivateKeyLengthError(32, buffer.length);
     }
@@ -100,67 +107,17 @@ function encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Bu
     cipherText.copy(result, 7);
 
     return result;
-}
+};
 
-// some of the techniques borrowed from: https://github.com/pointbiz/bitaddress.org
-function decryptRaw(buffer: Buffer, passphrase: string): IDecryptResult {
-    // 39 bytes: 2 bytes prefix, 37 bytes payload
-    if (buffer.length !== 39) {
-        throw new Bip38LengthError(39, buffer.length);
-    }
-    if (buffer.readUInt8(0) !== 0x01) {
-        throw new Bip38PrefixError(0x01, buffer.readUInt8(0));
-    }
-
-    // check if BIP38 EC multiply
-    const type = buffer.readUInt8(1);
-    if (type === 0x43) {
-        return decryptECMult(buffer, passphrase);
-    }
-    if (type !== 0x42) {
-        throw new Bip38TypeError(0x42, type);
-    }
-
-    const flagByte = buffer.readUInt8(2);
-    const compressed = flagByte === 0xe0;
-    if (!compressed && flagByte !== 0xc0) {
-        throw new Bip38CompressionError(0xc0, flagByte);
-    }
-
-    const salt = buffer.slice(3, 7);
-    const scryptBuf = crypto.scryptSync(passphrase, salt, 64, SCRYPT_PARAMS);
-    const derivedHalf1 = scryptBuf.slice(0, 32);
-    const derivedHalf2 = scryptBuf.slice(32, 64);
-
-    const privKeyBuf = buffer.slice(7, 7 + 32);
-    const decipher = aes.createDecipheriv("aes-256-ecb", derivedHalf2, NULL);
-    decipher.setAutoPadding(false);
-    decipher.end(privKeyBuf);
-
-    const plainText = decipher.read();
-    const privateKey = xor(derivedHalf1, plainText);
-
-    // verify salt matches address
-    const address = getAddressPrivate(privateKey, compressed);
-
-    const checksum = HashAlgorithms.hash256(address).slice(0, 4);
-    assert.deepEqual(salt, checksum);
-
-    return {
-        privateKey,
-        compressed,
-    };
-}
-
-function decryptECMult(buffer: Buffer, passphrase: string): IDecryptResult {
-    buffer = buffer.slice(1); // FIXME: we can avoid this
+const decryptECMult = (buffer: Buffer, passphrase: string): IDecryptResult => {
+    buffer = buffer.slice(1);
 
     const flag = buffer.readUInt8(1);
 
     const compressed = (flag & 0x20) !== 0;
     const hasLotSeq = (flag & 0x04) !== 0;
 
-    assert.equal(flag & 0x24, flag, "Invalid private key.");
+    assert.strictEqual(flag & 0x24, flag, "Invalid private key.");
 
     const addressHash = buffer.slice(2, 6);
     const ownerEntropy = buffer.slice(6, 14);
@@ -218,19 +175,62 @@ function decryptECMult(buffer: Buffer, passphrase: string): IDecryptResult {
         privateKey,
         compressed,
     };
-}
+};
 
-function getAddressPrivate(privateKey: Buffer, compressed: boolean): string {
-    const publicKey = getPublicKey(privateKey, compressed);
-    const buffer = HashAlgorithms.hash160(publicKey);
-    const payload = Buffer.alloc(21);
+// some of the techniques borrowed from: https://github.com/pointbiz/bitaddress.org
+const decryptRaw = (buffer: Buffer, passphrase: string): IDecryptResult => {
+    // 39 bytes: 2 bytes prefix, 37 bytes payload
+    if (buffer.length !== 39) {
+        throw new Bip38LengthError(39, buffer.length);
+    }
+    if (buffer.readUInt8(0) !== 0x01) {
+        throw new Bip38PrefixError(0x01, buffer.readUInt8(0));
+    }
 
-    payload.writeUInt8(0x00, 0);
-    buffer.copy(payload, 1);
+    // check if BIP38 EC multiply
+    const type = buffer.readUInt8(1);
+    if (type === 0x43) {
+        return decryptECMult(buffer, passphrase);
+    }
+    if (type !== 0x42) {
+        throw new Bip38TypeError(0x42, type);
+    }
 
-    return bs58check.encode(payload);
-}
+    const flagByte = buffer.readUInt8(2);
+    const compressed = flagByte === 0xe0;
+    if (!compressed && flagByte !== 0xc0) {
+        throw new Bip38CompressionError(0xc0, flagByte);
+    }
 
-function getPublicKey(buffer: Buffer, compressed: boolean): Buffer {
-    return Buffer.from(Keys.fromPrivateKey(buffer, compressed).publicKey, "hex");
-}
+    const salt = buffer.slice(3, 7);
+    const scryptBuf = crypto.scryptSync(passphrase, salt, 64, SCRYPT_PARAMS);
+    const derivedHalf1 = scryptBuf.slice(0, 32);
+    const derivedHalf2 = scryptBuf.slice(32, 64);
+
+    const privKeyBuf = buffer.slice(7, 7 + 32);
+    const decipher = aes.createDecipheriv("aes-256-ecb", derivedHalf2, NULL);
+    decipher.setAutoPadding(false);
+    decipher.end(privKeyBuf);
+
+    const plainText = decipher.read();
+    const privateKey = xor(derivedHalf1, plainText);
+
+    // verify salt matches address
+    const address = getAddressPrivate(privateKey, compressed);
+
+    const checksum = HashAlgorithms.hash256(address).slice(0, 4);
+    assert.deepEqual(salt, checksum);
+
+    return {
+        privateKey,
+        compressed,
+    };
+};
+
+export const encrypt = (privateKey: Buffer, compressed: boolean, passphrase: string): string => {
+    return bs58check.encode(encryptRaw(privateKey, compressed, passphrase));
+};
+
+export const decrypt = (bip38: string, passphrase): IDecryptResult => {
+    return decryptRaw(bs58check.decode(bip38), passphrase);
+};

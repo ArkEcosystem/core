@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -10,7 +11,7 @@ export class DelegateRegistrationTransaction extends Transaction {
         return schemas.delegateRegistration;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const delegateBytes: Buffer = Buffer.from(data.asset.delegate.username, "utf8");
         const buffer: ByteBuffer = new ByteBuffer(delegateBytes.length, true);

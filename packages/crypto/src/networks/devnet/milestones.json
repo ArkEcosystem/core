@@ -20,10 +20,11 @@
                 "ipfs": 0,
                 "timelockTransfer": 0,
                 "multiPayment": 0,
-                "delegateResignation": 0
+                "delegateResignation": 2500000000
             }
         },
         "ignoreInvalidSecondSignatureField": true,
+        "ignoreExpiredTransactions": true,
         "vendorFieldLength": 64
     },
     {
@@ -57,5 +58,9 @@
         "block": {
             "idFullSha256": true
         }
+    },
+    {
+        "height": 2300000,
+        "ignoreExpiredTransactions": false
     }
 ]

@@ -1,0 +1,35 @@
+{
+    "name": "@arkecosystem/core-wallet-api",
+    "version": "2.4.0-next.3",
+    "description": "Wallet API for ARK Core",
+    "license": "MIT",
+    "contributors": [
+        "Brian Faust <brian@ark.io>",
+        "Alex Barnsley <alex@ark.io>"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index",
+    "types": "dist/index",
+    "scripts": {
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "^2.4.0-next.3",
+        "@arkecosystem/core-http-utils": "^2.4.0-next.3",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.3",
+        "@hapi/h2o2": "^8.3.0"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

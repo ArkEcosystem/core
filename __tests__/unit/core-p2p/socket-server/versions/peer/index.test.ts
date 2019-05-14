@@ -84,8 +84,8 @@ describe("Peers handler", () => {
 
     describe("getStatus", () => {
         it("should return status", async () => {
-            Crypto.slots.isForgingAllowed = jest.fn().mockReturnValue(true);
-            Crypto.slots.getSlotNumber = jest.fn().mockReturnValue(3);
+            Crypto.Slots.isForgingAllowed = jest.fn().mockReturnValue(true);
+            Crypto.Slots.getSlotNumber = jest.fn().mockReturnValue(3);
 
             const result = await getStatus();
 
@@ -126,7 +126,8 @@ describe("Peers handler", () => {
         });
     });
 
-    describe("postTransactions", () => {
+    // @TODO: this is an integration test, not a unit test
+    describe.skip("postTransactions", () => {
         it("should handle the incoming transactions", async () => {
             const result = await postTransactions({
                 service: createPeerService().service,

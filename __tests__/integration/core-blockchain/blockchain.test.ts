@@ -1,7 +1,7 @@
 import "../../utils";
 
 /* tslint:disable:max-line-length */
-import { Wallet } from "@arkecosystem/core-database";
+import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -61,7 +61,9 @@ describe("Blockchain", () => {
 
             expect(transactions.length).toBe(transactionsWithoutType2.length);
 
-            expect(transactions).toEqual(transactionsWithoutType2.map(transaction => transaction.serialized));
+            expect(transactions).toIncludeAllMembers(
+                transactionsWithoutType2.map(transaction => transaction.serialized),
+            );
 
             blockchain.transactionPool.flush();
         });
@@ -116,10 +118,10 @@ describe("Blockchain", () => {
             // FIXME: using jest.spyOn getActiveDelegates with toHaveLastReturnedWith() somehow gets
             // overwritten in afterEach
             // FIXME: wallet.lastBlock needs to be properly restored when reverting
-            forgingDelegates.forEach(forger => (forger.lastBlock = null));
+            forgingDelegates.forEach(forger => (forger.lastBlock = undefined));
             expect(forgingDelegates).toEqual(
                 (blockchain.database as any).forgingDelegates.map(forger => {
-                    forger.lastBlock = null;
+                    forger.lastBlock = undefined;
                     return forger;
                 }),
             );
@@ -136,7 +138,7 @@ describe("Blockchain", () => {
             const lastBlock = blockchain.state.getLastBlock();
             const roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
             const activeDelegates = await blockchain.database.getActiveDelegates(roundInfo);
-            const nextSlot = Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1;
+            const nextSlot = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1;
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
@@ -156,7 +158,7 @@ describe("Blockchain", () => {
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
-                timestamp: Crypto.slots.getSlotTime(Crypto.slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1),
                 version: 0,
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,
@@ -192,7 +194,7 @@ describe("Blockchain", () => {
                 .getStruct();
 
             const transferBlock = createBlock(forgerKeys, [transfer]);
-            await blockchain.processBlock(transferBlock, mockCallback);
+            await blockchain.processBlocks([transferBlock], mockCallback);
 
             const wallet = blockchain.database.walletManager.findByPublicKey(keyPair.publicKey);
             const walletForger = blockchain.database.walletManager.findByPublicKey(forgerKeys.publicKey);
@@ -213,7 +215,7 @@ describe("Blockchain", () => {
             let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const voteBlock = createBlock(nextForgerWallet, [vote]);
-            await blockchain.processBlock(voteBlock, mockCallback);
+            await blockchain.processBlocks([voteBlock], mockCallback);
 
             // Wallet paid a fee of 1 and the vote has been placed.
             expect(wallet.balance).toEqual(Utils.BigNumber.make(124));
@@ -234,11 +236,11 @@ describe("Blockchain", () => {
             nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const unvoteBlock = createBlock(nextForgerWallet, [unvote]);
-            await blockchain.processBlock(unvoteBlock, mockCallback);
+            await blockchain.processBlocks([unvoteBlock], mockCallback);
 
             // Wallet paid a fee of 1 and no longer voted a delegate
             expect(wallet.balance).toEqual(Utils.BigNumber.make(123));
-            expect(wallet.vote).toBeNull();
+            expect(wallet.vote).toBeUndefined();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
             expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
@@ -262,7 +264,7 @@ describe("Blockchain", () => {
 
             expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
 
-            expect(unconfirmedTransactions.transactions).toEqual(
+            expect(unconfirmedTransactions.transactions).toIncludeAllMembers(
                 transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex")),
             );
 
@@ -270,7 +272,7 @@ describe("Blockchain", () => {
         });
 
         it("should return object with count == -1 if getTransactionsForForging returned a falsy value", async () => {
-            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(null);
+            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(undefined);
 
             const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
             expect(unconfirmedTransactions.count).toBe(-1);
@@ -308,7 +310,7 @@ async function __resetToHeight1() {
 
         // Index the genesis wallet or else revert block at height 1 fails
         const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
-        const genesis = new Wallet(generator);
+        const genesis = new Wallets.Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
         genesis.username = "genesis";
         blockchain.database.walletManager.reindex(genesis);
@@ -327,6 +329,6 @@ async function __addBlocks(untilHeight) {
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
         const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
-        await blockchain.processBlock(blockToProcess, () => null);
+        await blockchain.processBlocks([blockToProcess], () => undefined);
     }
 }

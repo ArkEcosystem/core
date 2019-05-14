@@ -8,7 +8,7 @@ export const defaults = {
     /**
      * The minimum peer version we expect
      */
-    minimumVersions: [">=2.3.0", ">=2.3.0-next.0"],
+    minimumVersions: [">=2.4.0", ">=2.4.0-next.0"],
     /**
      * The number of peers we expect to be available to start a relay
      */
@@ -25,6 +25,10 @@ export const defaults = {
      * The maximum number of peers we will broadcast data to
      */
     maxPeersBroadcast: 20,
+    /**
+     * The maximum authorized number of peers sharing same ip /24 subnet
+     */
+    maxSameSubnetPeers: process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET || 5,
     /**
      * The list of IPs we allow to be added to the peer list.
      */

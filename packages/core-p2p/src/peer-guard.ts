@@ -49,9 +49,9 @@ export class PeerGuard implements P2P.IPeerGuard {
             until: () => dato().addMinutes(15),
             reason: "Fork",
         },
-        socketNotOpen: {
+        socketGotClosed: {
             until: () => dato().addMinutes(5),
-            reason: "Socket not open",
+            reason: "Socket got closed",
         },
     };
 
@@ -62,18 +62,16 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public analyze(peer: P2P.IPeer): P2P.IPunishment {
-        if (app.has("state")) {
-            const state = app.resolve("state");
+        const state = app.resolvePlugin("state").getStore();
 
-            if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-                return this.createPunishment(this.offences.fork);
-            }
+        if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
+            return this.createPunishment(this.offences.fork);
         }
 
         const connection: SCClientSocket = this.connector.connection(peer);
 
         if (connection && connection.getState() !== connection.OPEN) {
-            return this.createPunishment(this.offences.socketNotOpen);
+            return this.createPunishment(this.offences.socketGotClosed);
         }
 
         if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {
@@ -88,15 +86,11 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.highLatency);
         }
 
-        if (!this.isValidNetwork(peer)) {
-            return this.createPunishment(this.offences.invalidNetwork);
-        }
-
         if (!this.isValidVersion(peer)) {
             return this.createPunishment(this.offences.invalidVersion);
         }
 
-        return null;
+        return undefined;
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {
@@ -113,12 +107,6 @@ export class PeerGuard implements P2P.IPeerGuard {
         return app
             .resolveOptions("p2p")
             .minimumVersions.some((minimumVersion: string) => semver.satisfies(version, minimumVersion));
-    }
-
-    public isValidNetwork(peer: P2P.IPeer): boolean {
-        const nethash = peer.nethash || (peer.headers && peer.headers.nethash);
-
-        return nethash === app.getConfig().get("network.nethash");
     }
 
     public isValidPort(peer: P2P.IPeer): boolean {

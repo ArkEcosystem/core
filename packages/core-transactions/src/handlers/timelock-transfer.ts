@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler } from "./transaction";
 
@@ -7,19 +7,23 @@ export class TimelockTransferTransactionHandler extends TransactionHandler {
         return Transactions.TimelockTransferTransaction;
     }
 
-    public canBeApplied(
-        transaction: Interfaces.ITransaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
-    ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
-    }
-
-    public apply(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         return;
     }
 
-    public revert(transaction: Interfaces.ITransaction, wallet: Database.IWallet): void {
+    public canBeApplied(
+        transaction: Interfaces.ITransaction,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
+    ): boolean {
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 }

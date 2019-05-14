@@ -1,15 +1,15 @@
 import { Interfaces } from "@arkecosystem/crypto";
 import { IDatabaseService } from "../core-database";
 import { IPeerService } from "../core-p2p";
+import { IStateStore } from "../core-state";
 import { IConnection } from "../core-transaction-pool";
-import { IStateStorage } from "./state-storage";
 
 export interface IBlockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStorage}
+     * @return {IStateStore}
      */
-    readonly state: IStateStorage;
+    readonly state: IStateStore;
 
     /**
      * Get the network (p2p) interface.
@@ -45,12 +45,6 @@ export interface IBlockchain {
     updateNetworkStatus(): Promise<any>;
 
     /**
-     * Reset the state of the blockchain.
-     * @return {void}
-     */
-    resetState(): void;
-
-    /**
      * Clear and stop the queue.
      * @return {void}
      */
@@ -84,13 +78,13 @@ export interface IBlockchain {
     removeTopBlocks(count: any): Promise<void>;
 
     /**
-     * Process the given block.
+     * Process the given blocks.
      * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block} block
+     * @param  {Block[]} block
      * @param  {Function} callback
      * @return {(Function|void)}
      */
-    processBlock(block: Interfaces.IBlock, callback: any): Promise<any>;
+    processBlocks(blocks: Interfaces.IBlock[], callback: any): Promise<any>;
 
     /**
      * Called by forger to wake up and sync with the network.
@@ -164,4 +158,6 @@ export interface IBlockchain {
      * @return {Object}
      */
     pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
+
+    replay(targetHeight?: number): Promise<void>;
 }

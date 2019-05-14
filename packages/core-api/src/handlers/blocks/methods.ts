@@ -28,7 +28,7 @@ const show = async request => {
 };
 
 const transactions = async request => {
-    const block = await blocksRepository.findById(request.params.id);
+    const block = await blocksRepository.findByIdOrHeight(request.params.id);
 
     if (!block) {
         return Boom.notFound("Block not found");
@@ -52,7 +52,7 @@ const search = async request => {
     return toPagination(blocks, "block");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.blocks.index", index, 6, request => ({
             ...request.query,
@@ -69,4 +69,4 @@ export function registerMethods(server) {
             ...request.query,
             ...paginate(request),
         }));
-}
+};

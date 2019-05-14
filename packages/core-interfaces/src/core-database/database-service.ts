@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+import { IDelegateWallet, IWalletManager } from "../core-state/wallets";
 import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {
@@ -8,7 +9,6 @@ import {
     IWalletsBusinessRepository,
 } from "./business-repository";
 import { IConnection } from "./database-connection";
-import { IDelegateWallet, IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
     walletManager: IWalletManager;
@@ -44,6 +44,8 @@ export interface IDatabaseService {
     buildWallets(): Promise<void>;
 
     saveBlock(block: Interfaces.IBlock): Promise<void>;
+
+    saveBlocks(blocks: Interfaces.IBlock[]): Promise<void>;
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 

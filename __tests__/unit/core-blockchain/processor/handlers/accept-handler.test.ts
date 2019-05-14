@@ -29,7 +29,7 @@ describe("Accept handler", () => {
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
             expect(loggerInfo).toHaveBeenCalledWith("Successfully recovered from fork");
-            expect(blockchain.state.forkedBlock).toBe(null);
+            expect(blockchain.state.forkedBlock).toBe(undefined);
         });
 
         it("should log warning message if transactionPool accepChainedBlock threw an exception", async () => {
@@ -49,13 +49,13 @@ describe("Accept handler", () => {
             const handler = new AcceptBlockHandler(blockchain as any, block);
 
             jest.restoreAllMocks();
-            const loggerError = jest.spyOn(logger, "error");
+            const loggerWarn = jest.spyOn(logger, "warn");
             jest.spyOn(blockchain.database, "applyBlock").mockImplementationOnce(() => {
                 throw new Error("¯_(ツ)_/¯");
             });
 
             expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
-            expect(loggerError).toHaveBeenCalledWith(`Refused new block ${JSON.stringify(block.data)}`);
+            expect(loggerWarn).toHaveBeenCalledWith(`Refused new block ${JSON.stringify(block.data)}`);
         });
     });
 });

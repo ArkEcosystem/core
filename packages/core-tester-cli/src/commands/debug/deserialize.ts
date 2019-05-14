@@ -32,6 +32,6 @@ export class DeserializeCommand extends BaseCommand {
             output = { data: block.data, transactions: block.transactions.map(tx => tx.data) };
         }
 
-        return handleOutput(flags, JSON.stringify(output, null, 4));
+        return handleOutput(flags, JSON.stringify(output, undefined, 4));
     }
 }
