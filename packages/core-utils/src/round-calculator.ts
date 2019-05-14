@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Shared } from "@arkecosystem/core-interfaces";
-import assert = require("assert");
+import assert from "assert";
 
 export const isNewRound = (height: number): boolean => {
     const { config } = app.getConfig();

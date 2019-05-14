@@ -1,7 +1,7 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import assert = require("assert");
+import assert from "assert";
 
 export class Wallet implements State.IWallet {
     public address: string;
