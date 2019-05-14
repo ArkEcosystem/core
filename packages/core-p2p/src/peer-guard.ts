@@ -3,7 +3,7 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
-import { isValidVersion } from "./utils";
+import { isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerGuard implements P2P.IPeerGuard {
     private readonly offences: Record<string, P2P.IOffence> = {
@@ -94,7 +94,7 @@ export class PeerGuard implements P2P.IPeerGuard {
     }
 
     public isWhitelisted(peer: P2P.IPeer): boolean {
-        return app.resolveOptions("p2p").whitelist.includes(peer.ip);
+        return isWhitelisted(app.resolveOptions("p2p").whitelist, peer.ip);
     }
 
     private createPunishment(offence: P2P.IOffence): P2P.IPunishment {

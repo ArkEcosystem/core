@@ -89,7 +89,7 @@ describe("Peers handler", () => {
 
             const result = await getStatus();
 
-            expect(result).toEqual({
+            expect(result.state).toEqual({
                 height: 1,
                 forgingAllowed: true,
                 currentSlot: 3,

@@ -9,17 +9,12 @@ import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { PeerGuard } from "../../../packages/core-p2p/src/peer-guard";
 import { createStubPeer } from "../../helpers/peers";
 
-let peerMock: P2P.IPeer;
 let guard: P2P.IPeerGuard;
 let connector: P2P.IPeerConnector;
 
 beforeAll(async () => {
     connector = new PeerConnector();
     guard = new PeerGuard(connector);
-});
-
-beforeEach(async () => {
-    peerMock = createStubPeer({ ip: "1.0.0.99", port: 4002 });
 });
 
 describe("PeerGuard", () => {

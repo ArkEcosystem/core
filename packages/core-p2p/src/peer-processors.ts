@@ -39,7 +39,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.storage = storage;
     }
 
-    public async validateAndAcceptPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
+    public async validateAndAcceptPeer(peer: P2P.IPeer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.validatePeerIp(peer, options)) {
             await this.acceptNewPeer(peer, options);
         }
