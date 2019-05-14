@@ -254,6 +254,11 @@ export class Memory {
         const indexBySender = {};
         for (let i = 0; i < this.all.length; i++) {
             const transaction: Interfaces.ITransaction = this.all[i];
+
+            if (transaction.data.version < 2) {
+                continue;
+            }
+
             const sender: string = transaction.data.senderPublicKey;
             if (indexBySender[sender] === undefined) {
                 indexBySender[sender] = [];
