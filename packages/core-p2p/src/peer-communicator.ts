@@ -64,7 +64,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new PeerPingTimeoutError(timeoutMsec);
             }
 
-            peer.verificationResult = await peerVerifier.checkState(pingResponse, deadline);
+            peer.verificationResult = await peerVerifier.checkState(pingResponse.state, deadline);
 
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
@@ -94,11 +94,11 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return false;
         }
 
+        peer.version = config.version;
+
         if (!isValidVersion(peer)) {
             return false;
         }
-
-        peer.version = config.version;
 
         return true;
     }

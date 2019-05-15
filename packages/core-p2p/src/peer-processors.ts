@@ -153,7 +153,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             this.storage.setPeer(newPeer);
 
             if (!options.lessVerbose) {
-                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.ports.p2p}`);
+                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
 
             this.emitter.emit("peer.added", newPeer);

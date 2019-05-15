@@ -22,7 +22,7 @@ export class Peer implements P2P.IPeer {
     constructor(readonly ip: string) {}
 
     get url(): string {
-        return `${this.ports.p2p % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.ports.p2p}`;
+        return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
     }
 
     get port(): number {
