@@ -1,3 +1,4 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
@@ -69,7 +70,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit("delegate.registered", transaction.data);
+        emitter.emit(ApplicationEvents.DelegateRegistered, transaction.data);
     }
 
     public canEnterTransactionPool(

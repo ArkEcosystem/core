@@ -2,6 +2,7 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
@@ -61,8 +62,14 @@ describe("Forger Manager", () => {
                     reward: round.reward.toFixed(),
                 }),
             );
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("block.forged", expect.any(Object));
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("transaction.forged", expect.any(Object));
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
+                ApplicationEvents.BlockForged,
+                expect.any(Object),
+            );
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
+                ApplicationEvents.TransactionForged,
+                expect.any(Object),
+            );
         });
     });
 
@@ -73,7 +80,7 @@ describe("Forger Manager", () => {
             setTimeout(() => forgeManager.stopForging(), 1000);
             await forgeManager.checkSlot();
 
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("forger.failed", "oh bollocks");
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, "oh bollocks");
         });
     });
 

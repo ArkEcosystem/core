@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import prettyMs from "pretty-ms";
@@ -157,7 +158,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
 
-            this.emitter.emit("peer.added", newPeer);
+            this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
         } catch (error) {
             if (error instanceof PeerPingTimeoutError) {
                 newPeer.latency = -1;
