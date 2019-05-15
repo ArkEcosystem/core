@@ -1,17 +1,17 @@
 {
-  "name": "osmose",
-  "messagePrefix": "OSMOSE message:\n",
-  "bip32": {
-    "public": 46090600,
-    "private": 46089520
-  },
-  "pubKeyHash": 30,
-  "nethash": "fd3dc4a09375bffcad98283c61d7c6563eed21af742ad87afec6113def57d2bc",
-  "wif": 167,
-  "aip20": 1,
-  "client": {
-    "token": "OSMOSE",
-    "symbol": "OSM",
-    "explorer": "http://127.0.0.1:4200"
-  }
+    "name": "osmose",
+    "messagePrefix": "OSMOSE message:\n",
+    "bip32": {
+        "public": 46090600,
+        "private": 46089520
+    },
+    "pubKeyHash": 30,
+    "nethash": "e1c5018c3e7945085a76a81c480804931e438e044b92e2042dec1e82e8a7275e",
+    "wif": 198,
+    "aip20": 1,
+    "client": {
+        "token": "OSMOSE",
+        "symbol": "OSM",
+        "explorer": "http://127.0.0.1:4200"
+    }
 }
