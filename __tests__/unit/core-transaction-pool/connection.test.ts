@@ -165,9 +165,14 @@ describe("Connection", () => {
     });
 
     describe("addTransactions", () => {
+        let mockWallet: Wallets.Wallet;
+
         beforeAll(() => {
-            const mockWallet = new Wallets.Wallet(delegates[0].address);
-            jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
+            mockWallet = new Wallets.Wallet(delegates[0].address);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(2);
+
+            connection.walletManager.reindex(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
         afterAll(() => {
@@ -206,6 +211,9 @@ describe("Connection", () => {
     describe("addTransactions with expiration", () => {
         beforeAll(() => {
             const mockWallet = new Wallets.Wallet(delegates[0].address);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(2);
+
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -611,7 +619,8 @@ describe("Connection", () => {
 
         it("should update wallet when accepting a chained block", () => {
             const balanceBefore = mockWallet.balance;
-
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
@@ -621,6 +630,8 @@ describe("Connection", () => {
             addTransactions([mockData.dummy2]);
 
             expect(connection.getTransactions(0, 10)).toEqual([mockData.dummy2.serialized]);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
 
             const chainedBlock = BlockFactory.fromData(block2);
             chainedBlock.transactions.push(mockData.dummy2);
@@ -637,6 +648,8 @@ describe("Connection", () => {
             });
             const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey");
 
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(purgeByPublicKey).toHaveBeenCalledTimes(1);
@@ -647,6 +660,8 @@ describe("Connection", () => {
             jest.spyOn(connection.walletManager, "canBePurged").mockReturnValue(true);
             const forget = jest.spyOn(connection.walletManager, "forget");
 
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
@@ -798,6 +813,8 @@ describe("Connection", () => {
     describe("stress", () => {
         beforeAll(() => {
             const mockWallet = new Wallets.Wallet(delegates[0].address);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(1);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -925,7 +942,7 @@ describe("Connection", () => {
             const testTransactions: Interfaces.ITransaction[] =
                 generateTestTransactions(nTransactions, nDifferentSenders);
 
-            let noncesBySender = {};
+            const noncesBySender = {};
 
             for (let i = 0; i < nTransactions; i++) {
                 const fee = rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI);
