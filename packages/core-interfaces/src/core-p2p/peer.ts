@@ -6,6 +6,10 @@ export interface IPeerPorts {
     [name: string]: number;
 }
 
+export interface IPluginPorts {
+    [name: string]: { port: number };
+}
+
 export interface IPeer {
     readonly url: string;
     readonly port: number;
