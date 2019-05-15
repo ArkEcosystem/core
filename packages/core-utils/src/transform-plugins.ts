@@ -1,7 +1,7 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 
-export const transformPlugins = (plugins): P2P.IPluginPorts => {
-    const result: P2P.IPluginPorts = {};
+export const transformPlugins = (plugins): P2P.IPeerPlugins => {
+    const result: P2P.IPeerPlugins = {};
 
     for (let [name, options] of Object.entries(plugins) as Array<[string, any]>) {
         if (options.server) {
@@ -15,9 +15,9 @@ export const transformPlugins = (plugins): P2P.IPluginPorts => {
         name = name.split("-").reverse()[0];
 
         const port = Number(options.port);
-        const enabled = !!options.enabled || name === "p2p";
+        const enabled = !!options.enabled;
 
-        if (isNaN(port) || !enabled) {
+        if (isNaN(port) || !enabled || name === "p2p") {
             continue;
         }
 

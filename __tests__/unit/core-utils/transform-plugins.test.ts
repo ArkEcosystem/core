@@ -9,7 +9,6 @@ describe("transformPlugins", () => {
 
         expect(transformed).toEqual({
             api: { port: 4003 },
-            p2p: { port: 4000 },
         });
     });
 });

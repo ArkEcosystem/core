@@ -6,7 +6,7 @@ export interface IPeerPorts {
     [name: string]: number;
 }
 
-export interface IPluginPorts {
+export interface IPeerPlugins {
     [name: string]: { port: number };
 }
 

@@ -18,7 +18,7 @@ export interface IPeerConfig {
             symbol: string;
         };
     };
-    plugins: P2P.IPluginPorts;
+    plugins: P2P.IPeerPlugins;
 }
 
 export interface IPeerPingResponse {
