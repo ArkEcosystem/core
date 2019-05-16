@@ -8,7 +8,6 @@ import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { stateStorageStub as stateStorage } from "./stubs/state-storage";
 
-import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
@@ -275,15 +274,9 @@ describe("State Machine", () => {
 
             it("should clean round data if new round starts at block.height + 1 (and dispatch STARTED)", async () => {
                 process.env.NODE_ENV = "";
-                const spyIsNewRound = jest.spyOn(roundCalculator, "isNewRound").mockReturnValue(true);
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(databaseMocks.deleteRound).toHaveBeenCalled();
-                expect(loggerInfo).toHaveBeenCalledWith(
-                    "New round 1 detected. Cleaning calculated data before restarting!",
-                );
-
-                spyIsNewRound.mockRestore();
             });
 
             it("should log error and dispatch FAILURE if an exception was thrown", async () => {
