@@ -61,9 +61,9 @@ export class WalletManager extends Wallets.WalletManager {
                     sender,
                     this.databaseService.walletManager,
                 );
-                // We need to decrement the nonce of the sender, since canBeApplied
+                // WORKAROUND: We need to increment the nonce of the sender, since canBeApplied
                 // is called on all transactions before they are actually applied
-                // and the nonce lags behind.
+                // and the nonce lags behind otherwise.
                 sender.incrementNonce();
             } catch (error) {
                 this.logger.error(
