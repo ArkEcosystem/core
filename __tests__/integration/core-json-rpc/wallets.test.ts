@@ -14,7 +14,9 @@ let mockHost;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4003); // @NOTE: we use the Public API port
+    peerMock = new Peer("1.0.0.99");
+    peerMock.ports.p2p = 4003;
+    peerMock.ports.api = 4003;
 
     app.resolvePlugin("p2p")
         .getStorage()
@@ -30,7 +32,7 @@ afterAll(async () => await tearDown());
 beforeEach(async () => {
     nock(peerMock.url)
         .get("/api/loader/autoconfigure")
-        .reply(200, { network: {} }, peerMock.headers);
+        .reply(200, { network: {} });
 });
 
 afterEach(async () => nock.cleanAll());
@@ -40,7 +42,7 @@ describe("Wallets", () => {
         it("should get information about the given wallet", async () => {
             mockHost
                 .get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv")
-                .reply(200, { data: { address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv" } }, peerMock.headers);
+                .reply(200, { data: { address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv" } });
 
             const response = await sendRequest("wallets.info", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
@@ -50,16 +52,12 @@ describe("Wallets", () => {
         });
 
         it("should fail to get information about the given wallet", async () => {
-            mockHost.get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv").reply(
-                404,
-                {
-                    error: {
-                        code: 404,
-                        message: "Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.",
-                    },
+            mockHost.get("/api/wallets/AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv").reply(404, {
+                error: {
+                    code: 404,
+                    message: "Wallet AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv could not be found.",
                 },
-                peerMock.headers,
-            );
+            });
 
             const response = await sendRequest("wallets.info", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
@@ -79,7 +77,7 @@ describe("Wallets", () => {
                     orderBy: "timestamp:desc",
                     ownerId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
                 })
-                .reply(200, { meta: { totalCount: 2 }, data: [{ id: "123" }, { id: "1234" }] }, peerMock.headers);
+                .reply(200, { meta: { totalCount: 2 }, data: [{ id: "123" }, { id: "1234" }] });
 
             const response = await sendRequest("wallets.transactions", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
@@ -97,7 +95,7 @@ describe("Wallets", () => {
                     orderBy: "timestamp:desc",
                     ownerId: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",
                 })
-                .reply(200, { meta: { totalCount: 0 }, data: [] }, peerMock.headers);
+                .reply(200, { meta: { totalCount: 0 }, data: [] });
 
             const response = await sendRequest("wallets.transactions", {
                 address: "AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv",

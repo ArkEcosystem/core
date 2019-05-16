@@ -93,20 +93,24 @@ describe("PeerCommunicator", () => {
     describe("ping", () => {
         it("should be ok", async () => {
             const mockStatus = {
-                height: 1,
-                forgingAllowed: true,
-                currentSlot: 1,
-                header: {
+                state: {
                     height: 1,
-                    id: "123456",
+                    forgingAllowed: true,
+                    currentSlot: 1,
+                    header: {
+                        height: 1,
+                        id: "123456",
+                    },
                 },
             };
+
             await socketManager.addMock("getStatus", mockStatus);
+
             process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
 
             const status = await communicator.ping(stubPeer, 1000);
 
-            expect(status).toEqual(mockStatus);
+            expect(status).toEqual(mockStatus.state);
         });
 
         it.skip("when ping request timeouts", async () => {
@@ -121,12 +125,14 @@ describe("PeerCommunicator", () => {
     describe("recentlyPinged", () => {
         it("should return true after a ping", async () => {
             await socketManager.addMock("getStatus", {
-                height: 1,
-                forgingAllowed: true,
-                currentSlot: 1,
-                header: {
+                state: {
                     height: 1,
-                    id: "123456",
+                    forgingAllowed: true,
+                    currentSlot: 1,
+                    header: {
+                        height: 1,
+                        id: "123456",
+                    },
                 },
             });
 

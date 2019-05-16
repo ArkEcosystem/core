@@ -1,3 +1,4 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import "jest-extended";
 import { setUp, tearDown } from "./__support__/setup";
 import * as utils from "./__support__/utils";
@@ -11,7 +12,7 @@ afterAll(async () => {
 });
 
 const postData = {
-    event: "block.forged",
+    event: ApplicationEvents.BlockForged,
     target: "https://httpbin.org/post",
     enabled: true,
     conditions: [
@@ -28,9 +29,7 @@ const postData = {
     ],
 };
 
-function createWebhook(data?: any) {
-    return utils.request("POST", "webhooks", data || postData);
-}
+const createWebhook = (data?: any) => utils.request("POST", "webhooks", data || postData);
 
 describe("API 2.0 - Webhooks", () => {
     it("should GET all the webhooks", async () => {
@@ -48,7 +47,7 @@ describe("API 2.0 - Webhooks", () => {
 
     it("should POST a new webhook with a complex condition", async () => {
         const response = await createWebhook({
-            event: "block.forged",
+            event: ApplicationEvents.BlockForged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [
@@ -68,7 +67,7 @@ describe("API 2.0 - Webhooks", () => {
 
     it("should POST a new webhook with an empty array as condition", async () => {
         const response = await createWebhook({
-            event: "block.forged",
+            event: ApplicationEvents.BlockForged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [],

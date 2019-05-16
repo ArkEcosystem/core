@@ -17,12 +17,4 @@ describe("Peer", () => {
 
         expect(stubPeer.isVerified()).toBeTrue();
     });
-
-    it("should set and get the headers", () => {
-        stubPeer.setHeaders({
-            version: "version",
-        });
-
-        expect(stubPeer.version).toEqual("version");
-    });
 });

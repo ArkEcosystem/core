@@ -2,13 +2,16 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import { Peer } from "../../packages/core-p2p/src/peer";
 import { makePeerService } from "../../packages/core-p2p/src/plugin";
 
-export const stubPeer: P2P.IPeer = createStubPeer({ ip: "1.2.3.4", port: 4000 });
+export const createStubPeer = (stub): P2P.IPeer => {
+    const peer: P2P.IPeer = new Peer(stub.ip);
+    peer.ports.p2p = stub.port;
 
-export function createStubPeer(stub): P2P.IPeer {
-    return Object.assign(new Peer(stub.ip, stub.port), stub);
-}
+    delete stub.port;
 
-export function createPeerService() {
+    return Object.assign(peer, stub);
+};
+
+export const createPeerService = () => {
     const service = makePeerService();
 
     return {
@@ -20,4 +23,6 @@ export function createPeerService() {
         monitor: service.getMonitor(),
         guard: service.getGuard(),
     };
-}
+};
+
+export const stubPeer: P2P.IPeer = createStubPeer({ ip: "1.2.3.4", port: 4000 });

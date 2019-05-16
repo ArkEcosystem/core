@@ -1,3 +1,4 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { WalletAlreadyResignedError, WalletUsernameEmptyError } from "../errors";
@@ -33,7 +34,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit("delegate.resigned", transaction.data);
+        emitter.emit(ApplicationEvents.DelegateResigned, transaction.data);
     }
 
     public canEnterTransactionPool(

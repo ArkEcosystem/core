@@ -1,5 +1,6 @@
 import { Managers } from "@arkecosystem/crypto";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
+import * as plugins from "../../../utils/config/testnet/plugins.js";
 import { blockchain } from "./blockchain";
 import { database } from "./database";
 import { eventEmitter } from "./event-emitter";
@@ -26,7 +27,7 @@ jest.mock("@arkecosystem/core-container", () => {
 
                         return undefined;
                     },
-                    config: { milestones: [{ activeDelegates: 51, height: 1 }] },
+                    config: { milestones: [{ activeDelegates: 51, height: 1 }], plugins },
                     getMilestone: () => ({
                         activeDelegates: 51,
                         blocktime: 8,

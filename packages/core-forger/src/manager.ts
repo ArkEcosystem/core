@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
@@ -124,7 +125,7 @@ export class ForgerManager {
                     );
                 }
 
-                this.client.emitEvent("forger.failed", error.message);
+                this.client.emitEvent(ApplicationEvents.ForgerFailed, error.message);
             }
 
             // no idea when this will be ok, so waiting 2s before checking again
@@ -161,10 +162,10 @@ export class ForgerManager {
 
         await this.client.broadcastBlock(block.toJson());
 
-        this.client.emitEvent("block.forged", block.data);
+        this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
 
         for (const transaction of transactions) {
-            this.client.emitEvent("transaction.forged", transaction);
+            this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
         }
     }
 

@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import prettyMs from "pretty-ms";
@@ -39,13 +40,13 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.storage = storage;
     }
 
-    public async validateAndAcceptPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
-        if (this.validatePeer(peer, options)) {
+    public async validateAndAcceptPeer(peer: P2P.IPeer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
+        if (this.validatePeerIp(peer, options)) {
             await this.acceptNewPeer(peer, options);
         }
     }
 
-    public validatePeer(peer, options: P2P.IAcceptNewPeerOptions = {}): boolean {
+    public validatePeerIp(peer, options: P2P.IAcceptNewPeerOptions = {}): boolean {
         if (app.resolveOptions("p2p").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
@@ -55,7 +56,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
+        if (!this.guard.isWhitelisted(peer)) {
             // const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
             // this.logger.debug(
@@ -143,8 +144,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return;
         }
 
-        const newPeer = new Peer(peer.ip, peer.port);
-        newPeer.setHeaders(peer);
+        const newPeer: P2P.IPeer = new Peer(peer.ip);
 
         try {
             this.storage.setPendingPeer(peer);
@@ -157,7 +157,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
 
-            this.emitter.emit("peer.added", newPeer);
+            this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
         } catch (error) {
             if (error instanceof PeerPingTimeoutError) {
                 newPeer.latency = -1;
