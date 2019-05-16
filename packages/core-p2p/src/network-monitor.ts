@@ -470,7 +470,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         const peerCache: IPeerData[] = restorePeers();
         if (peerCache) {
             for (const peerA of peerCache) {
-                if (!peers.some(peerB => peerA.ip === peerB.ip && peerA.port === peerB.port)) {
+                if (
+                    !peers.some(
+                        peerB => peerA.ip === peerB.ip && JSON.stringify(peerA.ports) === JSON.stringify(peerB.ports),
+                    )
+                ) {
                     peers.push(peerA);
                 }
             }

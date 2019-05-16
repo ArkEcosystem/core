@@ -8,7 +8,7 @@ export interface IAcceptNewPeerOptions {
 
 export interface IPeerProcessor {
     validateAndAcceptPeer(peer, options?: IAcceptNewPeerOptions): Promise<void>;
-    validatePeer(peer, options?: IAcceptNewPeerOptions): boolean;
+    validatePeerIp(peer, options?: IAcceptNewPeerOptions): boolean;
 
     suspend(peer: IPeer, punishment?: IPunishment): void;
     unsuspend(peer: IPeer): Promise<void>;

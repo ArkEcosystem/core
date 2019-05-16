@@ -2460,7 +2460,16 @@
   resolved "https://registry.yarnpkg.com/@types/hapi__catbox/-/hapi__catbox-10.2.0.tgz#530659ee9d61a86f602ffd6cd1c6d48f68458405"
   integrity sha512-ZVbo1qAFC5jRXoSCpFoX4FOLkGlB4hM1NBDsyOGgFeL/W9uX0aHYgtQjFd4aqNye6PKTp/p6iyVR6eeAHvu9nw==
 
-"@types/hapi__hapi@^18.2.1":
+"@types/hapi__h2o2@^8.3.0":
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/@types/hapi__h2o2/-/hapi__h2o2-8.3.0.tgz#c2e6598ab6ed28edb1a5edd44ddc185e1c252dd8"
+  integrity sha512-jD6L+8BJ+SVbwBzQK3W7zGnDYgrwuCNDl9r1P0GdwoYsysNADl7STfrhJ/m9qPt2fD1vFVJsfsFjoJ/iCyNlOQ==
+  dependencies:
+    "@types/hapi__boom" "*"
+    "@types/hapi__hapi" "*"
+    "@types/node" "*"
+
+"@types/hapi__hapi@*", "@types/hapi__hapi@^18.2.1":
   version "18.2.1"
   resolved "https://registry.yarnpkg.com/@types/hapi__hapi/-/hapi__hapi-18.2.1.tgz#f34311b36c77ed3ce06a33cf3b7eb9f9a55340d2"
   integrity sha512-7Lqf2PxUaKYFVgC00eyf8Fknw3EQTnG+rurzHSh87qInE5oVbDREPvY2MEI29gezX39QOH4HazV5kfdshzC1WA==
