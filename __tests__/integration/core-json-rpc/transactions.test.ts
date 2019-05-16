@@ -16,7 +16,9 @@ let mockHost;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4003); // @NOTE: we use the Public API port
+    peerMock = new Peer("1.0.0.99");
+    peerMock.ports.p2p = 4003;
+    peerMock.ports.api = 4003;
 
     app.resolvePlugin("p2p")
         .getStorage()
@@ -34,22 +36,18 @@ afterEach(async () => {
     jest.restoreAllMocks();
 });
 
-function verifyTransaction(data): boolean {
-    return Transactions.TransactionFactory.fromData(data).verify();
-}
+const verifyTransaction = (data): boolean => Transactions.TransactionFactory.fromData(data).verify();
 
 describe("Transactions", () => {
     describe("POST transactions.info", () => {
-        it("should get the transaction for the given ID", async () => {
-            mockHost.get("/api/transactions/e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8").reply(
-                200,
-                {
+        it.only("should get the transaction for the given ID", async () => {
+            mockHost
+                .get("/api/transactions/e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8")
+                .reply(200, {
                     data: {
                         id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
                     },
-                },
-                peerMock.headers,
-            );
+                });
 
             const response = await sendRequest("transactions.info", {
                 id: "e4311204acf8a86ba833e494f5292475c6e9e0913fc455a12601b4b6b55818d8",
@@ -117,7 +115,7 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
+            mockHost.post("/api/transactions").reply(200, {});
 
             const response = await sendRequest("transactions.broadcast", {
                 id: transaction.body.result.id,
@@ -144,7 +142,7 @@ describe("Transactions", () => {
                 passphrase: "this is a top secret passphrase",
             });
 
-            mockHost.post("/api/transactions").reply(200, {}, peerMock.headers);
+            mockHost.post("/api/transactions").reply(200, {});
 
             const spyVerify = jest.spyOn(Transactions.Verifier, "verifyHash").mockImplementation(() => false);
 

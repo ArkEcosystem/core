@@ -48,9 +48,7 @@ beforeAll(async () => {
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
 
-afterAll(() => {
-    socket.destroy();
-});
+afterAll(() => socket.destroy());
 
 describe("Peer socket endpoint", () => {
     describe("socket endpoints", () => {
@@ -66,7 +64,8 @@ describe("Peer socket endpoint", () => {
             const { data } = await emit("p2p.peer.getStatus", {
                 headers,
             });
-            expect(data.height).toBe(1);
+
+            expect(data.state.height).toBe(1);
         });
 
         describe("postBlock", () => {
@@ -138,14 +137,14 @@ describe("Peer socket endpoint", () => {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(data.height).toBeNumber();
+                expect(data.state.height).toBeNumber();
             }
             await delay(1100);
             for (let i = 0; i < 10; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(data.height).toBeNumber();
+                expect(data.state.height).toBeNumber();
             }
         });
 
@@ -158,7 +157,7 @@ describe("Peer socket endpoint", () => {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(data.height).toBeNumber();
+                expect(data.state.height).toBeNumber();
             }
             // 20th call, should throw CoreRateLimitExceededError
             await expect(
@@ -189,7 +188,7 @@ describe("Peer socket endpoint", () => {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
-                expect(data.height).toBeNumber();
+                expect(data.state.height).toBeNumber();
             }
 
             expect(socket.getState()).toBe("open");

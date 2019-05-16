@@ -1,14 +1,16 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
+import { IPeerConfig, IPeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
-import { socketEmit } from "./utils";
+import { isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements P2P.IPeerCommunicator {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -45,29 +47,60 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return undefined;
         }
 
-        const body: any = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
+        const pingResponse: IPeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
 
-        if (!body) {
+        if (!pingResponse) {
             throw new PeerStatusResponseError(peer.ip);
         }
 
         if (process.env.CORE_SKIP_PEER_STATE_VERIFICATION !== "true") {
+            if (!this.validatePeerConfig(peer, pingResponse.config)) {
+                throw new PeerVerificationFailedError();
+            }
+
             const peerVerifier = new PeerVerifier(this, peer);
 
             if (deadline <= new Date().getTime()) {
                 throw new PeerPingTimeoutError(timeoutMsec);
             }
 
-            peer.verificationResult = await peerVerifier.checkState(body, deadline);
+            peer.verificationResult = await peerVerifier.checkState(pingResponse.state, deadline);
 
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
+
+            const { config } = pingResponse;
+            for (const [name, plugin] of Object.entries(config.plugins)) {
+                try {
+                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+
+                    if (status === 200) {
+                        peer.ports[name] = plugin.port;
+                    }
+                } catch (error) {
+                    throw new PeerVerificationFailedError();
+                }
+            }
         }
 
         peer.lastPinged = dato();
-        peer.state = body;
-        return body;
+        peer.state = pingResponse.state;
+        return pingResponse.state;
+    }
+
+    public validatePeerConfig(peer: P2P.IPeer, config: IPeerConfig): boolean {
+        if (config.network.nethash !== app.getConfig().get("network.nethash")) {
+            return false;
+        }
+
+        peer.version = config.version;
+
+        if (!isValidVersion(peer)) {
+            return false;
+        }
+
+        return true;
     }
 
     public async getPeers(peer: P2P.IPeer): Promise<any> {
@@ -103,16 +136,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     ): Promise<Interfaces.IBlockData[]> {
         return this.emit(peer, "p2p.peer.getBlocks", {
             lastBlockHeight: afterBlockHeight,
-            headers: peer.headers,
+            headers: {
+                "Content-Type": "application/json",
+            },
             timeout: timeoutMsec || 10000,
         });
     }
 
     private parseHeaders(peer: P2P.IPeer, response): void {
-        for (const key of ["version"]) {
-            peer[key] = response.headers[key] || peer[key];
-        }
-
         if (response.headers.height) {
             peer.state.height = +response.headers.height;
         }
@@ -141,12 +172,19 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         try {
             this.connector.forgetError(peer);
 
-            const timeBeforeSocketCall = new Date().getTime();
-
-            this.updateHeaders(peer);
+            const timeBeforeSocketCall: number = new Date().getTime();
 
             const connection: SCClientSocket = this.connector.connect(peer);
-            response = await socketEmit(peer.ip, connection, event, data, peer.headers, timeout);
+            response = await socketEmit(
+                peer.ip,
+                connection,
+                event,
+                data,
+                {
+                    "Content-Type": "application/json",
+                },
+                timeout,
+            );
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response);
@@ -160,16 +198,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         return response.data;
-    }
-
-    private updateHeaders(peer: P2P.IPeer) {
-        if (app.has("blockchain")) {
-            const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
-
-            if (lastBlock) {
-                peer.headers.height = lastBlock.data.height;
-            }
-        }
     }
 
     private handleSocketError(peer: P2P.IPeer, error: Error): void {

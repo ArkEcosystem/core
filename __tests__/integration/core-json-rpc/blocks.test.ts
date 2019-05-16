@@ -14,7 +14,9 @@ let mockHost;
 beforeAll(async () => {
     await setUp();
 
-    peerMock = new Peer("1.0.0.99", 4003); // @NOTE: we use the Public API port
+    peerMock = new Peer("1.0.0.99");
+    peerMock.ports.p2p = 4003;
+    peerMock.ports.api = 4003;
 
     app.resolvePlugin("p2p")
         .getStorage()
@@ -35,7 +37,7 @@ describe("Blocks", () => {
             mockHost
                 .get("/api/blocks")
                 .query({ orderBy: "height:desc", limit: 1 })
-                .reply(200, { data: [{ id: "123" }] }, peerMock.headers);
+                .reply(200, { data: [{ id: "123" }] });
 
             const response = await sendRequest("blocks.latest");
 
@@ -43,7 +45,7 @@ describe("Blocks", () => {
         });
 
         it("should not find the latest block", async () => {
-            mockHost.get("/api/blocks").reply(404, {}, peerMock.headers);
+            mockHost.get("/api/blocks").reply(404, {});
 
             const response = await sendRequest("blocks.latest");
 
@@ -53,7 +55,7 @@ describe("Blocks", () => {
 
     describe("POST blocks.info", () => {
         it("should get the block information", async () => {
-            mockHost.get("/api/blocks/123").reply(200, { data: { id: "123" } }, peerMock.headers);
+            mockHost.get("/api/blocks/123").reply(200, { data: { id: "123" } });
 
             const response = await sendRequest("blocks.info", {
                 id: "123",
@@ -75,7 +77,7 @@ describe("Blocks", () => {
             mockHost
                 .get("/api/blocks/123/transactions")
                 .query({ orderBy: "timestamp:desc" })
-                .reply(200, { meta: { totalCount: 1 }, data: [{ id: "123" }, { id: "123" }] }, peerMock.headers);
+                .reply(200, { meta: { totalCount: 1 }, data: [{ id: "123" }, { id: "123" }] });
 
             const response = await sendRequest("blocks.transactions", {
                 id: "123",

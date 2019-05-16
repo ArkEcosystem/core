@@ -263,7 +263,9 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(2);
 
-            transactions.forEach(t => connection.removeTransactionById(t.id));
+            for (const t of transactions) {
+                connection.removeTransactionById(t.id);
+            }
         });
     });
 
@@ -762,7 +764,9 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(2);
 
-            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
+            for (const t of transactions) {
+                expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized);
+            }
 
             connection.flush();
         });
@@ -786,7 +790,9 @@ describe("Connection", () => {
 
             transactions.splice(1, 1);
 
-            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
+            for (const t of transactions) {
+                expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized);
+            }
 
             connection.flush();
 
@@ -808,12 +814,11 @@ describe("Connection", () => {
             const testTransactions: Interfaces.ITransaction[] = [];
 
             for (let i = 0; i < n; i++) {
-                const transaction = TransactionFactory
-                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                const transaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
                     .withNetwork("unitnet")
                     .withPassphrase(String(i))
                     .build()[0];
-                testTransactions.push(transaction)
+                testTransactions.push(transaction);
             }
 
             return testTransactions;
@@ -857,8 +862,9 @@ describe("Connection", () => {
         });
 
         it("delete + add after sync", () => {
-            const testTransactions: Interfaces.ITransaction[] =
-                generateTestTransactions(connection.options.syncInterval);
+            const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(
+                connection.options.syncInterval,
+            );
 
             connection.addTransactions(testTransactions);
 
