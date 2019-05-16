@@ -1,5 +1,6 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import {
     Blockchain as blockchain,
     Database,
@@ -251,11 +252,11 @@ export class Blockchain implements blockchain.IBlockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            emitter.emit("block.received", block);
+            emitter.emit(ApplicationEvents.BlockReceived, block);
         } else {
             logger.info(`Block disregarded because blockchain is not ready`);
 
-            emitter.emit("block.disregarded", block);
+            emitter.emit(ApplicationEvents.BlockDisregarded, block);
         }
     }
 

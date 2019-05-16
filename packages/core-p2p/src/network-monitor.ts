@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter/dist";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@arkecosystem/crypto";
 import { dato, Dato } from "@faustbrian/dato";
@@ -149,7 +150,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
-                    this.emitter.emit("peer.removed", peer);
+                    this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
 
                     this.storage.forgetPeer(peer);
 
