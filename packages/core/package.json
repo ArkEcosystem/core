@@ -147,6 +147,9 @@
             },
             "chain": {
                 "description": "commands to interact with the blockchain"
+            },
+            "network": {
+                "description": "manage network configurations and tasks"
             }
         },
         "plugins": [
