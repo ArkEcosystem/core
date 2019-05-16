@@ -79,7 +79,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                         peer.ports[name] = plugin.port;
                     }
                 } catch (error) {
-                    throw new PeerVerificationFailedError();
+                    peer.ports[name] = undefined;
                 }
             }
         }
