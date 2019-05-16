@@ -5,8 +5,6 @@ export interface IPeerGuard {
     punishment(offence: string): IPunishment;
     analyze(peer: IPeer): IPunishment;
     isWhitelisted(peer: IPeer): boolean;
-    isValidVersion(peer: IPeer): boolean;
-    isValidPort(peer: IPeer): boolean;
 }
 
 export interface IPeerSuspension {

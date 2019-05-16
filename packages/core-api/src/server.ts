@@ -146,6 +146,14 @@ export class Server {
             await server.register(plugin);
         }
 
+        server.route({
+            method: "GET",
+            path: "/",
+            handler() {
+                return { data: "Hello World!" };
+            },
+        });
+
         await mountServer(`Public ${name.toUpperCase()} API`, server);
     }
 }

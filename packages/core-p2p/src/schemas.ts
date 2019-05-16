@@ -116,28 +116,36 @@ export const replySchemas = {
     },
     "p2p.peer.getStatus": {
         type: "object",
+        required: ["state"],
+        additionalProperties: false,
         properties: {
-            header: {
-                type: "object",
-                properties: {
-                    height: {
-                        type: "integer",
-                        minimum: 1,
-                    },
-                    id: {
-                        type: "string",
-                        maxLength: 64,
-                        pattern: "[0-9a-fA-F]+", // hexadecimal
-                    },
-                },
-                required: ["height", "id"],
-            },
-            height: {
-                type: "integer",
-                minimum: 1,
-            },
+            state: { type: "object" },
+            config: { type: "object" },
         },
-        required: ["header", "height"],
+        // @TODO: adjust schema to match { state, config }
+        // type: "object",
+        // properties: {
+        //     header: {
+        //         type: "object",
+        //         properties: {
+        //             height: {
+        //                 type: "integer",
+        //                 minimum: 1,
+        //             },
+        //             id: {
+        //                 type: "string",
+        //                 maxLength: 64,
+        //                 pattern: "[0-9a-fA-F]+", // hexadecimal
+        //             },
+        //         },
+        //         required: ["height", "id"],
+        //     },
+        //     height: {
+        //         type: "integer",
+        //         minimum: 1,
+        //     },
+        // },
+        // required: ["header", "height"],
     },
     "p2p.peer.postBlock": {
         type: "object",

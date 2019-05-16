@@ -17,11 +17,6 @@ export class PeersController extends Controller {
 
             let peers = allPeers.sort((a, b) => a.latency - b.latency);
             // @ts-ignore
-            peers = request.query.port
-                ? // @ts-ignore
-                  allPeers.filter(peer => peer.port === (request.query as any).port)
-                : peers;
-            // @ts-ignore
             peers = request.query.version
                 ? // @ts-ignore
                   allPeers.filter(peer => peer.version === (request.query as any).version)
@@ -33,7 +28,7 @@ export class PeersController extends Controller {
             if (request.query.orderBy) {
                 // @ts-ignore
                 const order = request.query.orderBy.split(":");
-                if (["port", "status", "version"].includes(order[0])) {
+                if (order[0] === "version") {
                     peers =
                         order[1].toUpperCase() === "ASC"
                             ? peers.sort((a, b) => a[order[0]] - b[order[0]])
@@ -52,6 +47,7 @@ export class PeersController extends Controller {
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const peers = await this.p2p.getStorage().getPeers();
+
             if (!peers) {
                 return super.respondWith("No peers found", true);
             }

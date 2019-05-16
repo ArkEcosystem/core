@@ -8,6 +8,7 @@ import { NSect } from "./nsect";
 import { OrderedCappedMap } from "./ordered-capped-map";
 import { calculateRound, isNewRound } from "./round-calculator";
 import { calculate } from "./supply-calculator";
+import * as Plugins from "./transform-plugins";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
 export const roundCalculator = { calculateRound, isNewRound };
@@ -22,4 +23,5 @@ export {
     isBlockChained,
     NSect,
     OrderedCappedMap,
+    Plugins,
 };

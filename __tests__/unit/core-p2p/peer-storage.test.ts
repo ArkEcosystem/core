@@ -18,9 +18,7 @@ const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
 
 let storage: P2P.IPeerStorage;
 
-beforeEach(() => {
-    storage = new PeerStorage();
-});
+beforeEach(() => (storage = new PeerStorage()));
 
 describe("PeerStorage", () => {
     describe("Real Peers", () => {
@@ -170,8 +168,7 @@ describe("PeerStorage", () => {
             JSON.stringify(
                 storage.getPeers().map(peer => ({
                     ip: peer.ip,
-                    port: peer.port,
-                    version: peer.version,
+                    ports: peer.ports,
                 })),
             ),
         );

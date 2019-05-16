@@ -204,9 +204,7 @@ export class Connection implements TransactionPool.IConnection {
         if (this.options.allowedSenders.includes(senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
-                    `Transaction pool: allowing sender public key: ${
-                        senderPublicKey
-                    } (listed in options.allowedSenders), thus skipping throttling.`,
+                    `Transaction pool: allowing sender public key: ${senderPublicKey} (listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);

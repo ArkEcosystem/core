@@ -1,4 +1,5 @@
 import { Managers } from "@arkecosystem/crypto";
+import * as plugins from "../../../utils/config/testnet/plugins.js";
 import { blocks2to100 } from "../../../utils/fixtures";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
 import { genesisBlock } from "../../../utils/fixtures/unitnet/block-model";
@@ -11,14 +12,20 @@ jest.mock("@arkecosystem/core-container", () => {
         app: {
             getConfig: () => {
                 return {
-                    config: Managers.configManager.all(),
+                    config: {
+                        plugins,
+                        network: Managers.configManager.get("network"),
+                        exceptions: Managers.configManager.get("exceptions"),
+                        milestones: Managers.configManager.get("milestones"),
+                        genesisBlock: Managers.configManager.get("genesisBlock"),
+                    },
                     get: key => {
                         switch (key) {
                             case "network.nethash":
                                 return "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348";
                         }
 
-                        return undefined;
+                        return Managers.configManager.get(key) || undefined;
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
