@@ -154,16 +154,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 
-            // NOTE: if the node is shutdown between round, the round has already been applied
-            if (roundCalculator.isNewRound(block.data.height + 1)) {
-                const { round } = roundCalculator.calculateRound(block.data.height + 1);
-
-                logger.info(
-                    `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
-                );
-
-                await blockchain.database.deleteRound(round);
-            }
+            // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
+            const roundInfo = roundCalculator.calculateRound(block.data.height);
+            await blockchain.database.deleteRound(roundInfo.round + 1);
 
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets();
