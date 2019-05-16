@@ -23,7 +23,8 @@ beforeAll(async () => {
 
     const peerMocks = peers
         .map(mock => {
-            const peerMock = new Peer(mock.ip, mock.port);
+            const peerMock = new Peer(mock.ip);
+            peerMock.ports.p2p = mock.port;
             peerMock.version = mock.version;
             return peerMock;
         })
