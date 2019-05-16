@@ -13,8 +13,7 @@ const { delegates } = require("../../../../lib/utils/testnet");
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
-    let transaction1 = Transactions.BuilderFactory
-        .transfer()
+    let transaction1 = Transactions.BuilderFactory.transfer()
         .amount(1000 * Math.pow(10, 8))
         .recipientId(utils.a.address)
         .vendorField("send coins to wallet A")

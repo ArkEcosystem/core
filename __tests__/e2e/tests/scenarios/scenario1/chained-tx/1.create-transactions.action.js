@@ -14,8 +14,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     // A => B
-    let transaction1 = Transactions.BuilderFactory
-        .transfer()
+    let transaction1 = Transactions.BuilderFactory.transfer()
         .amount(300 * Math.pow(10, 8))
         .recipientId(utils.b.address)
         .vendorField("transfer A => B")
@@ -24,8 +23,7 @@ module.exports = async options => {
         .getStruct();
 
     // B => C
-    let transaction2 = Transactions.BuilderFactory
-        .transfer()
+    let transaction2 = Transactions.BuilderFactory.transfer()
         .amount(250 * Math.pow(10, 8))
         .recipientId(utils.c.address)
         .vendorField("transfer B => C")

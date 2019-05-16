@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
@@ -56,9 +57,7 @@ export class Connection implements TransactionPool.IConnection {
 
         const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(all.map(t => t.id));
 
-        for (const id of forgedIds) {
-            this.removeTransactionById(id);
-        }
+        this.removeTransactionsById(forgedIds);
 
         this.purgeInvalidTransactions();
 
@@ -105,11 +104,11 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         if (added.length > 0) {
-            this.emitter.emit("transaction.pool.added", added);
+            this.emitter.emit(ApplicationEvents.TransactionPoolAdded, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.emit("transaction.pool.rejected", notAdded);
+            this.emitter.emit(ApplicationEvents.TransactionPoolRejected, notAdded);
         }
 
         return { added, notAdded };
@@ -124,7 +123,13 @@ export class Connection implements TransactionPool.IConnection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.emit("transaction.pool.removed", id);
+        this.emitter.emit(ApplicationEvents.TransactionPoolRemoved, id);
+    }
+
+    public removeTransactionsById(ids: string[]): void {
+        for (const id of ids) {
+            this.removeTransactionById(id);
+        }
     }
 
     public getTransaction(id: string): Interfaces.ITransaction {
@@ -193,24 +198,24 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     // @TODO: move this to a more appropriate place
-    public hasExceededMaxTransactions(transaction: Interfaces.ITransactionData): boolean {
+    public hasExceededMaxTransactions(senderPublicKey: string): boolean {
         this.purgeExpired();
 
-        if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
-            if (!this.loggedAllowedSenders.includes(transaction.senderPublicKey)) {
+        if (this.options.allowedSenders.includes(senderPublicKey)) {
+            if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key: ${
-                        transaction.senderPublicKey
+                        senderPublicKey
                     } (listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
-                this.loggedAllowedSenders.push(transaction.senderPublicKey);
+                this.loggedAllowedSenders.push(senderPublicKey);
             }
 
             return false;
         }
 
-        return this.memory.getBySender(transaction.senderPublicKey).size >= this.options.maxTransactionsPerSender;
+        return this.memory.getBySender(senderPublicKey).size >= this.options.maxTransactionsPerSender;
     }
 
     public flush(): void {
@@ -380,7 +385,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public purgeInvalidTransactions(): void {
-        this.purgeTransactions("transaction.pool.removed", this.memory.getInvalid());
+        this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
     public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
@@ -461,7 +466,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     private purgeExpired(): void {
-        this.purgeTransactions("transaction.expired", this.memory.getExpired(this.options.maxTransactionAge));
+        this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired(this.options.maxTransactionAge));
     }
 
     private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {

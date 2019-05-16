@@ -16,8 +16,7 @@ module.exports = async options => {
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
         transactions.push(
-            Transactions.BuilderFactory
-                .secondSignature()
+            Transactions.BuilderFactory.secondSignature()
                 .signatureAsset(wallets[3].passphrase)
                 .fee(utils.fees.secondSignRegistration)
                 .sign(wallets[2].passphrase)

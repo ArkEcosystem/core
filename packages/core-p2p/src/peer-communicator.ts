@@ -109,7 +109,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private parseHeaders(peer: P2P.IPeer, response): void {
-        for (const key of ["nethash", "os", "version"]) {
+        for (const key of ["version"]) {
             peer[key] = response.headers[key] || peer[key];
         }
 
@@ -187,6 +187,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
                 peer.latency = -1;
+                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                break;
+            case "Error":
+            case "CoreSocketNotOpenError":
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });
                 break;
             default:

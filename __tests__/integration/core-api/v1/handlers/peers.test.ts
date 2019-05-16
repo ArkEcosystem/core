@@ -37,7 +37,6 @@ describe("API 1.0 - Peers", () => {
         it("should fail using invalid parameters", async () => {
             const response = await utils.request("GET", "peers", {
                 state: "invalid",
-                os: "invalid",
                 shared: "invalid",
                 version: "invalid",
                 limit: "invalid",

@@ -284,7 +284,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = app.resolveOptions("p2p").databaseRollback;
+        const { maxBlockRewind, steps } = app.resolveOptions("blockchain").databaseRollback;
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);

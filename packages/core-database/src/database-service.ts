@@ -81,7 +81,7 @@ export class DatabaseService implements Database.IDatabaseService {
             this.emitTransactionEvents(transaction);
         }
 
-        this.emitter.emit("block.applied", block.data);
+        this.emitter.emit(ApplicationEvents.BlockApplied, block.data);
     }
 
     public async applyRound(height: number): Promise<void> {
@@ -111,7 +111,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
                     this.blocksInCurrentRound.length = 0;
 
-                    this.emitter.emit("round.applied");
+                    this.emitter.emit(ApplicationEvents.RoundApplied);
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
@@ -415,7 +415,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
-        this.emitter.emit("block.reverted", block.data);
+        this.emitter.emit(ApplicationEvents.BlockReverted, block.data);
     }
 
     public async revertRound(height: number): Promise<void> {
@@ -449,7 +449,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         await this.connection.roundsRepository.insert(activeDelegates);
 
-        this.emitter.emit("round.created", activeDelegates);
+        this.emitter.emit(ApplicationEvents.RoundCreated, activeDelegates);
     }
 
     public updateDelegateStats(delegates: State.IDelegateWallet[]): void {
@@ -474,7 +474,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
                     this.logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block.`);
 
-                    this.emitter.emit("forger.missing", {
+                    this.emitter.emit(ApplicationEvents.ForgerMissing, {
                         delegate: wallet,
                     });
                 }
@@ -636,7 +636,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
-        this.emitter.emit("transaction.applied", transaction.data);
+        this.emitter.emit(ApplicationEvents.TransactionApplied, transaction.data);
 
         Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
     }

@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
@@ -7,7 +8,7 @@ import uniq from "lodash.uniq";
 import pluralize from "pluralize";
 import { Client } from "./client";
 import { Delegate } from "./delegate";
-import { HostNoResponseError } from "./errors";
+import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -48,14 +49,16 @@ export class ForgerManager {
             return;
         }
 
+        let timeout: number;
         try {
             await this.loadRound();
-
-            await this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
-
+            timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
             this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
+            timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
+        } finally {
+            await this.checkLater(timeout);
         }
     }
 
@@ -111,11 +114,10 @@ export class ForgerManager {
 
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
-            if (error instanceof HostNoResponseError) {
+            if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 this.logger.warn(error.message);
             } else {
                 this.logger.error(error.stack);
-                this.logger.error(`Forging failed: ${error.message}`);
 
                 if (!isEmpty(this.round)) {
                     this.logger.info(
@@ -123,7 +125,7 @@ export class ForgerManager {
                     );
                 }
 
-                this.client.emitEvent("forger.failed", error.message);
+                this.client.emitEvent(ApplicationEvents.ForgerFailed, error.message);
             }
 
             // no idea when this will be ok, so waiting 2s before checking again
@@ -160,10 +162,10 @@ export class ForgerManager {
 
         await this.client.broadcastBlock(block.toJson());
 
-        this.client.emitEvent("block.forged", block.data);
+        this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
 
         for (const transaction of transactions) {
-            this.client.emitEvent("transaction.forged", transaction);
+            this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
         }
     }
 

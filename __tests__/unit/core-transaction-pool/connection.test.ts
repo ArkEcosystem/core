@@ -347,7 +347,7 @@ describe("Connection", () => {
             ]);
 
             expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeTrue();
         });
 
@@ -358,7 +358,7 @@ describe("Connection", () => {
             addTransactions([mockData.dummy4, mockData.dummy5, mockData.dummy6]);
 
             expect(connection.getPoolSize()).toBe(3);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeFalse();
         });
 
@@ -377,7 +377,7 @@ describe("Connection", () => {
             ]);
 
             expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data);
+            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeFalse();
         });
     });
@@ -804,22 +804,32 @@ describe("Connection", () => {
             jest.restoreAllMocks();
         });
 
-        const fakeTransactionId = i => `${String(i)}${"a".repeat(64 - String(i).length)}`;
+        const generateTestTransactions = (n: number): Interfaces.ITransaction[] => {
+            const testTransactions: Interfaces.ITransaction[] = [];
+
+            for (let i = 0; i < n; i++) {
+                const transaction = TransactionFactory
+                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .withNetwork("unitnet")
+                    .withPassphrase(String(i))
+                    .build()[0];
+                testTransactions.push(transaction)
+            }
+
+            return testTransactions;
+        };
 
         it("multiple additions and retrievals", () => {
             // Abstract number which decides how many iterations are run by the test.
             // Increase it to run more iterations.
             const testSize = connection.options.syncInterval * 2;
 
-            const usedId = {};
+            const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(testSize);
+
+            // console.time("multiple additions and retrievals");
+
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
-                transaction.data.id = fakeTransactionId(i);
-                if (usedId[transaction.data.id]) {
-                    console.log("AAAAA");
-                } else {
-                    usedId[transaction.data.id] = true;
-                }
+                const transaction = testTransactions[i];
 
                 connection.addTransactions([transaction]);
 
@@ -829,36 +839,31 @@ describe("Connection", () => {
             }
 
             for (let i = 0; i < testSize * 2; i++) {
+                const transaction = testTransactions[i % testSize];
                 connection.getPoolSize();
-                for (const sender of ["nonexistent", mockData.dummy1.data.senderPublicKey]) {
-                    connection.getSenderSize(sender);
-                    // @FIXME: Uhm excuse me, what the?
-                    // @ts-ignore
-                    connection.hasExceededMaxTransactions(sender);
+                for (const senderPublicKey of ["nonexistent", transaction.data.senderPublicKey]) {
+                    connection.getSenderSize(senderPublicKey);
+                    connection.hasExceededMaxTransactions(senderPublicKey);
                 }
-                connection.getTransaction(fakeTransactionId(i));
+                connection.getTransaction(transaction.id);
                 connection.getTransactions(0, i);
             }
 
             for (let i = 0; i < testSize; i++) {
-                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
-                transaction.data.id = fakeTransactionId(i);
-                connection.removeTransaction(transaction);
+                connection.removeTransaction(testTransactions[i]);
             }
+
+            // console.timeEnd("multiple additions and retrievals");
         });
 
         it("delete + add after sync", () => {
-            for (let i = 0; i < connection.options.syncInterval; i++) {
-                // tslint:disable-next-line:no-shadowed-variable
-                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
-                transaction.data.id = fakeTransactionId(i);
-                connection.addTransactions([transaction]);
-            }
+            const testTransactions: Interfaces.ITransaction[] =
+                generateTestTransactions(connection.options.syncInterval);
 
-            const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
-            transaction.data.id = fakeTransactionId(0);
-            connection.removeTransaction(transaction);
-            connection.addTransactions([transaction]);
+            connection.addTransactions(testTransactions);
+
+            connection.removeTransaction(testTransactions[0]);
+            connection.addTransactions([testTransactions[0]]);
         });
 
         it("add many then get first few", () => {
@@ -868,22 +873,20 @@ describe("Connection", () => {
             // a deterministic test.
             const rand = randomSeed.create("0");
 
-            const allTransactions: Interfaces.ITransaction[] = [];
+            const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(nAdd);
             for (let i = 0; i < nAdd; i++) {
-                const transaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data));
-                transaction.data.id = fakeTransactionId(i);
-                transaction.data.fee = Utils.BigNumber.make(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
-                transaction.serialized = Transactions.Utils.toBytes(transaction.data);
-                allTransactions.push(transaction);
+                // This will invalidate the transactions' signatures, not good, but irrelevant for this test.
+                testTransactions[i].data.fee = Utils.BigNumber.make(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
+                testTransactions[i].serialized = Transactions.Utils.toBytes(testTransactions[i].data);
             }
 
             // console.time(`time to add ${nAdd}`)
-            connection.addTransactions(allTransactions);
+            connection.addTransactions(testTransactions);
             // console.timeEnd(`time to add ${nAdd}`)
 
             const nGet = 150;
 
-            const topFeesExpected = allTransactions
+            const topFeesExpected = testTransactions
                 .map(t => t.data.fee as any)
                 .sort((a, b) => b - a)
                 .slice(0, nGet)

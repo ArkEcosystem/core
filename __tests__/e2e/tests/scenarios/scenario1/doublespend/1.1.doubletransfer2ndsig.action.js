@@ -13,8 +13,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory
-            .transfer()
+        Transactions.BuilderFactory.transfer()
             .amount(600 * Math.pow(10, 8))
             .recipientId(utils.doubleTransfer2ndsigRecipient.address)
             .vendorField("first part of double spend")
@@ -22,8 +21,7 @@ module.exports = async options => {
             .sign(utils.doubleTransfer2ndsigSender.passphrase)
             .secondSign(utils.doubleTransfer2ndsigSender2.passphrase)
             .getStruct(),
-        Transactions.BuilderFactory
-            .transfer()
+        Transactions.BuilderFactory.transfer()
             .amount(600 * Math.pow(10, 8))
             .recipientId(utils.doubleTransfer2ndsigRecipient.address)
             .vendorField("second part of double spend")

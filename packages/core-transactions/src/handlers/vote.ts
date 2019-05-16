@@ -1,6 +1,12 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { AlreadyVotedError, NoVoteError, UnvoteMismatchError, VotedForNonDelegateError } from "../errors";
+import {
+    AlreadyVotedError,
+    NoVoteError,
+    UnvoteMismatchError,
+    VotedForNonDelegateError,
+    VotedForResignedDelegateError,
+} from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class VoteTransactionHandler extends TransactionHandler {
@@ -51,8 +57,14 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
-        if (!databaseWalletManager.isDelegate(vote.slice(1))) {
+        const delegatePublicKey: string = vote.slice(1);
+
+        if (!databaseWalletManager.isDelegate(delegatePublicKey)) {
             throw new VotedForNonDelegateError(vote);
+        }
+
+        if (databaseWalletManager.findByPublicKey(delegatePublicKey).resigned) {
+            throw new VotedForResignedDelegateError(vote);
         }
 
         return super.canBeApplied(transaction, wallet, databaseWalletManager);

@@ -202,6 +202,22 @@ describe("Models - Wallet", () => {
             ]);
         });
 
+        it("should return correct audit data for delegate resignation type", () => {
+            const transaction = TransactionFactory.delegateResignation()
+                .withNetwork("unitnet")
+                .withPassphrase("super secret passphrase")
+                .create()[0];
+            const audit = testWallet.auditApply(transaction);
+
+            expect(audit).toEqual([
+                {
+                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
+                },
+                { "Signature validation": true },
+                { "Resigned delegate": testWallet.username },
+            ]);
+        });
+
         it("should return correct audit data for vote type", () => {
             const transaction = TransactionFactory.vote(
                 "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
