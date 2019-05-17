@@ -201,7 +201,32 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-yarn global add @arkecosystem/core
+shopt -s expand_aliases
+alias ark="/home/bridgechain/core-bridgechain/packages/core/bin/run"
+echo 'alias bridgechain="/home/bridgechain/core-bridgechain/packages/core/bin/run"' >> ~/.bashrc
+rm -rf "/home/bridgechain/core-bridgechain"
+git clone "https://github.com/arkdeployer/core.git" -b chore/bridgechain-changes "/home/bridgechain/core-bridgechain" || FAILED="Y"
+
+if [ "$FAILED" == "Y" ]; then
+    FAILED="N"
+    git clone "https://github.com/arkdeployer/core.git" "/home/bridgechain/core-bridgechain" || FAILED="Y"
+
+    if [ "$FAILED" == "Y" ]; then
+        echo "Failed to fetch core repo with origin 'https://github.com/arkdeployer/core.git'"
+
+        exit 1
+    fi
+fi
+
+cd "/home/bridgechain/core-bridgechain"
+YARN_SETUP="N"
+while [ "$YARN_SETUP" == "N" ]; do
+  YARN_SETUP="Y"
+  yarn setup || YARN_SETUP="N"
+done
+rm -rf /home/bridgechain/.config/@bridgechain
+rm -rf /home/bridgechain/.config/bridgechain-core
+
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
 ark config:publish
