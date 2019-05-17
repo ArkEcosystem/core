@@ -1,6 +1,6 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
     WalletUsernameAlreadyRegisteredError,
@@ -23,20 +23,35 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.username = transaction.asset.delegate.username;
+            wallet.setAttribute("delegate", {
+                username: transaction.asset.delegate.username,
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+                producedBlocks: 0,
+                round: 0,
+            } as State.IWalletDelegateAttributes);
+
             walletManager.reindex(wallet);
         }
 
         for (const block of forgedBlocks) {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
-            wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
-            wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
-            wallet.producedBlocks = +block.totalProduced;
+            const delegate: State.IWalletDelegateAttributes = wallet.getAttribute("delegate");
+
+            // Genesis wallet is empty
+            if (!delegate) {
+                continue;
+            }
+
+            delegate.forgedFees = delegate.forgedFees.plus(block.totalFees);
+            delegate.forgedRewards = delegate.forgedRewards.plus(block.totalRewards);
+            delegate.producedBlocks += +block.totalProduced;
         }
 
         for (const block of lastForgedBlocks) {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
-            wallet.lastBlock = block;
+            wallet.setAttribute("delegate.lastBlock", block);
         }
 
         walletManager.buildDelegateRanking();
@@ -49,7 +64,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     ): void {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (databaseWalletManager.findByPublicKey(data.senderPublicKey).multisignature) {
+        const sender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+        if (sender.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
@@ -58,7 +74,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             throw new WalletUsernameEmptyError();
         }
 
-        if (wallet.username) {
+        if (wallet.isDelegate()) {
             throw new WalletUsernameNotEmptyError();
         }
 
@@ -115,7 +131,14 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.username = transaction.data.asset.delegate.username;
+        sender.setAttribute("delegate", {
+            username: transaction.data.asset.delegate.username,
+            voteBalance: Utils.BigNumber.ZERO,
+            forgedFees: Utils.BigNumber.ZERO,
+            forgedRewards: Utils.BigNumber.ZERO,
+            producedBlocks: 0,
+            round: 0,
+        });
 
         walletManager.reindex(sender);
     }
@@ -124,14 +147,15 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const username: string = sender.getAttribute("delegate.username");
 
-        walletManager.forgetByUsername(sender.username);
-        sender.username = undefined;
+        walletManager.forgetByUsername(username);
+        sender.unsetAttribute("delegate.username");
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 }

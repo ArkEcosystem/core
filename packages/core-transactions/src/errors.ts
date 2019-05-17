@@ -120,8 +120,8 @@ export class NotSupportedForMultiSignatureWalletError extends TransactionError {
 }
 
 export class AlreadyVotedError extends TransactionError {
-    constructor(transactionId: string) {
-        super(`Failed to apply transaction ${transactionId}, because the sender wallet has already voted.`);
+    constructor() {
+        super(`Failed to apply transaction, because the sender wallet has already voted.`);
     }
 }
 

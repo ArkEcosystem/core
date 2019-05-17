@@ -13,7 +13,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.secondPublicKey = transaction.asset.signature.publicKey;
+            wallet.setAttribute("secondPublicKey", transaction.asset.signature.publicKey);
         }
     }
 
@@ -22,11 +22,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): void {
-        if (wallet.secondPublicKey) {
+        if (wallet.hasSecondSignature()) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        if (databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey).multisignature) {
+        if (databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey).hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
@@ -48,19 +48,20 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey =
-            transaction.data.asset.signature.publicKey;
+        walletManager
+            .findByPublicKey(transaction.data.senderPublicKey)
+            .setAttribute("secondPublicKey", transaction.data.asset.signature.publicKey);
     }
 
     public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey = undefined;
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).unsetAttribute("secondPublicKey");
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 }

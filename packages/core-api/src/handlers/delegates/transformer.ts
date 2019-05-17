@@ -1,27 +1,30 @@
+import { State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 
-export const transformDelegate = delegate => {
+export const transformDelegate = (delegate: State.IWallet) => {
+    const attributes: State.IWalletDelegateAttributes = delegate.getAttribute("delegate");
+
     const data = {
-        username: delegate.username,
+        username: attributes.username,
         address: delegate.address,
         publicKey: delegate.publicKey,
-        votes: Utils.BigNumber.make(delegate.voteBalance).toFixed(),
-        rank: delegate.rate,
+        votes: Utils.BigNumber.make(attributes.voteBalance).toFixed(),
+        rank: attributes.rank,
         blocks: {
-            produced: delegate.producedBlocks,
+            produced: attributes.producedBlocks,
         },
         production: {
             approval: delegateCalculator.calculateApproval(delegate),
         },
         forged: {
-            fees: delegate.forgedFees.toFixed(),
-            rewards: delegate.forgedRewards.toFixed(),
+            fees: attributes.forgedFees.toFixed(),
+            rewards: attributes.forgedRewards.toFixed(),
             total: delegateCalculator.calculateForgedTotal(delegate),
         },
     };
 
-    const lastBlock = delegate.lastBlock;
+    const lastBlock = attributes.lastBlock;
 
     if (lastBlock) {
         // @ts-ignore

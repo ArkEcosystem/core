@@ -197,9 +197,6 @@ describe("Wallet Manager", () => {
 
                 walletManager.reindex(sender);
                 walletManager.reindex(recipient);
-
-                // @ts-ignore
-                jest.spyOn(walletManager, "isDelegate").mockReturnValue(true);
             });
 
             it("should apply the transaction to the sender & recipient", async () => {
@@ -539,7 +536,7 @@ describe("Wallet Manager", () => {
 
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[i];
-                expect(delegate.rate).toEqual(i + 1);
+                expect(delegate.rank).toEqual(i + 1);
                 expect(delegate.voteBalance).toEqual(Utils.BigNumber.make((5 - i) * 1000 * SATOSHI));
             }
         });

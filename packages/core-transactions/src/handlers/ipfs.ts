@@ -12,7 +12,8 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.ipfsHashes[transaction.asset.ipfs] = true;
+            const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes", {});
+            ipfsHashes[transaction.asset.ipfs] = true;
         }
     }
 
@@ -41,7 +42,8 @@ export class IpfsTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.ipfsHashes[transaction.data.asset.ipfs] = true;
+        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
+        ipfsHashes[transaction.data.asset.ipfs] = true;
 
         walletManager.reindex(sender);
     }
@@ -50,7 +52,8 @@ export class IpfsTransactionHandler extends TransactionHandler {
         super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        delete sender.ipfsHashes[transaction.data.asset.ipfs];
+        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
+        delete ipfsHashes[transaction.data.asset.ipfs];
 
         walletManager.reindex(sender);
     }

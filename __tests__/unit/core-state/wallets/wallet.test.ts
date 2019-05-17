@@ -1,6 +1,7 @@
 import "jest-extended";
 
-import { Constants, Enums, Managers, Utils } from "@arkecosystem/crypto";
+import { State } from "@arkecosystem/core-interfaces";
+import { Constants, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { configManager } from "@arkecosystem/crypto/src/managers";
 import { Wallet } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
@@ -26,16 +27,21 @@ describe("Models - Wallet", () => {
 
     describe("apply block", () => {
         let testWallet: Wallet;
+        let delegate: State.IWalletDelegateAttributes;
         let block;
 
         beforeEach(() => {
             testWallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
             testWallet.publicKey = "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece";
             testWallet.balance = Utils.BigNumber.ZERO;
-            testWallet.producedBlocks = 0;
-            testWallet.forgedFees = Utils.BigNumber.ZERO;
-            testWallet.forgedRewards = Utils.BigNumber.ZERO;
-            testWallet.lastBlock = undefined;
+
+            delegate = {
+                producedBlocks: 0,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+            } as State.IWalletDelegateAttributes;
+
+            testWallet.setAttribute("delegate", delegate);
 
             block = {
                 id: 1,
@@ -48,42 +54,50 @@ describe("Models - Wallet", () => {
         it("should apply correct block", () => {
             testWallet.applyBlock(block);
             expect(testWallet.balance).toEqual(block.reward.plus(block.totalFee));
-            expect(testWallet.producedBlocks).toBe(1);
-            expect(testWallet.forgedFees).toEqual(block.totalFee);
-            expect(testWallet.forgedRewards).toEqual(block.totalFee);
-            expect(testWallet.lastBlock).toBeObject();
+
+            const delegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
+            expect(delegate.producedBlocks).toBe(1);
+            expect(delegate.forgedFees).toEqual(block.totalFee);
+            expect(delegate.forgedRewards).toEqual(block.totalFee);
+            expect(delegate.lastBlock).toBeObject();
         });
 
         it("should not apply incorrect block", () => {
             block.generatorPublicKey = ("a" as any).repeat(66);
             const originalWallet = Object.assign({}, testWallet);
+            const delegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
+            const original: State.IWalletDelegateAttributes = originalWallet.getAttribute("delegate");
+
             testWallet.applyBlock(block);
+
             expect(testWallet.balance).toEqual(originalWallet.balance);
-            expect(testWallet.producedBlocks).toBe(0);
-            expect(testWallet.forgedFees).toEqual(originalWallet.forgedFees);
-            expect(testWallet.forgedRewards).toEqual(originalWallet.forgedRewards);
-            expect(testWallet.lastBlock).toBe(originalWallet.lastBlock);
+
+            expect(delegate.producedBlocks).toBe(0);
+            expect(delegate.forgedFees).toEqual(original.forgedFees);
+            expect(delegate.forgedRewards).toEqual(original.forgedRewards);
+            expect(delegate.lastBlock).toBe(original.lastBlock);
         });
     });
 
     describe("revert block", () => {
-        const walletInit = {
-            balance: Utils.BigNumber.make(1000 * SATOSHI),
+        const walletInit = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+        walletInit.balance = Utils.BigNumber.make(1000 * SATOSHI);
+        walletInit.publicKey = "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece";
+        walletInit.setAttribute("delegate", {
             forgedFees: Utils.BigNumber.make(10 * SATOSHI),
             forgedRewards: Utils.BigNumber.make(50 * SATOSHI),
             producedBlocks: 1,
-            dirty: false,
             lastBlock: { id: 1234856 },
-            publicKey: "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
-            address: "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-        };
+        });
+
         const block = {
             id: 1,
             generatorPublicKey: walletInit.publicKey,
             reward: Utils.BigNumber.make(2 * SATOSHI),
             totalFee: Utils.BigNumber.make(1 * SATOSHI),
-        };
-        let testWallet;
+        } as unknown as Interfaces.IBlockData;
+
+        let testWallet: Wallet;
 
         beforeEach(() => {
             testWallet = new Wallet(walletInit.address);
@@ -92,25 +106,32 @@ describe("Models - Wallet", () => {
 
         it("should revert block if generator public key matches the wallet public key", () => {
             const success = testWallet.revertBlock(block);
+            const initDelegate: State.IWalletDelegateAttributes = walletInit.getAttribute("delegate");
+            const testDelegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
 
             expect(success).toBeTrue();
             expect(testWallet.balance).toEqual(walletInit.balance.minus(block.reward).minus(block.totalFee));
-            expect(testWallet.producedBlocks).toBe(walletInit.producedBlocks - 1);
-            expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
-            expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
-            expect(testWallet.lastBlock).toBeUndefined();
+
+            expect(testDelegate.producedBlocks).toBe(initDelegate.producedBlocks - 1);
+            expect(testDelegate.forgedFees).toEqual(initDelegate.forgedFees.minus(block.totalFee));
+            expect(testDelegate.forgedRewards).toEqual(initDelegate.forgedRewards.minus(block.reward));
+            expect(testDelegate.lastBlock).toBeUndefined();
         });
 
         it("should revert block if generator public key matches the wallet address", () => {
             testWallet.publicKey = undefined;
+            const initDelegate: State.IWalletDelegateAttributes = walletInit.getAttribute("delegate");
+            const testDelegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
+
             const success = testWallet.revertBlock(block);
 
             expect(success).toBeTrue();
             expect(testWallet.balance).toEqual(walletInit.balance.minus(block.reward).minus(block.totalFee));
-            expect(testWallet.producedBlocks).toBe(walletInit.producedBlocks - 1);
-            expect(testWallet.forgedFees).toEqual(walletInit.forgedFees.minus(block.totalFee));
-            expect(testWallet.forgedRewards).toEqual(walletInit.forgedRewards.minus(block.reward));
-            expect(testWallet.lastBlock).toBeUndefined();
+
+            expect(testDelegate.producedBlocks).toBe(initDelegate.producedBlocks - 1);
+            expect(testDelegate.forgedFees).toEqual(initDelegate.forgedFees.minus(block.totalFee));
+            expect(testDelegate.forgedRewards).toEqual(initDelegate.forgedRewards.minus(block.reward));
+            expect(testDelegate.lastBlock).toBeUndefined();
         });
 
         it("should not revert block if generator public key doesn't match the wallet address / publicKey", () => {
@@ -126,17 +147,17 @@ describe("Models - Wallet", () => {
     });
 
     describe("audit transaction - auditApply", () => {
-        const walletInit = {
-            balance: Utils.BigNumber.make(1000 * SATOSHI),
+        const walletInit = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+        walletInit.balance = Utils.BigNumber.make(1000 * SATOSHI);
+        walletInit.publicKey = "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece";
+        walletInit.setAttribute("delegate", {
             forgedFees: Utils.BigNumber.make(10 * SATOSHI),
             forgedRewards: Utils.BigNumber.make(50 * SATOSHI),
             producedBlocks: 1,
-            dirty: false,
             lastBlock: { id: 1234856 },
-            publicKey: "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
-            address: "D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7",
-        };
-        let testWallet;
+        });
+
+        let testWallet: Wallet;
 
         const generateTransactionType = (type, version = 1, asset = {}) => {
             // use 2nd signature as a base
@@ -214,7 +235,7 @@ describe("Models - Wallet", () => {
                     "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
                 },
                 { "Signature validation": true },
-                { "Resigned delegate": testWallet.username },
+                { "Resigned delegate": testWallet.getAttribute("delegate.username") },
             ]);
         });
 
@@ -337,14 +358,14 @@ describe("Models - Wallet", () => {
                     .withPassphrase("super secret passphrase")
                     .create()[0];
 
-                testWallet.multisignature = {
+                testWallet.setAttribute("multiSignature", {
                     min: 3,
                     publicKeys: [
                         "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22", // "secret 1"
                         "028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0", // "secret 2"
                         "021d3932ab673230486d0f956d05b9e88791ee298d9af2d6df7d9ed5bb861c92dd", // "secret 3"
                     ],
-                };
+                });
 
                 transaction.signatures = [
                     "00fdbdd94c1d87745adab815a3fda813c075098d9bbdd78446a2b52423e1a6dbdba4a3500bef58587d181fd4f48e96beafddf94feac144a277195fdbe49eeadc1b",
@@ -368,7 +389,8 @@ describe("Models - Wallet", () => {
                         secondPassphrase: "super secret secondpassphrase",
                     })
                     .create()[0];
-                testWallet.secondPublicKey = "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d";
+
+                testWallet.setAttribute("secondPublicKey", "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d");
 
                 const audit = testWallet.auditApply(transaction);
 

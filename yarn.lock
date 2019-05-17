@@ -2716,6 +2716,10 @@
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@types/depcheck/-/depcheck-0.8.0.tgz#5c33f80c4d4ce6aa576c9ac09d326084d5c0884d"
   integrity sha512-kpGVvWeWWhfZ8SPW+OWYmLfrHVCZtIcOzKaGJHUk4WcheY6UgxUb5xU+3aVymZEvQ7z9MuWmzaKibF8YwxR0Xg==
+"@types/dottie@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/dottie/-/dottie-2.0.3.tgz#71725fceafe2df8f1e07d6bb7436524af530b376"
+  integrity sha512-XtN0M6lKMCYiDLnLXB4FSbEr5vgrpNEA24jhjnvhqobIYYDqyahTJrDblLqJ8bz1eG+Vm6BE0yqtsr88prEjww==
 
 "@types/events@*":
   version "3.0.0"

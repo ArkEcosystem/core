@@ -7,7 +7,7 @@ import { sortEntries } from "./utils/sort-entries";
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
 export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
 
     public search(params: Database.IParameters = {}): Database.IWalletsPaginated {
         // Prepare...
@@ -59,7 +59,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
 
     // @TODO: simplify this
     public findById(id): State.IWallet {
-        return this.search().rows.find(a => a.address === id || a.publicKey === id || a.username === id);
+        return this.search().rows.find(a => a.address === id || a.publicKey === id || a.getAttribute("delegate.username") === id);
     }
 
     private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
