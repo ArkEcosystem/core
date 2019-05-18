@@ -8,7 +8,7 @@ yarn --cwd /home/node/core ark config:publish --network=$NETWORK
 sudo rm -f /home/node/.config/ark-core/$NETWORK/.env
 
 if [ "$MODE" = "forger" ]; then
-    echo "{\"secrets\":[\"$DELEGATE_PASSPHRASE=\"]}" > /home/node/.config/ark-core/$NETWORK/delegates.json
+    echo "{\"secrets\":[\"$DELEGATE_PASSPHRASE\"]}" > /home/node/.config/ark-core/$NETWORK/delegates.json
     yarn --cwd /home/node/core ark core:start --no-daemon
 fi
 
