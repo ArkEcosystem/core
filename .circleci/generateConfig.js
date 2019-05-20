@@ -7,12 +7,16 @@ const config = require("./configTemplate.json");
 const fixedJobs = [
     "test-node10-unit",
     "test-node11-unit",
+    "test-node12-unit",
     "test-node10-functional",
     "test-node11-functional",
+    "test-node12-functional",
     "test-node10-benchmark",
     "test-node11-benchmark",
+    "test-node12-benchmark",
     "test-node10-e2e",
-    "test-node11-e2e"
+    "test-node11-e2e",
+    "test-node12-e2e",
 ]
 
 function jason(value) {
@@ -27,7 +31,9 @@ fs.readdir("./packages", (_, packages) => {
         // save cache using 2 steps because only 1 step cause circleci issue because of number of paths to save
         const saveCacheIndex = job.steps.findIndex(step => typeof step === "object" && step.save_cache);
         const saveCacheStep1 = job.steps[saveCacheIndex];
-        const saveCacheStep2 = { save_cache: Object.assign({}, saveCacheStep1.save_cache) };
+        const saveCacheStep2 = {
+            save_cache: Object.assign({}, saveCacheStep1.save_cache)
+        };
         const pathsToSave = packages
             .map(package => `./packages/${package}/node_modules`)
             .concat("./node_modules")
@@ -43,7 +49,9 @@ fs.readdir("./packages", (_, packages) => {
         // restore cache, same as for save cache
         const restoreCacheIndex = job.steps.findIndex(step => typeof step === "object" && step.restore_cache);
         const restoreCacheStep1 = job.steps[restoreCacheIndex];
-        const restoreCacheStep2 = { restore_cache: Object.assign({}, restoreCacheStep1.restore_cache) };
+        const restoreCacheStep2 = {
+            restore_cache: Object.assign({}, restoreCacheStep1.restore_cache)
+        };
 
         restoreCacheStep1.restore_cache.key = restoreCacheStep1.restore_cache.key + "-1";
         restoreCacheStep2.restore_cache.key = restoreCacheStep2.restore_cache.key + "-2";
@@ -66,9 +74,9 @@ fs.readdir("./packages", (_, packages) => {
 
             const steps = getIntegrationSteps(packagesChunks[index]);
 
-            const stepLog = jason(job.steps[testStepIndex+1]);
-            const stepLint = jason(job.steps[testStepIndex+2]);
-            const stepCoverage = jason(job.steps[testStepIndex+3]);
+            const stepLog = jason(job.steps[testStepIndex + 1]);
+            const stepLint = jason(job.steps[testStepIndex + 2]);
+            const stepCoverage = jason(job.steps[testStepIndex + 3]);
 
             for (i = 0; i < steps.length; i++) {
                 job.steps[testStepIndex + i] = steps[i];
@@ -83,7 +91,9 @@ fs.readdir("./packages", (_, packages) => {
         });
     }
 
-    config.workflows.build_and_test.jobs = fixedJobs.concat(config.workflows.build_and_test.jobs)
+    config.workflows.build_and_test.jobs = fixedJobs
+        .concat(config.workflows.build_and_test.jobs)
+        .filter(job => !job.includes("node12"))
 
     fs.writeFileSync(".circleci/config.yml", yaml.safeDump(config));
 });
