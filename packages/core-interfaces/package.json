@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^2.4.0-next.3",
-        "@faustbrian/dato": "^0.3.0",
+        "@faustbrian/dato": "^0.4.1",
         "awilix": "^4.2.2"
     },
     "engines": {

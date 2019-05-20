@@ -109,7 +109,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.storage.forgetPeer(peer);
 
         this.logger.debug(
-            `Suspended ${peer.ip} for ${prettyMs(punishment.until.diff(dato()), {
+            `Suspended ${peer.ip} for ${prettyMs(punishment.until.diffInMilliseconds(dato()), {
                 verbose: true,
             })} because of "${punishment.reason}"`,
         );
@@ -185,7 +185,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         }
 
         if (!suspension.nextReminder || dato().isAfter(suspension.nextReminder)) {
-            const untilDiff = suspension.punishment.until.diff(dato());
+            const untilDiff = suspension.punishment.until.diffInMilliseconds(dato());
 
             this.logger.debug(
                 `${peer.ip} still suspended for ${prettyMs(untilDiff, {

@@ -28,10 +28,10 @@
         "@arkecosystem/core-utils": "^2.4.0-next.3",
         "@arkecosystem/crypto": "^2.4.0-next.3",
         "@arkecosystem/utils": "^0.3.0",
-        "@faustbrian/dato": "^0.3.0",
+        "@faustbrian/dato": "^0.4.1",
         "@faustbrian/hapi-version": "^0.2.11",
         "@hapi/boom": "^7.4.2",
-        "@hapi/joi": "^15.0.2",
+        "@hapi/joi": "^15.0.3",
         "ajv": "^6.10.0",
         "bs58check": "^2.1.2",
         "delay": "^4.2.0",
@@ -41,7 +41,7 @@
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
-        "mathjs": "^5.10.0",
+        "mathjs": "^5.10.3",
         "semver": "^6.0.0"
     },
     "devDependencies": {
