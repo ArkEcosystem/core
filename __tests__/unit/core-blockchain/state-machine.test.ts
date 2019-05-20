@@ -60,9 +60,9 @@ describe("State Machine", () => {
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
             });
 
-            it('should dispatch the event "PAUSED" if the blockchain process queue is more than 10000 long', async () => {
+            it('should dispatch the event "PAUSED" if the blockchain process queue is more than 100 long', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 10001);
+                blockchain.queue.length = jest.fn(() => 101);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
             });
 

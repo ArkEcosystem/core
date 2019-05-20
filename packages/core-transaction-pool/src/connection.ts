@@ -464,7 +464,10 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     private purgeExpired(): void {
-        this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired(this.options.maxTransactionAge));
+        this.purgeTransactions(
+            ApplicationEvents.TransactionExpired,
+            this.memory.getExpired(this.options.maxTransactionAge),
+        );
     }
 
     private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {

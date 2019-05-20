@@ -37,7 +37,7 @@
         "@types/lodash.isempty": "^4.4.6",
         "@types/lodash.uniq": "^4.5.6",
         "@types/pluralize": "^0.0.29",
-        "@types/socketcluster-client": "^13.0.2"
+        "@types/socketcluster-client": "^13.0.3"
     },
     "engines": {
         "node": ">=10.x"

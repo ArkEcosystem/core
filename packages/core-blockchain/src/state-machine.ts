@@ -47,9 +47,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async checkLastDownloadedBlockSynced() {
         let event = "NOTSYNCED";
-        logger.debug(`Queued blocks (process: ${blockchain.queue.length()})`);
+        logger.debug(`Queued chunks of blocks (process: ${blockchain.queue.length()})`);
 
-        if (blockchain.queue.length() > 10000) {
+        if (blockchain.queue.length() > 100) {
             event = "PAUSED";
         }
 
