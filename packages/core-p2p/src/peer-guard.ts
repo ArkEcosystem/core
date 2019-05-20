@@ -74,10 +74,6 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.socketGotClosed);
         }
 
-        if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {
-            return this.createPunishment(this.offences.applicationNotReady);
-        }
-
         if (peer.latency === -1) {
             return this.createPunishment(this.offences.timeout);
         }

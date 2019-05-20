@@ -20,7 +20,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
     public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         try {
-            this.logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
+            this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
 
             return await this.getPeerBlocks(peer, fromBlockHeight);
         } catch (error) {
