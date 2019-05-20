@@ -26,7 +26,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@faustbrian/dato": "^0.4.1",
+        "@faustbrian/dato": "^0.4.2",
         "@hapi/joi": "^15.0.3",
         "ajv": "^6.10.0",
         "ajv-keywords": "^3.4.0",

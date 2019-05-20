@@ -802,10 +802,10 @@
   dependencies:
     benchmark "^2.1.4"
 
-"@faustbrian/dato@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@faustbrian/dato/-/dato-0.4.1.tgz#85ec6eb9849ed3b8c756ea35a2ed071a7ebc6600"
-  integrity sha512-50UN2YLPJNsutL7dvEi8jeEQe/a+AjpArowWj0ekOZ3AulS3tkwPL46hF+WvAILPQQEcFVPUx3iD+Q/TDrlJXA==
+"@faustbrian/dato@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@faustbrian/dato/-/dato-0.4.2.tgz#c09d02b88c8284ff00c4d8aa13791e5712d6bf43"
+  integrity sha512-RChSI4BKSl46KTQcIpwSabYdqBBbv/FbGfgKqgBNmZ9fhDvr8ZY15jR6Q1QNjqcv7yT9pi2YGvGI02yiRv4/Pw==
   dependencies:
     dayjs "^1.8.14"
 

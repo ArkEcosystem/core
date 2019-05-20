@@ -30,7 +30,7 @@
         "@arkecosystem/core-interfaces": "^2.4.0-next.3",
         "@arkecosystem/core-transactions": "^2.4.0-next.3",
         "@arkecosystem/crypto": "^2.4.0-next.3",
-        "@faustbrian/dato": "^0.4.1",
+        "@faustbrian/dato": "^0.4.2",
         "@types/better-sqlite3": "^5.4.0",
         "@types/fs-extra": "^7.0.0",
         "@types/pluralize": "^0.0.29",
