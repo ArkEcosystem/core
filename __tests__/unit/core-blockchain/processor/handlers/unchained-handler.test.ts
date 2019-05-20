@@ -41,7 +41,7 @@ describe("Exception handler", () => {
             const handler = new UnchainedHandler(blockchain as any, BlockFactory.fromData(blocks2to100[5]), true);
 
             expect(await handler.execute()).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
-            expect(loggerDebug).toHaveBeenCalledWith("Discarded 5 downloaded blocks.");
+            expect(loggerDebug).toHaveBeenCalledWith("Discarded 5 chunks of downloaded blocks.");
         });
     });
 });

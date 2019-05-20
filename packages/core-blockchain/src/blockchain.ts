@@ -268,7 +268,22 @@ export class Blockchain implements blockchain.IBlockchain {
             return;
         }
 
-        this.queue.push({ blocks });
+        // divide blocks received into chunks depending on number of transactions
+        // this is to avoid blocking the application when processing "heavy" blocks
+        let currentBlocksChunk = [];
+        let currentTransactionsCount = 0;
+        for (const block of blocks) {
+            currentBlocksChunk.push(block);
+            currentTransactionsCount += block.numberOfTransactions;
+
+            if (currentTransactionsCount >= 150 || currentBlocksChunk.length > 100) {
+                this.queue.push({ blocks: currentBlocksChunk });
+                currentBlocksChunk = [];
+                currentTransactionsCount = 0;
+            }
+        }
+        this.queue.push({ blocks: currentBlocksChunk });
+
         this.state.lastDownloadedBlock = BlockFactory.fromData(blocks.slice(-1)[0]);
     }
 
@@ -372,6 +387,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(block);
+            } else {
+                break; // if one block is not accepted, the other ones won't be chained anyway
             }
         }
 
