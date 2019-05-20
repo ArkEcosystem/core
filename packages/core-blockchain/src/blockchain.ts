@@ -375,40 +375,39 @@ export class Blockchain implements blockchain.IBlockchain {
             }
         }
 
+        if (acceptedBlocks.length > 0) {
+            try {
+                await this.database.saveBlocks(acceptedBlocks);
+            } catch (exceptionSaveBlocks) {
+                logger.error(
+                    `Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`,
+                );
+
+                const resetToHeight = async height => {
+                    try {
+                        return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
+                    } catch (e) {
+                        logger.error(`Could not remove top blocks from database : ${e.stack}`);
+
+                        return resetToHeight(height); // keep trying, we can't do anything while this fails
+                    }
+                };
+                await resetToHeight(acceptedBlocks[0].data.height - 1);
+
+                return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
+            }
+        }
+
         if (
             lastProcessResult === BlockProcessorResult.Accepted ||
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
-            // broadcast only current block
             const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
             const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
                 this.p2p.getMonitor().broadcastBlock(currentBlock);
             }
-        }
-
-        if (acceptedBlocks.length === 0) {
-            return callback([]);
-        }
-
-        try {
-            await this.database.saveBlocks(acceptedBlocks);
-        } catch (exceptionSaveBlocks) {
-            logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`);
-
-            const resetToHeight = async height => {
-                try {
-                    return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
-                } catch (e) {
-                    logger.error(`Could not remove top blocks from database : ${e.stack}`);
-
-                    return resetToHeight(height); // keep trying, we can't do anything while this fails
-                }
-            };
-            await resetToHeight(acceptedBlocks[0].data.height - 1);
-
-            return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
         }
 
         return callback(acceptedBlocks);
