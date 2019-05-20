@@ -68,14 +68,5 @@ describe("PeerGuard", () => {
             expect(reason).toBe("High Latency");
             expect(convertToMinutes(until)).toBe(1);
         });
-
-        it('should return a 30 seconds suspension for "Application not ready"', () => {
-            connector.getError = jest.fn(() => SocketErrors.AppNotReady);
-
-            const { until, reason } = guard.analyze(dummy);
-
-            expect(reason).toBe("Application is not ready");
-            expect(convertToMinutes(until)).toBe(0.5);
-        });
     });
 });
