@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import { SCClientSocket } from "socketcluster-client";
-import { SocketErrors } from "./enums";
 import { isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerGuard implements P2P.IPeerGuard {
