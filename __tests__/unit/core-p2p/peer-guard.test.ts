@@ -4,7 +4,6 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
-import { SocketErrors } from "../../../packages/core-p2p/src/enums";
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { PeerGuard } from "../../../packages/core-p2p/src/peer-guard";
 import { createStubPeer } from "../../helpers/peers";
@@ -67,15 +66,6 @@ describe("PeerGuard", () => {
 
             expect(reason).toBe("High Latency");
             expect(convertToMinutes(until)).toBe(1);
-        });
-
-        it('should return a 30 seconds suspension for "Application not ready"', () => {
-            connector.getError = jest.fn(() => SocketErrors.AppNotReady);
-
-            const { until, reason } = guard.analyze(dummy);
-
-            expect(reason).toBe("Application is not ready");
-            expect(convertToMinutes(until)).toBe(0.5);
         });
     });
 });

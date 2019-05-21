@@ -56,7 +56,7 @@ describe("State Machine", () => {
         describe("checkLastDownloadedBlockSynced", () => {
             it('should dispatch the event "NOTSYNCED" by default', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 1);
+                blockchain.queue.idle = jest.fn(() => false);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
             });
 
@@ -68,7 +68,7 @@ describe("State Machine", () => {
 
             it('should dispatch the event "NETWORKHALTED" if stateStorage.noBlockCounter > 5 and process queue is empty', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 0);
+                blockchain.queue.idle = jest.fn(() => true);
                 stateStorage.noBlockCounter = 6;
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NETWORKHALTED");
             });
@@ -78,7 +78,7 @@ describe("State Machine", () => {
                     - stateStorage.p2pUpdateCounter + 1 > 3 (network keeps missing blocks)
                     - blockchain.p2p.checkNetworkHealth() returns a forked network status`, async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 0);
+                blockchain.queue.idle = jest.fn(() => true);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
 

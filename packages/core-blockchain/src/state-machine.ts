@@ -54,7 +54,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (stateStorage.noBlockCounter > 5 && blockchain.queue.length() === 0) {
+        if (stateStorage.noBlockCounter > 5 && blockchain.queue.idle()) {
             logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             stateStorage.noBlockCounter = 0;
@@ -101,7 +101,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.networkStart = false;
 
             blockchain.dispatch("SYNCFINISHED");
-        } else if (blockchain.queue.length() === 0) {
+        } else if (blockchain.queue.idle()) {
             blockchain.dispatch("PROCESSFINISHED");
         }
     },
