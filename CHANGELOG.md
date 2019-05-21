@@ -102,6 +102,12 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 
 -   Remove unused methods to get/set/reset height from `Slots` ([#2467])
 
+## [2.3.23] - 2019-05-21
+
+### Fixed
+
+-   Allow the use of old and new block IDs via `core-json-rpc` ([#2593])
+
 ## [2.3.22] - 2019-05-02
 
 ### Changed
@@ -432,6 +438,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
 [2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
 [2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
 [2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
@@ -662,3 +669,4 @@ Closed security vulnerabilities:
 [#2581]: https://github.com/ARKEcosystem/core/pull/2581
 [#2582]: https://github.com/ARKEcosystem/core/pull/2582
 [#2586]: https://github.com/ARKEcosystem/core/pull/2586
+[#2593]: https://github.com/ARKEcosystem/core/pull/2593
