@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import { dato } from "@faustbrian/dato";
 import { SCClientSocket } from "socketcluster-client";
+import { SocketErrors } from "./enums";
 import { isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerGuard implements P2P.IPeerGuard {
@@ -71,6 +72,10 @@ export class PeerGuard implements P2P.IPeerGuard {
 
         if (connection && connection.getState() !== connection.OPEN) {
             return this.createPunishment(this.offences.socketGotClosed);
+        }
+
+        if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {
+            return undefined; // no punishment when app is not ready
         }
 
         if (peer.latency === -1) {
