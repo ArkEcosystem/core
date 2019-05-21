@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.4.0] - YYYY-MM-DD
+## [2.4.0] - 2019-MM-DD
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
 
@@ -54,6 +54,12 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Implement TransactionFactory in `@arkecosystem/crypto` ([#2437])
 -   Integrate end-to-end tests ([#2468])
 -   Initial Implementation of `core-wallet-api` ([#2544])
+-   Accept block height to list block transactions in `core-api` ([#2567])
+-   Functional test matchers for `core-jest-matchers` ([#2562])
+-   Don't trust headers and verify config and plugin connectivity of peers ([#2559], [#2553], [#2552])
+-   Proxy API calls to core-api until fully developed ([#2558])
+-   Add database configuration command to CLI ([#2557], [#2563])
+-   Add command to generate network configuration CLI ([#2582])
 
 ### Fixed
 
@@ -61,6 +67,11 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Purge invalid transactions after a milestone change ([#2499])
 -   Use public API to auto-configure `@arkecosystem/core-tester-cli` ([#2517])
 -   Parse only the last line of pm2 stdout to avoid parsing faulty input ([#2484])
+-   Delete bad rounds after unclean shutdown ([#2581])
+-   Divide blocks into smaller chunks for batch processing ([#2586])
+-   Remove forged transactions from pool before discarding block ([#2555])
+-   Make transaction amount required ([#2574])
+-   Various sync issues with devnet and mainnet ([#2565])
 
 ### Changed
 
@@ -84,6 +95,8 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
 -   Invalidate blocks with expired transactions ([#2528])
 -   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
+-   Return all schema errors in hapi-ajv (#2571)
+-   Clean up SocketCluster shutdown and logging (#2560)
 
 ### Removed
 
@@ -633,3 +646,19 @@ Closed security vulnerabilities:
 [#2529]: https://github.com/ARKEcosystem/core/pull/2529
 [#2539]: https://github.com/ARKEcosystem/core/pull/2539
 [#2544]: https://github.com/ARKEcosystem/core/pull/2544
+[#2552]: https://github.com/ARKEcosystem/core/pull/2552
+[#2553]: https://github.com/ARKEcosystem/core/pull/2553
+[#2555]: https://github.com/ARKEcosystem/core/pull/2555
+[#2557]: https://github.com/ARKEcosystem/core/pull/2557
+[#2558]: https://github.com/ARKEcosystem/core/pull/2558
+[#2559]: https://github.com/ARKEcosystem/core/pull/2559
+[#2560]: https://github.com/ARKEcosystem/core/pull/2560
+[#2562]: https://github.com/ARKEcosystem/core/pull/2562
+[#2563]: https://github.com/ARKEcosystem/core/pull/2563
+[#2565]: https://github.com/ARKEcosystem/core/pull/2565
+[#2567]: https://github.com/ARKEcosystem/core/pull/2567
+[#2571]: https://github.com/ARKEcosystem/core/pull/2571
+[#2574]: https://github.com/ARKEcosystem/core/pull/2574
+[#2581]: https://github.com/ARKEcosystem/core/pull/2581
+[#2582]: https://github.com/ARKEcosystem/core/pull/2582
+[#2586]: https://github.com/ARKEcosystem/core/pull/2586
