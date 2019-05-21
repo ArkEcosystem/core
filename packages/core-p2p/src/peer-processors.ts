@@ -159,10 +159,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
             this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
         } catch (error) {
-            if (error instanceof PeerPingTimeoutError) {
-                newPeer.latency = -1;
-            }
-
             this.suspend(newPeer);
         } finally {
             this.storage.forgetPendingPeer(peer);
