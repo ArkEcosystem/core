@@ -6,7 +6,7 @@ import { state } from "./mocks/state";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
@@ -563,13 +563,13 @@ describe("Connection", () => {
 
         it("should return true if sender is blocked", () => {
             const publicKey = "thisPublicKeyIsBlocked";
-            (connection as any).blockedByPublicKey[publicKey] = dato().addHours(1);
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
             expect(connection.isSenderBlocked(publicKey)).toBeTrue();
         });
 
         it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
             const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            (connection as any).blockedByPublicKey[publicKey] = dato().subSeconds(1);
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().subtract(1, "second");
             expect(connection.isSenderBlocked(publicKey)).toBeFalse();
             expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
         });
@@ -578,11 +578,11 @@ describe("Connection", () => {
     describe("blockSender", () => {
         it("should block sender for 1 hour", () => {
             const publicKey = "publicKeyToBlock";
-            const plus1HourBefore = dato().addHours(1);
+            const plus1HourBefore = dayjs().add(1, "hour");
 
             const blockReleaseTime = connection.blockSender(publicKey);
 
-            const plus1HourAfter = dato().addHours(1);
+            const plus1HourAfter = dayjs().add(1, "hour");
             expect((connection as any).blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
             expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
             expect(blockReleaseTime <= plus1HourAfter).toBeTrue();

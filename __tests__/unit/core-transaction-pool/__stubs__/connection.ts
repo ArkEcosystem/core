@@ -1,6 +1,6 @@
 import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { Blocks, Enums, Interfaces } from "@arkecosystem/crypto";
-import { Dato } from "@faustbrian/dato";
+import { Dayjs } from "dayjs";
 import { ITransactionsProcessed } from "../../../../packages/core-transaction-pool/src/interfaces";
 import { Memory } from "../../../../packages/core-transaction-pool/src/memory";
 import { Storage } from "../../../../packages/core-transaction-pool/src/storage";
@@ -118,7 +118,7 @@ export class Connection implements TransactionPool.IConnection {
         return true;
     }
 
-    public blockSender(senderPublicKey: string): Dato {
+    public blockSender(senderPublicKey: string): Dayjs {
         return undefined;
     }
 
