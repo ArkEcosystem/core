@@ -1,5 +1,5 @@
-import { dato } from "@faustbrian/dato";
 import chalk from "chalk";
+import dayjs from "dayjs";
 import { Format } from "logform";
 import { format } from "winston";
 
@@ -34,7 +34,7 @@ export const formatter = (colorOutput: boolean = true): Format => {
                 }[level];
             }
 
-            const dateTime: string = dato(info.timestamp).format("YYYY-MM-DD HH:mm:ss");
+            const dateTime: string = dayjs(info.timestamp).format("YYYY-MM-DD HH:mm:ss");
 
             return `[${dateTime}][${level}]: ${message}`;
         }),

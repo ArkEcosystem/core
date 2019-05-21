@@ -1,13 +1,13 @@
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import { configManager } from "../managers";
 
 export class Slots {
     public static getTime(time?: number): number {
         if (time === undefined) {
-            time = dato().toMilliseconds();
+            time = dayjs().valueOf();
         }
 
-        const start: number = dato(configManager.getMilestone(1).epoch).toMilliseconds();
+        const start: number = dayjs(configManager.getMilestone(1).epoch).valueOf();
 
         return Math.floor((time - start) / 1000);
     }
