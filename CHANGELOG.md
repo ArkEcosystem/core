@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.23] - 2019-05-21
+
+### Fixed
+
+-   Allow the use of old and new block IDs via `core-json-rpc` ([#2593])
+
 ## [2.3.22] - 2019-05-02
 
 ### Changed
@@ -509,3 +515,4 @@ Closed security vulnerabilities:
 [#2502]: https://github.com/ARKEcosystem/core/pull/2502
 [#2503]: https://github.com/ARKEcosystem/core/pull/2503
 [#2513]: https://github.com/ARKEcosystem/core/pull/2513
+[#2593]: https://github.com/ARKEcosystem/core/pull/2593
