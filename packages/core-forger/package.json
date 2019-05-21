@@ -31,13 +31,19 @@
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0",
-        "socketcluster-client": "^14.2.2"
+        "socketcluster-client": "^14.2.2",
+        "node-forge": "^0.8.3",
+        "otplib": "^11.0.0",
+        "wif": "^2.0.6"
     },
     "devDependencies": {
         "@types/lodash.isempty": "^4.4.6",
         "@types/lodash.uniq": "^4.5.6",
         "@types/pluralize": "^0.0.29",
-        "@types/socketcluster-client": "^13.0.3"
+        "@types/socketcluster-client": "^13.0.3",
+        "@types/otplib": "^7.0.0",
+        "@types/wif": "^2.0.1",
+        "@types/node-forge": "^0.8.3"
     },
     "engines": {
         "node": ">=10.x"
