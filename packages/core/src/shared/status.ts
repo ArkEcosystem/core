@@ -1,6 +1,6 @@
-import { dato } from "@faustbrian/dato";
 import { ProcessDescription } from "@faustbrian/foreman";
 import Table from "cli-table3";
+import dayjs from "dayjs";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { BaseCommand } from "../commands/command";
@@ -26,7 +26,7 @@ export abstract class AbstractStatusCommand extends BaseCommand {
                 app.pm2_env.version,
                 app.pm2_env.status,
                 // @ts-ignore
-                prettyMs(dato().diff(app.pm2_env.pm_uptime)),
+                prettyMs(dayjs().diff(app.pm2_env.pm_uptime)),
                 `${app.monit.cpu}%`,
                 prettyBytes(app.monit.memory),
             ]);

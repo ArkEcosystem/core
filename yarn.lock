@@ -802,13 +802,6 @@
   dependencies:
     benchmark "^2.1.4"
 
-"@faustbrian/dato@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@faustbrian/dato/-/dato-0.4.2.tgz#c09d02b88c8284ff00c4d8aa13791e5712d6bf43"
-  integrity sha512-RChSI4BKSl46KTQcIpwSabYdqBBbv/FbGfgKqgBNmZ9fhDvr8ZY15jR6Q1QNjqcv7yT9pi2YGvGI02yiRv4/Pw==
-  dependencies:
-    dayjs "^1.8.14"
-
 "@faustbrian/foreman@^0.1.2":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@faustbrian/foreman/-/foreman-0.1.2.tgz#9c387d6228426a0b57de63d3532710cc38f4d1ab"

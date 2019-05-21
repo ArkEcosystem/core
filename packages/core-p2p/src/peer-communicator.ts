@@ -2,8 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
-import { dato } from "@faustbrian/dato";
 import AJV from "ajv";
+import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
@@ -84,7 +84,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             }
         }
 
-        peer.lastPinged = dato();
+        peer.lastPinged = dayjs();
         peer.state = pingResponse.state;
         return pingResponse.state;
     }

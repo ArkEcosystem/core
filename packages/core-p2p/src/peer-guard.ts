@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { isValidVersion, isWhitelisted } from "./utils";
@@ -8,49 +8,49 @@ import { isValidVersion, isWhitelisted } from "./utils";
 export class PeerGuard implements P2P.IPeerGuard {
     private readonly offences: Record<string, P2P.IOffence> = {
         noCommonBlocks: {
-            until: () => dato().addMinutes(5),
+            until: () => dayjs().add(5, "minute"),
             reason: "No Common Blocks",
             severity: "critical",
         },
         invalidVersion: {
-            until: () => dato().addMinutes(5),
+            until: () => dayjs().add(5, "minute"),
             reason: "Invalid Version",
         },
         invalidNetwork: {
-            until: () => dato().addMinutes(5),
+            until: () => dayjs().add(5, "minute"),
             reason: "Invalid Network",
             severity: "critical",
         },
         invalidStatus: {
-            until: () => dato().addMinutes(5),
+            until: () => dayjs().add(5, "minute"),
             reason: "Invalid Response Status",
         },
         timeout: {
-            until: () => dato().addSeconds(30),
+            until: () => dayjs().add(30, "second"),
             reason: "Timeout",
         },
         highLatency: {
-            until: () => dato().addMinutes(1),
+            until: () => dayjs().add(1, "minute"),
             reason: "High Latency",
         },
         applicationNotReady: {
-            until: () => dato().addSeconds(30),
+            until: () => dayjs().add(30, "second"),
             reason: "Application is not ready",
         },
         failedBlocksDownload: {
-            until: () => dato().addSeconds(30),
+            until: () => dayjs().add(30, "second"),
             reason: "Failed to download blocks",
         },
         tooManyRequests: {
-            until: () => dato().addSeconds(60),
+            until: () => dayjs().add(60, "second"),
             reason: "Rate limit exceeded",
         },
         fork: {
-            until: () => dato().addMinutes(15),
+            until: () => dayjs().add(15, "minute"),
             reason: "Fork",
         },
         socketGotClosed: {
-            until: () => dato().addMinutes(5),
+            until: () => dayjs().add(5, "minute"),
             reason: "Socket got closed",
         },
     };
@@ -75,7 +75,7 @@ export class PeerGuard implements P2P.IPeerGuard {
         }
 
         if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {
-            return undefined; // no punishment when app is not ready
+            return undefined;
         }
 
         if (peer.latency === -1) {

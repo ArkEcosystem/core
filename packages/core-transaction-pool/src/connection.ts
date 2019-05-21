@@ -3,8 +3,8 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
+import dayjs, { Dayjs } from "dayjs";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
@@ -19,7 +19,7 @@ export class Connection implements TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly blockedByPublicKey: { [key: string]: Dato } = {};
+    private readonly blockedByPublicKey: { [key: string]: Dayjs } = {};
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
         "database",
     );
@@ -238,7 +238,7 @@ export class Connection implements TransactionPool.IConnection {
             return false;
         }
 
-        if (dato().isAfter(this.blockedByPublicKey[senderPublicKey])) {
+        if (dayjs().isAfter(this.blockedByPublicKey[senderPublicKey])) {
             delete this.blockedByPublicKey[senderPublicKey];
 
             return false;
@@ -247,12 +247,14 @@ export class Connection implements TransactionPool.IConnection {
         return true;
     }
 
-    public blockSender(senderPublicKey: string): Dato {
-        const blockReleaseTime: Dato = dato().addHours(1);
+    public blockSender(senderPublicKey: string): Dayjs {
+        const blockReleaseTime: Dayjs = dayjs().add(1, "hour");
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-        this.logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toUTC()}`);
+        this.logger.warn(
+            `Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toString()}`,
+        );
 
         return blockReleaseTime;
     }

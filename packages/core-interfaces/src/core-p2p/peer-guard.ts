@@ -1,4 +1,4 @@
-import { Dato } from "@faustbrian/dato";
+import { Dayjs } from "dayjs";
 import { IPeer } from "./peer";
 
 export interface IPeerGuard {
@@ -11,7 +11,7 @@ export interface IPeerSuspension {
     readonly peer: IPeer;
     readonly punishment: IPunishment;
 
-    nextReminder?: Dato;
+    nextReminder?: Dayjs;
 
     isLow(): boolean;
     isMedium(): boolean;
@@ -22,13 +22,13 @@ export interface IPeerSuspension {
 }
 
 export interface IOffence {
-    until: () => Dato;
+    until: () => Dayjs;
     reason: string;
     severity?: "low" | "medium" | "high" | "critical";
 }
 
 export interface IPunishment {
-    until: Dato;
+    until: Dayjs;
     reason: string;
     severity?: "low" | "medium" | "high" | "critical";
 }

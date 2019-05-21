@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter/dist";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@arkecosystem/crypto";
-import { dato, Dato } from "@faustbrian/dato";
+import dayjs, { Dayjs } from "dayjs";
 import delay from "delay";
 import groupBy from "lodash.groupby";
 import sample from "lodash.sample";
@@ -22,7 +22,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
-    private coldStartPeriod: Dato;
+    private coldStartPeriod: Dayjs;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -44,7 +44,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.processor = processor;
         this.storage = storage;
 
-        this.coldStartPeriod = dato().addSeconds(app.resolveOptions("p2p").coldStart);
+        this.coldStartPeriod = dayjs().add(app.resolveOptions("p2p").coldStart, "second");
     }
 
     public getServer(): SocketCluster {
@@ -68,7 +68,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return false;
         }
 
-        return this.coldStartPeriod.isAfter(dato());
+        return this.coldStartPeriod.isAfter(dayjs());
     }
 
     public async start(options): Promise<this> {
