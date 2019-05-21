@@ -10,11 +10,8 @@ export const blockInfo = {
         return response ? response.data : Boom.notFound(`Block ${params.id} could not be found.`);
     },
     schema: {
-        id: Joi.alternatives().try(
-            Joi.number()
-                .unsafe()
-                .required(),
-            Joi.string().length(64),
-        ),
+        id: Joi.alternatives()
+            .try(Joi.number().unsafe(), Joi.string().length(64))
+            .required(),
     },
 };
