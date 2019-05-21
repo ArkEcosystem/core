@@ -26,7 +26,7 @@ export class PeerGuard implements P2P.IPeerGuard {
             reason: "Invalid Response Status",
         },
         timeout: {
-            until: () => dayjs().add(30, "minute"),
+            until: () => dayjs().add(30, "second"),
             reason: "Timeout",
         },
         highLatency: {
@@ -34,15 +34,15 @@ export class PeerGuard implements P2P.IPeerGuard {
             reason: "High Latency",
         },
         applicationNotReady: {
-            until: () => dayjs().add(30, "minute"),
+            until: () => dayjs().add(30, "second"),
             reason: "Application is not ready",
         },
         failedBlocksDownload: {
-            until: () => dayjs().add(30, "minute"),
+            until: () => dayjs().add(30, "second"),
             reason: "Failed to download blocks",
         },
         tooManyRequests: {
-            until: () => dayjs().add(60, "minute"),
+            until: () => dayjs().add(60, "second"),
             reason: "Rate limit exceeded",
         },
         fork: {
