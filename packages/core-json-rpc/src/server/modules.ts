@@ -21,10 +21,7 @@ export const blocks = [
         schema: {
             type: "object",
             properties: {
-                id: {
-                    type: "string",
-                    maxLength: 64,
-                },
+                id: { blockId: {} },
             },
             required: ["id"],
         },
@@ -63,10 +60,7 @@ export const blocks = [
         schema: {
             type: "object",
             properties: {
-                id: {
-                    type: "string",
-                    maxLength: 64,
-                },
+                id: { blockId: {} },
                 offset: {
                     type: "number",
                 },
