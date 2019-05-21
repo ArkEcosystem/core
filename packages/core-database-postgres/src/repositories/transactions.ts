@@ -136,7 +136,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     this.query.timestamp.gte(
                         Crypto.Slots.getTime(
                             dayjs()
-                                .subtract(days, "date")
+                                .subtract(days, "day")
                                 .valueOf(),
                         ),
                     ),
