@@ -1,8 +1,8 @@
 import { P2P } from "@arkecosystem/core-interfaces";
-import { dato, Dato } from "@faustbrian/dato";
+import dayjs, { Dayjs } from "dayjs";
 
 export class PeerSuspension implements P2P.IPeerSuspension {
-    public nextReminder?: Dato;
+    public nextReminder?: Dayjs;
 
     public constructor(readonly peer: P2P.IPeer, readonly punishment: P2P.IPunishment) {}
 
@@ -23,6 +23,6 @@ export class PeerSuspension implements P2P.IPeerSuspension {
     }
 
     public hasExpired(): boolean {
-        return dato().isAfter(this.punishment.until);
+        return dayjs().isAfter(this.punishment.until);
     }
 }

@@ -48,7 +48,7 @@ export class PeerConnector implements P2P.IPeerConnector {
     }
 
     public emit(peer: P2P.IPeer, event: string, data: any): void {
-        return this.connection(peer).emit(event, data);
+        this.connection(peer).emit(event, data);
     }
 
     public getError(peer: P2P.IPeer): string {

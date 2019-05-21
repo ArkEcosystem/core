@@ -3,8 +3,7 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { dato } from "@faustbrian/dato";
-import { SocketErrors } from "../../../packages/core-p2p/src/enums";
+import dayjs from "dayjs";
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { PeerGuard } from "../../../packages/core-p2p/src/peer-guard";
 import { createStubPeer } from "../../helpers/peers";
@@ -19,7 +18,7 @@ beforeAll(async () => {
 
 describe("PeerGuard", () => {
     describe("analyze", () => {
-        const convertToMinutes = actual => Math.ceil(actual.diff(dato()) / 1000) / 60;
+        const convertToMinutes = actual => Math.ceil(actual.diff(dayjs()) / 1000) / 60;
 
         const dummy = createStubPeer({
             ip: "dummy-ip-addr",
@@ -67,15 +66,6 @@ describe("PeerGuard", () => {
 
             expect(reason).toBe("High Latency");
             expect(convertToMinutes(until)).toBe(1);
-        });
-
-        it('should return a 30 seconds suspension for "Application not ready"', () => {
-            connector.getError = jest.fn(() => SocketErrors.AppNotReady);
-
-            const { until, reason } = guard.analyze(dummy);
-
-            expect(reason).toBe("Application is not ready");
-            expect(convertToMinutes(until)).toBe(0.5);
         });
     });
 });

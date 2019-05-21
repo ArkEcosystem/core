@@ -1,5 +1,5 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
-import { Dato } from "@faustbrian/dato";
+import { Dayjs } from "dayjs";
 import { IProcessor } from "./processor";
 
 export interface IAddTransactionResponse {
@@ -24,7 +24,7 @@ export interface IConnection {
         notAdded: IAddTransactionResponse[];
     };
     acceptChainedBlock(block: Interfaces.IBlock): void;
-    blockSender(senderPublicKey: string): Dato;
+    blockSender(senderPublicKey: string): Dayjs;
     buildWallets(): Promise<void>;
     flush(): void;
     getTransaction(id: string): Interfaces.ITransaction;

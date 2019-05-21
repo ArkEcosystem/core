@@ -3,41 +3,41 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
 
 const offences: Record<string, P2P.IPunishment> = {
     low: {
-        until: dato().addMinute(),
+        until: dayjs().add(1, "minute"),
         reason: "low",
         severity: "low",
     },
     medium: {
-        until: dato().addMinute(),
+        until: dayjs().add(1, "minute"),
         reason: "medium",
         severity: "medium",
     },
     high: {
-        until: dato().addMinute(),
+        until: dayjs().add(1, "minute"),
         reason: "high",
         severity: "high",
     },
     critical: {
-        until: dato().addMinute(),
+        until: dayjs().add(1, "minute"),
         reason: "critical",
         severity: "critical",
     },
     unknown: {
-        until: dato().addMinute(),
+        until: dayjs().add(1, "minute"),
         reason: "unknown",
     },
     expired: {
-        until: dato().subMinute(),
+        until: dayjs().subtract(1, "minute"),
         reason: "unknown",
     },
     notExpired: {
-        until: dato().addMinute(),
+        until: dayjs().add(1, "minute"),
         reason: "unknown",
     },
 };

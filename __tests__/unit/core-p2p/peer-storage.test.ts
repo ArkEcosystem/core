@@ -2,7 +2,7 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import fs from "fs";
 import { tmpdir } from "os";
 import { P2P } from "../../../packages/core-interfaces/src";
@@ -11,7 +11,7 @@ import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
 
 const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
-    until: dato(),
+    until: dayjs(),
     reason: "reason",
     severity: "critical",
 });
