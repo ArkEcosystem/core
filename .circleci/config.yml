@@ -52,11 +52,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -130,11 +132,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -216,11 +220,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -302,11 +308,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -388,11 +396,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -474,11 +484,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -560,11 +572,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -671,11 +685,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -776,11 +792,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
@@ -887,11 +905,13 @@ jobs:
             - ./packages/core-new-relic/node_modules
             - ./packages/core-p2p/node_modules
             - ./packages/core-snapshots/node_modules
+            - ./packages/core-state/node_modules
             - ./packages/core-tester-cli/node_modules
             - ./packages/core-transaction-pool/node_modules
             - ./packages/core-transactions/node_modules
             - ./packages/core-utils/node_modules
             - ./packages/core-vote-report/node_modules
+            - ./packages/core-wallet-api/node_modules
             - ./packages/core-webhooks/node_modules
             - ./packages/crypto/node_modules
             - ./node_modules
