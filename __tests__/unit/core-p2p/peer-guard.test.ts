@@ -3,7 +3,7 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { PeerGuard } from "../../../packages/core-p2p/src/peer-guard";
 import { createStubPeer } from "../../helpers/peers";
@@ -18,7 +18,7 @@ beforeAll(async () => {
 
 describe("PeerGuard", () => {
     describe("analyze", () => {
-        const convertToMinutes = actual => Math.ceil(actual.diff(dato()) / 1000) / 60;
+        const convertToMinutes = actual => Math.ceil(actual.diff(dayjs()) / 1000) / 60;
 
         const dummy = createStubPeer({
             ip: "dummy-ip-addr",

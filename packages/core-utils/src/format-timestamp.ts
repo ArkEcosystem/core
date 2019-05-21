@@ -1,5 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import { dato, Dato } from "@faustbrian/dato";
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export const formatTimestamp = (
     epochStamp: number,
@@ -8,11 +11,11 @@ export const formatTimestamp = (
     unix: number;
     human: string;
 } => {
-    const timestamp: Dato = dato(app.getConfig().getMilestone().epoch).addSeconds(epochStamp);
+    const timestamp: Dayjs = dayjs.utc(app.getConfig().getMilestone().epoch).add(epochStamp, "second");
 
     return {
         epoch: epochStamp,
-        unix: timestamp.toUnix(),
-        human: timestamp.toISO(),
+        unix: timestamp.unix(),
+        human: timestamp.toISOString(),
     };
 };

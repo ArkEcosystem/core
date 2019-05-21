@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { Dato, dato } from "@faustbrian/dato";
+import dayjs, { Dayjs } from "dayjs";
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
@@ -10,7 +10,7 @@ export class Peer implements P2P.IPeer {
 
     public version: string;
     public latency: number;
-    public lastPinged: Dato | undefined;
+    public lastPinged: Dayjs | undefined;
     public verificationResult: PeerVerificationResult | undefined;
     public state: P2P.IPeerState = {
         height: undefined,
@@ -38,7 +38,7 @@ export class Peer implements P2P.IPeer {
     }
 
     public recentlyPinged(): boolean {
-        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
+        return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
     }
 
     public toBroadcast(): P2P.IPeerBroadcast {
