@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-forger",
     "description": "Forger for ARK Core",
-    "version": "2.3.22",
+    "version": "2.3.23",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
@@ -21,11 +21,11 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-p2p": "^2.3.22",
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
+        "@arkecosystem/core-container": "^2.3.23",
+        "@arkecosystem/core-interfaces": "^2.3.23",
+        "@arkecosystem/core-p2p": "^2.3.23",
+        "@arkecosystem/core-utils": "^2.3.23",
+        "@arkecosystem/crypto": "^2.3.23",
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
         "pluralize": "^7.0.0"
