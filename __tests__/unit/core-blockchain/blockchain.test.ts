@@ -199,7 +199,7 @@ describe("Blockchain", () => {
             };
 
             // @ts-ignore
-            blockchain.handleIncomingBlock(block, "127.0.0.1");
+            blockchain.handleIncomingBlock(block);
 
             expect(blockchain.dispatch).toHaveBeenCalled();
             expect(blockchain.enqueueBlocks).toHaveBeenCalled();
@@ -221,7 +221,7 @@ describe("Blockchain", () => {
             };
 
             // @ts-ignore
-            blockchain.handleIncomingBlock(block, "127.0.0.1");
+            blockchain.handleIncomingBlock(block);
 
             expect(blockchain.dispatch).not.toHaveBeenCalled();
             expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
@@ -239,7 +239,7 @@ describe("Blockchain", () => {
                 .mockReturnValueOnce(1)
                 .mockReturnValueOnce(1);
 
-            await blockchain.handleIncomingBlock(blocks101to155[54], "127.0.0.1");
+            await blockchain.handleIncomingBlock(blocks101to155[54]);
 
             expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready");
             blockchain.state.started = true;
