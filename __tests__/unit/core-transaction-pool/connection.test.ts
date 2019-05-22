@@ -6,7 +6,7 @@ import { state } from "./mocks/state";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import cloneDeep from "lodash.clonedeep";
 import shuffle from "lodash.shuffle";
 import randomSeed from "random-seed";
@@ -272,7 +272,9 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(2);
 
-            transactions.forEach(t => connection.removeTransactionById(t.id));
+            for (const t of transactions) {
+                connection.removeTransactionById(t.id);
+            }
         });
     });
 
@@ -570,13 +572,13 @@ describe("Connection", () => {
 
         it("should return true if sender is blocked", () => {
             const publicKey = "thisPublicKeyIsBlocked";
-            (connection as any).blockedByPublicKey[publicKey] = dato().addHours(1);
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
             expect(connection.isSenderBlocked(publicKey)).toBeTrue();
         });
 
         it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
             const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            (connection as any).blockedByPublicKey[publicKey] = dato().subSeconds(1);
+            (connection as any).blockedByPublicKey[publicKey] = dayjs().subtract(1, "second");
             expect(connection.isSenderBlocked(publicKey)).toBeFalse();
             expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
         });
@@ -585,11 +587,11 @@ describe("Connection", () => {
     describe("blockSender", () => {
         it("should block sender for 1 hour", () => {
             const publicKey = "publicKeyToBlock";
-            const plus1HourBefore = dato().addHours(1);
+            const plus1HourBefore = dayjs().add(1, "hour");
 
             const blockReleaseTime = connection.blockSender(publicKey);
 
-            const plus1HourAfter = dato().addHours(1);
+            const plus1HourAfter = dayjs().add(1, "hour");
             expect((connection as any).blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
             expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
             expect(blockReleaseTime <= plus1HourAfter).toBeTrue();
@@ -778,7 +780,9 @@ describe("Connection", () => {
 
             expect(connection.getPoolSize()).toBe(2);
 
-            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
+            for (const t of transactions) {
+                expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized);
+            }
 
             connection.flush();
         });
@@ -802,7 +806,9 @@ describe("Connection", () => {
 
             transactions.splice(1, 1);
 
-            transactions.forEach(t => expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized));
+            for (const t of transactions) {
+                expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized);
+            }
 
             connection.flush();
 
@@ -830,12 +836,11 @@ describe("Connection", () => {
             const testTransactions: Interfaces.ITransaction[] = [];
 
             for (let i = 0; i < n; i++) {
-                const transaction = TransactionFactory
-                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5", i + 1)
+                const transaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
                     .withNetwork("unitnet")
                     .withPassphrase(String(i % nDifferentSenders))
                     .build()[0];
-                testTransactions.push(transaction)
+                testTransactions.push(transaction);
             }
 
             return testTransactions;
@@ -879,8 +884,9 @@ describe("Connection", () => {
         });
 
         it("delete + add after sync", () => {
-            const testTransactions: Interfaces.ITransaction[] =
-                generateTestTransactions(connection.options.syncInterval);
+            const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(
+                connection.options.syncInterval,
+            );
 
             connection.addTransactions(testTransactions);
 

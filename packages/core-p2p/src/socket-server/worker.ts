@@ -1,6 +1,5 @@
 import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "../enums";
-import { validateHeaders } from "./utils/validate-headers";
 
 export class Worker extends SCWorker {
     private peersMsgTimestamps: Record<string, number[]> = {};
@@ -75,16 +74,6 @@ export class Worker extends SCWorker {
 
             if (prefix !== "p2p") {
                 return next(this.createError(SocketErrors.WrongEndpoint, `Wrong endpoint: ${req.event}`));
-            }
-
-            const headersValidation = validateHeaders(req.data.headers);
-            if (headersValidation.error) {
-                return next(
-                    this.createError(
-                        SocketErrors.HeadersValidationFailed,
-                        `Headers validation failed: ${headersValidation.error}`,
-                    ),
-                );
             }
 
             // Check that blockchain, tx-pool and p2p are ready

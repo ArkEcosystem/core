@@ -1,20 +1,16 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { isBlockChained } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
-import { isBlockChained } from "../../../../core-utils/dist";
 import { MissingCommonBlockError } from "../../errors";
+import { IPeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
+import { getPeerConfig } from "../utils/get-peer-config";
 
 export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
-    const peer = { ip: req.data.ip };
-
-    for (const key of ["version", "port"]) {
-        peer[key] = req.headers[key];
-    }
-
-    await service.getProcessor().validateAndAcceptPeer(peer);
+    await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
 };
 
 export const getPeers = ({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] => {
@@ -44,14 +40,17 @@ export const getCommonBlocks = async ({
     };
 };
 
-export const getStatus = async (): Promise<P2P.IPeerState> => {
-    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+export const getStatus = async (): Promise<IPeerPingResponse> => {
+    const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
-        height: lastBlock ? lastBlock.data.height : 0,
-        forgingAllowed: Crypto.Slots.isForgingAllowed(),
-        currentSlot: Crypto.Slots.getSlotNumber(),
-        header: lastBlock ? lastBlock.getHeader() : {},
+        state: {
+            height: lastBlock ? lastBlock.data.height : 0,
+            forgingAllowed: Crypto.Slots.isForgingAllowed(),
+            currentSlot: Crypto.Slots.getSlotNumber(),
+            header: lastBlock ? lastBlock.getHeader() : {},
+        },
+        config: getPeerConfig(),
     };
 };
 

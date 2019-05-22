@@ -9,12 +9,12 @@ import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     nock("http://localhost:4003")
-        .get("/api/v2/node/configuration")
+        .get("/api/node/configuration")
         .twice()
         .reply(200, { data: { constants: {} } });
 
     nock("http://localhost:4003")
-        .get("/api/v2/node/configuration/crypto")
+        .get("/api/node/configuration/crypto")
         .twice()
         .reply(200, { data: Managers.configManager.getPreset("unitnet") });
 

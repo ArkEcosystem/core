@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { transformPlugins } from "./transformers";
+import { Plugins } from "@arkecosystem/core-utils";
 
 export const config = {
     async handler() {
@@ -18,7 +18,7 @@ export const config = {
                         symbol: appConfig.get("network.client.symbol"),
                     },
                 },
-                plugins: transformPlugins(appConfig.config),
+                plugins: Plugins.transformPlugins(appConfig.config),
             },
         };
     },

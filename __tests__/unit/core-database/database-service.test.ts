@@ -2,6 +2,7 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
@@ -48,8 +49,8 @@ describe("Database Service", () => {
 
         databaseService = createService();
 
-        expect(emitter.on).toHaveBeenCalledWith("state.started", expect.toBeFunction());
-        expect(emitter.on).toHaveBeenCalledWith("wallet.created.cold", expect.toBeFunction());
+        expect(emitter.on).toHaveBeenCalledWith(ApplicationEvents.StateStarted, expect.toBeFunction());
+        expect(emitter.on).toHaveBeenCalledWith(ApplicationEvents.WalletColdCreated, expect.toBeFunction());
     });
 
     describe("applyBlock", () => {
@@ -63,10 +64,10 @@ describe("Database Service", () => {
             await databaseService.applyBlock(genesisBlock);
 
             expect(walletManager.applyBlock).toHaveBeenCalledWith(genesisBlock);
-            expect(emitter.emit).toHaveBeenCalledWith("block.applied", genesisBlock.data);
-            genesisBlock.transactions.forEach(tx =>
-                expect(emitter.emit).toHaveBeenCalledWith("transaction.applied", tx.data),
-            );
+            expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.BlockApplied, genesisBlock.data);
+            for (const tx of genesisBlock.transactions) {
+                expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.TransactionApplied, tx.data);
+            }
         });
     });
 

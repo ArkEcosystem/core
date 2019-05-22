@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import bip32 from "bip32";
+import { fromSeed } from "bip32";
 import { HDWallet } from "../../../../packages/crypto/src/crypto";
 import { Address } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers/config";
@@ -15,7 +15,7 @@ describe("HDWallet", () => {
     describe("bip32", () => {
         it("can create a BIP32 wallet external address", () => {
             const path = "m/0'/0/0";
-            const root = bip32.fromSeed(
+            const root = fromSeed(
                 Buffer.from("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "hex"),
             );
 
@@ -35,7 +35,7 @@ describe("HDWallet", () => {
     describe("bip44", () => {
         it("can create a BIP44, ark, account 0, external address", () => {
             const path = "m/44'/111'/0'/0/0";
-            const root = bip32.fromSeed(
+            const root = fromSeed(
                 Buffer.from("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "hex"),
             );
 

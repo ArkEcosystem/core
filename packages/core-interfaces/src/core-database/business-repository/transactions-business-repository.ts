@@ -8,9 +8,7 @@ export interface ITransactionsPaginated {
 }
 
 export interface ITransactionsBusinessRepository {
-    findAll(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<ITransactionsPaginated>;
-
-    findAllLegacy(parameters: IParameters): Promise<void>;
+    search(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<ITransactionsPaginated>;
 
     findAllByWallet(wallet: IWallet, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
@@ -43,6 +41,4 @@ export interface ITransactionsBusinessRepository {
             timestamp: number;
         }>
     >;
-
-    search(params: IParameters): Promise<ITransactionsPaginated>;
 }

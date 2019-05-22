@@ -24,11 +24,13 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.4.0-next.3",
         "@arkecosystem/core-database": "^2.4.0-next.3",
+        "@arkecosystem/core-event-emitter": "^2.4.0-next.3",
         "@arkecosystem/core-interfaces": "^2.4.0-next.3",
         "@arkecosystem/core-transactions": "^2.4.0-next.3",
+        "@arkecosystem/core-state": "^2.4.0-next.3",
         "@arkecosystem/core-utils": "^2.4.0-next.3",
         "@arkecosystem/crypto": "^2.4.0-next.3",
-        "async": "^2.6.2",
+        "async": "^3.0.0",
         "delay": "^4.2.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
@@ -38,7 +40,7 @@
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.4.0-next.3",
-        "@types/async": "^2.4.1",
+        "@types/async": "^2.4.2",
         "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0"

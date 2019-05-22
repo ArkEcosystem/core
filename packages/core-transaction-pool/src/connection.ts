@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { dato, Dato } from "@faustbrian/dato";
 import assert from "assert";
+import dayjs, { Dayjs } from "dayjs";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
@@ -18,7 +19,7 @@ export class Connection implements TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly blockedByPublicKey: { [key: string]: Dato } = {};
+    private readonly blockedByPublicKey: { [key: string]: Dayjs } = {};
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
         "database",
     );
@@ -103,11 +104,11 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         if (added.length > 0) {
-            this.emitter.emit("transaction.pool.added", added);
+            this.emitter.emit(ApplicationEvents.TransactionPoolAdded, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.emit("transaction.pool.rejected", notAdded);
+            this.emitter.emit(ApplicationEvents.TransactionPoolRejected, notAdded);
         }
 
         return { added, notAdded };
@@ -122,7 +123,7 @@ export class Connection implements TransactionPool.IConnection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.emit("transaction.pool.removed", id);
+        this.emitter.emit(ApplicationEvents.TransactionPoolRemoved, id);
     }
 
     public removeTransactionsById(ids: string[]): void {
@@ -203,9 +204,7 @@ export class Connection implements TransactionPool.IConnection {
         if (this.options.allowedSenders.includes(senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
-                    `Transaction pool: allowing sender public key: ${
-                    senderPublicKey
-                    } (listed in options.allowedSenders), thus skipping throttling.`,
+                    `Transaction pool: allowing sender public key: ${senderPublicKey} (listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -239,7 +238,7 @@ export class Connection implements TransactionPool.IConnection {
             return false;
         }
 
-        if (dato().isAfter(this.blockedByPublicKey[senderPublicKey])) {
+        if (dayjs().isAfter(this.blockedByPublicKey[senderPublicKey])) {
             delete this.blockedByPublicKey[senderPublicKey];
 
             return false;
@@ -248,12 +247,14 @@ export class Connection implements TransactionPool.IConnection {
         return true;
     }
 
-    public blockSender(senderPublicKey: string): Dato {
-        const blockReleaseTime: Dato = dato().addHours(1);
+    public blockSender(senderPublicKey: string): Dayjs {
+        const blockReleaseTime: Dayjs = dayjs().add(1, "hour");
 
         this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
 
-        this.logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toUTC()}`);
+        this.logger.warn(
+            `Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toString()}`,
+        );
 
         return blockReleaseTime;
     }
@@ -384,7 +385,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public purgeInvalidTransactions(): void {
-        this.purgeTransactions("transaction.pool.removed", this.memory.getInvalid());
+        this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
     public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
@@ -465,7 +466,10 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     private purgeExpired(): void {
-        this.purgeTransactions("transaction.expired", this.memory.getExpired(this.options.maxTransactionAge));
+        this.purgeTransactions(
+            ApplicationEvents.TransactionExpired,
+            this.memory.getExpired(this.options.maxTransactionAge),
+        );
     }
 
     private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {

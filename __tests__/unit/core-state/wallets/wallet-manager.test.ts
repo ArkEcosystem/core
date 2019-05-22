@@ -84,9 +84,9 @@ describe("Wallet Manager", () => {
         it("should apply sequentially the transactions of the block", async () => {
             await walletManager.applyBlock(block2);
 
-            block2.transactions.forEach((transaction, i) => {
+            for (let i = 0; i < block2.transactions.length; i++) {
                 expect(walletManager.applyTransaction).toHaveBeenNthCalledWith(i + 1, block2.transactions[i]);
-            });
+            }
         });
 
         it("should apply the block data to the delegate", async () => {
@@ -112,6 +112,7 @@ describe("Wallet Manager", () => {
                     expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
                     expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
+                    // tslint:disable-next-line: ban
                     block2.transactions.slice(0, 1).forEach((transaction, i, total) => {
                         expect(walletManager.revertTransaction).toHaveBeenNthCalledWith(
                             total.length + 1 - i,

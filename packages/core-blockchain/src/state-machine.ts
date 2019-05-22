@@ -47,14 +47,14 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async checkLastDownloadedBlockSynced() {
         let event = "NOTSYNCED";
-        logger.debug(`Queued blocks (process: ${blockchain.queue.length()})`);
+        logger.debug(`Queued chunks of blocks (process: ${blockchain.queue.length()})`);
 
-        if (blockchain.queue.length() > 10000) {
+        if (blockchain.queue.length() > 100) {
             event = "PAUSED";
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (stateStorage.noBlockCounter > 5 && blockchain.queue.length() === 0) {
+        if (stateStorage.noBlockCounter > 5 && blockchain.queue.idle()) {
             logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             stateStorage.noBlockCounter = 0;
@@ -101,7 +101,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.networkStart = false;
 
             blockchain.dispatch("SYNCFINISHED");
-        } else if (blockchain.queue.length() === 0) {
+        } else if (blockchain.queue.idle()) {
             blockchain.dispatch("PROCESSFINISHED");
         }
     },
@@ -154,16 +154,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.setLastBlock(block);
             stateStorage.lastDownloadedBlock = block;
 
-            // NOTE: if the node is shutdown between round, the round has already been applied
-            if (roundCalculator.isNewRound(block.data.height + 1)) {
-                const { round } = roundCalculator.calculateRound(block.data.height + 1);
-
-                logger.info(
-                    `New round ${round.toLocaleString()} detected. Cleaning calculated data before restarting!`,
-                );
-
-                await blockchain.database.deleteRound(round);
-            }
+            // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
+            const roundInfo = roundCalculator.calculateRound(block.data.height);
+            await blockchain.database.deleteRound(roundInfo.round + 1);
 
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets();

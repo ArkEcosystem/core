@@ -22,7 +22,7 @@ class Network {
     private async sendRequest(method: string, path: string, opts, tries: number = 0) {
         try {
             const peer: P2P.IPeer = await this.getPeer();
-            const uri: string = `http://${peer.ip}:${peer.port}/api/${path}`;
+            const uri: string = `http://${peer.ip}:${peer.ports.api}/api/${path}`;
 
             this.logger.info(`Sending request on "${this.network.name}" to "${uri}"`);
 
@@ -67,15 +67,11 @@ class Network {
         let peers: P2P.IPeer[] = this.p2p.getStorage().getPeers();
 
         if (!peers.length && this.network.name === "testnet") {
-            peers = [new Peer("127.0.0.1", app.resolveOptions("api").port)];
+            peers = [new Peer("127.0.0.1")];
         }
 
         if (!peers.length) {
             throw new Error("No peers found.");
-        }
-
-        for (const peer of peers) {
-            peer.port = app.resolveOptions("api").port;
         }
 
         return peers;

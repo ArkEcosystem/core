@@ -8,7 +8,6 @@ import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { stateStorageStub as stateStorage } from "./stubs/state-storage";
 
-import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
@@ -57,19 +56,19 @@ describe("State Machine", () => {
         describe("checkLastDownloadedBlockSynced", () => {
             it('should dispatch the event "NOTSYNCED" by default', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 1);
+                blockchain.queue.idle = jest.fn(() => false);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NOTSYNCED");
             });
 
-            it('should dispatch the event "PAUSED" if the blockchain process queue is more than 10000 long', async () => {
+            it('should dispatch the event "PAUSED" if the blockchain process queue is more than 100 long', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 10001);
+                blockchain.queue.length = jest.fn(() => 101);
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "PAUSED");
             });
 
             it('should dispatch the event "NETWORKHALTED" if stateStorage.noBlockCounter > 5 and process queue is empty', async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 0);
+                blockchain.queue.idle = jest.fn(() => true);
                 stateStorage.noBlockCounter = 6;
                 await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "NETWORKHALTED");
             });
@@ -79,7 +78,7 @@ describe("State Machine", () => {
                     - stateStorage.p2pUpdateCounter + 1 > 3 (network keeps missing blocks)
                     - blockchain.p2p.checkNetworkHealth() returns a forked network status`, async () => {
                 blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.length = jest.fn(() => 0);
+                blockchain.queue.idle = jest.fn(() => true);
                 stateStorage.noBlockCounter = 6;
                 stateStorage.p2pUpdateCounter = 3;
 
@@ -275,15 +274,9 @@ describe("State Machine", () => {
 
             it("should clean round data if new round starts at block.height + 1 (and dispatch STARTED)", async () => {
                 process.env.NODE_ENV = "";
-                const spyIsNewRound = jest.spyOn(roundCalculator, "isNewRound").mockReturnValue(true);
 
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(databaseMocks.deleteRound).toHaveBeenCalled();
-                expect(loggerInfo).toHaveBeenCalledWith(
-                    "New round 1 detected. Cleaning calculated data before restarting!",
-                );
-
-                spyIsNewRound.mockRestore();
             });
 
             it("should log error and dispatch FAILURE if an exception was thrown", async () => {

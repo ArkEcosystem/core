@@ -90,8 +90,7 @@ export class PeerStorage implements P2P.IPeerStorage {
             JSON.stringify(
                 this.getPeers().map(peer => ({
                     ip: peer.ip,
-                    port: peer.port,
-                    version: peer.version,
+                    ports: peer.ports,
                 })),
             ),
         );

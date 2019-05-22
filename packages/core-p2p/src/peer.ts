@@ -1,13 +1,16 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { Dato, dato } from "@faustbrian/dato";
+import dayjs, { Dayjs } from "dayjs";
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
+    public readonly ports: P2P.IPeerPorts = {
+        p2p: +app.resolveOptions("p2p").server.port,
+    };
+
     public version: string;
     public latency: number;
-    public headers: Record<string, string | number>;
-    public lastPinged: Dato | undefined;
+    public lastPinged: Dayjs | undefined;
     public verificationResult: PeerVerificationResult | undefined;
     public state: P2P.IPeerState = {
         height: undefined,
@@ -16,23 +19,14 @@ export class Peer implements P2P.IPeer {
         header: {},
     };
 
-    constructor(readonly ip: string, readonly port: number) {
-        this.headers = {
-            version: app.getVersion(),
-            port,
-            height: undefined,
-            "Content-Type": "application/json",
-        };
-    }
+    constructor(readonly ip: string) {}
 
     get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
     }
 
-    public setHeaders(headers: Record<string, string>): void {
-        for (const key of ["version"]) {
-            this[key] = headers[key] || this[key];
-        }
+    get port(): number {
+        return this.ports.p2p;
     }
 
     public isVerified(): boolean {
@@ -44,13 +38,13 @@ export class Peer implements P2P.IPeer {
     }
 
     public recentlyPinged(): boolean {
-        return !!this.lastPinged && dato().diffInMinutes(this.lastPinged) < 2;
+        return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
     }
 
     public toBroadcast(): P2P.IPeerBroadcast {
         return {
             ip: this.ip,
-            port: +this.port,
+            ports: this.ports,
             version: this.version,
             height: this.state.height,
             latency: this.latency,

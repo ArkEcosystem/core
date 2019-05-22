@@ -1,3 +1,3 @@
 DELETE
 FROM rounds
-WHERE round = ${round}
+WHERE round >= ${round}

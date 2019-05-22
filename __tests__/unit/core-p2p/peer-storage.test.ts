@@ -2,7 +2,7 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { dato } from "@faustbrian/dato";
+import dayjs from "dayjs";
 import fs from "fs";
 import { tmpdir } from "os";
 import { P2P } from "../../../packages/core-interfaces/src";
@@ -11,16 +11,14 @@ import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
 
 const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
-    until: dato(),
+    until: dayjs(),
     reason: "reason",
     severity: "critical",
 });
 
 let storage: P2P.IPeerStorage;
 
-beforeEach(() => {
-    storage = new PeerStorage();
-});
+beforeEach(() => (storage = new PeerStorage()));
 
 describe("PeerStorage", () => {
     describe("Real Peers", () => {
@@ -170,8 +168,7 @@ describe("PeerStorage", () => {
             JSON.stringify(
                 storage.getPeers().map(peer => ({
                     ip: peer.ip,
-                    port: peer.port,
-                    version: peer.version,
+                    ports: peer.ports,
                 })),
             ),
         );
