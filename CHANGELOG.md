@@ -72,6 +72,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Remove forged transactions from pool before discarding block ([#2555])
 -   Make transaction amount required ([#2574])
 -   Various sync issues with devnet and mainnet ([#2565])
+-   Do not suspend peer for `AppNotReady` ([#2590])
 
 ### Changed
 
@@ -97,6 +98,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
 -   Return all schema errors in hapi-ajv (#2571)
 -   Clean up SocketCluster shutdown and logging (#2560)
+-   Remove timeout banning ([#2597])
 
 ### Removed
 
@@ -669,4 +671,6 @@ Closed security vulnerabilities:
 [#2581]: https://github.com/ARKEcosystem/core/pull/2581
 [#2582]: https://github.com/ARKEcosystem/core/pull/2582
 [#2586]: https://github.com/ARKEcosystem/core/pull/2586
+[#2590]: https://github.com/ARKEcosystem/core/pull/2590
 [#2593]: https://github.com/ARKEcosystem/core/pull/2593
+[#2597]: https://github.com/ARKEcosystem/core/pull/2597
