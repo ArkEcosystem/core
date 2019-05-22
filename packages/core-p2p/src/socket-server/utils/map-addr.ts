@@ -1,3 +1,3 @@
-import { parse } from "ip6addr";
+import { process } from "ipaddr.js";
 
-export const mapAddr = (addr: string) => parse(addr).toString({ format: "v4" });
+export const mapAddr = (addr: string) => process(addr).toString();

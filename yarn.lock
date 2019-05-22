@@ -7378,13 +7378,6 @@ invert-kv@^2.0.0:
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-2.0.0.tgz#7393f5afa59ec9ff5f67a27620d11c226e3eec02"
   integrity sha512-wPVv/y/QQ/Uiirj/vh3oP+1Ww+AWehmi1g5fFWGPF6IpCBCDVrhgHRMvrLfdYcwDh3QJbGXDW4JAuzxElLSqKA==
 
-ip6addr@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/ip6addr/-/ip6addr-0.2.2.tgz#652ee260170392eebcb2a99232476241dcd50001"
-  integrity sha1-ZS7iYBcDku68sqmSMkdiQdzVAAE=
-  dependencies:
-    assert-plus "^1.0.0"
-
 ip@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
