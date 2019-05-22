@@ -69,19 +69,22 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
-
             const { config } = pingResponse;
-            for (const [name, plugin] of Object.entries(config.plugins)) {
-                try {
-                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+            Promise.all(
+                Object.entries(config.plugins).map(async ([name, plugin]) => {
+                    try {
+                        if (peer.ports[name] === undefined) {
+                            const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
 
-                    if (status === 200) {
-                        peer.ports[name] = plugin.port;
+                            if (status === 200) {
+                                peer.ports[name] = plugin.port;
+                            }
+                        }
+                    } catch (error) {
+                        peer.ports[name] = undefined;
                     }
-                } catch (error) {
-                    peer.ports[name] = undefined;
-                }
-            }
+                }),
+            );
         }
 
         peer.lastPinged = dayjs();
