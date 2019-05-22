@@ -83,16 +83,4 @@ export class PeerStorage implements P2P.IPeerStorage {
     public getSameSubnetPeers(ip: string): P2P.IPeer[] {
         return this.getPeers().filter(peer => cidr(`${peer.ip}/24`) === cidr(`${ip}/24`));
     }
-
-    public savePeers(): void {
-        writeFileSync(
-            `${process.env.CORE_PATH_CACHE}/peers.json`,
-            JSON.stringify(
-                this.getPeers().map(peer => ({
-                    ip: peer.ip,
-                    ports: peer.ports,
-                })),
-            ),
-        );
-    }
 }

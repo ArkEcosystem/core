@@ -152,25 +152,4 @@ describe("PeerStorage", () => {
             expect(storage.hasSuspendedPeers()).toBeFalse();
         });
     });
-
-    it("should cache the peers into file", () => {
-        stubPeer.version = "2.4.0";
-        storage.setPeer(stubPeer);
-
-        process.env.CORE_PATH_CACHE = tmpdir();
-
-        fs.writeFileSync = jest.fn();
-
-        storage.savePeers();
-
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-            `${process.env.CORE_PATH_CACHE}/peers.json`,
-            JSON.stringify(
-                storage.getPeers().map(peer => ({
-                    ip: peer.ip,
-                    ports: peer.ports,
-                })),
-            ),
-        );
-    });
 });
