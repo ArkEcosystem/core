@@ -73,7 +73,15 @@ export const postBlock = async ({ req }): Promise<void> => {
         }
     }
 
-    blockchain.handleIncomingBlock(block, req.headers.remoteAddress, fromForger);
+    app.resolvePlugin<Logger.ILogger>("logger").info(
+        `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
+            "transaction",
+            block.numberOfTransactions,
+            true,
+        )} from ${mapAddr(req.headers.remoteAddress)}`,
+    );
+
+    blockchain.handleIncomingBlock(block, fromForger);
 };
 
 export const postTransactions = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> => {
