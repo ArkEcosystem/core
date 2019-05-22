@@ -43,7 +43,10 @@
         "publish:latest": "cross-env-shell ./scripts/publish/latest.sh",
         "upgrade": "cross-env-shell ./scripts/upgrade.sh",
         "version": "cross-env-shell ./scripts/version.sh",
-        "deps": "cross-env-shell ./scripts/deps.sh",
+        "deps": "cross-env-shell ./scripts/deps/update.sh",
+        "deps:missing": "node ./scripts/deps/missing.js",
+        "deps:unused": "node ./scripts/deps/unused.js",
+        "deps:types": "./node_modules/typesync/bin/typesync",
         "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"
     },
@@ -55,6 +58,7 @@
         "@sindresorhus/tsconfig": "^0.3.0",
         "@types/babel__core": "^7.1.2",
         "@types/create-hash": "^1.2.0",
+        "@types/depcheck": "^0.6.0",
         "@types/jest": "^24.0.13",
         "@types/js-yaml": "^3.12.1",
         "@types/nock": "^10.0.3",
@@ -69,6 +73,7 @@
         "create-hash": "^1.2.0",
         "cross-env": "^5.2.0",
         "del-cli": "^1.1.0",
+        "depcheck": "^0.8.0",
         "husky": "^2.3.0",
         "jest": "^24.8.0",
         "jest-extended": "^0.11.1",
@@ -85,6 +90,7 @@
         "tslint": "^5.16.0",
         "tslint-config-prettier": "^1.18.0",
         "typescript": "^3.4.5",
+        "typesync": "^0.5.1",
         "uuid": "^3.3.2"
     },
     "workspaces": [

@@ -24,8 +24,6 @@ export interface IPeerStorage {
     hasSuspendedPeer(ip: string): boolean;
 
     getSameSubnetPeers(ip: string): IPeer[];
-
-    savePeers(): void;
 }
 
 export interface IPeerRepository<T> {
