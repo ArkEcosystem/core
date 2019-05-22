@@ -632,7 +632,13 @@ export class DatabaseService implements Database.IDatabaseService {
         }
 
         // Now retrieve the active delegate list from the temporary wallet manager.
-        return tempWalletManager.loadActiveDelegateList(roundInfo);
+        const delegates = tempWalletManager.loadActiveDelegateList(roundInfo);
+
+        for (const delegate of tempWalletManager.allByUsername()) {
+            this.walletManager.findByUsername(delegate.username).rate = delegate.rate;
+        }
+
+        return delegates;
     }
 
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
