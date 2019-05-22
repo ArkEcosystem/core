@@ -94,6 +94,7 @@
     },
     "devDependencies": {
         "@types/bip39": "^2.4.2",
+        "@types/bytebuffer": "^5.0.40",
         "@types/cli-progress": "^1.8.1",
         "@types/execa": "^0.9.0",
         "@types/fast-levenshtein": "^0.0.1",
