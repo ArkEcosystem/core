@@ -45,6 +45,7 @@
         "version": "cross-env-shell ./scripts/version.sh",
         "deps": "cross-env-shell ./scripts/deps/update.sh",
         "deps:missing": "node ./scripts/deps/missing.js",
+        "deps:unused": "node ./scripts/deps/unused.js",
         "deps:types": "./node_modules/typesync/bin/typesync",
         "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"
