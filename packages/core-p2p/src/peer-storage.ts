@@ -1,5 +1,4 @@
 import { P2P } from "@arkecosystem/core-interfaces";
-import { writeFileSync } from "fs";
 import { cidr } from "ip";
 import { PeerRepository } from "./peer-repository";
 
