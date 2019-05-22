@@ -3,8 +3,6 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import dayjs from "dayjs";
-import fs from "fs";
-import { tmpdir } from "os";
 import { P2P } from "../../../packages/core-interfaces/src";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
 import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
