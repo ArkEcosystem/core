@@ -6,7 +6,6 @@ import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import dayjs from "dayjs";
 import prettyMs from "pretty-ms";
 import { SCClientSocket } from "socketcluster-client";
-import { PeerPingTimeoutError } from "./errors";
 import { Peer } from "./peer";
 import { PeerSuspension } from "./peer-suspension";
 import { isValidPeer } from "./utils";
@@ -159,10 +158,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
             this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
         } catch (error) {
-            if (error instanceof PeerPingTimeoutError) {
-                newPeer.latency = -1;
-            }
-
             this.suspend(newPeer);
         } finally {
             this.storage.forgetPendingPeer(peer);

@@ -32,12 +32,14 @@
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",
         "lodash.uniq": "^4.5.0",
+        "lodash.snakecase": "^4.1.1",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
         "@types/lodash.clonedeep": "^4.5.6",
         "@types/lodash.compact": "^3.0.6",
         "@types/lodash.uniq": "^4.5.6",
+        "@types/lodash.snakecase": "^4.1.6",
         "@types/pluralize": "^0.0.29"
     },
     "engines": {

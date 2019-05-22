@@ -5,7 +5,7 @@ import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public readonly ports: P2P.IPeerPorts = {
-        p2p: app.resolveOptions("p2p").server.port,
+        p2p: +app.resolveOptions("p2p").server.port,
     };
 
     public version: string;

@@ -214,7 +214,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 break;
             case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
-                peer.latency = -1;
                 this.emitter.emit("internal.p2p.suspendPeer", { peer });
                 break;
             case "Error":

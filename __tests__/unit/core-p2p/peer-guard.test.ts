@@ -48,16 +48,6 @@ describe("PeerGuard", () => {
             expect(convertToMinutes(until)).toBe(5);
         });
 
-        it('should return a 2 minutes suspension for "Timeout"', () => {
-            const { until, reason } = guard.analyze({
-                ...dummy,
-                ...{ latency: -1 },
-            });
-
-            expect(reason).toBe("Timeout");
-            expect(convertToMinutes(until)).toBe(0.5);
-        });
-
         it('should return a 1 minutes suspension for "High Latency"', () => {
             const { until, reason } = guard.analyze({
                 ...dummy,
