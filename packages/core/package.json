@@ -69,6 +69,7 @@
         "@oclif/plugin-not-found": "^1.2.2",
         "@oclif/plugin-plugins": "^1.7.8",
         "bip39": "^3.0.2",
+        "bytebuffer": "^5.0.1",
         "chalk": "^2.4.2",
         "clear": "^0.1.0",
         "cli-progress": "^2.1.1",
@@ -93,6 +94,7 @@
     },
     "devDependencies": {
         "@types/bip39": "^2.4.2",
+        "@types/bytebuffer": "^5.0.40",
         "@types/cli-progress": "^1.8.1",
         "@types/execa": "^0.9.0",
         "@types/fast-levenshtein": "^0.0.1",
