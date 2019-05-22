@@ -37,6 +37,7 @@
         "delay": "^4.2.0",
         "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
+        "ip6addr": "^0.2.2",
         "ipaddr.js": "^1.9.0",
         "lodash.chunk": "^4.2.0",
         "lodash.flatten": "^4.4.0",

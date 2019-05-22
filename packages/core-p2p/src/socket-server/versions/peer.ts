@@ -8,6 +8,7 @@ import { IPeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
+import { mapAddr } from "../utils/map-addr";
 
 export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
     await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
@@ -111,12 +112,11 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
-        `${req.headers.remoteAddress} has downloaded ${pluralize("block", blocks.length, true)} from height ${(!isNaN(
-            reqBlockHeight,
-        )
-            ? reqBlockHeight
-            : blocks[0].height
-        ).toLocaleString()}`,
+        `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
+            "block",
+            blocks.length,
+            true,
+        )} from height ${(!isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].height).toLocaleString()}`,
     );
 
     return blocks || [];
