@@ -15,7 +15,7 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
-import { checkDNS, checkNTP, restorePeers } from "./utils";
+import { checkDNS, checkNTP } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;
@@ -466,19 +466,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             peer.version = app.getVersion();
             return peer;
         });
-
-        const peerCache: IPeerData[] = restorePeers();
-        if (peerCache) {
-            for (const peerA of peerCache) {
-                if (
-                    !peers.some(
-                        peerB => peerA.ip === peerB.ip && JSON.stringify(peerA.ports) === JSON.stringify(peerB.ports),
-                    )
-                ) {
-                    peers.push(peerA);
-                }
-            }
-        }
 
         return Promise.all(
             Object.values(peers).map((peer: P2P.IPeer) => {
