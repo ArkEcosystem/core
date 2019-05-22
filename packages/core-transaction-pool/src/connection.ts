@@ -204,7 +204,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key: ${
-                        senderPublicKey
+                    senderPublicKey
                     } (listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
@@ -289,7 +289,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-                            data.id
+                        data.id
                         } due to ${error.message}. Possible double spending attack`,
                     );
 
@@ -403,7 +403,7 @@ export class Connection implements TransactionPool.IConnection {
         if (this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                    `in the pool, id: ${transaction.id}`,
+                `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };

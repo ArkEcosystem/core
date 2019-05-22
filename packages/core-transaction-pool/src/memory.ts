@@ -28,25 +28,7 @@ export class Memory {
 
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
-            this.all.sort((a, b) => {
-                const feeA: Utils.BigNumber = a.data.fee;
-                const feeB: Utils.BigNumber = b.data.fee;
-
-                if (feeA.isGreaterThan(feeB)) {
-                    return -1;
-                }
-
-                if (feeA.isLessThan(feeB)) {
-                    return 1;
-                }
-
-                if (a.data.expiration > 0 && b.data.expiration > 0) {
-                    return a.data.expiration - b.data.expiration;
-                }
-
-                return 0;
-            });
-
+            this.sortAll();
             this.allIsSorted = true;
         }
 
@@ -190,6 +172,7 @@ export class Memory {
         i = this.all.findIndex(e => e.id === id);
         assert.notStrictEqual(i, -1);
         this.all.splice(i, 1);
+        this.allIsSorted = false;
 
         if (this.dirty.added.has(id)) {
             // This transaction has been added and deleted without data being synced
@@ -242,6 +225,69 @@ export class Memory {
         this.dirty.removed.clear();
 
         return removed;
+    }
+
+    /**
+     * Sort `this.all` by fee (highest fee first) with the exception that transactions
+     * from the same sender must be ordered lowest `nonce` first.
+     */
+    private sortAll(): void {
+        this.all.sort((a, b) => {
+            const feeA: Utils.BigNumber = a.data.fee;
+            const feeB: Utils.BigNumber = b.data.fee;
+
+            if (feeA.isGreaterThan(feeB)) {
+                return -1;
+            }
+
+            if (feeA.isLessThan(feeB)) {
+                return 1;
+            }
+
+            if (a.data.expiration > 0 && b.data.expiration > 0) {
+                return a.data.expiration - b.data.expiration;
+            }
+
+            return 0;
+        });
+
+        const indexBySender = {};
+        for (let i = 0; i < this.all.length; i++) {
+            const transaction: Interfaces.ITransaction = this.all[i];
+
+            if (transaction.data.version < 2) {
+                continue;
+            }
+
+            const sender: string = transaction.data.senderPublicKey;
+            if (indexBySender[sender] === undefined) {
+                indexBySender[sender] = [];
+            }
+            indexBySender[sender].push(i);
+
+            let nMoved = 0;
+
+            for (let j = 0; j < indexBySender[sender].length - 1; j++) {
+                const prevIndex: number = indexBySender[sender][j];
+                if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
+                    const newIndex = i + 1 + nMoved;
+                    this.all.splice(newIndex, 0, this.all[prevIndex]);
+                    this.all[prevIndex] = undefined;
+
+                    indexBySender[sender][j] = newIndex;
+
+                    nMoved++;
+                }
+            }
+
+            if (nMoved > 0) {
+                indexBySender[sender].sort((a, b) => a - b);
+            }
+
+            i += nMoved;
+        }
+
+        this.all = this.all.filter(t => t !== undefined);
     }
 
     private currentHeight(): number {

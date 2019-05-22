@@ -2,7 +2,7 @@ import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Utils } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { delegates } from "../../../../utils/fixtures/testnet/delegates";
@@ -48,10 +48,10 @@ beforeAll(async () => {
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
     timestampTo = timestamp;
-    amount = +genesisTransaction.amount.toFixed();
+    amount = genesisTransaction.amount.toFixed();
     amountFrom = amount;
     amountTo = amount;
-    fee = +genesisTransaction.fee.toFixed();
+    fee = genesisTransaction.fee.toFixed();
     feeFrom = fee;
     feeTo = fee;
 });
@@ -388,8 +388,9 @@ describe("API 2.0 - Transactions", () => {
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
-                        expect(transaction.amount).toBeGreaterThanOrEqual(amountFrom);
-                        expect(transaction.amount).toBeLessThanOrEqual(amountTo);
+                        const amount = Utils.BigNumber.make(transaction.amount);
+                        expect(amount.isGreaterThanOrEqualTo(amountFrom)).toBeTrue();
+                        expect(amount.isLessThanOrEqualTo(amountTo)).toBeTrue();
                     }
                 });
             },
@@ -435,8 +436,9 @@ describe("API 2.0 - Transactions", () => {
 
                     for (const transaction of response.data.data) {
                         utils.expectTransaction(transaction);
-                        expect(transaction.fee).toBeGreaterThanOrEqual(feeFrom);
-                        expect(transaction.fee).toBeLessThanOrEqual(feeTo);
+                        const fee = Utils.BigNumber.make(transaction.fee)
+                        expect(fee.isGreaterThanOrEqualTo(feeFrom)).toBeTrue();
+                        expect(fee.isLessThanOrEqualTo(feeTo)).toBeTrue();;
                     }
                 });
             },
@@ -506,12 +508,12 @@ describe("API 2.0 - Transactions", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
             (header, request) => {
-                const transactions = TransactionFactory.transfer(delegates[1].address)
-                    .withNetwork("testnet")
-                    .withPassphrase(delegates[0].secret)
-                    .create(40);
-
                 it("should POST all the transactions", async () => {
+                    const transactions = TransactionFactory.transfer(delegates[1].address)
+                        .withNetwork("testnet")
+                        .withPassphrase(delegates[0].secret)
+                        .create(40);
+
                     const response = await utils[request]("POST", "transactions", {
                         transactions,
                     });
@@ -519,8 +521,12 @@ describe("API 2.0 - Transactions", () => {
                 });
 
                 it("should not POST all the transactions", async () => {
+                    const transactions = TransactionFactory.transfer(delegates[1].address)
+                        .withNetwork("testnet")
+                        .withPassphrase(delegates[0].secret)
+                        .create(80);
                     const response = await utils[request]("POST", "transactions", {
-                        transactions: transactions.concat(transactions),
+                        transactions
                     });
 
                     expect(response.data.statusCode).toBe(422);
@@ -529,9 +535,11 @@ describe("API 2.0 - Transactions", () => {
             },
         );
 
-        it("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
+        // TODO: if the first tx of a sender is not accepted, all following tx of the same sender
+        // cant either since the nonce will be out of order
+        it.skip("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
             const transactions = TransactionFactory.transfer(
-                delegates[1].address,
+                delegates[4].address,
                 245098000000000 - 5098000000000, // a bit less than the delegates' balance
             )
                 .withNetwork("testnet")
@@ -543,7 +551,6 @@ describe("API 2.0 - Transactions", () => {
             });
 
             expect(response).toBeSuccessfulResponse();
-
             expect(response.data.data.accept).toHaveLength(1);
             expect(response.data.data.accept[0]).toBe(transactions[0].id);
 
@@ -565,10 +572,13 @@ describe("API 2.0 - Transactions", () => {
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
 
+            const senderNonce = TransactionFactory.getNonce(sender.publicKey);
             const lastTransaction = TransactionFactory.transfer(receivers[1].address, lastAmountPlusFee - transferFee)
                 .withNetwork("testnet")
                 .withPassphrase(sender.secret)
+                .withNonce(senderNonce.plus(txNumber - 1))
                 .create();
+
             // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
 
             const allTransactions = transactions.concat(lastTransaction);
@@ -594,16 +604,21 @@ describe("API 2.0 - Transactions", () => {
                 const amountPlusFee = Math.floor(sender.balance / txNumber);
                 const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
+                const senderNonce = TransactionFactory.getNonce(sender.publicKey);
+
                 const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
                     .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .create(txNumber - 1);
+
+
                 const lastTransaction = TransactionFactory.transfer(
                     receivers[1].address,
                     lastAmountPlusFee - transferFee,
                 )
                     .withNetwork("testnet")
                     .withPassphrase(sender.secret)
+                    .withNonce(senderNonce.plus(txNumber - 1))
                     .create();
                 // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
 
@@ -614,7 +629,6 @@ describe("API 2.0 - Transactions", () => {
                 });
 
                 expect(response).toBeSuccessfulResponse();
-
                 expect(response.data.data.accept.sort()).toEqual(
                     transactions.map(transaction => transaction.id).sort(),
                 );

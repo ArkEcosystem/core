@@ -24,6 +24,14 @@ export class WalletManager extends Wallets.WalletManager {
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
+    public incrementNonce(publicKey: string): void {
+        this.findByPublicKey(publicKey).incrementNonce();
+    }
+
+    public decrementNonce(publicKey: string): void {
+        this.findByPublicKey(publicKey).decrementNonce();
+    }
+
     public throwIfApplyingFails(transaction: Interfaces.ITransaction): void {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
@@ -53,6 +61,10 @@ export class WalletManager extends Wallets.WalletManager {
                     sender,
                     this.databaseService.walletManager,
                 );
+                // WORKAROUND: We need to increment the nonce of the sender, since canBeApplied
+                // is called on all transactions before they are actually applied
+                // and the nonce lags behind otherwise.
+                sender.incrementNonce();
             } catch (error) {
                 this.logger.error(
                     `[PoolWalletManager] Can't apply transaction ${transaction.id} from ${

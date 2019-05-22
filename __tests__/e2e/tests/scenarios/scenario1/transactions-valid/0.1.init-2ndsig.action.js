@@ -1,8 +1,9 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
+const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
  * Init 2nd signature wallets
@@ -13,14 +14,18 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [];
+    const nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[2].passphrase));
+
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
+        nonce = nonce.plus(1);
+
         transactions.push(
-            Transactions.BuilderFactory.secondSignature()
-                .signatureAsset(wallets[3].passphrase)
-                .fee(utils.fees.secondSignRegistration)
-                .sign(wallets[2].passphrase)
-                .getStruct(),
+            TransactionFactory.secondSignature(wallets[3].passphrase)
+                .withFee(utils.fees.secondSignRegistration)
+                .withPassphrase(wallets[2].passphrase)
+                .withNonce(nonce)
+                .createOne(),
         );
     });
 

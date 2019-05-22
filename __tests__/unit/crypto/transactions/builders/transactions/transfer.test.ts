@@ -54,6 +54,7 @@ describe("Transfer Transaction", () => {
             const wif = WIF.fromKeys(keys, devnet.network);
 
             const wifTransaction = builder
+                .recipientId(identity.address)
                 .amount("10")
                 .fee("10")
                 .network(network);
@@ -77,6 +78,7 @@ describe("Transfer Transaction", () => {
             const wif = WIF.fromKeys(keys, devnet.network);
 
             const wifTransaction = builder
+                .recipientId(identity.address)
                 .amount("10")
                 .fee("10")
                 .network(network)

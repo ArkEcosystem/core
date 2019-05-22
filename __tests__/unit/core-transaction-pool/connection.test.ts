@@ -8,6 +8,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { dato } from "@faustbrian/dato";
 import cloneDeep from "lodash.clonedeep";
+import shuffle from "lodash.shuffle";
 import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
@@ -164,9 +165,14 @@ describe("Connection", () => {
     });
 
     describe("addTransactions", () => {
+        let mockWallet: Wallets.Wallet;
+
         beforeAll(() => {
-            const mockWallet = new Wallets.Wallet(delegates[0].address);
-            jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
+            mockWallet = new Wallets.Wallet(delegates[0].address);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(2);
+
+            connection.walletManager.reindex(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
         afterAll(() => {
@@ -205,6 +211,9 @@ describe("Connection", () => {
     describe("addTransactions with expiration", () => {
         beforeAll(() => {
             const mockWallet = new Wallets.Wallet(delegates[0].address);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(2);
+
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -610,7 +619,8 @@ describe("Connection", () => {
 
         it("should update wallet when accepting a chained block", () => {
             const balanceBefore = mockWallet.balance;
-
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
@@ -620,6 +630,8 @@ describe("Connection", () => {
             addTransactions([mockData.dummy2]);
 
             expect(connection.getTransactions(0, 10)).toEqual([mockData.dummy2.serialized]);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
 
             const chainedBlock = BlockFactory.fromData(block2);
             chainedBlock.transactions.push(mockData.dummy2);
@@ -636,6 +648,8 @@ describe("Connection", () => {
             });
             const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey");
 
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(purgeByPublicKey).toHaveBeenCalledTimes(1);
@@ -646,6 +660,8 @@ describe("Connection", () => {
             jest.spyOn(connection.walletManager, "canBePurged").mockReturnValue(true);
             const forget = jest.spyOn(connection.walletManager, "forget");
 
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
@@ -797,6 +813,8 @@ describe("Connection", () => {
     describe("stress", () => {
         beforeAll(() => {
             const mockWallet = new Wallets.Wallet(delegates[0].address);
+            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
+            mockWallet.nonce = Utils.BigNumber.make(1);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
             jest.spyOn(connection.walletManager, "throwIfApplyingFails").mockReturnValue();
         });
@@ -804,14 +822,18 @@ describe("Connection", () => {
             jest.restoreAllMocks();
         });
 
-        const generateTestTransactions = (n: number): Interfaces.ITransaction[] => {
+        const generateTestTransactions = (n: number, nDifferentSenders?: number): Interfaces.ITransaction[] => {
+            if (nDifferentSenders === undefined) {
+                nDifferentSenders = n;
+            }
+
             const testTransactions: Interfaces.ITransaction[] = [];
 
             for (let i = 0; i < n; i++) {
                 const transaction = TransactionFactory
-                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5", i + 1)
                     .withNetwork("unitnet")
-                    .withPassphrase(String(i))
+                    .withPassphrase(String(i % nDifferentSenders))
                     .build()[0];
                 testTransactions.push(transaction)
             }
@@ -901,6 +923,91 @@ describe("Connection", () => {
             );
 
             expect(topFeesReceived).toEqual(topFeesExpected);
+        });
+
+        it("sort by fee, nonce", () => {
+            const nTransactions = 1000;
+            const nDifferentSenders = 100;
+
+            // Non-randomized nonces, used for each sender. Make sure there are enough
+            // elements in this array, so that each transaction of a given sender gets
+            // an unique nonce for that sender.
+            const nonces = [];
+            for (let i = 0; i < Math.ceil(nTransactions / nDifferentSenders); i++) {
+                nonces.push(i);
+            }
+
+            const rand = randomSeed.create("0");
+
+            const testTransactions: Interfaces.ITransaction[] =
+                generateTestTransactions(nTransactions, nDifferentSenders);
+
+            const noncesBySender = {};
+
+            for (let i = 0; i < nTransactions; i++) {
+                const fee = rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI);
+                testTransactions[i].data.fee = Utils.BigNumber.make(fee);
+
+                const sender = testTransactions[i].data.senderPublicKey;
+
+                if (noncesBySender[sender] === undefined) {
+                    noncesBySender[sender] = shuffle(nonces);
+                }
+                const nonce = noncesBySender[sender].shift();
+                testTransactions[i].data.nonce = Utils.BigNumber.make(nonce);
+
+                testTransactions[i].serialized = Transactions.Utils.toBytes(testTransactions[i].data);
+            }
+
+            // const timerLabelAdd = `time to add ${testTransactions.length} transactions`;
+            // console.time(timerLabelAdd);
+            connection.addTransactions(testTransactions);
+            // console.timeEnd(timerLabelAdd);
+
+            // const timerLabelSort = `time to sort ${testTransactions.length} transactions`;
+            // console.time(timerLabelSort);
+            const sortedTransactionsSerialized = connection.getTransactions(0, nTransactions);
+            // console.timeEnd(timerLabelSort);
+
+            const sortedTransactions = sortedTransactionsSerialized.map(serialized =>
+                Transactions.TransactionFactory.fromBytes(serialized),
+            );
+
+            expect(sortedTransactions.length).toEqual(testTransactions.length);
+
+            const firstTransaction = sortedTransactions[0];
+
+            const lastNonceBySender = {};
+            lastNonceBySender[firstTransaction.data.senderPublicKey] = firstTransaction.data.nonce;
+
+            for (let i = 1; i < sortedTransactions.length; i++) {
+                const prevTransaction = sortedTransactions[i - 1];
+                const prevSender = prevTransaction.data.senderPublicKey;
+
+                const curTransaction = sortedTransactions[i];
+                const curSender = curTransaction.data.senderPublicKey;
+
+                if (prevTransaction.data.fee.isLessThan(curTransaction.data.fee)) {
+                    expect(prevSender).toEqual(curSender);
+                }
+
+                if (prevSender !== curSender) {
+                    let j;
+                    for (j = i - 2; j >= 0 && sortedTransactions[j].data.senderPublicKey === prevSender; j--) {
+                        // Find the leftmost transaction in a sequence of transactions from the same
+                        // sender, ending at prevTransaction. That leftmost transaction's fee must
+                        // be greater or equal to the fee of curTransaction.
+                    }
+                    j++;
+                    expect(sortedTransactions[j].data.fee.isGreaterThanOrEqualTo(curTransaction.data.fee)).toBeTrue();
+                }
+
+                if (lastNonceBySender[curSender] !== undefined) {
+                    expect(lastNonceBySender[curSender].isLessThan(curTransaction.data.nonce)).toBeTrue();
+                }
+
+                lastNonceBySender[curSender] = curTransaction.data.nonce;
+            }
         });
     });
 

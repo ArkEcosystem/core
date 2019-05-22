@@ -130,6 +130,10 @@ describe("Transaction", () => {
                         delete transaction.data.secondSignature;
                     }
 
+                    if (transaction.data.version === 1) {
+                        delete transaction.data.nonce;
+                    }
+
                     // @ts-ignore
                     transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
                     // @ts-ignore

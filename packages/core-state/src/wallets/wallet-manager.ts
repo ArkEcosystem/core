@@ -90,6 +90,14 @@ export class WalletManager implements State.IWalletManager {
         return !!this.byUsername[username];
     }
 
+    public getNonce(publicKey: string): Utils.BigNumber {
+        if (this.hasByPublicKey(publicKey)) {
+            return this.byPublicKey[publicKey].nonce;
+        }
+
+        return Utils.BigNumber.ZERO;
+    }
+
     public forgetByAddress(address: string): void {
         delete this.byAddress[address];
     }

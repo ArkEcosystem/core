@@ -1,3 +1,5 @@
+import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
@@ -82,8 +84,18 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
     }
 
+    public static getNonce(publicKey: string): Utils.BigNumber {
+        try {
+            return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(publicKey);
+        } catch {
+            return Utils.BigNumber.ZERO;
+        }
+
+    }
+
     private builder: any;
     private network: Types.NetworkName = "testnet";
+    private nonce: Utils.BigNumber;
     private fee: Utils.BigNumber;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
@@ -117,6 +129,12 @@ export class TransactionFactory {
 
     public withSenderPublicKey(sender: string): TransactionFactory {
         this.senderPublicKey = sender;
+
+        return this;
+    }
+
+    public withNonce(nonce: Utils.BigNumber): TransactionFactory {
+        this.nonce = nonce;
 
         return this;
     }
@@ -176,6 +194,14 @@ export class TransactionFactory {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }
 
+    public getNonce(): Utils.BigNumber {
+        if (this.nonce) {
+            return this.nonce;
+        }
+
+        return TransactionFactory.getNonce(this.senderPublicKey);
+    }
+
     private make<T>(quantity: number = 1, method: string): T[] {
         if (this.passphrasePairs && this.passphrasePairs.length) {
             return this.passphrasePairs.map(
@@ -192,7 +218,12 @@ export class TransactionFactory {
     private sign<T>(quantity: number, method: string): T[] {
         Managers.configManager.setFromPreset(this.network);
 
+        if (!this.senderPublicKey) {
+            this.senderPublicKey = Identities.PublicKey.fromPassphrase(this.passphrase);
+        }
+
         const transactions: T[] = [];
+        let nonce = this.getNonce();
 
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
@@ -219,17 +250,20 @@ export class TransactionFactory {
                 this.builder.version(this.version);
             }
 
-            if (this.fee) {
-                this.builder.fee(this.fee.toFixed());
+            if (this.builder.data.version > 1 && Managers.configManager.getMilestone().aip11) {
+                nonce = nonce.plus(1);
+                this.builder.nonce(nonce);
             }
 
-            if (this.senderPublicKey) {
-                this.builder.senderPublicKey(this.senderPublicKey);
+            if (this.fee) {
+                this.builder.fee(this.fee.toFixed());
             }
 
             if (this.expiration) {
                 this.builder.expiration(this.expiration);
             }
+
+            this.builder.senderPublicKey(this.senderPublicKey);
 
             let sign: boolean = true;
             if (this.passphraseList && this.passphraseList.length) {

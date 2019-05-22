@@ -41,7 +41,13 @@ class Deserializer {
         transaction.version = buf.readUint8();
         transaction.network = buf.readUint8();
         transaction.type = buf.readUint8();
-        transaction.timestamp = buf.readUint32();
+
+        if (transaction.version === 1) {
+            transaction.timestamp = buf.readUint32();
+        } else {
+            transaction.nonce = BigNumber.make(buf.readUint64().toString());
+        }
+
         transaction.senderPublicKey = buf.readBytes(33).toString("hex");
         transaction.fee = BigNumber.make(buf.readUint64().toString());
         transaction.amount = BigNumber.ZERO;

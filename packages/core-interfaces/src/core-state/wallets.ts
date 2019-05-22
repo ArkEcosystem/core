@@ -7,6 +7,7 @@ export interface IWallet {
     publicKey: string | undefined;
     secondPublicKey: string | undefined;
     balance: Utils.BigNumber;
+    nonce: Utils.BigNumber;
     vote: string;
     voted: boolean;
     username: string | undefined;
@@ -26,6 +27,9 @@ export interface IWallet {
 
     auditApply(transaction: Interfaces.ITransactionData): any[];
     toString(): string;
+
+    incrementNonce(): void;
+    decrementNonce(): void;
 
     verifySignatures(
         transaction: Interfaces.ITransactionData,
@@ -53,6 +57,8 @@ export interface IWalletManager {
     findByPublicKey(publicKey: string): IWallet;
 
     findByUsername(username: string): IWallet;
+
+    getNonce(publicKey: string): Utils.BigNumber;
 
     index(wallets: IWallet[]): void;
 

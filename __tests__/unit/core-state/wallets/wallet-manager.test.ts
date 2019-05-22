@@ -3,7 +3,7 @@ import "../../core-database/mocks/core-container";
 
 import { State } from "@arkecosystem/core-interfaces";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { Blocks, Constants, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Address } from "@arkecosystem/crypto/src/identities";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
@@ -12,7 +12,6 @@ import wallets from "../__fixtures__/wallets.json";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
-const { TransactionTypes } = Enums;
 
 const block3 = fixtures.blocks2to100[1];
 const block = BlockFactory.fromData(block3);
@@ -140,19 +139,19 @@ describe("Wallet Manager", () => {
 
         describe.skip("the delegate of the block is not indexed", () => {
             describe("not genesis block", () => {
-                it("throw an Error", () => {});
+                it("throw an Error", () => { });
             });
 
             describe("genesis block", () => {
-                it("generates a new wallet", () => {});
+                it("generates a new wallet", () => { });
             });
         });
     });
 
     describe.skip("revertBlock", () => {
-        it("should revert all transactions of the block", () => {});
+        it("should revert all transactions of the block", () => { });
 
-        it("should revert the block of the delegate", () => {});
+        it("should revert the block of the delegate", () => { });
     });
 
     describe("applyTransaction", () => {
@@ -236,29 +235,23 @@ describe("Wallet Manager", () => {
 
     describe("revertTransaction", () => {
         it("should revert the transaction from the sender & recipient", async () => {
-            const transaction = Transactions.TransactionFactory.fromData({
-                type: TransactionTypes.Transfer,
-                amount: Utils.BigNumber.make(245098000000000),
-                fee: Utils.BigNumber.make(0),
-                recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
-                timestamp: 0,
-                asset: {},
-                senderPublicKey: "035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788",
-                signature:
-                    "304402205fcb0677e06bde7aac3dc776665615f4b93ef8c3ed0fddecef9900e74fcb00f302206958a0c9868ea1b1f3d151bdfa92da1ce24de0b1fcd91933e64fb7971e92f48d",
-                id: "db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd",
-            });
+            const transaction = TransactionFactory.transfer("AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri", 245098000000000)
+                .withFee(1 * 1e8)
+                .withPassphrase("secret")
+                .build()[0];
 
             const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            sender.nonce = Utils.BigNumber.make(1);
+
             const recipient = walletManager.findByAddress(transaction.data.recipientId);
             recipient.balance = transaction.data.amount;
 
             expect(sender.balance).toEqual(Utils.BigNumber.ZERO);
             expect(recipient.balance).toEqual(transaction.data.amount);
 
-            await walletManager.revertTransaction(transaction);
+            walletManager.revertTransaction(transaction);
 
-            expect(sender.balance).toEqual(transaction.data.amount);
+            expect(sender.balance).toEqual(transaction.data.amount.plus(transaction.data.fee));
             expect(recipient.balance).toEqual(Utils.BigNumber.ZERO);
         });
 
@@ -279,6 +272,7 @@ describe("Wallet Manager", () => {
             const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
                 .fee("125")
+                .nonce("1")
                 .sign("secret")
                 .build();
 
@@ -314,6 +308,7 @@ describe("Wallet Manager", () => {
             const voteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`+${delegateKeys.publicKey}`])
                 .fee("125")
+                .nonce("1")
                 .sign("secret")
                 .build();
 
@@ -329,6 +324,7 @@ describe("Wallet Manager", () => {
             const unvoteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`-${delegateKeys.publicKey}`])
                 .fee("125")
+                .nonce("2")
                 .sign("secret")
                 .build();
 

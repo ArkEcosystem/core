@@ -46,6 +46,7 @@ export interface ITransactionData {
 
     type: TransactionTypes;
     timestamp: number;
+    nonce?: BigNumber;
     senderPublicKey: string;
 
     fee: BigNumber;
@@ -78,7 +79,8 @@ export interface ITransactionJson {
     network?: number;
 
     type: TransactionTypes;
-    timestamp: number;
+    timestamp?: number;
+    nonce?: string;
     senderPublicKey: string;
 
     fee: string;

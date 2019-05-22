@@ -1,3 +1,5 @@
+import { Utils } from "@arkecosystem/crypto";
+
 // tslint:disable:max-classes-per-file
 
 export class TransactionError extends Error {
@@ -33,6 +35,12 @@ export class TransactionHandlerAlreadyRegisteredError extends TransactionError {
 export class InvalidTransactionTypeError extends TransactionError {
     constructor(type: number) {
         super(`Transaction type ${type} does not exist.`);
+    }
+}
+
+export class UnexpectedNonceError extends TransactionError {
+    constructor(actual: Utils.BigNumber, expected: Utils.BigNumber) {
+        super(`Got nonce '${actual.toFixed()}' but expected '${expected.toFixed()}'.`);
     }
 }
 

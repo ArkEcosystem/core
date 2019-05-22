@@ -1,8 +1,9 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers, Identities } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
+const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
  * Attempt to double spend
@@ -13,22 +14,16 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory.transfer()
-            .amount(600 * Math.pow(10, 8))
-            .recipientId(utils.doubleTransfer2ndsigRecipient.address)
-            .vendorField("first part of double spend")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(utils.doubleTransfer2ndsigSender.passphrase)
-            .secondSign(utils.doubleTransfer2ndsigSender2.passphrase)
-            .getStruct(),
-        Transactions.BuilderFactory.transfer()
-            .amount(600 * Math.pow(10, 8))
-            .recipientId(utils.doubleTransfer2ndsigRecipient.address)
-            .vendorField("second part of double spend")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(utils.doubleTransfer2ndsigSender.passphrase)
-            .secondSign(utils.doubleTransfer2ndsigSender2.passphrase)
-            .getStruct(),
+        TransactionFactory.transfer(utils.doubleTransferRecipient.address, 600 * Math.pow(10, 8), "first part of double spend")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(utils.doubleTransfer2ndsigSender.passphrase)
+            .withSecondPassphrase(utils.doubleTransfer2ndsigSender2.passphrase)
+            .createOne(),
+        TransactionFactory.transfer(utils.doubleTransferRecipient.address, 600 * Math.pow(10, 8), "second part of double spend")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(utils.doubleTransfer2ndsigSender.passphrase)
+            .withSecondPassphrase(utils.doubleTransfer2ndsigSender2.passphrase)
+            .createOne(),
     ];
 
     await testUtils.POST("transactions", { transactions });

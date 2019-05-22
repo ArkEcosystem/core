@@ -100,9 +100,8 @@ describe("Multi Signature Transaction", () => {
                     ],
                     min: 2,
                 })
-                .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22");
-
-            actual.data.timestamp = 0;
+                .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22")
+                .nonce("1");
 
             actual
                 .multiSign("secret 1", 0)
@@ -110,9 +109,9 @@ describe("Multi Signature Transaction", () => {
                 .multiSign("secret 3", 2);
 
             expect(actual.data.signatures).toEqual([
-                "00bab66bbc4a6b9e350b641969c454fa3052ff6511e748aafbbb0511f8178e0039810a336149436d6d1ad407a65fc121e6246c3449086a5d295d868269eceaf62f",
-                "014f01534036346f7442d6f2b0b88f8325fd296cfa0b521f9a56ba53c4df4718586ed7358a12b4e8943b0e7936f5cbf457b356918dd70b3d644c7fd7820cdbd4fc",
-                "02c876f3697ffa8df485348c1b5d164e69ff182e98756c527f62711e4fbabc0d19913c0274c9550f07a3cc4ccb213143ee07bf0f8160d01c91301394eda0c458e7",
+                "003c736a01ad8a240c41cf9e9f6b863b21c3514c49068d93105ee5d00083e0d66bf333ab2fcda5b90fffa8969ccb2fe1233a29eca31a90f9d809e33dec169c7698",
+                "0112d150d02cbdf29309dd578683659d6a90666aaff950a4a4c2837815727d4b3d1eaaab24f4f1e6e57b845ff7b74b37eecd72dc85829a6652ccddf26b4c9e4a39",
+                "0211b1c08bc30ef7aed19c61ec36bddedf336bb58935789a89430eb15028226ee3cc93db436a7896f3315d8da94f4d2d1b1cc6c1a03934b7c60502c33add0d0a7a",
             ]);
             expect(actual.data.signatures.length).toBe(3);
         });

@@ -1,12 +1,14 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import assert from "assert";
 
 export class Wallet implements State.IWallet {
     public address: string;
     public publicKey: string | undefined;
     public secondPublicKey: string | undefined;
     public balance: Utils.BigNumber;
+    public nonce: Utils.BigNumber;
     public vote: string;
     public voted: boolean;
     public username: string | undefined;
@@ -26,6 +28,7 @@ export class Wallet implements State.IWallet {
         this.publicKey = undefined;
         this.secondPublicKey = undefined;
         this.balance = Utils.BigNumber.ZERO;
+        this.nonce = Utils.BigNumber.ZERO;
         this.vote = undefined;
         this.voted = false;
         this.username = undefined;
@@ -39,9 +42,6 @@ export class Wallet implements State.IWallet {
         this.forgedRewards = Utils.BigNumber.ZERO;
     }
 
-    /**
-     * Add block data to this wallet.
-     */
     public applyBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
@@ -60,9 +60,6 @@ export class Wallet implements State.IWallet {
         return false;
     }
 
-    /**
-     * Remove block data from this wallet.
-     */
     public revertBlock(block: Interfaces.IBlockData): boolean {
         if (
             block.generatorPublicKey === this.publicKey ||
@@ -80,6 +77,15 @@ export class Wallet implements State.IWallet {
         }
 
         return false;
+    }
+
+    public incrementNonce(): void {
+        this.nonce = this.nonce.plus(1);
+    }
+
+    public decrementNonce(): void {
+        assert(this.nonce.isGreaterThanOrEqualTo(1));
+        this.nonce = this.nonce.minus(1);
     }
 
     public verifySignatures(
@@ -123,9 +129,6 @@ export class Wallet implements State.IWallet {
         return verified;
     }
 
-    /**
-     * Audit the specified transaction.
-     */
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
@@ -150,6 +153,13 @@ export class Wallet implements State.IWallet {
                     ),
                 });
             }
+        }
+
+        if (transaction.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.nonce)) {
+            audit.push({
+                "Invalid Nonce": transaction.nonce,
+                "Wallet Nonce": this.nonce,
+            });
         }
 
         if (transaction.type === Enums.TransactionTypes.Transfer) {
@@ -209,9 +219,6 @@ export class Wallet implements State.IWallet {
         return audit;
     }
 
-    /**
-     * Get formatted wallet address and balance as string.
-     */
     public toString(): string {
         return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
     }

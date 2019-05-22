@@ -16,12 +16,15 @@ const strictTransaction = {
 export const transactionBaseSchema = {
     $id: undefined,
     type: "object",
-    required: ["type", "senderPublicKey", "fee", "amount", "timestamp"],
+    if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
+    then: { required: ["type", "senderPublicKey", "fee", "amount", "timestamp"] },
+    else: { required: ["type", "senderPublicKey", "fee", "amount", "nonce"] },
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
         network: { $ref: "networkByte" },
         timestamp: { type: "integer", minimum: 0 },
+        nonce: { bignumber: { minimum: 0 } },
         amount: { bignumber: { minimum: 1, bypassGenesis: true } },
         fee: { bignumber: { minimum: 1, bypassGenesis: true } },
         senderPublicKey: { $ref: "publicKey" },
