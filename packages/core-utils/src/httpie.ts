@@ -77,6 +77,10 @@ class Httpie {
             opts.retry = { retries: 0 };
         }
 
+        if (!opts.timeout && process.env.NODE_ENV !== "test") {
+            opts.timeout = 1500;
+        }
+
         try {
             const { body, headers, statusCode } = await got[method](url, opts);
 

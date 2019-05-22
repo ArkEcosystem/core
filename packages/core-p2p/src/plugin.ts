@@ -46,7 +46,6 @@ export const plugin: Container.IPluginDescriptor = {
         container.resolvePlugin<Logger.ILogger>("logger").info("Stopping P2P Interface");
 
         const service = container.resolvePlugin<P2P.IPeerService>("p2p");
-        service.getStorage().savePeers();
         service.getMonitor().stopServer();
     },
 };

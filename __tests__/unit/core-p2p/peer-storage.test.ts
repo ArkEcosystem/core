@@ -3,8 +3,6 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import dayjs from "dayjs";
-import fs from "fs";
-import { tmpdir } from "os";
 import { P2P } from "../../../packages/core-interfaces/src";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
 import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
@@ -151,26 +149,5 @@ describe("PeerStorage", () => {
 
             expect(storage.hasSuspendedPeers()).toBeFalse();
         });
-    });
-
-    it("should cache the peers into file", () => {
-        stubPeer.version = "2.4.0";
-        storage.setPeer(stubPeer);
-
-        process.env.CORE_PATH_CACHE = tmpdir();
-
-        fs.writeFileSync = jest.fn();
-
-        storage.savePeers();
-
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-            `${process.env.CORE_PATH_CACHE}/peers.json`,
-            JSON.stringify(
-                storage.getPeers().map(peer => ({
-                    ip: peer.ip,
-                    ports: peer.ports,
-                })),
-            ),
-        );
     });
 });

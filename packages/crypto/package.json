@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/crypto",
-    "version": "2.4.0-next.3",
+    "version": "2.4.0-next.5",
     "description": "Crypto utilities for the ARK Blockchain",
     "license": "MIT",
     "contributors": [
@@ -53,6 +53,7 @@
     "devDependencies": {
         "@types/bip32": "^1.0.2",
         "@types/bip39": "^2.4.2",
+        "@types/bs58": "^4.0.0",
         "@types/buffer-xor": "^2.0.0",
         "@types/bytebuffer": "^5.0.40",
         "@types/hapi__joi": "^15.0.1",
