@@ -77,7 +77,7 @@ class Httpie {
             opts.retry = { retries: 0 };
         }
 
-        if (!opts.timeout) {
+        if (!opts.timeout && process.env.NODE_ENV !== "test") {
             opts.timeout = 1500;
         }
 
