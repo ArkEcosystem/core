@@ -39,10 +39,12 @@ export const plugin: Container.IPluginDescriptor = {
         return server;
     },
     async deregister(container: Container.IContainer, options) {
-        if (options.server.enabled) {
+        try {
             container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Explorer");
 
             await container.resolvePlugin("explorer").close();
+        } catch (error) {
+            // do nothing...
         }
     },
 };
