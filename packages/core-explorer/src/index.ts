@@ -2,7 +2,6 @@ import { Container, Logger } from "@arkecosystem/core-interfaces";
 import history from "connect-history-api-fallback";
 import express, { Handler } from "express";
 import { existsSync } from "fs";
-import { join } from "path";
 import { defaults } from "./defaults";
 
 export const plugin: Container.IPluginDescriptor = {
@@ -26,7 +25,7 @@ export const plugin: Container.IPluginDescriptor = {
         app.use(staticFileMiddleware);
         app.use(history());
         app.use(staticFileMiddleware);
-        app.get("/", (req, res) => res.render(join(distPath + "/index.html")));
+        app.get("/", (req, res) => res.render(`${distPath}/index.html`));
 
         // @ts-ignore
         const server = app.listen(options.server.port, options.server.host, () => {
