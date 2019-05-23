@@ -3,7 +3,6 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { blockchain } from "./mocks/blockchain";
-// import { state } from "./mocks/state";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Blocks, Transactions } from "@arkecosystem/crypto";
@@ -14,7 +13,6 @@ import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
 let monitor: P2P.INetworkMonitor;
 let processor: P2P.IPeerProcessor;
 let storage: P2P.IPeerStorage;
-// let connector: P2P.IPeerConnector;
 let communicator: P2P.IPeerCommunicator;
 
 beforeEach(() => {
@@ -128,25 +126,14 @@ describe("NetworkMonitor", () => {
         });
     });
 
-    // describe("refreshPeersAfterFork", () => {
-    //     it("should reset the suspended peers and suspend the peer causing the fork", async () => {
-    //         connector.disconnect = jest.fn();
-
-    //         const spySuspend = jest.spyOn(processor, "suspend");
-
-    //         const spyStateStore = jest.spyOn(state, "getStore").mockReturnValueOnce({
-    //             ...state.getStore(),
-    //             ...{ forkedBlock: { ip: "1.1.1.1" } },
-    //         });
-
-    //         await monitor.refreshPeersAfterFork();
-
-    //         expect(spySuspend).toHaveBeenCalledWith("1.1.1.1");
-    //         expect(connector.disconnect).toHaveBeenCalled();
-
-    //         spyStateStore.mockRestore();
-    //     });
-    // });
+    describe("refreshPeersAfterFork", () => {
+        it("should reset the suspended peers and suspend the peer causing the fork", async () => {
+            const spyCleansePeers = jest.spyOn(monitor, "cleansePeers");
+            await monitor.refreshPeersAfterFork();
+            expect(spyCleansePeers).toHaveBeenCalled();
+            spyCleansePeers.mockRestore();
+        });
+    });
 
     describe("syncWithNetwork", () => {
         it("should download blocks from 1 peer", async () => {

@@ -15,7 +15,6 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
-import { Peer } from "./peer";
 import { checkDNS, checkNTP } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
@@ -219,15 +218,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public async refreshPeersAfterFork(): Promise<void> {
         this.logger.info(`Refreshing ${this.storage.getPeers().length} peers after fork.`);
 
-        // Reset all peers, except peers banned because of causing a fork.
         await this.cleansePeers(false, true);
-
-        // Ban peer who caused the fork
-        const forkedBlock = app.resolvePlugin("state").getStore().forkedBlock;
-
-        if (forkedBlock) {
-            this.emitter.emit("internal.p2p.disconnectPeer", { peer: new Peer(forkedBlock.ip) });
-        }
     }
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
