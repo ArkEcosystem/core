@@ -4,16 +4,13 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import dayjs from "dayjs";
-import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { PeerGuard } from "../../../packages/core-p2p/src/peer-guard";
 import { createStubPeer } from "../../helpers/peers";
 
 let guard: P2P.IPeerGuard;
-let connector: P2P.IPeerConnector;
 
 beforeAll(async () => {
-    connector = new PeerConnector();
-    guard = new PeerGuard(connector);
+    guard = new PeerGuard();
 });
 
 describe("PeerGuard", () => {
