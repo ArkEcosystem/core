@@ -53,7 +53,7 @@ describe("NetworkMonitor", () => {
 
             const previousLength = storage.getPeers().length;
 
-            await monitor.cleansePeers(true);
+            await monitor.cleansePeers({ fast: true });
 
             expect(storage.getPeers().length).toBeLessThan(previousLength);
         });

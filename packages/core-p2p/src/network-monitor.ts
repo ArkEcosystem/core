@@ -129,7 +129,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
-    public async cleansePeers(fast: boolean = false, forcePing: boolean = false, peerCount?: number): Promise<void> {
+    public async cleansePeers({
+        fast = false,
+        forcePing = false,
+        peerCount,
+    }: { fast?: boolean; forcePing?: boolean; peerCount?: number } = {}): Promise<void> {
         let peers = this.storage.getPeers();
         let max = peers.length;
 
@@ -209,7 +213,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
         if (!this.isColdStartActive()) {
-            await this.cleansePeers(true, true);
+            await this.cleansePeers({ fast: true, forcePing: true });
         }
 
         return NetworkState.analyze(this, this.storage);
@@ -218,12 +222,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public async refreshPeersAfterFork(): Promise<void> {
         this.logger.info(`Refreshing ${this.storage.getPeers().length} peers after fork.`);
 
-        await this.cleansePeers(false, true);
+        await this.cleansePeers({ forcePing: true });
     }
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.isColdStartActive()) {
-            await this.cleansePeers(false, true);
+            await this.cleansePeers({ forcePing: true });
         }
 
         const lastBlock = app
