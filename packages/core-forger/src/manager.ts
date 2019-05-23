@@ -53,7 +53,6 @@ export class ForgerManager {
         try {
             await this.loadRound();
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
-            this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
             timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
@@ -278,7 +277,7 @@ export class ForgerManager {
         );
 
         if (activeDelegates.length > 0) {
-            this.logger.debug(
+            this.logger.info(
                 `Loaded ${pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
                     .map(({ publicKey }) => `${this.usernames[publicKey]} (${publicKey})`)
                     .join(", ")}`,
@@ -290,11 +289,13 @@ export class ForgerManager {
                 .filter(delegate => !activeDelegates.includes(delegate))
                 .map(delegate => delegate.publicKey);
 
-            this.logger.debug(
+            this.logger.info(
                 `Loaded ${pluralize("inactive delegate", inactiveDelegates.length, true)}: ${inactiveDelegates.join(
                     ", ",
                 )}`,
             );
         }
+
+        this.logger.info(`Forger Manager started.`);
     }
 }
