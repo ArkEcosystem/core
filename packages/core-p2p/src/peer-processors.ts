@@ -100,7 +100,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.connector.disconnect(peer);
 
         if (!punishment) {
-            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.port} without punishment.`);
+            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.port}.`);
             return;
         }
 
