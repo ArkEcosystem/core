@@ -46,6 +46,10 @@ export class PeerGuard implements P2P.IPeerGuard {
             return this.createPunishment(this.offences.highLatency);
         }
 
+        if (!peer.version) {
+            return undefined;
+        }
+        
         if (!isValidVersion(peer)) {
             return this.createPunishment(this.offences.invalidVersion);
         }
