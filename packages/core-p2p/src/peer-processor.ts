@@ -47,7 +47,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!isWhitelisted(app.resolveOptions("p2p").remoteAccess, peer.ip)) {
+        if (!isWhitelisted(app.resolveOptions("p2p").whitelist, peer.ip)) {
             // const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
             // this.logger.debug(
