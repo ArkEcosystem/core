@@ -28,7 +28,6 @@ export class PeerConnector implements P2P.IPeerConnector {
 
         this.connections.set(peer.ip, connection);
 
-        // @TODO: disconnect or just log?
         this.connection(peer).on("error", () => this.disconnect(peer));
 
         return connection;
