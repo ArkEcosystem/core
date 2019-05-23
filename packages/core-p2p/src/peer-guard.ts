@@ -1,8 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import dayjs from "dayjs";
-import { SCClientSocket } from "socketcluster-client";
-import { SocketErrors } from "./enums";
 import { isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerGuard implements P2P.IPeerGuard {
@@ -37,39 +35,13 @@ export class PeerGuard implements P2P.IPeerGuard {
             until: () => dayjs().add(60, "second"),
             reason: "Rate limit exceeded",
         },
-        fork: {
-            until: () => dayjs().add(15, "minute"),
-            reason: "Fork",
-        },
-        socketGotClosed: {
-            until: () => dayjs().add(5, "minute"),
-            reason: "Socket got closed",
-        },
     };
-
-    constructor(private readonly connector: P2P.IPeerConnector) {}
 
     public punishment(offence: string): P2P.IPunishment {
         return this.createPunishment(this.offences[offence]);
     }
 
     public analyze(peer: P2P.IPeer): P2P.IPunishment {
-        const state = app.resolvePlugin("state").getStore();
-
-        if (state.forkedBlock && peer.ip === state.forkedBlock.ip) {
-            return this.createPunishment(this.offences.fork);
-        }
-
-        const connection: SCClientSocket = this.connector.connection(peer);
-
-        if (connection && connection.getState() !== connection.OPEN) {
-            return this.createPunishment(this.offences.socketGotClosed);
-        }
-
-        if (this.connector.hasError(peer, SocketErrors.AppNotReady)) {
-            return undefined;
-        }
-
         if (peer.latency > 2000) {
             return this.createPunishment(this.offences.highLatency);
         }

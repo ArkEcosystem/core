@@ -14,7 +14,7 @@ export const makePeerService = (): PeerService => {
     const storage = new PeerStorage();
     const connector = new PeerConnector();
 
-    const guard = new PeerGuard(connector);
+    const guard = new PeerGuard();
     const communicator = new PeerCommunicator(connector);
     const processor = new PeerProcessor({ storage, guard, connector, communicator });
     const monitor = new NetworkMonitor({ storage, processor, communicator });
