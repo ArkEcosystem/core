@@ -8,7 +8,18 @@ describe("transformPlugins", () => {
         const transformed = Plugins.transformPlugins(plugins);
 
         expect(transformed).toEqual({
-            api: { port: 4003 },
+            "@arkecosystem/core-api": {
+                enabled: true,
+                port: 4003,
+            },
+            "@arkecosystem/core-json-rpc": {
+                enabled: false,
+                port: 8080,
+            },
+            "@arkecosystem/core-webhooks": {
+                enabled: false,
+                port: 4004,
+            },
         });
     });
 });
