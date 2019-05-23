@@ -23,5 +23,4 @@ export interface INetworkMonitor {
     getServer(): SocketCluster;
     setServer(server: SocketCluster): void;
     stopServer(): void;
-    resetSuspendedPeers(): Promise<void>;
 }

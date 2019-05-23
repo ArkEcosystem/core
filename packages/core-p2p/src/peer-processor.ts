@@ -3,12 +3,8 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import dayjs from "dayjs";
-import prettyMs from "pretty-ms";
-import { SCClientSocket } from "socketcluster-client";
 import { Peer } from "./peer";
-import { PeerSuspension } from "./peer-suspension";
-import { isValidPeer } from "./utils";
+import { isValidPeer, isWhitelisted } from "./utils";
 
 export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
@@ -19,23 +15,19 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
     private readonly communicator: P2P.IPeerCommunicator;
     private readonly connector: P2P.IPeerConnector;
-    private readonly guard: P2P.IPeerGuard;
     private readonly storage: P2P.IPeerStorage;
 
     public constructor({
         communicator,
         connector,
-        guard,
         storage,
     }: {
         communicator: P2P.IPeerCommunicator;
         connector: P2P.IPeerConnector;
-        guard: P2P.IPeerGuard;
         storage: P2P.IPeerStorage;
     }) {
         this.communicator = communicator;
         this.connector = connector;
-        this.guard = guard;
         this.storage = storage;
     }
 
@@ -51,11 +43,11 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!isValidPeer(peer) || this.hasPendingSuspension(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
-        if (!this.guard.isWhitelisted(peer)) {
+        if (!isWhitelisted(app.resolveOptions("p2p").remoteAccess, peer.ip)) {
             // const minimumVersions: string[] = app.resolveOptions("p2p").minimumVersions;
 
             // this.logger.debug(
@@ -84,60 +76,6 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         return true;
     }
 
-    public suspend(peer: P2P.IPeer, punishment?: P2P.IPunishment): void {
-        if (this.storage.hasSuspendedPeer(peer.ip)) {
-            return;
-        }
-
-        const whitelist = app.resolveOptions("p2p").whitelist;
-
-        if (whitelist && whitelist.includes(peer.ip)) {
-            return;
-        }
-
-        punishment = punishment || this.guard.analyze(peer);
-
-        this.connector.disconnect(peer);
-
-        if (!punishment) {
-            this.logger.debug(`Disconnecting from ${peer.ip}:${peer.port}.`);
-            return;
-        }
-
-        this.storage.setSuspendedPeer(new PeerSuspension(peer, punishment));
-        this.storage.forgetPeer(peer);
-
-        this.logger.debug(
-            `Suspended ${peer.ip} for ${prettyMs(punishment.until.diff(dayjs(), "millisecond"), {
-                verbose: true,
-            })} because of "${punishment.reason}"`,
-        );
-    }
-
-    public async unsuspend(peer: P2P.IPeer): Promise<void> {
-        if (!this.storage.hasSuspendedPeer(peer.ip)) {
-            return;
-        }
-
-        const suspension: P2P.IPeerSuspension = this.storage.getSuspendedPeer(peer.ip);
-
-        // Don't unsuspend critical offenders before the ban is expired.
-        if (suspension.isCritical() && !suspension.hasExpired()) {
-            return;
-        }
-
-        this.storage.forgetSuspendedPeer(suspension);
-
-        const connection: SCClientSocket = this.connector.connection(peer);
-        if (connection && connection.getState() !== connection.OPEN) {
-            // if after suspension peer socket is not open, we just "destroy" the socket connection
-            // and we don't try to "accept" the peer again, so it will be definitively removed as there will be no reference to it
-            connection.destroy();
-        } else {
-            await this.acceptNewPeer(peer);
-        }
-    }
-
     private async acceptNewPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.storage.getPeer(peer.ip)) {
             return;
@@ -158,39 +96,11 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
             this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
         } catch (error) {
-            this.suspend(newPeer);
+            this.connector.disconnect(newPeer);
         } finally {
             this.storage.forgetPendingPeer(peer);
         }
 
         return;
-    }
-
-    private hasPendingSuspension(peer: P2P.IPeer): boolean {
-        const suspension: P2P.IPeerSuspension = this.storage.getSuspendedPeer(peer.ip);
-
-        if (!suspension) {
-            return false;
-        }
-
-        if (suspension.hasExpired()) {
-            this.storage.forgetSuspendedPeer(suspension);
-
-            return false;
-        }
-
-        if (!suspension.nextReminder || dayjs().isAfter(suspension.nextReminder)) {
-            const untilDiff: number = suspension.punishment.until.diff(dayjs(), "millisecond");
-
-            this.logger.debug(
-                `${peer.ip} still suspended for ${prettyMs(untilDiff, {
-                    verbose: true,
-                })} because of "${suspension.punishment.reason}".`,
-            );
-
-            suspension.nextReminder = dayjs().add(5, "minute");
-        }
-
-        return true;
     }
 }

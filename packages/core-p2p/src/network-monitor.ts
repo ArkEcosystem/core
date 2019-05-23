@@ -15,6 +15,7 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
+import { Peer } from "./peer";
 import { checkDNS, checkNTP } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
@@ -214,19 +215,18 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         // Reset all peers, except peers banned because of causing a fork.
         await this.cleansePeers(false, true);
-        await this.resetSuspendedPeers();
 
         // Ban peer who caused the fork
         const forkedBlock = app.resolvePlugin("state").getStore().forkedBlock;
+
         if (forkedBlock) {
-            this.processor.suspend(forkedBlock.ip);
+            this.emitter.emit("internal.p2p.disconnectPeer", { peer: new Peer(forkedBlock.ip) });
         }
     }
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
         if (!this.isColdStartActive()) {
             await this.cleansePeers(false, true);
-            await this.resetSuspendedPeers();
         }
 
         const lastBlock = app
@@ -234,13 +234,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             .getStore()
             .getLastBlock();
 
-        const allPeers: P2P.IPeer[] = [
-            ...this.storage.getPeers(),
-            ...this.storage
-                .getSuspendedPeers()
-                .map((suspendedPeer: P2P.IPeerSuspension) => suspendedPeer.peer)
-                .filter(peer => peer.isVerified()),
-        ];
+        const allPeers: P2P.IPeer[] = this.storage.getPeers();
 
         if (!allPeers.length) {
             this.logger.info("No peers available.");
@@ -286,9 +280,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     ): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: P2P.IPeer[] = this.storage.getPeers();
-            const peersFiltered: P2P.IPeer[] = peersAll.filter(
-                peer => !this.storage.hasSuspendedPeer(peer.ip) && !peer.isForked(),
-            );
+            const peersFiltered: P2P.IPeer[] = peersAll.filter(peer => !peer.isForked());
 
             if (peersFiltered.length === 0) {
                 this.logger.error(
@@ -398,14 +390,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         return Promise.all(
             peers.map((peer: P2P.IPeer) => this.communicator.postTransactions(peer, transactionsBroadcast)),
-        );
-    }
-
-    public async resetSuspendedPeers(): Promise<void> {
-        this.logger.info("Clearing suspended peers.");
-
-        await Promise.all(
-            this.storage.getSuspendedPeers().map(suspension => this.processor.unsuspend(suspension.peer)),
         );
     }
 

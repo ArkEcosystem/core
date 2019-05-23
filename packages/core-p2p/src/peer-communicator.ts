@@ -26,7 +26,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         } catch (error) {
             this.logger.error(`Could not download blocks from ${peer.url}: ${error.message}`);
 
-            this.emitter.emit("internal.p2p.suspendPeer", { peer, punishment: "failedBlocksDownload" });
+            this.emitter.emit("internal.p2p.disconnectPeer", { peer });
 
             throw error;
         }
@@ -126,7 +126,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            this.emitter.emit("internal.p2p.suspendPeer", { peer, punishment: "noCommonBlocks" });
+            this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
 
         return false;
@@ -217,15 +217,17 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 break;
             case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
-                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+
                 break;
             case "Error":
             case "CoreSocketNotOpenError":
-                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+
                 break;
             default:
                 this.logger.error(`Socket error (peer ${peer.ip}) : ${error.message}`);
-                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
     }
 }

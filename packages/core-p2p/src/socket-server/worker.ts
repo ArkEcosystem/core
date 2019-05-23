@@ -1,9 +1,11 @@
+import dayjs, { Dayjs } from "dayjs";
 import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "../enums";
 
 export class Worker extends SCWorker {
     private peersMsgTimestamps: Record<string, number[]> = {};
     private config: Record<string, any>;
+    private readonly suspensions: Record<string, Dayjs> = {};
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -56,7 +58,7 @@ export class Worker extends SCWorker {
 
     private async handleEmit(req, next): Promise<void> {
         if (this.hasExceededRateLimit(req.socket.remoteAddress)) {
-            await this.suspendPeer(req.socket.remoteAddress, "tooManyRequests");
+            await this.suspendPeer(req.socket.remoteAddress);
 
             next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
 
@@ -122,18 +124,18 @@ export class Worker extends SCWorker {
         next();
     }
 
-    private async suspendPeer(remoteAddress: string, punishment: string): Promise<void> {
-        await this.sendToMasterAsync("p2p.utils.suspendPeer", {
-            data: { remoteAddress, punishment },
-        });
+    private async suspendPeer(remoteAddress: string): Promise<void> {
+        this.suspensions[remoteAddress] = dayjs().add(1, "minute");
     }
 
     private async isSuspended(remoteAddress: string): Promise<boolean> {
-        const { data } = await this.sendToMasterAsync("p2p.utils.isSuspended", {
-            data: { remoteAddress },
-        });
+        const suspension: Dayjs = this.suspensions[remoteAddress];
 
-        return data.suspended;
+        if (!suspension) {
+            return false;
+        }
+
+        return suspension.isAfter(dayjs());
     }
 
     private async log(message: string, level: string = "info"): Promise<void> {
