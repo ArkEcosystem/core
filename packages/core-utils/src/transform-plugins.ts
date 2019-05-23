@@ -11,7 +11,7 @@ export const transformPlugins = (plugins): P2P.IPeerPlugins => {
         const port: number = Number(options.port);
         const enabled: boolean = !!options.enabled;
 
-        if (isNaN(port) || !enabled || name === "p2p") {
+        if (isNaN(port) || name === "p2p") {
             continue;
         }
 
