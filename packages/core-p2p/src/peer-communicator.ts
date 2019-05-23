@@ -81,7 +81,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                             }
                         }
                     } catch (error) {
-                        peer.ports[name] = undefined;
+                        peer.ports[name] = -1;
                     }
                 }),
             );
