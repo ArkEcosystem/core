@@ -41,7 +41,7 @@ export const registerMethods = server => {
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.transactions.show", show, 8, request => ({ id: request.params.id }))
+        .method("v2.transactions.show", show, 8, request => ({ ...{ id: request.params.id }, ...request.query }))
         .method("v2.transactions.search", search, 30, request => ({
             ...request.payload,
             ...request.query,

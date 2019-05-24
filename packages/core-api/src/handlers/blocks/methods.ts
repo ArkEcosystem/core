@@ -58,7 +58,7 @@ export const registerMethods = server => {
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.blocks.show", show, 600, request => ({ id: request.params.id }))
+        .method("v2.blocks.show", show, 600, request => ({ ...{ id: request.params.id }, ...request.query }))
         .method("v2.blocks.transactions", transactions, 600, request => ({
             ...{ id: request.params.id },
             ...request.query,

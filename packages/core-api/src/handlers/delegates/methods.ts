@@ -77,6 +77,7 @@ export const registerMethods = server => {
         }))
         .method("v2.delegates.blocks", blocks, 8, request => ({
             ...{ id: request.params.id },
+            ...request.query,
             ...paginate(request),
         }))
         .method("v2.delegates.voters", voters, 8, request => ({

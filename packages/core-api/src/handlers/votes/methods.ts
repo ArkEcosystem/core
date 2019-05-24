@@ -35,5 +35,5 @@ export const registerMethods = server => {
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.votes.show", show, 8, request => ({ id: request.params.id }));
+        .method("v2.votes.show", show, 8, request => ({ ...{ id: request.params.id }, ...request.query }));
 };
