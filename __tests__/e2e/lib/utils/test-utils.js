@@ -40,7 +40,11 @@ class Helpers {
     async getNodesHeight(nodeNumber = 3) {
         let responses;
         try {
-            responses = await Promise.all(Array(nodeNumber).keys().map(n => this.GET("node/status", {}, n)));
+            const getStatusPromises = [];
+            for (const n of Array(nodeNumber).keys()) {
+                getStatusPromises.push(this.GET("node/status", {}, n));
+            }
+            responses = await Promise.all(getStatusPromises);
         } catch (e) {
             return [];
         }

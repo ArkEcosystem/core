@@ -251,8 +251,9 @@ class TestRunner {
         await delay(2000);
 
         if (
-            blocksDone.length &&
-            Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
+            blocksDone.length
+            && Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
+            && !nodeSyncedEvent
         ) {
             return false; // we stop test execution because now new blocks came in the last 2min
         }
