@@ -21,27 +21,27 @@ export class Controller {
         return paginate(request);
     }
 
-    protected respondWithResource(data, transformer): any {
-        return respondWithResource(data, transformer);
+    protected respondWithResource(data, transformer, transform: boolean = true): any {
+        return respondWithResource(data, transformer, transform);
     }
 
-    protected respondWithCollection(data, transformer): object {
-        return respondWithCollection(data, transformer);
+    protected respondWithCollection(data, transformer, transform: boolean = true): object {
+        return respondWithCollection(data, transformer, transform);
     }
 
     protected respondWithCache(data, h) {
         return respondWithCache(data, h);
     }
 
-    protected toResource(data, transformer): object {
-        return toResource(data, transformer);
+    protected toResource(data, transformer, transform: boolean = true): object {
+        return toResource(data, transformer, transform);
     }
 
-    protected toCollection(data, transformer): object {
-        return toCollection(data, transformer);
+    protected toCollection(data, transformer, transform: boolean = true): object {
+        return toCollection(data, transformer, transform);
     }
 
-    protected toPagination(data, transformer): object {
-        return toPagination(data, transformer);
+    protected toPagination(data, transformer, transform: boolean = true): object {
+        return toPagination(data, transformer, transform);
     }
 }

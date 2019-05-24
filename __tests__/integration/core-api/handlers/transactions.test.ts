@@ -80,6 +80,33 @@ describe("API 2.0 - Transactions", () => {
             utils.expectTransaction(transaction);
             expect(transaction.id).toBe(transactionId);
         });
+
+        it("should GET a transaction by the given identifier and not transform it", async () => {
+            const response = await utils.request(
+                "GET",
+                "transactions/8816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                { transform: false },
+            );
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+
+            expect(response.data.data).toEqual({
+                version: 1,
+                network: 23,
+                type: 3,
+                timestamp: 0,
+                senderPublicKey: "02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a",
+                fee: "0",
+                amount: "0",
+                asset: {
+                    votes: ["+02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a"],
+                },
+                signature:
+                    "304402203aa292e7aedcd62bb5a79c2521b666b8e1886b57923d98f51911b0461cfdb5db0220539657d5c1dcb78c2c86376da87cc0db428e03c53da3f4f64ebe7115998f00b6",
+                recipientId: "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
+                id: "8816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+            });
+        });
     });
 
     describe("GET /transactions/unconfirmed", () => {

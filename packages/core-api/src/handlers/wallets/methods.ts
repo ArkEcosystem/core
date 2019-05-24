@@ -45,7 +45,7 @@ const transactions = async request => {
         ...paginate(request),
     });
 
-    return toPagination(rows, "transaction");
+    return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const transactionsSent = async request => {
@@ -64,7 +64,7 @@ const transactionsSent = async request => {
         ...paginate(request),
     });
 
-    return toPagination(rows, "transaction");
+    return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const transactionsReceived = async request => {
@@ -83,7 +83,7 @@ const transactionsReceived = async request => {
         ...paginate(request),
     });
 
-    return toPagination(rows, "transaction");
+    return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const votes = async request => {
@@ -101,7 +101,7 @@ const votes = async request => {
         ...paginate(request),
     });
 
-    return toPagination(rows, "transaction");
+    return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const search = async request => {

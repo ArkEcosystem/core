@@ -16,7 +16,7 @@ const index = async request => {
         ...paginate(request),
     });
 
-    return toPagination(transactions, "transaction");
+    return toPagination(transactions, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const show = async request => {
@@ -26,7 +26,7 @@ const show = async request => {
         return Boom.notFound("Vote not found");
     }
 
-    return respondWithResource(transaction, "transaction");
+    return respondWithResource(transaction, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 export const registerMethods = server => {
@@ -35,5 +35,5 @@ export const registerMethods = server => {
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.votes.show", show, 8, request => ({ id: request.params.id }));
+        .method("v2.votes.show", show, 8, request => ({ ...{ id: request.params.id }, ...request.query }));
 };
