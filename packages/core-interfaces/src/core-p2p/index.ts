@@ -3,7 +3,6 @@ export * from "./network-monitor";
 export * from "./network-state";
 export * from "./peer-communicator";
 export * from "./peer-connector";
-export * from "./peer-guard";
 export * from "./peer-processor";
 export * from "./peer-service";
 export * from "./peer-storage";
