@@ -45,7 +45,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 headers: getHeaders(),
             });
         } catch (error) {
-            app.resolvePlugin<Logger.ILogger>("logger").error(error);
+            app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
 
             if (error instanceof ServerError) {
                 return res(error);

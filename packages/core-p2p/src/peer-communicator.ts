@@ -107,7 +107,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     public async getPeers(peer: P2P.IPeer): Promise<any> {
-        this.logger.info(`Fetching a fresh peer list from ${peer.url}`);
+        this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         return this.emit(peer, "p2p.peer.getPeers");
     }
@@ -222,7 +222,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
                 break;
             default:
-                this.logger.error(`Socket error (peer ${peer.ip}) : ${error.message}`);
+                this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
     }

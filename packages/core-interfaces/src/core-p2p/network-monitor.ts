@@ -24,7 +24,6 @@ export interface INetworkMonitor {
     getNetworkState(): Promise<INetworkState>;
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<INetworkStatus>;
-    isColdStartActive(): boolean;
     syncWithNetwork(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;
     broadcastBlock(block: Interfaces.IBlock): Promise<void>;
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
