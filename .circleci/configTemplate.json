@@ -1079,8 +1079,14 @@
                 },
                 {
                     "run": {
-                        "name": "Run pg_restore on node0 node1 postgres to restore snapshot",
-                        "command": "docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -I {} sh -c 'docker exec -i {} pg_restore -U ark -O -j 8 -d ark_testnet current-v2'"
+                        "name": "Run pg_restore on node0 postgres to restore snapshot",
+                        "command": "docker ps --format \"{{.Names}}\" | grep node0_postgres | xargs -I {} sh -c 'docker exec -i {} pg_restore -U ark -O -j 8 -d ark_testnet current-v2'"
+                    }
+                },
+                {
+                    "run": {
+                        "name": "Run pg_restore on node1 postgres to restore snapshot",
+                        "command": "docker ps --format \"{{.Names}}\" | grep node1_postgres | xargs -I {} sh -c 'docker exec -i {} pg_restore -U ark -O -j 8 -d ark_testnet current-v2'"
                     }
                 },
                 {
