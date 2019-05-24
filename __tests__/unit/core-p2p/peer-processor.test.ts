@@ -7,13 +7,13 @@ import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers
 
 let processor: P2P.IPeerProcessor;
 let storage: P2P.IPeerStorage;
-let connector: P2P.IPeerConnector;
+// let connector: P2P.IPeerConnector;
 let communicator: P2P.IPeerCommunicator;
 
 beforeEach(() => {
     jest.resetAllMocks();
 
-    ({ connector, communicator, processor, storage } = createPeerService());
+    ({ communicator, processor, storage } = createPeerService());
 });
 
 describe("PeerProcessor", () => {
@@ -63,18 +63,6 @@ describe("PeerProcessor", () => {
             }
 
             expect(storage.getPeers()).toHaveLength(30);
-        });
-    });
-
-    describe("suspend", () => {
-        it("should suspend the peer from ip provided", async () => {
-            storage.setPeer(stubPeer);
-
-            connector.disconnect = jest.fn();
-
-            await processor.suspend(stubPeer);
-
-            expect(connector.disconnect).toHaveBeenCalledWith(stubPeer);
         });
     });
 });
