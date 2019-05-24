@@ -1,13 +1,16 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { formatTimestamp } from "@arkecosystem/core-utils";
-import { Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export const transformTransaction = (model, transform) => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const transaction = Transactions.TransactionFactory.fromBytesUnsafe(model.serialized, model.id);
+    const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(
+        model.serialized,
+        model.id,
+    );
 
     if (!transform) {
         return transaction.toJson();
@@ -15,9 +18,9 @@ export const transformTransaction = (model, transform) => {
 
     const { data } = transaction;
 
-    const sender = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
+    const sender: string = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
-    const lastBlock = blockchain.getLastBlock();
+    const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
 
     return {
         id: data.id,
