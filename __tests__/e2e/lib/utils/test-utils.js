@@ -37,18 +37,15 @@ class Helpers {
         return response;
     }
 
-    async getHeight() {
-        // get height from the 3 first nodes and return the max
+    async getNodesHeight(nodeNumber = 3) {
         let responses;
         try {
-            responses = await Promise.all([
-                this.GET("blocks?limit=1"),
-                this.GET("blocks?limit=1", {}, 1),
-                this.GET("blocks?limit=1", {}, 2),
-            ]);
-        } catch (e) {}
+            responses = await Promise.all(Array(nodeNumber).keys().map(n => this.GET("node/status", {}, n)));
+        } catch (e) {
+            return [];
+        }
 
-        return Math.max(...responses.map(res => (res ? res.data.data[0].height : 0)));
+        return responses.map(res => res.data.data.now);
     }
 
     expectJson(response) {

@@ -1324,7 +1324,7 @@ jobs:
           name: Generate files
           command: >-
             source ~/.bashrc && nvm use 11 && node --version && cd __tests__/e2e
-            && yarn generate -c 3 -v 11
+            && yarn generate -c 3 -v 11 -n mainnet -r
       - run:
           name: Make scripts executable
           command: >-
@@ -1340,13 +1340,24 @@ jobs:
           name: Docker init and start
           command: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
       - run:
-          name: Wait 10 sec for docker containers to be up
-          command: sleep 10
+          name: Download mainnet snapshot
+          command: 'curl -sS http://snapshots.ark.io/current-v2'
+      - run:
+          name: Copy snapshot to node0 and node1 postgres container
+          command: >-
+            docker ps --format "{{.Names}}" | grep node[0-1]_postgres | xargs -I
+            {} sh -c 'docker cp current-v2 {}:current-v2'
+      - run:
+          name: Run pg_restore on node0 node1 postgres to restore snapshot
+          command: >-
+            docker ps --format "{{.Names}}" | grep node[0-1]_postgres | xargs -I
+            {} sh -c 'docker exec -d {} bash pg_restore -O -j 8 -d ark_testnet
+            current-v2'
       - run:
           name: Run tests
           command: >-
             cd __tests__/e2e && sudo chown -R $USER:$USER ./dist/ && source
-            ~/.bashrc && nvm use 11 && yarn run-tests -s scenario1
+            ~/.bashrc && nvm use 11 && yarn run-tests -s scenario1 -n mainnet
       - run:
           name: Output results - node0
           when: always

@@ -2,11 +2,12 @@
 
 module.exports = {
     enabledTests: [
-        "chained-tx",
-        "doublespend",
-        "doublespend-mix",
-        "insufficient-balance",
+        //"chained-tx",
+        //"doublespend",
+        //"doublespend-mix",
+        //"insufficient-balance",
         //'pool-restart',
-        "transactions-valid",
+        //"transactions-valid",
+        "sync"
     ],
 };

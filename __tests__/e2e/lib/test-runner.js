@@ -31,6 +31,13 @@ class TestRunner {
         this.nodes = [];
         this.rootPath = path.dirname("../");
         this.testResults = [];
+        this.skipLastNode = !!options.skipLastNode;
+        this.startTime = Date.now();
+
+        if (!["testnet", "devnet", "mainnet"].includes(options.network)) {
+            throw new Error("Base network should be one of testnet, devnet, mainnet");
+        }
+        this.network = options.network;
     }
 
     async runTests() {
@@ -96,7 +103,7 @@ class TestRunner {
             const IPPreviousNode = nodeNumber > 0 ? this.nodes[nodeNumber - 1].IP : this.nodes[0].IP; // node0 will have himself as peer, no problem
             const peers = { list: [{ ip: IPPreviousNode, port: 4000 }] };
             fs.writeFile(
-                `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/testnet/peers.json`,
+                `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/${this.network}/peers.json`,
                 JSON.stringify(peers, null, 2),
                 err => {
                     if (err) throw err;
@@ -104,11 +111,14 @@ class TestRunner {
             );
 
             // adapt postgres config to use postgres ip
-            const pluginsPath = `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/testnet/plugins.js`;
+            const pluginsPath = `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/${this.network}/plugins.js`;
             const plugins = fs.readFileSync(pluginsPath, "utf8");
             const pluginsFixed = plugins.replace("process.env.CORE_DB_HOST", `"${nodeInfos.postgresIP}"`);
             fs.writeFileSync(pluginsPath, pluginsFixed);
 
+            if (this.skipLastNode && nodeNumber === (this.nodes.length - 1)) {
+                return;
+            }
             // now launch the node, with --network-start for node0
             console.log(`[test-runner] Launching node${nodeNumber}...`);
             const networkStart = nodeNumber > 0 ? "" : "--network-start ";
@@ -120,7 +130,7 @@ class TestRunner {
             await exec(commandLaunch);
 
             // wait for the node to be ready
-            await this.waitForNode(nodeNumber, 30);
+            await this.waitForNode(nodeNumber, 180);
         }
     }
 
@@ -161,22 +171,32 @@ class TestRunner {
     async executeTests(blocksDone = []) {
         const configScenario = require(`../tests/scenarios/${this.scenario}/config.js`);
         const enabledTests = configScenario.enabledTests;
-        const configAllTests = { events: { newBlock: {} } };
+        const configAllTests = { events: { newBlock: {}, nodesSynced: undefined } };
+
         for (const test of enabledTests) {
             const testConfig = require(`../tests/scenarios/${this.scenario}/${test}/config.js`);
-            const testBlockHeights = testConfig.events.newBlock;
 
-            for (const height of Object.keys(testBlockHeights)) {
-                configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height] || [];
-                configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height].concat(
-                    testBlockHeights[height].map(file => `${test}/${file}`),
-                );
+            const testBlockHeights = testConfig.events.newBlock;
+            if (testBlockHeights) {
+                for (const height of Object.keys(testBlockHeights)) {
+                    configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height] || [];
+                    configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height].concat(
+                        testBlockHeights[height].map(file => `${test}/${file}`),
+                    );
+                }
+            }
+            
+            const testNodesSynced = testConfig.events.nodesSynced;
+            if (testNodesSynced) {
+                // if there is some test for nodesSynced event, there should be only one at all
+                configAllTests.events.nodesSynced = testNodesSynced;
             }
         }
 
         const configuredBlockHeights = Object.keys(configAllTests.events.newBlock);
 
-        const blockHeight = await testUtils.getHeight();
+        const nodesHeight = await testUtils.getNodesHeight();
+        const blockHeight = Math.max(...nodesHeight);
         const lastBlockHeight = blocksDone.length ? blocksDone[blocksDone.length - 1].height : blockHeight;
         blocksDone.push({ height: blockHeight, timestamp: Date.now() });
 
@@ -185,8 +205,9 @@ class TestRunner {
             console.log(`[test-runner] New block : ${blockHeight}`);
             const thingsToExecute = configuredBlockHeights.filter(key => key > lastBlockHeight && key <= blockHeight);
 
-            // Quit if there are no more tests or actions waiting
-            if (Math.max(...configuredBlockHeights) < blockHeight) {
+            if (Math.max(...configuredBlockHeights) < blockHeight && !configAllTests.events.nodesSynced) {
+                // Quit if there are no more tests or actions waiting
+                // unless there is a "node synced" test
                 return true;
             }
 
@@ -210,6 +231,22 @@ class TestRunner {
                 }
             });
         }
+
+        const nodeSyncedEvent = configAllTests.events.nodesSynced;
+        if (nodeSyncedEvent) {
+            if (Date.now() - this.startTime > nodeSyncedEvent.timeLimit) {
+                return false; // time limit expired
+            }
+
+            if (nodesHeight.length > 2 && !!nodesHeight.reduce((prev, curr) => prev === curr ? curr : false)) {
+                // we are synced
+                // TODO : execute test which is configured on "done" property (see test config)
+                return true;
+            }
+            else {
+                console.log(`[test-runner] Not synced : heights are ${nodesHeight.join()}`);
+            }
+        } 
 
         await delay(2000);
 

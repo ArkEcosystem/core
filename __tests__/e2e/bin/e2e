@@ -9,12 +9,16 @@ app
   .description('generate the file structure for e2e testing')
   .option('-c, --nodes <number of nodes>', 'number of nodes to generate', 1)
   .option('-v, --version <node version>', 'node version to use', 11)
+  .option('-n, --network <network>', 'network to use as a base (testnet / devnet / mainnet)', "testnet")
+  .option('-r, --relay', 'relay only mode : generate files for relay use', false)
   .action((options) => require('../lib/generate-files')(options))
 
 app
   .command('run-tests')
   .description('Run the tests')
   .option('-s, --scenario <scenario>', 'scenario to test', 'scenario1')
+  .option('-k, --skipLastNode', 'dont launch the last node (to use with sync test)')
+  .option('-n, --network <network>', 'network to use as a base (testnet / devnet / mainnet)', "testnet")
   .action((options) =>  require('../lib/test-runner')(options))
 
 app
