@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import * as Joi from "@hapi/joi";
+import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
@@ -140,6 +140,7 @@ export const blocks: object = {
                 .hex()
                 .length(66),
             blockSignature: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -174,6 +175,7 @@ export const voters: object = {
             producedBlocks: Joi.number()
                 .integer()
                 .min(0),
+            transform: Joi.bool().default(true),
         },
     },
 };

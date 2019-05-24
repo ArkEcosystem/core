@@ -1,4 +1,4 @@
-import * as Joi from "@hapi/joi";
+import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
@@ -33,6 +33,7 @@ export const index: object = {
                 .integer()
                 .min(0),
             vendorFieldHex: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -42,5 +43,8 @@ export const show: object = {
         id: Joi.string()
             .hex()
             .length(64),
+    },
+    query: {
+        transform: Joi.bool().default(true),
     },
 };

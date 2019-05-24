@@ -14,7 +14,7 @@ const index = async request => {
         ...paginate(request),
     });
 
-    return toPagination(blocks, "block");
+    return toPagination(blocks, "block", request.query.transform);
 };
 
 const show = async request => {
@@ -24,7 +24,7 @@ const show = async request => {
         return Boom.notFound("Block not found");
     }
 
-    return respondWithResource(block, "block");
+    return respondWithResource(block, "block", request.query.transform);
 };
 
 const transactions = async request => {
@@ -39,7 +39,7 @@ const transactions = async request => {
         ...paginate(request),
     });
 
-    return toPagination(rows, "transaction");
+    return toPagination(rows, "transaction", request.query.transform);
 };
 
 const search = async request => {
@@ -49,7 +49,7 @@ const search = async request => {
         ...paginate(request),
     });
 
-    return toPagination(blocks, "block");
+    return toPagination(blocks, "block", request.query.transform);
 };
 
 export const registerMethods = server => {

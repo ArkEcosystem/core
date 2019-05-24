@@ -1,4 +1,4 @@
-import * as Joi from "@hapi/joi";
+import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 
@@ -38,6 +38,7 @@ export const index: object = {
                 .hex()
                 .length(66),
             blockSignature: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -45,6 +46,9 @@ export const index: object = {
 export const show: object = {
     params: {
         id: blockId,
+    },
+    query: {
+        transform: Joi.bool().default(true),
     },
 };
 
@@ -85,12 +89,18 @@ export const transactions: object = {
                 .integer()
                 .min(0),
             vendorFieldHex: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
 
 export const search: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            transform: Joi.bool().default(true),
+        },
+    },
     payload: {
         id: blockId,
         version: Joi.number()

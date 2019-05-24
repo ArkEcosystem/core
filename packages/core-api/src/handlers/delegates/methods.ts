@@ -45,7 +45,7 @@ const blocks = async request => {
 
     const rows = await blocksRepository.findAllByGenerator(delegate.publicKey, paginate(request));
 
-    return toPagination(rows, "block");
+    return toPagination(rows, "block", request.query.transform);
 };
 
 const voters = async request => {

@@ -12,7 +12,7 @@ const index = async request => {
         ...paginate(request),
     });
 
-    return toPagination(transactions, "transaction");
+    return toPagination(transactions, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const show = async request => {
@@ -22,7 +22,7 @@ const show = async request => {
         return Boom.notFound("Transaction not found");
     }
 
-    return respondWithResource(transaction, "transaction");
+    return respondWithResource(transaction, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const search = async request => {
@@ -32,7 +32,7 @@ const search = async request => {
         ...paginate(request),
     });
 
-    return toPagination(transactions, "transaction");
+    return toPagination(transactions, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 export const registerMethods = server => {

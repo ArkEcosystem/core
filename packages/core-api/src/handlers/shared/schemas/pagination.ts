@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import * as Joi from "@hapi/joi";
+import Joi from "@hapi/joi";
 
 export const pagination = {
     page: Joi.number()

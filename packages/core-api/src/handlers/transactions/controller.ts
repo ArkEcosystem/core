@@ -70,6 +70,7 @@ export class TransactionsController extends Controller {
                     rows: data,
                 },
                 "transaction",
+                (request.query.transform as unknown) as boolean,
             );
         } catch (error) {
             return Boom.badImplementation(error);
@@ -86,7 +87,7 @@ export class TransactionsController extends Controller {
 
             const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
-            return super.respondWithResource(data, "transaction");
+            return super.respondWithResource(data, "transaction", (request.query.transform as unknown) as boolean);
         } catch (error) {
             return Boom.badImplementation(error);
         }
