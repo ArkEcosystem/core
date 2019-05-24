@@ -1341,7 +1341,7 @@ jobs:
           command: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
       - run:
           name: Download mainnet snapshot
-          command: 'curl -sS http://snapshots.ark.io/current-v2'
+          command: 'wget http://snapshots.ark.io/current-v2'
       - run:
           name: Copy snapshot to node0 and node1 postgres container
           command: >-

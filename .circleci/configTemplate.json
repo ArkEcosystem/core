@@ -1068,7 +1068,7 @@
                 {
                     "run": {
                         "name": "Download mainnet snapshot",
-                        "command": "curl -sS http://snapshots.ark.io/current-v2"
+                        "command": "wget http://snapshots.ark.io/current-v2"
                     }
                 },
                 {
