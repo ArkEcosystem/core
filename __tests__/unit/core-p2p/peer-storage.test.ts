@@ -2,17 +2,9 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import dayjs from "dayjs";
 import { P2P } from "../../../packages/core-interfaces/src";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
-import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
-
-const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
-    until: dayjs(),
-    reason: "reason",
-    severity: "critical",
-});
 
 let storage: P2P.IPeerStorage;
 
@@ -104,50 +96,6 @@ describe("PeerStorage", () => {
             storage.forgetPendingPeer(stubPeer);
 
             expect(storage.hasPendingPeers()).toBeFalse();
-        });
-    });
-
-    describe("Suspended Peers", () => {
-        it("should get the peers", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.getSuspendedPeers()).toEqual([stubSuspension]);
-        });
-
-        it("should get the peer", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.getSuspendedPeer(stubPeer.ip)).toEqual(stubSuspension);
-        });
-
-        it("should return true when it has a specific peers", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeer(stubPeer.ip)).toBeTrue();
-        });
-
-        it("should return false when it doesn't have a peers", () => {
-            expect(storage.hasSuspendedPeer(stubPeer.ip)).toBeFalse();
-        });
-
-        it("should return true when it has any peers", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeers()).toBeTrue();
-        });
-
-        it("should return false when it has no peers", () => {
-            expect(storage.hasSuspendedPeers()).toBeFalse();
-        });
-
-        it("should forgget a peer", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeers()).toBeTrue();
-
-            storage.forgetSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeers()).toBeFalse();
         });
     });
 });

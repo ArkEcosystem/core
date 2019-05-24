@@ -3,7 +3,6 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { blockchain } from "./mocks/blockchain";
-import { state } from "./mocks/state";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Blocks, Transactions } from "@arkecosystem/crypto";
@@ -14,13 +13,12 @@ import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
 let monitor: P2P.INetworkMonitor;
 let processor: P2P.IPeerProcessor;
 let storage: P2P.IPeerStorage;
-let connector: P2P.IPeerConnector;
 let communicator: P2P.IPeerCommunicator;
 
 beforeEach(() => {
     jest.resetAllMocks();
 
-    ({ monitor, processor, storage, connector, communicator } = createPeerService());
+    ({ monitor, processor, storage, communicator } = createPeerService());
 });
 
 describe("NetworkMonitor", () => {
@@ -130,23 +128,10 @@ describe("NetworkMonitor", () => {
 
     describe("refreshPeersAfterFork", () => {
         it("should reset the suspended peers and suspend the peer causing the fork", async () => {
-            monitor.resetSuspendedPeers = jest.fn();
-            connector.disconnect = jest.fn();
-
-            const spySuspend = jest.spyOn(processor, "suspend");
-
-            const spyStateStore = jest.spyOn(state, "getStore").mockReturnValueOnce({
-                ...state.getStore(),
-                ...{ forkedBlock: { ip: "1.1.1.1" } },
-            });
-
+            const spyCleansePeers = jest.spyOn(monitor, "cleansePeers");
             await monitor.refreshPeersAfterFork();
-
-            expect(monitor.resetSuspendedPeers).toHaveBeenCalled();
-            expect(spySuspend).toHaveBeenCalledWith("1.1.1.1");
-            expect(connector.disconnect).toHaveBeenCalled();
-
-            spyStateStore.mockRestore();
+            expect(spyCleansePeers).toHaveBeenCalled();
+            spyCleansePeers.mockRestore();
         });
     });
 
@@ -352,7 +337,6 @@ describe("NetworkMonitor", () => {
                 }),
             );
 
-            jest.spyOn(storage, "getSuspendedPeers").mockReturnValueOnce([] as any);
             jest.spyOn(monitor, "isColdStartActive").mockReturnValueOnce(true);
 
             expect(await monitor.checkNetworkHealth()).toEqual({ forked: false });

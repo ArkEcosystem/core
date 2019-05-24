@@ -47,14 +47,4 @@ export class PeersController extends Controller {
             return Boom.badImplementation(error);
         }
     }
-
-    public async suspended(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        try {
-            const peers: P2P.IPeerSuspension[] = this.blockchain.p2p.getStorage().getSuspendedPeers();
-
-            return super.respondWithCollection(request, Object.values(peers).map(peer => peer.peer), "peer");
-        } catch (error) {
-            return Boom.badImplementation(error);
-        }
-    }
 }

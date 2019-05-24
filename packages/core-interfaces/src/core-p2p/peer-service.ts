@@ -1,7 +1,6 @@
 import { INetworkMonitor } from "./network-monitor";
 import { IPeerCommunicator } from "./peer-communicator";
 import { IPeerConnector } from "./peer-connector";
-import { IPeerGuard } from "./peer-guard";
 import { IPeerProcessor } from "./peer-processor";
 import { IPeerStorage } from "./peer-storage";
 
@@ -11,5 +10,4 @@ export interface IPeerService {
     getConnector(): IPeerConnector;
     getCommunicator(): IPeerCommunicator;
     getMonitor(): INetworkMonitor;
-    getGuard(): IPeerGuard;
 }

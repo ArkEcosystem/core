@@ -157,6 +157,8 @@ export class Blockchain implements blockchain.IBlockchain {
             await delay(1000);
         }
 
+        this.p2p.getMonitor().cleansePeers({ forcePing: true, peerCount: 10 });
+
         return true;
     }
 

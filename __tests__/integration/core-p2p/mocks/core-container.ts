@@ -84,9 +84,7 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 if (name === "p2p") {
-                    return {
-                        guard: {},
-                    };
+                    return {};
                 }
 
                 if (name === "transaction-pool") {
