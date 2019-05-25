@@ -116,11 +116,10 @@ class GenerateManager {
                 },
             );
 
-            // plugins.js minimumNetworkReach and coldStart to set to 1
+            // plugins.js minimumNetworkReach to set to 1
             const plugins = fs.readFileSync(path.join(distCoreNetworkPath, "plugins.js"), "utf8");
             const pluginsFixed = plugins
-                .replace(/minimumNetworkReach: \d+/, "minimumNetworkReach: 1")
-                .replace(/coldStart: \d+/, "coldStart: 1");
+                .replace(/minimumNetworkReach: \d+/, "minimumNetworkReach: 1");
 
             fs.writeFileSync(path.join(distCoreNetworkPath, "plugins.js"), pluginsFixed);
 
