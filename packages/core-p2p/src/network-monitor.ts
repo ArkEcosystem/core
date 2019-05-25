@@ -4,7 +4,6 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter/dist";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@arkecosystem/crypto";
-import dayjs, { Dayjs } from "dayjs";
 import delay from "delay";
 import groupBy from "lodash.groupby";
 import sample from "lodash.sample";
@@ -22,7 +21,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
-    private coldStartPeriod: Dayjs;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -43,8 +41,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
-
-        this.coldStartPeriod = dayjs().add(app.resolveOptions("p2p").coldStart, "second");
     }
 
     public getServer(): SocketCluster {
@@ -61,14 +57,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             this.server.destroy();
             this.server = undefined;
         }
-    }
-
-    public isColdStartActive(): boolean {
-        if (process.env.CORE_SKIP_COLD_START) {
-            return false;
-        }
-
-        return this.coldStartPeriod.isAfter(dayjs());
     }
 
     public async start(options): Promise<this> {
@@ -121,7 +109,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (!this.hasMinimumPeers()) {
             await this.populateSeedPeers();
 
-            nextRunDelaySeconds = 5;
+            nextRunDelaySeconds = 60;
 
             this.logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
@@ -212,10 +200,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
-        if (!this.isColdStartActive()) {
-            await this.cleansePeers({ fast: true, forcePing: true });
-        }
-
+        await this.cleansePeers({ fast: true, forcePing: true });
         return NetworkState.analyze(this, this.storage);
     }
 
@@ -226,9 +211,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
-        if (!this.isColdStartActive()) {
-            await this.cleansePeers({ forcePing: true });
-        }
+        await this.cleansePeers({ forcePing: true });
 
         const lastBlock = app
             .resolvePlugin("state")

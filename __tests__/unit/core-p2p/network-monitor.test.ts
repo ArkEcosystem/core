@@ -337,8 +337,6 @@ describe("NetworkMonitor", () => {
                 }),
             );
 
-            jest.spyOn(monitor, "isColdStartActive").mockReturnValueOnce(true);
-
             expect(await monitor.checkNetworkHealth()).toEqual({ forked: false });
         });
 

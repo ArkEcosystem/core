@@ -197,12 +197,6 @@ export class ForgerManager {
             return false;
         }
 
-        if (networkState.status === NetworkStateStatus.ColdStart) {
-            this.logger.info("Will not forge during the cold start period. Check peers.json for coldStart setting.");
-
-            return false;
-        }
-
         if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum. Will not forge.");
 
