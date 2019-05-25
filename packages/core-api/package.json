@@ -43,7 +43,7 @@
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
         "mathjs": "^5.10.3",
-        "semver": "^6.0.0"
+        "semver": "^6.1.0"
     },
     "devDependencies": {
         "@types/hapi__boom": "^7.4.0",

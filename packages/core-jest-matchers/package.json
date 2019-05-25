@@ -30,7 +30,7 @@
         "lodash.isequal": "^4.5.0",
         "lodash.sortby": "^4.7.0",
         "superheroes": "^3.0.0",
-        "xstate": "^4.5.0"
+        "xstate": "^4.6.0"
     },
     "devDependencies": {
         "@types/bip39": "^2.4.2",
