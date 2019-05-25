@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
--   Removed the `ark-node` legacy API known as `v2` ([#2577])
+-   Removed the `ark-node` legacy API known as `v1` ([#2577])
 
 ## [2.4.0] - 2019-MM-DD
 
