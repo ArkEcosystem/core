@@ -30,7 +30,7 @@
         "delay": "^4.2.0",
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
-        "node-forge": "^0.8.3",
+        "node-forge": "^0.8.4",
         "otplib": "^11.0.0",
         "pluralize": "^7.0.0",
         "socketcluster-client": "^14.2.2",

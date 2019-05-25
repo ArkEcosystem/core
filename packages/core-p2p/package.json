@@ -52,7 +52,7 @@
         "pluralize": "^7.0.0",
         "pretty-ms": "^5.0.0",
         "scc-broker-client": "^6.1.0",
-        "semver": "^6.0.0",
+        "semver": "^6.1.0",
         "socketcluster": "^14.3.3",
         "socketcluster-client": "^14.2.2"
     },
