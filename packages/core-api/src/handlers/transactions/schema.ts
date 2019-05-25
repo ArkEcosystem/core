@@ -145,5 +145,6 @@ export const search: object = {
                 .integer()
                 .min(0),
         }),
+        asset: Joi.object(),
     },
 };
