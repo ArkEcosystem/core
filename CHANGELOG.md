@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.0] - 2019-MM-DD
+
+### Added
+
+-   Allow retrieval of raw blocks and transactions via API ([#2616])
+-   Search transactions by asset via API ([#2618])
+
+### Removed
+
+-   Removed the `ark-node` legacy API known as `v2` ([#2577])
+
 ## [2.4.0] - 2019-MM-DD
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
@@ -674,3 +685,6 @@ Closed security vulnerabilities:
 [#2590]: https://github.com/ARKEcosystem/core/pull/2590
 [#2593]: https://github.com/ARKEcosystem/core/pull/2593
 [#2597]: https://github.com/ARKEcosystem/core/pull/2597
+[#2616]: https://github.com/ARKEcosystem/core/pull/2616
+[#2618]: https://github.com/ARKEcosystem/core/pull/2618
+[#2577]: https://github.com/ARKEcosystem/core/pull/2577
