@@ -416,6 +416,42 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toBeArray();
             utils.expectTransaction(response.data.data[0]);
         });
+
+        it("should POST a search for transactions with an asset matching any delegate", async () => {
+            const response = await utils.request("POST", "transactions/search", {
+                asset: {
+                    delegate: {},
+                },
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(51);
+            utils.expectTransaction(response.data.data[0]);
+        });
+
+        it("should POST a search for transactions with an asset matching any delegate and sender public key", async () => {
+            const response = await utils.request("POST", "transactions/search", {
+                asset: {
+                    delegate: {},
+                },
+                senderPublicKey: "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647",
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+            utils.expectTransaction(response.data.data[0]);
+        });
+
+        it("should POST a search for transactions with an wrong asset", async () => {
+            const response = await utils.request("POST", "transactions/search", {
+                asset: {
+                    garbage: {},
+                },
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(0);
+        });
     });
 
     describe("POST /transactions", () => {

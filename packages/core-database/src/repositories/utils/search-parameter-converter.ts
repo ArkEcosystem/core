@@ -146,6 +146,17 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                 });
                 continue;
             }
+
+            // if the field supports CONTAINS (@>), then ignore any others.
+            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_CONTAINS)) {
+                searchParameters.parameters.push({
+                    field: fieldName,
+                    operator: Database.SearchOperator.OP_CONTAINS,
+                    value: params[fieldName],
+                });
+
+                continue;
+            }
         }
     }
 }
