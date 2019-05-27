@@ -124,7 +124,12 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
-        assert(!newBalance.isNegative());
+
+        if (process.env.CORE_ENV === "test") {
+            assert(Utils.isException(transaction.data) || !newBalance.isNegative());
+        } else {
+            assert(!newBalance.isNegative());
+        }
 
         sender.balance = newBalance;
     }
