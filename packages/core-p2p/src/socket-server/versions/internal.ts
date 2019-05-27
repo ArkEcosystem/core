@@ -10,7 +10,6 @@ export const emitEvent = ({ req }): void => {
 export const getUnconfirmedTransactions = (): {
     transactions: string[];
     poolSize: number;
-    count: number;
 } => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const { maxTransactions } = app.getConfig().getMilestone(blockchain.getLastBlock().data.height).block;
@@ -19,12 +18,9 @@ export const getUnconfirmedTransactions = (): {
         "transaction-pool",
     );
 
-    const transactions: string[] = transactionPool.getTransactionsForForging(maxTransactions);
-
     return {
-        transactions,
+        transactions: transactionPool.getTransactionsForForging(maxTransactions),
         poolSize: transactionPool.getPoolSize(),
-        count: transactions ? transactions.length : -1,
     };
 };
 

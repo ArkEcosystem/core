@@ -12,7 +12,7 @@ describe("Internal handlers - transactions", () => {
             transactionPool.getTransactionsForForging = jest.fn().mockReturnValue(["111"]);
             transactionPool.getPoolSize = jest.fn().mockReturnValue(1);
 
-            expect(getUnconfirmedTransactions()).toEqual({ count: 1, poolSize: 1, transactions: ["111"] });
+            expect(getUnconfirmedTransactions()).toEqual({ poolSize: 1, transactions: ["111"] });
         });
     });
 });
