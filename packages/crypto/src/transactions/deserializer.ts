@@ -77,7 +77,12 @@ class Deserializer {
 
             buf.reset();
 
-            return parseInt(lengthHex, 16) + 2;
+            const length = parseInt(lengthHex, 16) + 2;
+            if (isNaN(length)) {
+                throw new MalformedTransactionBytesError();
+            }
+
+            return length;
         };
 
         // Signature
