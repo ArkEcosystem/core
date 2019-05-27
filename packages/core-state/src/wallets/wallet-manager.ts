@@ -264,30 +264,14 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public applyTransaction(transaction: Interfaces.ITransaction): void {
-        const { data } = transaction;
-        const { recipientId, senderPublicKey } = data;
-
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
-        const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
-        const recipient: State.IWallet = this.findByAddress(recipientId);
-
-        // handle exceptions / verify that we can apply the transaction to the sender
-        if (Utils.isException(data)) {
-            this.logger.warn(`Transaction ${data.id} forcibly applied because it has been added as an exception.`);
-        } else {
-            try {
-                transactionHandler.canBeApplied(transaction, sender, this);
-            } catch (error) {
-                this.logger.error(
-                    `Can't apply transaction id:${data.id} from sender:${sender.address} due to ${error.message}`,
-                );
-                this.logger.debug(`Audit: ${JSON.stringify(sender.auditApply(data), undefined, 2)}`);
-                throw new Error(`Can't apply transaction ${data.id}`);
-            }
-        }
 
         transactionHandler.apply(transaction, this);
-        this.updateVoteBalances(sender, recipient, data);
+
+        const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
+        const recipient: State.IWallet = this.findByAddress(transaction.data.recipientId);
+
+        this.updateVoteBalances(sender, recipient, transaction.data);
     }
 
     public revertTransaction(transaction: Interfaces.ITransaction): void {

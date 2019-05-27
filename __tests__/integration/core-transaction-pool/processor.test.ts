@@ -153,7 +153,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -216,7 +216,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -259,7 +259,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers1[0].type);
-            transactionHandler.applyToRecipientInPool(transfers1[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -273,7 +273,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            transactionHandler.applyToRecipientInPool(transfers2[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers2[0], transactionPool.walletManager);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 

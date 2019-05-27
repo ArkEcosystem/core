@@ -16,17 +16,17 @@ export class IpfsTransactionHandler extends TransactionHandler {
         }
     }
 
-    public canBeApplied(
+    public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean {
+    ): void {
         // TODO implement unique ipfs hash on blockchain (not just on wallet)
         // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
         //     throw new IpfsHashAlreadyExists();
         // }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(
@@ -37,7 +37,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -46,7 +46,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -55,11 +55,9 @@ export class IpfsTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }

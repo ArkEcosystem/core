@@ -39,8 +39,12 @@ export class InvalidTransactionTypeError extends TransactionError {
 }
 
 export class UnexpectedNonceError extends TransactionError {
-    constructor(actual: Utils.BigNumber, expected: Utils.BigNumber) {
-        super(`Got nonce '${actual.toFixed()}' but expected '${expected.toFixed()}'.`);
+    constructor(txNonce: Utils.BigNumber, walletNonce: Utils.BigNumber, reversal: boolean) {
+        const action: string = reversal ? "revert" : "apply";
+        super(
+            `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
+            `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`
+        );
     }
 }
 

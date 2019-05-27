@@ -30,15 +30,15 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         }
     }
 
-    public canBeApplied(
+    public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean {
+    ): void {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (Utils.isException(data)) {
-            return true;
+            return;
         }
 
         const { publicKeys, min } = data.asset.multiSignature;
@@ -61,7 +61,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new InvalidMultiSignatureError();
         }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(
@@ -76,20 +76,24 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
-        // Nothing else to do for the sender since the recipient wallet
-        // is made into a multi sig wallet.
+        // Create the multi sig wallet
+        if (transaction.data.version >= 2) {
+            walletManager.findByAddress(
+                Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature),
+            ).multisignature = transaction.data.asset.multiSignature;
+        }
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
         // Nothing else to do for the sender since the recipient wallet
         // is made into a multi sig wallet.
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {
@@ -99,7 +103,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         }
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {

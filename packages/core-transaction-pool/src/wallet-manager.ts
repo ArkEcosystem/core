@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 export class WalletManager extends Wallets.WalletManager {
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
@@ -24,60 +24,28 @@ export class WalletManager extends Wallets.WalletManager {
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
-    public incrementNonce(publicKey: string): void {
-        this.findByPublicKey(publicKey).incrementNonce();
-    }
-
-    public decrementNonce(publicKey: string): void {
-        this.findByPublicKey(publicKey).decrementNonce();
-    }
-
-    public throwIfApplyingFails(transaction: Interfaces.ITransaction): void {
+    public senderIsKnownAndTrxCanBeApplied(transaction: Interfaces.ITransaction): void {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        const { senderPublicKey } = transaction.data;
+        const senderPublicKey: string = transaction.data.senderPublicKey;
         if (!this.databaseService.walletManager.has(senderPublicKey)) {
             const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
-                const message: string = "Cold wallet is not allowed to send until receiving transaction is confirmed.";
+                const message: string = "Wallet not allowed to spend before funding is confirmed.";
 
                 this.logger.error(message);
 
-                throw new Error(JSON.stringify([message]));
+                throw new Error(message);
             }
         }
 
-        if (Utils.isException(transaction.data)) {
-            this.logger.warn(
-                `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
-            );
-        } else {
-            const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
+        const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
 
-            try {
-                Handlers.Registry.get(transaction.type).canBeApplied(
-                    transaction,
-                    sender,
-                    this.databaseService.walletManager,
-                );
-                // WORKAROUND: We need to increment the nonce of the sender, since canBeApplied
-                // is called on all transactions before they are actually applied
-                // and the nonce lags behind otherwise.
-                sender.incrementNonce();
-            } catch (error) {
-                this.logger.error(
-                    `[PoolWalletManager] Can't apply transaction ${transaction.id} from ${
-                        sender.address
-                    } due to ${JSON.stringify(error.message)}`,
-                );
-
-                throw new Error(JSON.stringify([error.message]));
-            }
-        }
+        Handlers.Registry.get(transaction.type).throwIfCannotBeApplied(transaction, sender, this.databaseService.walletManager);
     }
 
     public revertTransactionForSender(transaction: Interfaces.ITransaction): void {
-        Handlers.Registry.get(transaction.type).revertForSenderInPool(transaction, this);
+        Handlers.Registry.get(transaction.type).revertForSender(transaction, this);
     }
 }

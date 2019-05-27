@@ -85,12 +85,10 @@ class TestTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
     }
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
     }
 }
 

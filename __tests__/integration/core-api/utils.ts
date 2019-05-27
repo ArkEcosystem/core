@@ -3,8 +3,8 @@ import "jest-extended";
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
 import { Managers } from "@arkecosystem/crypto";
-import { TransactionFactory } from "../../../helpers";
-import { ApiHelpers } from "../../../utils/helpers/api";
+import { TransactionFactory } from "../../helpers";
+import { ApiHelpers } from "../../utils/helpers/api";
 
 class Helpers {
     public async request(method, path, params = {}) {

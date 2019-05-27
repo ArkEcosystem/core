@@ -28,9 +28,6 @@ export interface IWallet {
     auditApply(transaction: Interfaces.ITransactionData): any[];
     toString(): string;
 
-    incrementNonce(): void;
-    decrementNonce(): void;
-
     verifySignatures(
         transaction: Interfaces.ITransactionData,
         multisignature?: Interfaces.IMultiSignatureAsset,

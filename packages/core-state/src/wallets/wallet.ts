@@ -1,7 +1,6 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import assert from "assert";
 
 export class Wallet implements State.IWallet {
     public address: string;
@@ -77,15 +76,6 @@ export class Wallet implements State.IWallet {
         }
 
         return false;
-    }
-
-    public incrementNonce(): void {
-        this.nonce = this.nonce.plus(1);
-    }
-
-    public decrementNonce(): void {
-        assert(this.nonce.isGreaterThanOrEqualTo(1));
-        this.nonce = this.nonce.minus(1);
     }
 
     public verifySignatures(

@@ -17,11 +17,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         }
     }
 
-    public canBeApplied(
+    public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean {
+    ): void {
         if (!wallet.username) {
             throw new WalletUsernameEmptyError();
         }
@@ -30,7 +30,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new WalletAlreadyResignedError();
         }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
@@ -55,23 +55,21 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
         walletManager.findByPublicKey(transaction.data.senderPublicKey).resigned = true;
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
         walletManager.findByPublicKey(transaction.data.senderPublicKey).resigned = false;
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }
