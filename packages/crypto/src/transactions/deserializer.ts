@@ -76,13 +76,7 @@ class Deserializer {
                 .toString("hex");
 
             buf.reset();
-
-            const length: number = parseInt(lengthHex, 16) + 2;
-            if (isNaN(length)) {
-                throw new MalformedTransactionBytesError();
-            }
-
-            return length;
+            return parseInt(lengthHex, 16) + 2;
         };
 
         // Signature
@@ -161,14 +155,13 @@ class Deserializer {
     }
 
     private getByteBuffer(serialized: Buffer | string): ByteBuffer {
-        let buffer: ByteBuffer;
-        if (serialized instanceof Buffer) {
-            buffer = new ByteBuffer(serialized.length, true);
-            buffer.append(serialized);
-            buffer.reset();
-        } else {
-            buffer = ByteBuffer.fromHex(serialized, true);
+        if (!(serialized instanceof Buffer)) {
+            serialized = Buffer.from(serialized, "hex");
         }
+
+        const buffer: ByteBuffer = new ByteBuffer(serialized.length, true);
+        buffer.append(serialized);
+        buffer.reset();
 
         return buffer;
     }
