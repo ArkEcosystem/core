@@ -1,6 +1,6 @@
 import "../../../../mocks/core-container";
 
-import { blockchain } from "../../../../mocks/blockchain";
+import { transactionPool } from "../../../../mocks/transaction-pool";
 
 import { getUnconfirmedTransactions } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 
@@ -9,9 +9,10 @@ jest.mock("../../../../../../../packages/core-p2p/src/socket-server/utils/valida
 describe("Internal handlers - transactions", () => {
     describe("getUnconfirmedTransactions", () => {
         it("should return unconfirmed transactions", () => {
-            blockchain.getUnconfirmedTransactions = jest.fn().mockReturnValue(["111"]);
-            const result = getUnconfirmedTransactions();
-            expect(result).toEqual(["111"]);
+            transactionPool.getTransactionsForForging = jest.fn().mockReturnValue(["111"]);
+            transactionPool.getPoolSize = jest.fn().mockReturnValue(1);
+
+            expect(getUnconfirmedTransactions()).toEqual({ count: 1, poolSize: 1, transactions: ["111"] });
         });
     });
 });
