@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-error-tracker-airbrake",
-    "version": "2.4.0-next.6",
+    "version": "2.4.0-next.7",
     "description": "Airbrake error tracker integration for ARK Core.",
     "license": "MIT",
     "contributors": [
@@ -18,8 +18,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.6",
-        "airbrake-js": "^1.6.7"
+        "@arkecosystem/core-container": "^2.4.0-next.7",
+        "airbrake-js": "^1.6.8"
     },
     "engines": {
         "node": ">=10.x"

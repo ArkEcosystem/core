@@ -29,7 +29,6 @@ module.exports = {
         },
         minimumVersions: [">=2.0.0"],
         minimumNetworkReach: 5,
-        coldStart: 5,
     },
     "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {

@@ -18,10 +18,6 @@ export const defaults = {
      */
     globalTimeout: 5000,
     /**
-     * The number of seconds until we allow forging
-     */
-    coldStart: 30,
-    /**
      * The maximum number of peers we will broadcast data to
      */
     maxPeersBroadcast: 20,

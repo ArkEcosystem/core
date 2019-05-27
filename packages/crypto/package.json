@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/crypto",
-    "version": "2.4.0-next.6",
+    "version": "2.4.0-next.7",
     "description": "Crypto utilities for the ARK Blockchain",
     "license": "MIT",
     "contributors": [
@@ -31,7 +31,7 @@
         "ajv-keywords": "^3.4.0",
         "bcrypto": "^3.1.11",
         "bignumber.js": "^8.1.1",
-        "bip32": "^2.0.2",
+        "bip32": "^2.0.3",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
         "bs58": "^4.0.1",
@@ -44,7 +44,7 @@
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "lodash.sumby": "^4.6.0",
-        "node-forge": "^0.8.3",
+        "node-forge": "^0.8.4",
         "otplib": "^11.0.0",
         "pluralize": "^7.0.0",
         "tiny-glob": "^0.2.6",
