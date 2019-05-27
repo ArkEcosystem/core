@@ -103,20 +103,6 @@ export interface IBlockchain {
     forkBlock(block: Interfaces.IBlock): void;
 
     /**
-     * Get unconfirmed transactions for the specified block size.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
-     */
-    getUnconfirmedTransactions(
-        blockSize: number,
-    ): {
-        transactions: string[];
-        poolSize: number;
-        count: number;
-    };
-
-    /**
      * Determine if the blockchain is synced.
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}

@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto } from "@arkecosystem/crypto";
 
@@ -15,7 +15,17 @@ export const getUnconfirmedTransactions = (): {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const { maxTransactions } = app.getConfig().getMilestone(blockchain.getLastBlock().data.height).block;
 
-    return blockchain.getUnconfirmedTransactions(maxTransactions);
+    const transactionPool: TransactionPool.IConnection = app.resolvePlugin<TransactionPool.IConnection>(
+        "transaction-pool",
+    );
+
+    const transactions: string[] = transactionPool.getTransactionsForForging(maxTransactions);
+
+    return {
+        transactions,
+        poolSize: transactionPool.getPoolSize(),
+        count: transactions ? transactions.length : -1,
+    };
 };
 
 export const getCurrentRound = async (): Promise<P2P.ICurrentRound> => {
