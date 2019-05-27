@@ -46,7 +46,7 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         if (vote.startsWith("+")) {
             if (wallet.vote) {
-                throw new AlreadyVotedError();
+                throw new AlreadyVotedError(transaction.data.id);
             }
         } else {
             if (!wallet.vote) {
