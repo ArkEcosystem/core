@@ -77,7 +77,7 @@ class Deserializer {
 
             buf.reset();
 
-            const length = parseInt(lengthHex, 16) + 2;
+            const length: number = parseInt(lengthHex, 16) + 2;
             if (isNaN(length)) {
                 throw new MalformedTransactionBytesError();
             }
