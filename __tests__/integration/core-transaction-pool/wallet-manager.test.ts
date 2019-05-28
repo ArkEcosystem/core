@@ -154,7 +154,7 @@ describe("applyPoolTransactionToSender", () => {
                     expect(t.from).toBe(delegate);
                 } catch (error) {
                     expect(t.from).toBe(walletsGen[0]);
-                    expect(error.message).toEqual(JSON.stringify(["Insufficient balance in the wallet."]));
+                    expect(error.message).toEqual("Insufficient balance in the wallet.");
                 }
 
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(
