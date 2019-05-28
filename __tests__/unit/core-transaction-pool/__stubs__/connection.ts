@@ -86,7 +86,7 @@ export class Connection implements TransactionPool.IConnection {
         return undefined;
     }
 
-    public getTransactionsData<T>(start: number, size: number, property: string, maxBytes?: number): T[] {
+    public getTransactionsData(start: number, size: number, maxBytes?: number): Interfaces.ITransaction[] {
         return undefined;
     }
 

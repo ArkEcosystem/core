@@ -456,22 +456,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Get unconfirmed transactions for the specified block size.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
-     */
-    public getUnconfirmedTransactions(blockSize: number): { transactions: string[]; poolSize: number; count: number } {
-        const transactions: string[] = this.transactionPool.getTransactionsForForging(blockSize);
-
-        return {
-            transactions,
-            poolSize: this.transactionPool.getPoolSize(),
-            count: transactions ? transactions.length : -1,
-        };
-    }
-
-    /**
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: Interfaces.IBlock): boolean {

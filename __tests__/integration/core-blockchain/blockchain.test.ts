@@ -17,6 +17,44 @@ let configManager;
 let container;
 let blockchain: Blockchain;
 
+const resetBlocksInCurrentRound = async () => {
+    await blockchain.database.loadBlocksFromCurrentRound();
+};
+
+const resetToHeight1 = async () => {
+    const lastBlock = await blockchain.database.getLastBlock();
+
+    if (lastBlock) {
+        // Make sure the wallet manager has been fed or else revertRound
+        // cannot determine the previous delegates. This is only necessary, because
+        // the database is not dropped after the unit tests are done.
+        await blockchain.database.buildWallets();
+
+        // Index the genesis wallet or else revert block at height 1 fails
+        const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
+        const genesis = new Wallets.Wallet(generator);
+        genesis.publicKey = genesisBlock.data.generatorPublicKey;
+        genesis.username = "genesis";
+        blockchain.database.walletManager.reindex(genesis);
+
+        blockchain.state.clear();
+
+        blockchain.state.setLastBlock(lastBlock);
+        await resetBlocksInCurrentRound();
+        await blockchain.removeBlocks(lastBlock.data.height - 1);
+    }
+};
+
+const addBlocks = async untilHeight => {
+    const allBlocks = [...blocks2to100, ...blocks101to155];
+    const lastHeight = blockchain.getLastHeight();
+
+    for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
+        const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
+        await blockchain.processBlocks([blockToProcess], () => undefined);
+    }
+};
+
 describe("Blockchain", () => {
     beforeAll(async () => {
         container = await setUp();
@@ -37,7 +75,7 @@ describe("Blockchain", () => {
     afterAll(async () => {
         configManager.set("exceptions.transactions", []);
 
-        await __resetToHeight1();
+        await resetToHeight1();
 
         // Manually stop the blockchain
         await blockchain.stop();
@@ -46,9 +84,9 @@ describe("Blockchain", () => {
     });
 
     afterEach(async () => {
-        await __resetToHeight1();
-        await __addBlocks(5);
-        await __resetBlocksInCurrentRound();
+        await resetToHeight1();
+        await addBlocks(5);
+        await resetBlocksInCurrentRound();
     });
 
     describe("postTransactions", () => {
@@ -78,7 +116,7 @@ describe("Blockchain", () => {
         });
 
         it("should remove (current height - 1) blocks if we provide a greater value", async () => {
-            await __resetToHeight1();
+            await resetToHeight1();
 
             await blockchain.removeBlocks(9999);
             expect(blockchain.getLastBlock().data.height).toBe(1);
@@ -99,10 +137,10 @@ describe("Blockchain", () => {
 
     describe("restoreCurrentRound", () => {
         it("should restore the active delegates of the current round", async () => {
-            await __resetToHeight1();
+            await resetToHeight1();
 
             // Go to arbitrary height in round 2.
-            await __addBlocks(55);
+            await addBlocks(55);
 
             // Pretend blockchain just started
             const roundInfo = roundCalculator.calculateRound(blockchain.getLastHeight());
@@ -112,13 +150,16 @@ describe("Blockchain", () => {
 
             // Reset again and replay to round 2. In both cases the forging delegates
             // have to match.
-            await __resetToHeight1();
-            await __addBlocks(52);
+            await resetToHeight1();
+            await addBlocks(52);
 
             // FIXME: using jest.spyOn getActiveDelegates with toHaveLastReturnedWith() somehow gets
             // overwritten in afterEach
             // FIXME: wallet.lastBlock needs to be properly restored when reverting
-            forgingDelegates.forEach(forger => (forger.lastBlock = undefined));
+            for (const forger of forgingDelegates) {
+                forger.lastBlock = undefined;
+            }
+
             expect(forgingDelegates).toEqual(
                 (blockchain.database as any).forgingDelegates.map(forger => {
                     forger.lastBlock = undefined;
@@ -130,8 +171,8 @@ describe("Blockchain", () => {
 
     describe("rollback", () => {
         beforeEach(async () => {
-            await __resetToHeight1();
-            await __addBlocks(155);
+            await resetToHeight1();
+            await addBlocks(155);
         });
 
         const getNextForger = async () => {
@@ -150,11 +191,11 @@ describe("Blockchain", () => {
             };
 
             const sortedTransactions = Utils.sortTransactions(transactions);
-            sortedTransactions.forEach(transaction => {
+            for (const transaction of sortedTransactions) {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
                 transactionData.ids.push(Buffer.from(transaction.id, "hex"));
-            });
+            }
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
@@ -254,31 +295,6 @@ describe("Blockchain", () => {
         });
     });
 
-    describe("getUnconfirmedTransactions", () => {
-        it("should get unconfirmed transactions", async () => {
-            const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
-
-            blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2);
-            const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
-
-            expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
-
-            expect(unconfirmedTransactions.transactions).toIncludeAllMembers(
-                transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex")),
-            );
-
-            blockchain.transactionPool.flush();
-        });
-
-        it("should return object with count == -1 if getTransactionsForForging returned a falsy value", async () => {
-            jest.spyOn(blockchain.transactionPool, "getTransactionsForForging").mockReturnValueOnce(undefined);
-
-            const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
-            expect(unconfirmedTransactions.count).toBe(-1);
-        });
-    });
-
     describe("stop on emit shutdown", () => {
         it("should trigger the stop method when receiving 'shutdown' event", async () => {
             const emitter = container.resolvePlugin("event-emitter");
@@ -294,41 +310,3 @@ describe("Blockchain", () => {
         });
     });
 });
-
-async function __resetBlocksInCurrentRound() {
-    await blockchain.database.loadBlocksFromCurrentRound();
-}
-
-async function __resetToHeight1() {
-    const lastBlock = await blockchain.database.getLastBlock();
-
-    if (lastBlock) {
-        // Make sure the wallet manager has been fed or else revertRound
-        // cannot determine the previous delegates. This is only necessary, because
-        // the database is not dropped after the unit tests are done.
-        await blockchain.database.buildWallets();
-
-        // Index the genesis wallet or else revert block at height 1 fails
-        const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
-        const genesis = new Wallets.Wallet(generator);
-        genesis.publicKey = genesisBlock.data.generatorPublicKey;
-        genesis.username = "genesis";
-        blockchain.database.walletManager.reindex(genesis);
-
-        blockchain.state.clear();
-
-        blockchain.state.setLastBlock(lastBlock);
-        await __resetBlocksInCurrentRound();
-        await blockchain.removeBlocks(lastBlock.data.height - 1);
-    }
-}
-
-async function __addBlocks(untilHeight) {
-    const allBlocks = [...blocks2to100, ...blocks101to155];
-    const lastHeight = blockchain.getLastHeight();
-
-    for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
-        const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
-        await blockchain.processBlocks([blockToProcess], () => undefined);
-    }
-}
