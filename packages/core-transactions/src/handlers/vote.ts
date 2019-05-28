@@ -37,17 +37,16 @@ export class VoteTransactionHandler extends TransactionHandler {
         walletManager.buildVoteBalances();
     }
 
-    public canBeApplied(
+    public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean {
-        const { data }: Interfaces.ITransaction = transaction;
-        const vote: string = data.asset.votes[0];
+    ): void {
+        const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
             if (wallet.vote) {
-                throw new AlreadyVotedError();
+                throw new AlreadyVotedError(transaction.data.id);
             }
         } else {
             if (!wallet.vote) {
@@ -67,7 +66,7 @@ export class VoteTransactionHandler extends TransactionHandler {
             throw new VotedForResignedDelegateError(vote);
         }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
@@ -91,7 +90,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -104,7 +103,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
         const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -117,11 +116,9 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }

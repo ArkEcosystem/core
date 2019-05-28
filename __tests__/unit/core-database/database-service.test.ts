@@ -216,11 +216,12 @@ describe("Database Service", () => {
 
             // Prepare sender wallet
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
-            const originalApply = transactionHandler.canBeApplied;
-            transactionHandler.canBeApplied = jest.fn(() => true);
+            const originalApply = transactionHandler.throwIfCannotBeApplied;
+            transactionHandler.throwIfCannotBeApplied = jest.fn(() => {});
 
             const sender = new Wallet(keys.address);
             sender.publicKey = keys.publicKey;
+            sender.balance = Utils.BigNumber.make(1e12);
             walletManager.reindex(sender);
 
             // Apply 51 blocks, where each increases the vote balance of a delegate to
@@ -228,11 +229,8 @@ describe("Database Service", () => {
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
                 const transfer = Transactions.BuilderFactory.transfer()
-                    .amount(
-                        Utils.BigNumber.make(i + 1)
-                            .times(SATOSHI)
-                            .toFixed(),
-                    )
+                    .amount(Utils.BigNumber.make(i + 1).times(SATOSHI).toFixed())
+                    .nonce(sender.nonce.plus(1).toFixed())
                     .recipientId(delegatesRound2[i].address)
                     .sign(keys.passphrase)
                     .build();
@@ -291,7 +289,7 @@ describe("Database Service", () => {
                 expect(restoredDelegatesRound2[i].publicKey).toBe(delegatesRound2[i].publicKey);
             }
 
-            transactionHandler.canBeApplied = originalApply;
+            transactionHandler.throwIfCannotBeApplied = originalApply;
         });
     });
 });

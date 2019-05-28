@@ -313,7 +313,7 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(transaction.amount).toBe(amount);
+                expect(transaction.amount).toBe(amount.toFixed());
             }
         });
 
@@ -331,8 +331,8 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(transaction.amount).toBeGreaterThanOrEqual(amountFrom);
-                expect(transaction.amount).toBeLessThanOrEqual(amountTo);
+                expect(+transaction.amount).toBeGreaterThanOrEqual(amountFrom);
+                expect(+transaction.amount).toBeLessThanOrEqual(amountTo);
             }
         });
 
@@ -350,7 +350,7 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(transaction.fee).toBe(fee);
+                expect(transaction.fee).toBe(fee.toFixed());
             }
         });
 
@@ -368,8 +368,8 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(transaction.fee).toBeGreaterThanOrEqual(feeFrom);
-                expect(transaction.fee).toBeLessThanOrEqual(feeTo);
+                expect(+transaction.fee).toBeGreaterThanOrEqual(feeFrom);
+                expect(+transaction.fee).toBeLessThanOrEqual(feeTo);
             }
         });
 

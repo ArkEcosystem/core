@@ -8,11 +8,11 @@ export interface ITransactionHandler {
 
     verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean;
 
-    canBeApplied(
+    throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean;
+    ): void;
     apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
     revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
 

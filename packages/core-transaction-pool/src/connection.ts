@@ -230,7 +230,8 @@ export class Connection implements TransactionPool.IConnection {
         if (this.options.allowedSenders.includes(senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
-                    `Transaction pool: allowing sender public key: ${senderPublicKey} (listed in options.allowedSenders), thus skipping throttling.`,
+                    `Transaction pool: allowing sender public key ${senderPublicKey} ` +
+                    `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -301,29 +302,26 @@ export class Connection implements TransactionPool.IConnection {
                 : undefined;
 
             if (recipientWallet) {
-                transactionHandler.applyToRecipientInPool(transaction, this.walletManager);
+                transactionHandler.applyToRecipient(transaction, this.walletManager);
             }
 
             if (exists) {
                 this.removeTransaction(transaction);
             } else if (senderWallet) {
-                // TODO: rework error handling
                 try {
-                    transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
+                    transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.databaseService.walletManager);
+                    transactionHandler.applyToSender(transaction, this.walletManager);
                 } catch (error) {
                     this.purgeByPublicKey(data.senderPublicKey);
                     this.blockSender(data.senderPublicKey);
 
                     this.logger.error(
-                        `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-                        data.id
-                        } due to ${error.message}. Possible double spending attack`,
+                        `Cannot apply transaction ${transaction.id} when trying to accept ` +
+                        `block ${block.data.id}: ${error.message}`
                     );
 
                     return;
                 }
-
-                transactionHandler.applyToSenderInPool(transaction, this.walletManager);
             }
 
             if (
@@ -368,8 +366,8 @@ export class Connection implements TransactionPool.IConnection {
             // TODO: rework error handling
             try {
                 const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
-                transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
-                transactionHandler.applyToSenderInPool(transaction, this.walletManager);
+                transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.databaseService.walletManager);
+                transactionHandler.applyToSender(transaction, this.walletManager);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
 
@@ -381,7 +379,9 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public purgeByBlock(block: Interfaces.IBlock): void {
-        for (const transaction of block.transactions) {
+        // Revert in reverse order so that we don't violate nonce rules.
+        for (let i = block.transactions.length - 1; i >= 0; i--) {
+            const transaction = block.transactions[i];
             if (this.has(transaction.id)) {
                 this.removeTransaction(transaction);
 
@@ -465,8 +465,8 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.remember(transaction);
 
         try {
-            this.walletManager.throwIfApplyingFails(transaction);
-            Handlers.Registry.get(transaction.type).applyToSenderInPool(transaction, this.walletManager);
+            this.walletManager.senderIsKnownAndTrxCanBeApplied(transaction);
+            Handlers.Registry.get(transaction.type).applyToSender(transaction, this.walletManager);
         } catch (error) {
             this.logger.error(error.message);
 
@@ -495,15 +495,50 @@ export class Connection implements TransactionPool.IConnection {
         this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired());
     }
 
+    /**
+     * Remove all provided transactions plus any transactions from the same senders with higher nonces.
+     */
     private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {
+        const lowestNonceBySender = {};
         for (const transaction of transactions) {
-            this.emitter.emit(event, transaction.data);
+            const senderPublicKey: string = transaction.data.senderPublicKey
+            if (lowestNonceBySender[senderPublicKey] === undefined) {
+                lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
+            } else if (lowestNonceBySender[senderPublicKey].isGreaterThan(transaction.data.nonce)) {
+                lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
+            }
+        }
 
-            this.walletManager.revertTransactionForSender(transaction);
+        // Revert all transactions that have bigger or equal nonces than the ones in
+        // lowestNonceBySender in order from bigger nonce to smaller nonce.
 
-            this.memory.forget(transaction.id, transaction.data.senderPublicKey);
+        for (const senderPublicKey of Object.keys(lowestNonceBySender)) {
+            const allTxFromSender = Array.from(this.memory.getBySender(senderPublicKey));
+            allTxFromSender.sort((a, b) => {
+                if (a.data.nonce.isGreaterThan(b.data.nonce)) {
+                    return -1;
+                }
 
-            this.syncToPersistentStorageIfNecessary();
+                if (a.data.nonce.isLessThan(b.data.nonce)) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            for (const transaction of allTxFromSender) {
+                this.emitter.emit(event, transaction.data);
+
+                this.walletManager.revertTransactionForSender(transaction);
+
+                this.memory.forget(transaction.id, transaction.data.senderPublicKey);
+
+                this.syncToPersistentStorageIfNecessary();
+
+                if (transaction.data.nonce.isEqualTo(lowestNonceBySender[transaction.data.senderPublicKey])) {
+                    break;
+                }
+            }
         }
     }
 }

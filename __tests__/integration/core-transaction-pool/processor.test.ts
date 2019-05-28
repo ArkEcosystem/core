@@ -90,7 +90,7 @@ describe("Transaction Guard", () => {
                 await processor.validate([transfer.data]);
 
                 const expectedError = {
-                    message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
+                    message: "Wallet not allowed to spend before funding is confirmed.",
                     type: "ERR_APPLY",
                 };
                 expect(processor.getErrors()[transfer.id]).toContainEqual(expectedError);
@@ -153,7 +153,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -216,7 +216,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -259,7 +259,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers1[0].type);
-            transactionHandler.applyToRecipientInPool(transfers1[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -273,7 +273,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            transactionHandler.applyToRecipientInPool(transfers2[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers2[0], transactionPool.walletManager);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 
@@ -282,7 +282,6 @@ describe("Transaction Guard", () => {
             const transferAmount = 0.5 * 10 ** 8;
             const transferDynFee = 0.5 * 10 ** 8;
 
-            // WORKAROUND: the nonces here are garbage, only necessary because of how the pool works
             const allTransactions = [
                 TransactionFactory.transfer(delegate3.address, transferAmount)
                     .withNetwork("testnet")
@@ -293,30 +292,30 @@ describe("Transaction Guard", () => {
                 TransactionFactory.secondSignature()
                     .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
-                    .withNonce(Utils.BigNumber.ZERO)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.vote(delegate3.publicKey)
                     .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
-                    .withNonce(Utils.BigNumber.ZERO)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.delegateRegistration()
                     .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
-                    .withNonce(Utils.BigNumber.ZERO)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
             ];
 
-            for (const transaction of allTransactions) {
-                await processor.validate(transaction.map(tx => tx.data));
+            for (const transactions of allTransactions) {
+                await processor.validate(transactions.map(tx => tx.data));
 
                 const errorExpected = [
                     {
-                        message: `["Insufficient balance in the wallet."]`,
+                        message: "Insufficient balance in the wallet.",
                         type: "ERR_APPLY",
                     },
                 ];
-                expect(processor.getErrors()[transaction[0].id]).toEqual(errorExpected);
+                expect(processor.getErrors()[transactions[0].id]).toEqual(errorExpected);
 
                 expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee + amount2);
                 expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
@@ -335,7 +334,7 @@ describe("Transaction Guard", () => {
 
             expect(result.errors[transactions[1].id]).toEqual([
                 {
-                    message: `["Insufficient balance in the wallet."]`,
+                    message: "Insufficient balance in the wallet.",
                     type: "ERR_APPLY",
                 },
             ]);
@@ -351,9 +350,10 @@ describe("Transaction Guard", () => {
             const lastAmountPlusFee = senderWallet.balance - (txNumber - 1) * amountPlusFee;
             const transferFee = 10000000;
 
-            const nonce = TransactionFactory.getNonce(sender.publicKey);
+            const nonce = senderWallet.nonce;
             const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withNetwork("testnet")
+                .withNonce(nonce)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
             const lastTransaction = TransactionFactory.transfer(receivers[0].address, lastAmountPlusFee - transferFee)
@@ -400,7 +400,7 @@ describe("Transaction Guard", () => {
                 expect(Object.keys(result.errors).length).toBe(1);
                 expect(result.errors[lastTransaction[0].id]).toEqual([
                     {
-                        message: `["Insufficient balance in the wallet."]`,
+                        message: "Insufficient balance in the wallet.",
                         type: "ERR_APPLY",
                     },
                 ]);
@@ -481,7 +481,7 @@ describe("Transaction Guard", () => {
             expect(result.accept).toBeEmpty();
             expect(result.errors[transferTransaction.id]).toEqual([
                 {
-                    message: `["Failed to apply transaction, because wallet does not allow second signatures."]`,
+                    message: "Failed to apply transaction, because wallet does not allow second signatures.",
                     type: "ERR_APPLY",
                 },
             ]);
