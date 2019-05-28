@@ -3,7 +3,7 @@ import "../../utils";
 /* tslint:disable:max-line-length */
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -17,6 +17,7 @@ let genesisBlock;
 let configManager;
 let container;
 let blockchain: Blockchain;
+let transactionsIn: Interfaces.ITransaction[];
 
 describe("Blockchain", () => {
     beforeAll(async () => {
@@ -33,6 +34,14 @@ describe("Blockchain", () => {
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
         configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
+
+        // During *TransactionHandler::bootstrap() all transactions from the genesis
+        // block are applied in the wallet manager, so we don't want to retry any
+        // delegate registrations or votes because those will fail due to e.g.
+        // "already voted" error.
+        transactionsIn = genesisBlock.transactions.filter(
+            t => t.type !== Enums.TransactionTypes.DelegateRegistration && t.type !== Enums.TransactionTypes.Vote
+        );
     });
 
     afterAll(async () => {
@@ -54,17 +63,13 @@ describe("Blockchain", () => {
 
     describe("postTransactions", () => {
         it("should be ok", async () => {
-            const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
-
             blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2);
-            const transactions = blockchain.transactionPool.getTransactions(0, 200);
+            await blockchain.postTransactions(transactionsIn);
+            const transactionsOut = blockchain.transactionPool.getTransactions(0, 200);
 
-            expect(transactions.length).toBe(transactionsWithoutType2.length);
+            expect(transactionsOut.length).toBe(transactionsIn.length);
 
-            expect(transactions).toIncludeAllMembers(
-                transactionsWithoutType2.map(transaction => transaction.serialized),
-            );
+            expect(transactionsOut).toIncludeAllMembers(transactionsIn.map(t => t.serialized));
 
             blockchain.transactionPool.flush();
         });
@@ -253,17 +258,13 @@ describe("Blockchain", () => {
 
     describe("getUnconfirmedTransactions", () => {
         it("should get unconfirmed transactions", async () => {
-            const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
-
             blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2);
-            const unconfirmedTransactions = blockchain.getUnconfirmedTransactions(200);
+            await blockchain.postTransactions(transactionsIn);
+            const transactionsOut = blockchain.getUnconfirmedTransactions(200).transactions;
 
-            expect(unconfirmedTransactions.transactions.length).toBe(transactionsWithoutType2.length);
+            expect(transactionsOut.length).toBe(transactionsIn.length);
 
-            expect(unconfirmedTransactions.transactions).toIncludeAllMembers(
-                transactionsWithoutType2.map(transaction => transaction.serialized.toString("hex")),
-            );
+            expect(transactionsOut).toIncludeAllMembers(transactionsIn.map(t => t.serialized.toString("hex")));
 
             blockchain.transactionPool.flush();
         });
