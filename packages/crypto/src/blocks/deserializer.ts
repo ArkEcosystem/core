@@ -13,7 +13,10 @@ class Deserializer {
         const block = {} as IBlockData;
         let transactions: ITransaction[] = [];
 
-        const buf: ByteBuffer = ByteBuffer.fromHex(serializedHex, true);
+        const buffer = Buffer.from(serializedHex, "hex");
+        const buf: ByteBuffer = new ByteBuffer(buffer.length, true);
+        buf.append(buffer);
+        buf.reset();
 
         this.deserializeHeader(block, buf);
 
