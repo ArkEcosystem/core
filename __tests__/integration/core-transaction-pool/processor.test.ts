@@ -350,9 +350,10 @@ describe("Transaction Guard", () => {
             const lastAmountPlusFee = senderWallet.balance - (txNumber - 1) * amountPlusFee;
             const transferFee = 10000000;
 
-            const nonce = TransactionFactory.getNonce(sender.publicKey);
+            const nonce = senderWallet.nonce;
             const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withNetwork("testnet")
+                .withNonce(nonce)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
             const lastTransaction = TransactionFactory.transfer(receivers[0].address, lastAmountPlusFee - transferFee)
