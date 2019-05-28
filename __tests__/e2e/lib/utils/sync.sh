@@ -43,5 +43,8 @@ wget http://snapshots.ark.io/current-v2
 docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -I {} sh -c 'docker cp current-v2 {}:current-v2'
 docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -I {} sh -c 'docker exec -i {} pg_restore -U ark -O -j 8 -d ark_testnet current-v2'
 
-# run tests (tests must be configured to be only "sync" test)
+# run sync
 sudo chown -R $USER:$USER ./dist/ && yarn run-sync -n mainnet -t 1200
+
+# This last command will exist with error exit code if time limit was reached before sync.
+# Logs will be available in dist/node2/output.log and dist/node2/errors.log (same for node0 and node1)
