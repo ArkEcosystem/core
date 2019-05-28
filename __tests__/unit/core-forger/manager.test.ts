@@ -137,13 +137,6 @@ describe("Forger Manager", () => {
             expect(canForge).toBeFalse();
         });
 
-        it("should be FALSE when coldStart is active", async () => {
-            const networkState = new NetworkState(NetworkStateStatus.ColdStart);
-            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
-
-            expect(canForge).toBeFalse();
-        });
-
         it("should be FALSE when minimumNetworkReach is not sufficient", async () => {
             const networkState = new NetworkState(NetworkStateStatus.BelowMinimumPeers);
             const canForge = await forgeManager.isForgingAllowed(networkState, delegate);

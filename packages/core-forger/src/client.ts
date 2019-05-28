@@ -14,7 +14,14 @@ export class Client {
 
     constructor(hosts: IRelayHost[]) {
         this.hosts = hosts.map(host => {
-            host.socket = socketCluster.create(host);
+            host.socket = socketCluster.create({
+                ...host,
+                autoReconnectOptions: {
+                    initialDelay: 1000,
+                    maxDelay: 1000,
+                },
+            });
+
             host.socket.on("error", err => {
                 if (err.message !== "Socket hung up") {
                     this.logger.error(err.message);

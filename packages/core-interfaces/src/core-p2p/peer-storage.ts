@@ -1,5 +1,4 @@
 import { IPeer } from "./peer";
-import { IPeerSuspension } from "./peer-guard";
 
 export interface IPeerStorage {
     getPeers(): IPeer[];
@@ -16,16 +15,7 @@ export interface IPeerStorage {
     forgetPendingPeer(peer: IPeer): void;
     hasPendingPeer(ip: string): boolean;
 
-    getSuspendedPeers(): IPeerSuspension[];
-    hasSuspendedPeers(): boolean;
-    getSuspendedPeer(ip: string): IPeerSuspension;
-    setSuspendedPeer(suspension: IPeerSuspension): void;
-    forgetSuspendedPeer(suspension: IPeerSuspension): void;
-    hasSuspendedPeer(ip: string): boolean;
-
     getSameSubnetPeers(ip: string): IPeer[];
-
-    savePeers(): void;
 }
 
 export interface IPeerRepository<T> {

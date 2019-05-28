@@ -35,7 +35,7 @@ export class Memory {
         return this.all;
     }
 
-    public getExpired(maxTransactionAge: number): Interfaces.ITransaction[] {
+    public getExpired(): Interfaces.ITransaction[] {
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => a.data.expiration - b.data.expiration);
             this.byExpirationIsSorted = true;
@@ -93,7 +93,7 @@ export class Memory {
         return new Set();
     }
 
-    public remember(transaction: Interfaces.ITransaction, maxTransactionAge: number, databaseReady?: boolean): void {
+    public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
         assert.strictEqual(this.byId[transaction.id], undefined);
 
         this.all.push(transaction);

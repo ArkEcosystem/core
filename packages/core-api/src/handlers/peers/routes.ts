@@ -17,12 +17,6 @@ export const registerRoutes = (server: Hapi.Server): void => {
 
     server.route({
         method: "GET",
-        path: "/peers/suspended",
-        handler: controller.suspended,
-    });
-
-    server.route({
-        method: "GET",
         path: "/peers/{ip}",
         handler: controller.show,
         options: {

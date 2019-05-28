@@ -10,8 +10,6 @@ jest.setTimeout(1200000);
 
 let app: Container.IContainer;
 export const setUp = async (): Promise<void> => {
-    process.env.CORE_SKIP_COLD_START = "true";
-
     try {
         app = await setUpContainer({
             include: [

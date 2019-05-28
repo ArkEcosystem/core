@@ -19,13 +19,13 @@ export const paginate = (request: Hapi.Request): any => {
     return pagination;
 };
 
-export const respondWithResource = (data, transformer): object => {
-    return data ? { data: transformerService.toResource(data, transformer) } : Boom.notFound();
+export const respondWithResource = (data, transformer, transform: boolean = true): object => {
+    return data ? { data: transformerService.toResource(data, transformer, transform) } : Boom.notFound();
 };
 
-export const respondWithCollection = (data, transformer): object => {
+export const respondWithCollection = (data, transformer, transform: boolean = true): object => {
     return {
-        data: transformerService.toCollection(data, transformer),
+        data: transformerService.toCollection(data, transformer, transform),
     };
 };
 
@@ -38,17 +38,17 @@ export const respondWithCache = (data, h): any => {
         : h.response(value).header("Last-modified", lastModified.toUTCString());
 };
 
-export const toResource = (data, transformer): object => {
-    return transformerService.toResource(data, transformer);
+export const toResource = (data, transformer, transform: boolean = true): object => {
+    return transformerService.toResource(data, transformer, transform);
 };
 
-export const toCollection = (data, transformer): object => {
-    return transformerService.toCollection(data, transformer);
+export const toCollection = (data, transformer, transform: boolean = true): object => {
+    return transformerService.toCollection(data, transformer, transform);
 };
 
-export const toPagination = (data, transformer): object => {
+export const toPagination = (data, transformer, transform: boolean = true): object => {
     return {
-        results: transformerService.toCollection(data.rows, transformer),
+        results: transformerService.toCollection(data.rows, transformer, transform),
         totalCount: data.count,
     };
 };

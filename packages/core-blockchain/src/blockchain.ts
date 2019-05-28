@@ -157,6 +157,8 @@ export class Blockchain implements blockchain.IBlockchain {
             await delay(1000);
         }
 
+        this.p2p.getMonitor().cleansePeers({ forcePing: true, peerCount: 10 });
+
         return true;
     }
 
@@ -230,16 +232,8 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Push a block to the process queue.
      */
-    public handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string, fromForger: boolean = false): void {
+    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
         this.pushPingBlock(block, fromForger);
-
-        logger.info(
-            `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
-                "transaction",
-                block.numberOfTransactions,
-                true,
-            )} from ${remoteAddress}`,
-        );
 
         const currentSlot: number = Crypto.Slots.getSlotNumber();
         const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
@@ -459,22 +453,6 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         this.dispatch("FORK");
-    }
-
-    /**
-     * Get unconfirmed transactions for the specified block size.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
-     */
-    public getUnconfirmedTransactions(blockSize: number): { transactions: string[]; poolSize: number; count: number } {
-        const transactions: string[] = this.transactionPool.getTransactionsForForging(blockSize);
-
-        return {
-            transactions,
-            poolSize: this.transactionPool.getPoolSize(),
-            count: transactions ? transactions.length : -1,
-        };
     }
 
     /**

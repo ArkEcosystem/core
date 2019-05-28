@@ -8,20 +8,15 @@ export const transformPlugins = (plugins): P2P.IPeerPlugins => {
             options = options.server;
         }
 
-        if (name.includes("/")) {
-            name = name.split("/").reverse()[0];
-        }
+        const port: number = Number(options.port);
+        const enabled: boolean = !!options.enabled;
 
-        name = name.split("-").reverse()[0];
-
-        const port = Number(options.port);
-        const enabled = !!options.enabled;
-
-        if (isNaN(port) || !enabled || name === "p2p") {
+        if (isNaN(port) || name.includes("core-p2p")) {
             continue;
         }
 
         result[name] = {
+            enabled,
             port,
         };
     }

@@ -1,6 +1,10 @@
-import * as Joi from "@hapi/joi";
+import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
+
+const address: object = Joi.string()
+    .alphanum()
+    .length(34);
 
 export const index: object = {
     query: {
@@ -77,6 +81,7 @@ export const transactions: object = {
                 .integer()
                 .min(0),
             vendorFieldHex: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -115,6 +120,7 @@ export const transactionsSent: object = {
                 .integer()
                 .min(0),
             vendorFieldHex: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -156,6 +162,7 @@ export const transactionsReceived: object = {
                 .integer()
                 .min(0),
             vendorFieldHex: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -164,12 +171,13 @@ export const votes: object = {
     params: {
         id: Joi.string(),
     },
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            transform: Joi.bool().default(true),
+        },
+    },
 };
-
-const address: object = Joi.string()
-    .alphanum()
-    .length(34);
 
 export const search: object = {
     query: {

@@ -15,9 +15,6 @@ module.exports = {
         enabled: !process.env.CORE_TRANSACTION_POOL_DISABLED,
         maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
         allowedSenders: [],
-        // 100+ years in the future to avoid our hardcoded transactions used in the
-        // tests to expire immediately
-        maxTransactionAge: 4036608000,
         dynamicFees: {
             minFeePool: 1000,
             minFeeBroadcast: 1000,
@@ -29,7 +26,6 @@ module.exports = {
         },
         minimumVersions: [">=2.0.0"],
         minimumNetworkReach: 5,
-        coldStart: 5,
     },
     "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {

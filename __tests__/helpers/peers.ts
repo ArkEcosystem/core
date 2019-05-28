@@ -21,7 +21,6 @@ export const createPeerService = () => {
         connector: service.getConnector(),
         communicator: service.getCommunicator(),
         monitor: service.getMonitor(),
-        guard: service.getGuard(),
     };
 };
 

@@ -1,4 +1,5 @@
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { strictEqual } from "assert";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
@@ -68,22 +69,26 @@ export class Storage {
     }
 
     public loadAll(): Interfaces.ITransaction[] {
-        const rows: Array<{ serialized: string }> = this.database
-            .prepare(`SELECT LOWER(HEX(serialized)) AS serialized FROM ${this.table};`)
+        const rows: Array<{ id: string; serialized: string }> = this.database
+            .prepare(`SELECT id, LOWER(HEX(serialized)) AS serialized FROM ${this.table};`)
             .all();
 
         const transactions: Interfaces.ITransaction[] = [];
 
+        const invalidIds: string[] = [];
         for (const row of rows) {
             try {
-                const transaction = Transactions.TransactionFactory.fromHex(row.serialized);
-                if (transaction.verified) {
-                    transactions.push(transaction);
-                }
+                const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromHex(row.serialized);
+
+                strictEqual(row.id, transaction.id);
+
+                transaction.isVerified ? transactions.push(transaction) : invalidIds.push(row.id);
             } catch {
-                //
+                invalidIds.push(row.id);
             }
         }
+
+        this.bulkRemoveById(invalidIds);
 
         return transactions;
     }
