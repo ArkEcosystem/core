@@ -90,7 +90,7 @@ describe("Transaction Guard", () => {
                 await processor.validate([transfer.data]);
 
                 const expectedError = {
-                    message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
+                    message: "Wallet not allowed to spend before funding is confirmed.",
                     type: "ERR_APPLY",
                 };
                 expect(processor.getErrors()[transfer.id]).toContainEqual(expectedError);
@@ -312,7 +312,7 @@ describe("Transaction Guard", () => {
 
                 const errorExpected = [
                     {
-                        message: `["Insufficient balance in the wallet."]`,
+                        message: "Insufficient balance in the wallet.",
                         type: "ERR_APPLY",
                     },
                 ];
@@ -335,7 +335,7 @@ describe("Transaction Guard", () => {
 
             expect(result.errors[transactions[1].id]).toEqual([
                 {
-                    message: `["Insufficient balance in the wallet."]`,
+                    message: "Insufficient balance in the wallet.",
                     type: "ERR_APPLY",
                 },
             ]);
@@ -400,7 +400,7 @@ describe("Transaction Guard", () => {
                 expect(Object.keys(result.errors).length).toBe(1);
                 expect(result.errors[lastTransaction[0].id]).toEqual([
                     {
-                        message: `["Insufficient balance in the wallet."]`,
+                        message: "Insufficient balance in the wallet.",
                         type: "ERR_APPLY",
                     },
                 ]);
@@ -481,7 +481,7 @@ describe("Transaction Guard", () => {
             expect(result.accept).toBeEmpty();
             expect(result.errors[transferTransaction.id]).toEqual([
                 {
-                    message: `["Failed to apply transaction, because wallet does not allow second signatures."]`,
+                    message: "Failed to apply transaction, because wallet does not allow second signatures.",
                     type: "ERR_APPLY",
                 },
             ]);
