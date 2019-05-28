@@ -60,7 +60,7 @@ export interface IBlockchain {
     /**
      * Push a block to the process queue.
      */
-    handleIncomingBlock(block: Interfaces.IBlockData, remoteAddress: string, fromForger?: boolean): void;
+    handleIncomingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
 
     /**
      * Remove N number of blocks.
@@ -101,20 +101,6 @@ export interface IBlockchain {
      * @returns {void}
      */
     forkBlock(block: Interfaces.IBlock): void;
-
-    /**
-     * Get unconfirmed transactions for the specified block size.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
-     */
-    getUnconfirmedTransactions(
-        blockSize: number,
-    ): {
-        transactions: string[];
-        poolSize: number;
-        count: number;
-    };
 
     /**
      * Determine if the blockchain is synced.

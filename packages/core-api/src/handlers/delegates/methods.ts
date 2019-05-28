@@ -45,7 +45,7 @@ const blocks = async request => {
 
     const rows = await blocksRepository.findAllByGenerator(delegate.publicKey, paginate(request));
 
-    return toPagination(rows, "block");
+    return toPagination(rows, "block", request.query.transform);
 };
 
 const voters = async request => {
@@ -77,6 +77,7 @@ export const registerMethods = server => {
         }))
         .method("v2.delegates.blocks", blocks, 8, request => ({
             ...{ id: request.params.id },
+            ...request.query,
             ...paginate(request),
         }))
         .method("v2.delegates.voters", voters, 8, request => ({

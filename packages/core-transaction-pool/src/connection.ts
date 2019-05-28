@@ -2,8 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import assert from "assert";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { strictEqual } from "assert";
 import dayjs, { Dayjs } from "dayjs";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
@@ -50,7 +50,7 @@ export class Connection implements TransactionPool.IConnection {
         const all: Interfaces.ITransaction[] = this.storage.loadAll();
 
         for (const transaction of all) {
-            this.memory.remember(transaction, this.options.maxTransactionAge, true);
+            this.memory.remember(transaction, true);
         }
 
         this.purgeExpired();
@@ -139,21 +139,49 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
-        return this.getTransactionsData<Buffer>(start, size, "serialized", maxBytes);
+        return this.getTransactionsData(start, size, maxBytes).map(
+            (transaction: Interfaces.ITransaction) => transaction.serialized,
+        );
     }
 
     public getTransactionsForForging(blockSize: number): string[] {
-        return this.getTransactions(0, blockSize, this.options.maxTransactionBytes).map(tx => tx.toString("hex"));
+        const transactionMemory: Interfaces.ITransaction[] = this.getTransactionsData(
+            0,
+            blockSize,
+            this.options.maxTransactionBytes,
+        );
+
+        const transactions: string[] = [];
+
+        for (const transaction of transactionMemory) {
+            try {
+                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
+                    transaction.serialized,
+                );
+
+                strictEqual(transaction.id, deserialized.id);
+
+                transactions.push(deserialized.serialized.toString("hex"));
+            } catch (error) {
+                this.removeTransactionById(transaction.id);
+
+                this.logger.error(`Removed ${transaction.id} before forging because it resulted in malformed data.`);
+            }
+        }
+
+        return transactions;
     }
 
     public getTransactionIdsForForging(start: number, size: number): string[] {
-        return this.getTransactionsData<string>(start, size, "id", this.options.maxTransactionBytes);
+        return this.getTransactionsData(start, size, this.options.maxTransactionBytes).map(
+            (transaction: Interfaces.ITransaction) => transaction.id,
+        );
     }
 
-    public getTransactionsData<T>(start: number, size: number, property: string, maxBytes: number = 0): T[] {
+    public getTransactionsData(start: number, size: number, maxBytes: number = 0): Interfaces.ITransaction[] {
         this.purgeExpired();
 
-        const data: T[] = [];
+        const data: Interfaces.ITransaction[] = [];
 
         let transactionBytes: number = 0;
 
@@ -165,8 +193,6 @@ export class Connection implements TransactionPool.IConnection {
 
             if (i >= start) {
                 let pushTransaction: boolean = false;
-
-                assert.notStrictEqual(transaction[property], undefined);
 
                 if (maxBytes > 0) {
                     const transactionSize: number = JSON.stringify(transaction.data).length;
@@ -180,7 +206,7 @@ export class Connection implements TransactionPool.IConnection {
                 }
 
                 if (pushTransaction) {
-                    data.push(transaction[property]);
+                    data.push(transaction);
                     i++;
                 }
             } else {
@@ -436,7 +462,7 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        this.memory.remember(transaction, this.options.maxTransactionAge);
+        this.memory.remember(transaction);
 
         try {
             this.walletManager.senderIsKnownAndTrxCanBeApplied(transaction);
@@ -466,10 +492,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     private purgeExpired(): void {
-        this.purgeTransactions(
-            ApplicationEvents.TransactionExpired,
-            this.memory.getExpired(this.options.maxTransactionAge),
-        );
+        this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired());
     }
 
     /**

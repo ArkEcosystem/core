@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-blockchain",
-    "version": "2.4.0-next.3",
+    "version": "2.4.0-next.8",
     "description": "Blockchain Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,24 +22,24 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.3",
-        "@arkecosystem/core-database": "^2.4.0-next.3",
-        "@arkecosystem/core-event-emitter": "^2.4.0-next.3",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.3",
-        "@arkecosystem/core-transactions": "^2.4.0-next.3",
-        "@arkecosystem/core-state": "^2.4.0-next.3",
-        "@arkecosystem/core-utils": "^2.4.0-next.3",
-        "@arkecosystem/crypto": "^2.4.0-next.3",
+        "@arkecosystem/core-container": "^2.4.0-next.8",
+        "@arkecosystem/core-database": "^2.4.0-next.8",
+        "@arkecosystem/core-event-emitter": "^2.4.0-next.8",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.8",
+        "@arkecosystem/core-state": "^2.4.0-next.8",
+        "@arkecosystem/core-transactions": "^2.4.0-next.8",
+        "@arkecosystem/core-utils": "^2.4.0-next.8",
+        "@arkecosystem/crypto": "^2.4.0-next.8",
         "async": "^3.0.0",
         "delay": "^4.2.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
         "pretty-ms": "^5.0.0",
-        "xstate": "^4.5.0"
+        "xstate": "^4.6.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.4.0-next.3",
+        "@arkecosystem/core-p2p": "^2.4.0-next.8",
         "@types/async": "^2.4.2",
         "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",

@@ -4,7 +4,6 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter/dist";
 import { Blockchain, EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@arkecosystem/crypto";
-import dayjs, { Dayjs } from "dayjs";
 import delay from "delay";
 import groupBy from "lodash.groupby";
 import sample from "lodash.sample";
@@ -15,14 +14,13 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
-import { checkDNS, checkNTP, restorePeers } from "./utils";
+import { checkDNS, checkNTP } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
-    private coldStartPeriod: Dayjs;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -43,8 +41,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
-
-        this.coldStartPeriod = dayjs().add(app.resolveOptions("p2p").coldStart, "second");
     }
 
     public getServer(): SocketCluster {
@@ -61,14 +57,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             this.server.destroy();
             this.server = undefined;
         }
-    }
-
-    public isColdStartActive(): boolean {
-        if (process.env.CORE_SKIP_COLD_START) {
-            return false;
-        }
-
-        return this.coldStartPeriod.isAfter(dayjs());
     }
 
     public async start(options): Promise<this> {
@@ -121,7 +109,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (!this.hasMinimumPeers()) {
             await this.populateSeedPeers();
 
-            nextRunDelaySeconds = 5;
+            nextRunDelaySeconds = 60;
 
             this.logger.info(`Couldn't find enough peers. Falling back to seed peers.`);
         }
@@ -129,11 +117,21 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.scheduleUpdateNetworkStatus(nextRunDelaySeconds);
     }
 
-    public async cleansePeers(fast: boolean = false, forcePing: boolean = false): Promise<void> {
-        const peers = this.storage.getPeers();
+    public async cleansePeers({
+        fast = false,
+        forcePing = false,
+        peerCount,
+    }: { fast?: boolean; forcePing?: boolean; peerCount?: number } = {}): Promise<void> {
+        let peers = this.storage.getPeers();
+        let max = peers.length;
+
         let unresponsivePeers = 0;
         const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
-        const max = peers.length;
+
+        if (peerCount) {
+            max = peerCount;
+            peers = shuffle(peers).slice(0, peerCount);
+        }
 
         this.logger.info(`Checking ${max} peers`);
         const peerErrors = {};
@@ -202,45 +200,25 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public async getNetworkState(): Promise<P2P.INetworkState> {
-        if (!this.isColdStartActive()) {
-            await this.cleansePeers(true, true);
-        }
-
+        await this.cleansePeers({ fast: true, forcePing: true });
         return NetworkState.analyze(this, this.storage);
     }
 
     public async refreshPeersAfterFork(): Promise<void> {
         this.logger.info(`Refreshing ${this.storage.getPeers().length} peers after fork.`);
 
-        // Reset all peers, except peers banned because of causing a fork.
-        await this.cleansePeers(false, true);
-        await this.resetSuspendedPeers();
-
-        // Ban peer who caused the fork
-        const forkedBlock = app.resolvePlugin("state").getStore().forkedBlock;
-        if (forkedBlock) {
-            this.processor.suspend(forkedBlock.ip);
-        }
+        await this.cleansePeers({ forcePing: true });
     }
 
     public async checkNetworkHealth(): Promise<P2P.INetworkStatus> {
-        if (!this.isColdStartActive()) {
-            await this.cleansePeers(false, true);
-            await this.resetSuspendedPeers();
-        }
+        await this.cleansePeers({ forcePing: true });
 
         const lastBlock = app
             .resolvePlugin("state")
             .getStore()
             .getLastBlock();
 
-        const allPeers: P2P.IPeer[] = [
-            ...this.storage.getPeers(),
-            ...this.storage
-                .getSuspendedPeers()
-                .map((suspendedPeer: P2P.IPeerSuspension) => suspendedPeer.peer)
-                .filter(peer => peer.isVerified()),
-        ];
+        const allPeers: P2P.IPeer[] = this.storage.getPeers();
 
         if (!allPeers.length) {
             this.logger.info("No peers available.");
@@ -286,9 +264,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     ): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: P2P.IPeer[] = this.storage.getPeers();
-            const peersFiltered: P2P.IPeer[] = peersAll.filter(
-                peer => !this.storage.hasSuspendedPeer(peer.ip) && !peer.isForked(),
-            );
+            const peersFiltered: P2P.IPeer[] = peersAll.filter(peer => !peer.isForked());
 
             if (peersFiltered.length === 0) {
                 this.logger.error(
@@ -401,14 +377,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         );
     }
 
-    public async resetSuspendedPeers(): Promise<void> {
-        this.logger.info("Clearing suspended peers.");
-
-        await Promise.all(
-            this.storage.getSuspendedPeers().map(suspension => this.processor.unsuspend(suspension.peer)),
-        );
-    }
-
     private async checkDNSConnectivity(options): Promise<void> {
         try {
             const host = await checkDNS(options);
@@ -466,19 +434,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             peer.version = app.getVersion();
             return peer;
         });
-
-        const peerCache: IPeerData[] = restorePeers();
-        if (peerCache) {
-            for (const peerA of peerCache) {
-                if (
-                    !peers.some(
-                        peerB => peerA.ip === peerB.ip && JSON.stringify(peerA.ports) === JSON.stringify(peerB.ports),
-                    )
-                ) {
-                    peers.push(peerA);
-                }
-            }
-        }
 
         return Promise.all(
             Object.values(peers).map((peer: P2P.IPeer) => {

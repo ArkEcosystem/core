@@ -7,6 +7,7 @@ import { eventEmitter } from "./event-emitter";
 import { logger } from "./logger";
 import { p2p } from "./p2p";
 import { state } from "./state";
+import { transactionPool } from "./transaction-pool";
 
 Managers.configManager.setFromPreset("unitnet");
 
@@ -63,6 +64,10 @@ jest.mock("@arkecosystem/core-container", () => {
 
                 if (name === "state") {
                     return state;
+                }
+
+                if (name === "transaction-pool") {
+                    return transactionPool;
                 }
 
                 return {};

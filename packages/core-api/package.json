@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-api",
-    "version": "2.4.0-next.3",
+    "version": "2.4.0-next.8",
     "description": "Public API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,12 +21,12 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.3",
-        "@arkecosystem/core-http-utils": "^2.4.0-next.3",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.3",
-        "@arkecosystem/core-transaction-pool": "^2.4.0-next.3",
-        "@arkecosystem/core-utils": "^2.4.0-next.3",
-        "@arkecosystem/crypto": "^2.4.0-next.3",
+        "@arkecosystem/core-container": "^2.4.0-next.8",
+        "@arkecosystem/core-http-utils": "^2.4.0-next.8",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.8",
+        "@arkecosystem/core-transaction-pool": "^2.4.0-next.8",
+        "@arkecosystem/core-utils": "^2.4.0-next.8",
+        "@arkecosystem/crypto": "^2.4.0-next.8",
         "@arkecosystem/utils": "^0.3.0",
         "ajv": "^6.10.0",
         "bs58check": "^2.1.2",
@@ -35,16 +35,18 @@
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
         "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
+        "lodash.groupby": "^4.6.0",
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
         "mathjs": "^5.10.3",
-        "semver": "^6.0.0"
+        "semver": "^6.1.0"
     },
     "devDependencies": {
         "@types/hapi__boom": "^7.4.0",
         "@types/hapi__joi": "^15.0.1",
         "@types/ip": "^1.1.0",
+        "@types/lodash.groupby": "^4.6.6",
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",

@@ -45,7 +45,10 @@ describe("API 2.0 - Blocks", () => {
             expect(response).toBePaginated();
             expect(response.data.data).toBeArray();
 
-            response.data.data.forEach(utils.expectBlock);
+            for (const block of response.data.data) {
+                utils.expectBlock(block);
+            }
+
             expect(response.data.data.sort((a, b) => a.height > b.height)).toEqual(response.data.data);
         });
     });
@@ -61,6 +64,29 @@ describe("API 2.0 - Blocks", () => {
             utils.expectBlock(block, {
                 id: genesisBlock.id,
                 transactions: genesisBlock.numberOfTransactions,
+            });
+        });
+
+        it("should GET a block by the given identifier and not transform it", async () => {
+            const response = await utils.request("GET", "blocks/17184958558311101492", { transform: false });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+
+            expect(response.data.data).toEqual({
+                id: "17184958558311101492",
+                version: 0,
+                timestamp: 0,
+                height: 1,
+                reward: "0",
+                previousBlock: "0",
+                numberOfTransactions: 153,
+                totalAmount: "12500000000000000",
+                totalFee: "0",
+                payloadLength: 35960,
+                payloadHash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+                generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
+                blockSignature:
+                    "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b",
             });
         });
     });

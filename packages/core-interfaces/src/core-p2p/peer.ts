@@ -7,7 +7,7 @@ export interface IPeerPorts {
 }
 
 export interface IPeerPlugins {
-    [name: string]: { port: number };
+    [name: string]: { enabled: boolean; port: number };
 }
 
 export interface IPeer {

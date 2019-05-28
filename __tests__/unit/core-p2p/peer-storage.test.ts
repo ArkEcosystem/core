@@ -2,19 +2,9 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import dayjs from "dayjs";
-import fs from "fs";
-import { tmpdir } from "os";
 import { P2P } from "../../../packages/core-interfaces/src";
 import { PeerStorage } from "../../../packages/core-p2p/src/peer-storage";
-import { PeerSuspension } from "../../../packages/core-p2p/src/peer-suspension";
 import { stubPeer } from "../../helpers/peers";
-
-const stubSuspension: P2P.IPeerSuspension = new PeerSuspension(stubPeer, {
-    until: dayjs(),
-    reason: "reason",
-    severity: "critical",
-});
 
 let storage: P2P.IPeerStorage;
 
@@ -107,70 +97,5 @@ describe("PeerStorage", () => {
 
             expect(storage.hasPendingPeers()).toBeFalse();
         });
-    });
-
-    describe("Suspended Peers", () => {
-        it("should get the peers", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.getSuspendedPeers()).toEqual([stubSuspension]);
-        });
-
-        it("should get the peer", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.getSuspendedPeer(stubPeer.ip)).toEqual(stubSuspension);
-        });
-
-        it("should return true when it has a specific peers", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeer(stubPeer.ip)).toBeTrue();
-        });
-
-        it("should return false when it doesn't have a peers", () => {
-            expect(storage.hasSuspendedPeer(stubPeer.ip)).toBeFalse();
-        });
-
-        it("should return true when it has any peers", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeers()).toBeTrue();
-        });
-
-        it("should return false when it has no peers", () => {
-            expect(storage.hasSuspendedPeers()).toBeFalse();
-        });
-
-        it("should forgget a peer", () => {
-            storage.setSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeers()).toBeTrue();
-
-            storage.forgetSuspendedPeer(stubSuspension);
-
-            expect(storage.hasSuspendedPeers()).toBeFalse();
-        });
-    });
-
-    it("should cache the peers into file", () => {
-        stubPeer.version = "2.4.0";
-        storage.setPeer(stubPeer);
-
-        process.env.CORE_PATH_CACHE = tmpdir();
-
-        fs.writeFileSync = jest.fn();
-
-        storage.savePeers();
-
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-            `${process.env.CORE_PATH_CACHE}/peers.json`,
-            JSON.stringify(
-                storage.getPeers().map(peer => ({
-                    ip: peer.ip,
-                    ports: peer.ports,
-                })),
-            ),
-        );
     });
 });

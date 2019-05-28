@@ -25,7 +25,6 @@ const { SATOSHI } = Constants;
 const { TransactionTypes } = Enums;
 
 const delegatesSecrets = delegates.map(d => d.secret);
-const maxTransactionAge = 4036608000;
 
 let connection: Connection;
 let memory: Memory;
@@ -48,7 +47,7 @@ beforeEach(() => connection.flush());
 describe("Connection", () => {
     const addTransactions = transactions => {
         for (const t of transactions) {
-            memory.remember(t, maxTransactionAge);
+            memory.remember(t);
         }
     };
 
@@ -60,11 +59,11 @@ describe("Connection", () => {
         it("should return 2 if transactions were added", () => {
             expect(connection.getPoolSize()).toBe(0);
 
-            memory.remember(mockData.dummy1, maxTransactionAge);
+            memory.remember(mockData.dummy1);
 
             expect(connection.getPoolSize()).toBe(1);
 
-            memory.remember(mockData.dummy2, maxTransactionAge);
+            memory.remember(mockData.dummy2);
 
             expect(connection.getPoolSize()).toBe(2);
         });
@@ -80,11 +79,11 @@ describe("Connection", () => {
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(0);
 
-            memory.remember(mockData.dummy1, maxTransactionAge);
+            memory.remember(mockData.dummy1);
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(1);
 
-            memory.remember(mockData.dummy3, maxTransactionAge);
+            memory.remember(mockData.dummy3);
 
             expect(connection.getSenderSize(senderPublicKey)).toBe(2);
         });
@@ -282,7 +281,7 @@ describe("Connection", () => {
 
     describe("removeTransaction", () => {
         it("should remove the specified transaction from the pool", () => {
-            memory.remember(mockData.dummy1, maxTransactionAge);
+            memory.remember(mockData.dummy1);
 
             expect(connection.getPoolSize()).toBe(1);
 
@@ -294,7 +293,7 @@ describe("Connection", () => {
 
     describe("removeTransactionById", () => {
         it("should remove the specified transaction from the pool (by id)", () => {
-            memory.remember(mockData.dummy1, maxTransactionAge);
+            memory.remember(mockData.dummy1);
 
             expect(connection.getPoolSize()).toBe(1);
 
@@ -304,7 +303,7 @@ describe("Connection", () => {
         });
 
         it("should do nothing when asked to delete a non-existent transaction", () => {
-            memory.remember(mockData.dummy1, maxTransactionAge);
+            memory.remember(mockData.dummy1);
 
             connection.removeTransactionById("nonexistenttransactionid");
 

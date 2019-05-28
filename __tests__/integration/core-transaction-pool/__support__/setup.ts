@@ -62,7 +62,6 @@ export const setUpFull = async () => {
             host: "0.0.0.0",
             port: 4000,
             minimumNetworkReach: 5,
-            coldStart: 5,
         });
 
         app.register("pkg.blockchain.opts", asValue(defaultsBlockchain));

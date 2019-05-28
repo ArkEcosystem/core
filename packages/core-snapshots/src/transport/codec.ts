@@ -3,11 +3,12 @@ import { createCodec, decode, encode } from "msgpack-lite";
 import { camelizeKeys, decamelizeKeys } from "xcase";
 
 const encodeBlock = block => {
-    block.total_amount = Utils.BigNumber.make(block.total_amount);
-    block.total_fee = Utils.BigNumber.make(block.total_fee);
-    block.reward = Utils.BigNumber.make(block.reward);
+    const blockCamelized = camelizeKeys(block);
+    blockCamelized.totalAmount = Utils.BigNumber.make(blockCamelized.totalAmount);
+    blockCamelized.totalFee = Utils.BigNumber.make(blockCamelized.totalFee);
+    blockCamelized.reward = Utils.BigNumber.make(blockCamelized.reward);
 
-    return Blocks.Block.serialize(camelizeKeys(block), true);
+    return Blocks.Block.serialize(blockCamelized, true);
 };
 
 const decodeBlock = (buffer: Buffer) => {

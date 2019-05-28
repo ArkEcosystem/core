@@ -1,55 +1,50 @@
 import { app } from "@arkecosystem/core-container";
-import joi from "@hapi/joi";
+import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
+
+const address: object = Joi.string()
+    .alphanum()
+    .length(34);
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: joi.string(),
-            id: joi
-                .string()
+            orderBy: Joi.string(),
+            id: Joi.string()
                 .hex()
                 .length(64),
             blockId,
-            type: joi
-                .number()
+            type: Joi.number()
                 .integer()
                 .min(0),
-            version: joi
-                .number()
+            version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: joi
-                .string()
+            senderPublicKey: Joi.string()
                 .hex()
                 .length(66),
-            senderId: joi
-                .string()
+            senderId: Joi.string()
                 .alphanum()
                 .length(34),
-            recipientId: joi
-                .string()
+            recipientId: Joi.string()
                 .alphanum()
                 .length(34),
-            ownerId: joi
-                .string()
+            ownerId: Joi.string()
                 .alphanum()
                 .length(34),
-            timestamp: joi
-                .number()
+            timestamp: Joi.number()
                 .integer()
                 .min(0),
-            amount: joi
-                .number()
+            amount: Joi.number()
                 .integer()
                 .min(0),
-            fee: joi
-                .number()
+            fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: joi.string().hex(),
+            vendorFieldHex: Joi.string().hex(),
+            transform: Joi.bool().default(true),
         },
     },
 };
@@ -69,91 +64,87 @@ export const store: object = {
 
 export const show: object = {
     params: {
-        id: joi
-            .string()
+        id: Joi.string()
             .hex()
             .length(64),
+    },
+    query: {
+        transform: Joi.bool().default(true),
     },
 };
 
 export const unconfirmed: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            transform: Joi.bool().default(true),
+        },
+    },
 };
 
 export const showUnconfirmed: object = {
     params: {
-        id: joi
-            .string()
+        id: Joi.string()
             .hex()
             .length(64),
     },
 };
 
-const address: object = joi
-    .string()
-    .alphanum()
-    .length(34);
-
 export const search: object = {
-    query: pagination,
+    query: {
+        ...pagination,
+        ...{
+            transform: Joi.bool().default(true),
+        },
+    },
     payload: {
-        orderBy: joi.string(),
-        id: joi
-            .string()
+        orderBy: Joi.string(),
+        id: Joi.string()
             .hex()
             .length(64),
         blockId,
-        type: joi
-            .number()
+        type: Joi.number()
             .integer()
             .min(0),
-        version: joi
-            .number()
+        version: Joi.number()
             .integer()
             .positive(),
-        senderPublicKey: joi
-            .string()
+        senderPublicKey: Joi.string()
             .hex()
             .length(66),
         senderId: address,
         recipientId: address,
         ownerId: address,
-        addresses: joi
-            .array()
+        addresses: Joi.array()
             .unique()
             .min(1)
             .max(50)
             .items(address),
-        vendorFieldHex: joi.string().hex(),
-        timestamp: joi.object().keys({
-            from: joi
-                .number()
+        vendorFieldHex: Joi.string().hex(),
+        timestamp: Joi.object().keys({
+            from: Joi.number()
                 .integer()
                 .min(0),
-            to: joi
-                .number()
-                .integer()
-                .min(0),
-        }),
-        amount: joi.object().keys({
-            from: joi
-                .number()
-                .integer()
-                .min(0),
-            to: joi
-                .number()
+            to: Joi.number()
                 .integer()
                 .min(0),
         }),
-        fee: joi.object().keys({
-            from: joi
-                .number()
+        amount: Joi.object().keys({
+            from: Joi.number()
                 .integer()
                 .min(0),
-            to: joi
-                .number()
+            to: Joi.number()
                 .integer()
                 .min(0),
         }),
+        fee: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+        asset: Joi.object(),
     },
 };

@@ -53,7 +53,6 @@ export class ForgerManager {
         try {
             await this.loadRound();
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
-            this.logger.info(`Forger Manager started with ${pluralize("forger", this.delegates.length, true)}`);
         } catch (error) {
             timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
@@ -179,7 +178,7 @@ export class ForgerManager {
         }
 
         const transactions: Interfaces.ITransactionData[] = response.transactions.map(
-            serializedTx => Transactions.TransactionFactory.fromHex(serializedTx).data,
+            (hex: string) => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
         );
 
         this.logger.debug(
@@ -194,12 +193,6 @@ export class ForgerManager {
     public isForgingAllowed(networkState: P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
-
-            return false;
-        }
-
-        if (networkState.status === NetworkStateStatus.ColdStart) {
-            this.logger.info("Will not forge during the cold start period. Check peers.json for coldStart setting.");
 
             return false;
         }
@@ -278,7 +271,7 @@ export class ForgerManager {
         );
 
         if (activeDelegates.length > 0) {
-            this.logger.debug(
+            this.logger.info(
                 `Loaded ${pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
                     .map(({ publicKey }) => `${this.usernames[publicKey]} (${publicKey})`)
                     .join(", ")}`,
@@ -290,11 +283,13 @@ export class ForgerManager {
                 .filter(delegate => !activeDelegates.includes(delegate))
                 .map(delegate => delegate.publicKey);
 
-            this.logger.debug(
+            this.logger.info(
                 `Loaded ${pluralize("inactive delegate", inactiveDelegates.length, true)}: ${inactiveDelegates.join(
                     ", ",
                 )}`,
             );
         }
+
+        this.logger.info(`Forger Manager started.`);
     }
 }

@@ -26,7 +26,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         } catch (error) {
             this.logger.error(`Could not download blocks from ${peer.url}: ${error.message}`);
 
-            this.emitter.emit("internal.p2p.suspendPeer", { peer, punishment: "failedBlocksDownload" });
+            this.emitter.emit("internal.p2p.disconnectPeer", { peer });
 
             throw error;
         }
@@ -69,19 +69,22 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
-
             const { config } = pingResponse;
-            for (const [name, plugin] of Object.entries(config.plugins)) {
-                try {
-                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+            Promise.all(
+                Object.entries(config.plugins).map(async ([name, plugin]) => {
+                    try {
+                        if (peer.ports[name] === undefined) {
+                            const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
 
-                    if (status === 200) {
-                        peer.ports[name] = plugin.port;
+                            if (status === 200) {
+                                peer.ports[name] = plugin.port;
+                            }
+                        }
+                    } catch (error) {
+                        peer.ports[name] = -1;
                     }
-                } catch (error) {
-                    peer.ports[name] = undefined;
-                }
-            }
+                }),
+            );
         }
 
         peer.lastPinged = dayjs();
@@ -104,7 +107,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     public async getPeers(peer: P2P.IPeer): Promise<any> {
-        this.logger.info(`Fetching a fresh peer list from ${peer.url}`);
+        this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         return this.emit(peer, "p2p.peer.getPeers");
     }
@@ -123,7 +126,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            this.emitter.emit("internal.p2p.suspendPeer", { peer, punishment: "noCommonBlocks" });
+            this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
 
         return false;
@@ -210,19 +213,17 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         switch (error.name) {
             case SocketErrors.Validation:
                 this.logger.error(`Socket data validation error (peer ${peer.ip}) : ${error.message}`);
-                // don't suspend peer for validation error
                 break;
-            case "TimeoutError": // socketcluster timeout error
             case SocketErrors.Timeout:
-                this.emitter.emit("internal.p2p.suspendPeer", { peer });
-                break;
+            case "TimeoutError":
             case "Error":
             case "CoreSocketNotOpenError":
-                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+
                 break;
             default:
-                this.logger.error(`Socket error (peer ${peer.ip}) : ${error.message}`);
-                this.emitter.emit("internal.p2p.suspendPeer", { peer });
+                this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
     }
 }

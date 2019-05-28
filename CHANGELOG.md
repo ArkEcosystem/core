@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.0] - 2019-MM-DD
+
+### Added
+
+-   Allow retrieval of raw blocks and transactions via API ([#2616])
+-   Search transactions by asset via API ([#2618])
+
+### Removed
+
+-   Removed the `ark-node` legacy API known as `v1` ([#2577])
+
 ## [2.4.0] - 2019-MM-DD
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
@@ -72,6 +83,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Remove forged transactions from pool before discarding block ([#2555])
 -   Make transaction amount required ([#2574])
 -   Various sync issues with devnet and mainnet ([#2565])
+-   Do not suspend peer for `AppNotReady` ([#2590])
 
 ### Changed
 
@@ -97,6 +109,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
 -   Return all schema errors in hapi-ajv (#2571)
 -   Clean up SocketCluster shutdown and logging (#2560)
+-   Remove timeout banning ([#2597])
 
 ### Removed
 
@@ -669,4 +682,9 @@ Closed security vulnerabilities:
 [#2581]: https://github.com/ARKEcosystem/core/pull/2581
 [#2582]: https://github.com/ARKEcosystem/core/pull/2582
 [#2586]: https://github.com/ARKEcosystem/core/pull/2586
+[#2590]: https://github.com/ARKEcosystem/core/pull/2590
 [#2593]: https://github.com/ARKEcosystem/core/pull/2593
+[#2597]: https://github.com/ARKEcosystem/core/pull/2597
+[#2616]: https://github.com/ARKEcosystem/core/pull/2616
+[#2618]: https://github.com/ARKEcosystem/core/pull/2618
+[#2577]: https://github.com/ARKEcosystem/core/pull/2577
