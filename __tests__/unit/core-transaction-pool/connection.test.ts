@@ -842,13 +842,12 @@ describe("Connection", () => {
             for (let i = 0; i < n; i++) {
                 const passphrase = String(i % nDifferentSenders);
 
-                const transaction = TransactionFactory
-                    .transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5", i + 1)
+                const transaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5", i + 1)
                     .withNetwork("unitnet")
                     .withPassphrase(passphrase)
                     .withFee(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI))
                     .build()[0];
-                testTransactions.push(transaction)
+                testTransactions.push(transaction);
 
                 const wallet = new Wallets.Wallet(Identities.Address.fromPassphrase(passphrase));
                 wallet.balance = Utils.BigNumber.make(1e14);
@@ -946,8 +945,10 @@ describe("Connection", () => {
                 nonces.push(Utils.BigNumber.make(i));
             }
 
-            const testTransactions: Interfaces.ITransaction[] =
-                generateTestTransactions(nTransactions, nDifferentSenders);
+            const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(
+                nTransactions,
+                nDifferentSenders,
+            );
 
             const noncesBySender = {};
 
@@ -966,7 +967,7 @@ describe("Connection", () => {
             // const timerLabelAdd = `time to add ${testTransactions.length} transactions`;
             // console.time(timerLabelAdd);
             for (const t of testTransactions) {
-                memory.remember(t, maxTransactionAge);
+                memory.remember(t);
             }
             // console.timeEnd(timerLabelAdd);
 
