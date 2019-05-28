@@ -33,6 +33,8 @@ class TestRunner {
         this.testResults = [];
         this.skipLastNode = !!options.skipLastNode;
         this.startTime = Date.now();
+        this.timeLimit = options.timeLimit ? options.timeLimit * 60 * 1000 : 0; // convert timeLimit minutes to millisec
+        this.sync = !!options.sync; // full sync mode
 
         if (!["testnet", "devnet", "mainnet"].includes(options.network)) {
             throw new Error("Base network should be one of testnet, devnet, mainnet");
@@ -55,13 +57,13 @@ class TestRunner {
         await this.launchNodes();
 
         console.log("[test-runner] Executing tests...");
-        const executeTestsOk = await this.executeTests();
+        const executeResult = await this.execute();
 
         // write test results to a file
         fs.writeFileSync(`${this.rootPath}/test-results.log`, JSON.stringify(this.testResults, null, 2), "utf8");
 
         // Exiting with exit code = 1 if there are some failed tests - can be then picked up by Travis for example
-        process.exitCode = this.failedTestSuites > 0 || !executeTestsOk;
+        process.exitCode = this.failedTestSuites > 0 || !executeResult;
     }
 
     async getNodesInfo() {
@@ -168,10 +170,33 @@ class TestRunner {
         }
     }
 
+    async execute() {
+        return this.sync ? this.executeSync() : this.executeTests();
+    }
+
+    async executeSync() {
+        if (Date.now() - this.startTime > this.timeLimit) {
+            return false; // time limit expired
+        }
+
+        const nodesHeight = await testUtils.getNodesHeight();
+        if (nodesHeight.length > 2 && !!nodesHeight.reduce((prev, curr) => prev === curr ? curr : false)) {
+            // we are synced
+            return true;
+        }
+        else {
+            console.log(`[test-runner] Not synced : heights are ${nodesHeight.join()}`);
+        }
+
+        await delay(20 * 1000);
+
+        return this.executeSync();
+    }
+
     async executeTests(blocksDone = []) {
         const configScenario = require(`../tests/scenarios/${this.scenario}/config.js`);
         const enabledTests = configScenario.enabledTests;
-        const configAllTests = { events: { newBlock: {}, nodesSynced: undefined } };
+        const configAllTests = { events: { newBlock: {} } };
 
         for (const test of enabledTests) {
             const testConfig = require(`../tests/scenarios/${this.scenario}/${test}/config.js`);
@@ -184,12 +209,6 @@ class TestRunner {
                         testBlockHeights[height].map(file => `${test}/${file}`),
                     );
                 }
-            }
-            
-            const testNodesSynced = testConfig.events.nodesSynced;
-            if (testNodesSynced) {
-                // if there is some test for nodesSynced event, there should be only one at all
-                configAllTests.events.nodesSynced = testNodesSynced;
             }
         }
 
@@ -205,9 +224,8 @@ class TestRunner {
             console.log(`[test-runner] New block : ${blockHeight}`);
             const thingsToExecute = configuredBlockHeights.filter(key => key > lastBlockHeight && key <= blockHeight);
 
-            if (Math.max(...configuredBlockHeights) < blockHeight && !configAllTests.events.nodesSynced) {
+            if (Math.max(...configuredBlockHeights) < blockHeight) {
                 // Quit if there are no more tests or actions waiting
-                // unless there is a "node synced" test
                 return true;
             }
 
@@ -232,28 +250,11 @@ class TestRunner {
             });
         }
 
-        const nodeSyncedEvent = configAllTests.events.nodesSynced;
-        if (nodeSyncedEvent) {
-            if (Date.now() - this.startTime > nodeSyncedEvent.timeLimit) {
-                return false; // time limit expired
-            }
-
-            if (nodesHeight.length > 2 && !!nodesHeight.reduce((prev, curr) => prev === curr ? curr : false)) {
-                // we are synced
-                // TODO : execute test which is configured on "done" property (see test config)
-                return true;
-            }
-            else {
-                console.log(`[test-runner] Not synced : heights are ${nodesHeight.join()}`);
-            }
-        } 
-
         await delay(2000);
 
         if (
             blocksDone.length
             && Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
-            && !nodeSyncedEvent
         ) {
             return false; // we stop test execution because now new blocks came in the last 2min
         }
