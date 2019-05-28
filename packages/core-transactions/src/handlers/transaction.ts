@@ -140,11 +140,13 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
 
-        if (!sender.nonce.isEqualTo(data.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
-        }
+        if (data.version > 1) {
+            if (!sender.nonce.isEqualTo(data.nonce)) {
+                throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
+            }
 
-        sender.nonce = sender.nonce.minus(1);
+            sender.nonce = sender.nonce.minus(1);
+        }
     }
 
     public abstract applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
