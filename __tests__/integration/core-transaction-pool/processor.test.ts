@@ -282,7 +282,6 @@ describe("Transaction Guard", () => {
             const transferAmount = 0.5 * 10 ** 8;
             const transferDynFee = 0.5 * 10 ** 8;
 
-            // WORKAROUND: the nonces here are garbage, only necessary because of how the pool works
             const allTransactions = [
                 TransactionFactory.transfer(delegate3.address, transferAmount)
                     .withNetwork("testnet")
@@ -293,22 +292,22 @@ describe("Transaction Guard", () => {
                 TransactionFactory.secondSignature()
                     .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
-                    .withNonce(Utils.BigNumber.ZERO)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.vote(delegate3.publicKey)
                     .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
-                    .withNonce(Utils.BigNumber.ZERO)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.delegateRegistration()
                     .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
-                    .withNonce(Utils.BigNumber.ZERO)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
             ];
 
-            for (const transaction of allTransactions) {
-                await processor.validate(transaction.map(tx => tx.data));
+            for (const transactions of allTransactions) {
+                await processor.validate(transactions.map(tx => tx.data));
 
                 const errorExpected = [
                     {
@@ -316,7 +315,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_APPLY",
                     },
                 ];
-                expect(processor.getErrors()[transaction[0].id]).toEqual(errorExpected);
+                expect(processor.getErrors()[transactions[0].id]).toEqual(errorExpected);
 
                 expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee + amount2);
                 expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
