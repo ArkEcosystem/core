@@ -60,7 +60,6 @@ export class NodeController extends Controller {
                     ports: super.toResource(request, this.config, "ports"),
                     constants: this.config.getMilestone(this.blockchain.getLastHeight()),
                     transactionPool: {
-                        maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
                         dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
                     },
                 },
