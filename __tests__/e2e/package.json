@@ -10,6 +10,7 @@
     "scripts": {
         "generate": "bin/e2e generate",
         "run-tests": "bin/e2e run-tests",
+        "run-sync": "bin/e2e run-sync",
         "test": "jest --testRegex 'lib/tests/.*.test.js'"
     },
     "jest": {
