@@ -6,22 +6,6 @@ import { Server } from "http";
 import { tmpdir } from "os";
 import { database } from "../../../packages/core-webhooks/src/database";
 import { startServer } from "../../../packages/core-webhooks/src/server";
-import * as utils from "./__support__/utils";
-
-let server: Server;
-beforeAll(async () => {
-    process.env.CORE_PATH_CACHE = tmpdir();
-
-    app.resolvePlugin = jest.fn().mockReturnValue(console);
-
-    database.make();
-
-    server = await startServer({
-        host: "0.0.0.0",
-        port: 4004,
-        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    });
-});
 
 const postData = {
     event: ApplicationEvents.BlockForged,
@@ -41,24 +25,45 @@ const postData = {
     ],
 };
 
-const createWebhook = (data?: any) => utils.request(server, "POST", "webhooks", data || postData);
+const request = async (server, method, path, payload = {}) => {
+    const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
+
+    return { body: response.result, status: response.statusCode };
+};
+
+const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
+
+let server: Server;
+beforeAll(async () => {
+    process.env.CORE_PATH_CACHE = tmpdir();
+
+    app.resolvePlugin = jest.fn().mockReturnValue(console);
+
+    database.make();
+
+    server = await startServer({
+        host: "0.0.0.0",
+        port: 4004,
+        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
+    });
+});
 
 describe("API 2.0 - Webhooks", () => {
     it("should GET all the webhooks", async () => {
-        const response = await utils.request(server, "GET", "webhooks");
+        const response = await request(server, "GET", "webhooks");
 
-        utils.expectSuccessful(response);
-        utils.expectCollection(response);
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body.data)).toBe(true);
     });
 
     it("should POST a new webhook with a simple condition", async () => {
-        const response = await createWebhook();
-        utils.expectSuccessful(response, 201);
-        utils.expectResource(response);
+        const response = await createWebhook(server);
+        expect(response.status).toBe(201);
+        expect(response.body.data).toBeObject();
     });
 
     it("should POST a new webhook with a complex condition", async () => {
-        const response = await createWebhook({
+        const response = await createWebhook(server, {
             event: ApplicationEvents.BlockForged,
             target: "https://httpbin.org/post",
             enabled: true,
@@ -73,56 +78,54 @@ describe("API 2.0 - Webhooks", () => {
                 },
             ],
         });
-        utils.expectSuccessful(response, 201);
-        utils.expectResource(response);
+        expect(response.status).toBe(201);
+        expect(response.body.data).toBeObject();
     });
 
     it("should POST a new webhook with an empty array as condition", async () => {
-        const response = await createWebhook({
+        const response = await createWebhook(server, {
             event: ApplicationEvents.BlockForged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [],
         });
-        utils.expectSuccessful(response, 201);
-        utils.expectResource(response);
+        expect(response.status).toBe(201);
+        expect(response.body.data).toBeObject();
     });
 
     it("should GET a webhook by the given id", async () => {
-        const webhook = await createWebhook();
+        const { body } = await createWebhook(server);
 
-        const response = await utils.request(server, "GET", `webhooks/${webhook.body.data.id}`);
-        utils.expectSuccessful(response);
-        utils.expectResource(response);
+        const response = await request(server, "GET", `webhooks/${body.data.id}`);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toBeObject();
 
-        delete webhook.body.data.token;
+        delete body.data.token;
 
-        expect(response.body.data).toEqual(webhook.body.data);
+        expect(response.body.data).toEqual(body.data);
     });
 
     it("should fail to GET a webhook by the given id", async () => {
-        utils.expectStatus(await utils.request(server, "GET", `webhooks/123`), 404);
+        expect((await request(server, "GET", `webhooks/123`)).status).toBe(404);
     });
 
     it("should PUT a webhook by the given id", async () => {
-        const webhook = await createWebhook();
+        const { body } = await createWebhook(server);
 
-        const response = await utils.request(server, "PUT", `webhooks/${webhook.body.data.id}`, postData);
-        utils.expectStatus(response, 204);
+        expect((await request(server, "PUT", `webhooks/${body.data.id}`, postData)).status).toBe(204);
     });
 
     it("should fail to PUT a webhook by the given id", async () => {
-        utils.expectStatus(await utils.request(server, "PUT", `webhooks/123`, postData), 404);
+        expect((await request(server, "PUT", `webhooks/123`, postData)).status).toBe(404);
     });
 
     it("should DELETE a webhook by the given id", async () => {
-        const webhook = await createWebhook();
+        const { body } = await createWebhook(server);
 
-        const response = await utils.request(server, "DELETE", `webhooks/${webhook.body.data.id}`);
-        utils.expectStatus(response, 204);
+        expect((await request(server, "DELETE", `webhooks/${body.data.id}`)).status).toBe(204);
     });
 
     it("should fail to DELETE a webhook by the given id", async () => {
-        utils.expectStatus(await utils.request(server, "DELETE", `webhooks/123`), 404);
+        expect((await request(server, "DELETE", `webhooks/123`)).status).toBe(404);
     });
 });
