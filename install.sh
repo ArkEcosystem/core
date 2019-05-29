@@ -234,8 +234,6 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
             fi
             sudo -i -u postgres psql -c "DROP USER ${databaseUsername}"
             sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
-        elif [[ "$choice" =~ ^(no|n|N) ]]; then
-            continue;
         fi
     else
         sudo -i -u postgres psql -c "CREATE USER ${databaseUsername} WITH PASSWORD '${databasePassword}' CREATEDB;"
