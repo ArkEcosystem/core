@@ -1854,13 +1854,19 @@ workflows:
     jobs:
       - test-node10-unit
       - test-node11-unit
+      - test-node12-unit
       - test-node10-functional
       - test-node11-functional
+      - test-node12-functional
       - test-node10-benchmark
       - test-node11-benchmark
+      - test-node12-benchmark
       - test-node10-e2e
       - test-node11-e2e
+      - test-node12-e2e
       - test-node10-integration-0
       - test-node10-integration-1
       - test-node11-integration-0
       - test-node11-integration-1
+      - test-node12-integration-0
+      - test-node12-integration-1
