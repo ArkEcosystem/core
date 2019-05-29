@@ -80,7 +80,7 @@ export class Client {
 
     public async emitEvent(
         event: string,
-        body: string | Interfaces.IBlockData | Interfaces.ITransactionData,
+        body: { error: string } | Interfaces.IBlockData | Interfaces.ITransactionData,
     ): Promise<void> {
         // NOTE: Events need to be emitted to the localhost. If you need to trigger
         // actions on a remote host based on events you should be using webhooks

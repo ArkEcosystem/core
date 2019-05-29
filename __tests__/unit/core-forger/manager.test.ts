@@ -80,7 +80,7 @@ describe("Forger Manager", () => {
             setTimeout(() => forgeManager.stopForging(), 1000);
             await forgeManager.checkSlot();
 
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, "oh bollocks");
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, { error: "oh bollocks" });
         });
     });
 
