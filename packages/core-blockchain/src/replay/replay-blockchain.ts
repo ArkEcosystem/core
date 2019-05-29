@@ -31,7 +31,8 @@ export class ReplayBlockchain extends Blockchain {
         this.localDatabase.walletManager = this.walletManager;
 
         this.queue.kill();
-        this.queue.drain = undefined;
+        // @ts-ignore
+        this.queue.drain(() => undefined);
     }
 
     public get p2p(): P2P.IPeerService {
