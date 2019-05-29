@@ -161,6 +161,10 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
+                const walletManager: State.IWalletManager = this.databaseService.walletManager;
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
+
                 transactions.push(deserialized.serialized.toString("hex"));
             } catch (error) {
                 this.removeTransactionById(transaction.id);
