@@ -1,15 +1,12 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import "jest-extended";
-import { setUp, tearDown } from "./__support__/setup";
+
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Server } from "http";
+import { setUp } from "./__support__/setup";
 import * as utils from "./__support__/utils";
 
-beforeAll(async () => {
-    await setUp();
-});
-
-afterAll(async () => {
-    await tearDown();
-});
+let server: Server;
+beforeAll(async () => (server = await setUp()));
 
 const postData = {
     event: ApplicationEvents.BlockForged,
@@ -29,11 +26,11 @@ const postData = {
     ],
 };
 
-const createWebhook = (data?: any) => utils.request("POST", "webhooks", data || postData);
+const createWebhook = (data?: any) => utils.request(server, "POST", "webhooks", data || postData);
 
 describe("API 2.0 - Webhooks", () => {
     it("should GET all the webhooks", async () => {
-        const response = await utils.request("GET", "webhooks");
+        const response = await utils.request(server, "GET", "webhooks");
 
         utils.expectSuccessful(response);
         utils.expectCollection(response);
@@ -79,7 +76,7 @@ describe("API 2.0 - Webhooks", () => {
     it("should GET a webhook by the given id", async () => {
         const webhook = await createWebhook();
 
-        const response = await utils.request("GET", `webhooks/${webhook.body.data.id}`);
+        const response = await utils.request(server, "GET", `webhooks/${webhook.body.data.id}`);
         utils.expectSuccessful(response);
         utils.expectResource(response);
 
@@ -89,28 +86,28 @@ describe("API 2.0 - Webhooks", () => {
     });
 
     it("should fail to GET a webhook by the given id", async () => {
-        utils.expectStatus(await utils.request("GET", `webhooks/123`), 404);
+        utils.expectStatus(await utils.request(server, "GET", `webhooks/123`), 404);
     });
 
     it("should PUT a webhook by the given id", async () => {
         const webhook = await createWebhook();
 
-        const response = await utils.request("PUT", `webhooks/${webhook.body.data.id}`, postData);
+        const response = await utils.request(server, "PUT", `webhooks/${webhook.body.data.id}`, postData);
         utils.expectStatus(response, 204);
     });
 
     it("should fail to PUT a webhook by the given id", async () => {
-        utils.expectStatus(await utils.request("PUT", `webhooks/123`, postData), 404);
+        utils.expectStatus(await utils.request(server, "PUT", `webhooks/123`, postData), 404);
     });
 
     it("should DELETE a webhook by the given id", async () => {
         const webhook = await createWebhook();
 
-        const response = await utils.request("DELETE", `webhooks/${webhook.body.data.id}`);
+        const response = await utils.request(server, "DELETE", `webhooks/${webhook.body.data.id}`);
         utils.expectStatus(response, 204);
     });
 
     it("should fail to DELETE a webhook by the given id", async () => {
-        utils.expectStatus(await utils.request("DELETE", `webhooks/123`), 404);
+        utils.expectStatus(await utils.request(server, "DELETE", `webhooks/123`), 404);
     });
 });

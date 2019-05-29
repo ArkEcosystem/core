@@ -1,18 +1,9 @@
-import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 
-export const request = async (method, path, params = {}) => {
-    try {
-        const url: string = `http://localhost:4004/api/${path}`;
+export const request = async (server, method, path, payload = {}) => {
+    const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
 
-        const response = ["GET", "DELETE"].includes(method)
-            ? await httpie[method.toLowerCase()](url, { query: params })
-            : await httpie[method.toLowerCase()](url, { body: params });
-
-        return response;
-    } catch (error) {
-        return error.response;
-    }
+    return { body: response.result, status: response.statusCode };
 };
 
 export const expectJson = response => expect(response.body).toBeObject();
@@ -33,13 +24,13 @@ export const expectPaginator = response => {
 };
 
 export const expectSuccessful = (response, statusCode = 200) => {
-    this.expectStatus(response, statusCode);
-    this.expectJson(response);
+    expectStatus(response, statusCode);
+    expectJson(response);
 };
 
 export const expectError = (response, statusCode = 404) => {
-    this.expectStatus(response, statusCode);
-    this.expectJson(response);
+    expectStatus(response, statusCode);
+    expectJson(response);
     expect(response.body.statusCode).toBeNumber();
     expect(response.body.error).toBeString();
     expect(response.body.message).toBeString();
