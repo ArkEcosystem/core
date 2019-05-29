@@ -4,7 +4,7 @@ import { database } from "../../../../packages/core-webhooks/src/database";
 import { startServer } from "../../../../packages/core-webhooks/src/server";
 import { setUpContainer } from "../../../utils/helpers/container";
 
-export async function setUp() {
+export const setUp = async () => {
     process.env.CORE_PATH_CACHE = tmpdir();
     process.env.CORE_WEBHOOKS_ENABLED = "true";
 
@@ -19,8 +19,6 @@ export async function setUp() {
         port: process.env.CORE_WEBHOOKS_PORT || 4004,
         whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     });
-}
+};
 
-export async function tearDown() {
-    await app.tearDown();
-}
+export const tearDown = async () => app.tearDown();

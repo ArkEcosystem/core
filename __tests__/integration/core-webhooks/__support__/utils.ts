@@ -1,31 +1,26 @@
 import { httpie } from "@arkecosystem/core-utils";
 import "jest-extended";
 
-export async function request(method, path, params = {}) {
-    const url = `http://localhost:4004/api/${path}`;
+export const request = async (method, path, params = {}) => {
+    try {
+        const url: string = `http://localhost:4004/api/${path}`;
 
-    return ["GET", "DELETE"].includes(method)
-        ? httpie[method.toLowerCase()](url, { query: params })
-        : httpie[method.toLowerCase()](url, { body: params });
-}
+        const response = ["GET", "DELETE"].includes(method)
+            ? await httpie[method.toLowerCase()](url, { query: params })
+            : await httpie[method.toLowerCase()](url, { body: params });
 
-export function expectJson(response) {
-    expect(response.body).toBeObject();
-}
+        return response;
+    } catch (error) {
+        return error.response;
+    }
+};
 
-export function expectStatus(response, code) {
-    expect(response.status).toBe(code);
-}
+export const expectJson = response => expect(response.body).toBeObject();
+export const expectStatus = (response, code) => expect(response.status).toBe(code);
+export const expectResource = response => expect(response.body.data).toBeObject();
+export const expectCollection = response => expect(Array.isArray(response.body.data)).toBe(true);
 
-export function expectResource(response) {
-    expect(response.body.data).toBeObject();
-}
-
-export function expectCollection(response) {
-    expect(Array.isArray(response.body.data)).toBe(true);
-}
-
-export function expectPaginator(response) {
+export const expectPaginator = response => {
     expect(response.body.meta).toBeObject();
     expect(response.body.meta).toHaveProperty("count");
     expect(response.body.meta).toHaveProperty("pageCount");
@@ -35,17 +30,17 @@ export function expectPaginator(response) {
     expect(response.body.meta).toHaveProperty("self");
     expect(response.body.meta).toHaveProperty("first");
     expect(response.body.meta).toHaveProperty("last");
-}
+};
 
-export function expectSuccessful(response, statusCode = 200) {
+export const expectSuccessful = (response, statusCode = 200) => {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
-}
+};
 
-export function expectError(response, statusCode = 404) {
+export const expectError = (response, statusCode = 404) => {
     this.expectStatus(response, statusCode);
     this.expectJson(response);
     expect(response.body.statusCode).toBeNumber();
     expect(response.body.error).toBeString();
     expect(response.body.message).toBeString();
-}
+};

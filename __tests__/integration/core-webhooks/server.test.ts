@@ -29,9 +29,7 @@ const postData = {
     ],
 };
 
-function createWebhook(data?: any) {
-    return utils.request("POST", "webhooks", data || postData);
-}
+const createWebhook = (data?: any) => utils.request("POST", "webhooks", data || postData);
 
 describe("API 2.0 - Webhooks", () => {
     it("should GET all the webhooks", async () => {
@@ -90,6 +88,10 @@ describe("API 2.0 - Webhooks", () => {
         expect(response.body.data).toEqual(webhook.body.data);
     });
 
+    it("should fail to GET a webhook by the given id", async () => {
+        utils.expectStatus(await utils.request("GET", `webhooks/123`), 404);
+    });
+
     it("should PUT a webhook by the given id", async () => {
         const webhook = await createWebhook();
 
@@ -97,10 +99,18 @@ describe("API 2.0 - Webhooks", () => {
         utils.expectStatus(response, 204);
     });
 
+    it("should fail to PUT a webhook by the given id", async () => {
+        utils.expectStatus(await utils.request("PUT", `webhooks/123`, postData), 404);
+    });
+
     it("should DELETE a webhook by the given id", async () => {
         const webhook = await createWebhook();
 
         const response = await utils.request("DELETE", `webhooks/${webhook.body.data.id}`);
         utils.expectStatus(response, 204);
+    });
+
+    it("should fail to DELETE a webhook by the given id", async () => {
+        utils.expectStatus(await utils.request("DELETE", `webhooks/123`), 404);
     });
 });
