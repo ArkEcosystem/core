@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # Typography
 red=$(tput setaf 1)
 green=$(tput setaf 2)
