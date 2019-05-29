@@ -30,6 +30,13 @@ class GenerateManager {
 
         this.nodeVersion = options.version;
 
+        if (!["testnet", "devnet", "mainnet"].includes(options.network)) {
+            throw new Error("Base network should be one of testnet, devnet, mainnet");
+        }
+        this.network = options.network;
+
+        this.relay = options.relay
+
         this.rootPath = path.dirname("../");
         this.coreRootPath = path.dirname("../../..");
     }
@@ -72,14 +79,14 @@ class GenerateManager {
         ]);
         console.log(`[generate-files] Files copy done for nginx`);
 
-        const thisNetworkPath = path.join(this.coreRootPath, "packages/core/bin/config/testnet");
+        const thisNetworkPath = path.join(this.coreRootPath, `packages/core/bin/config/${this.network}`);
         const thisDockerPath = path.join(this.rootPath, "lib/config/docker");
 
         const delegates = JSON.parse(fs.readFileSync(path.join(thisNetworkPath, "delegates.json"), "utf8"));
 
         for (const [index, node] of this.nodes.entries()) {
             const distNodePath = path.join(this.rootPath, "dist", node);
-            const distCoreNetworkPath = path.join(distNodePath, "packages/core/bin/config/testnet");
+            const distCoreNetworkPath = path.join(distNodePath, `packages/core/bin/config/${this.network}`);
             const distDockerPath = path.join(distNodePath, "docker/testnet-e2e");
 
             await exec(`mkdir ${distDockerPath}`);
@@ -103,6 +110,14 @@ class GenerateManager {
                     files: [[arkScript, "ark.sh"]],
                 },
             ]);
+
+            // rework ark.sh script if base network is not testnet + adapt if relay mode
+            const arkDistScript = fs.readFileSync(path.join(distNodePath, "ark.sh"), "utf8");
+            let arkDistScriptUpdated = arkDistScript
+                .replace(/config\/testnet/g, `config/${this.network}`);
+            arkDistScriptUpdated = this.relay ? arkDistScriptUpdated.replace(/core:run/, "relay:run") : arkDistScriptUpdated;
+
+            fs.writeFileSync(path.join(distNodePath, "ark.sh"), arkDistScriptUpdated);
 
             // need to rework delegates.json to distribute them among the nodes
             const nodeDelegates = Object.assign({}, delegates);
@@ -142,9 +157,8 @@ class GenerateManager {
                     const fileNameFrom = Array.isArray(fileName) ? fileName[0] : fileName;
                     const fileNameTo = Array.isArray(fileName) ? fileName[1] : fileName;
 
-                    fs.createReadStream(path.join(copyParams.from, fileNameFrom)).pipe(
-                        fs.createWriteStream(path.join(copyParams.to, fileNameTo)),
-                    );
+                    const fileToCopy = fs.readFileSync(path.join(copyParams.from, fileNameFrom), "utf8");
+                    fs.writeFileSync(path.join(copyParams.to, fileNameTo), fileToCopy);
                 }
             }
         }
