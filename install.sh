@@ -210,23 +210,40 @@ ark config:publish
 
 success "Installed ARK Core!"
 
+readNonempty() {
+    prompt=${1}
+    answer=""
+    while [ -z "${answer}" ] ; do
+        read -p "${prompt}" answer
+    done
+    echo "${answer}"
+}
+
 # setup postgres username, password and database
 read -p "Would you like to configure the database? [y/N]: " choice
 
 if [[ "$choice" =~ ^(yes|y|Y) ]]; then
-    read -p "Enter the database username: " databaseUsername
-    read -p "Enter the database password: " databasePassword
-    read -p "Enter the database name: " databaseName
+    choice=""
+    while [[ ! "$choice" =~ ^(yes|y|Y) ]] ; do
+        databaseUsername=$(readNonempty "Enter the database username: ")
+        databasePassword=$(readNonempty "Enter the database password: ")
+        databaseName=$(readNonempty "Enter the database name: ")
 
-    ark env:set CORE_DB_USERNAME $databaseUsername
-    ark env:set CORE_DB_PASSWORD $databasePassword
-    ark env:set CORE_DB_DATABASE $databaseName
+        echo "database username: ${databaseUsername}"
+        echo "database password: ${databasePassword}"
+        echo "database name: ${databaseName}"
+        read -p "Proceed? [y/N]: " choice
+    done
+
+    ark env:set CORE_DB_USERNAME "${databaseUsername}"
+    ark env:set CORE_DB_PASSWORD "${databasePassword}"
+    ark env:set CORE_DB_DATABASE "${databaseName}"
 
     userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
     databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
 
     if [[ $userExists == 1 ]]; then
-        read -p "The database user ${databaseUsername} already exists, do you want to overwrite it? [y/N]: " choice
+        read -p "The database user ${databaseUsername} already exists, do you want to recreate it? [y/N]: " choice
 
         if [[ "$choice" =~ ^(yes|y|Y) ]]; then
             if [[ $databaseExists == 1 ]]; then
