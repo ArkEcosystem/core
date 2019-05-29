@@ -124,7 +124,7 @@ export class ForgerManager {
                     );
                 }
 
-                this.client.emitEvent(ApplicationEvents.ForgerFailed, error.message);
+                this.client.emitEvent(ApplicationEvents.ForgerFailed, { error: error.message });
             }
 
             // no idea when this will be ok, so waiting 2s before checking again
