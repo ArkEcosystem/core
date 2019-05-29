@@ -17,7 +17,7 @@ export const conditions: string[] = [
 
 export const show: object = {
     params: {
-        id: Joi.string(),
+        id: Joi.string().required(),
     },
 };
 
@@ -25,39 +25,39 @@ export const store: object = {
     payload: {
         event: Joi.string().required(),
         target: Joi.string()
-            .required()
-            .uri(),
+            .uri()
+            .required(),
         enabled: Joi.boolean().default(true),
         conditions: Joi.array().items(
             Joi.object({
-                key: Joi.string(),
+                key: Joi.string().required(),
                 value: Joi.any(),
-                condition: Joi.string().valid(conditions),
-            }),
-        ),
+                condition: Joi.string().valid(conditions).required(),
+            }).required(),
+        ).required(),
     },
 };
 
 export const update: object = {
     params: {
-        id: Joi.string(),
+        id: Joi.string().required(),
     },
     payload: {
-        event: Joi.string(),
-        target: Joi.string().uri(),
-        enabled: Joi.boolean(),
+        event: Joi.string().required(),
+        target: Joi.string().uri().required(),
+        enabled: Joi.boolean().required(),
         conditions: Joi.array().items(
             Joi.object({
-                key: Joi.string(),
+                key: Joi.string().required(),
                 value: Joi.any(),
-                condition: Joi.string().valid(conditions),
-            }),
-        ),
+                condition: Joi.string().valid(conditions).required(),
+            }).required(),
+        ).required(),
     },
 };
 
 export const destroy: object = {
     params: {
-        id: Joi.string(),
+        id: Joi.string().required(),
     },
 };
