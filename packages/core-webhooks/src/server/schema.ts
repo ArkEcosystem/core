@@ -33,7 +33,7 @@ export const store: object = {
                 key: Joi.string().required(),
                 value: Joi.any(),
                 condition: Joi.string().valid(conditions).required(),
-            }).required(),
+            }),
         ).required(),
     },
 };
@@ -51,7 +51,7 @@ export const update: object = {
                 key: Joi.string().required(),
                 value: Joi.any(),
                 condition: Joi.string().valid(conditions).required(),
-            }).required(),
+            }),
         ).required(),
     },
 };
