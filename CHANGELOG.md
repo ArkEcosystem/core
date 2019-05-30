@@ -60,6 +60,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Proxy API calls to core-api until fully developed ([#2558])
 -   Add database configuration command to CLI ([#2557], [#2563])
 -   Add command to generate network configuration CLI ([#2582])
+-   Initial implementation of `core-explorer` ([#2604])
 
 ### Fixed
 
@@ -73,6 +74,12 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Make transaction amount required ([#2574])
 -   Various sync issues with devnet and mainnet ([#2565])
 -   Do not suspend peer for `AppNotReady` ([#2590])
+-   Allow use of old and new block IDs via `core-json-rpc` ([#2593])
+-   Assign calculated delegate ranks from temp wallets to prevent wrong ranks on boot ([#2611])
+-   Camelize block keys before bignum transformation for snapshots ([#2615])
+-   Deserialize transactions before they leave the pool to remove bad ones ([#2622])
+-   Require all properties in schema and handle 404 resources for `core-webhooks` ([#2634])
+-   Check if transactions can still be applied before forging ([#2635])
 
 ### Changed
 
@@ -99,10 +106,15 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Return all schema errors in hapi-ajv (#2571)
 -   Clean up SocketCluster shutdown and logging (#2560)
 -   Remove timeout banning ([#2597])
+-   Use dayjs as it now has official UTC support ([#2592])
+-   Require a minimum of 0 as pubKeyHash ([#2628])
 
 ### Removed
 
 -   Remove unused methods to get/set/reset height from `Slots` ([#2467])
+-   Remove peer caching ([#2606])
+-   Remove peer banning ([#2612])
+-   Remove coldstart period ([#2619])
 
 ## [2.3.23] - 2019-05-21
 
@@ -672,5 +684,18 @@ Closed security vulnerabilities:
 [#2582]: https://github.com/ARKEcosystem/core/pull/2582
 [#2586]: https://github.com/ARKEcosystem/core/pull/2586
 [#2590]: https://github.com/ARKEcosystem/core/pull/2590
+[#2592]: https://github.com/ARKEcosystem/core/pull/2592
+[#2593]: https://github.com/ARKEcosystem/core/pull/2593
 [#2593]: https://github.com/ARKEcosystem/core/pull/2593
 [#2597]: https://github.com/ARKEcosystem/core/pull/2597
+[#2604]: https://github.com/ARKEcosystem/core/pull/2604
+[#2604]: https://github.com/ARKEcosystem/core/pull/2604
+[#2606]: https://github.com/ARKEcosystem/core/pull/2606
+[#2611]: https://github.com/ARKEcosystem/core/pull/2611
+[#2612]: https://github.com/ARKEcosystem/core/pull/2612
+[#2615]: https://github.com/ARKEcosystem/core/pull/2615
+[#2619]: https://github.com/ARKEcosystem/core/pull/2619
+[#2622]: https://github.com/ARKEcosystem/core/pull/2622
+[#2628]: https://github.com/ARKEcosystem/core/pull/2628
+[#2634]: https://github.com/ARKEcosystem/core/pull/2634
+[#2635]: https://github.com/ARKEcosystem/core/pull/2635
