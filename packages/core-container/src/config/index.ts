@@ -73,7 +73,7 @@ export class Config {
                             .required(),
                     }),
                     pubKeyHash: Joi.number()
-                        .positive()
+                        .min(0)
                         .required(),
                     nethash: Joi.string()
                         .hex()

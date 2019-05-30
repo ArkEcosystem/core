@@ -24,7 +24,7 @@ afterAll(async () => {
     await tearDownFull();
 });
 
-describe("senderIsKnownAndTrxCanBeApplied", () => {
+describe("throwIfCannotBeApplied", () => {
     it("should add an error for delegate registration when username is already taken", () => {
         const delegateReg = TransactionFactory.delegateRegistration("genesis_11")
             .withNetwork("unitnet")
@@ -33,7 +33,7 @@ describe("senderIsKnownAndTrxCanBeApplied", () => {
 
         const username: string = delegateReg.data.asset.delegate.username;
 
-        expect(() => poolWalletManager.senderIsKnownAndTrxCanBeApplied(delegateReg)).toThrow(
+        expect(() => poolWalletManager.throwIfCannotBeApplied(delegateReg)).toThrow(
             `Failed to apply transaction, because the username '${username}' is already registered.`
         );
     });
@@ -44,7 +44,7 @@ describe("senderIsKnownAndTrxCanBeApplied", () => {
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
 
-        expect(() => poolWalletManager.senderIsKnownAndTrxCanBeApplied(vote)).toThrow(
+        expect(() => poolWalletManager.throwIfCannotBeApplied(vote)).toThrow(
             `Failed to apply transaction, because only delegates can be voted.`
         );
     });
@@ -149,7 +149,7 @@ describe("applyPoolTransactionToSender", () => {
                     .walletManager.findByPublicKey(transfer.data.senderPublicKey);
 
                 try {
-                    poolWalletManager.senderIsKnownAndTrxCanBeApplied(transfer);
+                    poolWalletManager.throwIfCannotBeApplied(transfer);
                     transactionHandler.applyToSender(transfer, poolWalletManager);
                     expect(t.from).toBe(delegate);
                 } catch (error) {

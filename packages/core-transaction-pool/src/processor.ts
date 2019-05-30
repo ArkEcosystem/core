@@ -19,7 +19,7 @@ export class Processor implements TransactionPool.IProcessor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
+    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) { }
 
     public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
@@ -126,7 +126,7 @@ export class Processor implements TransactionPool.IProcessor {
                     const handler = Handlers.Registry.get(trx.type);
                     if (handler.verify(trx, this.pool.walletManager)) {
                         try {
-                            this.walletManager.senderIsKnownAndTrxCanBeApplied(trx);
+                            this.walletManager.throwIfCannotBeApplied(trx);
                             const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(trx);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(

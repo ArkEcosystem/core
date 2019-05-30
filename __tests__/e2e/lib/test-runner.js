@@ -31,6 +31,15 @@ class TestRunner {
         this.nodes = [];
         this.rootPath = path.dirname("../");
         this.testResults = [];
+        this.skipLastNode = !!options.skipLastNode;
+        this.startTime = Date.now();
+        this.timeLimit = options.timeLimit ? options.timeLimit * 60 * 1000 : 0; // convert timeLimit minutes to millisec
+        this.sync = !!options.sync; // full sync mode
+
+        if (!["testnet", "devnet", "mainnet"].includes(options.network)) {
+            throw new Error("Base network should be one of testnet, devnet, mainnet");
+        }
+        this.network = options.network;
     }
 
     async runTests() {
@@ -48,13 +57,13 @@ class TestRunner {
         await this.launchNodes();
 
         console.log("[test-runner] Executing tests...");
-        const executeTestsOk = await this.executeTests();
+        const executeResult = await this.execute();
 
         // write test results to a file
         fs.writeFileSync(`${this.rootPath}/test-results.log`, JSON.stringify(this.testResults, null, 2), "utf8");
 
         // Exiting with exit code = 1 if there are some failed tests - can be then picked up by Travis for example
-        process.exitCode = this.failedTestSuites > 0 || !executeTestsOk;
+        process.exitCode = this.failedTestSuites > 0 || !executeResult;
     }
 
     async getNodesInfo() {
@@ -96,7 +105,7 @@ class TestRunner {
             const IPPreviousNode = nodeNumber > 0 ? this.nodes[nodeNumber - 1].IP : this.nodes[0].IP; // node0 will have himself as peer, no problem
             const peers = { list: [{ ip: IPPreviousNode, port: 4000 }] };
             fs.writeFile(
-                `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/testnet/peers.json`,
+                `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/${this.network}/peers.json`,
                 JSON.stringify(peers, null, 2),
                 err => {
                     if (err) throw err;
@@ -104,11 +113,14 @@ class TestRunner {
             );
 
             // adapt postgres config to use postgres ip
-            const pluginsPath = `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/testnet/plugins.js`;
+            const pluginsPath = `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/${this.network}/plugins.js`;
             const plugins = fs.readFileSync(pluginsPath, "utf8");
             const pluginsFixed = plugins.replace("process.env.CORE_DB_HOST", `"${nodeInfos.postgresIP}"`);
             fs.writeFileSync(pluginsPath, pluginsFixed);
 
+            if (this.skipLastNode && nodeNumber === (this.nodes.length - 1)) {
+                return;
+            }
             // now launch the node, with --network-start for node0
             console.log(`[test-runner] Launching node${nodeNumber}...`);
             const networkStart = nodeNumber > 0 ? "" : "--network-start ";
@@ -120,7 +132,7 @@ class TestRunner {
             await exec(commandLaunch);
 
             // wait for the node to be ready
-            await this.waitForNode(nodeNumber, 30);
+            await this.waitForNode(nodeNumber, 180);
         }
     }
 
@@ -158,25 +170,52 @@ class TestRunner {
         }
     }
 
+    async execute() {
+        return this.sync ? this.executeSync() : this.executeTests();
+    }
+
+    async executeSync() {
+        if (Date.now() - this.startTime > this.timeLimit) {
+            return false; // time limit expired
+        }
+
+        const nodesHeight = await testUtils.getNodesHeight();
+        if (nodesHeight.length > 2 && !!nodesHeight.reduce((prev, curr) => prev === curr ? curr : false)) {
+            // we are synced
+            return true;
+        }
+        else {
+            console.log(`[test-runner] Not synced : heights are ${nodesHeight.join()}`);
+        }
+
+        await delay(20 * 1000);
+
+        return this.executeSync();
+    }
+
     async executeTests(blocksDone = []) {
         const configScenario = require(`../tests/scenarios/${this.scenario}/config.js`);
         const enabledTests = configScenario.enabledTests;
         const configAllTests = { events: { newBlock: {} } };
+
         for (const test of enabledTests) {
             const testConfig = require(`../tests/scenarios/${this.scenario}/${test}/config.js`);
-            const testBlockHeights = testConfig.events.newBlock;
 
-            for (const height of Object.keys(testBlockHeights)) {
-                configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height] || [];
-                configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height].concat(
-                    testBlockHeights[height].map(file => `${test}/${file}`),
-                );
+            const testBlockHeights = testConfig.events.newBlock;
+            if (testBlockHeights) {
+                for (const height of Object.keys(testBlockHeights)) {
+                    configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height] || [];
+                    configAllTests.events.newBlock[height] = configAllTests.events.newBlock[height].concat(
+                        testBlockHeights[height].map(file => `${test}/${file}`),
+                    );
+                }
             }
         }
 
         const configuredBlockHeights = Object.keys(configAllTests.events.newBlock);
 
-        const blockHeight = await testUtils.getHeight();
+        const nodesHeight = await testUtils.getNodesHeight();
+        const blockHeight = Math.max(...nodesHeight);
         const lastBlockHeight = blocksDone.length ? blocksDone[blocksDone.length - 1].height : blockHeight;
         blocksDone.push({ height: blockHeight, timestamp: Date.now() });
 
@@ -185,8 +224,8 @@ class TestRunner {
             console.log(`[test-runner] New block : ${blockHeight}`);
             const thingsToExecute = configuredBlockHeights.filter(key => key > lastBlockHeight && key <= blockHeight);
 
-            // Quit if there are no more tests or actions waiting
             if (Math.max(...configuredBlockHeights) < blockHeight) {
+                // Quit if there are no more tests or actions waiting
                 return true;
             }
 
@@ -214,8 +253,8 @@ class TestRunner {
         await delay(2000);
 
         if (
-            blocksDone.length &&
-            Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
+            blocksDone.length
+            && Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
         ) {
             return false; // we stop test execution because now new blocks came in the last 2min
         }

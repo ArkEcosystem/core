@@ -39,6 +39,9 @@ beforeAll(async () => {
         storage: new Storage(),
     });
 
+    // @ts-ignore
+    connection.databaseService.walletManager = new Wallets.WalletManager();
+
     await connection.make();
 });
 
@@ -94,7 +97,7 @@ describe("Connection", () => {
         beforeAll(() => {
             const mockWallet = new Wallets.Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
-            jest.spyOn(connection.walletManager, "senderIsKnownAndTrxCanBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
         });
         afterAll(() => {
             jest.restoreAllMocks();
@@ -170,7 +173,7 @@ describe("Connection", () => {
             mockWallet = new Wallets.Wallet(delegates[0].address);
 
             connection.walletManager.reindex(mockWallet);
-            jest.spyOn(connection.walletManager, "senderIsKnownAndTrxCanBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
         });
         afterAll(() => {
             jest.restoreAllMocks();
@@ -196,12 +199,12 @@ describe("Connection", () => {
             highFeeTransaction.data.senderPublicKey =
                 "000000000000000000000000000000000000000420000000000000000000000000";
 
-            jest.spyOn(connection.walletManager, "senderIsKnownAndTrxCanBeApplied").mockImplementation(tx => {
-                throw new Error(JSON.stringify(["Some error in senderIsKnownAndTrxCanBeApplied"]));
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockImplementation(tx => {
+                throw new Error(JSON.stringify(["Some error in throwIfCannotBeApplied"]));
             });
             const { notAdded } = connection.addTransactions([highFeeTransaction]);
             expect(notAdded[0]).toEqual({
-                message: '["Some error in senderIsKnownAndTrxCanBeApplied"]',
+                message: '["Some error in throwIfCannotBeApplied"]',
                 transaction: highFeeTransaction,
                 type: "ERR_APPLY",
             });
@@ -211,7 +214,7 @@ describe("Connection", () => {
 
     describe("addTransactions with expiration", () => {
         beforeAll(() => {
-            jest.spyOn(connection.walletManager, "senderIsKnownAndTrxCanBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
             connection.walletManager.reset();
         });
         afterAll(() => {
@@ -504,10 +507,13 @@ describe("Connection", () => {
             const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4];
             addTransactions(transactions);
 
+            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
             const transactionsForForging = connection.getTransactionsForForging(4);
+            spy.mockRestore();
 
             expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized.toString("hex")));
         });
+
         it("should only return transactions not exceeding the maximum payload size", () => {
             // @FIXME: Uhm excuse me, what the?
             mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
@@ -530,6 +536,7 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
+            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
             let transactionsForForging = connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
@@ -548,6 +555,8 @@ describe("Connection", () => {
             connection.removeTransactionById(mockData.dummy7.id);
 
             transactionsForForging = connection.getTransactionsForForging(7);
+            spy.mockRestore();
+
             expect(transactionsForForging.length).toBe(1);
             expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized.toString("hex"));
         });
@@ -642,7 +651,7 @@ describe("Connection", () => {
             expect(connection.getTransactions(0, 10)).toEqual([]);
         });
 
-        it("should purge and block sender if senderIsKnownAndTrxCanBeApplied() failed for a transaction in the chained block", () => {
+        it("should purge and block sender if throwIfCannotBeApplied() failed for a transaction in the chained block", () => {
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("test error");
@@ -699,7 +708,7 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(findByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
-            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
+            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, (connection as any).databaseService.walletManager);
             expect(applyToSender).toHaveBeenCalledWith(mockData.dummy1, connection.walletManager);
         });
 
@@ -726,7 +735,7 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(applyToSender).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
+            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, (connection as any).databaseService.walletManager);
             expect(purgeByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });
@@ -817,7 +826,7 @@ describe("Connection", () => {
 
     describe("stress", () => {
         beforeAll(() => {
-            jest.spyOn(connection.walletManager, "senderIsKnownAndTrxCanBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
         });
 
         beforeEach(() => {

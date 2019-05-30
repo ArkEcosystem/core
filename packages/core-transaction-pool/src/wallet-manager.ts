@@ -24,7 +24,7 @@ export class WalletManager extends Wallets.WalletManager {
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
-    public senderIsKnownAndTrxCanBeApplied(transaction: Interfaces.ITransaction): void {
+    public throwIfCannotBeApplied(transaction: Interfaces.ITransaction): void {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         const senderPublicKey: string = transaction.data.senderPublicKey;
