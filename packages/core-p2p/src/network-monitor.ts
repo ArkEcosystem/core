@@ -306,7 +306,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                                 .join()}`,
                         );
                     }),
-            )).reduce((acc, curr) => [...acc, ...curr], []);
+            )).reduce((acc, curr) => [...acc, ...(curr || [])], []);
         } catch (error) {
             this.logger.error(`Could not download blocks: ${error.message}`);
 
