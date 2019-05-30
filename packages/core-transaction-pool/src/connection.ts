@@ -169,7 +169,7 @@ export class Connection implements TransactionPool.IConnection {
             } catch (error) {
                 this.removeTransactionById(transaction.id);
 
-                this.logger.error(`Removed ${transaction.id} before forging because it resulted in malformed data.`);
+                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
             }
         }
 
