@@ -658,12 +658,6 @@ jobs:
             test:coverage /integration/core-forger/ --coverageDirectory
             .coverage/integration/core-forger
       - run:
-          name: core-json-rpc - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-json-rpc/ --coverageDirectory
-            .coverage/integration/core-json-rpc
-      - run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
@@ -779,12 +773,6 @@ jobs:
             test:coverage /integration/core-forger/ --coverageDirectory
             .coverage/integration/core-forger
       - run:
-          name: core-json-rpc - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-json-rpc/ --coverageDirectory
-            .coverage/integration/core-json-rpc
-      - run:
           name: Last 1000 lines of test output
           when: on_fail
           command: tail -n 1000 test_output.txt
@@ -899,12 +887,6 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-forger/ --coverageDirectory
             .coverage/integration/core-forger
-      - run:
-          name: core-json-rpc - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-json-rpc/ --coverageDirectory
-            .coverage/integration/core-json-rpc
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -1567,6 +1549,12 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
+          name: core-json-rpc - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-json-rpc/ --coverageDirectory
+            .coverage/integration/core-json-rpc
+      - run:
           name: core-p2p - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -1590,12 +1578,6 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-vote-report/ --coverageDirectory
             .coverage/integration/core-vote-report
-      - run:
-          name: core-webhooks - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-webhooks/ --coverageDirectory
-            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -1688,6 +1670,12 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
+          name: core-json-rpc - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-json-rpc/ --coverageDirectory
+            .coverage/integration/core-json-rpc
+      - run:
           name: core-p2p - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -1711,12 +1699,6 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-vote-report/ --coverageDirectory
             .coverage/integration/core-vote-report
-      - run:
-          name: core-webhooks - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-webhooks/ --coverageDirectory
-            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail
@@ -1809,6 +1791,12 @@ jobs:
           name: Create .core/database directory
           command: mkdir -p $HOME/.core/database
       - run:
+          name: core-json-rpc - integration
+          command: >-
+            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
+            test:coverage /integration/core-json-rpc/ --coverageDirectory
+            .coverage/integration/core-json-rpc
+      - run:
           name: core-p2p - integration
           command: >-
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
@@ -1832,12 +1820,6 @@ jobs:
             cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
             test:coverage /integration/core-vote-report/ --coverageDirectory
             .coverage/integration/core-vote-report
-      - run:
-          name: core-webhooks - integration
-          command: >-
-            cd ~/core/.circleci && ./rebuild-db.sh && cd ~/core && yarn
-            test:coverage /integration/core-webhooks/ --coverageDirectory
-            .coverage/integration/core-webhooks
       - run:
           name: Last 1000 lines of test output
           when: on_fail

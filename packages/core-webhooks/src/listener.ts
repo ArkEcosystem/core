@@ -19,10 +19,14 @@ export const startListeners = (): void => {
                 }
 
                 for (const condition of webhook.conditions) {
-                    const satisfies = conditions[condition.condition];
+                    try {
+                        const satisfies = conditions[condition.condition];
 
-                    if (satisfies(payload[condition.key], condition.value)) {
-                        return true;
+                        if (satisfies(payload[condition.key], condition.value)) {
+                            return true;
+                        }
+                    } catch (error) {
+                        return false;
                     }
                 }
 

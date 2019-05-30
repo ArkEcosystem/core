@@ -31,7 +31,7 @@ export const startServer = async config => {
     server.route({
         method: "GET",
         path: "/api/webhooks",
-        handler: request => {
+        handler: () => {
             return {
                 data: database.all(),
             };
@@ -70,6 +70,10 @@ export const startServer = async config => {
         method: "GET",
         path: "/api/webhooks/{id}",
         async handler(request) {
+            if (!database.hasById(request.params.id)) {
+                return Boom.notFound();
+            }
+
             const webhook: IWebhook = database.findById(request.params.id);
             delete webhook.token;
 
@@ -84,6 +88,10 @@ export const startServer = async config => {
         method: "PUT",
         path: "/api/webhooks/{id}",
         handler: (request, h) => {
+            if (!database.hasById(request.params.id)) {
+                return Boom.notFound();
+            }
+
             database.update(request.params.id, request.payload as IWebhook);
 
             return h.response(undefined).code(204);
@@ -97,13 +105,13 @@ export const startServer = async config => {
         method: "DELETE",
         path: "/api/webhooks/{id}",
         handler: (request, h) => {
-            try {
-                database.destroy(request.params.id);
-
-                return h.response(undefined).code(204);
-            } catch (error) {
+            if (!database.hasById(request.params.id)) {
                 return Boom.notFound();
             }
+
+            database.destroy(request.params.id);
+
+            return h.response(undefined).code(204);
         },
         options: {
             validate: schema.destroy,
