@@ -33,30 +33,30 @@ module.exports = {
     },
     "@arkecosystem/core-p2p": {
         host: process.env.CORE_P2P_HOST || "0.0.0.0",
-        port: process.env.CORE_P2P_PORT || 4001,
+        port: process.env.CORE_P2P_PORT || 4417,
     },
     "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",
-        port: process.env.CORE_API_PORT || 4003,
+        port: process.env.CORE_API_PORT || 5417,
         whitelist: ["*"],
     },
     "@arkecosystem/core-webhooks": {
         enabled: process.env.CORE_WEBHOOKS_ENABLED,
         server: {
             host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
-            port: process.env.CORE_WEBHOOKS_PORT || 4004,
+            port: process.env.CORE_WEBHOOKS_PORT || 6417,
             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         },
     },
     "@arkecosystem/core-forger": {
-        hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4001}`],
+        hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4417}`],
     },
     "@arkecosystem/core-json-rpc": {
         enabled: process.env.CORE_JSON_RPC_ENABLED,
         host: process.env.CORE_JSON_RPC_HOST || "0.0.0.0",
-        port: process.env.CORE_JSON_RPC_PORT || 8080,
+        port: process.env.CORE_JSON_RPC_PORT || 7417,
         allowRemote: false,
         whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
