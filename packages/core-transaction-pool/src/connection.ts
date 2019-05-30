@@ -161,11 +161,15 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
+                const walletManager: State.IWalletManager = this.databaseService.walletManager;
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
+
                 transactions.push(deserialized.serialized.toString("hex"));
             } catch (error) {
                 this.removeTransactionById(transaction.id);
 
-                this.logger.error(`Removed ${transaction.id} before forging because it resulted in malformed data.`);
+                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
             }
         }
 
