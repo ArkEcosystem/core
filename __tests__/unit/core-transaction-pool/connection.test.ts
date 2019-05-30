@@ -38,6 +38,9 @@ beforeAll(async () => {
         storage: new Storage(),
     });
 
+    // @ts-ignore
+    connection.databaseService.walletManager = new Wallets.WalletManager();
+
     await connection.make();
 });
 
@@ -493,10 +496,13 @@ describe("Connection", () => {
             const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4];
             addTransactions(transactions);
 
+            const spy = jest.spyOn(Handlers.Registry.get(0), "canBeApplied").mockReturnValue(true);
             const transactionsForForging = connection.getTransactionsForForging(4);
+            spy.mockRestore();
 
             expect(transactionsForForging).toEqual(transactions.map(tx => tx.serialized.toString("hex")));
         });
+
         it("should only return transactions not exceeding the maximum payload size", () => {
             // @FIXME: Uhm excuse me, what the?
             mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
@@ -519,6 +525,7 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
+            const spy = jest.spyOn(Handlers.Registry.get(0), "canBeApplied").mockReturnValue(true);
             let transactionsForForging = connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
@@ -537,6 +544,8 @@ describe("Connection", () => {
             connection.removeTransactionById(mockData.dummy7.id);
 
             transactionsForForging = connection.getTransactionsForForging(7);
+            spy.mockRestore();
+
             expect(transactionsForForging.length).toBe(1);
             expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized.toString("hex"));
         });
@@ -683,7 +692,11 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(findByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
-            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
+            expect(canBeApplied).toHaveBeenCalledWith(
+                mockData.dummy1,
+                findByPublicKeyWallet,
+                (connection as any).databaseService.walletManager,
+            );
             expect(applyToSenderInPool).toHaveBeenCalledWith(mockData.dummy1, connection.walletManager);
         });
 
@@ -710,7 +723,11 @@ describe("Connection", () => {
             await connection.buildWallets();
 
             expect(applyToSenderInPool).not.toHaveBeenCalled();
-            expect(canBeApplied).toHaveBeenCalledWith(mockData.dummy1, findByPublicKeyWallet, undefined);
+            expect(canBeApplied).toHaveBeenCalledWith(
+                mockData.dummy1,
+                findByPublicKeyWallet,
+                (connection as any).databaseService.walletManager,
+            );
             expect(purgeByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });
