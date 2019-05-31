@@ -3,7 +3,7 @@ jobs:
   test-node10-unit:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
     steps:
       - checkout
       - run:
@@ -91,7 +91,7 @@ jobs:
   test-node11-unit:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
     steps:
       - checkout
       - run:
@@ -179,7 +179,7 @@ jobs:
   test-node12-unit:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
     steps:
       - checkout
       - run:
@@ -270,7 +270,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -366,7 +366,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -462,7 +462,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -558,7 +558,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -673,7 +673,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -788,7 +788,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -900,7 +900,7 @@ jobs:
   test-node10-benchmark:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
     steps:
       - checkout
       - run:
@@ -970,7 +970,7 @@ jobs:
   test-node11-benchmark:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
     steps:
       - checkout
       - run:
@@ -1040,7 +1040,7 @@ jobs:
   test-node12-benchmark:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
     steps:
       - checkout
       - run:
@@ -1473,7 +1473,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -1594,7 +1594,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -1715,7 +1715,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
