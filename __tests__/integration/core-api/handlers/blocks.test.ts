@@ -53,6 +53,34 @@ describe("API 2.0 - Blocks", () => {
         });
     });
 
+    describe("GET /blocks/first", () => {
+        it("should GET the first block on the chain", async () => {
+            const response = await utils.request("GET", "blocks/first");
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+
+            utils.expectBlock(response.data.data, {
+                id: genesisBlock.id,
+                transactions: genesisBlock.numberOfTransactions,
+            });
+        });
+    });
+
+    describe("GET /blocks/last", () => {
+        it("should GET the last block on the chain", async () => {
+            const response = await utils.request("GET", "blocks/last");
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+
+            utils.expectBlock(response.data.data, {
+                id: genesisBlock.id,
+                transactions: genesisBlock.numberOfTransactions,
+            });
+        });
+    });
+
     describe("GET /blocks/:id", () => {
         it("should GET a block by the given identifier", async () => {
             const response = await utils.request("GET", `blocks/${genesisBlock.id}`);
