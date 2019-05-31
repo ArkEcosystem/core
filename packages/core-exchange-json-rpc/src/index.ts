@@ -16,7 +16,11 @@ export const plugin: Container.IPluginDescriptor = {
 
         options.network = Managers.configManager.get("network.name");
 
-        return start({ database: options.database as string, server: options });
+        return start({
+            database: options.database as string,
+            server: options,
+            logger: container.resolvePlugin<Logger.ILogger>("logger"),
+        });
     },
     async deregister(container: Container.IContainer, options) {
         if (options.enabled) {
