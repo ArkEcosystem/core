@@ -29,7 +29,7 @@ const setUp = async () => {
         exclude: [
             "@arkecosystem/core-webhooks",
             "@arkecosystem/core-forger",
-            "@arkecosystem/core-json-rpc",
+            "@arkecosystem/core-exchange-json-rpc",
             "@arkecosystem/core-api",
         ],
     });
@@ -58,6 +58,7 @@ const calculateRanks = async () => {
         (a: State.IWallet, b: State.IWallet) => b.voteBalance.comparedTo(a.voteBalance),
     );
 
+    // tslint:disable-next-line: ban
     sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
         const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
         (wallet as any).rate = i + 1;

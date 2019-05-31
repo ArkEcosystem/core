@@ -50,7 +50,7 @@
         "@arkecosystem/core-database-postgres": "^2.4.0-next.9",
         "@arkecosystem/core-event-emitter": "^2.4.0-next.9",
         "@arkecosystem/core-forger": "^2.4.0-next.9",
-        "@arkecosystem/core-json-rpc": "^2.4.0-next.9",
+        "@arkecosystem/core-exchange-json-rpc": "^2.4.0-next.9",
         "@arkecosystem/core-logger-pino": "^2.4.0-next.9",
         "@arkecosystem/core-p2p": "^2.4.0-next.9",
         "@arkecosystem/core-snapshots": "^2.4.0-next.9",
