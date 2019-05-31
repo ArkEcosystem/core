@@ -3,7 +3,7 @@ export const transformPortsLegacy = (config: any) => {
     const keys = [
         "@arkecosystem/core-p2p",
         "@arkecosystem/core-api",
-        "@arkecosystem/core-json-rpc",
+        "@arkecosystem/core-exchange-json-rpc",
         "@arkecosystem/core-webhooks",
     ];
 
