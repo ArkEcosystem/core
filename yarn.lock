@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@arkecosystem/exchange-json-rpc@^1.0.0-next.3":
-  version "1.0.0-next.3"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/exchange-json-rpc/-/exchange-json-rpc-1.0.0-next.3.tgz#73beca2fd9c2d0278786ec98de5b039f952841e7"
-  integrity sha512-F5XGdP++HIEPwCL+dVLpBE5kgX8aXSOtGRsnBfWKwCVVSClFEgzMx1nogtDLSlasuFXa5KBRwlyGj5mPgf+aDA==
+"@arkecosystem/exchange-json-rpc@^1.0.0-next.5":
+  version "1.0.0-next.5"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/exchange-json-rpc/-/exchange-json-rpc-1.0.0-next.5.tgz#59c063df0040f57db6cf40b583268f8b4aa6d97d"
+  integrity sha512-hTOgE1VX5PrgAgMMm5x5Pk6iHviwhd4iKPSKASpoWNnWfeNa52VxmOyQCH3fMvrK/MeWAkcaUX9TWsb2FOoX6A==
   dependencies:
     "@arkecosystem/core-utils" "^2.4.0-next.3"
     "@arkecosystem/crypto" "^2.4.0-next.3"
@@ -17,6 +17,7 @@
     bip39 "^3.0.2"
     fs-extra "^8.0.1"
     is-reachable "^3.1.0"
+    json-buffer "^3.0.1"
     lodash.sample "^4.2.1"
     pino "^5.12.6"
     pino-pretty "^3.1.0"
@@ -8439,6 +8440,11 @@ json-buffer@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/json-buffer/-/json-buffer-3.0.0.tgz#5b1f397afc75d677bde8bcfc0e47e1f9a3d9a898"
   integrity sha1-Wx85evx11ne96Lz8Dkfh+aPZqJg=
+
+json-buffer@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/json-buffer/-/json-buffer-3.0.1.tgz#9338802a30d3b6605fbe0613e094008ca8c05a13"
+  integrity sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==
 
 json-parse-better-errors@^1.0.0, json-parse-better-errors@^1.0.1:
   version "1.0.2"
