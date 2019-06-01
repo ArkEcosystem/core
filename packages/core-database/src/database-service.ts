@@ -44,6 +44,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
+        if (process.env.CORE_RESET_DATABASE) {
+            await this.reset();
+        }
+
         await this.createGenesisBlock();
 
         const lastBlock: Interfaces.IBlock = await this.getLastBlock();

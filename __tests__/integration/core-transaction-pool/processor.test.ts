@@ -25,6 +25,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await container.resolvePlugin("database").reset();
+
     await tearDownFull();
 });
 
