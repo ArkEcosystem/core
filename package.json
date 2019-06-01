@@ -99,7 +99,7 @@
     ],
     "husky": {
         "hooks": {
-            "pre-commit": "lint-staged && cross-env-shell ./scripts/pre-commit.sh"
+            "pre-commit": "lint-staged"
         }
     },
     "jest": {
