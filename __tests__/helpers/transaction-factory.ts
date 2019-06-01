@@ -1,4 +1,5 @@
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
+import cloneDeep from "lodash.clonedeep";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -92,6 +93,10 @@ export class TransactionFactory {
     private version: number;
     private senderPublicKey: string;
     private expiration: number;
+    private customizedPayload: Array<Partial<Interfaces.ITransactionData>>;
+    private customizedPayloadOptions: {
+        quantity?: number;
+    };
 
     public constructor(builder) {
         this.builder = builder;
@@ -172,6 +177,17 @@ export class TransactionFactory {
         return this.create(1)[0];
     }
 
+    public withCustomizedPayload(
+        customizedPayload: Array<Partial<Interfaces.ITransactionData>>,
+        options: {
+            quantity?: number;
+        } = {},
+    ): TransactionFactory {
+        this.customizedPayload = customizedPayload;
+        this.customizedPayloadOptions = options;
+        return this;
+    }
+
     public build(quantity: number = 1): Interfaces.ITransaction[] {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }
@@ -193,6 +209,8 @@ export class TransactionFactory {
         Managers.configManager.setFromPreset(this.network);
 
         const transactions: T[] = [];
+
+        let countMalformed: number = 0;
 
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
@@ -248,7 +266,23 @@ export class TransactionFactory {
                 }
             }
 
-            transactions.push(this.builder[method]());
+            if (
+                this.customizedPayload &&
+                (!this.customizedPayloadOptions.quantity || this.customizedPayloadOptions.quantity > countMalformed)
+            ) {
+                countMalformed++;
+
+                const builderData = this.builder.data;
+                this.builder.data = Object.assign(
+                    cloneDeep(this.builder.data),
+                    this.customizedPayload[countMalformed % this.customizedPayload.length],
+                );
+
+                transactions.push(this.builder[method]());
+                this.builder.data = builderData;
+            } else {
+                transactions.push(this.builder[method]());
+            }
         }
 
         return transactions;
