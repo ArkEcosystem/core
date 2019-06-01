@@ -11,6 +11,8 @@ export const setUp = async () => {
         exclude: ["@arkecosystem/core-database-postgres"],
     });
 
+    process.env.RESET_DATABASE = "1";
+
     await registerWithContainer(pluginDatabase);
 
     await registerWithContainer(plugin, {
