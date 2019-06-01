@@ -210,7 +210,7 @@ export class TransactionFactory {
 
         const transactions: T[] = [];
 
-        let countMalformed: number = 0;
+        let countCustomized: number = 0;
 
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
@@ -268,18 +268,33 @@ export class TransactionFactory {
 
             if (
                 this.customizedPayload &&
-                (!this.customizedPayloadOptions.quantity || this.customizedPayloadOptions.quantity > countMalformed)
+                (!this.customizedPayloadOptions.quantity || this.customizedPayloadOptions.quantity > countCustomized)
             ) {
-                countMalformed++;
+                countCustomized++;
 
-                const builderData = this.builder.data;
-                this.builder.data = Object.assign(
-                    cloneDeep(this.builder.data),
-                    this.customizedPayload[countMalformed % this.customizedPayload.length],
-                );
+                const payload = this.customizedPayload[countCustomized % this.customizedPayload.length];
+                const transaction: Interfaces.ITransaction = this.builder[method]();
+                transaction.data = Object.assign(cloneDeep(transaction.data), payload);
 
-                transactions.push(this.builder[method]());
-                this.builder.data = builderData;
+                if (!payload.signature) {
+                    transaction.data.signature = Transactions.Signer.sign(
+                        transaction.data,
+                        Identities.Keys.fromPassphrase(this.passphrase),
+                    );
+                }
+
+                // TODO: second sig
+                // TODO: multi sig
+
+                if (!payload.id) {
+                    transaction.data.id = Transactions.Utils.getId(transaction.data);
+                }
+
+                // TODO: exclude certain malformed properties that cannot be serialized properly
+                // like signatures that are too long. Add support for customizing signatures.
+                Transactions.Serializer.serialize(transaction);
+
+                transactions.push((transaction as unknown) as T);
             } else {
                 transactions.push(this.builder[method]());
             }
