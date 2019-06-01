@@ -93,7 +93,6 @@ fs.readdir("./packages", (_, packages) => {
 
     config.workflows.build_and_test.jobs = fixedJobs
         .concat(config.workflows.build_and_test.jobs)
-        .filter(job => !job.includes("node12"))
 
     fs.writeFileSync(".circleci/config.yml", yaml.safeDump(config));
 });

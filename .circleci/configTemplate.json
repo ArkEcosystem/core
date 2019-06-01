@@ -5,7 +5,7 @@
             "working_directory": "~/core",
             "docker": [
                 {
-                    "image": "circleci/node:10-browsers"
+                    "image": "circleci/node:10"
                 }
             ],
             "steps": [
@@ -82,7 +82,7 @@
             "working_directory": "~/core",
             "docker": [
                 {
-                    "image": "circleci/node:11-browsers"
+                    "image": "circleci/node:11"
                 }
             ],
             "steps": [
@@ -159,7 +159,7 @@
             "working_directory": "~/core",
             "docker": [
                 {
-                    "image": "circleci/node:12-browsers"
+                    "image": "circleci/node:12"
                 }
             ],
             "steps": [
@@ -240,7 +240,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:10-browsers"
+                    "image": "circleci/node:10"
                 },
                 {
                     "image": "postgres:alpine",
@@ -329,7 +329,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:11-browsers"
+                    "image": "circleci/node:11"
                 },
                 {
                     "image": "postgres:alpine",
@@ -418,7 +418,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:12-browsers"
+                    "image": "circleci/node:12"
                 },
                 {
                     "image": "postgres:alpine",
@@ -507,7 +507,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:10-browsers"
+                    "image": "circleci/node:10"
                 },
                 {
                     "image": "postgres:alpine",
@@ -596,7 +596,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:11-browsers"
+                    "image": "circleci/node:11"
                 },
                 {
                     "image": "postgres:alpine",
@@ -685,7 +685,7 @@
             },
             "docker": [
                 {
-                    "image": "circleci/node:12-browsers"
+                    "image": "circleci/node:12"
                 },
                 {
                     "image": "postgres:alpine",
@@ -770,7 +770,7 @@
             "working_directory": "~/core",
             "docker": [
                 {
-                    "image": "circleci/node:10-browsers"
+                    "image": "circleci/node:10"
                 }
             ],
             "steps": [
@@ -816,7 +816,7 @@
             "working_directory": "~/core",
             "docker": [
                 {
-                    "image": "circleci/node:11-browsers"
+                    "image": "circleci/node:11"
                 }
             ],
             "steps": [
@@ -862,7 +862,7 @@
             "working_directory": "~/core",
             "docker": [
                 {
-                    "image": "circleci/node:12-browsers"
+                    "image": "circleci/node:12"
                 }
             ],
             "steps": [

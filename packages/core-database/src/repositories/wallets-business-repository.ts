@@ -15,6 +15,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         if (params.addresses) {
             // Use the `in` filter instead of `exact` for the `address` field
             if (!params.address) {
+                // @ts-ignore
                 params.address = params.addresses;
                 query.exact.shift();
                 query.in = ["address"];
