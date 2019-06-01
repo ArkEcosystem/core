@@ -35,7 +35,7 @@ const setUp = async () => {
     });
 
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    await databaseService.connection.roundsRepository.truncate();
+    await databaseService.reset();
     await databaseService.buildWallets();
     await databaseService.saveRound(round);
 
