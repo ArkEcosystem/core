@@ -331,18 +331,18 @@ workflows:
     version: 2
     test:
         jobs:
-            - node10-unit
-            - node11-unit
-            - node12-unit
-            - node10-functional
-            - node11-functional
-            - node12-functional
-            - node10-benchmark
-            - node11-benchmark
-            - node12-benchmark
-            - node10-e2e
-            - node11-e2e
-            - node12-e2e
+            # - node10-unit
+            # - node11-unit
+            # - node12-unit
+            # - node10-functional
+            # - node11-functional
+            # - node12-functional
+            # - node10-benchmark
+            # - node11-benchmark
+            # - node12-benchmark
+            # - node10-e2e
+            # - node11-e2e
+            # - node12-e2e
             - node10-integration
-            - node11-integration
-            - node12-integration
+            # - node11-integration
+            # - node12-integration
