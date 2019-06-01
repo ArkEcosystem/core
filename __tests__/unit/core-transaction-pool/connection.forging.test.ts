@@ -4,17 +4,7 @@ import "./mocks/core-container";
 
 import { Wallets } from "@arkecosystem/core-state";
 
-// @ts-ignore
-import {
-    Constants,
-    Crypto,
-    Identities,
-    Interfaces,
-    Managers,
-    Networks,
-    Transactions,
-    Utils,
-} from "@arkecosystem/crypto";
+import { Constants, Crypto, Identities, Interfaces, Managers, Networks, Utils } from "@arkecosystem/crypto";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -42,7 +32,7 @@ beforeAll(async () => {
 
     await connection.make();
 
-    jest.spyOn(Transactions.Verifier, "verify").mockReturnValue(true);
+    //  jest.spyOn(Transactions.Verifier, "verify").mockReturnValue(true);
 });
 
 const mockCurrentHeight = (height: number) => {
