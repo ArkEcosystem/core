@@ -24,6 +24,7 @@ const setUp = async () => {
     jest.setTimeout(60000);
 
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
+    process.env.CORE_RESET_DATABASE = "1";
 
     await setUpContainer({
         exclude: [
@@ -35,7 +36,6 @@ const setUp = async () => {
     });
 
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    await databaseService.connection.roundsRepository.truncate();
     await databaseService.buildWallets();
     await databaseService.saveRound(round);
 
