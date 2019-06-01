@@ -168,7 +168,7 @@ export class Connection implements TransactionPool.IConnection {
                 transactions.push(deserialized.serialized.toString("hex"));
             } catch (error) {
                 this.removeTransactionById(transaction.id);
-
+                console.error(error);
                 this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
             }
         }
