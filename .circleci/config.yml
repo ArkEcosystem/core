@@ -3,7 +3,7 @@ jobs:
   test-node10-unit:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
     steps:
       - checkout
       - run:
@@ -91,7 +91,7 @@ jobs:
   test-node11-unit:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
     steps:
       - checkout
       - run:
@@ -179,7 +179,7 @@ jobs:
   test-node12-unit:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
     steps:
       - checkout
       - run:
@@ -270,7 +270,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -366,7 +366,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -462,7 +462,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -558,7 +558,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -673,7 +673,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -788,7 +788,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -900,7 +900,7 @@ jobs:
   test-node10-benchmark:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
     steps:
       - checkout
       - run:
@@ -970,7 +970,7 @@ jobs:
   test-node11-benchmark:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
     steps:
       - checkout
       - run:
@@ -1040,7 +1040,7 @@ jobs:
   test-node12-benchmark:
     working_directory: ~/core
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
     steps:
       - checkout
       - run:
@@ -1473,7 +1473,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:10-browsers'
+      - image: 'circleci/node:10'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -1588,7 +1588,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:11-browsers'
+      - image: 'circleci/node:11'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -1703,7 +1703,7 @@ jobs:
       CORE_DB_DATABASE: ark_unitnet
       CORE_DB_USERNAME: ark
     docker:
-      - image: 'circleci/node:12-browsers'
+      - image: 'circleci/node:12'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
@@ -1818,13 +1818,19 @@ workflows:
     jobs:
       - test-node10-unit
       - test-node11-unit
+      - test-node12-unit
       - test-node10-functional
       - test-node11-functional
+      - test-node12-functional
       - test-node10-benchmark
       - test-node11-benchmark
+      - test-node12-benchmark
       - test-node10-e2e
       - test-node11-e2e
+      - test-node12-e2e
       - test-node10-integration-0
       - test-node10-integration-1
       - test-node11-integration-0
       - test-node11-integration-1
+      - test-node12-integration-0
+      - test-node12-integration-1
