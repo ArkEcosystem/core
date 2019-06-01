@@ -5,7 +5,16 @@ import "./mocks/core-container";
 import { Wallets } from "@arkecosystem/core-state";
 
 // @ts-ignore
-import { Constants, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import {
+    Constants,
+    Crypto,
+    Identities,
+    Interfaces,
+    Managers,
+    Networks,
+    Transactions,
+    Utils,
+} from "@arkecosystem/crypto";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -42,38 +51,48 @@ const mockCurrentHeight = (height: number) => {
     Managers.configManager.setHeight(height);
 };
 
-beforeEach(() => {
-    mockCurrentHeight(1);
-
-    connection.flush();
-    poolWalletManager.reset();
-
-    databaseWalletManager = new Wallets.WalletManager();
-
-    for (let i = 0; i < delegates.length; i++) {
-        const { publicKey } = delegates[i];
-        const wallet = databaseWalletManager.findByPublicKey(publicKey);
-        wallet.balance = Utils.BigNumber.make(100_000 * Constants.ARKTOSHI);
-        wallet.username = `delegate-${i + 1}`;
-        wallet.vote = publicKey;
-
-        databaseWalletManager.reindex(wallet);
-    }
-
-    databaseWalletManager.buildDelegateRanking();
-    databaseWalletManager.buildVoteBalances();
-
-    // @ts-ignore
-    connection.databaseService.walletManager = databaseWalletManager;
-});
-
 describe("Connection", () => {
+    beforeEach(() => {
+        mockCurrentHeight(1);
+
+        connection.flush();
+        poolWalletManager.reset();
+
+        databaseWalletManager = new Wallets.WalletManager();
+
+        for (let i = 0; i < delegates.length; i++) {
+            const { publicKey } = delegates[i];
+            const wallet = databaseWalletManager.findByPublicKey(publicKey);
+            wallet.balance = Utils.BigNumber.make(100_000 * Constants.ARKTOSHI);
+            wallet.username = `delegate-${i + 1}`;
+            wallet.vote = publicKey;
+
+            databaseWalletManager.reindex(wallet);
+        }
+
+        databaseWalletManager.buildDelegateRanking();
+        databaseWalletManager.buildVoteBalances();
+
+        // @ts-ignore
+        connection.databaseService.walletManager = databaseWalletManager;
+    });
+
     const addTransactionsToMemory = transactions => {
         for (const tx of transactions) {
             memory.remember(tx);
             expect(memory.has(tx.id)).toBeTrue();
         }
         expect(memory.count()).toBe(transactions.length);
+    };
+
+    const expectForgingTransactions = (transactions: Interfaces.ITransaction[], countGood: number) => {
+        addTransactionsToMemory(transactions);
+
+        const forgingTransactions = connection.getTransactionsForForging(100);
+        expect(forgingTransactions).toHaveLength(countGood);
+        expect(forgingTransactions).toEqual(
+            transactions.slice(transactions.length - countGood).map(({ serialized }) => serialized.toString("hex")),
+        );
     };
 
     describe("getTransactionsForForging", () => {
@@ -84,84 +103,73 @@ describe("Connection", () => {
                 .withCustomizedPayload([{ expiration: 1 }], { quantity: 5 })
                 .build(10);
 
-            addTransactionsToMemory(transactions);
-
-            const forgingTransactions = connection.getTransactionsForForging(100);
-
-            expect(forgingTransactions).toHaveLength(5);
-            expect(forgingTransactions).toEqual(
-                transactions.slice(5).map(({ serialized }) => serialized.toString("hex")),
-            );
+            expectForgingTransactions(transactions, 5);
         });
 
-        // it("should remove transactions that have a fee of 0 or less", () => {
-        //     const transactions = [
-        //         createTransfer({}),
-        //         createTransfer({ amount: bignum(1234), fee: bignum(-2) }),
-        //         createTransfer({ amount: bignum(2345), fee: bignum(0) }),
-        //     ];
+        it("should remove transactions that have a fee of 0 or less [8 Good, 2 Bad]", () => {
+            const transactions = TransactionFactory.transfer()
+                .withCustomizedPayload(
+                    [
+                        { amount: Utils.BigNumber.make(1000), fee: Utils.BigNumber.ZERO },
+                        { amount: Utils.BigNumber.make(1000), fee: Utils.BigNumber.make(-100) },
+                    ],
+                    { quantity: 2 },
+                )
+                .build(10);
 
-        //     addTransactionsToMemory(transactions);
+            expectForgingTransactions(transactions, 8);
+        });
 
-        //     expect(connection.getTransactionsForForging(100)).toEqual([transactions[0].serialized.toString("hex")]);
-        // });
+        it("should remove transactions that have an amount of 0 or less [8 Good, 2 Bad]", () => {
+            const transactions = TransactionFactory.transfer()
+                .withCustomizedPayload(
+                    [
+                        { amount: Utils.BigNumber.ZERO, fee: Utils.BigNumber.ONE },
+                        { amount: Utils.BigNumber.make(-1), fee: Utils.BigNumber.ONE },
+                    ],
+                    { quantity: 2 },
+                )
+                .build(10);
 
-        // it("should remove transactions that have an amount of 0 or less", () => {
-        //     const transactions = [
-        //         createTransfer({}),
-        //         createTransfer({ amount: bignum(-2) }),
-        //         createTransfer({ amount: bignum(0) }),
-        //     ];
+            expectForgingTransactions(transactions, 8);
+        });
 
-        //     addTransactionsToMemory(transactions);
+        it("should remove transactions that have data from another network [5 Good, 5 Bad]", () => {
+            const transactions = TransactionFactory.transfer()
+                .withCustomizedPayload(
+                    [{ recipientId: Identities.Address.fromPassphrase("secret", Networks.devnet.network.pubKeyHash) }],
+                    { quantity: 5 },
+                )
+                .build(10);
 
-        //     expect(connection.getTransactionsForForging(100)).toEqual([transactions[0].serialized.toString("hex")]);
-        // });
+            expectForgingTransactions(transactions, 5);
+        });
 
-        // it("should remove transactions that have data from another network", () => {
-        //     const transactions = [
-        //         createTransfer({}),
-        //         createTransfer({
-        //             recipientId: Identities.Address.fromPassphrase("this is fine", Networks.devnet.network.pubKeyHash),
-        //         }),
-        //     ];
+        it("should remove transactions that have wrong sender public keys [5 Good, 5 Bad]", () => {
+            const transactions = TransactionFactory.transfer()
+                .withCustomizedPayload([{ senderPublicKey: Identities.PublicKey.fromPassphrase("this is wrong") }], {
+                    quantity: 5,
+                })
+                .build(10);
 
-        //     addTransactionsToMemory(transactions);
+            expectForgingTransactions(transactions, 5);
+        });
 
-        //     expect(connection.getTransactionsForForging(100)).toEqual([transactions[0].serialized.toString("hex")]);
-        // });
+        it("should remove transactions that have timestamps in the future [5 Good, 5 Bad]", () => {
+            const transactions = TransactionFactory.transfer()
+                .withCustomizedPayload([{ timestamp: Crypto.Slots.getTime() + 100 * 1000 }], { quantity: 5 })
+                .build(10);
 
-        // it.skip("should remove transactions that have wrong sender public keys", () => {
-        //     const transactions = [
-        //         createTransfer({}),
-        //         createTransfer({ senderPublicKey: Identities.PublicKey.fromPassphrase("this is wrong") }),
-        //     ];
+            expectForgingTransactions(transactions, 5);
+        });
 
-        //     expect(transactions[1]).toEqual({});
-        //     addTransactionsToMemory(transactions);
+        it("should remove transactions that have different IDs when entering and leaving [8 Good, 2 Bad]", () => {
+            const transactions = TransactionFactory.transfer()
+                .withCustomizedPayload([{ id: "garbage" }, { id: "garbage 2" }], { quantity: 2 })
+                .build(10);
 
-        //     expect(connection.getTransactionsForForging(100)).toEqual([transactions[0].serialized.toString("hex")]);
-        // });
-
-        // it.skip("should remove transactions that have timestamps in the future", () => {
-        //     const transactions = [
-        //         createTransfer({}),
-        //         createTransfer({ amount: bignum(1234), timestamp: Crypto.Slots.getTime() + 100 * 1000 }),
-        //     ];
-
-        //     addTransactionsToMemory(transactions);
-
-        //     expect(connection.getTransactionsForForging(100)).toEqual([transactions[0].serialized.toString("hex")]);
-        // });
-
-        // it.skip("should remove transactions that have different IDs when entering and leaving", () => {
-        //     const transactions = [createTransfer({}), createTransfer({ amount: bignum(1234), id: "64738638929" })];
-
-        //     expect(transactions[1]).toEqual({});
-        //     addTransactionsToMemory(transactions);
-
-        //     expect(connection.getTransactionsForForging(100)).toEqual([transactions[0].serialized.toString("hex")]);
-        // });
+            expectForgingTransactions(transactions, 8);
+        });
 
         it.todo("should remove transactions that have an unknown type");
         it.todo("should remove transactions that have unknown properties");
