@@ -14,12 +14,6 @@ jobs:
             - run:
                   name: Install xsel
                   command: sudo apt-get install -q xsel
-            - run:
-                  name: Generate cache key
-                  command: >-
-                      find ./packages/ -name package.json -print0 | sort -z | xargs -r0
-                      echo ./package.json ./__tests__/e2e/package.json | xargs md5sum |
-                      md5sum - > checksum.txt
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
@@ -174,9 +168,7 @@ jobs:
                   command: mkdir -p $HOME/.core/database
             - run:
                   name: Integration tests
-                  command: >-
-                      cd ~/core/.circleci && ./rebuild-db.sh && yarn
-                      test:integration:coverage --coverageDirectory .coverage/integration/
+                  command: cd ~/core/.circleci && yarn test:integration:coverage --coverageDirectory .coverage/integration/
             - run:
                   name: Last 1000 lines of test output
                   when: on_fail

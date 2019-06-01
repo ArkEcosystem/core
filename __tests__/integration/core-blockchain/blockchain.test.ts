@@ -70,6 +70,8 @@ describe("Blockchain", () => {
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
         configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
+
+        await blockchain.database.reset();
     });
 
     afterAll(async () => {
