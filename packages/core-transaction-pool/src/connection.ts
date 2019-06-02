@@ -144,7 +144,7 @@ export class Connection implements TransactionPool.IConnection {
         );
     }
 
-    public getTransactionsForForging(blockSize: number): string[] {
+    public async getTransactionsForForging(blockSize: number): Promise<string[]> {
         const transactionMemory: Interfaces.ITransaction[] = this.getTransactionsData(
             0,
             blockSize,
@@ -153,7 +153,17 @@ export class Connection implements TransactionPool.IConnection {
 
         const transactions: string[] = [];
 
-        for (const transaction of transactionMemory) {
+        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
+            transactionMemory.map(transaction => transaction.id),
+        );
+
+        this.removeTransactionsById(forgedIds);
+
+        const unforgedTransactions = transactionMemory.filter(
+            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
+        );
+
+        for (const transaction of unforgedTransactions) {
             try {
                 const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
                     transaction.serialized,

@@ -7,10 +7,7 @@ export const emitEvent = ({ req }): void => {
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 };
 
-export const getUnconfirmedTransactions = (): {
-    transactions: string[];
-    poolSize: number;
-} => {
+export const getUnconfirmedTransactions = async (): Promise<P2P.IUnconfirmedTransactions> => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const { maxTransactions } = app.getConfig().getMilestone(blockchain.getLastBlock().data.height).block;
 
@@ -19,7 +16,7 @@ export const getUnconfirmedTransactions = (): {
     );
 
     return {
-        transactions: transactionPool.getTransactionsForForging(maxTransactions),
+        transactions: await transactionPool.getTransactionsForForging(maxTransactions),
         poolSize: transactionPool.getPoolSize(),
     };
 };

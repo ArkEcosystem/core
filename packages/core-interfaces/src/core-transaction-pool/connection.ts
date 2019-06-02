@@ -32,7 +32,7 @@ export interface IConnection {
     getTransactions(start: number, size: number, maxBytes?: number): Buffer[];
     getTransactionsByType(type: any): any;
     getTransactionsData(start: number, size: number, maxBytes?: number): Interfaces.ITransaction[];
-    getTransactionsForForging(blockSize: number): string[];
+    getTransactionsForForging(blockSize: number): Promise<string[]>;
     has(transactionId: string): any;
     hasExceededMaxTransactions(senderPublicKey: string): boolean;
     isSenderBlocked(senderPublicKey: string): boolean;
