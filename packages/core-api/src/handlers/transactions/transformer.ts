@@ -36,7 +36,7 @@ export const transformTransaction = (model, transform) => {
         signatures: data.signatures,
         vendorField: data.vendorField,
         asset: data.asset,
-        confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
+        confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
         timestamp: formatTimestamp(data.timestamp),
     };
 };
