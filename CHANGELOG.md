@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Allow retrieval of raw blocks and transactions via API ([#2616])
 -   Search transactions by asset via API ([#2618])
+-   Allow easy retrieval of first and last block ([#2641])
 
 ### Removed
 
@@ -712,3 +713,4 @@ Closed security vulnerabilities:
 [#2628]: https://github.com/ARKEcosystem/core/pull/2628
 [#2634]: https://github.com/ARKEcosystem/core/pull/2634
 [#2635]: https://github.com/ARKEcosystem/core/pull/2635
+[#2641]: https://github.com/ARKEcosystem/core/pull/2641
