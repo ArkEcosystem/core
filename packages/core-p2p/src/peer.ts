@@ -1,14 +1,17 @@
+import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import dayjs, { Dayjs } from "dayjs";
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
     public readonly ports: P2P.IPeerPorts = {};
+    public readonly port: number = +app.resolveOptions("p2p").server.port;
 
     public version: string;
     public latency: number;
     public lastPinged: Dayjs | undefined;
     public verificationResult: PeerVerificationResult | undefined;
+
     public state: P2P.IPeerState = {
         height: undefined,
         forgingAllowed: undefined,
@@ -20,10 +23,6 @@ export class Peer implements P2P.IPeer {
 
     get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
-    }
-
-    get port(): number {
-        return this.ports.p2p;
     }
 
     public isVerified(): boolean {
