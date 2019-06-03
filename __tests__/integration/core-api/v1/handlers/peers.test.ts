@@ -5,7 +5,7 @@ import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
 const mockAddress = "1.0.0.99";
-const mockPort = 4002;
+const mockPort = 4000;
 
 beforeAll(async () => {
     await setUp();
