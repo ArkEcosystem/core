@@ -1,7 +1,7 @@
 export const transformPeerLegacy = model => {
     return {
         ip: model.ip,
-        port: model.ports.p2p,
+        port: model.port,
         ports: model.ports,
         version: model.version,
         height: model.height,
