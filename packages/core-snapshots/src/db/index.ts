@@ -34,6 +34,10 @@ export class Database {
         return this.db.oneOrNone(queries.blocks.latest);
     }
 
+    public async getLastRound() {
+        return this.db.oneOrNone(queries.rounds.latest);
+    }
+
     public async getBlockByHeight(height) {
         return this.db.oneOrNone(queries.blocks.findByHeight, { height });
     }

@@ -1,0 +1,3 @@
+SELECT *
+FROM rounds
+ORDER BY id DESC LIMIT 1
