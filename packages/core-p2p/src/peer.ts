@@ -1,12 +1,9 @@
-import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import dayjs, { Dayjs } from "dayjs";
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements P2P.IPeer {
-    public readonly ports: P2P.IPeerPorts = {
-        p2p: +app.resolveOptions("p2p").server.port,
-    };
+    public readonly ports: P2P.IPeerPorts = {};
 
     public version: string;
     public latency: number;
