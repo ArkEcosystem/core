@@ -236,6 +236,20 @@ describe("Connection", () => {
             await expectForgingTransactions(transactions, 8);
         });
 
+        it("should call `TransactionFactory.fromBytes`", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+            const spy = jest.spyOn(Transactions.TransactionFactory, "fromBytes");
+            await expectForgingTransactions(transactions, 5);
+            expect(spy).toHaveBeenCalled();
+        });
+
+        it("should call `TransactionHandler.canBeApplied`", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+            const spy = jest.spyOn(Handlers.Registry.get(0), "canBeApplied");
+            await expectForgingTransactions(transactions, 5);
+            expect(spy).toHaveBeenCalled();
+        });
+
         it("should remove transactions that have malformed bytes", async () => {
             const malformedBytesFn = [
                 { version: (b: ByteBuffer) => b.writeUint64(1111111) },
