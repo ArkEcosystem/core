@@ -53,6 +53,10 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 return res(error);
             }
 
+            if (error.name === SocketErrors.AppNotReady) {
+                return res(error);
+            }
+
             app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
