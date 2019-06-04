@@ -1,7 +1,6 @@
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { Enums } from "@arkecosystem/crypto";
 import partition from "lodash.partition";
-import snakeCase from "lodash.snakecase";
 import { IRepository } from "../interfaces";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/build-filter-query";
@@ -406,7 +405,14 @@ export class TransactionsRepository extends Repository implements IRepository {
             ? parameters.orderBy.split(":").map(p => p.toLowerCase())
             : ["timestamp", "desc"];
 
-        selectQuery.order(this.query[snakeCase(orderBy[0])][orderBy[1]]);
+        if (orderBy[0] === "recipient") {
+            orderBy[0] = "recipientid";
+        }
+
+        const column = this.query.columns.find(column => column.prop.toLowerCase() === orderBy[0]);
+        if (column) {
+            selectQuery.order(column[orderBy[1]]);
+        }
 
         selectQuery.order(this.query.sequence[sequenceOrder]);
     }
