@@ -55,9 +55,7 @@ export class Connection implements TransactionPool.IConnection {
 
         this.purgeExpired();
 
-        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(all.map(t => t.id));
-
-        this.removeTransactionsById(forgedIds);
+        await this.removeForgedTransactions(all);
 
         this.purgeInvalidTransactions();
 
@@ -152,12 +150,7 @@ export class Connection implements TransactionPool.IConnection {
         );
 
         const transactions: string[] = [];
-
-        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
-            transactionMemory.map(transaction => transaction.id),
-        );
-
-        this.removeTransactionsById(forgedIds);
+        const forgedIds: string[] = await this.removeForgedTransactions(transactionMemory);
 
         const unforgedTransactions = transactionMemory.filter(
             (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
@@ -503,6 +496,15 @@ export class Connection implements TransactionPool.IConnection {
     private syncToPersistentStorage(): void {
         this.storage.bulkAdd(this.memory.pullDirtyAdded());
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
+    }
+
+    private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
+            transactions.map(({ id }) => id),
+        );
+
+        this.removeTransactionsById(forgedIds);
+        return forgedIds;
     }
 
     private purgeExpired(): void {
