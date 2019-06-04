@@ -47,7 +47,7 @@ describe("NetworkMonitor", () => {
     describe("cleansePeers", () => {
         it("should be ok", async () => {
             const peer: P2P.IPeer = new Peer("0.0.0.11");
-            peer.ports.p2p = 4444;
+            (peer as any).port = 4444;
 
             storage.setPeer(peer);
 

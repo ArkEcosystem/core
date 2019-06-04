@@ -5,13 +5,13 @@ import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
 const mockAddress = "1.0.0.99";
-const mockPort = 4002;
+const mockPort = 4000;
 
 beforeAll(async () => {
     await setUp();
 
     const peerMock = new Peer(mockAddress);
-    peerMock.ports.p2p = mockPort;
+    (peerMock as any).port = mockPort;
 
     app.resolvePlugin("p2p")
         .getStorage()
@@ -58,7 +58,7 @@ describe("API 1.0 - Peers", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data).toBeObject();
             expect(response.data.peer.ip).toBe(mockAddress);
-            expect(response.data.peer.ports.p2p).toBe(mockPort);
+            expect(response.data.peer.port).toBe(mockPort);
         });
 
         it("should fail using known ip address with no port", async () => {
