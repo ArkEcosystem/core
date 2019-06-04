@@ -101,7 +101,7 @@ export class Worker extends SCWorker {
                     );
                 }
             } else if (version === "peer") {
-                await this.sendToMasterAsync("p2p.peer.acceptNewPeer", {
+                this.sendToMasterAsync("p2p.peer.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
                 });
