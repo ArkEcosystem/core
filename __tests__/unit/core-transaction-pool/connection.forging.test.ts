@@ -2,11 +2,21 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import { Wallets } from "@arkecosystem/core-state";
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 
-import { Constants, Crypto, Identities, Interfaces, Managers, Networks, Utils } from "@arkecosystem/crypto";
+import { Wallets } from "@arkecosystem/core-state";
+import { Handlers } from "@arkecosystem/core-transactions";
+import {
+    Constants,
+    Crypto,
+    Identities,
+    Interfaces,
+    Managers,
+    Networks,
+    Transactions,
+    Utils,
+} from "@arkecosystem/crypto";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -67,6 +77,8 @@ describe("Connection", () => {
 
         // @ts-ignore
         connection.databaseService.walletManager = databaseWalletManager;
+
+        jest.restoreAllMocks();
     });
 
     const addTransactionsToMemory = transactions => {
@@ -243,6 +255,20 @@ describe("Connection", () => {
             transactions.map((tx, i) => (tx.serialized = customSerialize(tx.data, malformedBytesFn[i] || {})));
 
             await expectForgingTransactions(transactions, 5);
+        });
+
+        it("should call `TransactionFactory.fromBytes`", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+            const spy = jest.spyOn(Transactions.TransactionFactory, "fromBytes");
+            await expectForgingTransactions(transactions, 5);
+            expect(spy).toHaveBeenCalled();
+        });
+
+        it("should call `TransactionHandler.canBeApplied`", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+            const spy = jest.spyOn(Handlers.Registry.get(0), "canBeApplied");
+            await expectForgingTransactions(transactions, 5);
+            expect(spy).toHaveBeenCalled();
         });
 
         it.todo("should remove transactions that have an unknown type");
