@@ -13,7 +13,7 @@ export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/
 
 export const copySnapshot = (sourceFolder, destFolder) => {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
-    logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
+    logger.info(`Copying snapshot ${sourceFolder} to ${destFolder} for appending of data`);
 
     const paths = {
         source: {
