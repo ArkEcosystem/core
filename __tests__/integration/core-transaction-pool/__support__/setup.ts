@@ -43,6 +43,8 @@ export const setUp = async () => {
 };
 
 export const setUpFull = async () => {
+    process.env.CORE_RESET_DATABASE = "1";
+
     try {
         await setUpContainer({
             exit: "@arkecosystem/core-transaction-pool",
