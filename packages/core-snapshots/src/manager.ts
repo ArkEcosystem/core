@@ -139,6 +139,7 @@ export class SnapshotManager {
 
         const lastBlock = await this.database.getLastBlock();
         params.lastBlock = lastBlock;
+        params.lastRound = await this.database.getLastRound();
         params.chunkSize = this.options.chunkSize || 50000;
 
         if (exportAction) {
