@@ -45,8 +45,6 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 headers: getHeaders(),
             });
         } catch (error) {
-            app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
-
             if (error instanceof ServerError) {
                 return res(error);
             }
@@ -55,7 +53,8 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 return res(error);
             }
 
-            return res(new Error(`${req.endpoint} resonded with ${error.message}`));
+            app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
+            return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });
 
