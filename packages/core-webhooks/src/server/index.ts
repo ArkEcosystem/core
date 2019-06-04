@@ -24,7 +24,6 @@ export const startServer = async config => {
         plugin: plugins.whitelist,
         options: {
             whitelist: config.whitelist,
-            name: "Webhook API",
         },
     });
 
