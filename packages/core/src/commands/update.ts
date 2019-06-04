@@ -2,7 +2,10 @@ import { hasSomeProperty } from "@arkecosystem/core-utils";
 import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
+import { shellSync } from "execa";
 import { removeSync } from "fs-extra";
+import git from "simple-git";
+import { configManager } from "../helpers/config";
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
 import { CommandFlags } from "../types";
@@ -43,7 +46,9 @@ export class UpdateCommand extends BaseCommand {
         const { flags } = await this.parseWithNetwork(UpdateCommand);
 
         if (flags.force) {
-            return this.performUpdate(flags, state);
+            return configManager.get("updateMethod") === "npm"
+                ? await this.performUpdateWithNpm(flags, state)
+                : await this.performUpdateWithGit(flags, state);
         }
 
         try {
@@ -55,7 +60,9 @@ export class UpdateCommand extends BaseCommand {
 
             await confirm("Would you like to update?", async () => {
                 try {
-                    await this.performUpdate(flags, state);
+                    configManager.get("updateMethod") === "npm"
+                        ? await this.performUpdateWithNpm(flags, state)
+                        : await this.performUpdateWithGit(flags, state);
                 } catch (err) {
                     this.error(err.message);
                 } finally {
@@ -67,7 +74,7 @@ export class UpdateCommand extends BaseCommand {
         }
     }
 
-    private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
+    private async performUpdateWithNpm(flags: CommandFlags, state: Record<string, any>): Promise<void> {
         cli.action.start(`Updating from ${state.currentVersion} to ${state.updateVersion}`);
 
         await installFromChannel(state.name, state.updateVersion);
@@ -78,6 +85,34 @@ export class UpdateCommand extends BaseCommand {
 
         this.warn(`Version ${state.updateVersion} has been installed.`);
 
+        await this.confirmRestart(flags);
+    }
+
+    private async performUpdateWithGit(flags: CommandFlags, state: Record<string, any>): Promise<void> {
+        git()
+            .exec(() => cli.action.start("Pulling latest changes"))
+            .pull((err, update) => {
+                if (err) {
+                    this.error(err.message);
+                }
+
+                if (update && update.summary.changes) {
+                    shellSync("cd ../../ && yarn setup");
+                } else {
+                    this.warn("You already have the latest version.");
+                }
+            })
+            .exec(() => cli.action.stop())
+            .exec(() => removeSync(state.cache))
+            .exec(() => this.warn("The latest version has been installed."))
+            .exec(async () => await this.confirmRestart(flags));
+    }
+
+    private hasRestartFlag(flags: CommandFlags): boolean {
+        return hasSomeProperty(flags, ["restart", "restartCore", "restartRelay", "restartForger"]);
+    }
+
+    private async confirmRestart(flags: CommandFlags): Promise<void> {
         if (this.hasRestartFlag(flags)) {
             if (flags.restart) {
                 this.restartRunningProcessPrompt(`${flags.token}-core`, false);
@@ -101,9 +136,5 @@ export class UpdateCommand extends BaseCommand {
             await this.restartRunningProcessPrompt(`${flags.token}-relay`);
             await this.restartRunningProcessPrompt(`${flags.token}-forger`);
         }
-    }
-
-    private hasRestartFlag(flags: CommandFlags): boolean {
-        return hasSomeProperty(flags, ["restart", "restartCore", "restartRelay", "restartForger"]);
     }
 }

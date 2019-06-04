@@ -2,7 +2,7 @@ import { IConfig } from "@oclif/config";
 import cli from "cli-ux";
 import { shell } from "execa";
 import { closeSync, openSync, statSync } from "fs";
-import { ensureDirSync, existsSync } from "fs-extra";
+import { ensureDirSync } from "fs-extra";
 import latestVersion from "latest-version";
 import { join } from "path";
 import semver from "semver";
@@ -72,14 +72,6 @@ export const checkForUpdates = async ({ config, error, warn }): Promise<any> => 
         currentVersion: config.version,
         channel: configManager.get("channel"),
     };
-
-    if (existsSync(join(__dirname, "../../../..", ".git"))) {
-        if (!process.env.CORE_DEVELOPER_MODE) {
-            warn(`You are using a git clone for developers. Please install core via yarn for auto-updates.`);
-        }
-
-        return state;
-    }
 
     try {
         const cacheFile = ensureCacheFile(config);

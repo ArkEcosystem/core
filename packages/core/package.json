@@ -49,8 +49,8 @@
         "@arkecosystem/core-container": "^2.4.0-next.9",
         "@arkecosystem/core-database-postgres": "^2.4.0-next.9",
         "@arkecosystem/core-event-emitter": "^2.4.0-next.9",
-        "@arkecosystem/core-forger": "^2.4.0-next.9",
         "@arkecosystem/core-exchange-json-rpc": "^2.4.0-next.9",
+        "@arkecosystem/core-forger": "^2.4.0-next.9",
         "@arkecosystem/core-logger-pino": "^2.4.0-next.9",
         "@arkecosystem/core-p2p": "^2.4.0-next.9",
         "@arkecosystem/core-snapshots": "^2.4.0-next.9",
@@ -90,6 +90,7 @@
         "prompts": "^2.1.0",
         "read-last-lines": "^1.7.1",
         "semver": "^6.1.0",
+        "simple-git": "^1.113.0",
         "wif": "^2.0.6"
     },
     "devDependencies": {

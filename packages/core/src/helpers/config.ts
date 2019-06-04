@@ -29,6 +29,7 @@ class ConfigManager {
             this.write({
                 token: this.config.bin,
                 channel: getRegistryChannel(this.config),
+                updateMethod: "npm",
             });
         }
     }
