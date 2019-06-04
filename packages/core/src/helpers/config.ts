@@ -5,18 +5,22 @@ class ConfigManager {
     private config;
     private file: string;
 
-    public setup(config) {
+    public setup(config: Record<string, any>) {
         this.config = config;
         this.file = `${config.configDir}/config.json`;
 
         this.ensureDefaults();
     }
 
-    public get(key) {
+    public get(key: string): string {
         return this.read()[key];
     }
 
-    public update(data): void {
+    public set(key: string, value: string): void {
+        this.update({ [key]: value });
+    }
+
+    public update(data: Record<string, string>): void {
         this.write({ ...this.read(), ...data });
     }
 
