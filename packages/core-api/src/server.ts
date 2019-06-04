@@ -83,7 +83,6 @@ export class Server {
             plugin: plugins.whitelist,
             options: {
                 whitelist: this.config.whitelist,
-                name: "Public API",
             },
         });
 

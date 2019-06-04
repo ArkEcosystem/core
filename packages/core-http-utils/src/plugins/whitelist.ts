@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import Boom from "@hapi/boom";
 import nm from "nanomatch";
 
@@ -9,7 +8,7 @@ export const whitelist = {
         server.ext({
             type: "onRequest",
             async method(request, h) {
-                const remoteAddress = request.info.remoteAddress;
+                const remoteAddress: string = request.info.remoteAddress;
 
                 if (Array.isArray(options.whitelist)) {
                     for (const ip of options.whitelist) {
@@ -22,10 +21,6 @@ export const whitelist = {
                         }
                     }
                 }
-
-                app.resolvePlugin("logger").warn(
-                    `${remoteAddress} tried to access the ${options.name} without being whitelisted`,
-                );
 
                 return Boom.forbidden();
             },
