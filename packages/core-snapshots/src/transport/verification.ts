@@ -65,7 +65,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
 };
 
 export const canImportRecord = (context, data, options) => {
-    if (!options.lastBlock) {
+    if (options.lastBlock === null) {
         return true;
     }
 
@@ -78,7 +78,7 @@ export const canImportRecord = (context, data, options) => {
     }
 
     if (context === "rounds") {
-        if (options.lastRound === undefined) {
+        if (options.lastRound === null) {
             return true;
         }
         return data.id > options.lastRound.id;
