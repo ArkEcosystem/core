@@ -3,6 +3,8 @@ import "jest-extended";
 import "./mocks/core-container";
 
 import { Wallets } from "@arkecosystem/core-state";
+import bs58check from "bs58check";
+import ByteBuffer from "bytebuffer";
 
 import { Constants, Crypto, Identities, Interfaces, Managers, Networks, Utils } from "@arkecosystem/crypto";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
@@ -75,28 +77,89 @@ describe("Connection", () => {
         expect(memory.count()).toBe(transactions.length);
     };
 
-    const expectForgingTransactions = (transactions: Interfaces.ITransaction[], countGood: number) => {
+    const expectForgingTransactions = async (transactions: Interfaces.ITransaction[], countGood: number) => {
         addTransactionsToMemory(transactions);
 
-        const forgingTransactions = connection.getTransactionsForForging(100);
+        const forgingTransactions = await connection.getTransactionsForForging(100);
         expect(forgingTransactions).toHaveLength(countGood);
         expect(forgingTransactions).toEqual(
             transactions.slice(transactions.length - countGood).map(({ serialized }) => serialized.toString("hex")),
         );
     };
 
+    const customSerialize = (transaction: Interfaces.ITransactionData, options: any = {}) => {
+        const buffer = new ByteBuffer(512, true);
+        const writeByte = (txField, value) => (options[txField] ? options[txField](buffer) : buffer.writeByte(value));
+        const writeUint32 = (txField, value) =>
+            options[txField] ? options[txField](buffer) : buffer.writeUint32(value);
+        const writeUint64 = (txField, value) =>
+            options[txField] ? options[txField](buffer) : buffer.writeUint64(value);
+        const append = (txField, value, encoding = "utf8") =>
+            options[txField] ? options[txField](buffer) : buffer.append(value, encoding);
+
+        buffer.writeByte(0xff); // fill, to disambiguate from v1
+        writeByte("version", 0x01);
+        writeByte("network", transaction.network); // ark = 0x17, devnet = 0x30
+        writeByte("type", transaction.type);
+        writeUint32("timestamp", transaction.timestamp);
+        append("senderPublicKey", transaction.senderPublicKey, "hex");
+        writeUint64("fee", +transaction.fee);
+
+        if (options.vendorField) {
+            options.vendorField(buffer);
+        } else if (transaction.vendorField) {
+            const vf: Buffer = Buffer.from(transaction.vendorField, "utf8");
+            buffer.writeByte(vf.length);
+            buffer.append(vf);
+        } else if (transaction.vendorFieldHex) {
+            buffer.writeByte(transaction.vendorFieldHex.length / 2);
+            buffer.append(transaction.vendorFieldHex, "hex");
+        } else {
+            buffer.writeByte(0x00);
+        }
+
+        // only for transfer right now
+        writeUint64("amount", +transaction.amount);
+        writeUint32("expiration", transaction.expiration || 0);
+        append("recipientId", bs58check.decode(transaction.recipientId));
+
+        // signatures
+        if (transaction.signature || options.signature) {
+            append("signature", transaction.signature, "hex");
+        }
+
+        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
+
+        if (secondSignature || options.secondSignature) {
+            append("secondSignature", secondSignature, "hex");
+        }
+
+        if (options.signatures) {
+            options.signatures(buffer);
+        } else if (transaction.signatures) {
+            if (transaction.version === 1 && Utils.isException(transaction)) {
+                buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
+                buffer.append(transaction.signatures.join(""), "hex");
+            } else {
+                buffer.append(transaction.signatures.join(""), "hex");
+            }
+        }
+
+        return buffer.flip().toBuffer();
+    };
+
     describe("getTransactionsForForging", () => {
-        it("should remove transactions that have expired [5 Good, 5 Bad]", () => {
+        it("should remove transactions that have expired [5 Good, 5 Bad]", async () => {
             mockCurrentHeight(100);
 
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload([{ expiration: 1 }], { quantity: 5 })
                 .build(10);
 
-            expectForgingTransactions(transactions, 5);
+            await expectForgingTransactions(transactions, 5);
         });
 
-        it("should remove transactions that have a fee of 0 or less [8 Good, 2 Bad]", () => {
+        it("should remove transactions that have a fee of 0 or less [8 Good, 2 Bad]", async () => {
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload(
                     [
@@ -107,10 +170,10 @@ describe("Connection", () => {
                 )
                 .build(10);
 
-            expectForgingTransactions(transactions, 8);
+            await expectForgingTransactions(transactions, 8);
         });
 
-        it("should remove transactions that have an amount of 0 or less [8 Good, 2 Bad]", () => {
+        it("should remove transactions that have an amount of 0 or less [8 Good, 2 Bad]", async () => {
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload(
                     [
@@ -121,10 +184,10 @@ describe("Connection", () => {
                 )
                 .build(10);
 
-            expectForgingTransactions(transactions, 8);
+            await expectForgingTransactions(transactions, 8);
         });
 
-        it("should remove transactions that have data from another network [5 Good, 5 Bad]", () => {
+        it("should remove transactions that have data from another network [5 Good, 5 Bad]", async () => {
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload(
                     [{ recipientId: Identities.Address.fromPassphrase("secret", Networks.devnet.network.pubKeyHash) }],
@@ -132,43 +195,61 @@ describe("Connection", () => {
                 )
                 .build(10);
 
-            expectForgingTransactions(transactions, 5);
+            await expectForgingTransactions(transactions, 5);
         });
 
-        it("should remove transactions that have wrong sender public keys [5 Good, 5 Bad]", () => {
+        it("should remove transactions that have wrong sender public keys [5 Good, 5 Bad]", async () => {
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload([{ senderPublicKey: Identities.PublicKey.fromPassphrase("this is wrong") }], {
                     quantity: 5,
                 })
                 .build(10);
 
-            expectForgingTransactions(transactions, 5);
+            await expectForgingTransactions(transactions, 5);
         });
 
-        it("should remove transactions that have timestamps in the future [5 Good, 5 Bad]", () => {
+        it("should remove transactions that have timestamps in the future [5 Good, 5 Bad]", async () => {
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload([{ timestamp: Crypto.Slots.getTime() + 100 * 1000 }], { quantity: 5 })
                 .build(10);
 
-            expectForgingTransactions(transactions, 5);
+            await expectForgingTransactions(transactions, 5);
         });
 
-        it("should remove transactions that have different IDs when entering and leaving [8 Good, 2 Bad]", () => {
+        it("should remove transactions that have different IDs when entering and leaving [8 Good, 2 Bad]", async () => {
             const transactions = TransactionFactory.transfer()
                 .withCustomizedPayload([{ id: "garbage" }, { id: "garbage 2" }], { quantity: 2 })
                 .build(10);
 
-            expectForgingTransactions(transactions, 8);
+            await expectForgingTransactions(transactions, 8);
+        });
+
+        it("should remove transactions that have malformed bytes", async () => {
+            const malformedBytesFn = [
+                { version: (b: ByteBuffer) => b.writeUint64(1111111) },
+                { network: (b: ByteBuffer) => b.writeUint64(1111111) },
+                { type: (b: ByteBuffer) => b.writeUint64(1111111) },
+                { timestamp: (b: ByteBuffer) => b.writeByte(0x01) },
+                { senderPublicKey: (b: ByteBuffer) => b.writeByte(0x01) },
+                { vendorField: (b: ByteBuffer) => b.writeByte(0x01) },
+                { amount: (b: ByteBuffer) => b.writeByte(0x01) },
+                { expiration: (b: ByteBuffer) => b.writeByte(0x01) },
+                { recipientId: (b: ByteBuffer) => b.writeByte(0x01) },
+                { signature: (b: ByteBuffer) => b.writeByte(0x01) },
+                { secondSignature: (b: ByteBuffer) => b.writeByte(0x01) },
+                { signatures: (b: ByteBuffer) => b.writeByte(0x01) },
+            ];
+            const transactions = TransactionFactory.transfer().build(malformedBytesFn.length + 5);
+            transactions.map((tx, i) => (tx.serialized = customSerialize(tx.data, malformedBytesFn[i] || {})));
+
+            await expectForgingTransactions(transactions, 5);
         });
 
         it.todo("should remove transactions that have an unknown type");
         it.todo("should remove transactions that have unknown properties");
         it.todo("should remove transactions that have missing properties");
         it.todo("should remove transactions that have malformed properties");
-        it.todo("should remove transactions that have malformed bytes");
         it.todo("should remove transactions that have additional bytes attached");
-        it.todo("should remove transactions that have already been forged");
-        it.todo("should remove transactions that have been persisted to the disk");
         it.todo("should remove transactions that have a disabled type");
         it.todo("should remove transactions that have have data of a another transaction type");
         it.todo("should remove transactions that have been altered after entering the pool");
@@ -181,5 +262,8 @@ describe("Connection", () => {
         it.todo("should remove transactions that have an invalid vendor field length");
         it.todo("should remove transactions that have an invalid vendor field");
         it.todo("should remove transactions that have an invalid version");
+
+        it.todo("should remove transactions that have already been forged");
+        it.todo("should remove transactions that have been persisted to the disk");
     });
 });

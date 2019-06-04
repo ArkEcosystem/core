@@ -290,9 +290,11 @@ export class TransactionFactory {
                     transaction.data.id = Transactions.Utils.getId(transaction.data);
                 }
 
-                // TODO: exclude certain malformed properties that cannot be serialized properly
-                // like signatures that are too long. Add support for customizing signatures.
-                Transactions.Serializer.serialize(transaction);
+                if (!transaction.serialized) {
+                    // TODO: exclude certain malformed properties that cannot be serialized properly
+                    // like signatures that are too long. Add support for customizing signatures.
+                    Transactions.Serializer.serialize(transaction);
+                }
 
                 transactions.push((transaction as unknown) as T);
             } else {
