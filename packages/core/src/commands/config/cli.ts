@@ -42,7 +42,7 @@ $ ark config:cli --updateMethod=git
         }
 
         if (flags.updateMethod) {
-            configManager.update({ updateMethod: flags.updateMethod });
+            configManager.set("updateMethod", flags.updateMethod as string);
         }
 
         if (flags.channel) {
