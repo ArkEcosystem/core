@@ -65,7 +65,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
 };
 
 export const canImportRecord = (context, data, options) => {
-    if (options.lastBlock === null) {
+    if (!options.lastBlock) {
         return true;
     }
 
