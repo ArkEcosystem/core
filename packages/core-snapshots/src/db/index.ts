@@ -34,6 +34,15 @@ export class Database {
         return this.db.oneOrNone(queries.blocks.latest);
     }
 
+    /**
+     * Get the row with the highest id from the rounds table.
+     * @return Object latest row
+     * @return null if the table is empty.
+     */
+    public async getLastRound(): Promise<{ id: number, public_key: string, balance: string, round: string } | null> {
+        return this.db.oneOrNone(queries.rounds.latest);
+    }
+
     public async getBlockByHeight(height) {
         return this.db.oneOrNone(queries.blocks.findByHeight, { height });
     }
