@@ -13,7 +13,7 @@ export class RestoreCommand extends BaseCommand {
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,
         blocks: flags.string({
-            description: "blocks to import, corelates to folder name",
+            description: "blocks to import, correlates to folder name",
         }),
         truncate: flags.boolean({
             description: "empty all tables before running import",
