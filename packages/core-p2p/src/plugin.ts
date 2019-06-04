@@ -23,6 +23,7 @@ export const makePeerService = (): PeerService => {
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
+    required: true,
     alias: "p2p",
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");

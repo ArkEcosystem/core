@@ -11,6 +11,7 @@ import { ReplayBlockchain } from "./replay";
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
+    required: true,
     alias: "blockchain",
     async register(container: Container.IContainer, options: Container.IPluginOptions) {
         let blockchain: Blockchain;

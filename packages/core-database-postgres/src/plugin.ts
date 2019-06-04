@@ -7,6 +7,7 @@ import { PostgresConnection } from "./postgres-connection";
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
+    required: true,
     alias: "database",
     extends: "@arkecosystem/core-database",
     async register(container: Container.IContainer, options) {
