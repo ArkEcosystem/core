@@ -259,6 +259,13 @@ describe("Connection", () => {
             expect(spy).toHaveBeenCalled();
         });
 
+        it("should call `removeForgedTransactions`", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+            const spy = jest.spyOn(connection as any, "removeForgedTransactions");
+            await expectForgingTransactions(transactions, 5);
+            expect(spy).toHaveBeenCalled();
+        });
+
         it("should remove transactions that have malformed bytes", async () => {
             const malformedBytesFn = [
                 { version: (b: ByteBuffer) => b.writeUint64(1111111) },
@@ -516,7 +523,6 @@ describe("Connection", () => {
                     Identities.Keys.fromPassphrase("garbage"),
                 );
             };
-
             appendBytes(transactions[0], Buffer.from("ff" + makeSignature("garbage").repeat(5), "hex"));
 
             await expectForgingTransactions(transactions, 4);
