@@ -69,6 +69,10 @@ describe("Connection", () => {
             wallet.username = `delegate-${i + 1}`;
             wallet.vote = publicKey;
 
+            if (i === 50) {
+                wallet.secondPublicKey = Identities.PublicKey.fromPassphrase("second secret");
+            }
+
             databaseWalletManager.reindex(wallet);
         }
 
@@ -89,7 +93,10 @@ describe("Connection", () => {
         expect(memory.count()).toBe(transactions.length);
     };
 
-    const expectForgingTransactions = async (transactions: Interfaces.ITransaction[], countGood: number) => {
+    const expectForgingTransactions = async (
+        transactions: Interfaces.ITransaction[],
+        countGood: number,
+    ): Promise<string[]> => {
         addTransactionsToMemory(transactions);
 
         const forgingTransactions = await connection.getTransactionsForForging(100);
@@ -97,6 +104,8 @@ describe("Connection", () => {
         expect(forgingTransactions).toEqual(
             transactions.slice(transactions.length - countGood).map(({ serialized }) => serialized.toString("hex")),
         );
+
+        return forgingTransactions;
     };
 
     const customSerialize = (transaction: Interfaces.ITransactionData, options: any = {}) => {
@@ -271,39 +280,252 @@ describe("Connection", () => {
             await expectForgingTransactions(transactions, 5);
         });
 
-        it("should call `TransactionFactory.fromBytes`", async () => {
-            const transactions = TransactionFactory.transfer().build(5);
-            const spy = jest.spyOn(Transactions.TransactionFactory, "fromBytes");
-            await expectForgingTransactions(transactions, 5);
-            expect(spy).toHaveBeenCalled();
+        it("should remove transactions that have an unknown type", async () => {
+            const transactions = TransactionFactory.transfer().build(2);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                version: (b: ByteBuffer) => b.writeUint8(255),
+            });
+
+            await expectForgingTransactions(transactions, 1);
         });
 
-        it("should call `TransactionHandler.canBeApplied`", async () => {
-            const transactions = TransactionFactory.transfer().build(5);
-            const spy = jest.spyOn(Handlers.Registry.get(0), "canBeApplied");
-            await expectForgingTransactions(transactions, 5);
-            expect(spy).toHaveBeenCalled();
+        it("should remove transactions that have a disabled type", async () => {
+            const transactions = TransactionFactory.transfer()
+                .withVersion(1)
+                .build(2);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                version: (b: ByteBuffer) => b.writeUint8(4),
+            });
+
+            await expectForgingTransactions(transactions, 1);
         });
 
-        it.todo("should remove transactions that have an unknown type");
+        it("should remove transactions that have have data of a another transaction type", async () => {
+            const handlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
+            const transactions: Interfaces.ITransaction[] = TransactionFactory.transfer().build(handlers.length);
+
+            for (let i = 0; i < handlers.length; i++) {
+                expect(handlers[0].getConstructor().type).toEqual(0);
+                transactions[i].serialized = customSerialize(transactions[i].data, {
+                    type: (b: ByteBuffer) => b.writeUint8(handlers[i].getConstructor().type),
+                });
+            }
+
+            await expectForgingTransactions(transactions.reverse(), 1);
+        });
+
+        it("should remove transactions that have negative numerical values", async () => {
+            const transactions = TransactionFactory.transfer().build(2);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                fee: (b: ByteBuffer) => b.writeUint64(-999999),
+                amount: (b: ByteBuffer) => b.writeUint64(-999999),
+            });
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have been altered after entering the pool", async () => {
+            const transactions = TransactionFactory.transfer().build(2);
+            transactions[0].data.id = transactions[0].data.id
+                .split("")
+                .reverse()
+                .join("");
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have an invalid version", async () => {
+            const transactions = TransactionFactory.transfer().build(2);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                version: (b: ByteBuffer) => b.writeByte(0),
+            });
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have a mismatch of expected and actual length of the vendor field", async () => {
+            const transactions = TransactionFactory.transfer().build(3);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                vendorField: (b: ByteBuffer) => {
+                    const vendorField = Buffer.from(transactions[0].data.vendorField, "utf8");
+                    b.writeByte(vendorField.length - 5);
+                    b.append(vendorField);
+                },
+            });
+
+            transactions[1].serialized = customSerialize(transactions[1].data, {
+                vendorField: (b: ByteBuffer) => {
+                    const vendorField = Buffer.from(transactions[1].data.vendorField, "utf8");
+                    b.writeByte(vendorField.length + 5);
+                    b.append(vendorField);
+                },
+            });
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have an invalid vendor field length", async () => {
+            const transactions = TransactionFactory.transfer().build(3);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                vendorField: (b: ByteBuffer) => {
+                    const vendorField = Buffer.from(transactions[0].data.vendorField, "utf8");
+                    b.writeByte(0);
+                    b.append(vendorField);
+                },
+            });
+
+            transactions[1].serialized = customSerialize(transactions[1].data, {
+                vendorField: (b: ByteBuffer) => {
+                    b.writeByte(255);
+                },
+            });
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have an invalid vendor field", async () => {
+            const transactions = TransactionFactory.transfer().build(3);
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                vendorField: (b: ByteBuffer) => {
+                    const vendorField = Buffer.from(transactions[0].data.vendorField.toUpperCase(), "utf8");
+                    b.writeByte(vendorField.length);
+                    b.append(vendorField);
+                },
+            });
+
+            transactions[1].serialized = customSerialize(transactions[1].data, {
+                vendorField: (b: ByteBuffer) => {
+                    b.writeByte(255);
+                    b.fill(0, b.offset);
+                },
+            });
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have additional bytes attached", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            const appendBytes = (transaction: Interfaces.ITransaction, garbage: Buffer) => {
+                const buffer = new ByteBuffer(512, true);
+                buffer.append(transaction.serialized);
+                buffer.append(garbage);
+
+                transaction.serialized = buffer.flip().toBuffer();
+            };
+
+            appendBytes(transactions[0], Buffer.from("garbage", "utf8"));
+            appendBytes(transactions[1], Buffer.from("ff", "hex"));
+            appendBytes(transactions[2], Buffer.from("00011111", "hex"));
+            appendBytes(transactions[3], Buffer.from("0001", "hex"));
+
+            await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have malformed signatures", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            const makeSignature = (from: string): string => {
+                return Crypto.Hash.signECDSA(
+                    Buffer.from(Crypto.HashAlgorithms.sha256(from)),
+                    Identities.Keys.fromPassphrase("garbage"),
+                );
+            };
+
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                signatures: (b: ByteBuffer) => {
+                    b.append(Buffer.from(makeSignature("garbage").slice(25), "hex"));
+                },
+            });
+
+            transactions[1].serialized = customSerialize(transactions[0].data, {
+                signatures: (b: ByteBuffer) => {
+                    b.append(Buffer.from(makeSignature("garbage").repeat(2), "hex"));
+                },
+            });
+
+            transactions[2].serialized = customSerialize(transactions[0].data, {
+                signatures: (b: ByteBuffer) => {
+                    b.append(Buffer.from(makeSignature("garbage") + "affe", "hex"));
+                },
+            });
+
+            await expectForgingTransactions(transactions, 2);
+        });
+
+        it("should remove transactions that have malformed second signatures", async () => {
+            const transactions = TransactionFactory.transfer()
+                .withPassphrasePair({
+                    passphrase: delegates[50].passphrase,
+                    secondPassphrase: "second secret",
+                })
+                .build(5);
+
+            const appendBytes = (transaction: Interfaces.ITransaction, garbage: Buffer) => {
+                const buffer = new ByteBuffer(512, true);
+                buffer.append(transaction.serialized);
+                buffer.append(garbage);
+
+                transaction.serialized = buffer.flip().toBuffer();
+            };
+
+            appendBytes(transactions[0], Buffer.from("ff", "hex"));
+            appendBytes(transactions[1], Buffer.from("00", "hex"));
+            appendBytes(transactions[2], Buffer.from("0011001100", "hex"));
+
+            await expectForgingTransactions(transactions, 2);
+        });
+
+        it("should remove transactions that have malformed multi signatures", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            const appendBytes = (transaction: Interfaces.ITransaction, garbage: Buffer) => {
+                const buffer = new ByteBuffer(512, true);
+                buffer.append(transaction.serialized);
+                buffer.append(garbage);
+
+                transaction.serialized = buffer.flip().toBuffer();
+            };
+
+            const makeSignature = (from: string): string => {
+                return Crypto.Hash.signECDSA(
+                    Buffer.from(Crypto.HashAlgorithms.sha256(from)),
+                    Identities.Keys.fromPassphrase("garbage"),
+                );
+            };
+
+            appendBytes(transactions[0], Buffer.from("ff" + makeSignature("garbage").repeat(5), "hex"));
+
+            await expectForgingTransactions(transactions, 4);
+        });
+
+        it("should remove transactions that have malformed multi signatures", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            const appendBytes = (transaction: Interfaces.ITransaction, garbage: Buffer) => {
+                const buffer = new ByteBuffer(512, true);
+                buffer.append(transaction.serialized);
+                buffer.append(garbage);
+
+                transaction.serialized = buffer.flip().toBuffer();
+            };
+
+            const makeSignature = (from: string): string => {
+                return Crypto.Hash.signECDSA(
+                    Buffer.from(Crypto.HashAlgorithms.sha256(from)),
+                    Identities.Keys.fromPassphrase("garbage"),
+                );
+            };
+
+            appendBytes(transactions[0], Buffer.from("ff" + makeSignature("garbage").repeat(5), "hex"));
+
+            await expectForgingTransactions(transactions, 4);
+        });
+
         it.todo("should remove transactions that have unknown properties");
         it.todo("should remove transactions that have missing properties");
         it.todo("should remove transactions that have malformed properties");
-        it.todo("should remove transactions that have additional bytes attached");
-        it.todo("should remove transactions that have a disabled type");
-        it.todo("should remove transactions that have have data of a another transaction type");
-        it.todo("should remove transactions that have been altered after entering the pool");
-        it.todo("should remove transactions that have negative numerical values");
-        it.todo("should remove transactions that have malformed signatures");
-        it.todo("should remove transactions that have malformed second signatures");
-        it.todo("should remove transactions that have malformed multi signatures");
-        it.todo("should remove transactions that fail to deserialize for unknown reasons");
-        it.todo("should remove transactions that have a mismatch of expected and actual length of the vendor field");
-        it.todo("should remove transactions that have an invalid vendor field length");
-        it.todo("should remove transactions that have an invalid vendor field");
-        it.todo("should remove transactions that have an invalid version");
 
-        it.todo("should remove transactions that have already been forged");
         it.todo("should remove transactions that have been persisted to the disk");
     });
 });
