@@ -27,6 +27,8 @@ export interface IContainer {
 
     silentShutdown: boolean;
 
+    shuttingDown: boolean;
+
     isReady: boolean;
 
     setUp(version: string, variables: any, options?: any): Promise<void>;
