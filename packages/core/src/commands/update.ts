@@ -94,10 +94,15 @@ export class UpdateCommand extends BaseCommand {
             .pull((err, update) => {
                 if (err) {
                     this.error(err.message);
-                }
+                } else if (update && update.summary.changes) {
+                    const { stdout, stderr } = shellSync("cd ../../ && yarn setup");
 
-                if (update && update.summary.changes) {
-                    shellSync("cd ../../ && yarn setup");
+                    if (stderr) {
+                        this.error(stderr);
+                    } else if (stdout) {
+                        this.log(stdout);
+                        this.warn("The latest version has been installed.");
+                    }
                 } else {
                     this.warn("You already have the latest version.");
                 }
@@ -105,7 +110,7 @@ export class UpdateCommand extends BaseCommand {
             .exec(() => cli.action.stop())
             .exec(() => removeSync(state.cache))
             .exec(() => this.warn("The latest version has been installed."))
-            .exec(async () => await this.confirmRestart(flags));
+            .exec(async () => this.confirmRestart(flags));
     }
 
     private hasRestartFlag(flags: CommandFlags): boolean {
