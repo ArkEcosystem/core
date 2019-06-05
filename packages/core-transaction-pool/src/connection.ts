@@ -47,16 +47,18 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        const all: Interfaces.ITransaction[] = this.storage.loadAll();
+        let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        const validTransactions = await this.getValidTransactions(transactionsFromDisk);
 
-        for (const transaction of all) {
+        transactionsFromDisk = transactionsFromDisk.filter(transaction =>
+            validTransactions.includes(transaction.serialized.toString("hex")),
+        );
+
+        for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
 
         this.purgeExpired();
-
-        await this.removeForgedTransactions(all);
-
         this.purgeInvalidTransactions();
 
         this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
@@ -149,33 +151,7 @@ export class Connection implements TransactionPool.IConnection {
             this.options.maxTransactionBytes,
         );
 
-        const transactions: string[] = [];
-        const forgedIds: string[] = await this.removeForgedTransactions(transactionMemory);
-
-        const unforgedTransactions = transactionMemory.filter(
-            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
-        );
-
-        for (const transaction of unforgedTransactions) {
-            try {
-                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
-                    transaction.serialized,
-                );
-
-                strictEqual(transaction.id, deserialized.id);
-
-                const walletManager: State.IWalletManager = this.databaseService.walletManager;
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
-
-                transactions.push(deserialized.serialized.toString("hex"));
-            } catch (error) {
-                this.removeTransactionById(transaction.id);
-                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
-            }
-        }
-
-        return transactions;
+        return this.getValidTransactions(transactionMemory);
     }
 
     public getTransactionIdsForForging(start: number, size: number): string[] {
@@ -495,6 +471,36 @@ export class Connection implements TransactionPool.IConnection {
     private syncToPersistentStorage(): void {
         this.storage.bulkAdd(this.memory.pullDirtyAdded());
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
+    }
+
+    private async getValidTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+        const validTransactions: string[] = [];
+        const forgedIds: string[] = await this.removeForgedTransactions(transactions);
+
+        const unforgedTransactions = transactions.filter(
+            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
+        );
+
+        for (const transaction of unforgedTransactions) {
+            try {
+                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
+                    transaction.serialized,
+                );
+
+                strictEqual(transaction.id, deserialized.id);
+
+                const walletManager: State.IWalletManager = this.databaseService.walletManager;
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
+
+                validTransactions.push(deserialized.serialized.toString("hex"));
+            } catch (error) {
+                this.removeTransactionById(transaction.id);
+                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
+            }
+        }
+
+        return validTransactions;
     }
 
     private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
