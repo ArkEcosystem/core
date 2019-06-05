@@ -47,18 +47,18 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        const all: Interfaces.ITransaction[] = this.storage.loadAll();
+        let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        const validTransactions = await this.validateTransactions(transactionsFromDisk);
 
-        for (const transaction of all) {
+        transactionsFromDisk = transactionsFromDisk.filter(transaction =>
+            validTransactions.includes(transaction.serialized.toString("hex")),
+        );
+
+        for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
 
         this.purgeExpired();
-
-        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(all.map(t => t.id));
-
-        this.removeTransactionsById(forgedIds);
-
         this.purgeInvalidTransactions();
 
         this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
@@ -138,87 +138,22 @@ export class Connection implements TransactionPool.IConnection {
         return this.memory.getById(id);
     }
 
-    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
-        return this.getTransactionsData(start, size, maxBytes).map(
+    public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
+        return (await this.getValidTransactions(start, size, maxBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.serialized,
         );
     }
 
-    public getTransactionsForForging(blockSize: number): string[] {
-        const transactionMemory: Interfaces.ITransaction[] = this.getTransactionsData(
-            0,
-            blockSize,
-            this.options.maxTransactionBytes,
+    public async getTransactionsForForging(blockSize: number): Promise<string[]> {
+        return (await this.getValidTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
+            transaction.serialized.toString("hex"),
         );
-
-        const transactions: string[] = [];
-
-        for (const transaction of transactionMemory) {
-            try {
-                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
-                    transaction.serialized,
-                );
-
-                strictEqual(transaction.id, deserialized.id);
-
-                const walletManager: State.IWalletManager = this.databaseService.walletManager;
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
-
-                transactions.push(deserialized.serialized.toString("hex"));
-            } catch (error) {
-                this.removeTransactionById(transaction.id);
-
-                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
-            }
-        }
-
-        return transactions;
     }
 
-    public getTransactionIdsForForging(start: number, size: number): string[] {
-        return this.getTransactionsData(start, size, this.options.maxTransactionBytes).map(
+    public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
+        return (await this.getValidTransactions(start, size, this.options.maxTransactionBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.id,
         );
-    }
-
-    public getTransactionsData(start: number, size: number, maxBytes: number = 0): Interfaces.ITransaction[] {
-        this.purgeExpired();
-
-        const data: Interfaces.ITransaction[] = [];
-
-        let transactionBytes: number = 0;
-
-        let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
-            if (i >= start + size) {
-                break;
-            }
-
-            if (i >= start) {
-                let pushTransaction: boolean = false;
-
-                if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                    if (transactionBytes + transactionSize <= maxBytes) {
-                        transactionBytes += transactionSize;
-                        pushTransaction = true;
-                    }
-                } else {
-                    pushTransaction = true;
-                }
-
-                if (pushTransaction) {
-                    data.push(transaction);
-                    i++;
-                }
-            } else {
-                i++;
-            }
-        }
-
-        return data;
     }
 
     public removeTransactionsForSender(senderPublicKey: string): void {
@@ -430,6 +365,50 @@ export class Connection implements TransactionPool.IConnection {
         return false;
     }
 
+    private async getValidTransactions(
+        start: number,
+        size: number,
+        maxBytes: number = 0,
+    ): Promise<Interfaces.ITransaction[]> {
+        this.purgeExpired();
+
+        const data: Interfaces.ITransaction[] = [];
+
+        let transactionBytes: number = 0;
+
+        let i = 0;
+        for (const transaction of this.memory.allSortedByFee()) {
+            if (i >= start + size) {
+                break;
+            }
+
+            if (i >= start) {
+                let pushTransaction: boolean = false;
+
+                if (maxBytes > 0) {
+                    const transactionSize: number = JSON.stringify(transaction.data).length;
+
+                    if (transactionBytes + transactionSize <= maxBytes) {
+                        transactionBytes += transactionSize;
+                        pushTransaction = true;
+                    }
+                } else {
+                    pushTransaction = true;
+                }
+
+                if (pushTransaction) {
+                    data.push(transaction);
+                    i++;
+                }
+            } else {
+                i++;
+            }
+        }
+
+        const validTransactions = await this.validateTransactions(data);
+        return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
+    }
+
     private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
         if (this.has(transaction.id)) {
             this.logger.debug(
@@ -493,6 +472,45 @@ export class Connection implements TransactionPool.IConnection {
     private syncToPersistentStorage(): void {
         this.storage.bulkAdd(this.memory.pullDirtyAdded());
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
+    }
+
+    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+        const validTransactions: string[] = [];
+        const forgedIds: string[] = await this.removeForgedTransactions(transactions);
+
+        const unforgedTransactions = transactions.filter(
+            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
+        );
+
+        for (const transaction of unforgedTransactions) {
+            try {
+                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
+                    transaction.serialized,
+                );
+
+                strictEqual(transaction.id, deserialized.id);
+
+                const walletManager: State.IWalletManager = this.databaseService.walletManager;
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
+
+                validTransactions.push(deserialized.serialized.toString("hex"));
+            } catch (error) {
+                this.removeTransactionById(transaction.id);
+                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
+            }
+        }
+
+        return validTransactions;
+    }
+
+    private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
+            transactions.map(({ id }) => id),
+        );
+
+        this.removeTransactionsById(forgedIds);
+        return forgedIds;
     }
 
     private purgeExpired(): void {

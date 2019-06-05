@@ -70,7 +70,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public getTransactionsForForging(blockSize: number): string[] {
+    public async getTransactionsForForging(blockSize: number): Promise<string[]> {
         return [];
     }
 
@@ -78,15 +78,11 @@ export class Connection implements TransactionPool.IConnection {
         return undefined;
     }
 
-    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
+    public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
         return [];
     }
 
-    public getTransactionIdsForForging(start: number, size: number): string[] {
-        return undefined;
-    }
-
-    public getTransactionsData(start: number, size: number, maxBytes?: number): Interfaces.ITransaction[] {
+    public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
         return undefined;
     }
 
