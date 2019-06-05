@@ -138,65 +138,22 @@ export class Connection implements TransactionPool.IConnection {
         return this.memory.getById(id);
     }
 
-    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
-        return this.getTransactionsData(start, size, maxBytes).map(
+    public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
+        return (await this.getTransactionsData(start, size, maxBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.serialized,
         );
     }
 
     public async getTransactionsForForging(blockSize: number): Promise<string[]> {
-        const transactionMemory: Interfaces.ITransaction[] = this.getTransactionsData(
-            0,
-            blockSize,
-            this.options.maxTransactionBytes,
+        return (await this.getTransactionsData(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
+            transaction.serialized.toString("hex"),
         );
-
-        return this.getValidTransactions(transactionMemory);
     }
 
-    public getTransactionIdsForForging(start: number, size: number): string[] {
-        return this.getTransactionsData(start, size, this.options.maxTransactionBytes).map(
+    public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
+        return (await this.getTransactionsData(start, size, this.options.maxTransactionBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.id,
         );
-    }
-
-    public getTransactionsData(start: number, size: number, maxBytes: number = 0): Interfaces.ITransaction[] {
-        this.purgeExpired();
-
-        const data: Interfaces.ITransaction[] = [];
-
-        let transactionBytes: number = 0;
-
-        let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
-            if (i >= start + size) {
-                break;
-            }
-
-            if (i >= start) {
-                let pushTransaction: boolean = false;
-
-                if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                    if (transactionBytes + transactionSize <= maxBytes) {
-                        transactionBytes += transactionSize;
-                        pushTransaction = true;
-                    }
-                } else {
-                    pushTransaction = true;
-                }
-
-                if (pushTransaction) {
-                    data.push(transaction);
-                    i++;
-                }
-            } else {
-                i++;
-            }
-        }
-
-        return data;
     }
 
     public removeTransactionsForSender(senderPublicKey: string): void {
@@ -406,6 +363,50 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         return false;
+    }
+
+    private async getTransactionsData(
+        start: number,
+        size: number,
+        maxBytes: number = 0,
+    ): Promise<Interfaces.ITransaction[]> {
+        this.purgeExpired();
+
+        const data: Interfaces.ITransaction[] = [];
+
+        let transactionBytes: number = 0;
+
+        let i = 0;
+        for (const transaction of this.memory.allSortedByFee()) {
+            if (i >= start + size) {
+                break;
+            }
+
+            if (i >= start) {
+                let pushTransaction: boolean = false;
+
+                if (maxBytes > 0) {
+                    const transactionSize: number = JSON.stringify(transaction.data).length;
+
+                    if (transactionBytes + transactionSize <= maxBytes) {
+                        transactionBytes += transactionSize;
+                        pushTransaction = true;
+                    }
+                } else {
+                    pushTransaction = true;
+                }
+
+                if (pushTransaction) {
+                    data.push(transaction);
+                    i++;
+                }
+            } else {
+                i++;
+            }
+        }
+
+        const validTransactions = await this.getValidTransactions(data);
+        return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
     }
 
     private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {

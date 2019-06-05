@@ -28,10 +28,9 @@ export interface IConnection {
     buildWallets(): Promise<void>;
     flush(): void;
     getTransaction(id: string): Interfaces.ITransaction;
-    getTransactionIdsForForging(start: number, size: number): string[];
-    getTransactions(start: number, size: number, maxBytes?: number): Buffer[];
+    getTransactionIdsForForging(start: number, size: number): Promise<string[]>;
+    getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]>;
     getTransactionsByType(type: any): any;
-    getTransactionsData(start: number, size: number, maxBytes?: number): Interfaces.ITransaction[];
     getTransactionsForForging(blockSize: number): Promise<string[]>;
     has(transactionId: string): any;
     hasExceededMaxTransactions(senderPublicKey: string): boolean;
