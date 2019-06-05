@@ -48,7 +48,7 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.connect(this.options.storage);
 
         let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
-        const validTransactions = await this.getValidTransactions(transactionsFromDisk);
+        const validTransactions = await this.validateTransactions(transactionsFromDisk);
 
         transactionsFromDisk = transactionsFromDisk.filter(transaction =>
             validTransactions.includes(transaction.serialized.toString("hex")),
@@ -139,19 +139,19 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
-        return (await this.getTransactionsData(start, size, maxBytes)).map(
+        return (await this.getValidTransactions(start, size, maxBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.serialized,
         );
     }
 
     public async getTransactionsForForging(blockSize: number): Promise<string[]> {
-        return (await this.getTransactionsData(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
+        return (await this.getValidTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
             transaction.serialized.toString("hex"),
         );
     }
 
     public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
-        return (await this.getTransactionsData(start, size, this.options.maxTransactionBytes)).map(
+        return (await this.getValidTransactions(start, size, this.options.maxTransactionBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.id,
         );
     }
@@ -365,7 +365,7 @@ export class Connection implements TransactionPool.IConnection {
         return false;
     }
 
-    private async getTransactionsData(
+    private async getValidTransactions(
         start: number,
         size: number,
         maxBytes: number = 0,
@@ -405,7 +405,7 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        const validTransactions = await this.getValidTransactions(data);
+        const validTransactions = await this.validateTransactions(data);
         return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
     }
 
@@ -474,7 +474,7 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
     }
 
-    private async getValidTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
         const validTransactions: string[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
