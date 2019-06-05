@@ -1,5 +1,4 @@
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
-import cloneDeep from "lodash.clonedeep";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -93,10 +92,6 @@ export class TransactionFactory {
     private version: number;
     private senderPublicKey: string;
     private expiration: number;
-    private customizedPayload: Array<Partial<Interfaces.ITransactionData>>;
-    private customizedPayloadOptions: {
-        quantity?: number;
-    };
 
     public constructor(builder) {
         this.builder = builder;
@@ -177,17 +172,6 @@ export class TransactionFactory {
         return this.create(1)[0];
     }
 
-    public withCustomizedPayload(
-        customizedPayload: Array<Partial<Interfaces.ITransactionData>>,
-        options: {
-            quantity?: number;
-        } = {},
-    ): TransactionFactory {
-        this.customizedPayload = customizedPayload;
-        this.customizedPayloadOptions = options;
-        return this;
-    }
-
     public build(quantity: number = 1): Interfaces.ITransaction[] {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }
@@ -209,9 +193,6 @@ export class TransactionFactory {
         Managers.configManager.setFromPreset(this.network);
 
         const transactions: T[] = [];
-
-        let countCustomized: number = 0;
-
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
                 // @FIXME: when we use any of the "withPassphrase*" methods the builder will
@@ -266,40 +247,7 @@ export class TransactionFactory {
                 }
             }
 
-            if (
-                this.customizedPayload &&
-                (!this.customizedPayloadOptions.quantity || this.customizedPayloadOptions.quantity > countCustomized)
-            ) {
-                countCustomized++;
-
-                const payload = this.customizedPayload[countCustomized % this.customizedPayload.length];
-                const transaction: Interfaces.ITransaction = this.builder[method]();
-                transaction.data = Object.assign(cloneDeep(transaction.data), payload);
-
-                if (!payload.signature) {
-                    transaction.data.signature = Transactions.Signer.sign(
-                        transaction.data,
-                        Identities.Keys.fromPassphrase(this.passphrase),
-                    );
-                }
-
-                // TODO: second sig
-                // TODO: multi sig
-
-                if (!payload.id) {
-                    transaction.data.id = Transactions.Utils.getId(transaction.data);
-                }
-
-                if (!transaction.serialized) {
-                    // TODO: exclude certain malformed properties that cannot be serialized properly
-                    // like signatures that are too long. Add support for customizing signatures.
-                    Transactions.Serializer.serialize(transaction);
-                }
-
-                transactions.push((transaction as unknown) as T);
-            } else {
-                transactions.push(this.builder[method]());
-            }
+            transactions.push(this.builder[method]());
         }
 
         return transactions;
