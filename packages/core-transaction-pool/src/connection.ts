@@ -48,18 +48,17 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.connect(this.options.storage);
 
         let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
-        const validTransactions = await this.validateTransactions(transactionsFromDisk);
-
-        transactionsFromDisk = transactionsFromDisk.filter(transaction =>
-            validTransactions.includes(transaction.serialized.toString("hex")),
-        );
-
         for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
 
+        const validTransactions = await this.validateTransactions(transactionsFromDisk);
+        transactionsFromDisk = transactionsFromDisk.filter(transaction =>
+            validTransactions.includes(transaction.serialized.toString("hex")),
+        );
+
         this.purgeExpired();
-        this.purgeInvalidTransactions();
+        this.syncToPersistentStorage();
 
         this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
 
