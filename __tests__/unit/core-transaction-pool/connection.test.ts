@@ -28,6 +28,15 @@ const delegatesSecrets = delegates.map(d => d.secret);
 let connection: Connection;
 let memory: Memory;
 
+const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction): void => {
+    // @ts-ignore
+    const walletManager = connection.databaseService.walletManager;
+
+    const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    wallet.balance = transaction.data.amount.plus(transaction.data.fee);
+    walletManager.reindex(wallet);
+};
+
 beforeAll(async () => {
     memory = new Memory();
 
@@ -784,6 +793,9 @@ describe("Connection", () => {
         it("save and restore transactions", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
+            indexWalletWithSufficientBalance(mockData.dummy1);
+            indexWalletWithSufficientBalance(mockData.dummy4);
+
             const transactions = [mockData.dummy1, mockData.dummy4];
 
             addTransactions(transactions);
@@ -807,6 +819,10 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(0);
 
             jest.spyOn(databaseService, "getForgedTransactionsIds").mockReturnValue([mockData.dummy2.id]);
+
+            indexWalletWithSufficientBalance(mockData.dummy1);
+            indexWalletWithSufficientBalance(mockData.dummy2);
+            indexWalletWithSufficientBalance(mockData.dummy4);
 
             const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy4];
 
