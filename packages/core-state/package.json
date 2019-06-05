@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-state",
-    "version": "2.4.0-next.9",
+    "version": "2.4.0-next.10",
     "description": "State Management for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,11 +21,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.9",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.9",
-        "@arkecosystem/core-transactions": "^2.4.0-next.9",
-        "@arkecosystem/core-utils": "^2.4.0-next.9",
-        "@arkecosystem/crypto": "^2.4.0-next.9",
+        "@arkecosystem/core-container": "^2.4.0-next.10",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.10",
+        "@arkecosystem/core-transactions": "^2.4.0-next.10",
+        "@arkecosystem/core-utils": "^2.4.0-next.10",
+        "@arkecosystem/crypto": "^2.4.0-next.10",
         "immutable": "^4.0.0-rc.12",
         "lodash.clonedeep": "^4.5.0",
         "pluralize": "^7.0.0"
