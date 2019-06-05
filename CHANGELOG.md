@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.4.0] - 2019-MM-DD
+## [2.4.0] - 2019-06-12
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
 
