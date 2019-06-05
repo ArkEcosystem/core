@@ -506,8 +506,5 @@ describe("Connection", () => {
 
             await expectForgingTransactions(transactions, 4);
         });
-
-        // TOOD: make `getTransactionsForForging` logic reusable and call it during `loadAll`.
-        it.todo("should remove transactions that have been persisted to the disk");
     });
 });
