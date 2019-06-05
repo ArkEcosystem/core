@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.4.0] - 2019-MM-DD
+## [2.4.0] - 2019-06-12
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
 
@@ -35,6 +35,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Remove extraneous Client class in `@arkecosystem/crypto` ([#2417])
 -   Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
 -   Remove unused methods to get/set/reset height from `Slots` ([#2467])
+-   Replaced `@arkecosystem/core-json-rpc` with `@arkecosystem/core-exchange-json-rpc` ([#2643])
 
 ### Added
 
@@ -80,6 +81,11 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Deserialize transactions before they leave the pool to remove bad ones ([#2622])
 -   Require all properties in schema and handle 404 resources for `core-webhooks` ([#2634])
 -   Check if transactions can still be applied before forging ([#2635])
+-   Off by one error in transaction confirmations via API ([#2645])
+-   Set the correct channel if core was directly installed with `@next` ([#2646])
+-   Invalid orderBy causes `Internal Server Error` via API ([#2653)
+-   Avoid trying to INSERT duplicates in rounds via `core-snapshots` ([#2651])
+-   Handle failing optional plugins gracefully ([#2657])
 
 ### Changed
 
@@ -108,6 +114,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Remove timeout banning ([#2597])
 -   Use dayjs as it now has official UTC support ([#2592])
 -   Require a minimum of 0 as pubKeyHash ([#2628])
+-   Use `@arkecosystem/core-exchange-json-rpc` programmatically ([#2643])
 
 ### Removed
 
@@ -115,6 +122,7 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Remove peer caching ([#2606])
 -   Remove peer banning ([#2612])
 -   Remove coldstart period ([#2619])
+-   Remove whitelist access log ([#2655])
 
 ## [2.3.23] - 2019-05-21
 
@@ -356,6 +364,7 @@ Fix release of `2.3.14` due to npm connectivity issues.
 -   Gracefully handle a corrupted cached `peers.json` file ([#2061])
 -   Always sort transactions by sequence and the requested field to make API sorting deterministic ([#2058])
 -   Disallow multiple registrations for same delegate ([#2080])
+-   Remove already forged transactions from the pool ([#2659])
 
 ### Removed
 
@@ -452,6 +461,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
 [2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
 [2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
 [2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
@@ -699,3 +709,11 @@ Closed security vulnerabilities:
 [#2628]: https://github.com/ARKEcosystem/core/pull/2628
 [#2634]: https://github.com/ARKEcosystem/core/pull/2634
 [#2635]: https://github.com/ARKEcosystem/core/pull/2635
+[#2643]: https://github.com/ARKEcosystem/core/pull/2643
+[#2645]: https://github.com/ARKEcosystem/core/pull/2645
+[#2646]: https://github.com/ARKEcosystem/core/pull/2646
+[#2651]: https://github.com/ARKEcosystem/core/pull/2651
+[#2653]: https://github.com/ARKEcosystem/core/pull/2653
+[#2655]: https://github.com/ARKEcosystem/core/pull/2655
+[#2657]: https://github.com/ARKEcosystem/core/pull/2657
+[#2659]: https://github.com/ARKEcosystem/core/pull/2659
