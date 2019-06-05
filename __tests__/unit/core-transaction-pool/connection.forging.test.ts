@@ -507,10 +507,7 @@ describe("Connection", () => {
             await expectForgingTransactions(transactions, 4);
         });
 
-        it.todo("should remove transactions that have unknown properties");
-        it.todo("should remove transactions that have missing properties");
-        it.todo("should remove transactions that have malformed properties");
-
+        // TOOD: make `getTransactionsForForging` logic reusable and call it during `loadAll`.
         it.todo("should remove transactions that have been persisted to the disk");
     });
 });
