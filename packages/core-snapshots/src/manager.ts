@@ -148,7 +148,7 @@ export class SnapshotManager {
             }
 
             params.meta = utils.setSnapshotInfo(params, lastBlock);
-            params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight);
+            params.queries = await this.database.getExportQueries(params.meta);
 
             if (params.blocks) {
                 if (options.blocks === params.meta.folder) {
