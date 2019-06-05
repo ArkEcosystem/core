@@ -33,7 +33,7 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
     const walletManager = connection.databaseService.walletManager;
 
     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-    wallet.balance = wallet.balance = wallet.balance.plus(transaction.data.amount.plus(transaction.data.fee));
+    wallet.balance = wallet.balance.plus(transaction.data.amount.plus(transaction.data.fee));
     walletManager.reindex(wallet);
 };
 

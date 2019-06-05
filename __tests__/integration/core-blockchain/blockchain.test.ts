@@ -55,6 +55,16 @@ const addBlocks = async untilHeight => {
     }
 };
 
+const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction): void => {
+    const walletManager = blockchain.database.walletManager;
+
+    const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    wallet.balance = wallet.balance.abs().plus(transaction.data.amount.plus(transaction.data.fee));
+    walletManager.reindex(wallet);
+
+    blockchain.transactionPool.walletManager.reindex(wallet);
+};
+
 describe("Blockchain", () => {
     beforeAll(async () => {
         container = await setUp();
@@ -91,19 +101,25 @@ describe("Blockchain", () => {
 
     describe("postTransactions", () => {
         it("should be ok", async () => {
-            const transactionsWithoutType2 = genesisBlock.transactions.filter(tx => tx.type !== 2);
-
             blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsWithoutType2);
+
+            jest.spyOn(blockchain.transactionPool as any, "removeForgedTransactions").mockReturnValue([]);
+
+            for (const transaction of genesisBlock.transactions) {
+                indexWalletWithSufficientBalance(transaction);
+            }
+
+            const transferTransactions = genesisBlock.transactions.filter(tx => tx.type === 0);
+
+            await blockchain.postTransactions(transferTransactions);
             const transactions = await blockchain.transactionPool.getTransactions(0, 200);
 
-            expect(transactions.length).toBe(transactionsWithoutType2.length);
+            expect(transactions.length).toBe(transferTransactions.length);
 
-            expect(transactions).toIncludeAllMembers(
-                transactionsWithoutType2.map(transaction => transaction.serialized),
-            );
+            expect(transactions).toIncludeAllMembers(transferTransactions.map(transaction => transaction.serialized));
 
             blockchain.transactionPool.flush();
+            jest.restoreAllMocks();
         });
     });
 
