@@ -7,16 +7,7 @@ import ByteBuffer from "bytebuffer";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import {
-    Constants,
-    Crypto,
-    Identities,
-    Interfaces,
-    Managers,
-    Networks,
-    Transactions,
-    Utils,
-} from "@arkecosystem/crypto";
+import { Constants, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -43,8 +34,6 @@ beforeAll(async () => {
     });
 
     await connection.make();
-
-    //  jest.spyOn(Transactions.Verifier, "verify").mockReturnValue(true);
 });
 
 const mockCurrentHeight = (height: number) => {
@@ -170,81 +159,6 @@ describe("Connection", () => {
     };
 
     describe("getTransactionsForForging", () => {
-        it("should remove transactions that have expired [5 Good, 5 Bad]", async () => {
-            mockCurrentHeight(100);
-
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload([{ expiration: 1 }], { quantity: 5 })
-                .build(10);
-
-            await expectForgingTransactions(transactions, 5);
-        });
-
-        it("should remove transactions that have a fee of 0 or less [8 Good, 2 Bad]", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload(
-                    [
-                        { amount: Utils.BigNumber.make(1000), fee: Utils.BigNumber.ZERO },
-                        { amount: Utils.BigNumber.make(1000), fee: Utils.BigNumber.make(-100) },
-                    ],
-                    { quantity: 2 },
-                )
-                .build(10);
-
-            await expectForgingTransactions(transactions, 8);
-        });
-
-        it("should remove transactions that have an amount of 0 or less [8 Good, 2 Bad]", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload(
-                    [
-                        { amount: Utils.BigNumber.ZERO, fee: Utils.BigNumber.ONE },
-                        { amount: Utils.BigNumber.make(-1), fee: Utils.BigNumber.ONE },
-                    ],
-                    { quantity: 2 },
-                )
-                .build(10);
-
-            await expectForgingTransactions(transactions, 8);
-        });
-
-        it("should remove transactions that have data from another network [5 Good, 5 Bad]", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload(
-                    [{ recipientId: Identities.Address.fromPassphrase("secret", Networks.devnet.network.pubKeyHash) }],
-                    { quantity: 5 },
-                )
-                .build(10);
-
-            await expectForgingTransactions(transactions, 5);
-        });
-
-        it("should remove transactions that have wrong sender public keys [5 Good, 5 Bad]", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload([{ senderPublicKey: Identities.PublicKey.fromPassphrase("this is wrong") }], {
-                    quantity: 5,
-                })
-                .build(10);
-
-            await expectForgingTransactions(transactions, 5);
-        });
-
-        it("should remove transactions that have timestamps in the future [5 Good, 5 Bad]", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload([{ timestamp: Crypto.Slots.getTime() + 100 * 1000 }], { quantity: 5 })
-                .build(10);
-
-            await expectForgingTransactions(transactions, 5);
-        });
-
-        it("should remove transactions that have different IDs when entering and leaving [8 Good, 2 Bad]", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withCustomizedPayload([{ id: "garbage" }, { id: "garbage 2" }], { quantity: 2 })
-                .build(10);
-
-            await expectForgingTransactions(transactions, 8);
-        });
-
         it("should call `TransactionFactory.fromBytes`", async () => {
             const transactions = TransactionFactory.transfer().build(5);
             const spy = jest.spyOn(Transactions.TransactionFactory, "fromBytes");
@@ -285,6 +199,45 @@ describe("Connection", () => {
             transactions.map((tx, i) => (tx.serialized = customSerialize(tx.data, malformedBytesFn[i] || {})));
 
             await expectForgingTransactions(transactions, 5);
+        });
+
+        it("should remove transactions that have data from another network", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                network: (b: ByteBuffer) => b.writeUint8(3),
+            });
+
+            await expectForgingTransactions(transactions, 4);
+        });
+
+        it("should remove transactions that have wrong sender public keys", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                senderPublicKey: (b: ByteBuffer) =>
+                    b.append(Buffer.from(Identities.PublicKey.fromPassphrase("garbage"), "hex")),
+            });
+
+            await expectForgingTransactions(transactions, 4);
+        });
+
+        it("should remove transactions that have timestamps in the future", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                timestamp: (b: ByteBuffer) => b.writeUint32(Crypto.Slots.getTime() + 100 * 1000),
+            });
+
+            await expectForgingTransactions(transactions, 4);
+        });
+
+        it("should remove transactions that have different IDs when entering and leaving", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            transactions[0].data.id = "garbage";
+
+            await expectForgingTransactions(transactions, 4);
         });
 
         it("should remove transactions that have an unknown type", async () => {
@@ -329,6 +282,32 @@ describe("Connection", () => {
             });
 
             await expectForgingTransactions(transactions, 1);
+        });
+
+        it("should remove transactions that have expired", async () => {
+            mockCurrentHeight(100);
+
+            const transactions = TransactionFactory.transfer().build(5);
+
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                expiration: (b: ByteBuffer) => b.writeByte(0x01),
+            });
+
+            await expectForgingTransactions(transactions, 4);
+        });
+
+        it("should remove transactions that have an amount or fee of 0", async () => {
+            const transactions = TransactionFactory.transfer().build(5);
+
+            transactions[0].serialized = customSerialize(transactions[0].data, {
+                fee: (b: ByteBuffer) => b.writeByte(0x00),
+            });
+
+            transactions[1].serialized = customSerialize(transactions[0].data, {
+                amount: (b: ByteBuffer) => b.writeByte(0),
+            });
+
+            await expectForgingTransactions(transactions, 3);
         });
 
         it("should remove transactions that have been altered after entering the pool", async () => {
