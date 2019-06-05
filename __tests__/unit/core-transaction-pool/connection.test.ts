@@ -33,7 +33,7 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
     const walletManager = connection.databaseService.walletManager;
 
     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-    wallet.balance = transaction.data.amount.plus(transaction.data.fee);
+    wallet.balance = wallet.balance = wallet.balance.plus(transaction.data.amount.plus(transaction.data.fee));
     walletManager.reindex(wallet);
 };
 
@@ -49,6 +49,10 @@ beforeAll(async () => {
 
     // @ts-ignore
     connection.databaseService.walletManager = new Wallets.WalletManager();
+
+    for (const transaction of Object.values(mockData)) {
+        indexWalletWithSufficientBalance(transaction);
+    }
 
     await connection.make();
 });
@@ -480,15 +484,13 @@ describe("Connection", () => {
 
             let transactionIds = await connection.getTransactionIdsForForging(0, 7);
             expect(transactionIds).toBeArray();
-            expect(transactionIds.length).toBe(6);
-            expect(transactionIds[0]).toBe(mockData.dummyLarge1.id);
-            expect(transactionIds[1]).toBe(mockData.dummy3.id);
-            expect(transactionIds[2]).toBe(mockData.dummy4.id);
-            expect(transactionIds[3]).toBe(mockData.dummy5.id);
-            expect(transactionIds[4]).toBe(mockData.dummy6.id);
-            expect(transactionIds[5]).toBe(mockData.dummy7.id);
+            expect(transactionIds).toHaveLength(5);
+            expect(transactionIds[0]).toBe(mockData.dummy3.id);
+            expect(transactionIds[1]).toBe(mockData.dummy4.id);
+            expect(transactionIds[2]).toBe(mockData.dummy5.id);
+            expect(transactionIds[3]).toBe(mockData.dummy6.id);
+            expect(transactionIds[4]).toBe(mockData.dummy7.id);
 
-            connection.removeTransactionById(mockData.dummyLarge1.id);
             connection.removeTransactionById(mockData.dummy3.id);
             connection.removeTransactionById(mockData.dummy4.id);
             connection.removeTransactionById(mockData.dummy5.id);
@@ -497,8 +499,7 @@ describe("Connection", () => {
 
             transactionIds = await connection.getTransactionIdsForForging(0, 7);
             expect(transactionIds).toBeArray();
-            expect(transactionIds.length).toBe(1);
-            expect(transactionIds[0]).toBe(mockData.dummyLarge2.id);
+            expect(transactionIds).toHaveLength(0);
         });
     });
 
@@ -695,11 +696,17 @@ describe("Connection", () => {
         let findByPublicKey;
         let canBeApplied;
         let applyToSenderInPool;
-        const findByPublicKeyWallet = new Wallets.Wallet("thisIsAnAddressIMadeUpJustLikeThis");
+        const findByPublicKeyWallet = new Wallets.Wallet("ANwc3YQe3EBjuE5sNRacP7fhkngAPaBW4Y");
+        findByPublicKeyWallet.publicKey = "02778aa3d5b332965ea2a5ef6ac479ce2478535bc681a098dff1d683ff6eccc417";
+
         beforeEach(() => {
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             canBeApplied = jest.spyOn(transactionHandler, "canBeApplied").mockReturnValue(true);
             applyToSenderInPool = jest.spyOn(transactionHandler, "applyToSenderInPool").mockReturnValue();
+
+            (connection as any).databaseService.walletManager.findByPublicKey(
+                mockData.dummy1.data.senderPublicKey,
+            ).balance = Utils.BigNumber.ZERO;
 
             jest.spyOn(connection.walletManager, "has").mockReturnValue(true);
             findByPublicKey = jest
@@ -758,7 +765,7 @@ describe("Connection", () => {
                 findByPublicKeyWallet,
                 (connection as any).databaseService.walletManager,
             );
-            expect(purgeByPublicKey).toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
+            expect(purgeByPublicKey).not.toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });
 
@@ -932,11 +939,17 @@ describe("Connection", () => {
             // a deterministic test.
             const rand = randomSeed.create("0");
 
-            const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(nAdd);
+            const testTransactions: Interfaces.ITransaction[] = [];
             for (let i = 0; i < nAdd; i++) {
-                // This will invalidate the transactions' signatures, not good, but irrelevant for this test.
-                testTransactions[i].data.fee = Utils.BigNumber.make(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI));
-                testTransactions[i].serialized = Transactions.Utils.toBytes(testTransactions[i].data);
+                const transaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+                    .withNetwork("unitnet")
+                    .withFee(rand.intBetween(0.002 * SATOSHI, 2 * SATOSHI))
+                    .withPassphrase(String(i))
+                    .build()[0];
+
+                testTransactions.push(transaction);
+
+                indexWalletWithSufficientBalance(transaction);
             }
 
             // console.time(`time to add ${nAdd}`)
