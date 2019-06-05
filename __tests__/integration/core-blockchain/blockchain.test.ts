@@ -95,7 +95,7 @@ describe("Blockchain", () => {
 
             blockchain.transactionPool.flush();
             await blockchain.postTransactions(transactionsWithoutType2);
-            const transactions = blockchain.transactionPool.getTransactions(0, 200);
+            const transactions = await blockchain.transactionPool.getTransactions(0, 200);
 
             expect(transactions.length).toBe(transactionsWithoutType2.length);
 
