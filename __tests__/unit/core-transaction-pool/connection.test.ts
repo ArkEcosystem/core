@@ -651,17 +651,19 @@ describe("Connection", () => {
             expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
         });
 
-        it("should remove transaction from pool if it's in the chained block", () => {
+        it("should remove transaction from pool if it's in the chained block", async () => {
             addTransactions([mockData.dummy2]);
 
-            expect(connection.getTransactions(0, 10)).toEqual([mockData.dummy2.serialized]);
+            let transactions = await connection.getTransactions(0, 10);
+            expect(transactions).toEqual([mockData.dummy2.serialized]);
 
             const chainedBlock = BlockFactory.fromData(block2);
             chainedBlock.transactions.push(mockData.dummy2);
 
             connection.acceptChainedBlock(chainedBlock);
 
-            expect(connection.getTransactions(0, 10)).toEqual([]);
+            transactions = await connection.getTransactions(0, 10);
+            expect(transactions).toEqual([]);
         });
 
         it("should purge and block sender if throwIfApplyingFails() failed for a transaction in the chained block", () => {
@@ -712,7 +714,8 @@ describe("Connection", () => {
         it("should build wallets from transactions in the pool", async () => {
             addTransactions([mockData.dummy1]);
 
-            expect(connection.getTransactions(0, 10)).toEqual([mockData.dummy1.serialized]);
+            const transactions = await connection.getTransactions(0, 10);
+            expect(transactions).toEqual([mockData.dummy1.serialized]);
 
             await connection.buildWallets();
 
@@ -872,7 +875,7 @@ describe("Connection", () => {
             return testTransactions;
         };
 
-        it("multiple additions and retrievals", () => {
+        it("multiple additions and retrievals", async () => {
             // Abstract number which decides how many iterations are run by the test.
             // Increase it to run more iterations.
             const testSize = connection.options.syncInterval * 2;
@@ -899,7 +902,7 @@ describe("Connection", () => {
                     connection.hasExceededMaxTransactions(senderPublicKey);
                 }
                 connection.getTransaction(transaction.id);
-                connection.getTransactions(0, i);
+                await connection.getTransactions(0, i);
             }
 
             for (let i = 0; i < testSize; i++) {
