@@ -411,7 +411,7 @@ describe("Connection", () => {
     });
 
     describe("getTransactions", () => {
-        it("should return transactions within the specified range", () => {
+        it("should return transactions within the specified range", async () => {
             const transactions = [mockData.dummy1, mockData.dummy2];
 
             addTransactions(transactions);
@@ -421,9 +421,9 @@ describe("Connection", () => {
             }
 
             for (const i of [0, 1]) {
-                const retrieved = connection
-                    .getTransactions(i, 1)
-                    .map(serializedTx => Transactions.TransactionFactory.fromBytes(serializedTx));
+                const retrieved = (await connection.getTransactions(i, 1)).map(serializedTx =>
+                    Transactions.TransactionFactory.fromBytes(serializedTx),
+                );
 
                 expect(retrieved.length).toBe(1);
                 expect(retrieved[0]).toBeObject();
@@ -454,7 +454,7 @@ describe("Connection", () => {
             expect(transactionIds[5]).toBe(mockData.dummy6.id);
         });
 
-        it("should only return transaction ids for transactions not exceeding the maximum payload size", () => {
+        it("should only return transaction ids for transactions not exceeding the maximum payload size", async () => {
             // @FIXME: Uhm excuse me, what the?
             mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
             for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
@@ -476,7 +476,7 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
-            let transactionIds = connection.getTransactionIdsForForging(0, 7);
+            let transactionIds = await connection.getTransactionIdsForForging(0, 7);
             expect(transactionIds).toBeArray();
             expect(transactionIds.length).toBe(6);
             expect(transactionIds[0]).toBe(mockData.dummyLarge1.id);
@@ -493,7 +493,7 @@ describe("Connection", () => {
             connection.removeTransactionById(mockData.dummy6.id);
             connection.removeTransactionById(mockData.dummy7.id);
 
-            transactionIds = connection.getTransactionIdsForForging(0, 7);
+            transactionIds = await connection.getTransactionIdsForForging(0, 7);
             expect(transactionIds).toBeArray();
             expect(transactionIds.length).toBe(1);
             expect(transactionIds[0]).toBe(mockData.dummyLarge2.id);
@@ -920,7 +920,7 @@ describe("Connection", () => {
             connection.addTransactions([testTransactions[0]]);
         });
 
-        it("add many then get first few", () => {
+        it("add many then get first few", async () => {
             const nAdd = 2000;
 
             // We use a predictable random number calculator in order to get
@@ -947,7 +947,7 @@ describe("Connection", () => {
                 .map(f => f.toString());
 
             // console.time(`time to get first ${nGet}`)
-            const topTransactionsSerialized = connection.getTransactions(0, nGet);
+            const topTransactionsSerialized = await connection.getTransactions(0, nGet);
             // console.timeEnd(`time to get first ${nGet}`)
 
             const topFeesReceived = topTransactionsSerialized.map(e =>
