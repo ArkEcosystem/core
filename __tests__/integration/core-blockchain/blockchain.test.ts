@@ -61,8 +61,6 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
     wallet.balance = wallet.balance.abs().plus(transaction.data.amount.plus(transaction.data.fee));
     walletManager.reindex(wallet);
-
-    blockchain.transactionPool.walletManager.reindex(wallet);
 };
 
 describe("Blockchain", () => {
