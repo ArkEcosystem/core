@@ -143,7 +143,7 @@ describe("Connection", () => {
             connection.options.maxTransactionsInPool = maxTransactionsInPoolOrig;
         });
 
-        it("should replace lowest fee transaction when adding 1 more transaction than maxTransactionsInPool", () => {
+        it("should replace lowest fee transaction when adding 1 more transaction than maxTransactionsInPool", async () => {
             expect(connection.getPoolSize()).toBe(0);
 
             connection.addTransactions([
@@ -159,7 +159,9 @@ describe("Connection", () => {
             connection.options.maxTransactionsInPool = 4;
 
             expect(connection.addTransactions([mockData.dummy5])).toEqual({});
-            expect(connection.getTransactionIdsForForging(0, 10)).toEqual([
+
+            const transactionIds = await connection.getTransactionIdsForForging(0, 10);
+            expect(transactionIds).toEqual([
                 mockData.dummy1.id,
                 mockData.dummy2.id,
                 mockData.dummy3.id,
@@ -433,7 +435,7 @@ describe("Connection", () => {
     });
 
     describe("getTransactionIdsForForging", () => {
-        it("should return an array of transactions ids", () => {
+        it("should return an array of transactions ids", async () => {
             addTransactions([
                 mockData.dummy1,
                 mockData.dummy2,
@@ -443,7 +445,7 @@ describe("Connection", () => {
                 mockData.dummy6,
             ]);
 
-            const transactionIds = connection.getTransactionIdsForForging(0, 6);
+            const transactionIds = await connection.getTransactionIdsForForging(0, 6);
 
             expect(transactionIds).toBeArray();
             expect(transactionIds[0]).toBe(mockData.dummy1.id);
@@ -736,7 +738,7 @@ describe("Connection", () => {
 
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
-            expect(canBeApplied).not.toHaveBeenCalled();
+            expect(canBeApplied).toHaveBeenCalled();
             expect(applyToSenderInPool).not.toHaveBeenCalled();
         });
 
