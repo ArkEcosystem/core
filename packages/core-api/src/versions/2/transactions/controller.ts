@@ -59,10 +59,11 @@ export class TransactionsController extends Controller {
         try {
             const pagination = super.paginate(request);
 
-            const transactions = this.transactionPool.getTransactions(pagination.offset, pagination.limit);
-            const data = transactions.map(transaction => ({
-                serialized: transaction.toString("hex"),
-            }));
+            const data = (await this.transactionPool.getTransactions(pagination.offset, pagination.limit)).map(
+                transaction => ({
+                    serialized: transaction.toString("hex"),
+                }),
+            );
 
             return super.toPagination(
                 request,

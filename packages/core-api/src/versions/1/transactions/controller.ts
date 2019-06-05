@@ -33,11 +33,13 @@ export class TransactionsController extends Controller {
         try {
             const pagination = super.paginate(request);
 
-            const transactions = this.transactionPool
-                .getTransactions(pagination.offset, pagination.limit, 0)
-                .map(transaction => ({
-                    serialized: transaction,
-                }));
+            const transactions = (await this.transactionPool.getTransactions(
+                pagination.offset,
+                pagination.limit,
+                0,
+            )).map(transaction => ({
+                serialized: transaction,
+            }));
 
             return super.respondWith({
                 transactions: super.toCollection(request, transactions, "transaction"),
