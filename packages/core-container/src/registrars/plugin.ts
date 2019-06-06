@@ -1,20 +1,22 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Container, Logger } from "@arkecosystem/core-interfaces";
 import Hoek from "@hapi/hoek";
 import { asValue } from "awilix";
 import isString from "lodash.isstring";
 import semver from "semver";
 
 export class PluginRegistrar {
-    private container: any;
+    private container: Container.IContainer;
     private plugins: any;
     private options: any;
     private deregister: any;
+    private failedPlugins: Record<string, Error>;
 
     constructor(container: Container.IContainer, options: Record<string, any> = {}) {
         this.container = container;
         this.plugins = container.config.get("plugins");
         this.options = this.castOptions(options);
         this.deregister = [];
+        this.failedPlugins = {};
     }
 
     /**
@@ -27,6 +29,16 @@ export class PluginRegistrar {
 
             if ((this.options.exit && this.options.exit === name) || this.container.shuttingDown) {
                 break;
+            }
+        }
+
+        const failedPlugins: number = Object.keys(this.failedPlugins).length;
+        if (failedPlugins > 0) {
+            const logger = this.container.resolvePlugin<Logger.ILogger>("logger");
+            logger.warn(`Failed to load ${failedPlugins} optional plugins.`);
+
+            for (const [name, error] of Object.entries(this.failedPlugins)) {
+                logger.warn(`Plugin '${name}': ${error.message}`);
             }
         }
     }
@@ -47,16 +59,20 @@ export class PluginRegistrar {
      * @param  {Object} options
      * @return {void}
      */
-    public async register(name, options = {}) {
-        if (!this.shouldBeRegistered(name)) {
-            return;
-        }
+    private async register(name, options = {}) {
+        try {
+            if (!this.shouldBeRegistered(name)) {
+                return;
+            }
 
-        if (this.plugins[name]) {
-            options = Hoek.applyToDefaults(this.plugins[name], options);
-        }
+            if (this.plugins[name]) {
+                options = Hoek.applyToDefaults(this.plugins[name], options);
+            }
 
-        return this.registerWithContainer(name, options);
+            return this.registerWithContainer(name, options);
+        } catch (error) {
+            this.failedPlugins[name] = error;
+        }
     }
 
     /**
@@ -66,7 +82,13 @@ export class PluginRegistrar {
      * @return {void}
      */
     private async registerWithContainer(plugin, options = {}) {
-        const item: any = this.resolve(plugin);
+        let item: any;
+        try {
+            item = this.resolve(plugin);
+        } catch (error) {
+            this.failedPlugins[plugin] = error;
+            return;
+        }
 
         if (!item.plugin.register) {
             return;
@@ -91,18 +113,26 @@ export class PluginRegistrar {
         options = this.applyToDefaults(name, defaults, options);
         this.container.register(`pkg.${alias || name}.opts`, asValue(options));
 
-        plugin = await item.plugin.register(this.container, options);
-        this.container.register(
-            alias || name,
-            asValue({
-                name,
-                version,
-                plugin,
-            }),
-        );
+        try {
+            plugin = await item.plugin.register(this.container, options);
+            this.container.register(
+                alias || name,
+                asValue({
+                    name,
+                    version,
+                    plugin,
+                }),
+            );
 
-        if (item.plugin.deregister) {
-            this.deregister.push({ plugin: item.plugin, options });
+            if (item.plugin.deregister) {
+                this.deregister.push({ plugin: item.plugin, options });
+            }
+        } catch (error) {
+            if (item.plugin.required) {
+                this.container.forceExit(`Failed to load required plugin '${name}'`, error);
+            } else {
+                this.failedPlugins[name] = error;
+            }
         }
     }
 

@@ -4,7 +4,7 @@ import { makePeerService } from "../../packages/core-p2p/src/plugin";
 
 export const createStubPeer = (stub): P2P.IPeer => {
     const peer: P2P.IPeer = new Peer(stub.ip);
-    peer.ports.p2p = stub.port;
+    (peer as any).port = stub.port;
 
     delete stub.port;
 

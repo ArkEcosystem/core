@@ -114,7 +114,11 @@ export class ForgerManager {
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
-                this.logger.warn(error.message);
+                if (error.message.includes("blockchain isn't ready")) {
+                    this.logger.info("Waiting for relay to become ready.");
+                } else {
+                    this.logger.warn(error.message);
+                }
             } else {
                 this.logger.error(error.stack);
 

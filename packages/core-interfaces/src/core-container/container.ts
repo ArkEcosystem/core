@@ -3,6 +3,7 @@ import { Resolver } from "awilix";
 export interface IPluginDescriptor {
     alias: string;
     pkg: any;
+    required?: boolean;
     defaults?: any;
     extends?: string;
     register(container: IContainer, options?: IPluginOptions): Promise<any>;
@@ -26,6 +27,8 @@ export interface IContainer {
     config: any;
 
     silentShutdown: boolean;
+
+    shuttingDown: boolean;
 
     isReady: boolean;
 

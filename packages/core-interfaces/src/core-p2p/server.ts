@@ -21,3 +21,8 @@ export interface IForgingTransactions {
     poolSize: number;
     count: number;
 }
+
+export interface IUnconfirmedTransactions {
+    transactions: string[];
+    poolSize: number;
+}

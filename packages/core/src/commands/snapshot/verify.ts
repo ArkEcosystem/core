@@ -11,7 +11,7 @@ export class VerifyCommand extends BaseCommand {
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,
         blocks: flags.string({
-            description: "blocks to verify, corelates to folder name",
+            description: "blocks to verify, correlates to folder name",
         }),
         verifySignatures: flags.boolean({
             description: "signature verification",

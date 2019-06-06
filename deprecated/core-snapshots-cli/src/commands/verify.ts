@@ -12,7 +12,7 @@ export class VerifyCommand extends BaseCommand {
     public static flags = {
         ...BaseCommand.flags,
         blocks: flags.string({
-            description: "blocks to verify, corelates to folder name",
+            description: "blocks to verify, correlates to folder name",
         }),
         codec: flags.string({
             description: "codec name, default is msg-lite binary",

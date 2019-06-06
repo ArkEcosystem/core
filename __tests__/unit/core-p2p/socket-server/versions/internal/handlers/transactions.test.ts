@@ -8,11 +8,11 @@ jest.mock("../../../../../../../packages/core-p2p/src/socket-server/utils/valida
 
 describe("Internal handlers - transactions", () => {
     describe("getUnconfirmedTransactions", () => {
-        it("should return unconfirmed transactions", () => {
+        it("should return unconfirmed transactions", async () => {
             transactionPool.getTransactionsForForging = jest.fn().mockReturnValue(["111"]);
             transactionPool.getPoolSize = jest.fn().mockReturnValue(1);
 
-            expect(getUnconfirmedTransactions()).toEqual({ poolSize: 1, transactions: ["111"] });
+            expect(await getUnconfirmedTransactions()).toEqual({ poolSize: 1, transactions: ["111"] });
         });
     });
 });

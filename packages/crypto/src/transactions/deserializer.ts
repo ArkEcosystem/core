@@ -107,6 +107,10 @@ class Deserializer {
             const multiSignature: string = buf.readBytes(buf.limit - buf.offset).toString("hex");
             transaction.signatures = [multiSignature];
         }
+
+        if (buf.remaining()) {
+            throw new MalformedTransactionBytesError();
+        }
     }
 
     private deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer) {
