@@ -21,7 +21,7 @@ export const transformTransactionLegacy = model => {
         senderPublicKey: data.senderPublicKey,
         vendorField: data.vendorField,
         signature: data.signature,
-        signSignature: data.signSignature,
+        signSignature: data.signSignature || data.secondSignature,
         signatures: data.signatures,
         asset: data.asset || {},
         confirmations: model.block ? blockchain.getLastBlock().data.height - model.block.height : 0,
