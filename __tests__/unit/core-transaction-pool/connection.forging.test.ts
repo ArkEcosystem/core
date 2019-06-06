@@ -85,13 +85,18 @@ describe("Connection", () => {
     const expectForgingTransactions = async (
         transactions: Interfaces.ITransaction[],
         countGood: number,
+        sliceBeginning?: boolean,
     ): Promise<string[]> => {
         addTransactionsToMemory(transactions);
 
         const forgingTransactions = await connection.getTransactionsForForging(100);
+        const offset = transactions.length - countGood;
+
         expect(forgingTransactions).toHaveLength(countGood);
         expect(forgingTransactions).toEqual(
-            transactions.slice(transactions.length - countGood).map(({ serialized }) => serialized.toString("hex")),
+            transactions
+                .slice(sliceBeginning ? 0 : offset, sliceBeginning ? offset + 1 : undefined)
+                .map(({ serialized }) => serialized.toString("hex")),
         );
 
         return forgingTransactions;
@@ -178,6 +183,17 @@ describe("Connection", () => {
             const spy = jest.spyOn(connection as any, "removeForgedTransactions");
             await expectForgingTransactions(transactions, 5);
             expect(spy).toHaveBeenCalled();
+        });
+
+        it.only("should remove transactions that cannot be applied", async () => {
+            const transactions = TransactionFactory.transfer()
+                .withPassphrase(delegates[20].passphrase)
+                .build(5);
+
+            const sender = databaseWalletManager.findByPublicKey(delegates[20].publicKey);
+            sender.balance = transactions[0].data.amount.plus(transactions[0].data.fee).times(3);
+
+            await expectForgingTransactions(transactions, 3, true);
         });
 
         it("should remove transactions that have malformed bytes", async () => {
