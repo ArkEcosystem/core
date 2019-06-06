@@ -533,11 +533,13 @@ export class Connection implements TransactionPool.IConnection {
             localWalletManager.reindex(sender);
         }
 
-        if (localWalletManager.hasByAddress(recipientId)) {
-            recipient = localWalletManager.findByAddress(recipientId);
-        } else {
-            recipient = clonedeep(databaseWalletManager.findByAddress(recipientId));
-            localWalletManager.reindex(recipient);
+        if (recipient) {
+            if (localWalletManager.hasByAddress(recipientId)) {
+                recipient = localWalletManager.findByAddress(recipientId);
+            } else {
+                recipient = clonedeep(databaseWalletManager.findByAddress(recipientId));
+                localWalletManager.reindex(recipient);
+            }
         }
 
         return { sender, recipient };
