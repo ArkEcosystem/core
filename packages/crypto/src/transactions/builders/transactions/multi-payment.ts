@@ -11,7 +11,6 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
 
         this.data.type = TransactionTypes.MultiPayment;
         this.data.fee = feeManager.get(TransactionTypes.MultiPayment);
-        this.data.payments = {};
         this.data.vendorFieldHex = undefined;
         this.data.asset = {
             payments: [],
@@ -19,7 +18,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.amount = BigNumber.make(0);
     }
 
-    public addPayment(recipientId: string, amount: number): MultiPaymentBuilder {
+    public addPayment(recipientId: string, amount: number | BigNumber): MultiPaymentBuilder {
         if (this.data.asset.payments.length >= 2258) {
             throw new MaximumPaymentCountExceededError(this.data.asset.payments.length);
         }

@@ -65,6 +65,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -153,6 +154,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -241,6 +243,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -337,6 +340,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -433,6 +437,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -529,6 +534,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -625,6 +631,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -740,6 +747,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -855,6 +863,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -959,6 +968,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1029,6 +1039,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1099,6 +1110,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1177,6 +1189,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1297,6 +1310,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1417,6 +1431,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1540,6 +1555,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1661,6 +1677,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules
@@ -1782,6 +1799,7 @@ jobs:
             - ./packages/core-error-tracker-rollbar/node_modules
             - ./packages/core-error-tracker-sentry/node_modules
             - ./packages/core-event-emitter/node_modules
+            - ./packages/core-exchange-json-rpc/node_modules
             - ./packages/core-explorer/node_modules
             - ./packages/core-forger/node_modules
             - ./packages/core-http-utils/node_modules

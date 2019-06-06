@@ -212,7 +212,28 @@ export const multiPayment = extend(transactionBaseSchema, {
     $id: "multiPayment",
     properties: {
         type: { transactionType: TransactionTypes.MultiPayment },
-        amount: { bignumber: { minimum: 0, maximum: 0 } },
+        amount: { bignumber: { minimum: 1 } },
+        asset: {
+            type: "object",
+            required: ["payments"],
+            properties: {
+                payments: {
+                    type: "array",
+                    minItems: 2,
+                    maxItems: 2257,
+                    additionalItems: false,
+                    uniqueItems: true,
+                    items: {
+                        type: "object",
+                        required: ["amount", "recipientId"],
+                        properties: {
+                            amount: { bignumber: { minimum: 1 } },
+                            recipientId: { $ref: "address" },
+                        },
+                    },
+                },
+            },
+        },
     },
 });
 
