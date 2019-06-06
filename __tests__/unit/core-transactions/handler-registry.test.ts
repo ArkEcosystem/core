@@ -86,9 +86,11 @@ class TestTransactionHandler extends TransactionHandler {
     }
 
     public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 
     public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }
 
@@ -112,6 +114,7 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.Vote);
             Registry.get(TransactionTypes.MultiSignature);
             Registry.get(TransactionTypes.Ipfs);
+            Registry.get(TransactionTypes.MultiPayment);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 
