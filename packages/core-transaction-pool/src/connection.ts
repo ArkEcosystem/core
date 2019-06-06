@@ -1,10 +1,13 @@
+import { strictEqual } from "assert";
+import dayjs, { Dayjs } from "dayjs";
+import clonedeep from "lodash.clonedeep";
+
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { strictEqual } from "assert";
-import dayjs, { Dayjs } from "dayjs";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
@@ -138,19 +141,19 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
-        return (await this.getValidTransactions(start, size, maxBytes)).map(
+        return (await this.getValidatedTransactions(start, size, maxBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.serialized,
         );
     }
 
     public async getTransactionsForForging(blockSize: number): Promise<string[]> {
-        return (await this.getValidTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
+        return (await this.getValidatedTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
             transaction.serialized.toString("hex"),
         );
     }
 
     public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
-        return (await this.getValidTransactions(start, size, this.options.maxTransactionBytes)).map(
+        return (await this.getValidatedTransactions(start, size, this.options.maxTransactionBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.id,
         );
     }
@@ -364,7 +367,7 @@ export class Connection implements TransactionPool.IConnection {
         return false;
     }
 
-    private async getValidTransactions(
+    private async getValidatedTransactions(
         start: number,
         size: number,
         maxBytes: number = 0,
@@ -481,6 +484,9 @@ export class Connection implements TransactionPool.IConnection {
             (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
         );
 
+        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        const localWalletManager: Wallets.WalletManager = new Wallets.WalletManager();
+
         for (const transaction of unforgedTransactions) {
             try {
                 const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
@@ -489,9 +495,16 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const walletManager: State.IWalletManager = this.databaseService.walletManager;
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                Handlers.Registry.get(transaction.type).canBeApplied(transaction, sender, walletManager);
+                const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletManager);
+
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                handler.canBeApplied(transaction, sender, databaseWalletManager);
+
+                handler.applyToSenderInPool(transaction, localWalletManager);
+
+                if (recipient && sender.address !== recipient.address) {
+                    handler.applyToRecipientInPool(transaction, localWalletManager);
+                }
 
                 validTransactions.push(deserialized.serialized.toString("hex"));
             } catch (error) {
@@ -501,6 +514,35 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         return validTransactions;
+    }
+
+    private getSenderAndRecipient(
+        transaction: Interfaces.ITransaction,
+        localWalletManager: State.IWalletManager,
+    ): { sender: State.IWallet; recipient: State.IWallet } {
+        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        const { senderPublicKey, recipientId } = transaction.data;
+
+        let sender: State.IWallet;
+        let recipient: State.IWallet;
+
+        if (localWalletManager.hasByPublicKey(senderPublicKey)) {
+            sender = localWalletManager.findByPublicKey(senderPublicKey);
+        } else {
+            sender = clonedeep(databaseWalletManager.findByPublicKey(senderPublicKey));
+            localWalletManager.reindex(sender);
+        }
+
+        if (recipientId) {
+            if (localWalletManager.hasByAddress(recipientId)) {
+                recipient = localWalletManager.findByAddress(recipientId);
+            } else {
+                recipient = clonedeep(databaseWalletManager.findByAddress(recipientId));
+                localWalletManager.reindex(recipient);
+            }
+        }
+
+        return { sender, recipient };
     }
 
     private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
