@@ -746,7 +746,7 @@ describe("Connection", () => {
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
             expect(canBeApplied).toHaveBeenCalled();
-            expect(applyToSenderInPool).not.toHaveBeenCalled();
+            expect(applyToSenderInPool).toHaveBeenCalled();
         });
 
         it("should not apply transaction to wallet if canBeApplied() failed", async () => {
