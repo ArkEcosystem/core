@@ -90,12 +90,10 @@ describe("Connection", () => {
         addTransactionsToMemory(transactions);
 
         const forgingTransactions = await connection.getTransactionsForForging(100);
-        const offset = transactions.length - countGood;
-
         expect(forgingTransactions).toHaveLength(countGood);
         expect(forgingTransactions).toEqual(
             transactions
-                .slice(sliceBeginning ? 0 : offset, sliceBeginning ? offset + 1 : undefined)
+                .slice(sliceBeginning ? 0 : transactions.length - countGood, sliceBeginning ? countGood : undefined)
                 .map(({ serialized }) => serialized.toString("hex")),
         );
 
@@ -185,7 +183,7 @@ describe("Connection", () => {
             expect(spy).toHaveBeenCalled();
         });
 
-        it.only("should remove transactions that cannot be applied", async () => {
+        it("should remove multiple transactions of same sender that cannot be applied due to previous transaction", async () => {
             const transactions = TransactionFactory.transfer()
                 .withPassphrase(delegates[20].passphrase)
                 .build(5);
@@ -194,6 +192,28 @@ describe("Connection", () => {
             sender.balance = transactions[0].data.amount.plus(transactions[0].data.fee).times(3);
 
             await expectForgingTransactions(transactions, 3, true);
+        });
+
+        it("should remove transactions that cannot be applied due to previous transaction", async () => {
+            const transactionA = TransactionFactory.transfer(delegates[21].address, 101 * 1e8)
+                .withPassphrase(delegates[20].passphrase)
+                .build(1)[0];
+
+            const transactionBs = TransactionFactory.transfer(delegates[20].address, 100 * 1e8)
+                .withPassphrase(delegates[21].passphrase)
+                .build(5);
+
+            const walletA = databaseWalletManager.findByPublicKey(delegates[20].publicKey);
+            walletA.balance = transactionA.data.amount.plus(transactionA.data.fee);
+
+            const walletB = databaseWalletManager.findByPublicKey(delegates[21].publicKey);
+            walletB.balance = Utils.BigNumber.ZERO;
+
+            await expectForgingTransactions([transactionBs[0], transactionA], 1);
+
+            memory.flush();
+
+            await expectForgingTransactions([transactionA, ...transactionBs], 2, true);
         });
 
         it("should remove transactions that have malformed bytes", async () => {
