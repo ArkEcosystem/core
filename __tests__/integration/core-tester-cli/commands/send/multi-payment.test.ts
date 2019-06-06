@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { httpie } from "@arkecosystem/core-utils";
-import { Managers } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import nock from "nock";
 import { MultiPaymentCommand } from "../../../../../packages/core-tester-cli/src/commands/send/multi-payment";
 import { arkToSatoshi, captureTransactions, toFlags } from "../../shared";
@@ -50,15 +50,15 @@ describe("Commands - Multipayment", () => {
                 expect(tx.asset.payments).toEqual([
                     {
                         recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
-                        amount: "100",
+                        amount: Utils.BigNumber.make("100"),
                     },
                     {
                         recipientId: "AMUN4qrRt1fAsdMXD3knHoBvy6SZ7hZtR2",
-                        amount: "200",
+                        amount: Utils.BigNumber.make("200"),
                     },
                     {
                         recipientId: "AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C",
-                        amount: "300",
+                        amount: Utils.BigNumber.make("300"),
                     },
                 ]);
             });
@@ -85,15 +85,15 @@ describe("Commands - Multipayment", () => {
                 expect(tx.asset.payments).toEqual([
                     {
                         recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
-                        amount: "100",
+                        amount: Utils.BigNumber.make("100"),
                     },
                     {
                         recipientId: "AMUN4qrRt1fAsdMXD3knHoBvy6SZ7hZtR2",
-                        amount: "200",
+                        amount: Utils.BigNumber.make("200"),
                     },
                     {
                         recipientId: "AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C",
-                        amount: "300",
+                        amount: Utils.BigNumber.make("300"),
                     },
                 ]);
             });
