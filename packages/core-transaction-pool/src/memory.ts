@@ -297,7 +297,9 @@ export class Memory {
             return null;
         }
 
-        if (transaction.data.expiration > 0) {
+        // We ignore data.expiration in v1 transactions because it is not signed
+        // by the transaction creator.
+        if (transaction.version >= 2 && transaction.data.expiration > 0) {
             return transaction.data.expiration;
         }
 
