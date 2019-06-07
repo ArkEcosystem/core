@@ -38,7 +38,8 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
 };
 
 beforeAll(async () => {
-    memory = new Memory();
+    const maxTransactionAge = 2700;
+    memory = new Memory(maxTransactionAge);
 
     connection = new Connection({
         options: defaults,
