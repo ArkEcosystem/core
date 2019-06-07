@@ -541,6 +541,14 @@ export class Connection implements TransactionPool.IConnection {
             localWalletManager.reindex(sender);
         }
 
+        // HACK: need tx agonistic way for wallets which are modified by transaction
+        if (transaction.type === Enums.TransactionTypes.Vote) {
+            const vote = transaction.data.asset.votes[0].slice(1);
+            if (!localWalletManager.hasByPublicKey(vote)) {
+                localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
+            }
+        }
+
         if (recipientId) {
             if (localWalletManager.hasByAddress(recipientId)) {
                 recipient = localWalletManager.findByAddress(recipientId);
