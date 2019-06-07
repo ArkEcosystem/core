@@ -49,8 +49,8 @@ export class Memory {
                     return 1;
                 }
 
-                const expirationA: number = this.calcTxExpiration(a, expirationContext);
-                const expirationB: number = this.calcTxExpiration(b, expirationContext);
+                const expirationA: number = this.calculateTransactionExpiration(a, expirationContext);
+                const expirationB: number = this.calculateTransactionExpiration(b, expirationContext);
 
                 if (expirationA !== null && expirationB !== null) {
                     return expirationA - expirationB;
@@ -75,7 +75,9 @@ export class Memory {
 
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
-                (a, b) => this.calcTxExpiration(a, expirationContext) - this.calcTxExpiration(b, expirationContext)
+                (a, b) =>
+                    this.calculateTransactionExpiration(a, expirationContext) -
+                    this.calculateTransactionExpiration(b, expirationContext)
             );
             this.byExpirationIsSorted = true;
         }
@@ -83,7 +85,7 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (this.calcTxExpiration(transaction, expirationContext) > currentHeight) {
+            if (this.calculateTransactionExpiration(transaction, expirationContext) > currentHeight) {
                 break;
             }
 
@@ -164,7 +166,7 @@ export class Memory {
             currentHeight: currentHeight,
             now: Crypto.Slots.getTime()
         };
-        const expiration: number = this.calcTxExpiration(transaction, expirationContext);
+        const expiration: number = this.calculateTransactionExpiration(transaction, expirationContext);
         if (expiration !== null) {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
@@ -285,7 +287,7 @@ export class Memory {
      * maximum transaction age.
      * @return number expiration height or null if the transaction does not expire
      */
-    private calcTxExpiration(
+    private calculateTransactionExpiration(
         transaction: Interfaces.ITransaction,
         context: {
             blockTime: number,
@@ -299,7 +301,7 @@ export class Memory {
 
         // We ignore data.expiration in v1 transactions because it is not signed
         // by the transaction creator.
-        if (transaction.version >= 2 && transaction.data.expiration > 0) {
+        if (transaction.data.version >= 2 && transaction.data.expiration > 0) {
             return transaction.data.expiration;
         }
 
@@ -308,12 +310,12 @@ export class Memory {
         // created and adding maxTransactionAge to that.
 
         // Both now and transaction.data.timestamp use [number of seconds since the genesis block].
-        const txCreatedSecondsAgo: number = context.now - transaction.data.timestamp;
+        const createdSecondsAgo: number = context.now - transaction.data.timestamp;
 
-        const txCreatedBlocksAgo: number = Math.floor(txCreatedSecondsAgo / context.blockTime);
+        const createdBlocksAgo: number = Math.floor(createdSecondsAgo / context.blockTime);
 
-        const txCreatedAtHeight: number = context.currentHeight - txCreatedBlocksAgo;
+        const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
 
-        return txCreatedAtHeight + this.maxTransactionAge;
+        return createdAtHeight + this.maxTransactionAge;
     }
 }
