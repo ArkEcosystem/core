@@ -3,7 +3,7 @@ import "../../utils";
 /* tslint:disable:max-line-length */
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -17,7 +17,6 @@ let genesisBlock;
 let configManager;
 let container;
 let blockchain: Blockchain;
-let transactionsIn: Interfaces.ITransaction[];
 
 const resetBlocksInCurrentRound = async () => {
     await blockchain.database.loadBlocksFromCurrentRound();
@@ -80,14 +79,6 @@ describe("Blockchain", () => {
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
         configManager.set("exceptions.transactions", genesisBlock.transactions.map(tx => tx.id));
-
-        // During *TransactionHandler::bootstrap() all transactions from the genesis
-        // block are applied in the wallet manager, so we don't want to retry any
-        // delegate registrations or votes because those will fail due to e.g.
-        // "already voted" error.
-        transactionsIn = genesisBlock.transactions.filter(
-            t => t.type !== Enums.TransactionTypes.DelegateRegistration && t.type !== Enums.TransactionTypes.Vote,
-        );
     });
 
     afterAll(async () => {
