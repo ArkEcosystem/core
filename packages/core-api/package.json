@@ -31,7 +31,6 @@
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.0.3",
         "ajv": "^6.10.0",
-        "bs58check": "^2.1.2",
         "dayjs": "^1.8.14",
         "delay": "^4.2.0",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",

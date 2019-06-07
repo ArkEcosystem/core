@@ -34,8 +34,7 @@
         "bip32": "^2.0.3",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
-        "bs58": "^4.0.1",
-        "bs58check": "^2.1.2",
+        "bstring": "^0.3.9",
         "buffer-xor": "^2.0.2",
         "bytebuffer": "^5.0.1",
         "dayjs": "^1.8.14",
@@ -53,7 +52,6 @@
     "devDependencies": {
         "@types/bip32": "^1.0.2",
         "@types/bip39": "^2.4.2",
-        "@types/bs58": "^4.0.0",
         "@types/buffer-xor": "^2.0.0",
         "@types/bytebuffer": "^5.0.40",
         "@types/hapi__joi": "^15.0.1",

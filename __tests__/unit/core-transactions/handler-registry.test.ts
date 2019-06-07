@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { Errors } from "../../../packages/core-transactions/src";
 import { Registry, TransactionHandler } from "../../../packages/core-transactions/src/handlers";
@@ -43,7 +42,7 @@ class TestTransaction extends Transactions.Transaction {
         const buffer = new ByteBuffer(24, true);
         buffer.writeUint64(+data.amount);
         buffer.writeUint32(data.expiration || 0);
-        buffer.append(bs58check.decode(data.recipientId));
+        buffer.append(Identities.Address.decodeCheck(data.recipientId));
         buffer.writeInt32(data.asset.test);
 
         return buffer;
@@ -53,7 +52,7 @@ class TestTransaction extends Transactions.Transaction {
         const { data } = this;
         data.amount = Utils.BigNumber.make(buf.readUint64().toString());
         data.expiration = buf.readUint32();
-        data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());
+        data.recipientId = Identities.Address.encodeCheck(buf.readBytes(21).toBuffer());
         data.asset = {
             test: buf.readInt32(),
         };

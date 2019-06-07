@@ -2402,13 +2402,6 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/base-x@*":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/base-x/-/base-x-3.0.0.tgz#a1365259d1d3fa3ff973ab543192a6bdd4cb2f90"
-  integrity sha512-vnqSlpsv9uFX5/z8GyKWAfWHhLGJDBkrgRRsnxlsX23DHOlNyqP/eHQiv4TwnYcZULzQIxaWA/xRWU9Dyy4qzw==
-  dependencies:
-    "@types/node" "*"
-
 "@types/better-sqlite3@^5.4.0":
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/@types/better-sqlite3/-/better-sqlite3-5.4.0.tgz#ab7336ccc2e31bd88247016c675cfcb01df99787"
@@ -2452,13 +2445,6 @@
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/braces/-/braces-3.0.0.tgz#7da1c0d44ff1c7eb660a36ec078ea61ba7eb42cb"
   integrity sha512-TbH79tcyi9FHwbyboOKeRachRq63mSuWYXOflsNO9ZyE5ClQ/JaozNKl+aWUq87qPNsXasXxi2AbgfwIJ+8GQw==
-
-"@types/bs58@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@types/bs58/-/bs58-4.0.0.tgz#baec75cb007b419ede3ec6b3410d2c8f14c92fc5"
-  integrity sha512-gYX+MHD4G/R+YGYwdhG5gbJj4LsEQGr3Vg6gVDAbe7xC5Bn8dNNG2Lpo6uDX/rT5dE7VBj0rGEFuV8L0AEx4Rg==
-  dependencies:
-    "@types/base-x" "*"
 
 "@types/buffer-xor@^2.0.0":
   version "2.0.0"
@@ -4174,14 +4160,14 @@ bs-logger@0.x:
   dependencies:
     fast-json-stable-stringify "2.x"
 
-bs58@^4.0.0, bs58@^4.0.1:
+bs58@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/bs58/-/bs58-4.0.1.tgz#be161e76c354f6f788ae4071f63f34e8c4f0a42a"
   integrity sha1-vhYedsNU9veIrkBx9j806MTwpCo=
   dependencies:
     base-x "^3.0.2"
 
-bs58check@<3.0.0, bs58check@^2.1.1, bs58check@^2.1.2:
+bs58check@<3.0.0, bs58check@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/bs58check/-/bs58check-2.1.2.tgz#53b018291228d82a5aa08e7d796fdafda54aebfc"
   integrity sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==
@@ -4201,6 +4187,15 @@ bsert@~0.0.10:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/bsert/-/bsert-0.0.10.tgz#231ac82873a1418c6ade301ab5cd9ae385895597"
   integrity sha512-NHNwlac+WPy4t2LoNh8pXk8uaIGH3NSaIUbTTRXGpE2WEbq0te/tDykYHkFK57YKLPjv/aGHmbqvnGeVWDz57Q==
+
+bstring@^0.3.9:
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/bstring/-/bstring-0.3.9.tgz#dc50294b54e9e767c07ca5592795dcc59ef1bf2e"
+  integrity sha512-D95flI7SXL+UsQi9mW+hH+AK2AFfafIJi+3GbbyTAWMe2FqwR9keBxsjGiGd/JM+77Y9WsC+M4EhZVNVcym9jw==
+  dependencies:
+    bsert "~0.0.10"
+    loady "~0.0.1"
+    nan "^2.13.1"
 
 btoa-lite@^1.0.0:
   version "1.0.0"
@@ -9624,6 +9619,11 @@ nan@^2.12.1, nan@^2.13.2:
   version "2.13.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.2.tgz#f51dc7ae66ba7d5d55e1e6d4d8092e802c9aefe7"
   integrity sha512-TghvYc72wlMGMVMluVo9WRJc0mB8KxxF/gZ4YYFy7V2ZQX9l7rgbPg7vjS9mt6U5HXODVFVI2bOduCzwOMv/lw==
+
+nan@^2.13.1:
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
+  integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
 
 nanomatch@^1.2.13, nanomatch@^1.2.9:
   version "1.2.13"

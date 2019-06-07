@@ -35,7 +35,6 @@
         "@types/fs-extra": "^7.0.0",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
-        "bs58check": "^2.1.2",
         "dayjs": "^1.8.14",
         "delay": "^4.2.0",
         "fs-extra": "^8.0.1",

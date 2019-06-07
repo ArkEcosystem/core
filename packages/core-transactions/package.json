@@ -21,8 +21,7 @@
     "dependencies": {
         "@arkecosystem/core-event-emitter": "^2.4.0-next.11",
         "@arkecosystem/core-interfaces": "^2.4.0-next.11",
-        "@arkecosystem/crypto": "^2.4.0-next.11",
-        "bs58check": "^2.1.2"
+        "@arkecosystem/crypto": "^2.4.0-next.11"
     },
     "engines": {
         "node": ">=10.x"

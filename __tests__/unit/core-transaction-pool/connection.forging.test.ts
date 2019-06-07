@@ -2,7 +2,6 @@ import "jest-extended";
 
 import "./mocks/core-container";
 
-import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 
 import { Wallets } from "@arkecosystem/core-state";
@@ -140,7 +139,7 @@ describe("Connection", () => {
         // only for transfer right now
         writeUint64("amount", +transaction.amount);
         writeUint32("expiration", transaction.expiration || 0);
-        append("recipientId", bs58check.decode(transaction.recipientId));
+        append("recipientId", Identities.Address.decodeCheck(transaction.recipientId));
 
         // signatures
         if (transaction.signature || options.signature) {

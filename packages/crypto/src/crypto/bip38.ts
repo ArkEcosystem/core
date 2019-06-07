@@ -7,7 +7,6 @@
 import assert from "assert";
 import { secp256k1 } from "bcrypto";
 import aes from "browserify-aes";
-import bs58check from "bs58check";
 import xor from "buffer-xor/inplace";
 import crypto from "crypto";
 import { HashAlgorithms } from "../crypto";
@@ -18,7 +17,7 @@ import {
     Bip38TypeError,
     PrivateKeyLengthError,
 } from "../errors";
-import { Keys } from "../identities";
+import { Address, Keys } from "../identities";
 import { IDecryptResult } from "../interfaces";
 
 const SCRYPT_PARAMS = {
@@ -40,11 +39,17 @@ const getAddressPrivate = (privateKey: Buffer, compressed: boolean): string => {
     payload.writeUInt8(0x00, 0);
     buffer.copy(payload, 1);
 
-    return bs58check.encode(payload);
+    return Address.encodeCheck(payload);
 };
 
 export const verify = (bip38: string): boolean => {
-    const decoded = bs58check.decodeUnsafe(bip38);
+    let decoded: Buffer;
+    try {
+        decoded = Address.decodeCheck(bip38);
+    } catch {
+        return false;
+    }
+
     if (!decoded) {
         return false;
     }
@@ -228,9 +233,9 @@ const decryptRaw = (buffer: Buffer, passphrase: string): IDecryptResult => {
 };
 
 export const encrypt = (privateKey: Buffer, compressed: boolean, passphrase: string): string => {
-    return bs58check.encode(encryptRaw(privateKey, compressed, passphrase));
+    return Address.encodeCheck(encryptRaw(privateKey, compressed, passphrase));
 };
 
 export const decrypt = (bip38: string, passphrase): IDecryptResult => {
-    return decryptRaw(bs58check.decode(bip38), passphrase);
+    return decryptRaw(Address.decodeCheck(bip38), passphrase);
 };

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
+import { Identities } from "@arkecosystem/crypto/src";
 import { Ajv } from "ajv";
-import * as bs58check from "bs58check";
 import * as ipAddress from "ip";
 
 export const registerFormats = (ajv: Ajv) => {
@@ -10,7 +10,7 @@ export const registerFormats = (ajv: Ajv) => {
         type: "string",
         validate: value => {
             try {
-                return bs58check.decode(value)[0] === config.get("network.pubKeyHash");
+                return Identities.Address.decodeCheck(value)[0] === config.get("network.pubKeyHash");
             } catch (e) {
                 return false;
             }

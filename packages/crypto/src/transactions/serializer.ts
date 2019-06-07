@@ -1,6 +1,4 @@
 /* tslint:disable:no-shadowed-variable */
-
-import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
 import { Utils } from "..";
 import { TransactionTypes } from "../enums";
@@ -122,7 +120,7 @@ export class Serializer {
         if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
             const recipientId =
                 transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-            const recipient = bs58check.decode(recipientId);
+            const recipient = Address.decodeCheck(recipientId);
             for (const byte of recipient) {
                 bb.writeByte(byte);
             }
