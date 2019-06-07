@@ -6,6 +6,7 @@ import { state } from "./mocks/state";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import assert from "assert";
 import dayjs from "dayjs";
 import cloneDeep from "lodash.clonedeep";
 import shuffle from "lodash.shuffle";
@@ -36,6 +37,12 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
     wallet.balance = wallet.balance.plus(transaction.data.amount.plus(transaction.data.fee));
     walletManager.reindex(wallet);
+};
+
+const updateSenderNonce = (transaction: Interfaces.ITransaction) => {
+    (connection as any).databaseService.walletManager.findByPublicKey(
+        transaction.data.senderPublicKey,
+    ).nonce = Utils.BigNumber.make(transaction.data.nonce).minus(1);
 };
 
 beforeAll(async () => {
@@ -429,9 +436,10 @@ describe("Connection", () => {
 
     describe("getTransactions", () => {
         it("should return transactions within the specified range", async () => {
-            const transactions = [mockData.dummy1, mockData.dummy2];
+            const transactions = [mockData.dummy1, mockData.dummyLarge1];
 
             addTransactions(transactions);
+            updateSenderNonce(mockData.dummyLarge1);
 
             if (transactions[1].data.fee > transactions[0].data.fee) {
                 transactions.reverse();
@@ -472,41 +480,45 @@ describe("Connection", () => {
         });
 
         it("should only return transaction ids for transactions not exceeding the maximum payload size", async () => {
-            // @FIXME: Uhm excuse me, what the?
-            mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
-            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
-                // @ts-ignore
-                mockData.dummyLarge1.data.signatures += "1";
-                // @ts-ignore
-                mockData.dummyLarge2.data.signatures += "2";
+            const transactions = TransactionFactory.transfer().build(5);
+
+            const largeTransactions = TransactionFactory.transfer()
+                .withPassphrase(delegatesSecrets[22])
+                .build(2);
+
+            for (const transaction of transactions) {
+                indexWalletWithSufficientBalance(transaction);
             }
 
-            const transactions = [
-                mockData.dummyLarge1,
-                mockData.dummyLarge2,
-                mockData.dummy3,
-                mockData.dummy4,
-                mockData.dummy5,
-                mockData.dummy6,
-                mockData.dummy7,
-            ];
+            for (const transaction of largeTransactions) {
+                indexWalletWithSufficientBalance(transaction);
+            }
 
-            addTransactions(transactions);
+            // @FIXME: Uhm excuse me, what the?
+            largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
+            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+                // @ts-ignore
+                largeTransactions[0].data.signatures += "1";
+                // @ts-ignore
+                largeTransactions[1].data.signatures += "2";
+            }
+
+            addTransactions([...transactions, ...largeTransactions]);
 
             let transactionIds = await connection.getTransactionIdsForForging(0, 7);
             expect(transactionIds).toBeArray();
             expect(transactionIds).toHaveLength(5);
-            expect(transactionIds[0]).toBe(mockData.dummy3.id);
-            expect(transactionIds[1]).toBe(mockData.dummy4.id);
-            expect(transactionIds[2]).toBe(mockData.dummy5.id);
-            expect(transactionIds[3]).toBe(mockData.dummy6.id);
-            expect(transactionIds[4]).toBe(mockData.dummy7.id);
+            expect(transactionIds[0]).toBe(transactions[0].id);
+            expect(transactionIds[1]).toBe(transactions[1].id);
+            expect(transactionIds[2]).toBe(transactions[2].id);
+            expect(transactionIds[3]).toBe(transactions[3].id);
+            expect(transactionIds[4]).toBe(transactions[4].id);
 
-            connection.removeTransactionById(mockData.dummy3.id);
-            connection.removeTransactionById(mockData.dummy4.id);
-            connection.removeTransactionById(mockData.dummy5.id);
-            connection.removeTransactionById(mockData.dummy6.id);
-            connection.removeTransactionById(mockData.dummy7.id);
+            connection.removeTransactionById(transactions[0].id);
+            connection.removeTransactionById(transactions[1].id);
+            connection.removeTransactionById(transactions[2].id);
+            connection.removeTransactionById(transactions[3].id);
+            connection.removeTransactionById(transactions[4].id);
 
             transactionIds = await connection.getTransactionIdsForForging(0, 7);
             expect(transactionIds).toBeArray();
@@ -530,64 +542,73 @@ describe("Connection", () => {
         });
 
         it("should only return unforged transactions", async () => {
-            const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3];
+            const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummyLarge1];
+
+            updateSenderNonce(mockData.dummyLarge1);
+
             addTransactions(transactions);
 
             jest.spyOn(databaseService, "getForgedTransactionsIds").mockReturnValue([
                 mockData.dummy1.id,
-                mockData.dummy3.id,
+                mockData.dummy2.id,
             ]);
             jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
 
             const transactionsForForging = await connection.getTransactionsForForging(3);
             expect(transactionsForForging.length).toBe(1);
-            expect(transactionsForForging[0]).toEqual(mockData.dummy2.serialized.toString("hex"));
+            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized.toString("hex"));
         });
 
         it("should only return transactions not exceeding the maximum payload size", async () => {
-            // @FIXME: Uhm excuse me, what the?
-            mockData.dummyLarge1.data.signatures = mockData.dummyLarge2.data.signatures = [""];
-            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
-                // @ts-ignore
-                mockData.dummyLarge1.data.signatures += "1";
-                // @ts-ignore
-                mockData.dummyLarge2.data.signatures += "2";
+            const transactions = TransactionFactory.transfer().build(5);
+
+            const largeTransactions = TransactionFactory.transfer()
+                .withPassphrase(delegatesSecrets[22])
+                .build(2);
+
+            for (const transaction of transactions) {
+                indexWalletWithSufficientBalance(transaction);
             }
 
-            const transactions = [
-                mockData.dummyLarge1,
-                mockData.dummyLarge2,
-                mockData.dummy3,
-                mockData.dummy4,
-                mockData.dummy5,
-                mockData.dummy6,
-                mockData.dummy7,
-            ];
+            for (const transaction of largeTransactions) {
+                indexWalletWithSufficientBalance(transaction);
+            }
 
-            addTransactions(transactions);
+            // @FIXME: Uhm excuse me, what the?
+            largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
+            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+                // @ts-ignore
+                largeTransactions[0].data.signatures += "1";
+                // @ts-ignore
+                largeTransactions[1].data.signatures += "2";
+            }
+
+            addTransactions([...transactions, ...largeTransactions]);
 
             jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
             let transactionsForForging = await connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
-            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge1.serialized.toString("hex"));
-            expect(transactionsForForging[1]).toEqual(mockData.dummy3.serialized.toString("hex"));
-            expect(transactionsForForging[2]).toEqual(mockData.dummy4.serialized.toString("hex"));
-            expect(transactionsForForging[3]).toEqual(mockData.dummy5.serialized.toString("hex"));
-            expect(transactionsForForging[4]).toEqual(mockData.dummy6.serialized.toString("hex"));
-            expect(transactionsForForging[5]).toEqual(mockData.dummy7.serialized.toString("hex"));
+            expect(transactionsForForging[0]).toEqual(transactions[0].serialized.toString("hex"));
+            expect(transactionsForForging[1]).toEqual(transactions[1].serialized.toString("hex"));
+            expect(transactionsForForging[2]).toEqual(transactions[2].serialized.toString("hex"));
+            expect(transactionsForForging[3]).toEqual(transactions[3].serialized.toString("hex"));
+            expect(transactionsForForging[4]).toEqual(transactions[4].serialized.toString("hex"));
+            expect(transactionsForForging[5]).toEqual(largeTransactions[0].serialized.toString("hex"));
 
-            connection.removeTransactionById(mockData.dummyLarge1.id);
-            connection.removeTransactionById(mockData.dummy3.id);
-            connection.removeTransactionById(mockData.dummy4.id);
-            connection.removeTransactionById(mockData.dummy5.id);
-            connection.removeTransactionById(mockData.dummy6.id);
-            connection.removeTransactionById(mockData.dummy7.id);
+            connection.removeTransactionById(largeTransactions[0].id);
+            connection.removeTransactionById(transactions[0].id);
+            connection.removeTransactionById(transactions[1].id);
+            connection.removeTransactionById(transactions[2].id);
+            connection.removeTransactionById(transactions[3].id);
+            connection.removeTransactionById(transactions[4].id);
+
+            updateSenderNonce(largeTransactions[1]);
 
             transactionsForForging = await connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(1);
-            expect(transactionsForForging[0]).toEqual(mockData.dummyLarge2.serialized.toString("hex"));
+            expect(transactionsForForging[0]).toEqual(largeTransactions[1].serialized.toString("hex"));
         });
     });
 
@@ -666,6 +687,8 @@ describe("Connection", () => {
         });
 
         it("should remove transaction from pool if it's in the chained block", async () => {
+            updateSenderNonce(mockData.dummy2);
+
             addTransactions([mockData.dummy2]);
 
             let transactions = await connection.getTransactions(0, 10);
@@ -762,8 +785,8 @@ describe("Connection", () => {
 
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).not.toHaveBeenCalled();
-            expect(applyToSender).not.toHaveBeenCalled();
+            expect(throwIfCannotBeApplied).toHaveBeenCalled();
+            expect(applyToSender).toHaveBeenCalled();
         });
 
         it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
@@ -773,7 +796,9 @@ describe("Connection", () => {
             });
             const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey").mockReturnValue();
 
+            updateSenderNonce(mockData.dummy1);
             addTransactions([mockData.dummy1]);
+
             await connection.buildWallets();
 
             expect(applyToSender).not.toHaveBeenCalled();
@@ -823,9 +848,9 @@ describe("Connection", () => {
             expect(connection.getPoolSize()).toBe(0);
 
             indexWalletWithSufficientBalance(mockData.dummy1);
-            indexWalletWithSufficientBalance(mockData.dummy4);
+            indexWalletWithSufficientBalance(mockData.dummyLarge1);
 
-            const transactions = [mockData.dummy1, mockData.dummy4];
+            const transactions = [mockData.dummy1, mockData.dummyLarge1];
 
             addTransactions(transactions);
 
@@ -853,7 +878,10 @@ describe("Connection", () => {
             indexWalletWithSufficientBalance(mockData.dummy2);
             indexWalletWithSufficientBalance(mockData.dummy4);
 
-            const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy4];
+            updateSenderNonce(mockData.dummy1);
+            updateSenderNonce(mockData.dummyLarge1);
+
+            const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummyLarge1];
 
             addTransactions(transactions);
 
@@ -900,7 +928,6 @@ describe("Connection", () => {
             const rand = randomSeed.create("0");
 
             const testTransactions: Interfaces.ITransaction[] = [];
-
             for (let i = 0; i < n; i++) {
                 const passphrase = String(i % nDifferentSenders);
 
@@ -913,6 +940,7 @@ describe("Connection", () => {
 
                 const wallet = new Wallets.Wallet(Identities.Address.fromPassphrase(passphrase));
                 wallet.balance = Utils.BigNumber.make(1e14);
+
                 connection.walletManager.reindex(wallet);
             }
 
@@ -1010,16 +1038,18 @@ describe("Connection", () => {
             expect(topFeesReceived).toEqual(topFeesExpected);
         });
 
-        it("sort by fee, nonce", () => {
+        it("sort by fee, nonce", async () => {
             const nTransactions = 1000;
             const nDifferentSenders = 100;
+
+            jest.spyOn(assert, "strictEqual").mockReturnValue();
 
             // Non-randomized nonces, used for each sender. Make sure there are enough
             // elements in this array, so that each transaction of a given sender gets
             // an unique nonce for that sender.
             const nonces = [];
             for (let i = 0; i < Math.ceil(nTransactions / nDifferentSenders); i++) {
-                nonces.push(Utils.BigNumber.make(i));
+                nonces.push(Utils.BigNumber.make(i + 1));
             }
 
             const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(
@@ -1039,6 +1069,7 @@ describe("Connection", () => {
                 t.data.nonce = noncesBySender[sender].shift();
 
                 t.serialized = Transactions.Utils.toBytes(t.data);
+                indexWalletWithSufficientBalance(t);
             }
 
             // const timerLabelAdd = `time to add ${testTransactions.length} transactions`;
@@ -1050,7 +1081,7 @@ describe("Connection", () => {
 
             // const timerLabelSort = `time to sort ${testTransactions.length} transactions`;
             // console.time(timerLabelSort);
-            const sortedTransactionsSerialized = connection.getTransactions(0, nTransactions);
+            const sortedTransactionsSerialized = await connection.getTransactions(0, nTransactions);
             // console.timeEnd(timerLabelSort);
 
             const sortedTransactions = sortedTransactionsSerialized.map(serialized =>
@@ -1092,6 +1123,8 @@ describe("Connection", () => {
 
                 lastNonceBySender[curSender] = curTransaction.data.nonce;
             }
+
+            jest.restoreAllMocks();
         });
     });
 
