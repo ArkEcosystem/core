@@ -25,6 +25,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await container.resolvePlugin("database").reset();
+
     await tearDownFull();
 });
 
@@ -445,7 +447,7 @@ describe("Transaction Guard", () => {
                         type: "ERR_CONFLICT",
                         message: `Multiple delegate registrations for "${
                             tx.data.asset.delegate.username
-                            }" in transaction payload`,
+                        }" in transaction payload`,
                     },
                 ]);
             }

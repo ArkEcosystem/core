@@ -17,6 +17,24 @@ export const registerRoutes = (server: Hapi.Server): void => {
 
     server.route({
         method: "GET",
+        path: "/blocks/first",
+        handler: controller.first,
+        options: {
+            validate: Schema.first,
+        },
+    });
+
+    server.route({
+        method: "GET",
+        path: "/blocks/last",
+        handler: controller.last,
+        options: {
+            validate: Schema.last,
+        },
+    });
+
+    server.route({
+        method: "GET",
         path: "/blocks/{id}",
         handler: controller.show,
         options: {

@@ -13,7 +13,7 @@ export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/
 
 export const copySnapshot = (sourceFolder, destFolder) => {
     const logger = app.resolvePlugin<Logger.ILogger>("logger");
-    logger.info(`Copying snapshot from ${sourceFolder} to a new file ${destFolder} for appending of data`);
+    logger.info(`Copying snapshot ${sourceFolder} to ${destFolder} for appending of data`);
 
     const paths = {
         source: {
@@ -90,6 +90,7 @@ export const setSnapshotInfo = (options, lastBlock) => {
     const meta = {
         startHeight: options.start !== -1 ? options.start : 1,
         endHeight: options.end !== -1 ? options.end : lastBlock.height,
+        startRoundId: 1,
         skipCompression: options.skipCompression || false,
         folder: "",
     };
@@ -99,6 +100,7 @@ export const setSnapshotInfo = (options, lastBlock) => {
     if (options.blocks) {
         const oldMeta = this.getSnapshotInfo(options.blocks);
         meta.startHeight = oldMeta.endHeight + 1;
+        meta.startRoundId = oldMeta.rounds.count + 1;
         meta.folder = `${oldMeta.startHeight}-${meta.endHeight}`;
     }
 

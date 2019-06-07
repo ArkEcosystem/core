@@ -24,18 +24,18 @@ const setUp = async () => {
     jest.setTimeout(60000);
 
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
+    process.env.CORE_RESET_DATABASE = "1";
 
     await setUpContainer({
         exclude: [
             "@arkecosystem/core-webhooks",
             "@arkecosystem/core-forger",
-            "@arkecosystem/core-json-rpc",
+            "@arkecosystem/core-exchange-json-rpc",
             "@arkecosystem/core-api",
         ],
     });
 
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    await databaseService.connection.roundsRepository.truncate();
     await databaseService.buildWallets();
     await databaseService.saveRound(round);
 
@@ -58,6 +58,7 @@ const calculateRanks = async () => {
         (a: State.IWallet, b: State.IWallet) => b.voteBalance.comparedTo(a.voteBalance),
     );
 
+    // tslint:disable-next-line: ban
     sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
         const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
         (wallet as any).rate = i + 1;

@@ -8,13 +8,13 @@ import { utils } from "../utils";
 const peers = [
     {
         ip: "1.0.0.99",
-        port: 4002,
-        version: "2.3.0-next.3",
+        port: 4000,
+        version: "2.4.0-next.3",
     },
     {
         ip: "1.0.0.98",
-        port: 4002,
-        version: "2.3.0-next.1",
+        port: 4000,
+        version: "2.4.0-next.1",
     },
 ];
 
@@ -24,7 +24,7 @@ beforeAll(async () => {
     const peerMocks = peers
         .map(mock => {
             const peerMock = new Peer(mock.ip);
-            peerMock.ports.p2p = mock.port;
+            (peerMock as any).port = mock.port;
             peerMock.version = mock.version;
             return peerMock;
         })

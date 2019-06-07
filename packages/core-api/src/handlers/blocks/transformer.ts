@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 
@@ -8,8 +8,8 @@ export const transformBlock = (model, transform) => {
         return model;
     }
 
-    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    const generator = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
+    const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    const generator: State.IWallet = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
 
     model.reward = Utils.BigNumber.make(model.reward);
     model.totalFee = Utils.BigNumber.make(model.totalFee);

@@ -57,6 +57,14 @@ const addBlocks = async untilHeight => {
     }
 };
 
+const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction): void => {
+    const walletManager = blockchain.database.walletManager;
+
+    const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    wallet.balance = wallet.balance.abs().plus(transaction.data.amount.plus(transaction.data.fee));
+    walletManager.reindex(wallet);
+};
+
 describe("Blockchain", () => {
     beforeAll(async () => {
         container = await setUp();
@@ -78,7 +86,7 @@ describe("Blockchain", () => {
         // delegate registrations or votes because those will fail due to e.g.
         // "already voted" error.
         transactionsIn = genesisBlock.transactions.filter(
-            t => t.type !== Enums.TransactionTypes.DelegateRegistration && t.type !== Enums.TransactionTypes.Vote
+            t => t.type !== Enums.TransactionTypes.DelegateRegistration && t.type !== Enums.TransactionTypes.Vote,
         );
     });
 
@@ -102,14 +110,24 @@ describe("Blockchain", () => {
     describe("postTransactions", () => {
         it("should be ok", async () => {
             blockchain.transactionPool.flush();
-            await blockchain.postTransactions(transactionsIn);
-            const transactionsOut = blockchain.transactionPool.getTransactions(0, 200);
 
-            expect(transactionsOut.length).toBe(transactionsIn.length);
+            jest.spyOn(blockchain.transactionPool as any, "removeForgedTransactions").mockReturnValue([]);
 
-            expect(transactionsOut).toIncludeAllMembers(transactionsIn.map(t => t.serialized));
+            for (const transaction of genesisBlock.transactions) {
+                indexWalletWithSufficientBalance(transaction);
+            }
+
+            const transferTransactions = genesisBlock.transactions.filter(tx => tx.type === 0);
+
+            await blockchain.postTransactions(transferTransactions);
+            const transactions = await blockchain.transactionPool.getTransactions(0, 200);
+
+            expect(transactions.length).toBe(transferTransactions.length);
+
+            expect(transactions).toIncludeAllMembers(transferTransactions.map(transaction => transaction.serialized));
 
             blockchain.transactionPool.flush();
+            jest.restoreAllMocks();
         });
     });
 
@@ -236,7 +254,7 @@ describe("Blockchain", () => {
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
             const transfer = TransactionFactory.transfer(recipient, 125)
                 .withPassphrase(forgerKeys.passphrase)
-                .createOne()
+                .createOne();
 
             const transferBlock = createBlock(forgerKeys, [transfer]);
             await blockchain.processBlocks([transferBlock], mockCallback);
@@ -253,7 +271,7 @@ describe("Blockchain", () => {
             const vote = TransactionFactory.vote(forgerKeys.publicKey)
                 .withFee(1)
                 .withPassphrase("secret")
-                .createOne()
+                .createOne();
 
             nextForger = await getNextForger();
             let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);

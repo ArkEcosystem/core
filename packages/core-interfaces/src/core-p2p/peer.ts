@@ -2,7 +2,6 @@ import { Dayjs } from "dayjs";
 import { IPeerVerificationResult } from "./peer-verifier";
 
 export interface IPeerPorts {
-    p2p: number;
     [name: string]: number;
 }
 

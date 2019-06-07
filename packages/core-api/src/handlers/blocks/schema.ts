@@ -43,6 +43,18 @@ export const index: object = {
     },
 };
 
+export const first: object = {
+    query: {
+        transform: Joi.bool().default(true),
+    },
+};
+
+export const last: object = {
+    query: {
+        transform: Joi.bool().default(true),
+    },
+};
+
 export const show: object = {
     params: {
         id: blockId,

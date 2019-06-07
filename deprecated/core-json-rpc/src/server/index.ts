@@ -25,7 +25,6 @@ export const startServer = async options => {
             plugin: plugins.whitelist,
             options: {
                 whitelist: options.whitelist,
-                name: "JSON-RPC",
             },
         });
     }

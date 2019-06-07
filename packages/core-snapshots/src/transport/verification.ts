@@ -64,21 +64,24 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
     return false;
 };
 
-export const canImportRecord = (context, data, lastBlock) => {
-    if (!lastBlock) {
+export const canImportRecord = (context, data, options) => {
+    if (!options.lastBlock) {
         return true;
     }
 
     if (context === "blocks") {
-        return data.height > lastBlock.height;
+        return data.height > options.lastBlock.height;
     }
 
     if (context === "transactions") {
-        return data.timestamp > lastBlock.timestamp;
+        return data.timestamp > options.lastBlock.timestamp;
     }
 
     if (context === "rounds") {
-        return true;
+        if (options.lastRound === null) {
+            return true;
+        }
+        return data.id > options.lastRound.id;
     }
 
     return false;

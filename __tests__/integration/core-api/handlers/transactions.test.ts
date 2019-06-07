@@ -506,8 +506,8 @@ describe("API 2.0 - Transactions", () => {
         it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async txNumber => {
             const sender = delegates[txNumber]; // use txNumber so that we use a different delegate for each test case
             const receivers = generateWallets("testnet", 2);
-            const amountPlusFee = Math.floor(sender.balance / txNumber);
-            const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee;
+            const amountPlusFee = Math.floor(+sender.balance / txNumber);
+            const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee;
 
             const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withNetwork("testnet")
@@ -542,8 +542,8 @@ describe("API 2.0 - Transactions", () => {
             async txNumber => {
                 const sender = delegates[txNumber + 1]; // use txNumber + 1 so that we don't use the same delegates as the above test
                 const receivers = generateWallets("testnet", 2);
-                const amountPlusFee = Math.floor(sender.balance / txNumber);
-                const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
+                const amountPlusFee = Math.floor(+sender.balance / txNumber);
+                const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
                 const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
                     .withNetwork("testnet")
