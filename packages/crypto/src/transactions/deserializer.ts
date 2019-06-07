@@ -57,7 +57,9 @@ class Deserializer {
         const vendorFieldLength: number = buf.readUint8();
         if (vendorFieldLength > 0) {
             if (transaction.hasVendorField()) {
-                transaction.data.vendorFieldHex = buf.readBytes(vendorFieldLength).toString("hex");
+                const vendorFieldBuffer: Buffer = buf.readBytes(vendorFieldLength).toBuffer();
+                transaction.data.vendorFieldHex = vendorFieldBuffer.toString("hex"); // TODO: purpose?
+                transaction.data.vendorField = vendorFieldBuffer.toString("utf8");
             } else {
                 buf.skip(vendorFieldLength);
             }
@@ -157,10 +159,6 @@ class Deserializer {
             transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
                 k.startsWith("+") ? k : `+${k}`,
             );
-        }
-
-        if (transaction.vendorFieldHex) {
-            transaction.vendorField = Buffer.from(transaction.vendorFieldHex, "hex").toString("utf8");
         }
     }
 
