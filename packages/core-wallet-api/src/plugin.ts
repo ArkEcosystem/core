@@ -15,9 +15,10 @@ export const plugin: Container.IPluginDescriptor = {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting Wallet API");
         return startServer(options.server);
     },
-    async deregister(container: Container.IContainer) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Wallet API");
-
-        return container.resolvePlugin("wallet-api").stop();
+    async deregister(container: Container.IContainer, options) {
+        if (options.enabled) {
+            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Wallet API");
+            await container.resolvePlugin("wallet-api").stop();
+        }
     },
 };
