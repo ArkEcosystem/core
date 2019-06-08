@@ -1,6 +1,7 @@
 import { SATOSHI } from "../constants";
 import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
+import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 
 /**
@@ -75,4 +76,4 @@ export const numberToHex = (num: number, padding = 2): string => {
 
 export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
 
-export { BigNumber };
+export { Base58, BigNumber };

@@ -139,7 +139,7 @@ describe("Connection", () => {
         // only for transfer right now
         writeUint64("amount", +transaction.amount);
         writeUint32("expiration", transaction.expiration || 0);
-        append("recipientId", Identities.Address.decodeCheck(transaction.recipientId));
+        append("recipientId", Utils.Base58.decodeCheck(transaction.recipientId));
 
         // signatures
         if (transaction.signature || options.signature) {

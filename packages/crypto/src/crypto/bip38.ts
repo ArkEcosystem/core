@@ -17,8 +17,9 @@ import {
     Bip38TypeError,
     PrivateKeyLengthError,
 } from "../errors";
-import { Address, Keys } from "../identities";
+import { Keys } from "../identities";
 import { IDecryptResult } from "../interfaces";
+import { Base58 } from "../utils";
 
 const SCRYPT_PARAMS = {
     N: 16384, // specified by BIP38
@@ -39,13 +40,13 @@ const getAddressPrivate = (privateKey: Buffer, compressed: boolean): string => {
     payload.writeUInt8(0x00, 0);
     buffer.copy(payload, 1);
 
-    return Address.encodeCheck(payload);
+    return Base58.encodeCheck(payload);
 };
 
 export const verify = (bip38: string): boolean => {
     let decoded: Buffer;
     try {
-        decoded = Address.decodeCheck(bip38);
+        decoded = Base58.decodeCheck(bip38);
     } catch {
         return false;
     }
@@ -233,9 +234,9 @@ const decryptRaw = (buffer: Buffer, passphrase: string): IDecryptResult => {
 };
 
 export const encrypt = (privateKey: Buffer, compressed: boolean, passphrase: string): string => {
-    return Address.encodeCheck(encryptRaw(privateKey, compressed, passphrase));
+    return Base58.encodeCheck(encryptRaw(privateKey, compressed, passphrase));
 };
 
 export const decrypt = (bip38: string, passphrase): IDecryptResult => {
-    return decryptRaw(Address.decodeCheck(bip38), passphrase);
+    return decryptRaw(Base58.decodeCheck(bip38), passphrase);
 };

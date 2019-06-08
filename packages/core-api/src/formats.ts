@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Identities } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { Ajv } from "ajv";
 import * as ipAddress from "ip";
 
@@ -10,7 +10,7 @@ export const registerFormats = (ajv: Ajv) => {
         type: "string",
         validate: value => {
             try {
-                return Identities.Address.decodeCheck(value)[0] === config.get("network.pubKeyHash");
+                return Utils.Base58.decodeCheck(value)[0] === config.get("network.pubKeyHash");
             } catch (e) {
                 return false;
             }
