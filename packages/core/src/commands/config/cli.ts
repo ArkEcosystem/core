@@ -31,7 +31,7 @@ $ ark config:cli --channel=next
         const { flags } = this.parse(CommandLineInterfaceCommand);
 
         if (flags.token) {
-            configManager.update({ token: flags.token });
+            configManager.set("token", flags.token as string);
         }
 
         if (flags.channel) {
@@ -47,7 +47,7 @@ $ ark config:cli --channel=next
             return;
         }
 
-        configManager.update({ channel: newChannel });
+        configManager.set("channel", newChannel);
 
         const pkg = `${this.config.name}@${newChannel}`;
 

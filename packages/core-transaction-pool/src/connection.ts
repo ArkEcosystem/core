@@ -1,10 +1,13 @@
+import { strictEqual } from "assert";
+import dayjs, { Dayjs } from "dayjs";
+import clonedeep from "lodash.clonedeep";
+
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { strictEqual } from "assert";
-import dayjs, { Dayjs } from "dayjs";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
@@ -47,19 +50,18 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        const all: Interfaces.ITransaction[] = this.storage.loadAll();
-
-        for (const transaction of all) {
+        let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
 
+        const validTransactions = await this.validateTransactions(transactionsFromDisk);
+        transactionsFromDisk = transactionsFromDisk.filter(transaction =>
+            validTransactions.includes(transaction.serialized.toString("hex")),
+        );
+
         this.purgeExpired();
-
-        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(all.map(t => t.id));
-
-        this.removeTransactionsById(forgedIds);
-
-        this.purgeInvalidTransactions();
+        this.syncToPersistentStorage();
 
         this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
 
@@ -138,87 +140,22 @@ export class Connection implements TransactionPool.IConnection {
         return this.memory.getById(id);
     }
 
-    public getTransactions(start: number, size: number, maxBytes?: number): Buffer[] {
-        return this.getTransactionsData(start, size, maxBytes).map(
+    public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
+        return (await this.getValidatedTransactions(start, size, maxBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.serialized,
         );
     }
 
-    public getTransactionsForForging(blockSize: number): string[] {
-        const transactionMemory: Interfaces.ITransaction[] = this.getTransactionsData(
-            0,
-            blockSize,
-            this.options.maxTransactionBytes,
+    public async getTransactionsForForging(blockSize: number): Promise<string[]> {
+        return (await this.getValidatedTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
+            transaction.serialized.toString("hex"),
         );
-
-        const transactions: string[] = [];
-
-        for (const transaction of transactionMemory) {
-            try {
-                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
-                    transaction.serialized,
-                );
-
-                strictEqual(transaction.id, deserialized.id);
-
-                const walletManager: State.IWalletManager = this.databaseService.walletManager;
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                Handlers.Registry.get(transaction.type).throwIfCannotBeApplied(transaction, sender, walletManager);
-
-                transactions.push(deserialized.serialized.toString("hex"));
-            } catch (error) {
-                this.removeTransactionById(transaction.id);
-
-                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
-            }
-        }
-
-        return transactions;
     }
 
-    public getTransactionIdsForForging(start: number, size: number): string[] {
-        return this.getTransactionsData(start, size, this.options.maxTransactionBytes).map(
+    public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
+        return (await this.getValidatedTransactions(start, size, this.options.maxTransactionBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.id,
         );
-    }
-
-    public getTransactionsData(start: number, size: number, maxBytes: number = 0): Interfaces.ITransaction[] {
-        this.purgeExpired();
-
-        const data: Interfaces.ITransaction[] = [];
-
-        let transactionBytes: number = 0;
-
-        let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
-            if (i >= start + size) {
-                break;
-            }
-
-            if (i >= start) {
-                let pushTransaction: boolean = false;
-
-                if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                    if (transactionBytes + transactionSize <= maxBytes) {
-                        transactionBytes += transactionSize;
-                        pushTransaction = true;
-                    }
-                } else {
-                    pushTransaction = true;
-                }
-
-                if (pushTransaction) {
-                    data.push(transaction);
-                    i++;
-                }
-            } else {
-                i++;
-            }
-        }
-
-        return data;
     }
 
     public removeTransactionsForSender(senderPublicKey: string): void {
@@ -235,7 +172,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                    `(listed in options.allowedSenders), thus skipping throttling.`,
+                        `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -313,7 +250,11 @@ export class Connection implements TransactionPool.IConnection {
                 this.removeTransaction(transaction);
             } else if (senderWallet) {
                 try {
-                    transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.databaseService.walletManager);
+                    transactionHandler.throwIfCannotBeApplied(
+                        transaction,
+                        senderWallet,
+                        this.databaseService.walletManager,
+                    );
                     transactionHandler.applyToSender(transaction, this.walletManager);
                 } catch (error) {
                     this.purgeByPublicKey(data.senderPublicKey);
@@ -321,7 +262,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `Cannot apply transaction ${transaction.id} when trying to accept ` +
-                        `block ${block.data.id}: ${error.message}`
+                            `block ${block.data.id}: ${error.message}`,
                     );
 
                     return;
@@ -370,7 +311,11 @@ export class Connection implements TransactionPool.IConnection {
             // TODO: rework error handling
             try {
                 const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
-                transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.databaseService.walletManager);
+                transactionHandler.throwIfCannotBeApplied(
+                    transaction,
+                    senderWallet,
+                    this.databaseService.walletManager,
+                );
                 transactionHandler.applyToSender(transaction, this.walletManager);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
@@ -430,11 +375,55 @@ export class Connection implements TransactionPool.IConnection {
         return false;
     }
 
+    private async getValidatedTransactions(
+        start: number,
+        size: number,
+        maxBytes: number = 0,
+    ): Promise<Interfaces.ITransaction[]> {
+        this.purgeExpired();
+
+        const data: Interfaces.ITransaction[] = [];
+
+        let transactionBytes: number = 0;
+
+        let i = 0;
+        for (const transaction of this.memory.allSortedByFee()) {
+            if (i >= start + size) {
+                break;
+            }
+
+            if (i >= start) {
+                let pushTransaction: boolean = false;
+
+                if (maxBytes > 0) {
+                    const transactionSize: number = JSON.stringify(transaction.data).length;
+
+                    if (transactionBytes + transactionSize <= maxBytes) {
+                        transactionBytes += transactionSize;
+                        pushTransaction = true;
+                    }
+                } else {
+                    pushTransaction = true;
+                }
+
+                if (pushTransaction) {
+                    data.push(transaction);
+                    i++;
+                }
+            } else {
+                i++;
+            }
+        }
+
+        const validTransactions = await this.validateTransactions(data);
+        return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
+    }
+
     private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
         if (this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
@@ -495,6 +484,92 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
     }
 
+    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+        const validTransactions: string[] = [];
+        const forgedIds: string[] = await this.removeForgedTransactions(transactions);
+
+        const unforgedTransactions = transactions.filter(
+            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
+        );
+
+        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        const localWalletManager: Wallets.WalletManager = new Wallets.WalletManager();
+
+        for (const transaction of unforgedTransactions) {
+            try {
+                const deserialized: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytes(
+                    transaction.serialized,
+                );
+
+                strictEqual(transaction.id, deserialized.id);
+
+                const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletManager);
+
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+
+                handler.applyToSender(transaction, localWalletManager);
+
+                if (recipient && sender.address !== recipient.address) {
+                    handler.applyToRecipient(transaction, localWalletManager);
+                }
+
+                validTransactions.push(deserialized.serialized.toString("hex"));
+            } catch (error) {
+                this.removeTransactionById(transaction.id);
+                this.logger.error(`Removed ${transaction.id} before forging because it is no longer valid.`);
+            }
+        }
+
+        return validTransactions;
+    }
+
+    private getSenderAndRecipient(
+        transaction: Interfaces.ITransaction,
+        localWalletManager: State.IWalletManager,
+    ): { sender: State.IWallet; recipient: State.IWallet } {
+        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        const { senderPublicKey, recipientId } = transaction.data;
+
+        let sender: State.IWallet;
+        let recipient: State.IWallet;
+
+        if (localWalletManager.hasByPublicKey(senderPublicKey)) {
+            sender = localWalletManager.findByPublicKey(senderPublicKey);
+        } else {
+            sender = clonedeep(databaseWalletManager.findByPublicKey(senderPublicKey));
+            localWalletManager.reindex(sender);
+        }
+
+        // HACK: need tx agonistic way for wallets which are modified by transaction
+        if (transaction.type === Enums.TransactionTypes.Vote) {
+            const vote = transaction.data.asset.votes[0].slice(1);
+            if (!localWalletManager.hasByPublicKey(vote)) {
+                localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
+            }
+        }
+
+        if (recipientId) {
+            if (localWalletManager.hasByAddress(recipientId)) {
+                recipient = localWalletManager.findByAddress(recipientId);
+            } else {
+                recipient = clonedeep(databaseWalletManager.findByAddress(recipientId));
+                localWalletManager.reindex(recipient);
+            }
+        }
+
+        return { sender, recipient };
+    }
+
+    private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
+        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
+            transactions.map(({ id }) => id),
+        );
+
+        this.removeTransactionsById(forgedIds);
+        return forgedIds;
+    }
+
     private purgeExpired(): void {
         this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired());
     }
@@ -505,7 +580,7 @@ export class Connection implements TransactionPool.IConnection {
     private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {
         const lowestNonceBySender = {};
         for (const transaction of transactions) {
-            const senderPublicKey: string = transaction.data.senderPublicKey
+            const senderPublicKey: string = transaction.data.senderPublicKey;
             if (lowestNonceBySender[senderPublicKey] === undefined) {
                 lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
             } else if (lowestNonceBySender[senderPublicKey].isGreaterThan(transaction.data.nonce)) {

@@ -1,3 +1,5 @@
+import { app } from "@arkecosystem/core-container";
+import { Blockchain, State } from "@arkecosystem/core-interfaces";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
@@ -9,6 +11,33 @@ export class BlocksController extends Controller {
             const data = await request.server.methods.v2.blocks.index(request);
 
             return super.respondWithCache(data, h);
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
+    public async first(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        try {
+            return super.respondWithResource(
+                app
+                    .resolvePlugin<State.IStateService>("state")
+                    .getStore()
+                    .getGenesisBlock().data,
+                "block",
+                (request.query.transform as unknown) as boolean,
+            );
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
+    public async last(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        try {
+            return super.respondWithResource(
+                app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock().data,
+                "block",
+                (request.query.transform as unknown) as boolean,
+            );
         } catch (error) {
             return Boom.badImplementation(error);
         }

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
-    "version": "2.4.0-next.9",
+    "version": "2.4.0-next.11",
     "description": "Transaction Pool Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -24,26 +24,26 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.9",
-        "@arkecosystem/core-database": "^2.4.0-next.9",
-        "@arkecosystem/core-event-emitter": "^2.4.0-next.9",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.9",
-        "@arkecosystem/core-state": "^2.4.0-next.9",
-        "@arkecosystem/core-transactions": "^2.4.0-next.9",
-        "@arkecosystem/crypto": "^2.4.0-next.9",
+        "@arkecosystem/core-container": "^2.4.0-next.11",
+        "@arkecosystem/core-database": "^2.4.0-next.11",
+        "@arkecosystem/core-event-emitter": "^2.4.0-next.11",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.11",
+        "@arkecosystem/core-state": "^2.4.0-next.11",
+        "@arkecosystem/core-transactions": "^2.4.0-next.11",
+        "@arkecosystem/crypto": "^2.4.0-next.11",
         "@types/better-sqlite3": "^5.4.0",
         "@types/fs-extra": "^7.0.0",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
-        "bs58check": "^2.1.2",
         "dayjs": "^1.8.14",
         "delay": "^4.2.0",
         "fs-extra": "^8.0.1",
         "lodash.camelcase": "^4.3.0",
+        "lodash.clonedeep": "^4.5.0",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-utils": "^2.4.0-next.9",
+        "@arkecosystem/core-utils": "^2.4.0-next.11",
         "@types/better-sqlite3": "^5.4.0",
         "@types/bip39": "^2.4.2",
         "@types/fs-extra": "^7.0.0",

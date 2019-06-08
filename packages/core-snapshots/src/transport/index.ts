@@ -91,7 +91,7 @@ export const importTable = async (table, options) => {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
         }
 
-        if (canImportRecord(table, record, options.lastBlock)) {
+        if (canImportRecord(table, record, options)) {
             values.push(record);
         }
 

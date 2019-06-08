@@ -1,4 +1,4 @@
-import bs58 from "bs58";
+import { base58 } from "bstring";
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
@@ -15,7 +15,7 @@ export class IpfsTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
 
-        const ipfsBuffer: Buffer = bs58.decode(data.asset.ipfs);
+        const ipfsBuffer: Buffer = base58.decode(data.asset.ipfs);
         const buffer: ByteBuffer = new ByteBuffer(ipfsBuffer.length, true);
 
         buffer.append(ipfsBuffer, "hex");
@@ -36,7 +36,7 @@ export class IpfsTransaction extends Transaction {
         buffer.fill(ipfsHash, 2);
 
         data.asset = {
-            ipfs: bs58.encode(buffer),
+            ipfs: base58.encode(buffer),
         };
     }
 }

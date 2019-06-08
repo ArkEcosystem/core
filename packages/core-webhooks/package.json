@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-webhooks",
-    "version": "2.4.0-next.9",
+    "version": "2.4.0-next.11",
     "description": "Webhooks for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,11 +19,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.9",
-        "@arkecosystem/core-event-emitter": "^2.4.0-next.9",
-        "@arkecosystem/core-http-utils": "^2.4.0-next.9",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.9",
-        "@arkecosystem/core-utils": "^2.4.0-next.9",
+        "@arkecosystem/core-container": "^2.4.0-next.11",
+        "@arkecosystem/core-event-emitter": "^2.4.0-next.11",
+        "@arkecosystem/core-http-utils": "^2.4.0-next.11",
+        "@arkecosystem/core-interfaces": "^2.4.0-next.11",
+        "@arkecosystem/core-utils": "^2.4.0-next.11",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.0.3",
         "fs-extra": "^8.0.1",
