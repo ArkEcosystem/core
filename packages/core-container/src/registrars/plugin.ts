@@ -124,6 +124,8 @@ export class PluginRegistrar {
                 }),
             );
 
+            this.plugins[name] = options;
+
             if (item.plugin.deregister) {
                 this.deregister.push({ plugin: item.plugin, options });
             }
