@@ -1,8 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
-import { Address } from "../../identities";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
-import { BigNumber } from "../../utils";
+import { Base58, BigNumber } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -21,7 +20,7 @@ export class MultiPaymentTransaction extends Transaction {
 
         for (const p of data.asset.payments) {
             buffer.writeUint64(+BigNumber.make(p.amount).toFixed());
-            buffer.append(Address.decodeCheck(p.recipientId));
+            buffer.append(Base58.decodeCheck(p.recipientId));
         }
 
         return buffer;
@@ -35,7 +34,7 @@ export class MultiPaymentTransaction extends Transaction {
         for (let j = 0; j < total; j++) {
             payments.push({
                 amount: BigNumber.make(buf.readUint64().toString()),
-                recipientId: Address.encodeCheck(buf.readBytes(21).toBuffer()),
+                recipientId: Base58.encodeCheck(buf.readBytes(21).toBuffer()),
             });
         }
 

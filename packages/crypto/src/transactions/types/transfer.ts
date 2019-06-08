@@ -1,8 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
-import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
-import { BigNumber } from "../../utils";
+import { Base58, BigNumber } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -22,7 +21,7 @@ export class TransferTransaction extends Transaction {
         const buffer: ByteBuffer = new ByteBuffer(24, true);
         buffer.writeUint64(+data.amount);
         buffer.writeUint32(data.expiration || 0);
-        buffer.append(Address.decodeCheck(data.recipientId));
+        buffer.append(Base58.decodeCheck(data.recipientId));
 
         return buffer;
     }
@@ -31,6 +30,6 @@ export class TransferTransaction extends Transaction {
         const { data } = this;
         data.amount = BigNumber.make(buf.readUint64().toString());
         data.expiration = buf.readUint32();
-        data.recipientId = Address.encodeCheck(buf.readBytes(21).toBuffer());
+        data.recipientId = Base58.encodeCheck(buf.readBytes(21).toBuffer());
     }
 }
