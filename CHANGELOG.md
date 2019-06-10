@@ -13,6 +13,41 @@ All changes listed in this section are things that either alter how certain data
 
 As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will be various breaking changes. The main concern of most developers will be breaking changes to `@arkecosystem/crypto` so go through the commits listed below and make sure you adjust everything in your application that is affected by a change.
 
+### Exchange JSON-RPC
+
+The JSON-RPC we offer, formerly known as `@arkecosystem/core-json-rpc`, has received a rework to turn it into a real RPC that is easier to use and maintain.
+
+#### Programmatic
+
+The biggest change is that it now offers programmatic use to make integration into ARK Core easier while simultaneously allowing it to run as a standalone application detached from a relay.
+
+**Standalone**
+https://github.com/ArkEcosystem/exchange-json-rpc
+
+**ARK Core Plugin**
+https://github.com/ArkEcosystem/core/tree/develop/packages/core-exchange-json-rpc
+
+> The `@arkecosystem/core-json-rpc` plugin has been deprecated and replaced by `@arkecosystem/core-exchange-json-rpc` because of different those 2 plugins work under the hood and their dependencies.
+
+#### Peers
+
+A few smaller improvements to how peers and faulty responses are being handled have also been made which should smoothen the experience without having to manually retry requests.
+
+#### Database
+
+The Exchange JSON-RPC uses SQLite under the hood to store all data. In previous versions it was using https://github.com/mapbox/node-sqlite3 which was known to cause random build issues for ARK Core and sometimes needed a dozen retries before it finally compiled.
+
+That dependency has been replaced with https://github.com/JoshuaWise/better-sqlite3 which is the same that ARK Core uses for its transaction pool. It provides better performance, receives updates and fixes when needed and build errors are a thing of the past.
+
+#### Migration
+
+If you've been using the JSON-RPC in the past together with ARK Core the migration to the Exchange JSON-RPC is as simple as following the steps at https://docs.ark.io/releases/v2.4/migrating_2.3_2.4.html#step-5-update-core-json-rpc-to-core-exchange-json-rpc.
+
+#### Disclaimer
+
+1. The Exchange JSON-RPC is only maintained for exchanges, as the name suggests. We do not offer any support or guidance unless you are an Exchange in which case you most likely will already be in touch with us.
+2. Do not use the Exchange JSON-RPC unless you are forced too and have no other options. The Public API provides much greater capabilities of searching and filtering data.
+
 ### Added
 
 -   Implement in `@arkecosystem/core-state` to manage the state of in-memory data ([#2479])
