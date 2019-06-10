@@ -33,7 +33,7 @@ export class Memory {
             const currentHeight: number = this.currentHeight();
             const expirationContext = {
                 blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
-                currentHeight: currentHeight,
+                currentHeight,
                 now: Crypto.Slots.getTime()
             };
 
@@ -69,7 +69,7 @@ export class Memory {
         const currentHeight: number = this.currentHeight();
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
-            currentHeight: currentHeight,
+            currentHeight,
             now: Crypto.Slots.getTime()
         };
 
@@ -163,7 +163,7 @@ export class Memory {
         const currentHeight: number = this.currentHeight();
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
-            currentHeight: currentHeight,
+            currentHeight,
             now: Crypto.Slots.getTime()
         };
         const expiration: number = this.calculateTransactionExpiration(transaction, expirationContext);
@@ -296,6 +296,7 @@ export class Memory {
         }
     ): number {
         if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
+            // tslint:disable-next-line:no-null-keyword
             return null;
         }
 
