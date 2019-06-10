@@ -35,10 +35,12 @@ export class PluginRegistrar {
         const failedPlugins: number = Object.keys(this.failedPlugins).length;
         if (failedPlugins > 0) {
             const logger = this.container.resolvePlugin<Logger.ILogger>("logger");
-            logger.warn(`Failed to load ${failedPlugins} optional plugins.`);
+            if (logger) {
+                logger.warn(`Failed to load ${failedPlugins} optional plugins.`);
 
-            for (const [name, error] of Object.entries(this.failedPlugins)) {
-                logger.warn(`Plugin '${name}': ${error.message}`);
+                for (const [name, error] of Object.entries(this.failedPlugins)) {
+                    logger.warn(`Plugin '${name}': ${error.message}`);
+                }
             }
         }
     }
