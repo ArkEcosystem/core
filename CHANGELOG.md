@@ -62,6 +62,11 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Invalid orderBy causes `Internal Server Error` via API ([#2653)
 -   Avoid trying to INSERT duplicates in rounds via `core-snapshots` ([#2651])
 -   Handle failing optional plugins gracefully ([#2657])
+-   Correctly purge invalid transactions from disk on start ([#2665])
+-   Don't append duplicate rounds rows to a snapshot ([#2662])
+-   Use temporary wallets for transaction validation ([#2666])
+-   Correctly display second signature if available via `core-api` ([#2670])
+-   Missing block confirmations on v2 API endpoints ([#2674])
 
 ### Changed
 
@@ -85,12 +90,12 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   **BREAKING:** Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
 -   Invalidate blocks with expired transactions ([#2528])
 -   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
--   Return all schema errors in hapi-ajv (#2571)
--   Clean up SocketCluster shutdown and logging (#2560)
+-   Return all schema errors in hapi-ajv ([#2571])
 -   Remove timeout banning ([#2597])
 -   Use dayjs as it now has official UTC support ([#2592])
 -   Require a minimum of 0 as pubKeyHash ([#2628])
 -   **BREAKING:** Replaced `@arkecosystem/core-json-rpc` with `@arkecosystem/core-exchange-json-rpc` _(Use `@arkecosystem/core-exchange-json-rpc` programmatically)_ ([#2643])
+-   Expire transactions that don't have an expiration ([#2672])
 
 ### Removed
 
@@ -659,7 +664,6 @@ Closed security vulnerabilities:
 [#2557]: https://github.com/ARKEcosystem/core/pull/2557
 [#2558]: https://github.com/ARKEcosystem/core/pull/2558
 [#2559]: https://github.com/ARKEcosystem/core/pull/2559
-[#2560]: https://github.com/ARKEcosystem/core/pull/2560
 [#2562]: https://github.com/ARKEcosystem/core/pull/2562
 [#2563]: https://github.com/ARKEcosystem/core/pull/2563
 [#2565]: https://github.com/ARKEcosystem/core/pull/2565
@@ -693,3 +697,9 @@ Closed security vulnerabilities:
 [#2655]: https://github.com/ARKEcosystem/core/pull/2655
 [#2657]: https://github.com/ARKEcosystem/core/pull/2657
 [#2659]: https://github.com/ARKEcosystem/core/pull/2659
+[#2662]: https://github.com/ARKEcosystem/core/pull/2662
+[#2665]: https://github.com/ARKEcosystem/core/pull/2665
+[#2666]: https://github.com/ARKEcosystem/core/pull/2666
+[#2670]: https://github.com/ARKEcosystem/core/pull/2670
+[#2672]: https://github.com/ARKEcosystem/core/pull/2672
+[#2674]: https://github.com/ARKEcosystem/core/pull/2674
