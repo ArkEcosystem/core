@@ -1,11 +1,12 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 
 export const transformBlock = model => {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const generator = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
+    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     model.reward = Utils.BigNumber.make(model.reward);
     model.totalFee = Utils.BigNumber.make(model.totalFee);
@@ -31,7 +32,7 @@ export const transformBlock = model => {
             publicKey: generator.publicKey,
         },
         signature: model.blockSignature,
-        confirmations: model.confirmations,
+        confirmations: lastBlock ? lastBlock.data.height - model.height : 0,
         transactions: model.numberOfTransactions,
         timestamp: formatTimestamp(model.timestamp),
     };
