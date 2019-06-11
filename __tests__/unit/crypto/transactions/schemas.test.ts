@@ -696,3 +696,66 @@ describe("Multi Signature Registration Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 });
+
+describe("Multi Payment Transaction", () => {
+    const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
+    let multiPayment = BuilderFactory.multiPayment();
+
+    beforeAll(() => {
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.MultiPayment).getSchema();
+    });
+
+    beforeEach(() => {
+        multiPayment = BuilderFactory.multiPayment().fee("1");
+    });
+
+    it("should be valid with 2 payments", () => {
+        multiPayment
+            .addPayment(address, "150")
+            .addPayment(address, "100")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("should be invalid with 0 or 1 payment", () => {
+        multiPayment.sign("passphrase");
+        const { error: errorZeroPayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
+        expect(errorZeroPayment).not.toBeUndefined();
+
+        multiPayment.addPayment(address, "100").sign("passphrase");
+
+        const { error: errorOnePayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
+        expect(errorOnePayment).not.toBeUndefined();
+    });
+
+    it("should be invalid with 501 payments", () => {
+        for (let i = 1; i <= 501; i++) {
+            multiPayment.addPayment(address, `${i}`);
+        }
+        multiPayment.sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, "test");
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        multiPayment
+            .addPayment(address, "150")
+            .addPayment(address, "100")
+            .fee("0")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        transaction = BuilderFactory.delegateRegistration();
+        transaction.usernameAsset("delegate_name").sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+});
