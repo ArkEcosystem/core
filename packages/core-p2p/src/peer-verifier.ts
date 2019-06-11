@@ -80,7 +80,7 @@ export class PeerVerifier {
         claimedState: P2P.IPeerState,
         deadline: number,
     ): Promise<PeerVerificationResult | undefined> {
-        if (!this.verifyStateHeader(claimedState)) {
+        if (!this.checkStateHeader(claimedState)) {
             return undefined;
         }
 
@@ -100,33 +100,38 @@ export class PeerVerifier {
             return undefined;
         }
 
+        this.log(Severity.DEBUG_EXTRA, "success");
+
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private verifyStateHeader(claimedState: P2P.IPeerState): boolean {
+    private checkStateHeader(claimedState: P2P.IPeerState): boolean {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
         const claimedHeight: number = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
             this.log(
                 Severity.DEBUG_EXTRA,
-                `Peer claimed contradicting heights: ${claimedState.height} - block height: ${claimedHeight}`,
+                `Peer claimed contradicting heights: state height=${claimedState.height} vs ` +
+                `state header height: ${claimedHeight}`,
             );
             return false;
         }
 
         try {
             const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
+            if (claimedBlock.verification.verified) {
+                return true;
+            }
             this.log(
                 Severity.DEBUG_EXTRA,
-                `Verified claimed block header ${blockHeader.height}:${blockHeader.id} of peer: ${
-                    claimedBlock.verification.verified
-                }`,
+                `Claimed block header ${blockHeader.height}:${blockHeader.id} failed signature verification`,
             );
-            return claimedBlock.verification.verified;
-        } catch {
+            return false;
+        } catch (error) {
             this.log(
                 Severity.DEBUG_EXTRA,
-                `Failed to verify claimed block header ${blockHeader.height}:${blockHeader.id} of peer.`,
+                `Claimed block header ${blockHeader.height}:${blockHeader.id} failed verification: ` +
+                error.message,
             );
             return false;
         }
