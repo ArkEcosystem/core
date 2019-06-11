@@ -1185,6 +1185,29 @@ describe("Connection", () => {
 
             jest.restoreAllMocks();
         });
+
+        it("should also purge transactions with higher nonces than the transactions from block", async () => {
+            const revertTransactionForSender = jest
+                .spyOn(connection.walletManager, "revertTransactionForSender")
+                .mockReturnValue();
+
+            const transactions = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
+                .withNetwork("unitnet")
+                .withPassphrase(delegatesSecrets[0])
+                .build(5);
+
+            const block = { transactions: transactions.slice(0, 3) } as Blocks.Block;
+
+            addTransactions(transactions);
+
+            expect(connection.getPoolSize()).toBe(5);
+
+            connection.purgeByBlock(block);
+            expect(revertTransactionForSender).toHaveBeenCalledTimes(5);
+            expect(connection.getPoolSize()).toBe(0);
+
+            jest.restoreAllMocks();
+        });
     });
 
     describe("purgeInvalidTransactions", () => {

@@ -328,15 +328,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public purgeByBlock(block: Interfaces.IBlock): void {
-        // Revert in reverse order so that we don't violate nonce rules.
-        for (let i = block.transactions.length - 1; i >= 0; i--) {
-            const transaction = block.transactions[i];
-            if (this.has(transaction.id)) {
-                this.removeTransaction(transaction);
-
-                this.walletManager.revertTransactionForSender(transaction);
-            }
-        }
+        this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, block.transactions);
     }
 
     public purgeByPublicKey(senderPublicKey: string): void {
