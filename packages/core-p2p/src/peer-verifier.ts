@@ -112,16 +112,17 @@ export class PeerVerifier {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `Peer claimed contradicting heights: state height=${claimedState.height} vs ` +
-                `state header height: ${claimedHeight}`,
+                    `state header height: ${claimedHeight}`,
             );
             return false;
         }
 
         try {
             const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
-            if (claimedBlock.verification.verified) {
+            if (claimedBlock.verifySignature()) {
                 return true;
             }
+
             this.log(
                 Severity.DEBUG_EXTRA,
                 `Claimed block header ${blockHeader.height}:${blockHeader.id} failed signature verification`,
@@ -130,8 +131,7 @@ export class PeerVerifier {
         } catch (error) {
             this.log(
                 Severity.DEBUG_EXTRA,
-                `Claimed block header ${blockHeader.height}:${blockHeader.id} failed verification: ` +
-                error.message,
+                `Claimed block header ${blockHeader.height}:${blockHeader.id} failed verification: ` + error.message,
             );
             return false;
         }
