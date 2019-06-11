@@ -220,9 +220,9 @@ export const multiPayment = extend(transactionBaseSchema, {
                 payments: {
                     type: "array",
                     minItems: 2,
-                    maxItems: 2257,
+                    maxItems: 500,
                     additionalItems: false,
-                    uniqueItems: true,
+                    uniqueItems: false,
                     items: {
                         type: "object",
                         required: ["amount", "recipientId"],

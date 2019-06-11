@@ -18,7 +18,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.amount = BigNumber.make(0);
     }
 
-    public addPayment(recipientId: string, amount: number | BigNumber): MultiPaymentBuilder {
+    public addPayment(recipientId: string, amount: string): MultiPaymentBuilder {
         if (this.data.asset.payments.length >= 2258) {
             throw new MaximumPaymentCountExceededError(this.data.asset.payments.length);
         }

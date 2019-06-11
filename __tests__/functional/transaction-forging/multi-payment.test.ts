@@ -1,4 +1,4 @@
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -8,11 +8,11 @@ const { passphrase, secondPassphrase } = support.passphrases;
 const payments = [
     {
         recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
-        amount: Utils.BigNumber.make(1000),
+        amount: "1000",
     },
     {
         recipientId: "AMUN4qrRt1fAsdMXD3knHoBvy6SZ7hZtR2",
-        amount: Utils.BigNumber.make(3000),
+        amount: "3000",
     },
 ];
 
@@ -38,6 +38,65 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(transactions).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(transactions.id).toBeForged();
+    });
+
+    it("should broadcast, accept and forge it [500 payments per tx, 200 tx] [Signed with 1 Passphase]", async () => {
+        // Initial Funds
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100000 * 1e8)
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(initialFunds).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(initialFunds.id).toBeForged();
+
+        const payments100 = [];
+        for (let i = 1; i <= 500; i++) {
+            payments100.push({
+                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                amount: "" + i,
+            });
+        }
+        // Submit multipayment transaction
+        const transactions = TransactionFactory.multiPayment(payments100)
+            .withPassphrase(passphrase)
+            .withFee(2 * 1e8)
+            .create(200);
+
+        await expect(transactions).toBeAllAccepted();
+        await support.snoozeForBlock(60); // we need 7 blocks for the transactions to be forged (30 per block because of maxTransactionBytes)
+
+        for (const transaction of transactions) {
+            await expect(transaction.id).toBeForged();
+        }
+    });
+
+    it("should NOT broadcast, accept and forge it [501 payments] [Signed with 1 Passphase]", async () => {
+        // Initial Funds
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(initialFunds).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(initialFunds.id).toBeForged();
+
+        const payments101 = [];
+        for (let i = 1; i <= 501; i++) {
+            payments101.push({
+                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                amount: "" + i,
+            });
+        }
+        // Submit multipayment transaction
+        const transactions = TransactionFactory.multiPayment(payments101)
+            .withPassphrase(passphrase)
+            .withFee(2 * 1e8)
+            .createOne();
+
+        await expect(transactions).not.toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(transactions.id).not.toBeForged();
     });
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {

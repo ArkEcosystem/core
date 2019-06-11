@@ -84,7 +84,7 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
     }
 
-    public static multiPayment(payments: Interfaces.IMultiPaymentItem[]): TransactionFactory {
+    public static multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
         const builder = Transactions.BuilderFactory.multiPayment();
         for (const payment of payments) {
             builder.addPayment(payment.recipientId, payment.amount);

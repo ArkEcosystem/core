@@ -679,23 +679,23 @@ describe("MultiPaymentTransaction", () => {
     beforeEach(() => {
         transaction = TransactionFactory.multiPayment([
             {
-                amount: Utils.BigNumber.make(10),
+                amount: "10",
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             },
             {
-                amount: Utils.BigNumber.make(20),
+                amount: "20",
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             },
             {
-                amount: Utils.BigNumber.make(30),
+                amount: "30",
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             },
             {
-                amount: Utils.BigNumber.make(40),
+                amount: "40",
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             },
             {
-                amount: Utils.BigNumber.make(50),
+                amount: "50",
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             },
         ]).createOne();

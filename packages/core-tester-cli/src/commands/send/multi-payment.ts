@@ -44,7 +44,7 @@ export class MultiPaymentCommand extends SendCommand {
     }
 
     protected async signTransactions(flags: Record<string, any>, wallets: Record<string, any>): Promise<any[]> {
-        const amounts = (flags.amounts as string).split(",").map(amountStr => Utils.BigNumber.make(amountStr));
+        const amounts = (flags.amounts as string).split(",");
         const recipients = (flags.recipients as string).split(",");
         const payments = amounts.map((amount, i) => ({ amount, recipientId: recipients[i] }));
 

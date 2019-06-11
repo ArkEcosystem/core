@@ -281,8 +281,8 @@ describe("Transaction serializer / deserializer", () => {
                 .fee("50000000")
                 .version(1)
                 .network(30)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 5000)
+                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", "1555")
+                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", "5000")
                 .sign("dummy passphrase")
                 .getStruct();
 
