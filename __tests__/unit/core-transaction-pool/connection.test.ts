@@ -5,7 +5,7 @@ import { state } from "./mocks/state";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Constants, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
@@ -25,6 +25,7 @@ const { TransactionTypes } = Enums;
 
 const delegatesSecrets = delegates.map(d => d.secret);
 
+const maxTransactionAge: number = 2700;
 let connection: Connection;
 let memory: Memory;
 
@@ -38,7 +39,7 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
 };
 
 beforeAll(async () => {
-    memory = new Memory();
+    memory = new Memory(maxTransactionAge);
 
     connection = new Connection({
         options: defaults,
@@ -229,14 +230,23 @@ describe("Connection", () => {
             jest.restoreAllMocks();
         });
 
-        it("should add the transactions to the pool and they should expire", async () => {
-            const heightAtStart = 42;
+        it.each([1, 2])("should correctly expire transactions (v%i)", async (transactionVersion) => {
+
+            const setHeight = (height) => {
+                jest.spyOn(state, "getStore").mockReturnValue({
+                    ...state.getStore(),
+                    ...{ getLastHeight: () => height },
+                });
+                jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(
+                    height * Managers.configManager.getMilestone(height).blocktime
+                );
+            };
 
             jest.spyOn(container.app, "has").mockReturnValue(true);
-            jest.spyOn(state, "getStore").mockReturnValue({
-                ...state.getStore(),
-                ...{ getLastHeight: () => heightAtStart },
-            });
+
+            const heightAtStart = 42;
+
+            setHeight(heightAtStart);
 
             expect(connection.getPoolSize()).toBe(0);
 
@@ -245,40 +255,50 @@ describe("Connection", () => {
 
             const transactions: Interfaces.ITransaction[] = [];
 
-            transactions.push(Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummyExp1.data)));
-            transactions[transactions.length - 1].data.expiration = expiration;
-
-            transactions.push(Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy1.data)));
-
-            // Workaround: Increase balance of sender wallet to succeed
-            const insufficientBalanceTx: any = Transactions.TransactionFactory.fromData(
-                cloneDeep(mockData.dummyExp2.data),
-            );
-            insufficientBalanceTx.data.expiration = expiration;
-            transactions.push(insufficientBalanceTx);
-
-            transactions.push(mockData.dummy2);
+            for (const [i, exp] of [0, expiration, expiration + 5].entries()) {
+                transactions.push(
+                    TransactionFactory.transfer(mockData.dummy1.data.recipientId)
+                        .withNetwork("unitnet")
+                        .withPassphrase(delegatesSecrets[0])
+                        .withFee(SATOSHI + i)
+                        .withVersion(transactionVersion)
+                        .withExpiration(exp)
+                        .build(1)[0]
+                );
+            }
 
             const { added, notAdded } = connection.addTransactions(transactions);
 
-            expect(added).toHaveLength(4);
             expect(notAdded).toBeEmpty();
+            expect(added).toHaveLength(3);
 
-            expect(connection.getPoolSize()).toBe(4);
+            expect(connection.getPoolSize()).toBe(3);
 
-            jest.spyOn(state, "getStore").mockReturnValue({
-                ...state.getStore(),
-                ...{ getLastHeight: () => expiration - 1 },
-            });
+            setHeight(expiration - 1);
 
-            expect(connection.getPoolSize()).toBe(4);
+            expect(connection.getPoolSize()).toBe(3);
 
-            jest.spyOn(state, "getStore").mockReturnValue({
-                ...state.getStore(),
-                ...{ getLastHeight: () => expiration },
-            });
+            setHeight(expiration);
 
-            expect(connection.getPoolSize()).toBe(2);
+            switch (transactionVersion) {
+                case 1:
+                    expect(connection.getPoolSize()).toBe(3);
+                    break;
+                case 2:
+                    expect(connection.getPoolSize()).toBe(2);
+                    break;
+            }
+
+            setHeight(heightAtStart + maxTransactionAge);
+
+            switch (transactionVersion) {
+                case 1:
+                    expect(connection.getPoolSize()).toBe(0);
+                    break;
+                case 2:
+                    expect(connection.getPoolSize()).toBe(0);
+                    break;
+            }
 
             for (const t of transactions) {
                 connection.removeTransactionById(t.id);

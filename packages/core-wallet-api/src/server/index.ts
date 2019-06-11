@@ -3,10 +3,10 @@ import { createServer, mountServer, plugins } from "@arkecosystem/core-http-util
 import h2o2 from "@hapi/h2o2";
 import * as handlers from "./handlers";
 
-export const startServer = async () => {
+export const startServer = async config => {
     const server = await createServer({
-        host: "0.0.0.0",
-        port: 4040,
+        host: config.host,
+        port: config.port,
     });
 
     await server.register(h2o2);

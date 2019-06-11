@@ -7,10 +7,11 @@ import { Connection } from "./__stubs__/connection";
 
 const manager: ConnectionManager = new ConnectionManager();
 
+const maxTransactionAge = 2700;
 const args = {
     options: defaults,
     walletManager: new WalletManager(),
-    memory: new Memory(),
+    memory: new Memory(maxTransactionAge),
     storage: new Storage(),
 };
 
