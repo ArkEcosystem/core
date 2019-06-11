@@ -21,7 +21,7 @@ export const plugin: Container.IPluginDescriptor = {
         return startServer(options.server);
     },
     async deregister(container: Container.IContainer, options) {
-        if (options.server.enabled) {
+        if (options.enabled) {
             container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Webhook API");
 
             await container.resolvePlugin("webhooks").stop();
