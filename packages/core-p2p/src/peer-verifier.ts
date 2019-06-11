@@ -76,8 +76,11 @@ export class PeerVerifier {
      * the peer's state could not be verified.
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | undefined> {
-        if (!this.verifyClaimedState(claimedState)) {
+    public async checkState(
+        claimedState: P2P.IPeerState,
+        deadline: number,
+    ): Promise<PeerVerificationResult | undefined> {
+        if (!this.verifyStateHeader(claimedState)) {
             return undefined;
         }
 
@@ -102,8 +105,8 @@ export class PeerVerifier {
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private verifyClaimedState(claimedState: any): boolean {
-        const blockHeader: Interfaces.IBlockData = claimedState.header;
+    private verifyStateHeader(claimedState: P2P.IPeerState): boolean {
+        const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
         const claimedHeight: number = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
             this.log(
