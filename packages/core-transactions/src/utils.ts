@@ -1,5 +1,8 @@
-import { Identities, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export const isRecipientOnActiveNetwork = (transaction: Interfaces.ITransactionData): boolean => {
-    return Identities.Address.decodeCheck(transaction.recipientId).readUInt8(0) === Managers.configManager.get("network.pubKeyHash");
+    return (
+        Utils.Base58.decodeCheck(transaction.recipientId).readUInt8(0) ===
+        Managers.configManager.get("network.pubKeyHash")
+    );
 };

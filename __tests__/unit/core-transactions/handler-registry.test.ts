@@ -42,7 +42,7 @@ class TestTransaction extends Transactions.Transaction {
         const buffer = new ByteBuffer(24, true);
         buffer.writeUint64(+data.amount);
         buffer.writeUint32(data.expiration || 0);
-        buffer.append(Identities.Address.decodeCheck(data.recipientId));
+        buffer.append(Utils.Base58.decodeCheck(data.recipientId));
         buffer.writeInt32(data.asset.test);
 
         return buffer;
@@ -52,7 +52,7 @@ class TestTransaction extends Transactions.Transaction {
         const { data } = this;
         data.amount = Utils.BigNumber.make(buf.readUint64().toString());
         data.expiration = buf.readUint32();
-        data.recipientId = Identities.Address.encodeCheck(buf.readBytes(21).toBuffer());
+        data.recipientId = Utils.Base58.encodeCheck(buf.readBytes(21).toBuffer());
         data.asset = {
             test: buf.readInt32(),
         };
@@ -84,13 +84,11 @@ class TestTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line: no-empty
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line: no-empty
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }
 
 beforeAll(() => {
