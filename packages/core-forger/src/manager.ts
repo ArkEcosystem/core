@@ -224,8 +224,6 @@ export class ForgerManager {
                             overHeightBlockHeader.id
                         }.`,
                     );
-
-                    this.logger.debug(`Network State: ${networkState.toJson()}`);
                 }
             }
         }
