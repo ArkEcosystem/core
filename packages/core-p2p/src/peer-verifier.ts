@@ -77,11 +77,11 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | undefined> {
-        const claimedHeight = Number(claimedState.header.height);
-        if (claimedHeight !== claimedState.height) {
+        if (!this.verifyClaimedState(claimedState)) {
             return undefined;
         }
 
+        const claimedHeight = Number(claimedState.header.height);
         const ourHeight: number = await this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
@@ -100,6 +100,35 @@ export class PeerVerifier {
         this.log(Severity.DEBUG_EXTRA, "success");
 
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
+    }
+
+    private verifyClaimedState(claimedState: any): boolean {
+        const blockHeader: Interfaces.IBlockData = claimedState.header;
+        const claimedHeight: number = Number(blockHeader.height);
+        if (claimedHeight !== claimedState.height) {
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `Peer claimed contradicting heights: ${claimedState.height} - block height: ${claimedHeight}`,
+            );
+            return false;
+        }
+
+        try {
+            const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `Verified claimed block header ${blockHeader.height}:${blockHeader.id} of peer: ${
+                    claimedBlock.verification.verified
+                }`,
+            );
+            return claimedBlock.verification.verified;
+        } catch {
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `Failed to verify claimed block header ${blockHeader.height}:${blockHeader.id} of peer.`,
+            );
+            return false;
+        }
     }
 
     /**
