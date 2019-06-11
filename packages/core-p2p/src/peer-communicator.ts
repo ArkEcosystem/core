@@ -58,6 +58,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new PeerVerificationFailedError();
             }
 
+            if (peer.state.height !== peer.state.header.height) {
+                throw new PeerVerificationFailedError();
+            }
+
             const peerVerifier = new PeerVerifier(this, peer);
 
             if (deadline <= new Date().getTime()) {
