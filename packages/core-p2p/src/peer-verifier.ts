@@ -77,8 +77,12 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | undefined> {
-        const ourHeight: number = await this.ourHeight();
         const claimedHeight = Number(claimedState.header.height);
+        if (claimedHeight !== claimedState.height) {
+            return undefined;
+        }
+
+        const ourHeight: number = await this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
             return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
