@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { networks } from "@arkecosystem/crypto";
+import { Networks } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
 import envPaths, { Paths } from "env-paths";
@@ -15,7 +15,7 @@ import { CommandFlags, Options } from "../types";
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
 
-const validNetworks = Object.keys(networks).filter(network => network !== "unitnet");
+const validNetworks = Object.keys(Networks).filter(network => network !== "unitnet");
 
 export abstract class BaseCommand extends Command {
     public static flagsNetwork: Record<string, object> = {
@@ -98,6 +98,8 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async buildApplication(app: Container.IContainer, flags: CommandFlags, config: Options) {
+        process.env.CORE_ENV = flags.env;
+
         await app.setUp(version, flags, {
             ...{ skipPlugins: flags.skipPlugins },
             ...config,
@@ -308,7 +310,7 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async restartRunningProcessPrompt(processName: string, showPrompt: boolean = true) {
-        if (processManager.isRunning(processName)) {
+        if (processManager.isOnline(processName)) {
             if (showPrompt) {
                 await confirm(`Would you like to restart the ${processName} process?`, () => {
                     this.restartProcess(processName);
@@ -331,25 +333,25 @@ export abstract class BaseCommand extends Command {
     }
 
     protected abortRunningProcess(processName: string) {
-        if (processManager.isRunning(processName)) {
+        if (processManager.isOnline(processName)) {
             this.error(`The "${processName}" process is already running.`);
         }
     }
 
     protected abortStoppedProcess(processName: string) {
-        if (processManager.hasStopped(processName)) {
+        if (processManager.isStopped(processName)) {
             this.error(`The "${processName}" process is not running.`);
         }
     }
 
     protected abortErroredProcess(processName: string) {
-        if (processManager.hasErrored(processName)) {
+        if (processManager.isErrored(processName)) {
             this.error(`The "${processName}" process has errored.`);
         }
     }
 
     protected abortUnknownProcess(processName: string) {
-        if (processManager.hasUnknownState(processName)) {
+        if (processManager.isUnknown(processName)) {
             this.error(
                 `The "${processName}" process has entered an unknown state. (${processManager.status(processName)})`,
             );

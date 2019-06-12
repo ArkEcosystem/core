@@ -1,8 +1,9 @@
 import { Resolver } from "awilix";
 
-export interface PluginDescriptor {
+export interface IPluginDescriptor {
     alias: string;
     pkg: any;
+    required?: boolean;
     defaults?: any;
     extends?: string;
     register(container: IContainer, options?: IPluginOptions): Promise<any>;
@@ -15,7 +16,7 @@ export interface IPluginOptions {
     [key: string]: PluginOptionValue | PluginOptionValue[];
 }
 
-export interface PluginConfig<T> {
+export interface IPluginConfig<T> {
     name: string;
     version: string;
     options: IPluginOptions;
@@ -27,11 +28,14 @@ export interface IContainer {
 
     silentShutdown: boolean;
 
+    shuttingDown: boolean;
+
     isReady: boolean;
 
     setUp(version: string, variables: any, options?: any): Promise<void>;
 
     getConfig(): any;
+
     /**
      * Tear down the app.
      * @return {Promise}
@@ -49,7 +53,7 @@ export interface IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    resolve<T = any>(key: any): T;
+    resolve<T = any>(key: string): T;
 
     /**
      * Resolve a plugin.
@@ -57,7 +61,7 @@ export interface IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    resolvePlugin<T = any>(key: any): T;
+    resolvePlugin<T = any>(key: string): T;
 
     /**
      * Resolve the options of a plugin. Available before a plugin mounts.
@@ -65,14 +69,14 @@ export interface IContainer {
      * @return {Object}
      * @throws {Error}
      */
-    resolveOptions(key: any): any;
+    resolveOptions(key: string): any;
 
     /**
      * Determine if the given registration exists.
      * @param  {String}  key
      * @return {Boolean}
      */
-    has(key: any): boolean;
+    has(key: string): boolean;
 
     /**
      * Force the container to exit and print the given message and associated error.

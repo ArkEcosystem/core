@@ -1,10 +1,10 @@
-import { constants } from "@arkecosystem/crypto";
-import Boom from "boom";
+import { Enums } from "@arkecosystem/crypto";
+import Boom from "@hapi/boom";
 import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const { TransactionTypes } = constants;
+const { TransactionTypes } = Enums;
 
 const index = async request => {
     const transactions = await transactionsRepository.findAllByType(TransactionTypes.Vote, {
@@ -25,11 +25,11 @@ const show = async request => {
     return respondWithResource(request, transaction, "transaction");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.votes.index", index, 8, request => ({
             ...request.query,
             ...paginate(request),
         }))
         .method("v2.votes.show", show, 8, request => ({ id: request.params.id }));
-}
+};

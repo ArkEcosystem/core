@@ -18,8 +18,12 @@ describe("Blocks Business Repository", () => {
             databaseService.connection.blocksRepository = {
                 findAll: async params => params,
                 getModel: () => new MockDatabaseModel(),
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => true);
+            } as any;
+
+            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
 
             await blocksBusinessRepository.findAll({
                 limit: 50,
@@ -38,9 +42,10 @@ describe("Blocks Business Repository", () => {
         it("should invoke findByHeight on db repository", async () => {
             databaseService.connection.blocksRepository = {
                 findByHeight: async id => id,
-            } as Database.IBlocksRepository;
+            } as any;
+
             jest.spyOn(databaseService.connection.blocksRepository, "findByHeight").mockImplementation(
-                async () => true,
+                async () => ({} as any),
             );
 
             await blocksBusinessRepository.findByHeight(1);
@@ -53,8 +58,11 @@ describe("Blocks Business Repository", () => {
         it("should invoke findById on db repository", async () => {
             databaseService.connection.blocksRepository = {
                 findById: async id => id,
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "findById").mockImplementation(async () => true);
+            } as any;
+
+            jest.spyOn(databaseService.connection.blocksRepository, "findById").mockImplementation(
+                async () => ({} as any),
+            );
 
             await blocksBusinessRepository.findById("some id");
 
@@ -67,8 +75,12 @@ describe("Blocks Business Repository", () => {
             databaseService.connection.blocksRepository = {
                 search: async params => params,
                 getModel: () => new MockDatabaseModel(),
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "search").mockImplementation(async () => true);
+            } as any;
+
+            jest.spyOn(databaseService.connection.blocksRepository, "search").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
 
             await blocksBusinessRepository.search({
                 limit: 50,
@@ -96,8 +108,12 @@ describe("Blocks Business Repository", () => {
             databaseService.connection.blocksRepository = {
                 findAll: async params => params,
                 getModel: () => new MockDatabaseModel(),
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => true);
+            } as any;
+
+            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
 
             await blocksBusinessRepository.findAllByGenerator("pubKey", { limit: 50, offset: 13 });
 
@@ -114,30 +130,6 @@ describe("Blocks Business Repository", () => {
                         offset: 13,
                         limit: 50,
                     },
-                }),
-            );
-        });
-    });
-
-    describe("findLastByPublicKey", () => {
-        it("should search by publicKey", async () => {
-            databaseService.connection.blocksRepository = {
-                findAll: async params => params,
-                getModel: () => new MockDatabaseModel(),
-            } as Database.IBlocksRepository;
-            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => true);
-
-            await blocksBusinessRepository.findLastByPublicKey("pubKey");
-
-            expect(databaseService.connection.blocksRepository.findAll).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "generatorPublicKey",
-                            operator: expect.anything(),
-                            value: "pubKey",
-                        },
-                    ],
                 }),
             );
         });

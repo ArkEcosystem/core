@@ -1,29 +1,48 @@
+import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { IWallet } from "../../core-state/wallets";
 import { IParameters } from "./parameters";
 
+export interface ITransactionsPaginated {
+    rows: Interfaces.ITransactionData[];
+    count: number;
+}
+
 export interface ITransactionsBusinessRepository {
-    findAll(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<any>;
+    findAll(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<ITransactionsPaginated>;
 
-    findAllLegacy(parameters: IParameters): Promise<any>;
+    findAllLegacy(parameters: IParameters): Promise<void>;
 
-    findWithVendorField(): Promise<any>;
+    findAllByWallet(wallet: IWallet, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
-    findAllByWallet(wallet, parameters?: IParameters): Promise<any>;
+    findAllBySender(senderPublicKey: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
-    findAllBySender(senderPublicKey, parameters?: IParameters): Promise<any>;
+    findAllByRecipient(recipientId: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
-    findAllByRecipient(recipientId, parameters?: IParameters): Promise<any>;
+    allVotesBySender(senderPublicKey: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
-    allVotesBySender(senderPublicKey, parameters?: IParameters): Promise<any>;
+    findAllByBlock(blockId: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
-    findAllByBlock(blockId, parameters?: IParameters): Promise<any>;
+    findAllByType(type: number, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
-    findAllByType(type, parameters?: IParameters): Promise<any>;
+    findById(id: string): Promise<Interfaces.ITransactionData>;
 
-    findById(id: string): Promise<any>;
+    findByTypeAndId(type: number, id: string): Promise<Interfaces.ITransactionData>;
 
-    findByTypeAndId(type: any, id: string): Promise<any>;
+    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
 
-    getFeeStatistics(): Promise<any>;
+    getReceivedTransactions(): Promise<any>;
 
-    search(params: IParameters): Promise<any>;
+    getSentTransactions(): Promise<any>;
+
+    getFeeStatistics(
+        days: number,
+    ): Promise<
+        Array<{
+            type: number;
+            fee: number;
+            timestamp: number;
+        }>
+    >;
+
+    search(params: IParameters): Promise<ITransactionsPaginated>;
 }

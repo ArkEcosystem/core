@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { TransactionPool } from "@arkecosystem/core-interfaces";
-import Boom from "boom";
-import Hapi from "hapi";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
@@ -33,11 +33,13 @@ export class TransactionsController extends Controller {
         try {
             const pagination = super.paginate(request);
 
-            const transactions = this.transactionPool
-                .getTransactions(pagination.offset, pagination.limit, 0)
-                .map(transaction => ({
-                    serialized: transaction,
-                }));
+            const transactions = (await this.transactionPool.getTransactions(
+                pagination.offset,
+                pagination.limit,
+                0,
+            )).map(transaction => ({
+                serialized: transaction,
+            }));
 
             return super.respondWith({
                 transactions: super.toCollection(request, transactions, "transaction"),

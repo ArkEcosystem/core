@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { flags } from "@oclif/command";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
@@ -17,6 +18,9 @@ $ ark forger:run --bip38="..." --password="..."
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,
         ...BaseCommand.flagsForger,
+        env: flags.string({
+            default: "production",
+        }),
     };
 
     public async run(): Promise<void> {

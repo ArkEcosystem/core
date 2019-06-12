@@ -20,7 +20,7 @@ class Storage {
     }
 
     public write(data) {
-        writeFileSync(this.cache, JSON.stringify(data, null, 4));
+        writeFileSync(this.cache, JSON.stringify(data, undefined, 4));
     }
 
     public update(data) {

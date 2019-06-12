@@ -2,16 +2,15 @@ import "../../../../utils";
 import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
-import { models } from "@arkecosystem/crypto";
-import genesisBlock from "../../../../utils/config/testnet/genesisBlock.json";
+import { Blocks } from "@arkecosystem/crypto";
+import { genesisBlock } from "../../../../utils/config/testnet/genesisBlock";
 import { blocks2to100 } from "../../../../utils/fixtures";
 import { resetBlockchain } from "../../../../utils/helpers";
 
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 
-const container = app;
-const { Block } = models;
+const { BlockFactory } = Blocks;
 
 beforeAll(async () => {
     await setUp();
@@ -55,7 +54,10 @@ describe("API 2.0 - Blocks", () => {
                     expect(response).toBePaginated();
                     expect(response.data.data).toBeArray();
 
-                    response.data.data.forEach(utils.expectBlock);
+                    for (const block of response.data.data) {
+                        utils.expectBlock(block);
+                    }
+
                     expect(response.data.data.sort((a, b) => a.height > b.height)).toEqual(response.data.data);
                 });
             },
@@ -120,6 +122,23 @@ describe("API 2.0 - Blocks", () => {
         );
     });
 
+    describe("GET /blocks/:height/transactions", () => {
+        describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
+            'using the "%s" header',
+            (header, request) => {
+                it("should GET all the transactions for the given block by id", async () => {
+                    const response = await utils[request]("GET", `blocks/${genesisBlock.height}/transactions`);
+                    expect(response).toBeSuccessfulResponse();
+                    expect(response.data.data).toBeArray();
+
+                    const transaction = response.data.data[0];
+                    utils.expectTransaction(transaction);
+                    expect(transaction.blockId).toBe(genesisBlock.id);
+                });
+            },
+        );
+    });
+
     describe("POST /blocks/search", () => {
         describe.each([["API-Version", "request"], ["Accept", "requestWithAcceptHeader"]])(
             "using the %s header",
@@ -166,8 +185,8 @@ describe("API 2.0 - Blocks", () => {
             (header, request) => {
                 it("should POST a search for blocks with the exact specified previousBlock", async () => {
                     // save a new block so that we can make the request with previousBlock
-                    const block2 = new Block(blocks2to100[0]);
-                    const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
+                    const block2 = BlockFactory.fromData(blocks2to100[0]);
+                    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
                     await databaseService.saveBlock(block2);
 
                     const response = await utils[request]("POST", "blocks/search", {
@@ -429,7 +448,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.fee).toBe(genesisBlock.totalFee);
+                    expect(+block.forged.fee).toBe(+genesisBlock.totalFee.toFixed());
                 });
             },
         );
@@ -450,7 +469,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.fee).toBe(genesisBlock.totalFee);
+                    expect(+block.forged.fee).toBe(+genesisBlock.totalFee.toFixed());
                 });
             },
         );
@@ -474,7 +493,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.reward).toBe(genesisBlock.reward);
+                    expect(+block.forged.reward).toBe(+genesisBlock.reward.toFixed());
                 });
             },
         );
@@ -498,7 +517,7 @@ describe("API 2.0 - Blocks", () => {
                     const block = response.data.data[0];
                     utils.expectBlock(block);
                     expect(block.id).toBe(genesisBlock.id);
-                    expect(+block.forged.reward).toBe(genesisBlock.reward);
+                    expect(+block.forged.reward).toBe(+genesisBlock.reward.toFixed());
                 });
             },
         );

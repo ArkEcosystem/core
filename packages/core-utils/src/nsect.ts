@@ -27,14 +27,14 @@ export class NSect {
      * @return {Number} the index of the first (lowest) element that satisfies the condition
      */
     public async find(low: number, high: number): Promise<number> {
-        let highestMatching: number = null;
+        let highestMatching: number;
 
         for (;;) {
             const indexesToProbe: number[] = this.calcProbes(low, high);
 
             const temp: number = await this.probe(indexesToProbe);
 
-            if (temp === null) {
+            if (temp === undefined) {
                 break;
             }
 
@@ -108,7 +108,7 @@ export class NSect {
     private calcProbes(low: number, high: number): number[] {
         assert(low <= high, `${low} <= ${high}`);
         const diff: number = high - low;
-        const p = new Set<number>();
+        const p: Set<number> = new Set<number>();
 
         for (let i = 0; i < this.nAry + 1; i++) {
             const h: number = low + Math.round((diff * i) / this.nAry);

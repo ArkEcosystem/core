@@ -1,4 +1,4 @@
-import { Address } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
@@ -53,7 +53,7 @@ export class VoteCommand extends SendCommand {
 
     protected async expectBalances(transactions, wallets): Promise<void> {
         for (const transaction of transactions) {
-            const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+            const recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network);
 
             const currentBalance = await this.getWalletBalance(recipientId);
             wallets[recipientId].expectedBalance = currentBalance.minus(transaction.fee);
@@ -65,7 +65,7 @@ export class VoteCommand extends SendCommand {
             const wasCreated = await this.knockTransaction(transaction.id);
 
             if (wasCreated) {
-                const recipientId = Address.fromPublicKey(transaction.senderPublicKey, this.network.version);
+                const recipientId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network);
 
                 await this.knockBalance(recipientId, wallets[recipientId].expectedBalance);
                 await this.knockVote(recipientId, wallets[recipientId].vote);

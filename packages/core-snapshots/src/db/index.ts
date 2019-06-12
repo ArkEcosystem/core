@@ -34,6 +34,15 @@ export class Database {
         return this.db.oneOrNone(queries.blocks.latest);
     }
 
+    /**
+     * Get the row with the highest id from the rounds table.
+     * @return Object latest row
+     * @return null if the table is empty.
+     */
+    public async getLastRound(): Promise<{ id: number, public_key: string, balance: string, round: string } | null> {
+        return this.db.oneOrNone(queries.rounds.latest);
+    }
+
     public async getBlockByHeight(height) {
         return this.db.oneOrNone(queries.blocks.findByHeight, { height });
     }
@@ -73,9 +82,16 @@ export class Database {
         return this.getLastBlock();
     }
 
-    public async getExportQueries(startHeight, endHeight) {
-        const startBlock = await this.getBlockByHeight(startHeight);
-        const endBlock = await this.getBlockByHeight(endHeight);
+    public async getExportQueries(meta: {
+        startHeight: number,
+        endHeight: number,
+        startRoundId: number,
+        skipCompression: boolean,
+        folder: string
+    }) {
+
+        const startBlock = await this.getBlockByHeight(meta.startHeight);
+        const endBlock = await this.getBlockByHeight(meta.endHeight);
 
         if (!startBlock || !endBlock) {
             app.forceExit(
@@ -83,8 +99,8 @@ export class Database {
             );
         }
 
-        const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(startHeight);
-        const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(endHeight);
+        const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
+        const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(meta.endHeight);
 
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {
@@ -96,8 +112,9 @@ export class Database {
                 end: endBlock.timestamp,
             }),
             rounds: rawQuery(this.pgp, queries.rounds.roundRange, {
-                start: roundInfoStart.round,
-                end: roundInfoEnd.round,
+                startRound: roundInfoStart.round,
+                endRound: roundInfoEnd.round,
+                startId: meta.startRoundId
             }),
         };
     }

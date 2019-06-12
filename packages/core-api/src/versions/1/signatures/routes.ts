@@ -1,7 +1,7 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { SignaturesController } from "./controller";
 
-export function registerRoutes(server: Hapi.Server): void {
+export const registerRoutes = (server: Hapi.Server): void => {
     const controller = new SignaturesController();
     server.bind(controller);
 
@@ -10,4 +10,4 @@ export function registerRoutes(server: Hapi.Server): void {
         path: "/signatures/fee",
         handler: controller.fee,
     });
-}
+};

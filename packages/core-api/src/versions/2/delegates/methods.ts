@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import Boom from "boom";
+import Boom from "@hapi/boom";
 import { blocksRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
@@ -63,7 +63,7 @@ const voters = async request => {
     return toPagination(request, wallets, "wallet");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.delegates.index", index, 8, request => ({
             ...request.query,
@@ -83,4 +83,4 @@ export function registerMethods(server) {
             ...{ id: request.params.id },
             ...paginate(request),
         }));
-}
+};

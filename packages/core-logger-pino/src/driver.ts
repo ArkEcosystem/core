@@ -15,9 +15,10 @@ export class PinoLogger extends AbstractLogger {
     private fileStream: WriteStream;
 
     public make(): Logger.ILogger {
-        const stream = new PassThrough();
+        const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
+                // tslint:disable-next-line: no-null-keyword
                 base: null,
                 safe: true,
                 level: "trace",
@@ -43,7 +44,7 @@ export class PinoLogger extends AbstractLogger {
     }
 
     private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
-        const pinoPretty = PinoPretty({
+        const pinoPretty: PinoPretty = PinoPretty({
             ...{
                 levelFirst: false,
                 translateTime: "yyyy-mm-dd HH:MM:ss.l",
@@ -57,10 +58,12 @@ export class PinoLogger extends AbstractLogger {
             transform(chunk, enc, cb) {
                 try {
                     const json = JSON.parse(chunk);
+
                     if (json.level >= levelValue) {
                         const line = pinoPretty(json);
+
                         if (line !== undefined) {
-                            return cb(null, line);
+                            return cb(undefined, line);
                         }
                     }
                 } catch (ex) {
@@ -73,26 +76,28 @@ export class PinoLogger extends AbstractLogger {
     }
 
     private getFileStream(): WriteStream {
-        const createFileName = (time: Date, index: number) => {
-            if (!time) {
-                return `${app.getName()}-current.log`;
-            }
+        return rfs(
+            (time: Date, index: number) => {
+                if (!time) {
+                    return `${app.getName()}-current.log`;
+                }
 
-            let filename = time.toISOString().slice(0, 10);
-            if (index > 1) {
-                filename += `.${index}`;
-            }
+                let filename: string = time.toISOString().slice(0, 10);
 
-            return `${app.getName()}-${filename}.log.gz`;
-        };
+                if (index > 1) {
+                    filename += `.${index}`;
+                }
 
-        return rfs(createFileName, {
-            path: process.env.CORE_PATH_LOG,
-            initialRotation: true,
-            interval: this.options.fileRotator ? this.options.fileRotator.interval : "1d",
-            maxSize: "100M",
-            maxFiles: 10,
-            compress: "gzip",
-        });
+                return `${app.getName()}-${filename}.log.gz`;
+            },
+            {
+                path: process.env.CORE_PATH_LOG,
+                initialRotation: true,
+                interval: this.options.fileRotator ? this.options.fileRotator.interval : "1d",
+                maxSize: "100M",
+                maxFiles: 10,
+                compress: "gzip",
+            },
+        );
     }
 }

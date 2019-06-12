@@ -7,12 +7,11 @@ export class AcceptBlockHandler extends BlockHandler {
 
         try {
             await database.applyBlock(this.block);
-            await database.saveBlock(this.block);
 
             // Check if we recovered from a fork
             if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
                 this.logger.info("Successfully recovered from fork");
-                state.forkedBlock = null;
+                state.forkedBlock = undefined;
             }
 
             if (transactionPool) {
@@ -43,7 +42,7 @@ export class AcceptBlockHandler extends BlockHandler {
             this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
             this.logger.debug(error.stack);
 
-            this.blockchain.transactionPool.purgeBlock(this.block);
+            this.blockchain.transactionPool.purgeByBlock(this.block);
 
             return super.execute();
         }

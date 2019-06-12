@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import Boom from "boom";
+import Boom from "@hapi/boom";
 import { transactionsRepository } from "../../../repositories";
 import { ServerCache } from "../../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
@@ -114,7 +114,7 @@ const search = async request => {
     return toPagination(request, wallets, "wallet");
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.wallets.index", index, 30, request => ({
             ...request.payload,
@@ -151,4 +151,4 @@ export function registerMethods(server) {
             ...request.query,
             ...paginate(request),
         }));
-}
+};

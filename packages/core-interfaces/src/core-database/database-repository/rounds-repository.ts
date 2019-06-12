@@ -8,13 +8,6 @@ export interface IRound {
 }
 
 export interface IRoundsRepository extends IRepository {
-    /**
-     * Find a round by its ID.
-     */
     findById(id: number): Promise<IRound[]>;
-
-    /**
-     * Delete the round from the database.
-     */
     delete(id: number): Promise<void>;
 }

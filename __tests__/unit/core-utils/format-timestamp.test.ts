@@ -1,7 +1,7 @@
+import "jest-extended";
+
 import "./mocks/core-container";
 
-import { app } from "@arkecosystem/core-container";
-import "jest-extended";
 import { formatTimestamp } from "../../../packages/core-utils/src/format-timestamp";
 
 describe("Format Timestamp", () => {

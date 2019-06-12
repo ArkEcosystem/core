@@ -1,10 +1,9 @@
 import "jest-extended";
 import "../../../utils";
 
-import { crypto } from "@arkecosystem/crypto";
-// noinspection TypeScriptPreferShortImport
 import { TransactionsRepository } from "../../../../packages/core-api/src/repositories/transactions";
-import genesisBlock from "../../../utils/config/testnet/genesisBlock.json";
+import { Address } from "../../../../packages/crypto/src/identities";
+import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "../__support__/setup";
 
 let repository;
@@ -82,7 +81,7 @@ describe("Transaction Repository", () => {
         describe("`senderId`", () => {
             it("should search transactions by the specified `senderId`", async () => {
                 const senderPublicKey = genesisTransaction.senderPublicKey;
-                const senderId = crypto.getAddress(senderPublicKey, 23);
+                const senderId = Address.fromPublicKey(senderPublicKey, 23);
 
                 const transactions = await repository.search({ senderId });
 
@@ -133,7 +132,7 @@ describe("Transaction Repository", () => {
 
         describe("when searching by `senderId` and `recipientId`", () => {
             it("should search transactions by sent by `senderId` to `recipientId`", async () => {
-                const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
                 const recipientId = genesisBlock.transactions[2].recipientId;
 
                 let transactions = await repository.search({
@@ -174,7 +173,7 @@ describe("Transaction Repository", () => {
 
             describe("when searching by `addresses` and `senderId`", () => {
                 it("should search transactions by the `addresses`, but only include those received from `senderId`", async () => {
-                    const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                    const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
 
                     let transactions = await repository.search({
                         senderId,
@@ -222,7 +221,7 @@ describe("Transaction Repository", () => {
 
             describe("when searching by `addresses` and `recipientId`", () => {
                 it("should search transactions by the `addresses`, but only include those sent to `recipientId`", async () => {
-                    const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                    const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
                     const recipientId = genesisBlock.transactions[2].recipientId;
 
                     let transactions = await repository.search({
@@ -247,7 +246,7 @@ describe("Transaction Repository", () => {
 
             describe("when searching by `addresses`, `senderId` and `recipientId`", () => {
                 it("should search transactions by `senderId` and `recipientId` only", async () => {
-                    const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23);
+                    const senderId = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
                     const params = {
                         senderId,
                         recipientId: genesisTransaction.recipientId,
@@ -313,8 +312,8 @@ describe("Transaction Repository", () => {
             await expectSearch(
                 {
                     amount: {
-                        from: genesisTransaction.amount,
-                        to: genesisTransaction.amount,
+                        from: genesisTransaction.amount.toFixed(),
+                        to: genesisTransaction.amount.toFixed(),
                     },
                 },
                 50,
@@ -325,8 +324,8 @@ describe("Transaction Repository", () => {
             await expectSearch(
                 {
                     fee: {
-                        from: genesisTransaction.fee,
-                        to: genesisTransaction.fee,
+                        from: genesisTransaction.fee.toFixed(),
+                        to: genesisTransaction.fee.toFixed(),
                     },
                 },
                 153,

@@ -1,6 +1,6 @@
-import { configManager, models } from "@arkecosystem/crypto";
-import genesisBlockJson from "../../config/testnet/genesisBlock.json";
+import { Blocks, Managers } from "@arkecosystem/crypto";
+import { genesisBlock as GB } from "../../config/testnet/genesisBlock";
 
-configManager.setFromPreset("testnet");
+Managers.configManager.setFromPreset("testnet");
 
-export const genesisBlock = new models.Block(genesisBlockJson);
+export const genesisBlock = Blocks.BlockFactory.fromData(GB);

@@ -2,6 +2,7 @@ import { ensureFileSync, existsSync, removeSync } from "fs-extra";
 import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import uuidv4 from "uuid/v4";
+import { IWebhook } from "./interfaces";
 
 class Database {
     private database: lowdb.LowdbSync<any>;
@@ -17,32 +18,33 @@ class Database {
         this.database.defaults({ webhooks: [] }).write();
     }
 
-    public paginate(params) {
-        const rows = this.database
-            .get("webhooks", [])
-            .slice(params.offset, params.offset + params.limit)
-            .value();
-
-        return { rows, count: rows.length };
+    public all(): IWebhook[] {
+        return this.database.get("webhooks", []).value();
     }
 
-    public findById(id) {
+    public hasById(id: string): boolean {
+        return !!this.findById(id);
+    }
+
+    public findById(id: string): IWebhook {
+        try {
+            return this.database
+                .get("webhooks")
+                .find({ id })
+                .value();
+        } catch (error) {
+            return undefined;
+        }
+    }
+
+    public findByEvent(event: string): IWebhook[] {
         return this.database
-            .get("webhooks")
-            .find({ id })
-            .value();
-    }
-
-    public findByEvent(event) {
-        const rows = this.database
             .get("webhooks")
             .filter({ event })
             .value();
-
-        return { rows, count: rows.length };
     }
 
-    public create(data) {
+    public create(data: IWebhook): IWebhook {
         data.id = uuidv4();
 
         this.database
@@ -53,7 +55,7 @@ class Database {
         return this.findById(data.id);
     }
 
-    public update(id, data) {
+    public update(id: string, data: IWebhook): IWebhook {
         return this.database
             .get("webhooks")
             .find({ id })
@@ -61,15 +63,11 @@ class Database {
             .write();
     }
 
-    public destroy(id) {
-        try {
-            return this.database
-                .get("webhooks")
-                .remove({ id })
-                .write();
-        } catch (error) {
-            return false;
-        }
+    public destroy(id: string): void {
+        this.database
+            .get("webhooks")
+            .remove({ id })
+            .write();
     }
 
     public reset(): void {

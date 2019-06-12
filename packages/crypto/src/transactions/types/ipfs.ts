@@ -1,5 +1,7 @@
+import bs58 from "bs58";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../constants";
+import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -10,23 +12,31 @@ export class IpfsTransaction extends Transaction {
         return schemas.ipfs;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(1 + data.asset.ipfs.dag.length / 2, true);
 
-        buffer.writeByte(data.asset.ipfs.dag.length / 2);
-        buffer.append(data.asset.ipfs.dag, "hex");
+        const ipfsBuffer: Buffer = bs58.decode(data.asset.ipfs);
+        const buffer: ByteBuffer = new ByteBuffer(ipfsBuffer.length, true);
+
+        buffer.append(ipfsBuffer, "hex");
 
         return buffer;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const dagLength = buf.readUint8();
+
+        const hashFunction: number = buf.readUint8();
+        const ipfsHashLength: number = buf.readUint8();
+        const ipfsHash: Buffer = buf.readBytes(ipfsHashLength).toBuffer();
+
+        const buffer: Buffer = new Buffer(ipfsHashLength + 2);
+        buffer.writeUInt8(hashFunction, 0);
+        buffer.writeUInt8(ipfsHashLength, 1);
+        buffer.fill(ipfsHash, 2);
+
         data.asset = {
-            ipfs: {
-                dag: buf.readBytes(dagLength).toString("hex"),
-            },
+            ipfs: bs58.encode(buffer),
         };
     }
 }

@@ -1,34 +1,43 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { configManager, models, Transaction } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
-import { IntegrityVerifier } from "./integrity-verifier";
+import { IMigration } from "./interfaces";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
+import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Database.IConnection {
-    public logger = app.resolvePlugin<Logger.ILogger>("logger");
+    // @TODO: make this private
     public models: { [key: string]: Model } = {};
+    // @TODO: make this private
     public query: QueryExecutor;
+    // @TODO: make this private
     public db: any;
+    // @TODO: make this private
     public blocksRepository: Database.IBlocksRepository;
+    // @TODO: make this private
     public roundsRepository: Database.IRoundsRepository;
+    // @TODO: make this private
     public transactionsRepository: Database.ITransactionsRepository;
+    // @TODO: make this private
     public walletsRepository: Database.IWalletsRepository;
+    // @TODO: make this private
     public pgp: IMain;
-    private emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
     private queuedQueries: any[];
 
-    public constructor(readonly options: any, private walletManager: Database.IWalletManager) {}
+    public constructor(readonly options: Record<string, any>, private readonly walletManager: State.IWalletManager) {}
 
     public async make(): Promise<Database.IConnection> {
         if (this.db) {
@@ -37,7 +46,7 @@ export class PostgresConnection implements Database.IConnection {
 
         this.logger.debug("Connecting to database");
 
-        this.queuedQueries = null;
+        this.queuedQueries = undefined;
         this.cache = new Map();
 
         try {
@@ -54,24 +63,25 @@ export class PostgresConnection implements Database.IConnection {
             app.forceExit("Unable to connect to the database!", error);
         }
 
-        return null;
+        return undefined;
     }
 
     public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
 
-        const initialization = {
-            receive(data) {
-                camelizeColumns(pgp, data);
+        const pgp: pgPromise.IMain = pgPromise({
+            ...this.options.initialization,
+            ...{
+                receive(data) {
+                    camelizeColumns(pgp, data);
+                },
+                extend(object) {
+                    for (const repository of Object.keys(repositories)) {
+                        object[repository] = new repositories[repository](object, pgp);
+                    }
+                },
             },
-            extend(object) {
-                for (const repository of Object.keys(repositories)) {
-                    object[repository] = new repositories[repository](object, pgp);
-                }
-            },
-        };
-
-        const pgp = pgPromise({ ...this.options.initialization, ...initialization });
+        });
 
         this.pgp = pgp;
         this.db = this.pgp(this.options.connection);
@@ -79,10 +89,12 @@ export class PostgresConnection implements Database.IConnection {
 
     public async disconnect(): Promise<void> {
         this.logger.debug("Disconnecting from database");
+
         this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
 
         try {
             await this.commitQueuedQueries();
+
             this.cache.clear();
         } catch (error) {
             this.logger.warn("Issue in commiting blocks, database might be corrupted");
@@ -90,21 +102,13 @@ export class PostgresConnection implements Database.IConnection {
         }
 
         await this.pgp.end();
+
         this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
         this.logger.debug("Disconnected from database");
     }
 
-    public async buildWallets(): Promise<boolean> {
-        try {
-            const result = await new IntegrityVerifier(this.query, this.walletManager).run();
-
-            return result;
-        } catch (error) {
-            this.logger.error(error.stack);
-            app.forceExit("Failed to build wallets. This indicates a problem with the database.");
-        }
-
-        return false;
+    public async buildWallets(): Promise<void> {
+        await new StateBuilder(this, this.walletManager).run();
     }
 
     public async commitQueuedQueries(): Promise<void> {
@@ -121,11 +125,11 @@ export class PostgresConnection implements Database.IConnection {
 
             throw error;
         } finally {
-            this.queuedQueries = null;
+            this.queuedQueries = undefined;
         }
     }
 
-    public async deleteBlock(block: models.Block): Promise<void> {
+    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
         try {
             await this.db.tx(t =>
                 t.batch([
@@ -140,7 +144,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public enqueueDeleteBlock(block: models.Block): void {
+    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
         this.enqueueQueries([
             this.transactionsRepository.deleteByBlockId(block.data.id),
             this.blocksRepository.delete(block.data.id),
@@ -155,7 +159,7 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    public async saveBlock(block: models.Block): Promise<void> {
+    public async saveBlock(block: Interfaces.IBlock): Promise<void> {
         try {
             const queries = [this.blocksRepository.insert(block.data)];
 
@@ -177,6 +181,31 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
+    public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
+        try {
+            const queries = [this.blocksRepository.insert(blocks.map(block => block.data))];
+
+            for (const block of blocks) {
+                if (block.transactions.length > 0) {
+                    queries.push(
+                        this.transactionsRepository.insert(
+                            block.transactions.map(tx => ({
+                                ...tx.data,
+                                timestamp: tx.timestamp,
+                                serialized: tx.serialized,
+                            })),
+                        ),
+                    );
+                }
+            }
+
+            await this.db.tx(t => t.batch(queries));
+        } catch (err) {
+            this.logger.error(err.message);
+            throw err;
+        }
+    }
+
     /**
      * Run all migrations.
      * @return {void}
@@ -190,9 +219,9 @@ export class PostgresConnection implements Database.IConnection {
             } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
-                const row = await this.migrationsRepository.findByName(name);
-                if (row === null) {
+                if (!(await this.migrationsRepository.findByName(name))) {
                     this.logger.debug(`Migrating ${name}`);
+
                     await this.query.none(migration);
                     await this.migrationsRepository.insert({ name });
                 }
@@ -204,11 +233,11 @@ export class PostgresConnection implements Database.IConnection {
      * Migrate transactions table to asset column.
      */
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
-        const row = await this.migrationsRepository.findByName(name);
+        const row: IMigration = await this.migrationsRepository.findByName(name);
 
         // Also run migration if the asset column is present, but missing values. E.g.
         // after restoring a snapshot without assets even though the database has already been migrated.
-        let runMigration = row === null;
+        let runMigration = !row;
         if (!runMigration) {
             const { missingAsset } = await this.db.one(
                 `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
@@ -227,13 +256,21 @@ export class PostgresConnection implements Database.IConnection {
         await this.query.none(migration);
 
         const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
-        const { transactionIdFixTable } = configManager.get("exceptions");
+        const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
-        for (const batch of chunk(all, 20000)) {
+        const chunks: Array<
+            Array<{
+                serialized: Buffer;
+                id: string;
+            }>
+        > = chunk(all, 20000);
+
+        for (const chunk of chunks) {
             await this.db.task(task => {
                 const transactions = [];
-                batch.forEach((tx: { serialized: Buffer; id: string }) => {
-                    const transaction = Transaction.fromBytesUnsafe(tx.serialized, tx.id);
+
+                for (const tx of chunk) {
+                    const transaction = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
                     if (transaction.data.asset) {
                         let transactionId = transaction.id;
 
@@ -243,33 +280,32 @@ export class PostgresConnection implements Database.IConnection {
                         }
 
                         const query =
-                            this.pgp.helpers.update({ asset: transaction.data.asset }, ["asset"], "transactions") +
-                            ` WHERE id = '${transactionId}'`;
+                            this.pgp.helpers.update(
+                                {
+                                    asset: transaction.data.asset,
+                                },
+                                ["asset"],
+                                "transactions",
+                            ) + ` WHERE id = '${transactionId}'`;
                         transactions.push(task.none(query));
                     }
-                });
+                }
 
                 return task.batch(transactions);
             });
         }
 
-        await this.migrationsRepository.insert({ name });
+        await this.migrationsRepository.insert({
+            name,
+        });
     }
 
-    /**
-     * Register all models.
-     * @return {void}
-     */
     private async registerModels(): Promise<void> {
         for (const [key, Value] of Object.entries(require("./models"))) {
             this.models[key.toLowerCase()] = new (Value as any)(this.pgp);
         }
     }
 
-    /**
-     * Register the query builder.
-     * @return {void}
-     */
     private registerQueryExecutor(): void {
         this.query = new QueryExecutor(this);
     }

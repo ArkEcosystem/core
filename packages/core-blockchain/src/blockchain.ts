@@ -1,42 +1,43 @@
 /* tslint:disable:max-line-length */
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import {
     Blockchain as blockchain,
     Database,
     EventEmitter,
     Logger,
     P2P,
+    State,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { models, slots, Transaction } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
-import { StateStorage } from "./state-storage";
 
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const { Block } = models;
+const { BlockFactory } = Blocks;
 
 export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStorage}
+     * @return {IStateStore}
      */
-    get state(): StateStorage {
+    get state(): State.IStateStore {
         return stateMachine.state;
     }
 
     /**
      * Get the network (p2p) interface.
-     * @return {P2PInterface}
+     * @return {IPeerService}
      */
-    get p2p(): P2P.IMonitor {
-        return app.resolvePlugin<P2P.IMonitor>("p2p");
+    get p2p(): P2P.IPeerService {
+        return app.resolvePlugin<P2P.IPeerService>("p2p");
     }
 
     /**
@@ -58,8 +59,8 @@ export class Blockchain implements blockchain.IBlockchain {
     public isStopped: boolean;
     public options: any;
     public queue: async.AsyncQueue<any>;
+    protected blockProcessor: BlockProcessor;
     private actions: any;
-    private blockProcessor: BlockProcessor;
 
     /**
      * Create a new blockchain manager instance.
@@ -80,17 +81,22 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.queue = async.queue((block: models.IBlockData, cb) => {
+        this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
-                return this.processBlock(new models.Block(block), cb);
+                return this.processBlocks(blockList.blocks.map(b => Blocks.BlockFactory.fromData(b)), cb);
             } catch (error) {
-                logger.error(`Failed to process block in queue: ${block.height.toLocaleString()}`);
+                logger.error(
+                    `Failed to process ${blockList.blocks.length} blocks from height ${
+                        blockList.blocks[0].height
+                    } in queue.`,
+                );
                 logger.error(error.stack);
                 return cb();
             }
         }, 1);
 
-        this.queue.drain = () => this.dispatch("PROCESSFINISHED");
+        // @ts-ignore
+        this.queue.drain(() => this.dispatch("PROCESSFINISHED"));
     }
 
     /**
@@ -117,7 +123,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.state.blockchain = nextState;
 
-        nextState.actions.forEach(actionKey => {
+        for (const actionKey of nextState.actions) {
             const action = this.actions[actionKey];
 
             if (action) {
@@ -125,7 +131,7 @@ export class Blockchain implements blockchain.IBlockchain {
             } else {
                 logger.error(`No action '${actionKey}' found`);
             }
-        });
+        }
 
         return nextState;
     }
@@ -147,10 +153,11 @@ export class Blockchain implements blockchain.IBlockchain {
             return true;
         }
 
-        // TODO: this state needs to be set after state.getLastBlock() is available if CORE_ENV=test
         while (!this.state.started && !this.isStopped) {
             await delay(1000);
         }
+
+        this.p2p.getMonitor().cleansePeers({ forcePing: true, peerCount: 10 });
 
         return true;
     }
@@ -173,7 +180,7 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public setWakeUp(): void {
         this.state.wakeUpTimeout = setTimeout(() => {
-            this.state.wakeUpTimeout = null;
+            this.state.wakeUpTimeout = undefined;
             return this.dispatch("WAKEUP");
         }, 60000);
     }
@@ -191,16 +198,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await this.p2p.updateNetworkStatus();
-    }
-
-    /**
-     * Reset the state of the blockchain.
-     * @return {void}
-     */
-    public resetState(): void {
-        this.clearAndStopQueue();
-        this.state.reset();
+        await this.p2p.getMonitor().updateNetworkStatus();
     }
 
     /**
@@ -225,7 +223,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Hand the given transactions to the transaction handler.
      */
-    public async postTransactions(transactions: Transaction[]): Promise<void> {
+    public async postTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
         logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
 
         await this.transactionPool.addTransactions(transactions);
@@ -233,20 +231,13 @@ export class Blockchain implements blockchain.IBlockchain {
 
     /**
      * Push a block to the process queue.
-     * @param  {Block} block
-     * @return {void}
      */
-    public handleIncomingBlock(block): void {
-        logger.info(
-            `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
-                "transaction",
-                block.numberOfTransactions,
-                true,
-            )} from ${block.ip}`,
-        );
+    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+        this.pushPingBlock(block, fromForger);
 
-        const currentSlot = slots.getSlotNumber();
-        const receivedSlot = slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber();
+        const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
+
         if (receivedSlot > currentSlot) {
             logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
             return;
@@ -256,24 +247,39 @@ export class Blockchain implements blockchain.IBlockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            emitter.emit("block.received", block);
+            emitter.emit(ApplicationEvents.BlockReceived, block);
         } else {
             logger.info(`Block disregarded because blockchain is not ready`);
 
-            emitter.emit("block.disregarded", block);
+            emitter.emit(ApplicationEvents.BlockDisregarded, block);
         }
     }
 
     /**
      * Enqueue blocks in process queue and set last downloaded block to last item in list.
      */
-    public enqueueBlocks(blocks: any[]): void {
+    public enqueueBlocks(blocks: Interfaces.IBlockData[]): void {
         if (blocks.length === 0) {
             return;
         }
 
-        this.queue.push(blocks);
-        this.state.lastDownloadedBlock = new Block(blocks.slice(-1)[0]);
+        // divide blocks received into chunks depending on number of transactions
+        // this is to avoid blocking the application when processing "heavy" blocks
+        let currentBlocksChunk = [];
+        let currentTransactionsCount = 0;
+        for (const block of blocks) {
+            currentBlocksChunk.push(block);
+            currentTransactionsCount += block.numberOfTransactions;
+
+            if (currentTransactionsCount >= 150 || currentBlocksChunk.length > 100) {
+                this.queue.push({ blocks: currentBlocksChunk });
+                currentBlocksChunk = [];
+                currentTransactionsCount = 0;
+            }
+        }
+        this.queue.push({ blocks: currentBlocksChunk });
+
+        this.state.lastDownloadedBlock = BlockFactory.fromData(blocks.slice(-1)[0]);
     }
 
     /**
@@ -286,13 +292,15 @@ export class Blockchain implements blockchain.IBlockchain {
 
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
-        const blocksToRemove = await this.database.getBlocks(this.state.getLastBlock().data.height - nblocks, nblocks);
+        const blocksToRemove: Interfaces.IBlockData[] = await this.database.getBlocks(
+            this.state.getLastBlock().data.height - nblocks,
+            nblocks,
+        );
 
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable
-            const lastBlock = this.state.getLastBlock();
+            const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
-            // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
             await this.database.revertBlock(lastBlock);
             this.database.enqueueDeleteBlock(lastBlock);
 
@@ -300,7 +308,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = new Block(blocksToRemove.pop());
+            const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock;
@@ -318,12 +326,13 @@ export class Blockchain implements blockchain.IBlockchain {
             await __removeBlocks(numberOfBlocks - 1);
         };
 
-        const lastBlock = this.state.getLastBlock();
+        const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
+
         if (nblocks >= lastBlock.data.height) {
             nblocks = lastBlock.data.height - 1;
         }
 
-        const resetHeight = lastBlock.data.height - nblocks;
+        const resetHeight: number = lastBlock.data.height - nblocks;
         logger.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
 
         this.state.lastDownloadedBlock = lastBlock;
@@ -343,7 +352,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public async removeTopBlocks(count: number): Promise<void> {
-        const blocks = await this.database.getTopBlocks(count);
+        const blocks: Interfaces.IBlockData[] = await this.database.getTopBlocks(count);
 
         logger.info(
             `Removing ${pluralize(
@@ -353,11 +362,9 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from height ${(blocks[0] as any).height.toLocaleString()}`,
         );
 
-        for (let block of blocks) {
-            block = new Block(block);
-
-            this.database.enqueueDeleteRound(block.data.height);
-            this.database.enqueueDeleteBlock(block);
+        for (const block of blocks) {
+            this.database.enqueueDeleteRound(block.height);
+            this.database.enqueueDeleteBlock(BlockFactory.fromData(block));
         }
 
         await this.database.commitQueuedQueries();
@@ -367,18 +374,55 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlock(block: models.Block, callback): Promise<any> {
-        const result = await this.blockProcessor.process(block);
+    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
+        const acceptedBlocks: Interfaces.IBlock[] = [];
+        let lastProcessResult: BlockProcessorResult;
+        for (const block of blocks) {
+            lastProcessResult = await this.blockProcessor.process(block);
 
-        if (result === BlockProcessorResult.Accepted || result === BlockProcessorResult.DiscardedButCanBeBroadcasted) {
-            // broadcast only current block
-            const blocktime = config.getMilestone(block.data.height).blocktime;
-            if (this.state.started && slots.getSlotNumber() * blocktime <= block.data.timestamp) {
-                this.p2p.broadcastBlock(block);
+            if (lastProcessResult === BlockProcessorResult.Accepted) {
+                acceptedBlocks.push(block);
+            } else {
+                break; // if one block is not accepted, the other ones won't be chained anyway
             }
         }
 
-        return callback();
+        if (acceptedBlocks.length > 0) {
+            try {
+                await this.database.saveBlocks(acceptedBlocks);
+            } catch (exceptionSaveBlocks) {
+                logger.error(
+                    `Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`,
+                );
+
+                const resetToHeight = async height => {
+                    try {
+                        return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
+                    } catch (e) {
+                        logger.error(`Could not remove top blocks from database : ${e.stack}`);
+
+                        return resetToHeight(height); // keep trying, we can't do anything while this fails
+                    }
+                };
+                await resetToHeight(acceptedBlocks[0].data.height - 1);
+
+                return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
+            }
+        }
+
+        if (
+            lastProcessResult === BlockProcessorResult.Accepted ||
+            lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
+        ) {
+            const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
+            const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
+
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
+                this.p2p.getMonitor().broadcastBlock(currentBlock);
+            }
+        }
+
+        return callback(acceptedBlocks);
     }
 
     /**
@@ -394,13 +438,14 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public forceWakeup(): void {
         this.state.clearWakeUpTimeout();
+
         this.dispatch("WAKEUP");
     }
 
     /**
      * Fork the chain at the given block.
      */
-    public forkBlock(block: models.Block, numberOfBlockToRollback?: number): void {
+    public forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
 
         if (numberOfBlockToRollback) {
@@ -411,38 +456,26 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Get unconfirmed transactions for the specified block size.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
-     */
-    public getUnconfirmedTransactions(blockSize: number): { transactions: string[]; poolSize: number; count: number } {
-        const transactions = this.transactionPool.getTransactionsForForging(blockSize);
-
-        return {
-            transactions,
-            poolSize: this.transactionPool.getPoolSize(),
-            count: transactions ? transactions.length : -1,
-        };
-    }
-
-    /**
      * Determine if the blockchain is synced.
      */
-    public isSynced(block?: models.IBlock): boolean {
-        if (!this.p2p.hasPeers()) {
+    public isSynced(block?: Interfaces.IBlock): boolean {
+        if (!this.p2p.getStorage().hasPeers()) {
             return true;
         }
 
         block = block || this.getLastBlock();
 
-        return slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
+        return Crypto.Slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
+    }
+
+    public async replay(targetHeight?: number): Promise<void> {
+        return;
     }
 
     /**
      * Get the last block of the blockchain.
      */
-    public getLastBlock(): models.Block {
+    public getLastBlock(): Interfaces.IBlock {
         return this.state.getLastBlock();
     }
 
@@ -456,7 +489,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the last downloaded block of the blockchain.
      */
-    public getLastDownloadedBlock(): { data: models.IBlockData } {
+    public getLastDownloadedBlock(): Interfaces.IBlock {
         return this.state.lastDownloadedBlock;
     }
 
@@ -470,14 +503,14 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Ping a block.
      */
-    public pingBlock(incomingBlock: models.IBlockData): boolean {
+    public pingBlock(incomingBlock: Interfaces.IBlockData): boolean {
         return this.state.pingBlock(incomingBlock);
     }
 
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: models.IBlockData): void {
-        this.state.pushPingBlock(block);
+    public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+        this.state.pushPingBlock(block, fromForger);
     }
 }

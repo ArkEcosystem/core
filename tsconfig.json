@@ -8,9 +8,11 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "strict": false,
-        "noUnusedLocals": false,
+        "alwaysStrict": false,
+        "noUnusedLocals": true,
         "noUnusedParameters": false,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "incremental": true
     },
     "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

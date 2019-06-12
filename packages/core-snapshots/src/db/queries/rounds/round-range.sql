@@ -6,6 +6,7 @@ SELECT
 FROM
   rounds
 WHERE
-  round BETWEEN ${start} AND ${end}
+  round BETWEEN ${startRound} AND ${endRound} AND
+  id >= ${startId}
 ORDER BY
-  round
+  id

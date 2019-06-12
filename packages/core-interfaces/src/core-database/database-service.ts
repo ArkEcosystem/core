@@ -1,4 +1,5 @@
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
+import { IDelegateWallet, IWalletManager } from "../core-state/wallets";
 import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {
@@ -8,7 +9,6 @@ import {
     IWalletsBusinessRepository,
 } from "./business-repository";
 import { IConnection } from "./database-connection";
-import { IDelegateWallet, IWalletManager } from "./wallet-manager";
 
 export interface IDatabaseService {
     walletManager: IWalletManager;
@@ -35,31 +35,33 @@ export interface IDatabaseService {
 
     restoredDatabaseIntegrity: boolean;
 
-    verifyBlockchain(): Promise<{ valid: boolean; errors: any[] }>;
+    verifyBlockchain(): Promise<boolean>;
 
     getActiveDelegates(roundInfo: IRoundInfo, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
-    buildWallets(): Promise<boolean>;
+    buildWallets(): Promise<void>;
 
-    saveBlock(block: models.Block): Promise<void>;
+    saveBlock(block: Interfaces.IBlock): Promise<void>;
+
+    saveBlocks(blocks: Interfaces.IBlock[]): Promise<void>;
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
-    enqueueDeleteBlock(block: models.Block): void;
+    enqueueDeleteBlock(block: Interfaces.IBlock): void;
 
     enqueueDeleteRound(height: number): void;
 
     commitQueuedQueries(): Promise<void>;
 
-    deleteBlock(block: models.Block): Promise<void>;
+    deleteBlock(block: Interfaces.IBlock): Promise<void>;
 
-    getBlock(id: string): Promise<models.Block>;
+    getBlock(id: string): Promise<Interfaces.IBlock>;
 
-    getLastBlock(): Promise<models.Block>;
+    getLastBlock(): Promise<Interfaces.IBlock>;
 
-    getBlocks(offset: number, limit: number): Promise<any[]>;
+    getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]>;
 
     /**
      * Get the blocks at the given heights.
@@ -79,9 +81,9 @@ export interface IDatabaseService {
      * the height of our blockchain), then that element will be `undefined` in the resulting array
      * @throws Error
      */
-    getBlocksByHeight(heights: number[]): Promise<any[]>;
+    getBlocksByHeight(heights: number[]): Promise<Interfaces.IBlockData[]>;
 
-    getTopBlocks(count: number): Promise<any[]>;
+    getTopBlocks(count: number): Promise<Interfaces.IBlockData[]>;
 
     getRecentBlockIds(): Promise<string[]>;
 
@@ -107,13 +109,13 @@ export interface IDatabaseService {
 
     revertRound(height: number): Promise<void>;
 
-    applyBlock(block: models.Block): Promise<boolean>;
+    applyBlock(block: Interfaces.IBlock): Promise<void>;
 
-    revertBlock(block: models.Block): Promise<void>;
+    revertBlock(block: Interfaces.IBlock): Promise<void>;
 
-    verifyTransaction(transaction: Transaction): Promise<boolean>;
+    verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean>;
 
-    getBlocksForRound(roundInfo?: IRoundInfo): Promise<models.Block[]>;
+    getBlocksForRound(roundInfo?: IRoundInfo): Promise<Interfaces.IBlock[]>;
 
-    getCommonBlocks(ids: string[]): Promise<models.IBlockData[]>;
+    getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]>;
 }

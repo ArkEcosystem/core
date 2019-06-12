@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger } from "@arkecosystem/core-interfaces";
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { paginate, respondWith, respondWithCache, toCollection, toResource } from "../utils";
 
 export class Controller {

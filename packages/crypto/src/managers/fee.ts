@@ -1,32 +1,30 @@
-import { TransactionTypes } from "../constants";
-import { ITransactionData } from "../transactions";
+import { TransactionTypes } from "../enums";
+import { ITransactionData } from "../interfaces";
+import { BigNumber } from "../utils/bignum";
 
 export class FeeManager {
-    public fees: { [key: number]: number } = {};
+    public fees: Record<number, BigNumber> = {};
 
-    /**
-     * Set fee value based on type.
-     */
     public set(type: TransactionTypes | number, value: number) {
-        this.fees[type] = value;
+        this.fees[type] = BigNumber.make(value);
     }
 
-    /**
-     * Get fee value based on type.
-     */
-    public get(type: TransactionTypes | number): number {
+    public get(type: TransactionTypes | number): BigNumber {
         return this.fees[type];
     }
 
-    /**
-     * Get fee value based on type.
-     */
-    public getForTransaction(transaction: ITransactionData): number {
+    public getForTransaction(transaction: ITransactionData): BigNumber {
+        const fee: BigNumber = this.fees[transaction.type];
+
         if (transaction.type === TransactionTypes.MultiSignature) {
-            return this.fees[transaction.type] * (transaction.asset.multisignature.keysgroup.length + 1);
+            if (transaction.version === 2) {
+                return fee.times(transaction.asset.multiSignature.publicKeys.length + 1);
+            } else {
+                return fee.times(transaction.asset.multiSignatureLegacy.keysgroup.length + 1);
+            }
         }
 
-        return this.fees[transaction.type];
+        return fee;
     }
 }
 

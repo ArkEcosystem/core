@@ -1,16 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { Bignum } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 
-const BignumMod = Bignum.clone({ DECIMAL_PLACES: 2 });
+const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
-/**
- * Calculate the approval for the given delegate.
- * @param  {Delegate} delegate
- * @param  {Number} height
- * @return {Number} Approval, with 2 decimals
- */
-function calculateApproval(delegate, height: any = null) {
+export const calculateApproval = (delegate, height?: number): number => {
     const config = app.getConfig();
 
     if (!height) {
@@ -27,18 +21,11 @@ function calculateApproval(delegate, height: any = null) {
         .times(100)
         .dividedBy(totalSupply)
         .toFixed(2);
-}
+};
 
-/**
- * Calculate the forged total of the given delegate.
- * @param {Delegate} delegate
- * @return {Bignum} Forged total
- */
-function calculateForgedTotal(delegate) {
-    const forgedFees = new Bignum(delegate.forgedFees);
-    const forgedRewards = new Bignum(delegate.forgedRewards);
+export const calculateForgedTotal = (delegate): number => {
+    const forgedFees = Utils.BigNumber.make(delegate.forgedFees);
+    const forgedRewards = Utils.BigNumber.make(delegate.forgedRewards);
 
     return +forgedFees.plus(forgedRewards).toFixed();
-}
-
-export { calculateApproval, calculateForgedTotal };
+};

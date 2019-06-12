@@ -1,81 +1,30 @@
+import { TQuery } from "pg-promise";
 import { PostgresConnection } from "../postgres-connection";
 
 export class QueryExecutor {
-    /**
-     * Create a new QueryExecutor instance.
-     * @param  {[type]} connection
-     * @return {QueryBuilder}
-     */
-    constructor(public connection: PostgresConnection) {}
+    constructor(private readonly connection: PostgresConnection) {}
 
-    /**
-     * Execute the given query and expect no results.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @return {Promise}
-     */
-    public async none(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "none");
+    public async none<T = any>(query: TQuery, parameters?: any): Promise<T> {
+        return this.connection.db.none(query, parameters);
     }
 
-    /**
-     * Execute the given query and expect one result.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @return {Promise}
-     */
-    public async one(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "one");
+    public async one<T = any>(query: TQuery, parameters?: any): Promise<T> {
+        return this.connection.db.one(query, parameters);
     }
 
-    /**
-     * Execute the given query and expect one or no results.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @return {Promise}
-     */
-    public async oneOrNone(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "oneOrNone");
+    public async oneOrNone<T = any>(query: TQuery, parameters?: any): Promise<T> {
+        return this.connection.db.oneOrNone(query, parameters);
     }
 
-    /**
-     * Execute the given query and expect many results.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @return {Promise}
-     */
-    public async many(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "many");
+    public async many<T = any>(query: TQuery, parameters?: any): Promise<T> {
+        return this.connection.db.many(query, parameters);
     }
 
-    /**
-     * Execute the given query and expect many or no results.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @return {Promise}
-     */
-    public async manyOrNone(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "manyOrNone");
+    public async manyOrNone<T = any>(query: TQuery, parameters?: any): Promise<T> {
+        return this.connection.db.manyOrNone(query, parameters);
     }
 
-    /**
-     * Execute the given query and expect any results.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @return {Promise}
-     */
-    public async any(query, parameters = null) {
-        return this.__executeQueryFile(query, parameters, "any");
-    }
-
-    /**
-     * Execute the given query using the given method and parameters.
-     * @param  {QueryFile} query
-     * @param  {Array} parameters
-     * @param  {String} method
-     * @return {QueryBuilder}
-     */
-    public async __executeQueryFile(query, parameters, method) {
-        return this.connection.db[method](query, parameters);
+    public async any<T = any>(query: TQuery, parameters?: any): Promise<T> {
+        return this.connection.db.any(query, parameters);
     }
 }

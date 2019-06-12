@@ -1,56 +1,60 @@
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    configManager,
-    constants,
-    ITransactionData,
-    Transaction,
-    TransactionConstructor,
-    TransferTransaction,
-} from "@arkecosystem/crypto";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler } from "./transaction";
 
-const { TransactionTypes } = constants;
-
 export class TransferTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return TransferTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.TransferTransaction;
+    }
+
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getReceivedTransactions();
+
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByAddress(transaction.recipientId);
+            wallet.balance = wallet.balance.plus(transaction.amount);
+        }
     }
 
     public canBeApplied(
-        transaction: Transaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        transaction: Interfaces.ITransaction,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public hasVendorField(): boolean {
         return true;
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
-        return;
-    }
-
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
-        if (this.secondSignatureRegistrationFromSenderAlreadyInPool(data, guard)) {
-            return false;
-        }
-
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
         if (!isRecipientOnActiveNetwork(data)) {
-            guard.pushError(
+            processor.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${configManager.get("pubKeyHash")}`,
+                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
+                    "network.pubKeyHash",
+                )}`,
             );
             return false;
         }
 
         return true;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        recipient.balance = recipient.balance.plus(transaction.data.amount);
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

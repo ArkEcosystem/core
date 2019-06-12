@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 
-export function transformBlockLegacy(model) {
+export const transformBlockLegacy = model => {
     const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
@@ -12,16 +12,16 @@ export function transformBlockLegacy(model) {
         previousBlock: model.previousBlock,
         height: model.height,
         numberOfTransactions: model.numberOfTransactions,
-        totalAmount: +bignumify(model.totalAmount).toFixed(),
-        totalForged: +bignumify(model.reward)
+        totalAmount: +Utils.BigNumber.make(model.totalAmount).toFixed(),
+        totalForged: +Utils.BigNumber.make(model.reward)
             .plus(model.totalFee)
             .toString(),
-        totalFee: +bignumify(model.totalFee).toFixed(),
-        reward: +bignumify(model.reward).toFixed(),
+        totalFee: +Utils.BigNumber.make(model.totalFee).toFixed(),
+        reward: +Utils.BigNumber.make(model.reward).toFixed(),
         payloadLength: model.payloadLength,
         payloadHash: model.payloadHash,
         generatorPublicKey: model.generatorPublicKey,
         blockSignature: model.blockSignature,
         confirmations: lastBlock ? lastBlock.data.height - model.height : 0,
     };
-}
+};

@@ -1,10 +1,10 @@
 import clipboardy from "clipboardy";
 
-export function copyToClipboard(data) {
+export const copyToClipboard = data => {
     clipboardy.writeSync(JSON.stringify(data));
-}
+};
 
-export function handleOutput(opts, data) {
+export const handleOutput = (opts, data) => {
     if (opts.copy) {
         return copyToClipboard(data);
     }
@@ -14,4 +14,4 @@ export function handleOutput(opts, data) {
     }
 
     return data;
-}
+};

@@ -51,7 +51,7 @@ export const exportTable = async (table, options) => {
         };
     } catch (error) {
         app.forceExit("Error while exporting data via query stream", error);
-        return null;
+        return undefined;
     }
 };
 
@@ -71,7 +71,7 @@ export const importTable = async (table, options) => {
               .pipe(decodeStream);
 
     let values = [];
-    let prevData = null;
+    let prevData;
     let counter = 0;
     const saveData = async data => {
         if (data && data.length > 0) {
@@ -88,10 +88,10 @@ export const importTable = async (table, options) => {
         counter++;
 
         if (!verifyData(table, record, prevData, options.verifySignatures)) {
-            app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, null, 2)}`);
+            app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
         }
 
-        if (canImportRecord(table, record, options.lastBlock)) {
+        if (canImportRecord(table, record, options)) {
             values.push(record);
         }
 
@@ -120,11 +120,11 @@ export const verifyTable = async (table, options) => {
               .pipe(decodeStream);
 
     logger.info(`Starting to verify snapshot file ${sourceFile}`);
-    let prevData = null;
+    let prevData;
 
     decodeStream.on("data", data => {
         if (!verifyData(table, data, prevData, options.verifySignatures)) {
-            app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`);
+            app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, undefined, 2)}`);
         }
         prevData = data;
     });

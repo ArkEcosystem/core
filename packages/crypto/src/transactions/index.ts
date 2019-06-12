@@ -1,5 +1,10 @@
-export * from "./interfaces";
+export * from "./builders";
+export * from "./deserializer";
+export * from "./factory";
+export * from "./serializer";
+export * from "./signer";
 export * from "./types";
-export * from "./deserializers";
-export * from "./serializers";
+export * from "./utils";
+export * from "./verifier";
+
 export { transactionRegistry as TransactionRegistry, TransactionConstructor } from "./registry";

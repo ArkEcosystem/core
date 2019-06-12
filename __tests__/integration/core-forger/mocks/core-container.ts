@@ -6,7 +6,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     get: () => ({}),
                 };
             },
-            getVersion: () => "2.3.0",
+            getVersion: () => "2.4.0",
             resolvePlugin: name => {
                 if (name === "logger") {
                     return {
@@ -18,6 +18,12 @@ jest.mock("@arkecosystem/core-container", () => {
                 }
 
                 return {};
+            },
+            resolveOptions: name => {
+                return {};
+            },
+            has: () => {
+                return false;
             },
         },
     };

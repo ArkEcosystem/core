@@ -1,73 +1,32 @@
 /* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
-import { app } from "@arkecosystem/core-container";
-import { slots } from "@arkecosystem/crypto";
-import { config as localConfig } from "./config";
-import { Monitor } from "./monitor";
-import { Peer } from "./peer";
 
-class QuorumDetails {
+import { app } from "@arkecosystem/core-container";
+import { P2P } from "@arkecosystem/core-interfaces";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { NetworkStateStatus } from "./enums";
+
+class QuorumDetails implements P2P.IQuorumDetails {
+    public peersQuorum = 0;
+    public peersNoQuorum = 0;
+    public peersOverHeight = 0;
+    public peersOverHeightBlockHeaders: { [id: string]: any } = {};
+    public peersForked = 0;
+    public peersDifferentSlot = 0;
+    public peersForgingNotAllowed = 0;
+
     public getQuorum() {
         const quorum = this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
+
         return isFinite(quorum) ? quorum : 0;
     }
-
-    /**
-     * Number of peers on same height, with same block and same slot. Used for
-     * quorum calculation.
-     */
-    public peersQuorum = 0;
-
-    /**
-     * Number of peers which do not meet the quorum requirements. Used for
-     * quorum calculation.
-     */
-    public peersNoQuorum = 0;
-
-    /**
-     * Number of overheight peers.
-     */
-    public peersOverHeight = 0;
-
-    /**
-     * All overheight block headers grouped by id.
-     */
-    public peersOverHeightBlockHeaders: { [id: string]: any } = {};
-
-    /**
-     * The following properties are not mutual exclusive for a peer
-     * and imply a peer is on the same `nodeHeight`.
-     */
-
-    /**
-     * Number of peers that are on a different chain (forked).
-     */
-    public peersForked = 0;
-
-    /**
-     * Number of peers with a different slot.
-     */
-    public peersDifferentSlot = 0;
-
-    /**
-     * Number of peers where forging is not allowed.
-     */
-    public peersForgingNotAllowed = 0;
 }
 
-export enum NetworkStateStatus {
-    Default,
-    ColdStart,
-    BelowMinimumPeers,
-    Test,
-    Unknown,
-}
-
-export class NetworkState {
+export class NetworkState implements P2P.INetworkState {
     public nodeHeight: number;
     public lastBlockId: string;
     private quorumDetails: QuorumDetails;
 
-    public constructor(readonly status: NetworkStateStatus, lastBlock?: any) {
+    public constructor(readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
         this.quorumDetails = new QuorumDetails();
 
         if (lastBlock) {
@@ -75,23 +34,18 @@ export class NetworkState {
         }
     }
 
-    public setLastBlock(lastBlock) {
+    public setLastBlock(lastBlock: Interfaces.IBlock): void {
         this.nodeHeight = lastBlock.data.height;
         this.lastBlockId = lastBlock.data.id;
     }
 
-    /**
-     * Returns the current network state. Peers are updated before the call.
-     */
-    public static analyze(monitor: Monitor): NetworkState {
-        const lastBlock = app.resolvePlugin("blockchain").getLastBlock();
+    public static analyze(monitor: P2P.INetworkMonitor, storage: P2P.IPeerStorage): P2P.INetworkState {
+        const lastBlock: Interfaces.IBlock = app.resolvePlugin("blockchain").getLastBlock();
 
-        const peers = monitor.getPeers();
-        const minimumNetworkReach = localConfig.get("minimumNetworkReach", 20);
+        const peers: P2P.IPeer[] = storage.getPeers();
+        const minimumNetworkReach: number = app.resolveOptions("p2p").minimumNetworkReach || 20;
 
-        if (monitor.__isColdStartActive()) {
-            return new NetworkState(NetworkStateStatus.ColdStart, lastBlock);
-        } else if (process.env.CORE_ENV === "test") {
+        if (process.env.CORE_ENV === "test") {
             return new NetworkState(NetworkStateStatus.Test, lastBlock);
         } else if (peers.length < minimumNetworkReach) {
             return new NetworkState(NetworkStateStatus.BelowMinimumPeers, lastBlock);
@@ -100,7 +54,7 @@ export class NetworkState {
         return this.analyzeNetwork(lastBlock, peers);
     }
 
-    public static parse(data: any): NetworkState {
+    public static parse(data: any): P2P.INetworkState {
         if (!data || data.status === undefined) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
@@ -113,7 +67,7 @@ export class NetworkState {
         return networkState;
     }
 
-    public getQuorum() {
+    public getQuorum(): number {
         if (this.status === NetworkStateStatus.Test) {
             return 1;
         }
@@ -121,21 +75,21 @@ export class NetworkState {
         return this.quorumDetails.getQuorum();
     }
 
-    public getOverHeightBlockHeaders() {
+    public getOverHeightBlockHeaders(): { [id: string]: any } {
         return Object.values(this.quorumDetails.peersOverHeightBlockHeaders);
     }
 
-    public toJson() {
+    public toJson(): string {
         const data = { quorum: this.getQuorum() } as any;
         Object.assign(data, this);
         delete data.status;
 
-        return JSON.stringify(data, null, 2);
+        return JSON.stringify(data, undefined, 2);
     }
 
-    private static analyzeNetwork(lastBlock, peers: Peer[]): NetworkState {
+    private static analyzeNetwork(lastBlock, peers: P2P.IPeer[]): P2P.INetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
-        const currentSlot = slots.getSlotNumber();
+        const currentSlot = Crypto.Slots.getSlotNumber();
 
         for (const peer of peers) {
             networkState.update(peer, currentSlot);
@@ -144,13 +98,13 @@ export class NetworkState {
         return networkState;
     }
 
-    private update(peer: Peer, currentSlot: number) {
+    private update(peer: P2P.IPeer, currentSlot: number): void {
         if (peer.state.height > this.nodeHeight) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;
         } else {
-            if (peer.verification.forked) {
+            if (peer.isForked()) {
                 this.quorumDetails.peersNoQuorum++;
                 this.quorumDetails.peersForked++;
             } else {

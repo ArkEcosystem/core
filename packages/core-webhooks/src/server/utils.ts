@@ -1,6 +1,7 @@
-import Boom from "boom";
+import Boom from "@hapi/boom";
+import { IWebhook } from "../interfaces";
 
-export function transformResource(model) {
+export const transformResource = (model): IWebhook => {
     return {
         id: model.id,
         event: model.event,
@@ -9,22 +10,8 @@ export function transformResource(model) {
         enabled: model.enabled,
         conditions: model.conditions,
     };
-}
+};
 
-export function paginate(request) {
-    return {
-        offset: (request.query.page - 1) * request.query.limit,
-        limit: request.query.limit,
-    };
-}
-
-export function respondWithResource(data) {
+export const respondWithResource = data => {
     return data ? { data: transformResource(data) } : Boom.notFound();
-}
-
-export function toPagination(data) {
-    return {
-        results: data.rows.map(d => transformResource(d)),
-        totalCount: data.count,
-    };
-}
+};

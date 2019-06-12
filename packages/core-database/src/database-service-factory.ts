@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { DatabaseService } from "./database-service";
 import { BlocksBusinessRepository } from "./repositories/blocks-business-repository";
 import { DelegatesBusinessRepository } from "./repositories/delegates-business-repository";
@@ -8,11 +8,10 @@ import { WalletsBusinessRepository } from "./repositories/wallets-business-repos
 // Allow extenders of core-database to provide, optionally, a IWalletManager concrete in addition to a IConnection, but keep the business repos common
 export const databaseServiceFactory = async (
     opts: Record<string, any>,
-    walletManager: Database.IWalletManager,
+    walletManager: State.IWalletManager,
     connection: Database.IConnection,
 ): Promise<Database.IDatabaseService> => {
-    let databaseService: DatabaseService;
-    databaseService = new DatabaseService(
+    const databaseService: Database.IDatabaseService = new DatabaseService(
         opts,
         connection,
         walletManager,
@@ -21,6 +20,8 @@ export const databaseServiceFactory = async (
         new TransactionsBusinessRepository(() => databaseService),
         new BlocksBusinessRepository(() => databaseService),
     );
+
     await databaseService.init();
+
     return databaseService;
 };

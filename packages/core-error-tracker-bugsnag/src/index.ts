@@ -2,7 +2,7 @@ import { Container } from "@arkecosystem/core-interfaces";
 import bugsnag, { Bugsnag } from "@bugsnag/js";
 import { defaults } from "./defaults";
 
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "error-tracker",

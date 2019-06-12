@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../constants";
+import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -10,9 +11,9 @@ export class VoteTransaction extends Transaction {
         return schemas.vote;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(24, true);
+        const buffer: ByteBuffer = new ByteBuffer(24, true);
 
         const voteBytes = data.asset.votes.map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1)).join("");
         buffer.writeByte(data.asset.votes.length);
@@ -23,7 +24,7 @@ export class VoteTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const votelength = buf.readUint8();
+        const votelength: number = buf.readUint8();
         data.asset = { votes: [] };
 
         for (let i = 0; i < votelength; i++) {

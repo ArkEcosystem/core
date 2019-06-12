@@ -1,42 +1,21 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
-import Boom from "boom";
-import Hapi from "hapi";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
-    protected readonly p2p: P2P.IMonitor = app.resolvePlugin<P2P.IMonitor>("p2p");
+    protected readonly p2p: P2P.IPeerService = app.resolvePlugin<P2P.IPeerService>("p2p");
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const allPeers: any[] = await this.p2p.getPeers();
+            const allPeers: any[] = await this.p2p.getStorage().getPeers();
 
             if (!allPeers) {
                 return super.respondWith("No peers found", true);
             }
 
-            let peers = allPeers
-                .map(peer => {
-                    // just use 'OK' status for API instead of p2p http status codes
-                    peer.status = peer.status === 200 ? "OK" : peer.status;
-                    return peer;
-                })
-                .sort((a, b) => a.delay - b.delay);
-            // @ts-ignore
-            peers = request.query.os
-                ? // @ts-ignore
-                  allPeers.filter(peer => peer.os === (request.query as any).os)
-                : peers;
-            // @ts-ignore
-            peers = request.query.status
-                ? // @ts-ignore
-                  allPeers.filter(peer => peer.status === (request.query as any).status)
-                : peers;
-            // @ts-ignore
-            peers = request.query.port
-                ? // @ts-ignore
-                  allPeers.filter(peer => peer.port === (request.query as any).port)
-                : peers;
+            let peers = allPeers.sort((a, b) => a.latency - b.latency);
             // @ts-ignore
             peers = request.query.version
                 ? // @ts-ignore
@@ -49,7 +28,7 @@ export class PeersController extends Controller {
             if (request.query.orderBy) {
                 // @ts-ignore
                 const order = request.query.orderBy.split(":");
-                if (["port", "status", "os", "version"].includes(order[0])) {
+                if (order[0] === "version") {
                     peers =
                         order[1].toUpperCase() === "ASC"
                             ? peers.sort((a, b) => a[order[0]] - b[order[0]])
@@ -58,7 +37,7 @@ export class PeersController extends Controller {
             }
 
             return super.respondWith({
-                peers: super.toCollection(request, peers.map(peer => peer.toBroadcastInfo()), "peer"),
+                peers: super.toCollection(request, peers.map(peer => peer.toBroadcast()), "peer"),
             });
         } catch (error) {
             return Boom.badImplementation(error);
@@ -67,7 +46,8 @@ export class PeersController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers = await this.p2p.getPeers();
+            const peers = await this.p2p.getStorage().getPeers();
+
             if (!peers) {
                 return super.respondWith("No peers found", true);
             }
@@ -86,7 +66,7 @@ export class PeersController extends Controller {
             }
 
             return super.respondWith({
-                peer: super.toResource(request, peer.toBroadcastInfo(), "peer"),
+                peer: super.toResource(request, peer.toBroadcast(), "peer"),
             });
         } catch (error) {
             return Boom.badImplementation(error);

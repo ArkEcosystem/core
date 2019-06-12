@@ -7,6 +7,142 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.0] - 2019-06-12
+
+All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
+
+As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will be various breaking changes. The main concern of most developers will be breaking changes to `@arkecosystem/crypto` so go through the commits listed below and make sure you adjust everything in your application that is affected by a change.
+
+### Exchange JSON-RPC
+
+The JSON-RPC we offer, formerly known as `@arkecosystem/core-json-rpc`, has received a rework to turn it into a real RPC that is easier to use and maintain.
+
+#### Programmatic
+
+The biggest change is that it now offers programmatic use to make integration into ARK Core easier while simultaneously allowing it to run as a standalone application detached from a relay.
+
+**Standalone**
+https://github.com/ArkEcosystem/exchange-json-rpc
+
+**ARK Core Plugin**
+https://github.com/ArkEcosystem/core/tree/develop/packages/core-exchange-json-rpc
+
+> The `@arkecosystem/core-json-rpc` plugin has been deprecated and replaced by `@arkecosystem/core-exchange-json-rpc` because of different those 2 plugins work under the hood and their dependencies.
+
+#### Peers
+
+A few smaller improvements to how peers and faulty responses are being handled have also been made which should smoothen the experience without having to manually retry requests.
+
+#### Database
+
+The Exchange JSON-RPC uses SQLite under the hood to store all data. In previous versions it was using https://github.com/mapbox/node-sqlite3 which was known to cause random build issues for ARK Core and sometimes needed a dozen retries before it finally compiled.
+
+That dependency has been replaced with https://github.com/JoshuaWise/better-sqlite3 which is the same that ARK Core uses for its transaction pool. It provides better performance, receives updates and fixes when needed and build errors are a thing of the past.
+
+#### Migration
+
+If you've been using the JSON-RPC in the past together with ARK Core the migration to the Exchange JSON-RPC is as simple as following the steps at https://docs.ark.io/releases/v2.4/migrating_2.3_2.4.html#step-5-update-core-json-rpc-to-core-exchange-json-rpc.
+
+#### Disclaimer
+
+1. The Exchange JSON-RPC is only maintained for exchanges, as the name suggests. We do not offer any support or guidance unless you are an Exchange in which case you most likely will already be in touch with us.
+2. Do not use the Exchange JSON-RPC unless you are forced too and have no other options. The Public API provides much greater capabilities of searching and filtering data.
+
+### Added
+
+-   Implement in `@arkecosystem/core-state` to manage the state of in-memory data ([#2479])
+-   Implement a blockchain replay command ([#2526])
+-   Save blocks in batches during sync ([#2500])
+-   Implement v2/node/fees endpoint ([#2393])
+-   Allow setting a vendor field for transactions created via `@arkecosystem/core-json-rpc` ([#2425])
+-   Limit the number of accepted peers per subnet ([#2507])
+-   **BREAKING:** Implement WebSockets with SocketCluster ([#2273])
+-   Parallel block download ([#2433])
+-   In-memory storage for last N blocks and transactions ([#2492])
+-   **BREAKING:** Switch transaction expiration from seconds to chain height ([#2461])
+-   Require the user to choose a snapshot if the blocks flag is missing in `@arkecosystem/core` commands ([#2522])
+-   **BREAKING:** Implement Block.fromHex, Block.fromBytes and Block.fromData methods in `@arkecosystem/crypto` ([#2377])
+-   **BREAKING:** Implement BlockFactory in `@arkecosystem/crypto` ([#2429])
+-   **BREAKING:** Implement TransactionFactory in `@arkecosystem/crypto` ([#2437])
+-   Integrate end-to-end tests ([#2468])
+-   Initial Implementation of `core-wallet-api` ([#2544])
+-   Accept block height to list block transactions in `core-api` ([#2567])
+-   Functional test matchers for `core-jest-matchers` ([#2562])
+-   Don't trust headers and verify config and plugin connectivity of peers ([#2559], [#2553], [#2552])
+-   Proxy API calls to core-api until fully developed ([#2558])
+-   Add database configuration command to CLI ([#2557], [#2563])
+-   Add command to generate network configuration CLI ([#2582])
+-   Initial implementation of `core-explorer` ([#2604])
+
+### Fixed
+
+-   Insert the genesis block as soon as the database is ready ([#2376])
+-   **BREAKING:** Purge invalid transactions after a milestone change ([#2499])
+-   Use public API to auto-configure `@arkecosystem/core-tester-cli` ([#2517])
+-   Parse only the last line of pm2 stdout to avoid parsing faulty input ([#2484])
+-   Delete bad rounds after unclean shutdown ([#2581])
+-   Divide blocks into smaller chunks for batch processing ([#2586])
+-   Remove forged transactions from pool before discarding block ([#2555])
+-   **BREAKING:** Make transaction amount required ([#2574])
+-   Various sync issues with devnet and mainnet ([#2565])
+-   Do not suspend peer for `AppNotReady` ([#2590])
+-   Allow use of old and new block IDs via `core-json-rpc` ([#2593])
+-   Assign calculated delegate ranks from temp wallets to prevent wrong ranks on boot ([#2611])
+-   Camelize block keys before bignum transformation for snapshots ([#2615])
+-   Deserialize transactions before they leave the pool to remove bad ones ([#2622])
+-   Require all properties in schema and handle 404 resources for `core-webhooks` ([#2634])
+-   Check if transactions can still be applied before forging ([#2635])
+-   Off by one error in transaction confirmations via API ([#2645])
+-   Set the correct channel if core was directly installed with `@next` ([#2646])
+-   Invalid orderBy causes `Internal Server Error` via API ([#2653)
+-   Avoid trying to INSERT duplicates in rounds via `core-snapshots` ([#2651])
+-   Handle failing optional plugins gracefully ([#2657])
+-   Correctly purge invalid transactions from disk on start ([#2665])
+-   Don't append duplicate rounds rows to a snapshot ([#2662])
+-   Use temporary wallets for transaction validation ([#2666])
+-   Correctly display second signature if available via `core-api` ([#2670])
+-   Missing block confirmations on v2 API endpoints ([#2674])
+-   Delay transaction purge on start until after StateBuilder finished ([#2685])
+-   Check claimed state of peer ([#2686])
+-   Ignore overheight blocks and keep forging ([#2687])
+
+### Changed
+
+-   **BREAKING:** Always use crypto identities to work with keys and addresses ([#2443])
+-   **BREAKING:** Enforce BigNumber for satoshi based values ([#2391])
+-   **BREAKING:** Move in-memory wallet logic to core-state ([#2489])
+-   **BREAKING:** Replace bignumify with Utils.BigNumber.make ([#2416])
+-   Replace Joi with AJV for internal validation ([#2426])
+-   **BREAKING:** Bind plugin options before registering the plugin ([#2375])
+-   **BREAKING:** Extend the node.js event emitter ([#2440])
+-   **BREAKING:** Move the wallet interfaces to `@arkecosystem/core-state` ([#2515])
+-   Remove height difference ban for peers ([#2360])
+-   **BREAKING:** Simplify the transaction pool by not using insertion order ([#2495])
+-   **BREAKING:** Drop no longer needed pagination from `@arkecosystem/core-webhooks` ([#2424])
+-   **BREAKING:** Extract transaction signing and utils out of the model in `@arkecosystem/crypto` ([#2514])
+-   **BREAKING:** Extract transaction verification out of the model in `@arkecosystem/crypto` ([#2506])
+-   **BREAKING:** Make all `Slots.*` methods static in `@arkecosystem/crypto` ([#2473])
+-   **BREAKING:** Move interfaces, types and models in `@arkecosystem/crypto` ([#2379])
+-   Move mainnet exceptions to config in `@arkecosystem/crypto` ([#2529])
+-   **BREAKING:** Remove extraneous Client class in `@arkecosystem/crypto` ([#2417])
+-   **BREAKING:** Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
+-   Invalidate blocks with expired transactions ([#2528])
+-   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
+-   Return all schema errors in hapi-ajv ([#2571])
+-   Remove timeout banning ([#2597])
+-   Use dayjs as it now has official UTC support ([#2592])
+-   Require a minimum of 0 as pubKeyHash ([#2628])
+-   **BREAKING:** Replaced `@arkecosystem/core-json-rpc` with `@arkecosystem/core-exchange-json-rpc` _(Use `@arkecosystem/core-exchange-json-rpc` programmatically)_ ([#2643])
+-   Expire transactions that don't have an expiration ([#2672])
+
+### Removed
+
+-   **BREAKING:** Remove unused methods to get/set/reset height from `Slots` ([#2467])
+-   Remove peer caching ([#2606])
+-   Remove peer banning ([#2612])
+-   Remove coldstart period ([#2619])
+-   Remove whitelist access log ([#2655])
+
 ## [2.3.23] - 2019-05-21
 
 ### Fixed
@@ -247,6 +383,7 @@ Fix release of `2.3.14` due to npm connectivity issues.
 -   Gracefully handle a corrupted cached `peers.json` file ([#2061])
 -   Always sort transactions by sequence and the requested field to make API sorting deterministic ([#2058])
 -   Disallow multiple registrations for same delegate ([#2080])
+-   Remove already forged transactions from the pool ([#2659])
 
 ### Removed
 
@@ -343,6 +480,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
+[2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
 [2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
 [2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
 [2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
@@ -490,6 +629,7 @@ Closed security vulnerabilities:
 [#2221]: https://github.com/ARKEcosystem/core/pull/2221
 [#2229]: https://github.com/ARKEcosystem/core/pull/2229
 [#2236]: https://github.com/ARKEcosystem/core/pull/2236
+[#2273]: https://github.com/ARKEcosystem/core/pull/2273
 [#2287]: https://github.com/ARKEcosystem/core/pull/2287
 [#2288]: https://github.com/ARKEcosystem/core/pull/2288
 [#2289]: https://github.com/ARKEcosystem/core/pull/2289
@@ -497,22 +637,110 @@ Closed security vulnerabilities:
 [#2329]: https://github.com/ARKEcosystem/core/pull/2329
 [#2341]: https://github.com/ARKEcosystem/core/pull/2341
 [#2343]: https://github.com/ARKEcosystem/core/pull/2343
+[#2360]: https://github.com/ARKEcosystem/core/pull/2360
 [#2370]: https://github.com/ARKEcosystem/core/pull/2370
+[#2375]: https://github.com/ARKEcosystem/core/pull/2375
+[#2376]: https://github.com/ARKEcosystem/core/pull/2376
+[#2377]: https://github.com/ARKEcosystem/core/pull/2377
+[#2379]: https://github.com/ARKEcosystem/core/pull/2379
 [#2388]: https://github.com/ARKEcosystem/core/pull/2388
+[#2391]: https://github.com/ARKEcosystem/core/pull/2391
+[#2393]: https://github.com/ARKEcosystem/core/pull/2393
 [#2394]: https://github.com/ARKEcosystem/core/pull/2394
 [#2404]: https://github.com/ARKEcosystem/core/pull/2404
 [#2405]: https://github.com/ARKEcosystem/core/pull/2405
+[#2416]: https://github.com/ARKEcosystem/core/pull/2416
+[#2417]: https://github.com/ARKEcosystem/core/pull/2417
+[#2424]: https://github.com/ARKEcosystem/core/pull/2424
+[#2425]: https://github.com/ARKEcosystem/core/pull/2425
+[#2426]: https://github.com/ARKEcosystem/core/pull/2426
+[#2429]: https://github.com/ARKEcosystem/core/pull/2429
+[#2433]: https://github.com/ARKEcosystem/core/pull/2433
+[#2437]: https://github.com/ARKEcosystem/core/pull/2437
+[#2440]: https://github.com/ARKEcosystem/core/pull/2440
+[#2443]: https://github.com/ARKEcosystem/core/pull/2443
+[#2444]: https://github.com/ARKEcosystem/core/pull/2444
 [#2458]: https://github.com/ARKEcosystem/core/pull/2458
 [#2459]: https://github.com/ARKEcosystem/core/pull/2459
+[#2461]: https://github.com/ARKEcosystem/core/pull/2461
 [#2462]: https://github.com/ARKEcosystem/core/pull/2462
 [#2464]: https://github.com/ARKEcosystem/core/pull/2464
+[#2467]: https://github.com/ARKEcosystem/core/pull/2467
+[#2468]: https://github.com/ARKEcosystem/core/pull/2468
 [#2471]: https://github.com/ARKEcosystem/core/pull/2471
+[#2473]: https://github.com/ARKEcosystem/core/pull/2473
 [#2476]: https://github.com/ARKEcosystem/core/pull/2476
+[#2479]: https://github.com/ARKEcosystem/core/pull/2479
 [#2482]: https://github.com/ARKEcosystem/core/pull/2482
+[#2484]: https://github.com/ARKEcosystem/core/pull/2484
 [#2486]: https://github.com/ARKEcosystem/core/pull/2486
 [#2487]: https://github.com/ARKEcosystem/core/pull/2487
+[#2489]: https://github.com/ARKEcosystem/core/pull/2489
 [#2491]: https://github.com/ARKEcosystem/core/pull/2491
+[#2492]: https://github.com/ARKEcosystem/core/pull/2492
+[#2495]: https://github.com/ARKEcosystem/core/pull/2495
+[#2496]: https://github.com/ARKEcosystem/core/pull/2496
+[#2499]: https://github.com/ARKEcosystem/core/pull/2499
+[#2500]: https://github.com/ARKEcosystem/core/pull/2500
 [#2502]: https://github.com/ARKEcosystem/core/pull/2502
 [#2503]: https://github.com/ARKEcosystem/core/pull/2503
+[#2506]: https://github.com/ARKEcosystem/core/pull/2506
+[#2507]: https://github.com/ARKEcosystem/core/pull/2507
 [#2513]: https://github.com/ARKEcosystem/core/pull/2513
+[#2514]: https://github.com/ARKEcosystem/core/pull/2514
+[#2515]: https://github.com/ARKEcosystem/core/pull/2515
+[#2517]: https://github.com/ARKEcosystem/core/pull/2517
+[#2522]: https://github.com/ARKEcosystem/core/pull/2522
+[#2526]: https://github.com/ARKEcosystem/core/pull/2526
+[#2528]: https://github.com/ARKEcosystem/core/pull/2528
+[#2529]: https://github.com/ARKEcosystem/core/pull/2529
+[#2539]: https://github.com/ARKEcosystem/core/pull/2539
+[#2544]: https://github.com/ARKEcosystem/core/pull/2544
+[#2552]: https://github.com/ARKEcosystem/core/pull/2552
+[#2553]: https://github.com/ARKEcosystem/core/pull/2553
+[#2555]: https://github.com/ARKEcosystem/core/pull/2555
+[#2557]: https://github.com/ARKEcosystem/core/pull/2557
+[#2558]: https://github.com/ARKEcosystem/core/pull/2558
+[#2559]: https://github.com/ARKEcosystem/core/pull/2559
+[#2562]: https://github.com/ARKEcosystem/core/pull/2562
+[#2563]: https://github.com/ARKEcosystem/core/pull/2563
+[#2565]: https://github.com/ARKEcosystem/core/pull/2565
+[#2567]: https://github.com/ARKEcosystem/core/pull/2567
+[#2571]: https://github.com/ARKEcosystem/core/pull/2571
+[#2574]: https://github.com/ARKEcosystem/core/pull/2574
+[#2581]: https://github.com/ARKEcosystem/core/pull/2581
+[#2582]: https://github.com/ARKEcosystem/core/pull/2582
+[#2586]: https://github.com/ARKEcosystem/core/pull/2586
+[#2590]: https://github.com/ARKEcosystem/core/pull/2590
+[#2592]: https://github.com/ARKEcosystem/core/pull/2592
 [#2593]: https://github.com/ARKEcosystem/core/pull/2593
+[#2593]: https://github.com/ARKEcosystem/core/pull/2593
+[#2597]: https://github.com/ARKEcosystem/core/pull/2597
+[#2604]: https://github.com/ARKEcosystem/core/pull/2604
+[#2604]: https://github.com/ARKEcosystem/core/pull/2604
+[#2606]: https://github.com/ARKEcosystem/core/pull/2606
+[#2611]: https://github.com/ARKEcosystem/core/pull/2611
+[#2612]: https://github.com/ARKEcosystem/core/pull/2612
+[#2615]: https://github.com/ARKEcosystem/core/pull/2615
+[#2619]: https://github.com/ARKEcosystem/core/pull/2619
+[#2622]: https://github.com/ARKEcosystem/core/pull/2622
+[#2628]: https://github.com/ARKEcosystem/core/pull/2628
+[#2634]: https://github.com/ARKEcosystem/core/pull/2634
+[#2635]: https://github.com/ARKEcosystem/core/pull/2635
+[#2643]: https://github.com/ARKEcosystem/core/pull/2643
+[#2645]: https://github.com/ARKEcosystem/core/pull/2645
+[#2646]: https://github.com/ARKEcosystem/core/pull/2646
+[#2651]: https://github.com/ARKEcosystem/core/pull/2651
+[#2653]: https://github.com/ARKEcosystem/core/pull/2653
+[#2655]: https://github.com/ARKEcosystem/core/pull/2655
+[#2657]: https://github.com/ARKEcosystem/core/pull/2657
+[#2659]: https://github.com/ARKEcosystem/core/pull/2659
+[#2662]: https://github.com/ARKEcosystem/core/pull/2662
+[#2665]: https://github.com/ARKEcosystem/core/pull/2665
+[#2666]: https://github.com/ARKEcosystem/core/pull/2666
+[#2670]: https://github.com/ARKEcosystem/core/pull/2670
+[#2672]: https://github.com/ARKEcosystem/core/pull/2672
+[#2674]: https://github.com/ARKEcosystem/core/pull/2674
+[#2685]: https://github.com/ARKEcosystem/core/pull/2685
+[#2686]: https://github.com/ARKEcosystem/core/pull/2686
+[#2687]: https://github.com/ARKEcosystem/core/pull/2687

@@ -12,7 +12,7 @@ export class RestoreCommand extends BaseCommand {
     public static flags = {
         ...BaseCommand.flags,
         blocks: flags.string({
-            description: "blocks to import, corelates to folder name",
+            description: "blocks to import, correlates to folder name",
             required: true,
         }),
         codec: flags.string({

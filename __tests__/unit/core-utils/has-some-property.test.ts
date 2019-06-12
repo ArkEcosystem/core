@@ -5,7 +5,7 @@ import { hasSomeProperty } from "../../../packages/core-utils/src/has-some-prope
 let object;
 
 beforeEach(() => {
-    object = { property: null };
+    object = { property: undefined };
 });
 
 describe("hasSomeProperty", () => {

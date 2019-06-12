@@ -1,30 +1,42 @@
+import "jest-extended";
+
 import "../mocks/core-container";
 
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator } from "@arkecosystem/core-utils";
-import { Bignum, constants, crypto } from "@arkecosystem/crypto";
-import { DelegatesBusinessRepository, Wallet, WalletsBusinessRepository } from "../../../../packages/core-database/src";
+import { Utils } from "@arkecosystem/crypto";
+import { DelegatesBusinessRepository, WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
+import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
+import { Address } from "../../../../packages/crypto/src/identities";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 
 let repository;
 
 let walletsRepository: Database.IWalletsBusinessRepository;
-let walletManager: Database.IWalletManager;
+let walletManager: State.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
 beforeEach(async () => {
-    const { WalletManager } = require("../../../../packages/core-database/src/wallet-manager");
     walletManager = new WalletManager();
 
     repository = new DelegatesBusinessRepository(() => databaseService);
     walletsRepository = new WalletsBusinessRepository(() => databaseService);
-    databaseService = new DatabaseService(null, null, walletManager, walletsRepository, repository, null, null);
+    databaseService = new DatabaseService(
+        undefined,
+        undefined,
+        walletManager,
+        walletsRepository,
+        repository,
+        undefined,
+        undefined,
+    );
 });
 
-function generateWallets(): Wallet[] {
+const generateWallets = (): Wallet[] => {
     return genesisBlock.transactions.map((transaction, index) => {
-        const address = crypto.getAddress(transaction.data.senderPublicKey);
+        // @TODO: switch to unitnet
+        const address: string = Address.fromPublicKey(transaction.data.senderPublicKey, 23);
 
         return {
             address,
@@ -32,19 +44,19 @@ function generateWallets(): Wallet[] {
             secondPublicKey: `secondPublicKey-${address}`,
             vote: `vote-${address}`,
             username: `username-${address}`,
-            balance: new Bignum(100),
-            voteBalance: new Bignum(200),
+            balance: Utils.BigNumber.make(100),
+            voteBalance: Utils.BigNumber.make(200),
             rate: index + 1,
         } as Wallet;
     });
-}
+};
 
 describe("Delegate Repository", () => {
     describe("getLocalDelegates", () => {
         const delegates = [
-            { username: "delegate-0", forgedFees: new Bignum(10), forgedRewards: new Bignum(10) },
-            { username: "delegate-1", forgedFees: new Bignum(20), forgedRewards: new Bignum(20) },
-            { username: "delegate-2", forgedFees: new Bignum(30), forgedRewards: new Bignum(30) },
+            { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
+            { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
+            { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
         ];
 
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map(delegate => {
@@ -63,9 +75,9 @@ describe("Delegate Repository", () => {
 
         it("should be ok with params (forgedTotal)", () => {
             // @ts-ignore
-            jest.spyOn(walletManager, "allByAddress").mockReturnValue(wallets);
+            jest.spyOn(walletManager, "allByUsername").mockReturnValue(wallets);
 
-            const actualDelegates = repository.getLocalDelegates({ forgedTotal: null });
+            const actualDelegates = repository.getLocalDelegates({ forgedTotal: undefined });
 
             actualDelegates.forEach(delegate => {
                 expect(delegate.hasOwnProperty("forgedTotal"));
