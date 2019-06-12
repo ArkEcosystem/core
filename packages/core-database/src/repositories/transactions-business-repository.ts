@@ -202,13 +202,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             delete params.addresses;
         }
 
-        // TODO: supported by 'findAll' but was replaced by 'addresses' in 'search' so remove this when removing v1 code
-        if (params.ownerId) {
-            // custom OP here
-            params.ownerWallet = databaseService.walletManager.findByAddress(params.ownerId);
-            delete params.ownerId;
-        }
-
         const searchParameters: Database.ISearchParameters = new SearchParameterConverter(
             databaseService.connection.transactionsRepository.getModel(),
         ).convert(params);

@@ -131,39 +131,6 @@ describe("Transactions Business Repository", () => {
             );
         });
 
-        it("should lookup ownerIds wallet when searching", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            const expectedWallet = {};
-            databaseService.walletManager = {
-                findByAddress: address => expectedWallet,
-            } as State.IWalletManager;
-
-            await transactionsBusinessRepository.search({
-                ownerId: "ownerId",
-            });
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "ownerWallet",
-                            operator: expect.anything(),
-                            value: expectedWallet,
-                        },
-                    ],
-                }),
-            );
-        });
-
         it("should set recipientId=addresses if former not supplied", async () => {
             databaseService.connection.transactionsRepository = {
                 search: async parameters => parameters,
