@@ -41,8 +41,8 @@ error ()
 }
 
 # Detect pkg type
-DEB=$(which apt-get)
-RPM=$(which yum)
+DEB=$(which apt-get || :)
+RPM=$(which yum || :)
 
 # Detect SystemV / SystemD
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
