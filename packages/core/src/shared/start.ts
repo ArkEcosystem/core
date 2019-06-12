@@ -42,6 +42,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
                     ...options,
                     ...{
                         env: {
+                            NODE_ENV: 'production',
                             CORE_ENV: flags.env,
                         },
                     },
