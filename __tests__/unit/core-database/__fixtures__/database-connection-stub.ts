@@ -43,4 +43,8 @@ export class DatabaseConnectionStub implements Database.IConnection {
     public saveBlocks(blocks: Blocks.Block[]): Promise<any> {
         return undefined;
     }
+
+    public resetAll(): Promise<void> {
+        return undefined;
+    }
 }
