@@ -212,11 +212,7 @@ export class ForgerManager {
         }> = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
             this.logger.info(
-                `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
-                    "header",
-                    overHeightBlockHeaders.length,
-                    true,
-                )}.`,
+                `Detected ${pluralize("distinct overheight block header", overHeightBlockHeaders.length, true)}.`,
             );
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
@@ -226,12 +222,8 @@ export class ForgerManager {
                     this.logger.warn(
                         `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${
                             overHeightBlockHeader.id
-                        }. Will not forge.`,
+                        }.`,
                     );
-
-                    this.logger.debug(`Network State: ${networkState.toJson()}`);
-
-                    return false;
                 }
             }
         }

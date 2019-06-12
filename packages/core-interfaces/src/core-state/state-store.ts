@@ -30,6 +30,17 @@ export interface IStateStore {
     getLastHeight(): number;
 
     /**
+     * Get the genesis block.
+     */
+    getGenesisBlock(): Interfaces.IBlock | undefined;
+
+    /**
+     * Sets the genesis block.
+     * @returns {void}
+     */
+    setGenesisBlock(block: Interfaces.IBlock): void;
+
+    /**
      * Get the last block.
      */
     getLastBlock(): Interfaces.IBlock | undefined;

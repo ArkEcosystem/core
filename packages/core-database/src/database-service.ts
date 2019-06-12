@@ -44,6 +44,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
+
         if (process.env.CORE_RESET_DATABASE) {
             await this.reset();
         }
@@ -67,7 +71,12 @@ export class DatabaseService implements Database.IDatabaseService {
     public async reset(): Promise<void> {
         await this.connection.resetAll();
 
-        await this.saveBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
+        await this.saveBlock(
+            app
+                .resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .getGenesisBlock(),
+        );
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
@@ -580,7 +589,12 @@ export class DatabaseService implements Database.IDatabaseService {
         if (!(await this.getLastBlock())) {
             this.logger.warn("No block found in database");
 
-            await this.saveBlock(Blocks.BlockFactory.fromJson(this.config.get("genesisBlock")));
+            await this.saveBlock(
+                app
+                    .resolvePlugin<State.IStateService>("state")
+                    .getStore()
+                    .getGenesisBlock(),
+            );
         }
     }
 

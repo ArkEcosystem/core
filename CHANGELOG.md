@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.0] - 2019-07-DD
+
+### Added
+
+-   Allow retrieval of raw blocks and transactions via API ([#2616])
+-   Search transactions by asset via API ([#2618])
+-   Allow easy retrieval of first and last block ([#2641])
+
+### Removed
+
+-   Removed the `ark-node` legacy API known as `v1` ([#2577])
+
 ## [2.4.0] - 2019-06-12
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
@@ -102,6 +114,9 @@ If you've been using the JSON-RPC in the past together with ARK Core the migrati
 -   Use temporary wallets for transaction validation ([#2666])
 -   Correctly display second signature if available via `core-api` ([#2670])
 -   Missing block confirmations on v2 API endpoints ([#2674])
+-   Delay transaction purge on start until after StateBuilder finished ([#2685])
+-   Check claimed state of peer ([#2686])
+-   Ignore overheight blocks and keep forging ([#2687])
 
 ### Changed
 
@@ -477,6 +492,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.5.0
 [2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
 [2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
 [2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
@@ -705,6 +721,7 @@ Closed security vulnerabilities:
 [#2567]: https://github.com/ARKEcosystem/core/pull/2567
 [#2571]: https://github.com/ARKEcosystem/core/pull/2571
 [#2574]: https://github.com/ARKEcosystem/core/pull/2574
+[#2577]: https://github.com/ARKEcosystem/core/pull/2577
 [#2581]: https://github.com/ARKEcosystem/core/pull/2581
 [#2582]: https://github.com/ARKEcosystem/core/pull/2582
 [#2586]: https://github.com/ARKEcosystem/core/pull/2586
@@ -714,16 +731,18 @@ Closed security vulnerabilities:
 [#2593]: https://github.com/ARKEcosystem/core/pull/2593
 [#2597]: https://github.com/ARKEcosystem/core/pull/2597
 [#2604]: https://github.com/ARKEcosystem/core/pull/2604
-[#2604]: https://github.com/ARKEcosystem/core/pull/2604
 [#2606]: https://github.com/ARKEcosystem/core/pull/2606
 [#2611]: https://github.com/ARKEcosystem/core/pull/2611
 [#2612]: https://github.com/ARKEcosystem/core/pull/2612
 [#2615]: https://github.com/ARKEcosystem/core/pull/2615
+[#2616]: https://github.com/ARKEcosystem/core/pull/2616
+[#2618]: https://github.com/ARKEcosystem/core/pull/2618
 [#2619]: https://github.com/ARKEcosystem/core/pull/2619
 [#2622]: https://github.com/ARKEcosystem/core/pull/2622
 [#2628]: https://github.com/ARKEcosystem/core/pull/2628
 [#2634]: https://github.com/ARKEcosystem/core/pull/2634
 [#2635]: https://github.com/ARKEcosystem/core/pull/2635
+[#2641]: https://github.com/ARKEcosystem/core/pull/2641
 [#2643]: https://github.com/ARKEcosystem/core/pull/2643
 [#2645]: https://github.com/ARKEcosystem/core/pull/2645
 [#2646]: https://github.com/ARKEcosystem/core/pull/2646
@@ -738,3 +757,6 @@ Closed security vulnerabilities:
 [#2670]: https://github.com/ARKEcosystem/core/pull/2670
 [#2672]: https://github.com/ARKEcosystem/core/pull/2672
 [#2674]: https://github.com/ARKEcosystem/core/pull/2674
+[#2685]: https://github.com/ARKEcosystem/core/pull/2685
+[#2686]: https://github.com/ARKEcosystem/core/pull/2686
+[#2687]: https://github.com/ARKEcosystem/core/pull/2687
