@@ -65,9 +65,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async reset(): Promise<void> {
-        await this.connection.blocksRepository.truncate();
-        await this.connection.roundsRepository.truncate();
-        await this.connection.transactionsRepository.truncate();
+        await this.connection.resetAll();
 
         await this.saveBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
     }

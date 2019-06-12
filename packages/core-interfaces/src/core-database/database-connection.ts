@@ -31,4 +31,6 @@ export interface IConnection {
     enqueueDeleteRound(height: number): void;
 
     commitQueuedQueries(): Promise<void>;
+
+    resetAll(): Promise<void>;
 }

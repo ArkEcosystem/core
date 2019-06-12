@@ -13,6 +13,7 @@ import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
 import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
+import { queries as sqlQueries } from "./queries";
 
 export class PostgresConnection implements Database.IConnection {
     // @TODO: make this private
@@ -204,6 +205,10 @@ export class PostgresConnection implements Database.IConnection {
             this.logger.error(err.message);
             throw err;
         }
+    }
+
+    public async resetAll(): Promise<void> {
+        return this.db.none(sqlQueries.common.truncateAllTables);
     }
 
     /**
