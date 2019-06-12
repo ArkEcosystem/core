@@ -62,8 +62,5 @@ export interface ITransactionsRepository extends IRepository {
         orderBy?: ISearchOrderBy[],
     ): Promise<ITransactionsPaginated>;
 
-    /* TODO: Remove with v1 */
-    findAll(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
-
     search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

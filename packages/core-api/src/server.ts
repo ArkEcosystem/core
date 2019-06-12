@@ -17,9 +17,6 @@ export class Server {
             host: this.config.host,
             port: this.config.port,
             routes: {
-                cors: {
-                    additionalHeaders: ["api-version"],
-                },
                 validate: {
                     async failAction(request, h, err) {
                         throw err;
@@ -72,8 +69,7 @@ export class Server {
     }
 
     private async registerPlugins(name: string, server: Hapi.Server): Promise<void> {
-        // TODO: enable after mainnet migration
-        // await server.register({ plugin: plugins.contentType })
+        await server.register({ plugin: plugins.contentType });
 
         await server.register({
             plugin: plugins.corsHeaders,
@@ -88,20 +84,6 @@ export class Server {
 
         await server.register({
             plugin: require("./plugins/set-headers"),
-        });
-
-        await server.register({
-            plugin: require("@faustbrian/hapi-version"),
-            options: this.config.versions,
-        });
-
-        await server.register({
-            plugin: require("./plugins/endpoint-version"),
-            options: { versions: this.config.versions.versions.allowed },
-        });
-
-        await server.register({
-            plugin: require("./plugins/caster"),
         });
 
         await server.register({
@@ -137,6 +119,11 @@ export class Server {
             },
         });
 
+        await server.register({
+            plugin: require("./handlers"),
+            routes: { prefix: "/api" },
+        });
+
         for (const plugin of this.config.plugins) {
             if (typeof plugin.plugin === "string") {
                 plugin.plugin = require(plugin.plugin);
@@ -145,12 +132,13 @@ export class Server {
             await server.register(plugin);
         }
 
-        server.route({
-            method: "GET",
-            path: "/",
-            handler() {
-                return { data: "Hello World!" };
-            },
+        // @TODO: remove this with the release of 3.0 - adds support for /api and /api/v2
+        server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+            const path: string = request.url.pathname.replace("/v2", "");
+
+            request.setUrl(request.url.search ? `${path}${request.url.search}` : path);
+
+            return h.continue;
         });
 
         await mountServer(`Public ${name.toUpperCase()} API`, server);
