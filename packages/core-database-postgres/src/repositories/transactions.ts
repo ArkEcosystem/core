@@ -19,7 +19,10 @@ export class TransactionsRepository extends Repository implements Database.ITran
         const params = parameters.parameters;
 
         if (params.length) {
-            const [participants, rest] = partition(params, op =>
+            // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
+            const ops = params.filter(value => value.operator !== Database.SearchOperator.OP_CUSTOM);
+
+            const [participants, rest] = partition(ops, op =>
                 ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)),
             );
 
