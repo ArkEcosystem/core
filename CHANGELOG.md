@@ -13,6 +13,41 @@ All changes listed in this section are things that either alter how certain data
 
 As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will be various breaking changes. The main concern of most developers will be breaking changes to `@arkecosystem/crypto` so go through the commits listed below and make sure you adjust everything in your application that is affected by a change.
 
+### Exchange JSON-RPC
+
+The JSON-RPC we offer, formerly known as `@arkecosystem/core-json-rpc`, has received a rework to turn it into a real RPC that is easier to use and maintain.
+
+#### Programmatic
+
+The biggest change is that it now offers programmatic use to make integration into ARK Core easier while simultaneously allowing it to run as a standalone application detached from a relay.
+
+**Standalone**
+https://github.com/ArkEcosystem/exchange-json-rpc
+
+**ARK Core Plugin**
+https://github.com/ArkEcosystem/core/tree/develop/packages/core-exchange-json-rpc
+
+> The `@arkecosystem/core-json-rpc` plugin has been deprecated and replaced by `@arkecosystem/core-exchange-json-rpc` because of different those 2 plugins work under the hood and their dependencies.
+
+#### Peers
+
+A few smaller improvements to how peers and faulty responses are being handled have also been made which should smoothen the experience without having to manually retry requests.
+
+#### Database
+
+The Exchange JSON-RPC uses SQLite under the hood to store all data. In previous versions it was using https://github.com/mapbox/node-sqlite3 which was known to cause random build issues for ARK Core and sometimes needed a dozen retries before it finally compiled.
+
+That dependency has been replaced with https://github.com/JoshuaWise/better-sqlite3 which is the same that ARK Core uses for its transaction pool. It provides better performance, receives updates and fixes when needed and build errors are a thing of the past.
+
+#### Migration
+
+If you've been using the JSON-RPC in the past together with ARK Core the migration to the Exchange JSON-RPC is as simple as following the steps at https://docs.ark.io/releases/v2.4/migrating_2.3_2.4.html#step-5-update-core-json-rpc-to-core-exchange-json-rpc.
+
+#### Disclaimer
+
+1. The Exchange JSON-RPC is only maintained for exchanges, as the name suggests. We do not offer any support or guidance unless you are an Exchange in which case you most likely will already be in touch with us.
+2. Do not use the Exchange JSON-RPC unless you are forced too and have no other options. The Public API provides much greater capabilities of searching and filtering data.
+
 ### Added
 
 -   Implement in `@arkecosystem/core-state` to manage the state of in-memory data ([#2479])
@@ -62,6 +97,11 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   Invalid orderBy causes `Internal Server Error` via API ([#2653)
 -   Avoid trying to INSERT duplicates in rounds via `core-snapshots` ([#2651])
 -   Handle failing optional plugins gracefully ([#2657])
+-   Correctly purge invalid transactions from disk on start ([#2665])
+-   Don't append duplicate rounds rows to a snapshot ([#2662])
+-   Use temporary wallets for transaction validation ([#2666])
+-   Correctly display second signature if available via `core-api` ([#2670])
+-   Missing block confirmations on v2 API endpoints ([#2674])
 
 ### Changed
 
@@ -85,12 +125,12 @@ As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will b
 -   **BREAKING:** Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
 -   Invalidate blocks with expired transactions ([#2528])
 -   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
--   Return all schema errors in hapi-ajv (#2571)
--   Clean up SocketCluster shutdown and logging (#2560)
+-   Return all schema errors in hapi-ajv ([#2571])
 -   Remove timeout banning ([#2597])
 -   Use dayjs as it now has official UTC support ([#2592])
 -   Require a minimum of 0 as pubKeyHash ([#2628])
 -   **BREAKING:** Replaced `@arkecosystem/core-json-rpc` with `@arkecosystem/core-exchange-json-rpc` _(Use `@arkecosystem/core-exchange-json-rpc` programmatically)_ ([#2643])
+-   Expire transactions that don't have an expiration ([#2672])
 
 ### Removed
 
@@ -659,7 +699,6 @@ Closed security vulnerabilities:
 [#2557]: https://github.com/ARKEcosystem/core/pull/2557
 [#2558]: https://github.com/ARKEcosystem/core/pull/2558
 [#2559]: https://github.com/ARKEcosystem/core/pull/2559
-[#2560]: https://github.com/ARKEcosystem/core/pull/2560
 [#2562]: https://github.com/ARKEcosystem/core/pull/2562
 [#2563]: https://github.com/ARKEcosystem/core/pull/2563
 [#2565]: https://github.com/ARKEcosystem/core/pull/2565
@@ -693,3 +732,9 @@ Closed security vulnerabilities:
 [#2655]: https://github.com/ARKEcosystem/core/pull/2655
 [#2657]: https://github.com/ARKEcosystem/core/pull/2657
 [#2659]: https://github.com/ARKEcosystem/core/pull/2659
+[#2662]: https://github.com/ARKEcosystem/core/pull/2662
+[#2665]: https://github.com/ARKEcosystem/core/pull/2665
+[#2666]: https://github.com/ARKEcosystem/core/pull/2666
+[#2670]: https://github.com/ARKEcosystem/core/pull/2670
+[#2672]: https://github.com/ARKEcosystem/core/pull/2672
+[#2674]: https://github.com/ARKEcosystem/core/pull/2674
