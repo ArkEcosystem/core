@@ -1,5 +1,8 @@
+import { EventEmitter } from "../../../../packages/core-event-emitter/src/emitter";
 import { database } from "./database";
 import { state } from "./state";
+
+const eventEmitter: EventEmitter = new EventEmitter();
 
 export const container = {
     app: {
@@ -14,7 +17,7 @@ export const container = {
         resolve: name => {
             return {};
         },
-        resolvePlugin: name => {
+        resolvePlugin: (name): any => {
             if (name === "logger") {
                 return {
                     info: console.log,
@@ -35,10 +38,7 @@ export const container = {
             }
 
             if (name === "event-emitter") {
-                return {
-                    emit: () => ({}),
-                    on: () => ({}),
-                };
+                return eventEmitter;
             }
 
             if (name === "database") {

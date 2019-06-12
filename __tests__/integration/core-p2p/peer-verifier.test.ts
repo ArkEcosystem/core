@@ -12,6 +12,7 @@ const stubPeer: P2P.IPeer = createStubPeer({ ip: "127.0.0.1", port: 4009 });
 
 let socketManager: MockSocketManager;
 let service: P2P.IPeerService;
+let claimedState: P2P.IPeerState;
 
 beforeAll(async () => {
     process.env.CORE_ENV = "test"; // important for socket server setup (testing), see socket-server/index.ts
@@ -28,13 +29,19 @@ afterAll(async () => {
 
 beforeEach(async () => {
     await socketManager.resetAllMocks();
+    claimedState = {
+        currentSlot: 1,
+        forgingAllowed: true,
+        height: 1,
+        header: { height: 1, id: genesisBlock.data.id },
+    };
 });
 
 describe("Peer Verifier", () => {
     describe("checkState", () => {
         it("identical chains", async () => {
             const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
-            const state = { header: { height: 1, id: genesisBlock.data.id } };
+            const state = Object.assign(claimedState, { header: genesisBlock.data });
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeObject();
             expect(result.forked).toBe(false);
@@ -44,7 +51,24 @@ describe("Peer Verifier", () => {
             await socketManager.addMock("getCommonBlocks", { common: undefined });
 
             const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
-            const state = { header: { height: 1, id: "123" } };
+            const state = Object.assign(claimedState, { header: { height: 1, id: "123" } });
+            const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeUndefined();
+        });
+
+        it("contradicting heights", async () => {
+            const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
+            const state = Object.assign(claimedState, { height: 1, header: blocks2to100Json[5] });
+            const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
+            expect(result).toBeUndefined();
+        });
+
+        it("garbage block header", async () => {
+            const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
+            const garbageBlock = Object.assign({}, blocks2to100Json[0]);
+            garbageBlock.numberOfTransactions = 9000;
+
+            const state = Object.assign(claimedState, { height: 2, header: garbageBlock });
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeUndefined();
         });
@@ -63,7 +87,7 @@ describe("Peer Verifier", () => {
                 await socketManager.addMock("getCommonBlocks", { common: commonBlockReply });
 
                 const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
-                const state = { header: { height: 1, id: "123" } };
+                const state = Object.assign(claimedState, { header: { height: 1, id: "123" } });
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(result).toBeUndefined();
             }
@@ -90,7 +114,7 @@ describe("Peer Verifier", () => {
                 await socketManager.addMock("getBlocks", [block2]);
 
                 const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
-                const state = { header: { height: 2, id: block2.id } };
+                const state = Object.assign(claimedState, { header: { height: 2, id: block2.id } });
                 const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
                 expect(result).toBeUndefined();
             }
@@ -104,7 +128,7 @@ describe("Peer Verifier", () => {
             await socketManager.addMock("getBlocks", [blocks2to100Json[0]]);
 
             const peerVerifier = new PeerVerifier(service.getCommunicator(), stubPeer);
-            const state = { header: { height: 2, id: blocks2to100Json[0].id } };
+            const state = Object.assign(claimedState, { height: 2, header: blocks2to100Json[0] });
             const result = await peerVerifier.checkState(state, new Date().getTime() + 10000);
             expect(result).toBeObject();
             expect(result.forked).toBe(false);

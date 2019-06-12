@@ -102,6 +102,9 @@ If you've been using the JSON-RPC in the past together with ARK Core the migrati
 -   Use temporary wallets for transaction validation ([#2666])
 -   Correctly display second signature if available via `core-api` ([#2670])
 -   Missing block confirmations on v2 API endpoints ([#2674])
+-   Delay transaction purge on start until after StateBuilder finished ([#2685])
+-   Check claimed state of peer ([#2686])
+-   Ignore overheight blocks and keep forging ([#2687])
 
 ### Changed
 
@@ -738,3 +741,6 @@ Closed security vulnerabilities:
 [#2670]: https://github.com/ARKEcosystem/core/pull/2670
 [#2672]: https://github.com/ARKEcosystem/core/pull/2672
 [#2674]: https://github.com/ARKEcosystem/core/pull/2674
+[#2685]: https://github.com/ARKEcosystem/core/pull/2685
+[#2686]: https://github.com/ARKEcosystem/core/pull/2686
+[#2687]: https://github.com/ARKEcosystem/core/pull/2687
