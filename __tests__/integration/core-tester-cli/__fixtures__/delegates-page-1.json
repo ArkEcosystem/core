@@ -3,11 +3,11 @@
         "count": 3,
         "pageCount": 2,
         "totalCount": 6,
-        "next": "/api/v2/delegates?page=2",
+        "next": "/api/delegates?page=2",
         "previous": null,
-        "self": "/api/v2/delegates?page=1&limit=100",
-        "first": "/api/v2/delegates?page=1&limit=100",
-        "last": "/api/v2/delegates?page=2&limit=100"
+        "self": "/api/delegates?page=1&limit=100",
+        "first": "/api/delegates?page=1&limit=100",
+        "last": "/api/delegates?page=2&limit=100"
     },
     "data": [
         {

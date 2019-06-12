@@ -25,9 +25,14 @@ class Helpers {
 
         let response;
         try {
-            response = ["GET", "DELETE"].includes(method)
-                ? await request(url, { params, headers })
-                : await request(url, params, { headers });
+            response = ["GET", "DELETE"].includes(method) ?
+                await request(url, {
+                    params,
+                    headers
+                }) :
+                await request(url, params, {
+                    headers
+                });
         } catch (e) {
             console.log("[api] request failed");
             if (method === "POST") {
@@ -60,11 +65,6 @@ class Helpers {
         expect(response.status).toBe(code);
     }
 
-    assertVersion(response, version) {
-        expect(response.headers).toBeObject();
-        expect(response.headers).toHaveProperty("api-version", version);
-    }
-
     expectResource(response) {
         expect(response.data.data).toBeObject();
     }
@@ -88,7 +88,6 @@ class Helpers {
     expectSuccessful(response, statusCode = 200) {
         this.expectStatus(response, statusCode);
         this.expectJson(response);
-        this.assertVersion(response, "2");
     }
 
     expectError(response, statusCode = 404) {
