@@ -72,19 +72,6 @@ describe("SearchParameterConverter", () => {
         expect(searchParameters.parameters[1].operator).toEqual(Database.SearchOperator.OP_LTE);
     });
 
-    it("should parse unknown fields as custom", () => {
-        const params = {
-            john: "doe",
-        };
-
-        const searchParameters = searchParameterConverter.convert(params);
-
-        expect(searchParameters.parameters).toHaveLength(1);
-        expect(searchParameters.parameters[0].field).toEqual("john");
-        expect(searchParameters.parameters[0].value).toEqual("doe");
-        expect(searchParameters.parameters[0].operator).toEqual(Database.SearchOperator.OP_CUSTOM);
-    });
-
     it("should parse orderBy & paginate from params", () => {
         const params = {
             orderBy: "field:asc",

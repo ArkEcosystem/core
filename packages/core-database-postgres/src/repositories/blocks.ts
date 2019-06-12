@@ -8,8 +8,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.query.select().from(this.query);
-        // Blocks repo atm, doesn't search using any custom parameters
-        const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
+        const parameterList = params.parameters;
 
         if (parameterList.length) {
             let first;

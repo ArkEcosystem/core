@@ -70,19 +70,6 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
         for (const fieldName of fieldNames) {
             const fieldDescriptor = mapByFieldName[fieldName] as Database.ISearchableField;
 
-            /* null op means that the business repo doesn't know how to categorize what to do w/ with this field so
-                let the repo layer decide how it will handle querying this field
-                i.e Transactions repo, when parameters contains 'ownerId', some extra logic is done.
-                 */
-            if (!fieldDescriptor) {
-                searchParameters.parameters.push({
-                    field: fieldName,
-                    operator: Database.SearchOperator.OP_CUSTOM,
-                    value: params[fieldName],
-                });
-                continue;
-            }
-
             if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LIKE)) {
                 searchParameters.parameters.push({
                     field: fieldName,
