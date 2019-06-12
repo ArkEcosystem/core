@@ -7,6 +7,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
+import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
@@ -230,15 +231,14 @@ describe("Connection", () => {
             jest.restoreAllMocks();
         });
 
-        it.each([1, 2])("should correctly expire transactions (v%i)", async (transactionVersion) => {
-
-            const setHeight = (height) => {
+        it.each([1, 2])("should correctly expire transactions (v%i)", async transactionVersion => {
+            const setHeight = height => {
                 jest.spyOn(state, "getStore").mockReturnValue({
                     ...state.getStore(),
                     ...{ getLastHeight: () => height },
                 });
                 jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(
-                    height * Managers.configManager.getMilestone(height).blocktime
+                    height * Managers.configManager.getMilestone(height).blocktime,
                 );
             };
 
@@ -263,7 +263,7 @@ describe("Connection", () => {
                         .withFee(SATOSHI + i)
                         .withVersion(transactionVersion)
                         .withExpiration(exp)
-                        .build(1)[0]
+                        .build(1)[0],
                 );
             }
 
@@ -838,6 +838,10 @@ describe("Connection", () => {
 
             await connection.make();
 
+            container.app.resolvePlugin("event-emitter").emit("internal.stateBuilder.finished");
+
+            await delay(200);
+
             expect(connection.getPoolSize()).toBe(2);
 
             for (const t of transactions) {
@@ -865,6 +869,10 @@ describe("Connection", () => {
             connection.disconnect();
 
             await connection.make();
+
+            container.app.resolvePlugin("event-emitter").emit("internal.stateBuilder.finished");
+
+            await delay(200);
 
             expect(connection.getPoolSize()).toBe(2);
 
