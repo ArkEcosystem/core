@@ -182,7 +182,9 @@ elif [[ ! -z $RPM ]]; then
     sudo yum install ntp -y -q
 fi
 
-sudo ntpd -gq
+if [ -z "$(service ntp status |grep running)" ] ; then
+    sudo ntpd -gq
+fi
 
 success "Installed NTP!"
 
