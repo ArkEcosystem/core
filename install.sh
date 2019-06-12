@@ -245,7 +245,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
     ark env:set CORE_DB_PASSWORD "${databasePassword}"
     ark env:set CORE_DB_DATABASE "${databaseName}"
 
-    userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
+    userExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_user WHERE usename = '${databaseUsername}'")
     databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
 
     if [[ $userExists == 1 ]]; then
