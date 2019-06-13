@@ -269,11 +269,9 @@ describe("Blockchain", () => {
             it("should be ok", () => {
                 expect(
                     blockchain.isSynced({
-                        data: {
-                            timestamp: Crypto.Slots.getTime(),
-                            height: genesisBlock.height,
-                        },
-                    } as Interfaces.IBlock),
+                        timestamp: Crypto.Slots.getTime(),
+                        height: genesisBlock.height,
+                    } as Interfaces.IBlockData),
                 ).toBeTrue();
             });
         });

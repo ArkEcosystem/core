@@ -206,7 +206,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * @return {void}
      */
     public clearAndStopQueue(): void {
-        this.state.lastDownloadedBlock = this.getLastBlock();
+        this.state.lastDownloadedBlock = this.getLastBlock().data;
 
         this.queue.pause();
         this.clearQueue();
@@ -279,7 +279,7 @@ export class Blockchain implements blockchain.IBlockchain {
         }
         this.queue.push({ blocks: currentBlocksChunk });
 
-        this.state.lastDownloadedBlock = BlockFactory.fromData(blocks.slice(-1)[0]);
+        this.state.lastDownloadedBlock = blocks.slice(-1)[0];
     }
 
     /**
@@ -311,7 +311,7 @@ export class Blockchain implements blockchain.IBlockchain {
             const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
 
             this.state.setLastBlock(newLastBlock);
-            this.state.lastDownloadedBlock = newLastBlock;
+            this.state.lastDownloadedBlock = newLastBlock.data;
         };
 
         // tslint:disable-next-line:variable-name
@@ -335,7 +335,7 @@ export class Blockchain implements blockchain.IBlockchain {
         const resetHeight: number = lastBlock.data.height - nblocks;
         logger.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
 
-        this.state.lastDownloadedBlock = lastBlock;
+        this.state.lastDownloadedBlock = lastBlock.data;
 
         await __removeBlocks(nblocks);
 
@@ -429,7 +429,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Reset the last downloaded block to last chained block.
      */
     public resetLastDownloadedBlock(): void {
-        this.state.lastDownloadedBlock = this.getLastBlock();
+        this.state.lastDownloadedBlock = this.getLastBlock().data;
     }
 
     /**
@@ -458,14 +458,14 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Determine if the blockchain is synced.
      */
-    public isSynced(block?: Interfaces.IBlock): boolean {
+    public isSynced(block?: Interfaces.IBlockData): boolean {
         if (!this.p2p.getStorage().hasPeers()) {
             return true;
         }
 
-        block = block || this.getLastBlock();
+        block = block || this.getLastBlock().data;
 
-        return Crypto.Slots.getTime() - block.data.timestamp < 3 * config.getMilestone(block.data.height).blocktime;
+        return Crypto.Slots.getTime() - block.timestamp < 3 * config.getMilestone(block.height).blocktime;
     }
 
     public async replay(targetHeight?: number): Promise<void> {
@@ -489,7 +489,7 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Get the last downloaded block of the blockchain.
      */
-    public getLastDownloadedBlock(): Interfaces.IBlock {
+    public getLastDownloadedBlock(): Interfaces.IBlockData {
         return this.state.lastDownloadedBlock;
     }
 
