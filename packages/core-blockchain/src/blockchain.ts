@@ -10,9 +10,8 @@ import {
     State,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { Managers } from "@arkecosystem/crypto";
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
