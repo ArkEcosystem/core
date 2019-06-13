@@ -153,7 +153,7 @@ describe("Peer socket endpoint", () => {
             socket.on("error", onSocketError);
 
             await delay(1100);
-            for (let i = 0; i < 19; i++) {
+            for (let i = 0; i < 299; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
@@ -184,7 +184,7 @@ describe("Peer socket endpoint", () => {
 
             await delay(1000);
 
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 300; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });

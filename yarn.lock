@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@arkecosystem/exchange-json-rpc@^1.0.0-next.5":
-  version "1.0.0-next.5"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/exchange-json-rpc/-/exchange-json-rpc-1.0.0-next.5.tgz#59c063df0040f57db6cf40b583268f8b4aa6d97d"
-  integrity sha512-hTOgE1VX5PrgAgMMm5x5Pk6iHviwhd4iKPSKASpoWNnWfeNa52VxmOyQCH3fMvrK/MeWAkcaUX9TWsb2FOoX6A==
+"@arkecosystem/exchange-json-rpc@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/exchange-json-rpc/-/exchange-json-rpc-1.0.0.tgz#b5bc0fbbf872a1088e7a161319665b5bf127c504"
+  integrity sha512-rqkB4EFALFi3YlHSt1fEiN+Ly/Pd14w+ZNqtbz0x9OuHqy9u2tyy77LJ0Q9uPjY7I9KVQ6hdcs/xhUVv6ThNiw==
   dependencies:
-    "@arkecosystem/core-utils" "^2.4.0-next.3"
-    "@arkecosystem/crypto" "^2.4.0-next.3"
+    "@arkecosystem/core-utils" "^2.4.0"
+    "@arkecosystem/crypto" "^2.4.0"
     "@hapi/boom" "^7.4.2"
     "@hapi/hapi" "^18.3.1"
     "@hapist/json-rpc" "^0.2.0"
