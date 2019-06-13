@@ -1,5 +1,3 @@
-import { resolve } from "path";
-
 export const defaults = {
     enabled: false,
     host: process.env.CORE_API_HOST || "0.0.0.0",
@@ -28,22 +26,6 @@ export const defaults = {
         key: process.env.CORE_API_SSL_KEY,
         cert: process.env.CORE_API_SSL_CERT,
     },
-    // @see https://github.com/faustbrian/hapi-version
-    versions: {
-        basePath: "/api/",
-        versions: {
-            default: 1,
-            allowed: [1, 2],
-        },
-        strategies: {
-            acceptHeader: {
-                subType: "core-api",
-            },
-            customHeader: {
-                parameter: "api-version",
-            },
-        },
-    },
     // @see https://github.com/wraithgar/hapi-rate-limit
     rateLimit: {
         enabled: !process.env.CORE_API_RATE_LIMIT,
@@ -58,36 +40,27 @@ export const defaults = {
     pagination: {
         limit: 100,
         include: [
-            "/api/v2/blocks",
-            "/api/v2/blocks/{id}/transactions",
-            "/api/v2/blocks/search",
-            "/api/v2/delegates",
-            "/api/v2/delegates/{id}/blocks",
-            "/api/v2/delegates/{id}/voters",
-            "/api/v2/delegates/search",
-            "/api/v2/peers",
-            "/api/v2/transactions",
-            "/api/v2/transactions/search",
-            "/api/v2/transactions/unconfirmed",
-            "/api/v2/votes",
-            "/api/v2/wallets",
-            "/api/v2/wallets/top",
-            "/api/v2/wallets/{id}/transactions",
-            "/api/v2/wallets/{id}/transactions/received",
-            "/api/v2/wallets/{id}/transactions/sent",
-            "/api/v2/wallets/{id}/votes",
-            "/api/v2/wallets/search",
+            "/api/blocks",
+            "/api/blocks/{id}/transactions",
+            "/api/blocks/search",
+            "/api/delegates",
+            "/api/delegates/{id}/blocks",
+            "/api/delegates/{id}/voters",
+            "/api/delegates/search",
+            "/api/peers",
+            "/api/transactions",
+            "/api/transactions/search",
+            "/api/transactions/unconfirmed",
+            "/api/votes",
+            "/api/wallets",
+            "/api/wallets/top",
+            "/api/wallets/{id}/transactions",
+            "/api/wallets/{id}/transactions/received",
+            "/api/wallets/{id}/transactions/sent",
+            "/api/wallets/{id}/votes",
+            "/api/wallets/search",
         ],
     },
     whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    plugins: [
-        {
-            plugin: resolve(__dirname, "./versions/1"),
-            routes: { prefix: "/api/v1" },
-        },
-        {
-            plugin: resolve(__dirname, "./versions/2"),
-            routes: { prefix: "/api/v2" },
-        },
-    ],
+    plugins: [],
 };

@@ -32,7 +32,5 @@ export interface IBlocksRepository extends IRepository {
 
     getDelegatesForgedBlocks(): Promise<any>;
 
-    /* TODO: Remove with V1 */
-    findAll(params: ISearchParameters): Promise<IBlocksPaginated>;
     search(params: ISearchParameters): Promise<IBlocksPaginated>;
 }

@@ -28,7 +28,6 @@
         "@arkecosystem/core-utils": "^2.4.1",
         "@arkecosystem/crypto": "^2.4.1",
         "@arkecosystem/utils": "^0.3.0",
-        "@faustbrian/hapi-version": "^0.2.11",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.0.3",
         "ajv": "^6.10.0",
