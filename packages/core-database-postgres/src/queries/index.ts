@@ -39,5 +39,6 @@ export const queries = {
         forged: loadQueryFile(__dirname, "./transactions/forged.sql"),
         findById: loadQueryFile(__dirname, "./transactions/find-by-id.sql"),
         deleteByBlock: loadQueryFile(__dirname, "./transactions/delete-by-block.sql"),
+        feeStatistics: loadQueryFile(__dirname, "./transactions/fee-statistics.sql"),
     },
 };

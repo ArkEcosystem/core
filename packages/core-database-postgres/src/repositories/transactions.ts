@@ -126,24 +126,17 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
     public async getFeeStatistics(
         days: number,
-        minFeeBroadcast?: number,
+        minFee?: number,
     ): Promise<Array<{ type: number; fee: number; timestamp: number }>> {
-        return this.findMany(
-            this.query
-                .select(this.query.type, this.query.fee, this.query.timestamp)
-                .from(this.query)
-                .where(
-                    this.query.timestamp.gte(
-                        Crypto.Slots.getTime(
-                            dayjs()
-                                .subtract(days, "day")
-                                .valueOf(),
-                        ),
-                    ),
-                )
-                .and(this.query.fee.gte(minFeeBroadcast))
-                .order('"timestamp" DESC'),
+        minFee = minFee || 0;
+
+        const age = Crypto.Slots.getTime(
+            dayjs()
+                .subtract(days, "day")
+                .valueOf(),
         );
+
+        return this.db.many(queries.transactions.feeStatistics, { age, minFee });
     }
 
     public async findAllByWallet(

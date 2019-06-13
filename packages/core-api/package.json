@@ -41,7 +41,6 @@
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
-        "mathjs": "^5.10.3",
         "semver": "^6.1.0"
     },
     "devDependencies": {
@@ -52,7 +51,6 @@
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
-        "@types/mathjs": "^5.0.1",
         "@types/semver": "^6.0.0"
     },
     "engines": {
