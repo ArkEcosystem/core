@@ -5,7 +5,6 @@ import { Blocks, Interfaces } from "@arkecosystem/crypto";
 export class StateStoreStub implements State.IStateStore {
     public blockchain: any;
     public lastDownloadedBlock: Interfaces.IBlock | undefined;
-    public genesisBlock: Interfaces.IBlock | undefined;
     public blockPing: any;
     public started: boolean;
     public forkedBlock: Interfaces.IBlock | undefined;
@@ -35,14 +34,6 @@ export class StateStoreStub implements State.IStateStore {
 
     public getLastHeight(): number {
         return 1;
-    }
-
-    public getGenesisBlock(): Interfaces.IBlock {
-        return this.genesisBlock;
-    }
-
-    public setGenesisBlock(block: Interfaces.IBlock): void {
-        this.genesisBlock = block;
     }
 
     public getLastBlock(): Interfaces.IBlock | undefined {

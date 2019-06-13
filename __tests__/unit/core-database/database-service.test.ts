@@ -65,9 +65,9 @@ describe("Database Service", () => {
 
             expect(walletManager.applyBlock).toHaveBeenCalledWith(genesisBlock);
             expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.BlockApplied, genesisBlock.data);
-            for (const tx of genesisBlock.transactions) {
-                expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.TransactionApplied, tx.data);
-            }
+            genesisBlock.transactions.forEach(tx =>
+                expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.TransactionApplied, tx.data),
+            );
         });
     });
 

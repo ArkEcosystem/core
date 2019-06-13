@@ -27,7 +27,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
             this.parseOrderBy(searchParameters, orderBy);
         }
 
-        this.parseSearchParameters(searchParameters, params);
+        this.parseISearchParameters(searchParameters, params);
 
         return searchParameters;
     }
@@ -53,7 +53,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
         }
     }
 
-    private parseSearchParameters(searchParameters: Database.ISearchParameters, params: any) {
+    private parseISearchParameters(searchParameters: Database.ISearchParameters, params: any) {
         const searchableFields = this.databaseModel.getSearchableFields();
         const mapByFieldName = searchableFields.reduce((p, c) => {
             const map = {};
@@ -144,17 +144,6 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                     operator: Database.SearchOperator.OP_EQ,
                     value: params[fieldName],
                 });
-                continue;
-            }
-
-            // if the field supports CONTAINS (@>), then ignore any others.
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_CONTAINS)) {
-                searchParameters.parameters.push({
-                    field: fieldName,
-                    operator: Database.SearchOperator.OP_CONTAINS,
-                    value: params[fieldName],
-                });
-
                 continue;
             }
         }

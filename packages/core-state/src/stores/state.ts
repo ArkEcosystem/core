@@ -13,7 +13,6 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
 export class StateStore implements State.IStateStore {
     // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
-    public genesisBlock: Interfaces.IBlock | undefined = undefined;
     public lastDownloadedBlock: Interfaces.IBlock | undefined = undefined;
     public blockPing: any = undefined;
     public started: boolean = false;
@@ -61,20 +60,6 @@ export class StateStore implements State.IStateStore {
      */
     public getLastHeight(): number {
         return this.getLastBlock().data.height;
-    }
-
-    /**
-     * Get the genesis block.
-     */
-    public getGenesisBlock(): Interfaces.IBlock | undefined {
-        return this.genesisBlock;
-    }
-
-    /**
-     * Sets the genesis block.
-     */
-    public setGenesisBlock(block: Interfaces.IBlock): void {
-        this.genesisBlock = block;
     }
 
     /**

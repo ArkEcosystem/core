@@ -6,7 +6,6 @@ import { MockDatabaseModel } from "../__fixtures__/mock-database-model";
 describe("Blocks Business Repository", () => {
     let blocksBusinessRepository: Database.IBlocksBusinessRepository;
     let databaseService: Database.IDatabaseService;
-
     beforeEach(() => {
         blocksBusinessRepository = new BlocksBusinessRepository(() => databaseService);
         databaseService = {
@@ -14,33 +13,25 @@ describe("Blocks Business Repository", () => {
         } as Database.IDatabaseService;
     });
 
-    describe("search", () => {
-        it("should invoke search on db repository", async () => {
+    describe("findAll", () => {
+        it("should invoke findAll on db repository", async () => {
             databaseService.connection.blocksRepository = {
-                search: async params => params,
+                findAll: async params => params,
                 getModel: () => new MockDatabaseModel(),
             } as any;
 
-            jest.spyOn(databaseService.connection.blocksRepository, "search").mockImplementation(async () => ({
+            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => ({
                 rows: [],
                 count: 0,
             }));
 
-            await blocksBusinessRepository.search({
+            await blocksBusinessRepository.findAll({
                 limit: 50,
                 offset: 20,
-                id: 20,
             });
 
-            expect(databaseService.connection.blocksRepository.search).toHaveBeenCalledWith(
+            expect(databaseService.connection.blocksRepository.findAll).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "id",
-                            operator: expect.anything(),
-                            value: 20,
-                        },
-                    ],
                     orderBy: [{ field: "height", direction: "desc" }],
                 }),
             );
@@ -79,8 +70,8 @@ describe("Blocks Business Repository", () => {
         });
     });
 
-    describe("findAllByGenerator", () => {
-        it("should search by generatorPublicKey", async () => {
+    describe("search", () => {
+        it("should invoke search on db repository", async () => {
             databaseService.connection.blocksRepository = {
                 search: async params => params,
                 getModel: () => new MockDatabaseModel(),
@@ -91,9 +82,42 @@ describe("Blocks Business Repository", () => {
                 count: 0,
             }));
 
-            await blocksBusinessRepository.findAllByGenerator("pubKey", { limit: 50, offset: 13 });
+            await blocksBusinessRepository.search({
+                limit: 50,
+                offset: 20,
+                id: 20,
+            });
 
             expect(databaseService.connection.blocksRepository.search).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "id",
+                            operator: expect.anything(),
+                            value: 20,
+                        },
+                    ],
+                    orderBy: [{ field: "height", direction: "desc" }],
+                }),
+            );
+        });
+    });
+
+    describe("findAllByGenerator", () => {
+        it("should search by generatorPublicKey", async () => {
+            databaseService.connection.blocksRepository = {
+                findAll: async params => params,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.blocksRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await blocksBusinessRepository.findAllByGenerator("pubKey", { limit: 50, offset: 13 });
+
+            expect(databaseService.connection.blocksRepository.findAll).toHaveBeenCalledWith(
                 expect.objectContaining({
                     parameters: [
                         {

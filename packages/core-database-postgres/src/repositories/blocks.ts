@@ -5,30 +5,6 @@ import { queries } from "../queries";
 import { Repository } from "./repository";
 
 export class BlocksRepository extends Repository implements Database.IBlocksRepository {
-    public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
-        // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
-        const selectQuery = this.query.select().from(this.query);
-        // Blocks repo atm, doesn't search using any custom parameters
-        const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
-
-        if (parameterList.length) {
-            let first;
-            do {
-                first = parameterList.shift();
-                // ignore params whose operator is unknown
-            } while (!first.operator && parameterList.length);
-
-            if (first) {
-                selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
-                for (const param of parameterList) {
-                    selectQuery.and(this.query[this.propToColumnName(param.field)][param.operator](param.value));
-                }
-            }
-        }
-
-        return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
-    }
-
     public async findById(id: string): Promise<Interfaces.IBlockData> {
         return this.db.oneOrNone(queries.blocks.findById, { id });
     }
@@ -102,6 +78,54 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
 
     public async delete(id: string): Promise<void> {
         return this.db.none(queries.blocks.delete, { id });
+    }
+
+    /* TODO: Remove with v1 */
+    public async findAll(
+        params: Database.ISearchParameters,
+    ): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
+        const selectQuery = this.query.select().from(this.query);
+        // Blocks repo atm, doesn't search using any custom parameters
+        const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
+
+        if (parameterList.length) {
+            const first = parameterList.shift();
+
+            /* Notice the difference between 'findAll' and 'search' is that the former assumes eq for all params passed in */
+            if (first) {
+                selectQuery.where(this.query[this.propToColumnName(first.field)].equals(first.value));
+
+                for (const param of parameterList) {
+                    selectQuery.and(this.query[this.propToColumnName(param.field)].equals(param.value));
+                }
+            }
+        }
+
+        return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
+    }
+
+    public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
+        // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
+        const selectQuery = this.query.select().from(this.query);
+        // Blocks repo atm, doesn't search using any custom parameters
+        const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
+
+        if (parameterList.length) {
+            let first;
+            do {
+                first = parameterList.shift();
+                // ignore params whose operator is unknown
+            } while (!first.operator && parameterList.length);
+
+            if (first) {
+                selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const param of parameterList) {
+                    selectQuery.and(this.query[this.propToColumnName(param.field)][param.operator](param.value));
+                }
+            }
+        }
+
+        return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
     }
 
     public getModel(): Block {

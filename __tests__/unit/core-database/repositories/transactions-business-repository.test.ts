@@ -8,7 +8,6 @@ import { MockDatabaseModel } from "../__fixtures__/mock-database-model";
 describe("Transactions Business Repository", () => {
     let transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     let databaseService: Database.IDatabaseService;
-
     beforeEach(() => {
         transactionsBusinessRepository = new TransactionsBusinessRepository(() => databaseService);
         databaseService = {
@@ -16,19 +15,19 @@ describe("Transactions Business Repository", () => {
         } as Database.IDatabaseService;
     });
 
-    describe("search", () => {
-        it("should invoke search on db repository", async () => {
+    describe("findAll", () => {
+        it("should invoke findAll on db repository", async () => {
             databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
+                findAll: async parameters => parameters,
                 getModel: () => new MockDatabaseModel(),
             } as any;
 
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
                 rows: [],
                 count: 0,
             }));
 
-            await transactionsBusinessRepository.search(
+            await transactionsBusinessRepository.findAll(
                 {
                     id: "id",
                     offset: 10,
@@ -38,7 +37,7 @@ describe("Transactions Business Repository", () => {
                 "asc",
             );
 
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
                 expect.objectContaining({
                     parameters: [
                         {
@@ -63,6 +62,282 @@ describe("Transactions Business Repository", () => {
                     ]),
                 }),
             );
+        });
+    });
+
+    describe("allVotesBySender", () => {
+        it("should search by senderPublicKey and type=vote", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAll: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.allVotesBySender("pubKey");
+
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: expect.arrayContaining([
+                        {
+                            field: "senderPublicKey",
+                            operator: expect.anything(),
+                            value: "pubKey",
+                        },
+                        {
+                            field: "type",
+                            operator: expect.anything(),
+                            value: Enums.TransactionTypes.Vote,
+                        },
+                    ]),
+                }),
+            );
+        });
+    });
+
+    describe("findAllByBlock", () => {
+        it("should search by blockId", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAll: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.findAllByBlock("blockId");
+
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "blockId",
+                            operator: expect.anything(),
+                            value: "blockId",
+                        },
+                    ],
+                    orderBy: [
+                        {
+                            field: "timestamp",
+                            direction: "desc",
+                        },
+                        {
+                            field: "sequence",
+                            direction: "asc",
+                        },
+                    ],
+                }),
+            );
+        });
+    });
+
+    describe("findAllByRecipient", () => {
+        it("should search by recipientId", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAll: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.findAllByRecipient("recipientId");
+
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "recipientId",
+                            operator: expect.anything(),
+                            value: "recipientId",
+                        },
+                    ],
+                }),
+            );
+        });
+    });
+
+    describe("findAllBySender", () => {
+        it("should search senderPublicKey", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAll: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.findAllBySender("pubKey");
+
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "senderPublicKey",
+                            operator: expect.anything(),
+                            value: "pubKey",
+                        },
+                    ],
+                }),
+            );
+        });
+    });
+
+    describe("findAllByType", () => {
+        it("should search transaction type", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAll: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.findAllByType(Enums.TransactionTypes.Transfer);
+
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "type",
+                            operator: expect.anything(),
+                            value: Enums.TransactionTypes.Transfer,
+                        },
+                    ],
+                }),
+            );
+        });
+    });
+
+    describe("findAllByWallet", () => {
+        it("should search by wallet", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAllByWallet: async wallet => wallet,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAllByWallet").mockImplementation(
+                async () => ({ rows: [], count: 0 }),
+            );
+
+            await transactionsBusinessRepository.findAllByWallet({} as any);
+
+            expect(databaseService.connection.transactionsRepository.findAllByWallet).toHaveBeenCalled();
+        });
+    });
+
+    describe("findById", () => {
+        it("should invoke findById on db repository", async () => {
+            const expectedBlockId = "id";
+            const expectedHeight = 100;
+            databaseService.connection.transactionsRepository = {
+                findById: async id => id,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "findById").mockImplementation(
+                async () =>
+                    ({
+                        blockId: expectedBlockId,
+                    } as any),
+            );
+
+            databaseService.cache = new Map();
+            jest.spyOn(databaseService.cache, "get").mockReturnValue(expectedHeight);
+
+            await transactionsBusinessRepository.findById("id");
+
+            expect(databaseService.connection.transactionsRepository.findById).toHaveBeenCalledWith("id");
+        });
+    });
+
+    describe("findByTypeAndId", () => {
+        it("should search type & id", async () => {
+            databaseService.connection.transactionsRepository = {
+                findAll: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+            jest.spyOn(databaseService.connection.transactionsRepository, "findAll").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionTypes.Transfer, "id");
+
+            expect(databaseService.connection.transactionsRepository.findAll).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "type",
+                            operator: expect.anything(),
+                            value: Enums.TransactionTypes.Transfer,
+                        },
+                        {
+                            field: "id",
+                            operator: expect.anything(),
+                            value: "id",
+                        },
+                    ],
+                }),
+            );
+        });
+    });
+
+    describe("getFeeStatistics", () => {
+        it("should invoke getFeeStatistics on db repository", async () => {
+            databaseService.connection.transactionsRepository = {
+                getFeeStatistics: async (days, minFeeBroadcast) => minFeeBroadcast,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "getFeeStatistics").mockImplementation(
+                async () => [
+                    {
+                        type: 0,
+                        fee: 1,
+                        timestamp: 123,
+                    },
+                ],
+            );
+
+            jest.spyOn(app, "resolveOptions").mockReturnValue({
+                dynamicFees: {
+                    minFeeBroadcast: 100,
+                },
+            });
+
+            await transactionsBusinessRepository.getFeeStatistics(7);
+
+            expect(databaseService.connection.transactionsRepository.getFeeStatistics).toHaveBeenCalledWith(7, 100);
+        });
+    });
+
+    describe("search", () => {
+        it("should invoke search on db repository", async () => {
+            databaseService.connection.transactionsRepository = {
+                search: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            await transactionsBusinessRepository.search({});
+
+            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalled();
         });
 
         it("should return no rows if exception thrown", async () => {
@@ -125,6 +400,39 @@ describe("Transactions Business Repository", () => {
                             field: "senderPublicKey",
                             operator: expect.anything(),
                             value: "pubKey",
+                        },
+                    ],
+                }),
+            );
+        });
+
+        it("should lookup ownerIds wallet when searching", async () => {
+            databaseService.connection.transactionsRepository = {
+                search: async parameters => parameters,
+                getModel: () => new MockDatabaseModel(),
+            } as any;
+
+            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
+                rows: [],
+                count: 0,
+            }));
+
+            const expectedWallet = {};
+            databaseService.walletManager = {
+                findByAddress: address => expectedWallet,
+            } as State.IWalletManager;
+
+            await transactionsBusinessRepository.search({
+                ownerId: "ownerId",
+            });
+
+            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    parameters: [
+                        {
+                            field: "ownerWallet",
+                            operator: expect.anything(),
+                            value: expectedWallet,
                         },
                     ],
                 }),
@@ -294,264 +602,6 @@ describe("Transactions Business Repository", () => {
                 id: expectedBlockId,
                 height: expectedHeight,
             });
-        });
-    });
-
-    describe("allVotesBySender", () => {
-        it("should search by senderPublicKey and type=vote", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            await transactionsBusinessRepository.allVotesBySender("pubKey");
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: expect.arrayContaining([
-                        {
-                            field: "senderPublicKey",
-                            operator: expect.anything(),
-                            value: "pubKey",
-                        },
-                        {
-                            field: "type",
-                            operator: expect.anything(),
-                            value: Enums.TransactionTypes.Vote,
-                        },
-                    ]),
-                }),
-            );
-        });
-    });
-
-    describe("findAllByBlock", () => {
-        it("should search by blockId", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            await transactionsBusinessRepository.findAllByBlock("blockId");
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "blockId",
-                            operator: expect.anything(),
-                            value: "blockId",
-                        },
-                    ],
-                    orderBy: [
-                        {
-                            field: "timestamp",
-                            direction: "desc",
-                        },
-                        {
-                            field: "sequence",
-                            direction: "asc",
-                        },
-                    ],
-                }),
-            );
-        });
-    });
-
-    describe("findAllByRecipient", () => {
-        it("should search by recipientId", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            await transactionsBusinessRepository.findAllByRecipient("recipientId");
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "recipientId",
-                            operator: expect.anything(),
-                            value: "recipientId",
-                        },
-                    ],
-                }),
-            );
-        });
-    });
-
-    describe("findAllBySender", () => {
-        it("should search senderPublicKey", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            await transactionsBusinessRepository.findAllBySender("pubKey");
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "senderPublicKey",
-                            operator: expect.anything(),
-                            value: "pubKey",
-                        },
-                    ],
-                }),
-            );
-        });
-    });
-
-    describe("findAllByType", () => {
-        it("should search transaction type", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            await transactionsBusinessRepository.findAllByType(Enums.TransactionTypes.Transfer);
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "type",
-                            operator: expect.anything(),
-                            value: Enums.TransactionTypes.Transfer,
-                        },
-                    ],
-                }),
-            );
-        });
-    });
-
-    describe("findAllByWallet", () => {
-        it("should search by wallet", async () => {
-            databaseService.connection.transactionsRepository = {
-                findAllByWallet: async wallet => wallet,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "findAllByWallet").mockImplementation(
-                async () => ({ rows: [], count: 0 }),
-            );
-
-            await transactionsBusinessRepository.findAllByWallet({} as any);
-
-            expect(databaseService.connection.transactionsRepository.findAllByWallet).toHaveBeenCalled();
-        });
-    });
-
-    describe("findById", () => {
-        it("should invoke findById on db repository", async () => {
-            const expectedBlockId = "id";
-            const expectedHeight = 100;
-            databaseService.connection.transactionsRepository = {
-                findById: async id => id,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "findById").mockImplementation(
-                async () =>
-                    ({
-                        blockId: expectedBlockId,
-                    } as any),
-            );
-
-            databaseService.cache = new Map();
-            jest.spyOn(databaseService.cache, "get").mockReturnValue(expectedHeight);
-
-            await transactionsBusinessRepository.findById("id");
-
-            expect(databaseService.connection.transactionsRepository.findById).toHaveBeenCalledWith("id");
-        });
-    });
-
-    describe("findByTypeAndId", () => {
-        it("should search type & id", async () => {
-            databaseService.connection.transactionsRepository = {
-                search: async parameters => parameters,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-            jest.spyOn(databaseService.connection.transactionsRepository, "search").mockImplementation(async () => ({
-                rows: [],
-                count: 0,
-            }));
-
-            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionTypes.Transfer, "id");
-
-            expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    parameters: [
-                        {
-                            field: "type",
-                            operator: expect.anything(),
-                            value: Enums.TransactionTypes.Transfer,
-                        },
-                        {
-                            field: "id",
-                            operator: expect.anything(),
-                            value: "id",
-                        },
-                    ],
-                }),
-            );
-        });
-    });
-
-    describe("getFeeStatistics", () => {
-        it("should invoke getFeeStatistics on db repository", async () => {
-            databaseService.connection.transactionsRepository = {
-                getFeeStatistics: async (days, minFeeBroadcast) => minFeeBroadcast,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "getFeeStatistics").mockImplementation(
-                async () => [
-                    {
-                        type: 0,
-                        fee: 1,
-                        timestamp: 123,
-                    },
-                ],
-            );
-
-            jest.spyOn(app, "resolveOptions").mockReturnValue({
-                dynamicFees: {
-                    minFeeBroadcast: 100,
-                },
-            });
-
-            await transactionsBusinessRepository.getFeeStatistics(7);
-
-            expect(databaseService.connection.transactionsRepository.getFeeStatistics).toHaveBeenCalledWith(7, 100);
         });
     });
 });

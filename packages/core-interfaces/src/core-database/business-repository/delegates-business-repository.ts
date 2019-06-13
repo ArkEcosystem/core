@@ -3,7 +3,11 @@ import { IParameters } from "./parameters";
 import { IWalletsPaginated } from "./wallets-business-repository";
 
 export interface IDelegatesBusinessRepository {
-    search(params: IParameters): IWalletsPaginated;
+    getLocalDelegates(): IWallet[];
+
+    findAll(params?: IParameters): IWalletsPaginated;
+
+    search<T extends IParameters>(params: T): IWalletsPaginated;
 
     findById(id: string): IWallet;
 }

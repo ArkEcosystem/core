@@ -7,7 +7,9 @@ export interface IWalletsPaginated {
 }
 
 export interface IWalletsBusinessRepository {
-    search(params: IParameters): IWalletsPaginated;
+    all(): IWallet[];
+
+    findAll(params?: IParameters): IWalletsPaginated;
 
     findAllByVote(publicKey: string, params?: IParameters): IWalletsPaginated;
 
@@ -16,4 +18,6 @@ export interface IWalletsBusinessRepository {
     count(): number;
 
     top(params?: IParameters): IWalletsPaginated;
+
+    search<T extends IParameters>(params: T): IWalletsPaginated;
 }
