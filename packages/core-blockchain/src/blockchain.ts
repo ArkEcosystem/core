@@ -12,6 +12,7 @@ import {
 } from "@arkecosystem/core-interfaces";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 
+import { Managers } from "@arkecosystem/crypto";
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
@@ -263,6 +264,13 @@ export class Blockchain implements blockchain.IBlockchain {
             return;
         }
 
+        const lastDownloadedHeight: number = this.getLastDownloadedBlock().height;
+        const milestoneHeights: number[] = Managers.configManager
+            .getMilestones()
+            .map(milestone => milestone.height)
+            .sort((a, b) => a - b)
+            .filter(height => height >= lastDownloadedHeight);
+
         // divide blocks received into chunks depending on number of transactions
         // this is to avoid blocking the application when processing "heavy" blocks
         let currentBlocksChunk = [];
@@ -271,10 +279,12 @@ export class Blockchain implements blockchain.IBlockchain {
             currentBlocksChunk.push(block);
             currentTransactionsCount += block.numberOfTransactions;
 
-            if (currentTransactionsCount >= 150 || currentBlocksChunk.length > 100) {
+            const nextMilestone = milestoneHeights[0] && milestoneHeights[0] === block.height;
+            if (currentTransactionsCount >= 150 || currentBlocksChunk.length > 100 || nextMilestone) {
                 this.queue.push({ blocks: currentBlocksChunk });
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
+                milestoneHeights.shift();
             }
         }
         this.queue.push({ blocks: currentBlocksChunk });
