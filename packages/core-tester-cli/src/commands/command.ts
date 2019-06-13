@@ -72,7 +72,7 @@ export abstract class BaseCommand extends Command {
     protected async make(command): Promise<any> {
         const { args, flags } = this.parse(command);
 
-        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/`);
+        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/v2/`);
 
         await this.setupConfiguration();
         await this.setupConfigurationForCrypto();
@@ -202,7 +202,8 @@ export abstract class BaseCommand extends Command {
 
             this.constants = data.constants;
         } catch (error) {
-            this.error(error.message);
+            logger.error(error.message);
+            process.exit(1);
         }
     }
 
@@ -212,7 +213,8 @@ export abstract class BaseCommand extends Command {
 
             Managers.configManager.setConfig(dataCrypto);
         } catch (error) {
-            this.error(error.message);
+            logger.error(error.message);
+            process.exit(1);
         }
     }
 

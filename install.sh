@@ -41,8 +41,8 @@ error ()
 }
 
 # Detect pkg type
-DEB=$(which apt-get || :)
-RPM=$(which yum || :)
+DEB=$(which apt-get)
+RPM=$(which yum)
 
 # Detect SystemV / SystemD
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
@@ -182,9 +182,7 @@ elif [[ ! -z $RPM ]]; then
     sudo yum install ntp -y -q
 fi
 
-if [ -z "$(service ntp status |grep running)" ] ; then
-    sudo ntpd -gq
-fi
+sudo ntpd -gq
 
 success "Installed NTP!"
 

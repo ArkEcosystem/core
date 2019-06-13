@@ -9,12 +9,12 @@ import { arkToSatoshi, captureTransactions, toFlags } from "../../shared";
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     nock("http://localhost:4003")
-        .get("/api/node/configuration")
+        .get("/api/v2/node/configuration")
         .thrice()
         .reply(200, { data: { constants: {} } });
 
     nock("http://localhost:4003")
-        .get("/api/node/configuration/crypto")
+        .get("/api/v2/node/configuration/crypto")
         .thrice()
         .reply(200, { data: Managers.configManager.getPreset("unitnet") });
 

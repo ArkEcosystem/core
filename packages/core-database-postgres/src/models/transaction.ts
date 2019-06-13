@@ -78,7 +78,7 @@ export class Transaction extends Model {
             init: col => {
                 return col.value;
             },
-            supportedOperators: [Database.SearchOperator.OP_CONTAINS],
+            supportedOperators: [Database.SearchOperator.OP_EQ],
         },
     ];
 

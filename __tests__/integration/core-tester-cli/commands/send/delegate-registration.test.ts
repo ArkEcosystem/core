@@ -9,12 +9,12 @@ import { arkToSatoshi, captureTransactions, expectTransactions, toFlags } from "
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
     nock("http://localhost:4003")
-        .get("/api/node/configuration")
+        .get("/api/v2/node/configuration")
         .thrice()
         .reply(200, { data: { constants: {} } });
 
     nock("http://localhost:4003")
-        .get("/api/node/configuration/crypto")
+        .get("/api/v2/node/configuration/crypto")
         .thrice()
         .reply(200, { data: Managers.configManager.getPreset("unitnet") });
 
@@ -35,7 +35,7 @@ describe("Commands - Delegate Registration", () => {
 
         // call to delegates/{publicKey}/voters returns zero delegates
         nock("http://localhost:4003")
-            .get("/api/delegates")
+            .get("/api/v2/delegates")
             .reply(200, {
                 meta: { pageCount: 1 },
                 data: [],

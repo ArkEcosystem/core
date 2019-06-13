@@ -3,11 +3,11 @@
         "count": 3,
         "pageCount": 2,
         "totalCount": 6,
-        "next": "/api/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=2&limit=100",
+        "next": "/api/v2/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=2&limit=100",
         "previous": null,
-        "self": "/api/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=1&limit=100",
-        "first": "/api/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=1&limit=100",
-        "last": "/api/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=2&limit=100"
+        "self": "/api/v2/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=1&limit=100",
+        "first": "/api/v2/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=1&limit=100",
+        "last": "/api/v2/delegates/03bbfb43ecb5a54a1e227bb37b5812b5321213838d376e2b455b6af78442621dec/voters?page=2&limit=100"
     },
     "data": [
         {
