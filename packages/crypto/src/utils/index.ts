@@ -3,6 +3,9 @@ import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber } from "./bignum";
 
+let genesisTransactions: { [key: string]: boolean };
+let currentNetwork: number;
+
 /**
  * Get human readable string from satoshis
  */
@@ -51,9 +54,6 @@ export const sortTransactions = (transactions: ITransactionData[]): ITransaction
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
-    let genesisTransactions: { [key: string]: boolean };
-    let currentNetwork: number;
-
     const network: number = configManager.get("network.pubKeyHash");
 
     if (!genesisTransactions || currentNetwork !== network) {
