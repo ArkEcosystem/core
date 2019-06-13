@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Removed the `ark-node` legacy API known as `v1` ([#2577])
 
+## [2.4.1] - 2019-06-13
+
+### Fixed
+
+-   Use SQL to calculate fee statistics ([#2692])
+-   Increase rate limit to handle bigger networks ([#2482])
+
 ## [2.4.0] - 2019-06-12
 
 All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
@@ -714,6 +721,7 @@ Closed security vulnerabilities:
 [#2555]: https://github.com/ARKEcosystem/core/pull/2555
 [#2557]: https://github.com/ARKEcosystem/core/pull/2557
 [#2558]: https://github.com/ARKEcosystem/core/pull/2558
+[#2482]: https://github.com/ARKEcosystem/core/pull/2482
 [#2559]: https://github.com/ARKEcosystem/core/pull/2559
 [#2562]: https://github.com/ARKEcosystem/core/pull/2562
 [#2563]: https://github.com/ARKEcosystem/core/pull/2563
@@ -760,3 +768,4 @@ Closed security vulnerabilities:
 [#2685]: https://github.com/ARKEcosystem/core/pull/2685
 [#2686]: https://github.com/ARKEcosystem/core/pull/2686
 [#2687]: https://github.com/ARKEcosystem/core/pull/2687
+[#2692]: https://github.com/ARKEcosystem/core/pull/2692

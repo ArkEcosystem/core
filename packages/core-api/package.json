@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-api",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "description": "Public API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,12 +21,12 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0",
-        "@arkecosystem/core-http-utils": "^2.4.0",
-        "@arkecosystem/core-interfaces": "^2.4.0",
-        "@arkecosystem/core-transaction-pool": "^2.4.0",
-        "@arkecosystem/core-utils": "^2.4.0",
-        "@arkecosystem/crypto": "^2.4.0",
+        "@arkecosystem/core-container": "^2.4.1",
+        "@arkecosystem/core-http-utils": "^2.4.1",
+        "@arkecosystem/core-interfaces": "^2.4.1",
+        "@arkecosystem/core-transaction-pool": "^2.4.1",
+        "@arkecosystem/core-utils": "^2.4.1",
+        "@arkecosystem/crypto": "^2.4.1",
         "@arkecosystem/utils": "^0.3.0",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.0.3",
@@ -41,7 +41,6 @@
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
-        "mathjs": "^5.10.3",
         "semver": "^6.1.0"
     },
     "devDependencies": {
@@ -52,7 +51,6 @@
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
-        "@types/mathjs": "^5.0.1",
         "@types/semver": "^6.0.0"
     },
     "engines": {
