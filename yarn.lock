@@ -852,23 +852,6 @@
   dependencies:
     execa "^1.0.0"
 
-"@faustbrian/hapi-version@^0.2.11":
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/@faustbrian/hapi-version/-/hapi-version-0.2.11.tgz#9e897d48ce9c4382e752635c34232ba769854d39"
-  integrity sha512-l8eqFdvB4jcTrFiiyIn6wOjcbss3U4o0ZQWMaydX9BhNllP3/SUwWbV2Q6S+TBQw8W7hFANQDlpVy9LHXP50/A==
-  dependencies:
-    "@types/boom" "^7.2.1"
-    "@types/hapi" "^18.0.0"
-    "@types/joi" "^14.3.1"
-    "@types/lodash" "^4.14.120"
-    boom "^7.3.0"
-    hapi "^18.1.0"
-    joi "^14.3.1"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-    media-type "^0.3.1"
-    micromatch "^3.1.10"
-
 "@faustbrian/remote-address@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@faustbrian/remote-address/-/remote-address-0.2.0.tgz#64eb94b89e4a6b4f80567989747b79d37138c81b"
@@ -2460,7 +2443,7 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/boom@*", "@types/boom@^7.2.1":
+"@types/boom@*":
   version "7.2.1"
   resolved "https://registry.yarnpkg.com/@types/boom/-/boom-7.2.1.tgz#a21e21ba08cc49d17b26baef98e1a77ee4d6cdb0"
   integrity sha512-kOiap+kSa4DPoookJXQGQyKy1rjZ55tgfKAh9F0m1NUdukkcwVzpSnXPMH42a5L+U++ugdQlh/xFJu/WAdr1aw==
@@ -2630,7 +2613,7 @@
     "@types/node" "*"
     "@types/tough-cookie" "*"
 
-"@types/hapi@*", "@types/hapi@^18.0.0":
+"@types/hapi@*":
   version "18.0.1"
   resolved "https://registry.yarnpkg.com/@types/hapi/-/hapi-18.0.1.tgz#4e1f76b89b6d939aaab2ecbce7576146f5ea2739"
   integrity sha512-2YznFunreTu7j+qWp8HU/0qLQ/RVJveWvqRQeT8N5/xOKMe6lIIS6gikNpuCZP5Ugh7WM+kpv9Nh/enVP+4E6w==
@@ -2783,7 +2766,7 @@
   dependencies:
     "@types/jest-diff" "*"
 
-"@types/joi@*", "@types/joi@^14.3.1":
+"@types/joi@*":
   version "14.3.3"
   resolved "https://registry.yarnpkg.com/@types/joi/-/joi-14.3.3.tgz#f251aa8150fc0b6a7ce9feab21802a28473de335"
   integrity sha512-6gAT/UkIzYb7zZulAbcof3lFxpiD5EI6xBeTvkL1wYN12pnFQ+y/+xl9BvnVgxkmaIDN89xWhGZLD9CvuOtZ9g==
@@ -2983,7 +2966,7 @@
   dependencies:
     "@types/lodash" "*"
 
-"@types/lodash@*", "@types/lodash@^4.14.120":
+"@types/lodash@*":
   version "4.14.123"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.123.tgz#39be5d211478c8dd3bdae98ee75bb7efe4abfe4d"
   integrity sha512-pQvPkc4Nltyx7G1Ww45OjVqUsJP4UsZm+GWJpigXgkikZqJgRm4c48g027o6tdgubWHwFRF15iFd+Y4Pmqv6+Q==
@@ -4066,7 +4049,7 @@ body-parser@1.19.0:
     raw-body "2.4.0"
     type-is "~1.6.17"
 
-boom@7.x.x, boom@^7.1.1, boom@^7.2.0, boom@^7.3.0:
+boom@7.x.x, boom@^7.1.1, boom@^7.2.0:
   version "7.3.0"
   resolved "https://registry.yarnpkg.com/boom/-/boom-7.3.0.tgz#733a6d956d33b0b1999da3fe6c12996950d017b9"
   integrity sha512-Swpoyi2t5+GhOEGw8rEsKvTxFLIDiiKoUc2gsoV6Lyr43LHBIzch3k2MvYUs8RTROrIkVJ3Al0TkaOGjnb+B6A==
@@ -4487,14 +4470,6 @@ catbox-memory@3.x.x:
   integrity sha512-1tDnll066au0HXBSDHS/YQ34MQ2omBsmnA9g/jseyq/M3m7UPrajVtPDZK/rXgikSC1dfjo9Pa+kQ1qcyG2d3g==
   dependencies:
     big-time "2.x.x"
-    boom "7.x.x"
-    hoek "6.x.x"
-
-catbox-memory@4.x.x:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/catbox-memory/-/catbox-memory-4.0.1.tgz#3371ae0dd91bbf5d9dd88dcab5332470354cbd1f"
-  integrity sha512-ZmqNiLsYCIu9qvBJ/MQbznDV2bFH5gFiH67TgIJgSSffJFtTXArT+MM3AvJQlby9NSkLHOX4eH/uuUqnch/Ldw==
-  dependencies:
     boom "7.x.x"
     hoek "6.x.x"
 
@@ -6968,30 +6943,6 @@ hapi@^17.1.1:
     teamwork "3.x.x"
     topo "3.x.x"
 
-hapi@^18.1.0:
-  version "18.1.0"
-  resolved "https://registry.yarnpkg.com/hapi/-/hapi-18.1.0.tgz#98a2a5a8f37a41eb196bdad9727f66b1fbca5fec"
-  integrity sha512-nSU1VLyTAgp7P5gy47QzJIP2JAb+wOFvJIV3gnL0lFj/mD+HuTXhyUsDYXjF/dhADMVXVEz31z6SUHBJhtsvGA==
-  dependencies:
-    accept "3.x.x"
-    ammo "3.x.x"
-    boom "7.x.x"
-    bounce "1.x.x"
-    call "5.x.x"
-    catbox "10.x.x"
-    catbox-memory "4.x.x"
-    heavy "6.x.x"
-    hoek "6.x.x"
-    joi "14.x.x"
-    mimos "4.x.x"
-    podium "3.x.x"
-    shot "4.x.x"
-    somever "2.x.x"
-    statehood "6.x.x"
-    subtext "6.x.x"
-    teamwork "3.x.x"
-    topo "3.x.x"
-
 har-schema@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/har-schema/-/har-schema-2.0.0.tgz#a94c2224ebcac04782a0d9035521f24735b7ec92"
@@ -8346,7 +8297,7 @@ jmespath@^0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-joi@14.x.x, joi@^14.3.0, joi@^14.3.1:
+joi@14.x.x, joi@^14.3.0:
   version "14.3.1"
   resolved "https://registry.yarnpkg.com/joi/-/joi-14.3.1.tgz#164a262ec0b855466e0c35eea2a885ae8b6c703c"
   integrity sha512-LQDdM+pkOrpAn4Lp+neNIFV3axv1Vna3j38bisbQhETPMANYRbFJFUyOZcOClYvM/hppMhGWuKSFEK9vjrB+bQ==
