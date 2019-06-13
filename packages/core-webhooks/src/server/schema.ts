@@ -28,13 +28,17 @@ export const store: object = {
             .uri()
             .required(),
         enabled: Joi.boolean().default(true),
-        conditions: Joi.array().items(
-            Joi.object({
-                key: Joi.string().required(),
-                value: Joi.any(),
-                condition: Joi.string().valid(conditions).required(),
-            }),
-        ).required(),
+        conditions: Joi.array()
+            .items(
+                Joi.object({
+                    key: Joi.string().required(),
+                    value: Joi.any(),
+                    condition: Joi.string()
+                        .valid(conditions)
+                        .required(),
+                }),
+            )
+            .required(),
     },
 };
 
@@ -44,15 +48,21 @@ export const update: object = {
     },
     payload: {
         event: Joi.string().required(),
-        target: Joi.string().uri().required(),
+        target: Joi.string()
+            .uri()
+            .required(),
         enabled: Joi.boolean().required(),
-        conditions: Joi.array().items(
-            Joi.object({
-                key: Joi.string().required(),
-                value: Joi.any(),
-                condition: Joi.string().valid(conditions).required(),
-            }),
-        ).required(),
+        conditions: Joi.array()
+            .items(
+                Joi.object({
+                    key: Joi.string().required(),
+                    value: Joi.any(),
+                    condition: Joi.string()
+                        .valid(conditions)
+                        .required(),
+                }),
+            )
+            .required(),
     },
 };
 

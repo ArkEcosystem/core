@@ -5,26 +5,13 @@ import { SearchParameterConverter } from "./utils/search-parameter-converter";
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
     constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public async getBlockRewards(): Promise<any> {
-        return this.databaseServiceProvider().connection.blocksRepository.getBlockRewards();
-    }
-
-    public async getLastForgedBlocks(): Promise<any> {
-        return this.databaseServiceProvider().connection.blocksRepository.getLastForgedBlocks();
-    }
-
-    public async getDelegatesForgedBlocks(): Promise<any> {
-        return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
-    }
-
-    /* TODO: Remove with v1 */
-    public async findAll(
-        params: Database.IParameters,
+    public async search(
+        params: Database.IParameters = {},
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
     }> {
-        return this.databaseServiceProvider().connection.blocksRepository.findAll(this.parseSearchParams(params));
+        return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 
     public async findAllByGenerator(
@@ -34,7 +21,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         rows: Interfaces.IBlockData[];
         count: number;
     }> {
-        return this.findAll({ generatorPublicKey, ...paginate });
+        return this.search({ generatorPublicKey, ...paginate });
     }
 
     public async findByHeight(height: number): Promise<Interfaces.IBlockData> {
@@ -47,7 +34,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
 
     public async findByIdOrHeight(idOrHeight): Promise<Interfaces.IBlockData> {
         try {
-            const block = await this.findByHeight(idOrHeight);
+            const block: Interfaces.IBlockData = await this.findByHeight(idOrHeight);
 
             return block || this.findById(idOrHeight);
         } catch (error) {
@@ -55,25 +42,29 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         }
     }
 
-    public async search(
-        params: Database.IParameters,
-    ): Promise<{
-        rows: Interfaces.IBlockData[];
-        count: number;
-    }> {
-        return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
+    public async getBlockRewards(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getBlockRewards();
+    }
+
+    public async getLastForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getLastForgedBlocks();
+    }
+
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
     }
 
     private parseSearchParams(params: Database.IParameters): Database.ISearchParameters {
-        const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
+        const blocksRepository: Database.IBlocksRepository = this.databaseServiceProvider().connection.blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
+
         if (!searchParameters.orderBy.length) {
-            // default order-by
             searchParameters.orderBy.push({
                 field: "height",
                 direction: "desc",
             });
         }
+
         return searchParameters;
     }
 }

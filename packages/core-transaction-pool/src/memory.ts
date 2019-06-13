@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class Memory {
@@ -17,7 +17,7 @@ export class Memory {
     private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
     private byType: { [key: number]: Set<Interfaces.ITransaction> } = {};
     /**
-     * Contains only transactions that have expiration, possibly sorted by height (lower first).
+     * Contains only transactions that expire, possibly sorted by height (lower first).
      */
     private byExpiration: Interfaces.ITransaction[] = [];
     private byExpirationIsSorted: boolean = true;
@@ -26,8 +26,17 @@ export class Memory {
         removed: new Set(),
     };
 
+    constructor(private readonly maxTransactionAge: number) {}
+
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
+            const currentHeight: number = this.currentHeight();
+            const expirationContext = {
+                blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
+                currentHeight,
+                now: Crypto.Slots.getTime()
+            };
+
             this.all.sort((a, b) => {
                 const feeA: Utils.BigNumber = a.data.fee;
                 const feeB: Utils.BigNumber = b.data.fee;
@@ -40,8 +49,11 @@ export class Memory {
                     return 1;
                 }
 
-                if (a.data.expiration > 0 && b.data.expiration > 0) {
-                    return a.data.expiration - b.data.expiration;
+                const expirationA: number = this.calculateTransactionExpiration(a, expirationContext);
+                const expirationB: number = this.calculateTransactionExpiration(b, expirationContext);
+
+                if (expirationA !== null && expirationB !== null) {
+                    return expirationA - expirationB;
                 }
 
                 return 0;
@@ -54,16 +66,26 @@ export class Memory {
     }
 
     public getExpired(): Interfaces.ITransaction[] {
+        const currentHeight: number = this.currentHeight();
+        const expirationContext = {
+            blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
+            currentHeight,
+            now: Crypto.Slots.getTime()
+        };
+
         if (!this.byExpirationIsSorted) {
-            this.byExpiration.sort((a, b) => a.data.expiration - b.data.expiration);
+            this.byExpiration.sort(
+                (a, b) =>
+                    this.calculateTransactionExpiration(a, expirationContext) -
+                    this.calculateTransactionExpiration(b, expirationContext)
+            );
             this.byExpirationIsSorted = true;
         }
 
-        const currentHeight: number = this.currentHeight();
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (transaction.data.expiration > currentHeight) {
+            if (this.calculateTransactionExpiration(transaction, expirationContext) > currentHeight) {
                 break;
             }
 
@@ -138,11 +160,16 @@ export class Memory {
             this.byType[type].add(transaction);
         }
 
-        if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            if (transaction.data.expiration > 0) {
-                this.byExpiration.push(transaction);
-                this.byExpirationIsSorted = false;
-            }
+        const currentHeight: number = this.currentHeight();
+        const expirationContext = {
+            blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
+            currentHeight,
+            now: Crypto.Slots.getTime()
+        };
+        const expiration: number = this.calculateTransactionExpiration(transaction, expirationContext);
+        if (expiration !== null) {
+            this.byExpiration.push(transaction);
+            this.byExpirationIsSorted = false;
         }
 
         if (!databaseReady) {
@@ -249,5 +276,47 @@ export class Memory {
             .resolvePlugin<State.IStateService>("state")
             .getStore()
             .getLastHeight();
+    }
+
+    /**
+     * Calculate the expiration height of a transaction.
+     * An expiration height H means that the transaction cannot be included in block at height
+     * H or any higher block.
+     * If the user did not specify an expiration height when creating the transaction then
+     * we calculate one from the timestamp of the transaction creation and the configured
+     * maximum transaction age.
+     * @return number expiration height or null if the transaction does not expire
+     */
+    private calculateTransactionExpiration(
+        transaction: Interfaces.ITransaction,
+        context: {
+            blockTime: number,
+            currentHeight: number,
+            now: number,
+        }
+    ): number {
+        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
+            // tslint:disable-next-line:no-null-keyword
+            return null;
+        }
+
+        // We ignore data.expiration in v1 transactions because it is not signed
+        // by the transaction creator.
+        if (transaction.data.version >= 2 && transaction.data.expiration > 0) {
+            return transaction.data.expiration;
+        }
+
+        // Since the user did not specify an expiration we set one by calculating
+        // approximately the height of the chain as of the time the transaction was
+        // created and adding maxTransactionAge to that.
+
+        // Both now and transaction.data.timestamp use [number of seconds since the genesis block].
+        const createdSecondsAgo: number = context.now - transaction.data.timestamp;
+
+        const createdBlocksAgo: number = Math.floor(createdSecondsAgo / context.blockTime);
+
+        const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
+
+        return createdAtHeight + this.maxTransactionAge;
     }
 }

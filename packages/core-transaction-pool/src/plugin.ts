@@ -9,6 +9,7 @@ import { WalletManager } from "./wallet-manager";
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
+    required: true,
     alias: "transaction-pool",
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Connecting to transaction pool");
@@ -17,7 +18,7 @@ export const plugin: Container.IPluginDescriptor = {
             new Connection({
                 options,
                 walletManager: new WalletManager(),
-                memory: new Memory(),
+                memory: new Memory(options.maxTransactionAge as number),
                 storage: new Storage(),
             }),
         );

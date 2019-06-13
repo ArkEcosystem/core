@@ -1,10 +1,11 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, Logger, State } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
     constructor(
         private readonly connection: Database.IConnection,
@@ -43,6 +44,8 @@ export class StateBuilder {
         this.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
 
         this.verifyWalletsConsistency();
+
+        this.emitter.emit("internal.stateBuilder.finished");
     }
 
     private async buildBlockRewards(): Promise<void> {

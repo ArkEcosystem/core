@@ -193,7 +193,6 @@ export class TransactionFactory {
         Managers.configManager.setFromPreset(this.network);
 
         const transactions: T[] = [];
-
         for (let i = 0; i < quantity; i++) {
             if (this.builder.constructor.name === "TransferBuilder") {
                 // @FIXME: when we use any of the "withPassphrase*" methods the builder will

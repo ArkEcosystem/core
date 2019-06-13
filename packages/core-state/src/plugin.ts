@@ -8,6 +8,7 @@ import { TransactionStore } from "./stores/transactions";
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
+    required: true,
     alias: "state",
     async register() {
         return new StateService({

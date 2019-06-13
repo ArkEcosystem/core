@@ -76,9 +76,16 @@ export class PeerVerifier {
      * the peer's state could not be verified.
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    public async checkState(claimedState: any, deadline: number): Promise<PeerVerificationResult | undefined> {
-        const ourHeight: number = await this.ourHeight();
+    public async checkState(
+        claimedState: P2P.IPeerState,
+        deadline: number,
+    ): Promise<PeerVerificationResult | undefined> {
+        if (!this.checkStateHeader(claimedState)) {
+            return undefined;
+        }
+
         const claimedHeight = Number(claimedState.header.height);
+        const ourHeight: number = await this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
             return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
@@ -96,6 +103,38 @@ export class PeerVerifier {
         this.log(Severity.DEBUG_EXTRA, "success");
 
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
+    }
+
+    private checkStateHeader(claimedState: P2P.IPeerState): boolean {
+        const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
+        const claimedHeight: number = Number(blockHeader.height);
+        if (claimedHeight !== claimedState.height) {
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `Peer claimed contradicting heights: state height=${claimedState.height} vs ` +
+                    `state header height: ${claimedHeight}`,
+            );
+            return false;
+        }
+
+        try {
+            const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
+            if (claimedBlock.verifySignature()) {
+                return true;
+            }
+
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `Claimed block header ${blockHeader.height}:${blockHeader.id} failed signature verification`,
+            );
+            return false;
+        } catch (error) {
+            this.log(
+                Severity.DEBUG_EXTRA,
+                `Claimed block header ${blockHeader.height}:${blockHeader.id} failed verification: ` + error.message,
+            );
+            return false;
+        }
     }
 
     /**
@@ -167,7 +206,7 @@ export class PeerVerifier {
         }
 
         this.log(
-            Severity.INFO,
+            Severity.DEBUG,
             `peer's latest block (height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
                 `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
                 (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) +
