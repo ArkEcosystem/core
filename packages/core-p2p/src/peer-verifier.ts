@@ -206,7 +206,7 @@ export class PeerVerifier {
         }
 
         this.log(
-            Severity.INFO,
+            Severity.DEBUG,
             `peer's latest block (height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
                 `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
                 (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) +
