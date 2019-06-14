@@ -2,7 +2,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStore {
     blockchain: any;
-    lastDownloadedBlock: Interfaces.IBlock | undefined;
+    lastDownloadedBlock: Interfaces.IBlockData | undefined;
     blockPing: any;
     started: boolean;
     forkedBlock: Interfaces.IBlock | undefined;

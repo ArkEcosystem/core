@@ -4,7 +4,7 @@ import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 export class StateStorageStub implements State.IStateStorage {
     public blockchain: any;
-    public lastDownloadedBlock: Interfaces.IBlock | undefined;
+    public lastDownloadedBlock: Interfaces.IBlockData | undefined;
     public blockPing: any;
     public started: boolean;
     public forkedBlock: Interfaces.IBlock | undefined;
