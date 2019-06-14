@@ -13,7 +13,7 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
 export class StateStore implements State.IStateStore {
     // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
-    public lastDownloadedBlock: Interfaces.IBlock | undefined = undefined;
+    public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
     public started: boolean = false;
     public forkedBlock: Interfaces.IBlock | undefined = undefined;
