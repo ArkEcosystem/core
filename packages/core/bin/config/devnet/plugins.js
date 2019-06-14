@@ -16,8 +16,8 @@ module.exports = {
         allowedSenders: [],
         dynamicFees: {
             enabled: true,
-            minFeePool: 1000,
-            minFeeBroadcast: 1000,
+            minFeePool: 3000,
+            minFeeBroadcast: 3000,
             addonBytes: {
                 transfer: 100,
                 secondSignature: 250,
