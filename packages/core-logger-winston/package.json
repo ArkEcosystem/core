@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-logger-winston",
-    "version": "2.4.12",
+    "version": "2.5.0-next.0",
     "description": "Winston Logger for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -20,8 +20,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.4.12",
-        "@arkecosystem/core-logger": "^2.4.12",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.0",
+        "@arkecosystem/core-logger": "^2.5.0-next.0",
         "chalk": "^2.4.2",
         "colors": "^1.3.3",
         "dayjs": "^1.8.14",
