@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-explorer",
-    "version": "2.4.1",
+    "version": "2.4.12",
     "description": "Explorer for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,8 +19,8 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.1",
-        "@arkecosystem/core-interfaces": "^2.4.1",
+        "@arkecosystem/core-container": "^2.4.12",
+        "@arkecosystem/core-interfaces": "^2.4.12",
         "connect-history-api-fallback": "^1.6.0",
         "express": "^4.17.0"
     },

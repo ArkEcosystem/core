@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.12] - 2019-06-14
+
+### Changed
+
+-   Cache genesis transaction ids for improved performance ([#2699])
+
+### Fixed
+
+-   Take milestones into account when downloading blocks in parallel ([#2700])
+
 ## [2.4.1] - 2019-06-13
 
 ### Fixed
@@ -487,6 +497,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
+[2.4.1]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
 [2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
 [2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
@@ -753,3 +765,5 @@ Closed security vulnerabilities:
 [#2686]: https://github.com/ARKEcosystem/core/pull/2686
 [#2687]: https://github.com/ARKEcosystem/core/pull/2687
 [#2692]: https://github.com/ARKEcosystem/core/pull/2692
+[#2699]: https://github.com/ARKEcosystem/core/pull/2699
+[#2700]: https://github.com/ARKEcosystem/core/pull/2700
