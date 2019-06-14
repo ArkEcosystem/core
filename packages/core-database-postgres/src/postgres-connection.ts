@@ -160,25 +160,7 @@ export class PostgresConnection implements Database.IConnection {
     }
 
     public async saveBlock(block: Interfaces.IBlock): Promise<void> {
-        try {
-            const queries = [this.blocksRepository.insert(block.data)];
-
-            if (block.transactions.length > 0) {
-                queries.push(
-                    this.transactionsRepository.insert(
-                        block.transactions.map(tx => ({
-                            ...tx.data,
-                            timestamp: tx.timestamp,
-                            serialized: tx.serialized,
-                        })),
-                    ),
-                );
-            }
-
-            await this.db.tx(t => t.batch(queries));
-        } catch (err) {
-            this.logger.error(err.message);
-        }
+        await this.saveBlocks([block]);
     }
 
     public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
@@ -200,10 +182,13 @@ export class PostgresConnection implements Database.IConnection {
                     }
                 }
 
-                return [
-                    this.blocksRepository.insert(blockInserts, t),
-                    this.transactionsRepository.insert(transactionInserts, t),
-                ];
+                const queries = [this.blocksRepository.insert(blockInserts, t)];
+
+                if (transactionInserts.length > 0) {
+                    queries.push(this.transactionsRepository.insert(transactionInserts, t));
+                }
+
+                return queries;
             });
         } catch (err) {
             this.logger.error(err.message);
