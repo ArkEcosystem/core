@@ -407,7 +407,7 @@ export class PeerVerifier {
             return false;
         }
 
-        if (response.length === 0) {
+        if (!response || response.length === 0) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
