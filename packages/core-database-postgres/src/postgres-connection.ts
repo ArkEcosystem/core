@@ -183,23 +183,27 @@ export class PostgresConnection implements Database.IConnection {
 
     public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
         try {
-            return this.db.tx(t => {
-                const queries = [this.blocksRepository.insert(blocks.map(block => block.data), t)];
+            await this.db.tx(t => {
+                const blockInserts: Interfaces.IBlockData[] = [];
+                const transactionInserts: Interfaces.ITransactionData[] = [];
 
                 for (const block of blocks) {
+                    blockInserts.push(block.data);
                     if (block.transactions.length > 0) {
-                        queries.push(
-                            this.transactionsRepository.insert(
-                                block.transactions.map(tx => ({
-                                    ...tx.data,
-                                    timestamp: tx.timestamp,
-                                    serialized: tx.serialized,
-                                })),
-                                t,
-                            ),
+                        transactionInserts.push(
+                            ...block.transactions.map(tx => ({
+                                ...tx.data,
+                                timestamp: tx.timestamp,
+                                serialized: tx.serialized,
+                            })),
                         );
                     }
                 }
+
+                return [
+                    this.blocksRepository.insert(blockInserts, t),
+                    this.transactionsRepository.insert(transactionInserts, t),
+                ];
             });
         } catch (err) {
             this.logger.error(err.message);
