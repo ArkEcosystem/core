@@ -299,7 +299,7 @@ describe("State Machine", () => {
             });
 
             beforeEach(() => {
-                stateStorage.lastDownloadedBlock = BlockFactory.fromData(genesisBlock);
+                stateStorage.lastDownloadedBlock = genesisBlock;
             });
 
             afterEach(() => jest.resetAllMocks());

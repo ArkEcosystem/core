@@ -107,7 +107,7 @@ export interface IBlockchain {
      * @param  {Block} [block=getLastBlock()]  block
      * @return {Boolean}
      */
-    isSynced(block?: Interfaces.IBlock): boolean;
+    isSynced(block?: Interfaces.IBlockData): boolean;
 
     /**
      * Get the last block of the blockchain.
@@ -125,7 +125,7 @@ export interface IBlockchain {
      * Get the last downloaded block of the blockchain.
      * @return {Object}
      */
-    getLastDownloadedBlock(): Interfaces.IBlock;
+    getLastDownloadedBlock(): Interfaces.IBlockData;
 
     /**
      * Get the block ping.

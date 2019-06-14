@@ -66,10 +66,10 @@ export const postBlock = async ({ req }): Promise<void> => {
             return;
         }
 
-        const lastDownloadedBlock: Interfaces.IBlock = blockchain.getLastDownloadedBlock();
+        const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-        if (!isBlockChained(lastDownloadedBlock.data, block)) {
-            throw new UnchainedBlockError(lastDownloadedBlock.data.height, block.height);
+        if (!isBlockChained(lastDownloadedBlock, block)) {
+            throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
     }
 
