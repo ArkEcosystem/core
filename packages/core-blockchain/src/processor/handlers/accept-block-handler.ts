@@ -33,8 +33,8 @@ export class AcceptBlockHandler extends BlockHandler {
             state.setLastBlock(this.block);
 
             // Ensure the lastDownloadedBlock is never behind the last accepted block.
-            if (state.lastDownloadedBlock && state.lastDownloadedBlock.data.height < this.block.data.height) {
-                state.lastDownloadedBlock = this.block;
+            if (state.lastDownloadedBlock && state.lastDownloadedBlock.height < this.block.data.height) {
+                state.lastDownloadedBlock = this.block.data;
             }
 
             return BlockProcessorResult.Accepted;
