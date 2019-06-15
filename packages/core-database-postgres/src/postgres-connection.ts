@@ -111,6 +111,7 @@ export class PostgresConnection implements Database.IConnection {
         try {
             await this.db.tx(t => {
                 const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
+                const blockIds: string[] = blocks.map(block => block.id);
 
                 return [
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
