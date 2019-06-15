@@ -1,0 +1,43 @@
+version: '2'
+services:
+
+  postgres:
+    image: "postgres:alpine"
+    container_name: ark-testnet-postgres
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    environment:
+     POSTGRES_PASSWORD: password
+     POSTGRES_DB: ark_testnet
+     POSTGRES_USER: ark
+
+  ark-core:
+    build: .
+    image: ark-core
+    container_name: ark-testnet-core
+    ports:
+     - "4000:4000"
+     - "4003:4003"
+    volumes:
+     - ark-core:/ark-core
+    tty: true
+    privileged: true
+    links:
+     - postgres
+    depends_on:
+      - postgres
+    command:
+      - /bin/sh
+      - -c
+      - |
+          /entrypoint.sh
+
+volumes:
+  postgres:
+  ark-core:
+    driver_opts:
+      type: none
+      device: $PWD/../../
+      o: bind
