@@ -430,7 +430,7 @@ describe("API 2.0 - Delegates", () => {
             expect(response.data.data).toBeArray();
             response.data.data.forEach(utils.expectBlock);
 
-            await databaseService.deleteBlock(block2); // reset to genesis block
+            await databaseService.deleteBlocks([block2.data]); // reset to genesis block
         });
     });
 
