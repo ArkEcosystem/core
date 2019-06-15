@@ -255,7 +255,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         );
 
         // Now rollback blocks equal to the distance to the most common height.
-        return { forked: true, blocksToRollback: lastBlock.data.height - highestCommonHeight };
+        return { forked: true, blocksToRollback: Math.min(lastBlock.data.height - highestCommonHeight, 5000) };
     }
 
     public async syncWithNetwork(

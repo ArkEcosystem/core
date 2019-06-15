@@ -9,5 +9,5 @@ export interface IRound {
 
 export interface IRoundsRepository extends IRepository {
     findById(id: number): Promise<IRound[]>;
-    delete(id: number): Promise<void>;
+    delete(id: number, db?: any): Promise<void>;
 }

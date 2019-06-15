@@ -24,7 +24,7 @@ export interface IBlocksRepository extends IRepository {
     }>;
 
     top(count: number): Promise<Interfaces.IBlockData[]>;
-    delete(id: string): Promise<void>;
+    delete(ids: string[], db: any): Promise<void>;
 
     getBlockRewards(): Promise<any>;
 

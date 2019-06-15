@@ -17,5 +17,5 @@ export const queries = {
         latest: loadQueryFile(__dirname, "./rounds/latest.sql"),
         roundRange: loadQueryFile(__dirname, "./rounds/round-range.sql"),
     },
-    truncate: table => `TRUNCATE TABLE ${table} RESTART IDENTITY`,
+    truncate: tables => `TRUNCATE TABLE ${tables} RESTART IDENTITY`,
 };

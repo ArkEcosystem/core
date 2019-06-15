@@ -15,6 +15,9 @@ export const queries = {
         statistics: loadQueryFile(__dirname, "./blocks/statistics.sql"),
         top: loadQueryFile(__dirname, "./blocks/top.sql"),
     },
+    common: {
+        truncateAllTables: loadQueryFile(__dirname, "./common/truncate-all-tables.sql"),
+    },
     migrations: {
         create: loadQueryFile(__dirname, "./migrations/create.sql"),
         find: loadQueryFile(__dirname, "./migrations/find.sql"),
