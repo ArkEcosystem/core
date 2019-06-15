@@ -8,8 +8,9 @@ export class RoundsRepository extends Repository implements Database.IRoundsRepo
         return this.db.manyOrNone(queries.rounds.find, { round });
     }
 
-    public async delete(round: number): Promise<void> {
-        return this.db.none(queries.rounds.delete, { round });
+    public async delete(round: number, db?: any): Promise<void> {
+        db = db || this.db;
+        return db.none(queries.rounds.delete, { round });
     }
 
     public getModel(): Round {

@@ -24,13 +24,7 @@ export interface IConnection {
 
     saveBlocks(blocks: Interfaces.IBlock[]): Promise<void>;
 
-    deleteBlock(block: Interfaces.IBlock): Promise<void>;
-
-    enqueueDeleteBlock(block: Interfaces.IBlock): void;
-
-    enqueueDeleteRound(height: number): void;
-
-    commitQueuedQueries(): Promise<void>;
-
     resetAll(): Promise<void>;
+
+    deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void>;
 }

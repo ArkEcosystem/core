@@ -50,7 +50,10 @@ describe("API 2.0 - Delegates", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            response.data.data.forEach(utils.expectDelegate);
+            for (const delegate of response.data.data) {
+                utils.expectDelegate(delegate);
+            }
+
             expect(response.data.data.sort((a, b) => a.rank < b.rank)).toEqual(response.data.data);
         });
 
@@ -87,7 +90,10 @@ describe("API 2.0 - Delegates", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            response.data.data.forEach(utils.expectDelegate);
+            for (const delegate of response.data.data) {
+                utils.expectDelegate(delegate);
+            }
+
             expect(response.data.data.sort((a, b) => a.rank > b.rank)).toEqual(response.data.data);
         });
 
@@ -96,7 +102,10 @@ describe("API 2.0 - Delegates", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            response.data.data.forEach(utils.expectDelegate);
+            for (const delegate of response.data.data) {
+                utils.expectDelegate(delegate);
+            }
+
             expect(response.data.data.sort((a, b) => a.production.approval > b.production.approval)).toEqual(
                 response.data.data,
             );
@@ -428,9 +437,12 @@ describe("API 2.0 - Delegates", () => {
             const response = await utils.request("GET", `delegates/${blocks2to100[0].generatorPublicKey}/blocks`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            response.data.data.forEach(utils.expectBlock);
 
-            await databaseService.deleteBlock(block2); // reset to genesis block
+            for (const elem of response.data.data) {
+                utils.expectBlock(elem);
+            }
+
+            await databaseService.deleteBlocks([block2.data]); // reset to genesis block
         });
     });
 
@@ -440,7 +452,10 @@ describe("API 2.0 - Delegates", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            response.data.data.forEach(utils.expectWallet);
+            for (const elem of response.data.data) {
+                utils.expectWallet(elem);
+            }
+
             expect(response.data.data.sort((a, b) => a.balance > b.balance)).toEqual(response.data.data);
         });
 
@@ -449,7 +464,10 @@ describe("API 2.0 - Delegates", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            response.data.data.forEach(utils.expectWallet);
+            for (const elem of response.data.data) {
+                utils.expectWallet(elem);
+            }
+
             expect(response.data.data.sort((a, b) => a.balance < b.balance)).toEqual(response.data.data);
         });
     });

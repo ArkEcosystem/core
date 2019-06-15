@@ -12,8 +12,13 @@ export abstract class Repository implements Database.IRepository {
 
     public abstract getModel(): Model;
 
-    public async insert(items: object | object[]): Promise<void> {
-        await this.db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
+    public async truncate(): Promise<void> {
+        await this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
+    }
+
+    public async insert(items: object | object[], db?: any): Promise<void> {
+        db = db || this.db;
+        return db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
     }
 
     public async update(items: object | object[]): Promise<void> {

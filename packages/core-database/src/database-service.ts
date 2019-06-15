@@ -58,7 +58,11 @@ export class DatabaseService implements Database.IDatabaseService {
 
         Managers.configManager.setHeight(lastBlock.data.height);
 
-        await this.loadBlocksFromCurrentRound();
+        try {
+            await this.loadBlocksFromCurrentRound();
+        } catch (error) {
+            this.logger.warn(`Failed to load blocks from current round: ${error.message}`);
+        }
 
         await this.configureState(lastBlock);
     }
@@ -144,24 +148,12 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.buildWallets();
     }
 
-    public async commitQueuedQueries(): Promise<void> {
-        await this.connection.commitQueuedQueries();
-    }
-
-    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.connection.deleteBlock(block);
+    public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
+        await this.connection.deleteBlocks(blocks);
     }
 
     public async deleteRound(round: number): Promise<void> {
         await this.connection.roundsRepository.delete(round);
-    }
-
-    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
-        this.connection.enqueueDeleteBlock(block);
-    }
-
-    public enqueueDeleteRound(height: number): void {
-        this.connection.enqueueDeleteRound(height);
     }
 
     public async getActiveDelegates(

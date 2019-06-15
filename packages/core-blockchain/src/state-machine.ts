@@ -267,8 +267,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         blockchain.clearAndStopQueue();
 
-        await blockchain.database.commitQueuedQueries();
-
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 
         await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);

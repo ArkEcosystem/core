@@ -509,282 +509,277 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
-
-<<<<<<< HEAD
-[2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.5.0
-=======
+[2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.5.0
 [2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
 [2.4.1]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.4.1
-
-> > > > > > > master
-> > > > > > > [2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
-> > > > > > > [2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
-> > > > > > > [2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
-> > > > > > > [2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
-> > > > > > > [2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
-> > > > > > > [2.3.16]: https://github.com/ARKEcosystem/core/compare/2.3.15...2.3.16
-> > > > > > > [2.3.15]: https://github.com/ARKEcosystem/core/compare/2.3.14...2.3.15
-> > > > > > > [2.3.14]: https://github.com/ARKEcosystem/core/compare/2.3.12...2.3.14
-> > > > > > > [2.3.12]: https://github.com/ARKEcosystem/core/compare/2.3.1...2.3.12
-> > > > > > > [2.3.1]: https://github.com/ARKEcosystem/core/compare/2.3.0...2.3.1
-> > > > > > > [2.3.0]: https://github.com/ARKEcosystem/core/compare/2.2.2...2.3.0
-> > > > > > > [2.2.2]: https://github.com/ARKEcosystem/core/compare/2.2.1...2.2.2
-> > > > > > > [2.2.1]: https://github.com/ARKEcosystem/core/compare/2.2.0...2.2.1
-> > > > > > > [2.2.0]: https://github.com/ARKEcosystem/core/compare/2.1.2..2.2.0
-> > > > > > > [2.1.2]: https://github.com/ARKEcosystem/core/compare/2.1.1..2.1.2
-> > > > > > > [2.1.1]: https://github.com/ARKEcosystem/core/compare/2.1.0..2.1.1
-> > > > > > > [2.1.0]: https://github.com/ARKEcosystem/core/compare/2.0.19...2.1.0
-> > > > > > > [2.0.19]: https://github.com/ARKEcosystem/core/compare/2.0.18...2.0.19
-> > > > > > > [2.0.18]: https://github.com/ARKEcosystem/core/compare/2.0.17...2.0.18
-> > > > > > > [2.0.17]: https://github.com/ARKEcosystem/core/compare/2.0.16...2.0.17
-> > > > > > > [2.0.16]: https://github.com/ARKEcosystem/core/compare/2.0.15...2.0.16
-> > > > > > > [2.0.15]: https://github.com/ARKEcosystem/core/compare/2.0.14...2.0.15
-> > > > > > > [2.0.14]: https://github.com/ARKEcosystem/core/compare/2.0.13...2.0.14
-> > > > > > > [2.0.13]: https://github.com/ARKEcosystem/core/compare/2.0.12...2.0.13
-> > > > > > > [2.0.12]: https://github.com/ARKEcosystem/core/compare/2.0.11...2.0.12
-> > > > > > > [2.0.11]: https://github.com/ARKEcosystem/core/compare/2.0.1...2.0.11
-> > > > > > > [2.0.1]: https://github.com/ARKEcosystem/core/compare/2.0.0...2.0.1
-> > > > > > > [2.0.0]: https://github.com/ARKEcosystem/core/compare/0.1.1...2.0.0
-> > > > > > > [#1563]: https://github.com/ARKEcosystem/core/pull/1563
-> > > > > > > [#1564]: https://github.com/ARKEcosystem/core/pull/1564
-> > > > > > > [#1625]: https://github.com/ARKEcosystem/core/pull/1625
-> > > > > > > [#1626]: https://github.com/ARKEcosystem/core/pull/1626
-> > > > > > > [#1634]: https://github.com/ARKEcosystem/core/pull/1634
-> > > > > > > [#1636]: https://github.com/ARKEcosystem/core/pull/1636
-> > > > > > > [#1638]: https://github.com/ARKEcosystem/core/pull/1638
-> > > > > > > [#1638]: https://github.com/ARKEcosystem/core/pull/1638
-> > > > > > > [#1640]: https://github.com/ARKEcosystem/core/pull/1640
-> > > > > > > [#1645]: https://github.com/ARKEcosystem/core/pull/1645
-> > > > > > > [#1646]: https://github.com/ARKEcosystem/core/pull/1646
-> > > > > > > [#1648]: https://github.com/ARKEcosystem/core/pull/1648
-> > > > > > > [#1653]: https://github.com/ARKEcosystem/core/pull/1653
-> > > > > > > [#1655]: https://github.com/ARKEcosystem/core/pull/1655
-> > > > > > > [#1658]: https://github.com/ARKEcosystem/core/pull/1658
-> > > > > > > [#1673]: https://github.com/ARKEcosystem/core/pull/1673
-> > > > > > > [#1689]: https://github.com/ARKEcosystem/core/pull/1689
-> > > > > > > [#1692]: https://github.com/ARKEcosystem/core/pull/1692
-> > > > > > > [#1695]: https://github.com/ARKEcosystem/core/pull/1695
-> > > > > > > [#1717]: https://github.com/ARKEcosystem/core/pull/1717
-> > > > > > > [#1730]: https://github.com/ARKEcosystem/core/pull/1730
-> > > > > > > [#1731]: https://github.com/ARKEcosystem/core/pull/1731
-> > > > > > > [#1732]: https://github.com/ARKEcosystem/core/pull/1732
-> > > > > > > [#1733]: https://github.com/ARKEcosystem/core/pull/1733
-> > > > > > > [#1738]: https://github.com/ARKEcosystem/core/pull/1738
-> > > > > > > [#1831]: https://github.com/ARKEcosystem/core/pull/1831
-> > > > > > > [#1833]: https://github.com/ARKEcosystem/core/pull/1833
-> > > > > > > [#1836]: https://github.com/ARKEcosystem/core/pull/1836
-> > > > > > > [#1837]: https://github.com/ARKEcosystem/core/pull/1837
-> > > > > > > [#1853]: https://github.com/ARKEcosystem/core/pull/1853
-> > > > > > > [#1869]: https://github.com/ARKEcosystem/core/pull/1869
-> > > > > > > [#1873]: https://github.com/ARKEcosystem/core/pull/1873
-> > > > > > > [#1887]: https://github.com/ARKEcosystem/core/pull/1887
-> > > > > > > [#1891]: https://github.com/ARKEcosystem/core/pull/1891
-> > > > > > > [#1898]: https://github.com/ARKEcosystem/core/pull/1898
-> > > > > > > [#1901]: https://github.com/ARKEcosystem/core/pull/1901
-> > > > > > > [#1905]: https://github.com/ARKEcosystem/core/pull/1905
-> > > > > > > [#1906]: https://github.com/ARKEcosystem/core/pull/1906
-> > > > > > > [#1911]: https://github.com/ARKEcosystem/core/pull/1911
-> > > > > > > [#1917]: https://github.com/ARKEcosystem/core/pull/1917
-> > > > > > > [#1919]: https://github.com/ARKEcosystem/core/pull/1919
-> > > > > > > [#1924]: https://github.com/ARKEcosystem/core/pull/1924
-> > > > > > > [#1926]: https://github.com/ARKEcosystem/core/pull/1926
-> > > > > > > [#1927]: https://github.com/ARKEcosystem/core/pull/1927
-> > > > > > > [#1930]: https://github.com/ARKEcosystem/core/pull/1930
-> > > > > > > [#1931]: https://github.com/ARKEcosystem/core/pull/1931
-> > > > > > > [#1939]: https://github.com/ARKEcosystem/core/pull/1939
-> > > > > > > [#1940]: https://github.com/ARKEcosystem/core/pull/1940
-> > > > > > > [#1941]: https://github.com/ARKEcosystem/core/pull/1941
-> > > > > > > [#1943]: https://github.com/ARKEcosystem/core/pull/1943
-> > > > > > > [#1947]: https://github.com/ARKEcosystem/core/pull/1947
-> > > > > > > [#1948]: https://github.com/ARKEcosystem/core/pull/1948
-> > > > > > > [#1953]: https://github.com/ARKEcosystem/core/pull/1953
-> > > > > > > [#1954]: https://github.com/ARKEcosystem/core/pull/1954
-> > > > > > > [#1955]: https://github.com/ARKEcosystem/core/pull/1955
-> > > > > > > [#1957]: https://github.com/ARKEcosystem/core/pull/1957
-> > > > > > > [#1969]: https://github.com/ARKEcosystem/core/pull/1969
-> > > > > > > [#1970]: https://github.com/ARKEcosystem/core/pull/1970
-> > > > > > > [#1985]: https://github.com/ARKEcosystem/core/pull/1985
-> > > > > > > [#1987]: https://github.com/ARKEcosystem/core/pull/1987
-> > > > > > > [#1996]: https://github.com/ARKEcosystem/core/pull/1996
-> > > > > > > [#1999]: https://github.com/ARKEcosystem/core/pull/1999
-> > > > > > > [#2009]: https://github.com/ARKEcosystem/core/pull/2009
-> > > > > > > [#2016]: https://github.com/ARKEcosystem/core/pull/2016
-> > > > > > > [#2021]: https://github.com/ARKEcosystem/core/pull/2021
-> > > > > > > [#2038]: https://github.com/ARKEcosystem/core/pull/2038
-> > > > > > > [#2044]: https://github.com/ARKEcosystem/core/pull/2044
-> > > > > > > [#2045]: https://github.com/ARKEcosystem/core/pull/2045
-> > > > > > > [#2046]: https://github.com/ARKEcosystem/core/pull/2046
-> > > > > > > [#2047]: https://github.com/ARKEcosystem/core/pull/2047
-> > > > > > > [#2049]: https://github.com/ARKEcosystem/core/pull/2049
-> > > > > > > [#2050]: https://github.com/ARKEcosystem/core/pull/2050
-> > > > > > > [#2051]: https://github.com/ARKEcosystem/core/pull/2051
-> > > > > > > [#2052]: https://github.com/ARKEcosystem/core/pull/2052
-> > > > > > > [#2053]: https://github.com/ARKEcosystem/core/pull/2053
-> > > > > > > [#2055]: https://github.com/ARKEcosystem/core/pull/2055
-> > > > > > > [#2057]: https://github.com/ARKEcosystem/core/pull/2057
-> > > > > > > [#2058]: https://github.com/ARKEcosystem/core/pull/2058
-> > > > > > > [#2061]: https://github.com/ARKEcosystem/core/pull/2061
-> > > > > > > [#2080]: https://github.com/ARKEcosystem/core/pull/2080
-> > > > > > > [#2082]: https://github.com/ARKEcosystem/core/pull/2082
-> > > > > > > [#2083]: https://github.com/ARKEcosystem/core/pull/2083
-> > > > > > > [#2091]: https://github.com/ARKEcosystem/core/pull/2091
-> > > > > > > [#2100]: https://github.com/ARKEcosystem/core/pull/2100
-> > > > > > > [#2102]: https://github.com/ARKEcosystem/core/pull/2102
-> > > > > > > [#2103]: https://github.com/ARKEcosystem/core/pull/2103
-> > > > > > > [#2106]: https://github.com/ARKEcosystem/core/pull/2106
-> > > > > > > [#2108]: https://github.com/ARKEcosystem/core/pull/2108
-> > > > > > > [#2119]: https://github.com/ARKEcosystem/core/pull/2119
-> > > > > > > [#2121]: https://github.com/ARKEcosystem/core/pull/2121
-> > > > > > > [#2122]: https://github.com/ARKEcosystem/core/pull/2122
-> > > > > > > [#2123]: https://github.com/ARKEcosystem/core/pull/2123
-> > > > > > > [#2124]: https://github.com/ARKEcosystem/core/pull/2124
-> > > > > > > [#2125]: https://github.com/ARKEcosystem/core/pull/2125
-> > > > > > > [#2133]: https://github.com/ARKEcosystem/core/pull/2133
-> > > > > > > [#2133]: https://github.com/ARKEcosystem/core/pull/2133
-> > > > > > > [#2134]: https://github.com/ARKEcosystem/core/pull/2134
-> > > > > > > [#2135]: https://github.com/ARKEcosystem/core/pull/2135
-> > > > > > > [#2137]: https://github.com/ARKEcosystem/core/pull/2137
-> > > > > > > [#2139]: https://github.com/ARKEcosystem/core/pull/2139
-> > > > > > > [#2142]: https://github.com/ARKEcosystem/core/pull/2142
-> > > > > > > [#2143]: https://github.com/ARKEcosystem/core/pull/2143
-> > > > > > > [#2144]: https://github.com/ARKEcosystem/core/pull/2144
-> > > > > > > [#2149]: https://github.com/ARKEcosystem/core/pull/2149
-> > > > > > > [#2152]: https://github.com/ARKEcosystem/core/pull/2152
-> > > > > > > [#2156]: https://github.com/ARKEcosystem/core/pull/2156
-> > > > > > > [#2159]: https://github.com/ARKEcosystem/core/pull/2159
-> > > > > > > [#2165]: https://github.com/ARKEcosystem/core/pull/2165
-> > > > > > > [#2184]: https://github.com/ARKEcosystem/core/pull/2184
-> > > > > > > [#2190]: https://github.com/ARKEcosystem/core/pull/2190
-> > > > > > > [#2192]: https://github.com/ARKEcosystem/core/pull/2192
-> > > > > > > [#2203]: https://github.com/ARKEcosystem/core/pull/2203
-> > > > > > > [#2205]: https://github.com/ARKEcosystem/core/pull/2205
-> > > > > > > [#2207]: https://github.com/ARKEcosystem/core/pull/2207
-> > > > > > > [#2209]: https://github.com/ARKEcosystem/core/pull/2209
-> > > > > > > [#2210]: https://github.com/ARKEcosystem/core/pull/2210
-> > > > > > > [#2217]: https://github.com/ARKEcosystem/core/pull/2217
-> > > > > > > [#2218]: https://github.com/ARKEcosystem/core/pull/2218
-> > > > > > > [#2221]: https://github.com/ARKEcosystem/core/pull/2221
-> > > > > > > [#2229]: https://github.com/ARKEcosystem/core/pull/2229
-> > > > > > > [#2236]: https://github.com/ARKEcosystem/core/pull/2236
-> > > > > > > [#2273]: https://github.com/ARKEcosystem/core/pull/2273
-> > > > > > > [#2287]: https://github.com/ARKEcosystem/core/pull/2287
-> > > > > > > [#2288]: https://github.com/ARKEcosystem/core/pull/2288
-> > > > > > > [#2289]: https://github.com/ARKEcosystem/core/pull/2289
-> > > > > > > [#2321]: https://github.com/ARKEcosystem/core/pull/2321
-> > > > > > > [#2329]: https://github.com/ARKEcosystem/core/pull/2329
-> > > > > > > [#2341]: https://github.com/ARKEcosystem/core/pull/2341
-> > > > > > > [#2343]: https://github.com/ARKEcosystem/core/pull/2343
-> > > > > > > [#2360]: https://github.com/ARKEcosystem/core/pull/2360
-> > > > > > > [#2370]: https://github.com/ARKEcosystem/core/pull/2370
-> > > > > > > [#2375]: https://github.com/ARKEcosystem/core/pull/2375
-> > > > > > > [#2376]: https://github.com/ARKEcosystem/core/pull/2376
-> > > > > > > [#2377]: https://github.com/ARKEcosystem/core/pull/2377
-> > > > > > > [#2379]: https://github.com/ARKEcosystem/core/pull/2379
-> > > > > > > [#2388]: https://github.com/ARKEcosystem/core/pull/2388
-> > > > > > > [#2391]: https://github.com/ARKEcosystem/core/pull/2391
-> > > > > > > [#2393]: https://github.com/ARKEcosystem/core/pull/2393
-> > > > > > > [#2394]: https://github.com/ARKEcosystem/core/pull/2394
-> > > > > > > [#2404]: https://github.com/ARKEcosystem/core/pull/2404
-> > > > > > > [#2405]: https://github.com/ARKEcosystem/core/pull/2405
-> > > > > > > [#2416]: https://github.com/ARKEcosystem/core/pull/2416
-> > > > > > > [#2417]: https://github.com/ARKEcosystem/core/pull/2417
-> > > > > > > [#2424]: https://github.com/ARKEcosystem/core/pull/2424
-> > > > > > > [#2425]: https://github.com/ARKEcosystem/core/pull/2425
-> > > > > > > [#2426]: https://github.com/ARKEcosystem/core/pull/2426
-> > > > > > > [#2429]: https://github.com/ARKEcosystem/core/pull/2429
-> > > > > > > [#2433]: https://github.com/ARKEcosystem/core/pull/2433
-> > > > > > > [#2437]: https://github.com/ARKEcosystem/core/pull/2437
-> > > > > > > [#2440]: https://github.com/ARKEcosystem/core/pull/2440
-> > > > > > > [#2443]: https://github.com/ARKEcosystem/core/pull/2443
-> > > > > > > [#2444]: https://github.com/ARKEcosystem/core/pull/2444
-> > > > > > > [#2458]: https://github.com/ARKEcosystem/core/pull/2458
-> > > > > > > [#2459]: https://github.com/ARKEcosystem/core/pull/2459
-> > > > > > > [#2461]: https://github.com/ARKEcosystem/core/pull/2461
-> > > > > > > [#2462]: https://github.com/ARKEcosystem/core/pull/2462
-> > > > > > > [#2464]: https://github.com/ARKEcosystem/core/pull/2464
-> > > > > > > [#2467]: https://github.com/ARKEcosystem/core/pull/2467
-> > > > > > > [#2468]: https://github.com/ARKEcosystem/core/pull/2468
-> > > > > > > [#2471]: https://github.com/ARKEcosystem/core/pull/2471
-> > > > > > > [#2473]: https://github.com/ARKEcosystem/core/pull/2473
-> > > > > > > [#2476]: https://github.com/ARKEcosystem/core/pull/2476
-> > > > > > > [#2479]: https://github.com/ARKEcosystem/core/pull/2479
-> > > > > > > [#2482]: https://github.com/ARKEcosystem/core/pull/2482
-> > > > > > > [#2484]: https://github.com/ARKEcosystem/core/pull/2484
-> > > > > > > [#2486]: https://github.com/ARKEcosystem/core/pull/2486
-> > > > > > > [#2487]: https://github.com/ARKEcosystem/core/pull/2487
-> > > > > > > [#2489]: https://github.com/ARKEcosystem/core/pull/2489
-> > > > > > > [#2491]: https://github.com/ARKEcosystem/core/pull/2491
-> > > > > > > [#2492]: https://github.com/ARKEcosystem/core/pull/2492
-> > > > > > > [#2495]: https://github.com/ARKEcosystem/core/pull/2495
-> > > > > > > [#2496]: https://github.com/ARKEcosystem/core/pull/2496
-> > > > > > > [#2499]: https://github.com/ARKEcosystem/core/pull/2499
-> > > > > > > [#2500]: https://github.com/ARKEcosystem/core/pull/2500
-> > > > > > > [#2502]: https://github.com/ARKEcosystem/core/pull/2502
-> > > > > > > [#2503]: https://github.com/ARKEcosystem/core/pull/2503
-> > > > > > > [#2506]: https://github.com/ARKEcosystem/core/pull/2506
-> > > > > > > [#2507]: https://github.com/ARKEcosystem/core/pull/2507
-> > > > > > > [#2513]: https://github.com/ARKEcosystem/core/pull/2513
-> > > > > > > [#2514]: https://github.com/ARKEcosystem/core/pull/2514
-> > > > > > > [#2515]: https://github.com/ARKEcosystem/core/pull/2515
-> > > > > > > [#2517]: https://github.com/ARKEcosystem/core/pull/2517
-> > > > > > > [#2522]: https://github.com/ARKEcosystem/core/pull/2522
-> > > > > > > [#2526]: https://github.com/ARKEcosystem/core/pull/2526
-> > > > > > > [#2528]: https://github.com/ARKEcosystem/core/pull/2528
-> > > > > > > [#2529]: https://github.com/ARKEcosystem/core/pull/2529
-> > > > > > > [#2539]: https://github.com/ARKEcosystem/core/pull/2539
-> > > > > > > [#2544]: https://github.com/ARKEcosystem/core/pull/2544
-> > > > > > > [#2552]: https://github.com/ARKEcosystem/core/pull/2552
-> > > > > > > [#2553]: https://github.com/ARKEcosystem/core/pull/2553
-> > > > > > > [#2555]: https://github.com/ARKEcosystem/core/pull/2555
-> > > > > > > [#2557]: https://github.com/ARKEcosystem/core/pull/2557
-> > > > > > > [#2558]: https://github.com/ARKEcosystem/core/pull/2558
-> > > > > > > [#2482]: https://github.com/ARKEcosystem/core/pull/2482
-> > > > > > > [#2559]: https://github.com/ARKEcosystem/core/pull/2559
-> > > > > > > [#2562]: https://github.com/ARKEcosystem/core/pull/2562
-> > > > > > > [#2563]: https://github.com/ARKEcosystem/core/pull/2563
-> > > > > > > [#2565]: https://github.com/ARKEcosystem/core/pull/2565
-> > > > > > > [#2567]: https://github.com/ARKEcosystem/core/pull/2567
-> > > > > > > [#2571]: https://github.com/ARKEcosystem/core/pull/2571
-> > > > > > > [#2574]: https://github.com/ARKEcosystem/core/pull/2574
-> > > > > > > [#2577]: https://github.com/ARKEcosystem/core/pull/2577
-> > > > > > > [#2581]: https://github.com/ARKEcosystem/core/pull/2581
-> > > > > > > [#2582]: https://github.com/ARKEcosystem/core/pull/2582
-> > > > > > > [#2586]: https://github.com/ARKEcosystem/core/pull/2586
-> > > > > > > [#2590]: https://github.com/ARKEcosystem/core/pull/2590
-> > > > > > > [#2592]: https://github.com/ARKEcosystem/core/pull/2592
-> > > > > > > [#2593]: https://github.com/ARKEcosystem/core/pull/2593
-> > > > > > > [#2593]: https://github.com/ARKEcosystem/core/pull/2593
-> > > > > > > [#2597]: https://github.com/ARKEcosystem/core/pull/2597
-> > > > > > > [#2604]: https://github.com/ARKEcosystem/core/pull/2604
-> > > > > > > [#2606]: https://github.com/ARKEcosystem/core/pull/2606
-> > > > > > > [#2611]: https://github.com/ARKEcosystem/core/pull/2611
-> > > > > > > [#2612]: https://github.com/ARKEcosystem/core/pull/2612
-> > > > > > > [#2615]: https://github.com/ARKEcosystem/core/pull/2615
-> > > > > > > [#2616]: https://github.com/ARKEcosystem/core/pull/2616
-> > > > > > > [#2618]: https://github.com/ARKEcosystem/core/pull/2618
-> > > > > > > [#2619]: https://github.com/ARKEcosystem/core/pull/2619
-> > > > > > > [#2622]: https://github.com/ARKEcosystem/core/pull/2622
-> > > > > > > [#2628]: https://github.com/ARKEcosystem/core/pull/2628
-> > > > > > > [#2634]: https://github.com/ARKEcosystem/core/pull/2634
-> > > > > > > [#2635]: https://github.com/ARKEcosystem/core/pull/2635
-> > > > > > > [#2641]: https://github.com/ARKEcosystem/core/pull/2641
-> > > > > > > [#2643]: https://github.com/ARKEcosystem/core/pull/2643
-> > > > > > > [#2645]: https://github.com/ARKEcosystem/core/pull/2645
-> > > > > > > [#2646]: https://github.com/ARKEcosystem/core/pull/2646
-> > > > > > > [#2651]: https://github.com/ARKEcosystem/core/pull/2651
-> > > > > > > [#2653]: https://github.com/ARKEcosystem/core/pull/2653
-> > > > > > > [#2655]: https://github.com/ARKEcosystem/core/pull/2655
-> > > > > > > [#2657]: https://github.com/ARKEcosystem/core/pull/2657
-> > > > > > > [#2659]: https://github.com/ARKEcosystem/core/pull/2659
-> > > > > > > [#2662]: https://github.com/ARKEcosystem/core/pull/2662
-> > > > > > > [#2665]: https://github.com/ARKEcosystem/core/pull/2665
-> > > > > > > [#2666]: https://github.com/ARKEcosystem/core/pull/2666
-> > > > > > > [#2670]: https://github.com/ARKEcosystem/core/pull/2670
-> > > > > > > [#2672]: https://github.com/ARKEcosystem/core/pull/2672
-> > > > > > > [#2674]: https://github.com/ARKEcosystem/core/pull/2674
-> > > > > > > [#2685]: https://github.com/ARKEcosystem/core/pull/2685
-> > > > > > > [#2686]: https://github.com/ARKEcosystem/core/pull/2686
-> > > > > > > [#2687]: https://github.com/ARKEcosystem/core/pull/2687
-> > > > > > > [#2692]: https://github.com/ARKEcosystem/core/pull/2692
-> > > > > > > [#2699]: https://github.com/ARKEcosystem/core/pull/2699
-> > > > > > > [#2700]: https://github.com/ARKEcosystem/core/pull/2700
+[2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
+[2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
+[2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
+[2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
+[2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
+[2.3.16]: https://github.com/ARKEcosystem/core/compare/2.3.15...2.3.16
+[2.3.15]: https://github.com/ARKEcosystem/core/compare/2.3.14...2.3.15
+[2.3.14]: https://github.com/ARKEcosystem/core/compare/2.3.12...2.3.14
+[2.3.12]: https://github.com/ARKEcosystem/core/compare/2.3.1...2.3.12
+[2.3.1]: https://github.com/ARKEcosystem/core/compare/2.3.0...2.3.1
+[2.3.0]: https://github.com/ARKEcosystem/core/compare/2.2.2...2.3.0
+[2.2.2]: https://github.com/ARKEcosystem/core/compare/2.2.1...2.2.2
+[2.2.1]: https://github.com/ARKEcosystem/core/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/ARKEcosystem/core/compare/2.1.2..2.2.0
+[2.1.2]: https://github.com/ARKEcosystem/core/compare/2.1.1..2.1.2
+[2.1.1]: https://github.com/ARKEcosystem/core/compare/2.1.0..2.1.1
+[2.1.0]: https://github.com/ARKEcosystem/core/compare/2.0.19...2.1.0
+[2.0.19]: https://github.com/ARKEcosystem/core/compare/2.0.18...2.0.19
+[2.0.18]: https://github.com/ARKEcosystem/core/compare/2.0.17...2.0.18
+[2.0.17]: https://github.com/ARKEcosystem/core/compare/2.0.16...2.0.17
+[2.0.16]: https://github.com/ARKEcosystem/core/compare/2.0.15...2.0.16
+[2.0.15]: https://github.com/ARKEcosystem/core/compare/2.0.14...2.0.15
+[2.0.14]: https://github.com/ARKEcosystem/core/compare/2.0.13...2.0.14
+[2.0.13]: https://github.com/ARKEcosystem/core/compare/2.0.12...2.0.13
+[2.0.12]: https://github.com/ARKEcosystem/core/compare/2.0.11...2.0.12
+[2.0.11]: https://github.com/ARKEcosystem/core/compare/2.0.1...2.0.11
+[2.0.1]: https://github.com/ARKEcosystem/core/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/ARKEcosystem/core/compare/0.1.1...2.0.0
+[#1563]: https://github.com/ARKEcosystem/core/pull/1563
+[#1564]: https://github.com/ARKEcosystem/core/pull/1564
+[#1625]: https://github.com/ARKEcosystem/core/pull/1625
+[#1626]: https://github.com/ARKEcosystem/core/pull/1626
+[#1634]: https://github.com/ARKEcosystem/core/pull/1634
+[#1636]: https://github.com/ARKEcosystem/core/pull/1636
+[#1638]: https://github.com/ARKEcosystem/core/pull/1638
+[#1638]: https://github.com/ARKEcosystem/core/pull/1638
+[#1640]: https://github.com/ARKEcosystem/core/pull/1640
+[#1645]: https://github.com/ARKEcosystem/core/pull/1645
+[#1646]: https://github.com/ARKEcosystem/core/pull/1646
+[#1648]: https://github.com/ARKEcosystem/core/pull/1648
+[#1653]: https://github.com/ARKEcosystem/core/pull/1653
+[#1655]: https://github.com/ARKEcosystem/core/pull/1655
+[#1658]: https://github.com/ARKEcosystem/core/pull/1658
+[#1673]: https://github.com/ARKEcosystem/core/pull/1673
+[#1689]: https://github.com/ARKEcosystem/core/pull/1689
+[#1692]: https://github.com/ARKEcosystem/core/pull/1692
+[#1695]: https://github.com/ARKEcosystem/core/pull/1695
+[#1717]: https://github.com/ARKEcosystem/core/pull/1717
+[#1730]: https://github.com/ARKEcosystem/core/pull/1730
+[#1731]: https://github.com/ARKEcosystem/core/pull/1731
+[#1732]: https://github.com/ARKEcosystem/core/pull/1732
+[#1733]: https://github.com/ARKEcosystem/core/pull/1733
+[#1738]: https://github.com/ARKEcosystem/core/pull/1738
+[#1831]: https://github.com/ARKEcosystem/core/pull/1831
+[#1833]: https://github.com/ARKEcosystem/core/pull/1833
+[#1836]: https://github.com/ARKEcosystem/core/pull/1836
+[#1837]: https://github.com/ARKEcosystem/core/pull/1837
+[#1853]: https://github.com/ARKEcosystem/core/pull/1853
+[#1869]: https://github.com/ARKEcosystem/core/pull/1869
+[#1873]: https://github.com/ARKEcosystem/core/pull/1873
+[#1887]: https://github.com/ARKEcosystem/core/pull/1887
+[#1891]: https://github.com/ARKEcosystem/core/pull/1891
+[#1898]: https://github.com/ARKEcosystem/core/pull/1898
+[#1901]: https://github.com/ARKEcosystem/core/pull/1901
+[#1905]: https://github.com/ARKEcosystem/core/pull/1905
+[#1906]: https://github.com/ARKEcosystem/core/pull/1906
+[#1911]: https://github.com/ARKEcosystem/core/pull/1911
+[#1917]: https://github.com/ARKEcosystem/core/pull/1917
+[#1919]: https://github.com/ARKEcosystem/core/pull/1919
+[#1924]: https://github.com/ARKEcosystem/core/pull/1924
+[#1926]: https://github.com/ARKEcosystem/core/pull/1926
+[#1927]: https://github.com/ARKEcosystem/core/pull/1927
+[#1930]: https://github.com/ARKEcosystem/core/pull/1930
+[#1931]: https://github.com/ARKEcosystem/core/pull/1931
+[#1939]: https://github.com/ARKEcosystem/core/pull/1939
+[#1940]: https://github.com/ARKEcosystem/core/pull/1940
+[#1941]: https://github.com/ARKEcosystem/core/pull/1941
+[#1943]: https://github.com/ARKEcosystem/core/pull/1943
+[#1947]: https://github.com/ARKEcosystem/core/pull/1947
+[#1948]: https://github.com/ARKEcosystem/core/pull/1948
+[#1953]: https://github.com/ARKEcosystem/core/pull/1953
+[#1954]: https://github.com/ARKEcosystem/core/pull/1954
+[#1955]: https://github.com/ARKEcosystem/core/pull/1955
+[#1957]: https://github.com/ARKEcosystem/core/pull/1957
+[#1969]: https://github.com/ARKEcosystem/core/pull/1969
+[#1970]: https://github.com/ARKEcosystem/core/pull/1970
+[#1985]: https://github.com/ARKEcosystem/core/pull/1985
+[#1987]: https://github.com/ARKEcosystem/core/pull/1987
+[#1996]: https://github.com/ARKEcosystem/core/pull/1996
+[#1999]: https://github.com/ARKEcosystem/core/pull/1999
+[#2009]: https://github.com/ARKEcosystem/core/pull/2009
+[#2016]: https://github.com/ARKEcosystem/core/pull/2016
+[#2021]: https://github.com/ARKEcosystem/core/pull/2021
+[#2038]: https://github.com/ARKEcosystem/core/pull/2038
+[#2044]: https://github.com/ARKEcosystem/core/pull/2044
+[#2045]: https://github.com/ARKEcosystem/core/pull/2045
+[#2046]: https://github.com/ARKEcosystem/core/pull/2046
+[#2047]: https://github.com/ARKEcosystem/core/pull/2047
+[#2049]: https://github.com/ARKEcosystem/core/pull/2049
+[#2050]: https://github.com/ARKEcosystem/core/pull/2050
+[#2051]: https://github.com/ARKEcosystem/core/pull/2051
+[#2052]: https://github.com/ARKEcosystem/core/pull/2052
+[#2053]: https://github.com/ARKEcosystem/core/pull/2053
+[#2055]: https://github.com/ARKEcosystem/core/pull/2055
+[#2057]: https://github.com/ARKEcosystem/core/pull/2057
+[#2058]: https://github.com/ARKEcosystem/core/pull/2058
+[#2061]: https://github.com/ARKEcosystem/core/pull/2061
+[#2080]: https://github.com/ARKEcosystem/core/pull/2080
+[#2082]: https://github.com/ARKEcosystem/core/pull/2082
+[#2083]: https://github.com/ARKEcosystem/core/pull/2083
+[#2091]: https://github.com/ARKEcosystem/core/pull/2091
+[#2100]: https://github.com/ARKEcosystem/core/pull/2100
+[#2102]: https://github.com/ARKEcosystem/core/pull/2102
+[#2103]: https://github.com/ARKEcosystem/core/pull/2103
+[#2106]: https://github.com/ARKEcosystem/core/pull/2106
+[#2108]: https://github.com/ARKEcosystem/core/pull/2108
+[#2119]: https://github.com/ARKEcosystem/core/pull/2119
+[#2121]: https://github.com/ARKEcosystem/core/pull/2121
+[#2122]: https://github.com/ARKEcosystem/core/pull/2122
+[#2123]: https://github.com/ARKEcosystem/core/pull/2123
+[#2124]: https://github.com/ARKEcosystem/core/pull/2124
+[#2125]: https://github.com/ARKEcosystem/core/pull/2125
+[#2133]: https://github.com/ARKEcosystem/core/pull/2133
+[#2133]: https://github.com/ARKEcosystem/core/pull/2133
+[#2134]: https://github.com/ARKEcosystem/core/pull/2134
+[#2135]: https://github.com/ARKEcosystem/core/pull/2135
+[#2137]: https://github.com/ARKEcosystem/core/pull/2137
+[#2139]: https://github.com/ARKEcosystem/core/pull/2139
+[#2142]: https://github.com/ARKEcosystem/core/pull/2142
+[#2143]: https://github.com/ARKEcosystem/core/pull/2143
+[#2144]: https://github.com/ARKEcosystem/core/pull/2144
+[#2149]: https://github.com/ARKEcosystem/core/pull/2149
+[#2152]: https://github.com/ARKEcosystem/core/pull/2152
+[#2156]: https://github.com/ARKEcosystem/core/pull/2156
+[#2159]: https://github.com/ARKEcosystem/core/pull/2159
+[#2165]: https://github.com/ARKEcosystem/core/pull/2165
+[#2184]: https://github.com/ARKEcosystem/core/pull/2184
+[#2190]: https://github.com/ARKEcosystem/core/pull/2190
+[#2192]: https://github.com/ARKEcosystem/core/pull/2192
+[#2203]: https://github.com/ARKEcosystem/core/pull/2203
+[#2205]: https://github.com/ARKEcosystem/core/pull/2205
+[#2207]: https://github.com/ARKEcosystem/core/pull/2207
+[#2209]: https://github.com/ARKEcosystem/core/pull/2209
+[#2210]: https://github.com/ARKEcosystem/core/pull/2210
+[#2217]: https://github.com/ARKEcosystem/core/pull/2217
+[#2218]: https://github.com/ARKEcosystem/core/pull/2218
+[#2221]: https://github.com/ARKEcosystem/core/pull/2221
+[#2229]: https://github.com/ARKEcosystem/core/pull/2229
+[#2236]: https://github.com/ARKEcosystem/core/pull/2236
+[#2273]: https://github.com/ARKEcosystem/core/pull/2273
+[#2287]: https://github.com/ARKEcosystem/core/pull/2287
+[#2288]: https://github.com/ARKEcosystem/core/pull/2288
+[#2289]: https://github.com/ARKEcosystem/core/pull/2289
+[#2321]: https://github.com/ARKEcosystem/core/pull/2321
+[#2329]: https://github.com/ARKEcosystem/core/pull/2329
+[#2341]: https://github.com/ARKEcosystem/core/pull/2341
+[#2343]: https://github.com/ARKEcosystem/core/pull/2343
+[#2360]: https://github.com/ARKEcosystem/core/pull/2360
+[#2370]: https://github.com/ARKEcosystem/core/pull/2370
+[#2375]: https://github.com/ARKEcosystem/core/pull/2375
+[#2376]: https://github.com/ARKEcosystem/core/pull/2376
+[#2377]: https://github.com/ARKEcosystem/core/pull/2377
+[#2379]: https://github.com/ARKEcosystem/core/pull/2379
+[#2388]: https://github.com/ARKEcosystem/core/pull/2388
+[#2391]: https://github.com/ARKEcosystem/core/pull/2391
+[#2393]: https://github.com/ARKEcosystem/core/pull/2393
+[#2394]: https://github.com/ARKEcosystem/core/pull/2394
+[#2404]: https://github.com/ARKEcosystem/core/pull/2404
+[#2405]: https://github.com/ARKEcosystem/core/pull/2405
+[#2416]: https://github.com/ARKEcosystem/core/pull/2416
+[#2417]: https://github.com/ARKEcosystem/core/pull/2417
+[#2424]: https://github.com/ARKEcosystem/core/pull/2424
+[#2425]: https://github.com/ARKEcosystem/core/pull/2425
+[#2426]: https://github.com/ARKEcosystem/core/pull/2426
+[#2429]: https://github.com/ARKEcosystem/core/pull/2429
+[#2433]: https://github.com/ARKEcosystem/core/pull/2433
+[#2437]: https://github.com/ARKEcosystem/core/pull/2437
+[#2440]: https://github.com/ARKEcosystem/core/pull/2440
+[#2443]: https://github.com/ARKEcosystem/core/pull/2443
+[#2444]: https://github.com/ARKEcosystem/core/pull/2444
+[#2458]: https://github.com/ARKEcosystem/core/pull/2458
+[#2459]: https://github.com/ARKEcosystem/core/pull/2459
+[#2461]: https://github.com/ARKEcosystem/core/pull/2461
+[#2462]: https://github.com/ARKEcosystem/core/pull/2462
+[#2464]: https://github.com/ARKEcosystem/core/pull/2464
+[#2467]: https://github.com/ARKEcosystem/core/pull/2467
+[#2468]: https://github.com/ARKEcosystem/core/pull/2468
+[#2471]: https://github.com/ARKEcosystem/core/pull/2471
+[#2473]: https://github.com/ARKEcosystem/core/pull/2473
+[#2476]: https://github.com/ARKEcosystem/core/pull/2476
+[#2479]: https://github.com/ARKEcosystem/core/pull/2479
+[#2482]: https://github.com/ARKEcosystem/core/pull/2482
+[#2484]: https://github.com/ARKEcosystem/core/pull/2484
+[#2486]: https://github.com/ARKEcosystem/core/pull/2486
+[#2487]: https://github.com/ARKEcosystem/core/pull/2487
+[#2489]: https://github.com/ARKEcosystem/core/pull/2489
+[#2491]: https://github.com/ARKEcosystem/core/pull/2491
+[#2492]: https://github.com/ARKEcosystem/core/pull/2492
+[#2495]: https://github.com/ARKEcosystem/core/pull/2495
+[#2496]: https://github.com/ARKEcosystem/core/pull/2496
+[#2499]: https://github.com/ARKEcosystem/core/pull/2499
+[#2500]: https://github.com/ARKEcosystem/core/pull/2500
+[#2502]: https://github.com/ARKEcosystem/core/pull/2502
+[#2503]: https://github.com/ARKEcosystem/core/pull/2503
+[#2506]: https://github.com/ARKEcosystem/core/pull/2506
+[#2507]: https://github.com/ARKEcosystem/core/pull/2507
+[#2513]: https://github.com/ARKEcosystem/core/pull/2513
+[#2514]: https://github.com/ARKEcosystem/core/pull/2514
+[#2515]: https://github.com/ARKEcosystem/core/pull/2515
+[#2517]: https://github.com/ARKEcosystem/core/pull/2517
+[#2522]: https://github.com/ARKEcosystem/core/pull/2522
+[#2526]: https://github.com/ARKEcosystem/core/pull/2526
+[#2528]: https://github.com/ARKEcosystem/core/pull/2528
+[#2529]: https://github.com/ARKEcosystem/core/pull/2529
+[#2539]: https://github.com/ARKEcosystem/core/pull/2539
+[#2544]: https://github.com/ARKEcosystem/core/pull/2544
+[#2552]: https://github.com/ARKEcosystem/core/pull/2552
+[#2553]: https://github.com/ARKEcosystem/core/pull/2553
+[#2555]: https://github.com/ARKEcosystem/core/pull/2555
+[#2557]: https://github.com/ARKEcosystem/core/pull/2557
+[#2558]: https://github.com/ARKEcosystem/core/pull/2558
+[#2482]: https://github.com/ARKEcosystem/core/pull/2482
+[#2559]: https://github.com/ARKEcosystem/core/pull/2559
+[#2562]: https://github.com/ARKEcosystem/core/pull/2562
+[#2563]: https://github.com/ARKEcosystem/core/pull/2563
+[#2565]: https://github.com/ARKEcosystem/core/pull/2565
+[#2567]: https://github.com/ARKEcosystem/core/pull/2567
+[#2571]: https://github.com/ARKEcosystem/core/pull/2571
+[#2574]: https://github.com/ARKEcosystem/core/pull/2574
+[#2577]: https://github.com/ARKEcosystem/core/pull/2577
+[#2581]: https://github.com/ARKEcosystem/core/pull/2581
+[#2582]: https://github.com/ARKEcosystem/core/pull/2582
+[#2586]: https://github.com/ARKEcosystem/core/pull/2586
+[#2590]: https://github.com/ARKEcosystem/core/pull/2590
+[#2592]: https://github.com/ARKEcosystem/core/pull/2592
+[#2593]: https://github.com/ARKEcosystem/core/pull/2593
+[#2593]: https://github.com/ARKEcosystem/core/pull/2593
+[#2597]: https://github.com/ARKEcosystem/core/pull/2597
+[#2604]: https://github.com/ARKEcosystem/core/pull/2604
+[#2606]: https://github.com/ARKEcosystem/core/pull/2606
+[#2611]: https://github.com/ARKEcosystem/core/pull/2611
+[#2612]: https://github.com/ARKEcosystem/core/pull/2612
+[#2615]: https://github.com/ARKEcosystem/core/pull/2615
+[#2616]: https://github.com/ARKEcosystem/core/pull/2616
+[#2618]: https://github.com/ARKEcosystem/core/pull/2618
+[#2619]: https://github.com/ARKEcosystem/core/pull/2619
+[#2622]: https://github.com/ARKEcosystem/core/pull/2622
+[#2628]: https://github.com/ARKEcosystem/core/pull/2628
+[#2634]: https://github.com/ARKEcosystem/core/pull/2634
+[#2635]: https://github.com/ARKEcosystem/core/pull/2635
+[#2641]: https://github.com/ARKEcosystem/core/pull/2641
+[#2643]: https://github.com/ARKEcosystem/core/pull/2643
+[#2645]: https://github.com/ARKEcosystem/core/pull/2645
+[#2646]: https://github.com/ARKEcosystem/core/pull/2646
+[#2651]: https://github.com/ARKEcosystem/core/pull/2651
+[#2653]: https://github.com/ARKEcosystem/core/pull/2653
+[#2655]: https://github.com/ARKEcosystem/core/pull/2655
+[#2657]: https://github.com/ARKEcosystem/core/pull/2657
+[#2659]: https://github.com/ARKEcosystem/core/pull/2659
+[#2662]: https://github.com/ARKEcosystem/core/pull/2662
+[#2665]: https://github.com/ARKEcosystem/core/pull/2665
+[#2666]: https://github.com/ARKEcosystem/core/pull/2666
+[#2670]: https://github.com/ARKEcosystem/core/pull/2670
+[#2672]: https://github.com/ARKEcosystem/core/pull/2672
+[#2674]: https://github.com/ARKEcosystem/core/pull/2674
+[#2685]: https://github.com/ARKEcosystem/core/pull/2685
+[#2686]: https://github.com/ARKEcosystem/core/pull/2686
+[#2687]: https://github.com/ARKEcosystem/core/pull/2687
+[#2692]: https://github.com/ARKEcosystem/core/pull/2692
+[#2699]: https://github.com/ARKEcosystem/core/pull/2699
+[#2700]: https://github.com/ARKEcosystem/core/pull/2700

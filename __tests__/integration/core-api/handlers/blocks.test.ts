@@ -210,7 +210,7 @@ describe("API 2.0 - Blocks", () => {
             expect(block.id).toBe(blocks2to100[0].id);
             expect(block.previous).toBe(blocks2to100[0].previousBlock);
 
-            await databaseService.deleteBlock(block2); // reset to genesis block
+            await databaseService.deleteBlocks([block2.data]); // reset to genesis block
         });
 
         it("should POST a search for blocks with the exact specified payloadHash", async () => {
