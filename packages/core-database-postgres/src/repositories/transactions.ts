@@ -120,8 +120,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.db.one(queries.transactions.statistics);
     }
 
-    public async deleteByBlockId(id: string, db?: any): Promise<void> {
-        return (db || this.db).none(queries.transactions.deleteByBlock, { id });
+    public async deleteByBlockId(ids: string[], db: any): Promise<void> {
+        return db.none(queries.transactions.deleteByBlock, { ids });
     }
 
     public async getFeeStatistics(

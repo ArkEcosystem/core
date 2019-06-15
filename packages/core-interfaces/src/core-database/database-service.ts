@@ -49,13 +49,7 @@ export interface IDatabaseService {
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
-    enqueueDeleteBlock(block: Interfaces.IBlock): void;
-
-    enqueueDeleteRound(height: number): void;
-
-    commitQueuedQueries(): Promise<void>;
-
-    deleteBlock(block: Interfaces.IBlock): Promise<void>;
+    deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void>;
 
     getBlock(id: string): Promise<Interfaces.IBlock>;
 

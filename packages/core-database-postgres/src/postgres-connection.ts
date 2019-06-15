@@ -35,7 +35,6 @@ export class PostgresConnection implements Database.IConnection {
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
-    private queuedQueries: any[];
 
     public constructor(readonly options: Record<string, any>, private readonly walletManager: State.IWalletManager) {}
 
@@ -46,7 +45,6 @@ export class PostgresConnection implements Database.IConnection {
 
         this.logger.debug("Connecting to database");
 
-        this.queuedQueries = undefined;
         this.cache = new Map();
 
         try {
@@ -93,8 +91,6 @@ export class PostgresConnection implements Database.IConnection {
         this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
 
         try {
-            await this.commitQueuedQueries();
-
             this.cache.clear();
         } catch (error) {
             this.logger.warn("Issue in commiting blocks, database might be corrupted");
@@ -111,51 +107,21 @@ export class PostgresConnection implements Database.IConnection {
         await new StateBuilder(this, this.walletManager).run();
     }
 
-    public async commitQueuedQueries(): Promise<void> {
-        if (!this.queuedQueries || this.queuedQueries.length === 0) {
-            return;
-        }
-
-        this.logger.debug("Committing database transactions.");
-
+    public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         try {
-            await this.db.tx(t => t.batch(this.queuedQueries));
+            await this.db.tx(t => {
+                const nextRoundLastBlock: number = roundCalculator.calculateRound(blocks[blocks.length - 1].height)
+                    .nextRound;
+                const blockIds: string[] = blocks.map(block => block.id);
+
+                return [
+                    this.transactionsRepository.deleteByBlockId(blockIds, t),
+                    this.blocksRepository.delete(blockIds, t),
+                    this.roundsRepository.delete(nextRoundLastBlock, t),
+                ];
+            });
         } catch (error) {
-            this.logger.error(error);
-
-            throw error;
-        } finally {
-            this.queuedQueries = undefined;
-        }
-    }
-
-    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
-        try {
-            await this.db.tx(t =>
-                t.batch([
-                    this.transactionsRepository.deleteByBlockId(block.data.id, t),
-                    this.blocksRepository.delete(block.data.id, t),
-                ]),
-            );
-        } catch (error) {
-            this.logger.error(error.stack);
-
-            throw error;
-        }
-    }
-
-    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
-        this.enqueueQueries([
-            this.transactionsRepository.deleteByBlockId(block.data.id),
-            this.blocksRepository.delete(block.data.id),
-        ]);
-    }
-
-    public enqueueDeleteRound(height: number): void {
-        const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
-
-        if (nextRound === round + 1 && height >= maxDelegates) {
-            this.enqueueQueries([this.roundsRepository.delete(nextRound)]);
+            this.logger.error(error.message);
         }
     }
 
@@ -298,14 +264,6 @@ export class PostgresConnection implements Database.IConnection {
 
     private registerQueryExecutor(): void {
         this.query = new QueryExecutor(this);
-    }
-
-    private enqueueQueries(queries): void {
-        if (!this.queuedQueries) {
-            this.queuedQueries = [];
-        }
-
-        (this.queuedQueries as any).push(...queries);
     }
 
     private exposeRepositories(): void {

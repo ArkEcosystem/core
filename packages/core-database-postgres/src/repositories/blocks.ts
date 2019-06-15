@@ -100,8 +100,8 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.many(queries.blocks.top, { top: count });
     }
 
-    public async delete(id: string, db?: any): Promise<void> {
-        return (db || this.db).none(queries.blocks.delete, { id });
+    public async delete(ids: string[], db: any): Promise<void> {
+        return db.none(queries.blocks.delete, { ids });
     }
 
     public getModel(): Block {
