@@ -34,6 +34,10 @@ export class DatabaseConnectionStub implements Database.IConnection {
         return undefined;
     }
 
+    public resetAll(): Promise<void> {
+        return undefined;
+    }
+
     public deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         return undefined;
     }

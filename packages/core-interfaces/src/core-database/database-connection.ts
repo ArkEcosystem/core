@@ -24,5 +24,7 @@ export interface IConnection {
 
     saveBlocks(blocks: Interfaces.IBlock[]): Promise<void>;
 
+    resetAll(): Promise<void>;
+
     deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void>;
 }

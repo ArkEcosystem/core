@@ -8,6 +8,7 @@ import pgPromise, { IMain } from "pg-promise";
 import { IMigration } from "./interfaces";
 import { migrations } from "./migrations";
 import { Model } from "./models";
+import { queries as sqlQueries } from "./queries";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
@@ -159,6 +160,10 @@ export class PostgresConnection implements Database.IConnection {
             this.logger.error(err.message);
             throw err;
         }
+    }
+
+    public async resetAll(): Promise<void> {
+        return this.db.none(sqlQueries.common.truncateAllTables);
     }
 
     /**
