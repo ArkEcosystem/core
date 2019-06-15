@@ -133,8 +133,8 @@ export class PostgresConnection implements Database.IConnection {
         try {
             await this.db.tx(t =>
                 t.batch([
-                    this.transactionsRepository.deleteByBlockId(block.data.id),
-                    this.blocksRepository.delete(block.data.id),
+                    this.transactionsRepository.deleteByBlockId(block.data.id, t),
+                    this.blocksRepository.delete(block.data.id, t),
                 ]),
             );
         } catch (error) {

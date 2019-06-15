@@ -54,7 +54,7 @@ export interface ITransactionsRepository extends IRepository {
         minFeeBroadcast: number,
     ): Promise<Array<{ type: number; fee: number; timestamp: number }>>;
 
-    deleteByBlockId(blockId: string): Promise<void>;
+    deleteByBlockId(blockId: string, db?: any): Promise<void>;
 
     findAllByWallet(
         wallet: IWallet,
