@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-tester-cli",
-    "version": "2.5.0-next.2",
+    "version": "2.5.0-next.3",
     "description": "Tester CLI for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -28,9 +28,9 @@
         "tester": "./bin/run"
     },
     "dependencies": {
-        "@arkecosystem/core-forger": "^2.5.0-next.2",
-        "@arkecosystem/core-utils": "^2.5.0-next.2",
-        "@arkecosystem/crypto": "^2.5.0-next.2",
+        "@arkecosystem/core-forger": "^2.5.0-next.3",
+        "@arkecosystem/core-utils": "^2.5.0-next.3",
+        "@arkecosystem/crypto": "^2.5.0-next.3",
         "@oclif/command": "^1.5.13",
         "@oclif/config": "^1.13.0",
         "@oclif/plugin-help": "^2.1.6",
