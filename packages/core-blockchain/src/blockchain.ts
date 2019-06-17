@@ -306,12 +306,13 @@ export class Blockchain implements blockchain.IBlockchain {
             nblocks,
         );
 
+        const removedBlocks: Interfaces.IBlockData[] = [];
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             await this.database.revertBlock(lastBlock);
-            this.database.enqueueDeleteBlock(lastBlock);
+            removedBlocks.push(lastBlock.data);
 
             if (this.transactionPool) {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
@@ -348,8 +349,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         await __removeBlocks(nblocks);
 
-        // Commit delete blocks
-        await this.database.commitQueuedQueries();
+        await this.database.deleteBlocks(removedBlocks);
 
         this.queue.resume();
     }
@@ -371,13 +371,12 @@ export class Blockchain implements blockchain.IBlockchain {
             )} from height ${(blocks[0] as any).height.toLocaleString()}`,
         );
 
-        for (const block of blocks) {
-            this.database.enqueueDeleteRound(block.height);
-            this.database.enqueueDeleteBlock(BlockFactory.fromData(block));
+        try {
+            await this.database.deleteBlocks(blocks);
+            await this.database.loadBlocksFromCurrentRound();
+        } catch (error) {
+            logger.error(`Encountered error while removing blocks: ${error.message}`);
         }
-
-        await this.database.commitQueuedQueries();
-        await this.database.loadBlocksFromCurrentRound();
     }
 
     /**

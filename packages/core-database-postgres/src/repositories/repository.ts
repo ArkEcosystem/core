@@ -16,8 +16,9 @@ export abstract class Repository implements Database.IRepository {
         await this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
     }
 
-    public async insert(items: object | object[]): Promise<void> {
-        await this.db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
+    public async insert(items: object | object[], db?: any): Promise<void> {
+        db = db || this.db;
+        return db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
     }
 
     public async update(items: object | object[]): Promise<void> {
@@ -54,6 +55,11 @@ export abstract class Repository implements Database.IRepository {
     ): Promise<{ rows: T; count: number }> {
         if (!!orderBy) {
             for (const o of orderBy) {
+                const column = this.query.columns.find(column => column.prop.toLowerCase() === o.field);
+                if (column) {
+                    selectQuery.order(column[o.direction]);
+                }
+
                 selectQuery.order(this.query[o.field][o.direction]);
             }
         }

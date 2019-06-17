@@ -10,8 +10,6 @@ export interface IBlocksPaginated {
 export interface IBlocksBusinessRepository {
     search(params: IParameters): Promise<IBlocksPaginated>;
 
-    findAll(params: IParameters): Promise<IBlocksPaginated>;
-
     findAllByGenerator(generatorPublicKey: string, paginate: ISearchPaginate): Promise<IBlocksPaginated>;
 
     findById(id: string): Promise<Interfaces.IBlockData>;
