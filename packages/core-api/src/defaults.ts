@@ -34,7 +34,6 @@ export const defaults = {
         userCache: {
             expiresIn: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
         },
-        ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
     // @see https://github.com/fknop/hapi-pagination
     pagination: {
