@@ -1,7 +1,7 @@
 import { resolve } from "path";
 
 export const defaults = {
-    enabled: false,
+    enabled: !process.env.CORE_API_DISABLED,
     host: process.env.CORE_API_HOST || "0.0.0.0",
     port: process.env.CORE_API_PORT || 4003,
     cache: {
