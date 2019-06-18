@@ -8,6 +8,7 @@
     "pubKeyHash": 115,
     "nethash": "70eaacbc5c72ce1346b8fadc0244932c87fcaab960063e05860c5a46f331b1d6",
     "wif": 30,
+    "slip44": 421337,
     "aip20": 0,
     "client": {
         "token": "OSMOSE",
