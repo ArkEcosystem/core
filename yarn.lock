@@ -2,6 +2,79 @@
 # yarn lockfile v1
 
 
+"@arkecosystem/core-container@^2.4.12":
+  version "2.4.12"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-container/-/core-container-2.4.12.tgz#7f807cdeb05ec0984ad182063fef87f5b7f91d64"
+  integrity sha512-5KiyuG+7lTkGMToIQnHpY2eMjYrA9EhNrNBit9S2PbGvbCInAX4dJJsuHBs2HSLRB8szYKjqDxwUmHL7hKC0DQ==
+  dependencies:
+    "@arkecosystem/core-interfaces" "^2.4.12"
+    "@arkecosystem/crypto" "^2.4.12"
+    "@hapi/hoek" "^6.2.3"
+    "@hapi/joi" "^15.0.3"
+    awilix "^4.2.2"
+    delay "^4.2.0"
+    env-paths "^2.2.0"
+    envfile "^3.0.0"
+    expand-home-dir "^0.0.3"
+    fs-extra "^8.0.1"
+    got "^9.6.0"
+    lodash.get "^4.4.2"
+    lodash.isstring "^4.0.1"
+    lodash.set "^4.3.2"
+    semver "^6.1.0"
+
+"@arkecosystem/core-interfaces@^2.4.12":
+  version "2.4.12"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-interfaces/-/core-interfaces-2.4.12.tgz#1666be6a52f768eb04c9a7cc00df3115c663a069"
+  integrity sha512-LYr0ZNOSSqhd/3ECci/Q28hG1D7fhVi6/Pku5p6qMgt9KDoK7YfrhCcJHsCX9m+coqs5rT9XkK777V2BmGq32Q==
+  dependencies:
+    "@arkecosystem/crypto" "^2.4.12"
+    awilix "^4.2.2"
+    dayjs "^1.8.14"
+
+"@arkecosystem/core-utils@^2.4.0":
+  version "2.4.12"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/core-utils/-/core-utils-2.4.12.tgz#9f262ab1677f72ae34eea8fb9316e1b24541f5b4"
+  integrity sha512-mDh26IpEkAM6dxwrwufYhgzQ27TYqZpa8z9XP9tuyzzSs/Ne29kaO1+D9atu9SZxyQSp8hRprlCLK5C6GSruJg==
+  dependencies:
+    "@arkecosystem/core-container" "^2.4.12"
+    "@arkecosystem/core-interfaces" "^2.4.12"
+    "@arkecosystem/crypto" "^2.4.12"
+    cli-table3 "^0.5.1"
+    dayjs "^1.8.14"
+    fast-json-parse "^1.0.3"
+    got "^9.6.0"
+    immutable "^4.0.0-rc.12"
+
+"@arkecosystem/crypto@^2.4.0", "@arkecosystem/crypto@^2.4.12":
+  version "2.4.12"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto/-/crypto-2.4.12.tgz#a052e89e6effac7a9d4ad6e91ca19b631c5fea57"
+  integrity sha512-+LBOmfKZAJVkP2H11iMadAtNY7UuIntu+0oKpO9KJelaezlEHhk4T+bg2EacQzUuQYy4vfCO57+je7L1+uh2Dg==
+  dependencies:
+    "@hapi/joi" "^15.0.3"
+    ajv "^6.10.0"
+    ajv-keywords "^3.4.0"
+    bcrypto "^3.1.11"
+    bignumber.js "^8.1.1"
+    bip32 "^2.0.3"
+    bip39 "^3.0.2"
+    browserify-aes "^1.2.0"
+    bs58 "^4.0.1"
+    bs58check "^2.1.2"
+    buffer-xor "^2.0.2"
+    bytebuffer "^5.0.1"
+    dayjs "^1.8.14"
+    deepmerge "^3.2.0"
+    lodash.camelcase "^4.3.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+    lodash.sumby "^4.6.0"
+    node-forge "^0.8.4"
+    otplib "^11.0.0"
+    pluralize "^7.0.0"
+    tiny-glob "^0.2.6"
+    wif "^2.0.6"
+
 "@arkecosystem/exchange-json-rpc@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@arkecosystem/exchange-json-rpc/-/exchange-json-rpc-1.0.0.tgz#b5bc0fbbf872a1088e7a161319665b5bf127c504"
@@ -6910,6 +6983,14 @@ hapi-rate-limit@^3.1.2:
   dependencies:
     boom "^7.2.0"
     joi "^14.3.0"
+
+hapi-rate-limit@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-3.1.3.tgz#c76d0331c4a0a9146598ac4e5ff24d5cc876eee3"
+  integrity sha512-iVbr/ddprCRS22UJX8ddpmNjqh6Ec1PanJgM+lXynO9mwdKjbw1mYDe0fCSys7edLHXy8K9gwSVKbHaUaNp4Wg==
+  dependencies:
+    "@hapi/boom" "^7.4.2"
+    "@hapi/joi" "^15.0.3"
 
 hapi-trailing-slash@^3.1.0:
   version "3.1.0"

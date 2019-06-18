@@ -70,7 +70,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (this.config.skipDiscovery) {
             this.logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
         } else {
-            await this.updateNetworkStatus(options.networkStart);
+            await this.updateNetworkStatus(true);
 
             for (const [version, peers] of Object.entries(groupBy(this.storage.getPeers(), "version"))) {
                 this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
@@ -82,12 +82,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         return this;
     }
 
-    public async updateNetworkStatus(networkStart: boolean = false): Promise<void> {
+    public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
         if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
             return;
         }
 
-        if (networkStart) {
+        if (this.config.networkStart) {
             this.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
             return;
         }
@@ -97,11 +97,13 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return;
         }
 
-        try {
-            await this.discoverPeers();
-            await this.cleansePeers();
-        } catch (error) {
-            this.logger.error(`Network Status: ${error.message}`);
+        if (initialRun || !this.hasMinimumPeers()) {
+            try {
+                await this.discoverPeers();
+                await this.cleansePeers();
+            } catch (error) {
+                this.logger.error(`Network Status: ${error.message}`);
+            }
         }
 
         let nextRunDelaySeconds = 600;
@@ -410,7 +412,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         this.nextUpdateNetworkStatusScheduled = false;
 
-        this.updateNetworkStatus(this.config.networkStart);
+        this.updateNetworkStatus();
     }
 
     private hasMinimumPeers(): boolean {
