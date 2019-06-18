@@ -127,8 +127,8 @@ export class MissingTransactionSignatureError extends CryptoError {
 }
 
 export class BlockSchemaError extends CryptoError {
-    constructor(what: string) {
-        super(what);
+    constructor(height: number, what: string) {
+        super(`Height (${height}): ${what}`);
     }
 }
 
@@ -145,5 +145,11 @@ export class PreviousBlockIdFormatError extends CryptoError {
 export class InvalidMilestoneConfigurationError extends CryptoError {
     constructor(message: string) {
         super(message);
+    }
+}
+
+export class InvalidMultiSignatureAssetError extends CryptoError {
+    constructor() {
+        super(`The multi signature asset is invalid.`);
     }
 }

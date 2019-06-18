@@ -1,7 +1,8 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
+    "version": "2.4.12",
     "description": "Transaction Pool Manager for ARK Core",
-    "version": "2.3.22",
+    "license": "MIT",
     "contributors": [
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
@@ -9,51 +10,56 @@
         "Vasil Dimov <vd@FreeBSD.org>",
         "Joshua Noack <joshua@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-database": "^2.3.22",
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-transactions": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
-        "@faustbrian/dato": "^0.2.0",
-        "@types/better-sqlite3": "^5.2.2",
-        "@types/fs-extra": "^5.0.5",
+        "@arkecosystem/core-container": "^2.4.12",
+        "@arkecosystem/core-database": "^2.4.12",
+        "@arkecosystem/core-event-emitter": "^2.4.12",
+        "@arkecosystem/core-interfaces": "^2.4.12",
+        "@arkecosystem/core-state": "^2.4.12",
+        "@arkecosystem/core-transactions": "^2.4.12",
+        "@arkecosystem/crypto": "^2.4.12",
+        "@types/better-sqlite3": "^5.4.0",
+        "@types/fs-extra": "^7.0.0",
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
         "bs58check": "^2.1.2",
-        "delay": "^4.1.0",
-        "fs-extra": "^7.0.1",
+        "dayjs": "^1.8.14",
+        "delay": "^4.2.0",
+        "fs-extra": "^8.0.1",
+        "lodash.camelcase": "^4.3.0",
+        "lodash.clonedeep": "^4.5.0",
         "pluralize": "^7.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@types/better-sqlite3": "^5.2.2",
+        "@arkecosystem/core-utils": "^2.4.12",
+        "@types/better-sqlite3": "^5.4.0",
         "@types/bip39": "^2.4.2",
-        "@types/fs-extra": "^5.0.5",
+        "@types/fs-extra": "^7.0.0",
+        "@types/lodash.camelcase": "^4.3.6",
+        "@types/lodash.clonedeep": "^4.5.6",
         "@types/pluralize": "^0.0.29",
         "@types/random-seed": "^0.3.3",
-        "bip39": "^2.5.0",
+        "bip39": "^3.0.2",
         "lodash.clonedeep": "^4.5.0",
         "random-seed": "^0.3.0"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

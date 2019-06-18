@@ -1,12 +1,12 @@
 import { flags } from "@oclif/command";
-import bip39 from "bip39";
+import { validateMnemonic } from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
 import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 
 export class BIP39Command extends BaseCommand {
-    public static description: string = "Configure the forging delegate (BIP38)";
+    public static description: string = "Configure the forging delegate (BIP39)";
 
     public static examples: string[] = [
         `Configure a delegate using a BIP39 passphrase
@@ -35,7 +35,7 @@ $ ark config:forger:bip39 --bip39="..."
                 name: "bip39",
                 message: "Please enter your delegate passphrase",
                 validate: value =>
-                    !bip39.validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+                    !validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
             },
             {
                 type: "confirm",
@@ -65,7 +65,7 @@ $ ark config:forger:bip39 --bip39="..."
         });
 
         this.addTask("Validate passphrase", async () => {
-            if (!bip39.validateMnemonic(flags.bip39)) {
+            if (!validateMnemonic(flags.bip39)) {
                 this.error(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
         });
@@ -75,7 +75,7 @@ $ ark config:forger:bip39 --bip39="..."
             delegates.secrets = [flags.bip39];
             delete delegates.bip38;
 
-            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2));
+            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, undefined, 2));
         });
 
         await this.runTasks();

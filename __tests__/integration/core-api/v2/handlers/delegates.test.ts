@@ -4,8 +4,8 @@ import { utils } from "../utils";
 
 import { blocks2to100 } from "../../../../utils/fixtures/testnet/blocks2to100";
 
-import { Bignum, models } from "@arkecosystem/crypto";
-const { Block } = models;
+import { Blocks, Utils } from "@arkecosystem/crypto";
+const { BlockFactory } = Blocks;
 
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
@@ -31,10 +31,10 @@ beforeAll(async () => {
 
     const wm = app.resolvePlugin("database").walletManager;
     const wallet = wm.findByUsername("genesis_10");
-    wallet.forgedFees = new Bignum(delegate.forgedFees);
-    wallet.forgedRewards = new Bignum(delegate.forgedRewards);
+    wallet.forgedFees = Utils.BigNumber.make(delegate.forgedFees);
+    wallet.forgedRewards = Utils.BigNumber.make(delegate.forgedRewards);
     wallet.producedBlocks = 75;
-    wallet.voteBalance = new Bignum(delegate.voteBalance);
+    wallet.voteBalance = Utils.BigNumber.make(delegate.voteBalance);
     wm.reindex(wallet);
 });
 
@@ -59,7 +59,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all the delegates sorted by votes,asc", async () => {
                     const wm = app.resolvePlugin("database").walletManager;
                     const wallet = wm.findByUsername("genesis_51");
-                    wallet.voteBalance = new Bignum(1);
+                    wallet.voteBalance = Utils.BigNumber.ONE;
                     wm.reindex(wallet);
 
                     const response = await utils[request]("GET", "delegates", { orderBy: "votes:asc" });
@@ -73,7 +73,7 @@ describe("API 2.0 - Delegates", () => {
                 it("should GET all the delegates sorted by votes,desc", async () => {
                     const wm = app.resolvePlugin("database").walletManager;
                     const wallet = wm.findByUsername("genesis_1");
-                    wallet.voteBalance = new Bignum(12500000000000000);
+                    wallet.voteBalance = Utils.BigNumber.make(12500000000000000);
                     wm.reindex(wallet);
 
                     const response = await utils[request]("GET", "delegates", { orderBy: "votes:desc" });
@@ -458,7 +458,7 @@ describe("API 2.0 - Delegates", () => {
             (header, request) => {
                 it("should GET all blocks for a delegate by the given identifier", async () => {
                     // save a new block so that we can make the request with generatorPublicKey
-                    const block2 = new Block(blocks2to100[0]);
+                    const block2 = BlockFactory.fromData(blocks2to100[0]);
                     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
                     await databaseService.saveBlock(block2);
 

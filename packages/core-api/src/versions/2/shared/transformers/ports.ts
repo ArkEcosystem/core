@@ -1,9 +1,9 @@
-export function transformPorts(config: any) {
+export const transformPorts = (config: any) => {
     const result = {};
     const keys = [
         "@arkecosystem/core-p2p",
         "@arkecosystem/core-api",
-        "@arkecosystem/core-json-rpc",
+        "@arkecosystem/core-exchange-json-rpc",
         "@arkecosystem/core-webhooks",
     ];
 
@@ -28,4 +28,4 @@ export function transformPorts(config: any) {
     }
 
     return result;
-}
+};

@@ -5,25 +5,20 @@ import { setUp, tearDown } from "../../__support__/setup";
 import { utils } from "../utils";
 
 const mockAddress = "1.0.0.99";
-const mockPort = 4002;
+const mockPort = 4000;
 
 beforeAll(async () => {
     await setUp();
 
-    const peerMock = new Peer(mockAddress, mockPort);
-    peerMock.setStatus("OK");
+    const peerMock = new Peer(mockAddress);
+    (peerMock as any).port = mockPort;
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-    monitor.peers[peerMock.ip] = peerMock;
+    app.resolvePlugin("p2p")
+        .getStorage()
+        .setPeer(peerMock);
 });
 
-afterAll(async () => {
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-
-    await tearDown();
-});
+afterAll(async () => await tearDown());
 
 describe("API 1.0 - Peers", () => {
     describe("GET /peers", () => {
@@ -41,7 +36,6 @@ describe("API 1.0 - Peers", () => {
         it("should fail using invalid parameters", async () => {
             const response = await utils.request("GET", "peers", {
                 state: "invalid",
-                os: "invalid",
                 shared: "invalid",
                 version: "invalid",
                 limit: "invalid",
@@ -60,6 +54,7 @@ describe("API 1.0 - Peers", () => {
                 ip: mockAddress,
                 port: mockPort,
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data).toBeObject();
             expect(response.data.peer.ip).toBe(mockAddress);

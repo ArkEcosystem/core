@@ -1,7 +1,8 @@
+import "jest-extended";
+
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
-import { client, NetworkManager, transactionBuilder } from "@arkecosystem/crypto";
-import "jest-extended";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import { ApiHelpers } from "../../../utils/helpers/api";
 
 class Helpers {
@@ -94,7 +95,7 @@ class Helpers {
         expect(block.id).toBeString();
         expect(block.version).toBeNumber();
         expect(block.height).toBeNumber();
-        expect(block).toHaveProperty("previous"); // `null` or String
+        expect(block).toHaveProperty("previous"); // `undefined` or String
         expect(block).toHaveProperty("forged");
         expect(block.forged.reward).toBeNumber();
         expect(block.forged.fee).toBeNumber();
@@ -143,11 +144,10 @@ class Helpers {
     }
 
     public async createTransaction() {
-        client.setConfig(NetworkManager.findByName("testnet"));
+        Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
-        const transaction = transactionBuilder
-            .transfer()
-            .amount(1 * 1e8)
+        const transaction = Transactions.BuilderFactory.transfer()
+            .amount("100000000")
             .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
             .vendorField("test")
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")

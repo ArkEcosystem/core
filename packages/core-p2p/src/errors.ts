@@ -25,13 +25,19 @@ export class PeerStatusResponseError extends P2PError {
 }
 
 export class PeerPingTimeoutError extends P2PError {
-    constructor(delay: number) {
-        super(`Ping timeout (${delay} ms)`);
+    constructor(latency: number) {
+        super(`Ping timeout (${latency} ms)`);
     }
 }
 
 export class PeerVerificationFailedError extends P2PError {
     constructor() {
-        super(`Peer verification failed.`);
+        super("Peer verification failed.");
+    }
+}
+
+export class MissingCommonBlockError extends P2PError {
+    constructor() {
+        super("Couldn't find any common blocks.");
     }
 }

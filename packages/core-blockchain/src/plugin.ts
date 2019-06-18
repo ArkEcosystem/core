@@ -1,32 +1,39 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { asValue } from "awilix";
+import { Container, State } from "@arkecosystem/core-interfaces";
 import { Blockchain } from "./blockchain";
-import { config } from "./config";
 import { defaults } from "./defaults";
-import { stateStorage } from "./state-storage";
+import { blockchainMachine } from "./machines/blockchain";
+import { ReplayBlockchain } from "./replay";
 
 /**
  * The struct used by the plugin container.
  * @type {Object}
  */
-export const plugin: Container.PluginDescriptor = {
+export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
+    required: true,
     alias: "blockchain",
     async register(container: Container.IContainer, options: Container.IPluginOptions) {
-        const blockchain = new Blockchain(options);
+        let blockchain: Blockchain;
 
-        config.init(options);
+        if (options.replay) {
+            blockchain = new ReplayBlockchain();
+        } else {
+            blockchain = new Blockchain(options);
+        }
 
-        container.register("state", asValue(stateStorage));
+        container
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .reset(blockchainMachine);
 
-        if (!process.env.CORE_SKIP_BLOCKCHAIN) {
+        if (!process.env.CORE_SKIP_BLOCKCHAIN && !options.replay) {
             await blockchain.start();
         }
 
         return blockchain;
     },
-    async deregister(container: Container.IContainer, options) {
+    async deregister(container: Container.IContainer) {
         await container.resolvePlugin<Blockchain>("blockchain").stop();
     },
 };

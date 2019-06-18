@@ -34,6 +34,9 @@ $ ark relay:run --launchMode=seed
             hidden: true,
             default: "relay",
         }),
+        env: flags.string({
+            default: "production",
+        }),
     };
 
     public async run(): Promise<void> {

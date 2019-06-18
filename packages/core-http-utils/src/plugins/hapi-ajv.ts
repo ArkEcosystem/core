@@ -1,6 +1,6 @@
-import { AjvWrapper } from "@arkecosystem/crypto";
-import Boom from "boom";
-import Hapi from "hapi";
+import { Validation } from "@arkecosystem/crypto";
+import Boom from "@hapi/boom";
+import Hapi from "@hapi/hapi";
 
 const name = "hapi-ajv";
 
@@ -8,15 +8,9 @@ export const hapiAjv = {
     name,
     version: "1.0.0",
     register: async (server: Hapi.Server, options: any): Promise<void> => {
-        const ajv = AjvWrapper.instance();
-
         if (options.registerFormats) {
-            options.registerFormats(ajv);
+            options.registerFormats(Validation.validator.getInstance());
         }
-
-        const validate = (schema, data) => {
-            return ajv.validate(schema, data) ? null : ajv.errors;
-        };
 
         const createErrorResponse = (request, h, errors) => {
             if (request.pre.apiVersion === 1) {
@@ -29,7 +23,7 @@ export const hapiAjv = {
                     .takeover();
             }
 
-            return Boom.badData(errors);
+            return Boom.badData(errors.map(error => error.message).join(","));
         };
 
         server.ext({
@@ -37,20 +31,18 @@ export const hapiAjv = {
             method: (request, h) => {
                 const config = request.route.settings.plugins[name] || {};
 
-                let errors;
-
                 if (config.payloadSchema) {
-                    errors = validate(config.payloadSchema, request.payload);
+                    const { error, errors } = Validation.validator.validate(config.payloadSchema, request.payload);
 
-                    if (errors) {
-                        return createErrorResponse(request, h, errors[0].message);
+                    if (error) {
+                        return createErrorResponse(request, h, errors);
                     }
                 }
 
                 if (config.querySchema) {
-                    errors = validate(config.querySchema, request.query);
+                    const { error, errors } = Validation.validator.validate(config.querySchema, request.query);
 
-                    if (errors) {
+                    if (error) {
                         return createErrorResponse(request, h, errors);
                     }
                 }

@@ -1,7 +1,7 @@
 import "../../../../../packages/core-jest-matchers/src/transactions/types/vote";
 
-import { constants } from "@arkecosystem/crypto";
-const { TransactionTypes } = constants;
+import { Enums } from "@arkecosystem/crypto";
+const { TransactionTypes } = Enums;
 
 describe(".toBeVoteType", () => {
     test("passes when given a valid transaction", () => {

@@ -13,7 +13,7 @@ declare global {
     }
 }
 
-function isValidBlock(block) {
+const isValidBlock = block => {
     const allowedKeys = sortBy([
         "blockSignature",
         "createdAt",
@@ -35,7 +35,7 @@ function isValidBlock(block) {
     const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
 
     return isEqual(sortBy(actualKeys), allowedKeys);
-}
+};
 
 expect.extend({
     toBeValidBlock: (actual, expected) => {

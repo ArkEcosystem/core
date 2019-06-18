@@ -66,6 +66,12 @@ export class InvalidSecondSignatureError extends TransactionError {
     }
 }
 
+export class WalletAlreadyResignedError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the wallet already resigned as delegate.`);
+    }
+}
+
 export class WalletUsernameEmptyError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the username is empty.`);
@@ -95,6 +101,11 @@ export class SecondSignatureAlreadyRegisteredError extends TransactionError {
         super(`Failed to apply transaction, because second signature is already enabled.`);
     }
 }
+export class NotSupportedForMultiSignatureWalletError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because multi signature is enabled.`);
+    }
+}
 
 export class AlreadyVotedError extends TransactionError {
     constructor() {
@@ -120,9 +131,21 @@ export class VotedForNonDelegateError extends TransactionError {
     }
 }
 
+export class VotedForResignedDelegateError extends TransactionError {
+    constructor(vote: string) {
+        super(`Failed to apply transaction, because it votes for a resigned delegate.`);
+    }
+}
+
 export class MultiSignatureAlreadyRegisteredError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because multi signature is already enabled.`);
+    }
+}
+
+export class InvalidMultiSignatureError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the multi signature could not be verified.`);
     }
 }
 
@@ -140,8 +163,8 @@ export class MultiSignatureKeyCountMismatchError extends TransactionError {
     }
 }
 
-export class InvalidMultiSignatureError extends TransactionError {
+export class IpfsHashAlreadyExists extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because the multi signature could not be verified.`);
+        super(`Failed to apply transaction, because this IPFS hash is already registered for the wallet.`);
     }
 }

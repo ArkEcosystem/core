@@ -1,57 +1,41 @@
-import secp256k1 from "secp256k1";
+import { secp256k1 } from "bcrypto";
 import wif from "wif";
-
 import { HashAlgorithms } from "../crypto";
 import { NetworkVersionError } from "../errors";
+import { IKeyPair } from "../interfaces";
+import { INetwork } from "../interfaces/networks";
 import { configManager } from "../managers";
 
-export interface KeyPair {
-    publicKey: string;
-    privateKey: string;
-    compressed: boolean;
-}
-
 export class Keys {
-    public static fromPassphrase(passphrase: string, compressed: boolean = true): KeyPair {
-        const privateKey = HashAlgorithms.sha256(Buffer.from(passphrase, "utf8"));
-        return Keys.fromPrivateKey(privateKey, compressed);
+    public static fromPassphrase(passphrase: string, compressed: boolean = true): IKeyPair {
+        return Keys.fromPrivateKey(HashAlgorithms.sha256(Buffer.from(passphrase, "utf8")), compressed);
     }
 
-    public static fromPrivateKey(privateKey: Buffer | string, compressed: boolean = true): KeyPair {
+    public static fromPrivateKey(privateKey: Buffer | string, compressed: boolean = true): IKeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
 
-        const publicKey = secp256k1.publicKeyCreate(privateKey, compressed);
-        const keyPair = {
-            publicKey: publicKey.toString("hex"),
+        return {
+            publicKey: secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
             compressed,
         };
-
-        return keyPair;
     }
 
-    public static fromWIF(wifKey: string, network?: { wif: number }): KeyPair {
+    public static fromWIF(wifKey: string, network?: INetwork): IKeyPair {
         if (!network) {
-            network = configManager.all();
+            network = configManager.get("network");
         }
 
-        // @ts-ignore
-        const decoded = wif.decode(wifKey);
-        const version = decoded.version;
+        const { version, compressed, privateKey } = wif.decode(wifKey, network.wif);
 
         if (version !== network.wif) {
             throw new NetworkVersionError(network.wif, version);
         }
 
-        const privateKey = decoded.privateKey;
-        const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed);
-
-        const keyPair = {
-            publicKey: publicKey.toString("hex"),
+        return {
+            publicKey: secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
-            compressed: decoded.compressed,
+            compressed,
         };
-
-        return keyPair;
     }
 }

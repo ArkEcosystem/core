@@ -1,58 +1,59 @@
 {
     "name": "@arkecosystem/core-tester-cli",
+    "version": "2.4.12",
     "description": "Tester CLI for ARK Core",
-    "version": "2.3.22",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "/bin",
         "/dist",
         "/oclif.manifest.json"
     ],
+    "main": "dist/index",
     "bin": {
         "tester": "./bin/run"
     },
     "scripts": {
-        "tester": "./bin/run",
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
-        "postpack": "rm -f oclif.manifest.json",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
+        "postpack": "rm -f oclif.manifest.json",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh",
+        "tester": "./bin/run"
     },
     "dependencies": {
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
-        "@oclif/command": "^1.5.11",
-        "@oclif/config": "^1.12.9",
+        "@arkecosystem/core-forger": "^2.4.12",
+        "@arkecosystem/core-utils": "^2.4.12",
+        "@arkecosystem/crypto": "^2.4.12",
+        "@oclif/command": "^1.5.13",
+        "@oclif/config": "^1.13.0",
         "@oclif/plugin-help": "^2.1.6",
         "@oclif/plugin-not-found": "^1.2.2",
-        "bip39": "^2.5.0",
-        "clipboardy": "^1.2.3",
-        "delay": "^4.1.0",
-        "pino": "^5.11.2",
-        "pino-pretty": "^2.5.0",
-        "pluralize": "^7.0.0",
-        "pokemon": "^1.2.3"
+        "bip39": "^3.0.2",
+        "clipboardy": "^2.0.0",
+        "delay": "^4.2.0",
+        "pino": "^5.12.5",
+        "pino-pretty": "^3.0.1",
+        "pluralize": "^7.0.0"
     },
     "devDependencies": {
         "@types/bip39": "^2.4.2",
-        "@types/clipboardy": "^1.1.0",
+        "@types/clipboardy": "^2.0.1",
         "@types/lodash.fill": "^3.4.6",
+        "@types/pino": "^5.20.0",
         "@types/pluralize": "^0.0.29"
-    },
-    "publishConfig": {
-        "access": "public"
     },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     },
     "oclif": {
         "commands": "./dist/commands",

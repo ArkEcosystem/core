@@ -17,10 +17,10 @@
                 "delegateRegistration": 5000000000,
                 "vote": 100000000,
                 "multiSignature": 500000000,
-                "ipfs": 0,
+                "ipfs": 500000000,
                 "timelockTransfer": 0,
                 "multiPayment": 0,
-                "delegateResignation": 0
+                "delegateResignation": 2500000000
             }
         },
         "vendorFieldLength": 255

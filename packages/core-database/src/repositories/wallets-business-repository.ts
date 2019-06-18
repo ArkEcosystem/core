@@ -1,29 +1,16 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    /**
-     * Create a new wallet repository instance.
-     * @param databaseServiceProvider
-     */
-    public constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    /**
-     * Get all local wallets.
-     * @return {Array}
-     */
-    public all() {
+    public all(): State.IWallet[] {
         return this.databaseServiceProvider().walletManager.allByAddress();
     }
 
-    /**
-     * Find all wallets.
-     * @param  {{ orderBy?: string }} params
-     * @return {Object}
-     */
-    public findAll(params: Database.IParameters = {}) {
+    public findAll(params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const wallets = sortEntries(params, this.all(), ["rate", "asc"]);
@@ -34,13 +21,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    /**
-     * Find all wallets for the given vote.
-     * @param  {String} publicKey
-     * @param  {Object} params
-     * @return {Object}
-     */
-    public findAllByVote(publicKey: string, params: Database.IParameters = {}) {
+    public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const wallets = this.all().filter(wallet => wallet.vote === publicKey);
@@ -51,24 +32,15 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    /**
-     * Find a wallet by address, public key or username.
-     */
-    public findById(id: string) {
+    public findById(id: string): State.IWallet {
         return this.all().find(wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id);
     }
 
-    /**
-     * Count all wallets.
-     */
-    public count() {
+    public count(): number {
         return this.all().length;
     }
 
-    /**
-     * Find all wallets sorted by balance.
-     */
-    public top(params: Database.IParameters = {}) {
+    public top(params: Database.IParameters = {}): Database.IWalletsPaginated {
         this.applyOrder(params);
 
         const wallets = sortEntries(params, this.all(), ["balance", "desc"]);
@@ -99,7 +71,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
      * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
      * @return {Object}
      */
-    public search<T extends Database.IParameters>(params: T) {
+    public search<T extends Database.IParameters>(params: T): Database.IWalletsPaginated {
         const query: any = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],
@@ -108,6 +80,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         if (params.addresses) {
             // Use the `in` filter instead of `exact` for the `address` field
             if (!params.address) {
+                // @ts-ignore
                 params.address = params.addresses;
                 query.exact.shift();
                 query.in = ["address"];

@@ -1,4 +1,4 @@
-export function buildFilterQuery(parameters, filters) {
+export const buildFilterQuery = (parameters, filters) => {
     const where = [];
 
     if (filters.hasOwnProperty("exact")) {
@@ -75,4 +75,4 @@ export function buildFilterQuery(parameters, filters) {
     }
 
     return where;
-}
+};

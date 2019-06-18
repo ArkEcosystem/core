@@ -1,5 +1,5 @@
-import { client, crypto } from "@arkecosystem/crypto";
-import bip39 from "bip39";
+import { Identities, Managers } from "@arkecosystem/crypto";
+import { generateMnemonic } from "bip39";
 
 export const generateWallets = (network, quantity = 10) => {
     network = network || "testnet";
@@ -7,13 +7,13 @@ export const generateWallets = (network, quantity = 10) => {
         throw new Error("Invalid network");
     }
 
-    client.getConfigManager().setFromPreset(network);
+    Managers.configManager.setFromPreset(network);
 
     const wallets = [];
     for (let i = 0; i < quantity; i++) {
-        const passphrase = bip39.generateMnemonic();
-        const publicKey = crypto.getKeys(passphrase).publicKey;
-        const address = crypto.getAddress(publicKey);
+        const passphrase: string = generateMnemonic();
+        const publicKey: string = Identities.PublicKey.fromPassphrase(passphrase);
+        const address: string = Identities.Address.fromPassphrase(passphrase);
 
         wallets.push({ address, passphrase, publicKey });
     }

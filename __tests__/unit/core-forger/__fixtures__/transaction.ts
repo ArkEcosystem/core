@@ -1,7 +1,9 @@
+import { Utils } from "@arkecosystem/crypto";
+
 export const sampleTransaction = {
     type: 0,
-    amount: 245098000000000,
-    fee: 0,
+    amount: Utils.BigNumber.make(245098000000000),
+    fee: Utils.BigNumber.make(0),
     recipientId: "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
     timestamp: 0,
     asset: {},

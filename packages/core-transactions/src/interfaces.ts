@@ -1,17 +1,26 @@
-import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { ITransactionData, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export interface ITransactionHandler {
-    getConstructor(): TransactionConstructor;
+    getConstructor(): Transactions.TransactionConstructor;
 
-    canBeApplied(transaction: Transaction, wallet: Database.IWallet, walletManager?: Database.IWalletManager): boolean;
-    applyToSender(transaction: Transaction, wallet: Database.IWallet): void;
-    applyToRecipient(transaction: Transaction, wallet: Database.IWallet): void;
-    revertForSender(transaction: Transaction, wallet: Database.IWallet): void;
-    revertForRecipient(transaction: Transaction, wallet: Database.IWallet): void;
-    apply(transaction: Transaction, wallet: Database.IWallet): void;
-    revert(transaction: Transaction, wallet: Database.IWallet): void;
+    bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void>;
 
-    canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean;
-    emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void;
+    verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean;
+
+    canBeApplied(
+        transaction: Interfaces.ITransaction,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
+    ): boolean;
+    apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
+    revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
+
+    canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean;
+
+    emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void;
 }

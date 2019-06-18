@@ -1,13 +1,15 @@
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
-import { bignumify, formatTimestamp } from "@arkecosystem/core-utils";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { formatTimestamp } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 
-export function transformBlock(model) {
+export const transformBlock = model => {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     const generator = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
+    const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
 
-    model.reward = bignumify(model.reward);
-    model.totalFee = bignumify(model.totalFee);
+    model.reward = Utils.BigNumber.make(model.reward);
+    model.totalFee = Utils.BigNumber.make(model.totalFee);
 
     return {
         id: model.id,
@@ -18,7 +20,7 @@ export function transformBlock(model) {
             reward: +model.reward.toFixed(),
             fee: +model.totalFee.toFixed(),
             total: +model.reward.plus(model.totalFee).toFixed(),
-            amount: +bignumify(model.totalAmount).toFixed(),
+            amount: +Utils.BigNumber.make(model.totalAmount).toFixed(),
         },
         payload: {
             hash: model.payloadHash,
@@ -30,8 +32,8 @@ export function transformBlock(model) {
             publicKey: generator.publicKey,
         },
         signature: model.blockSignature,
-        confirmations: model.confirmations,
+        confirmations: lastBlock ? lastBlock.data.height - model.height : 0,
         transactions: model.numberOfTransactions,
         timestamp: formatTimestamp(model.timestamp),
     };
-}
+};

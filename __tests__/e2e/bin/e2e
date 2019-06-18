@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+const app = require('commander')
+
+app.version(require('../package.json').version)
+
+app
+  .command('generate')
+  .description('generate the file structure for e2e testing')
+  .option('-c, --nodes <number of nodes>', 'number of nodes to generate', 1)
+  .option('-v, --version <node version>', 'node version to use', 11)
+  .option('-n, --network <network>', 'network to use as a base (testnet / devnet / mainnet)', "testnet")
+  .option('-r, --relay', 'relay only mode : generate files for relay use', false)
+  .action((options) => require('../lib/generate-files')(options))
+
+app
+  .command('run-tests')
+  .description('Run the tests')
+  .option('-s, --scenario <scenario>', 'scenario to test', 'scenario1')
+  .action((options) =>  require('../lib/test-runner')(Object.assign(options, { network: "testnet" })))
+
+app
+  .command('run-sync')
+  .description('Run a full sync')
+  .option('-n, --network <network>', 'network to use as a base (testnet / devnet / mainnet)', "testnet")
+  .option('-t, --timeLimit <timeLimit>', 'time limit in minutes before stopping sync', 1200)
+  .action((options) =>  require('../lib/test-runner')(Object.assign(options, { sync: true })))
+
+app
+  .command('*')
+  .action(env => {
+    app.help()
+    process.exit(0)
+  })
+
+app.parse(process.argv)

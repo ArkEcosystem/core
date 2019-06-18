@@ -19,14 +19,35 @@ export abstract class AbstractStartCommand extends BaseCommand {
         const processName = options.name;
 
         try {
-            if (processManager.exists(processName)) {
+            if (processManager.has(processName)) {
                 this.abortUnknownProcess(processName);
                 this.abortRunningProcess(processName);
             }
 
             cli.action.start(`Starting ${processName}`);
 
-            processManager.start(options, flags.daemon === false);
+            const flagsProcess: Record<string, boolean | number | string> = {
+                "max-restarts": 5,
+                "kill-timeout": 30000,
+            };
+
+            if (flags.daemon === false) {
+                flagsProcess["no-daemon"] = true;
+            }
+
+            flagsProcess.name = processName;
+
+            processManager.start(
+                {
+                    ...options,
+                    ...{
+                        env: {
+                            CORE_ENV: flags.env,
+                        },
+                    },
+                },
+                flagsProcess,
+            );
         } catch (error) {
             error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
         } finally {

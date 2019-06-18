@@ -1,0 +1,43 @@
+{
+    "name": "@arkecosystem/core-state",
+    "version": "2.4.12",
+    "description": "State Management for ARK Core",
+    "license": "MIT",
+    "contributors": [
+        "Brian Faust <brian@ark.io>",
+        "Joshua Noack <joshua@ark.io>"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index",
+    "types": "dist/index",
+    "scripts": {
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
+    },
+    "dependencies": {
+        "@arkecosystem/core-container": "^2.4.12",
+        "@arkecosystem/core-interfaces": "^2.4.12",
+        "@arkecosystem/core-transactions": "^2.4.12",
+        "@arkecosystem/core-utils": "^2.4.12",
+        "@arkecosystem/crypto": "^2.4.12",
+        "immutable": "^4.0.0-rc.12",
+        "lodash.clonedeep": "^4.5.0",
+        "pluralize": "^7.0.0"
+    },
+    "devDependencies": {
+        "@types/lodash.clonedeep": "^4.5.6",
+        "@types/pluralize": "^0.0.29"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

@@ -4,15 +4,6 @@ import { buildFilterQuery } from "./utils/build-filter-query";
 
 // TODO: Deprecate this with v1 code
 export class BlockRepository extends Repository implements IRepository {
-    constructor() {
-        super();
-    }
-
-    /**
-     * Get all blocks for the given parameters.
-     * @param  {Object}  parameters
-     * @return {Object}
-     */
     public async findAll(parameters: any = {}): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 
@@ -35,21 +26,10 @@ export class BlockRepository extends Repository implements IRepository {
         });
     }
 
-    /**
-     * Get all blocks for the given generator.
-     * @param  {String} generatorPublicKey
-     * @param  {Object} paginator
-     * @return {Object}
-     */
     public async findAllByGenerator(generatorPublicKey, paginator): Promise<any> {
         return this.findAll({ ...{ generatorPublicKey }, ...paginator });
     }
 
-    /**
-     * Get a block.
-     * @param  {Number} id
-     * @return {Object}
-     */
     public async findById(value): Promise<any> {
         const query = this.query
             .select()
@@ -65,27 +45,6 @@ export class BlockRepository extends Repository implements IRepository {
         return this._find(query);
     }
 
-    /**
-     * Get the last block for the given generator.
-     * TODO is this right? - This is unused anyway
-     * @param  {String} generatorPublicKey
-     * @return {Object}
-     */
-    public async findLastByPublicKey(generatorPublicKey): Promise<any> {
-        const query = this.query
-            .select(this.query.id, this.query.timestamp)
-            .from(this.query)
-            .where(this.query.generator_public_key.equals(generatorPublicKey))
-            .order(this.query.height.desc);
-
-        return this._find(query);
-    }
-
-    /**
-     * Search all blocks.
-     * @param  {Object} parameters
-     * @return {Object}
-     */
     public async search(parameters): Promise<any> {
         const selectQuery = this.query.select().from(this.query);
 

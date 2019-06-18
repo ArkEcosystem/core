@@ -1,5 +1,5 @@
 import delay from "delay";
-import { createFileSync, readdirSync, removeSync } from "fs-extra";
+import { readdirSync, removeSync } from "fs-extra";
 import { tmpdir } from "os";
 import { PinoLogger } from "../../../packages/core-logger-pino/src";
 import { defaults } from "../../../packages/core-logger-pino/src/defaults";

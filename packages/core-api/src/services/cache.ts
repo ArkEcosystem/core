@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
-import { HashAlgorithms } from "@arkecosystem/crypto";
-import Hapi, { ServerMethod } from "hapi";
+import { Crypto } from "@arkecosystem/crypto";
+import Hapi, { ServerMethod } from "@hapi/hapi";
 
 export class ServerCache {
     public static make(server: Hapi.Server): ServerCache {
@@ -30,7 +30,7 @@ export class ServerCache {
     }
 
     private generateCacheKey(value: object): string {
-        return HashAlgorithms.sha256(JSON.stringify(value)).toString("hex");
+        return Crypto.HashAlgorithms.sha256(JSON.stringify(value)).toString("hex");
     }
 
     private getCacheTimeout(): number | boolean {

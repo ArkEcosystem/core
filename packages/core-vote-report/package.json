@@ -1,40 +1,39 @@
 {
     "name": "@arkecosystem/core-vote-report",
+    "version": "2.4.12",
     "description": "Vote Report for ARK Core",
-    "version": "2.3.22",
+    "license": "MIT",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile && cp -r src/templates dist/templates",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-http-utils": "^2.3.22",
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
-        "handlebars": "^4.1.0",
+        "@arkecosystem/core-container": "^2.4.12",
+        "@arkecosystem/core-http-utils": "^2.4.12",
+        "@arkecosystem/core-utils": "^2.4.12",
+        "@arkecosystem/crypto": "^2.4.12",
+        "handlebars": "^4.1.2",
         "lodash.sumby": "^4.6.0",
         "vision": "^5.4.4"
     },
     "devDependencies": {
-        "@types/handlebars": "^4.1.0",
         "@types/lodash.sumby": "^4.6.6",
         "@types/vision": "^5.3.6"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

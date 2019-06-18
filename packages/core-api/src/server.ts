@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { createSecureServer, createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { Logger } from "@arkecosystem/core-interfaces";
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import { registerFormats } from "./formats";
 
 export class Server {
@@ -36,7 +36,7 @@ export class Server {
         }
 
         if (this.config.ssl.enabled) {
-            this.https = await createSecureServer(options, null, this.config.ssl);
+            this.https = await createSecureServer(options, undefined, this.config.ssl);
             this.https.app.config = this.config;
 
             this.registerPlugins("HTTPS", this.https);
@@ -83,7 +83,6 @@ export class Server {
             plugin: plugins.whitelist,
             options: {
                 whitelist: this.config.whitelist,
-                name: "Public API",
             },
         });
 
@@ -145,6 +144,14 @@ export class Server {
 
             await server.register(plugin);
         }
+
+        server.route({
+            method: "GET",
+            path: "/",
+            handler() {
+                return { data: "Hello World!" };
+            },
+        });
 
         await mountServer(`Public ${name.toUpperCase()} API`, server);
     }

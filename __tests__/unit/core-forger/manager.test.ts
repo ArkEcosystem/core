@@ -1,18 +1,18 @@
-import "./mocks/core-container";
-
 import "jest-extended";
 
+import "./mocks/core-container";
+
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { models, Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
+import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
 import { testnet } from "../../../packages/crypto/src/networks";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
 import { sampleTransaction } from "./__fixtures__/transaction";
-
-const { Delegate } = models;
 
 jest.setTimeout(30000);
 jest.mock("../../../packages/core-forger/src/client");
@@ -24,23 +24,11 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    defaults.hosts = [`http://127.0.0.1:4000`];
+    defaults.hosts = [{ hostname: "127.0.0.1", port: 4000 }];
     forgeManager = new ForgerManager(defaults);
 });
 
 describe("Forger Manager", () => {
-    describe("loadDelegates", () => {
-        it("should be ok with configured delegates", async () => {
-            const secret = "a secret";
-            forgeManager.secrets = [secret];
-
-            const delegates = await forgeManager.loadDelegates();
-
-            expect(delegates).toBeArray();
-            delegates.forEach(value => expect(value).toBeInstanceOf(Delegate));
-        });
-    });
-
     describe("forgeNewBlock", () => {
         it("should forge a block", async () => {
             // NOTE: make sure we have valid transactions from an existing wallet
@@ -68,25 +56,33 @@ describe("Forger Manager", () => {
                 nodeHeight: round.lastBlock.height,
             });
 
-            expect(forgeManager.client.broadcast).toHaveBeenCalledWith(
+            expect(forgeManager.client.broadcastBlock).toHaveBeenCalledWith(
                 expect.objectContaining({
                     height: round.lastBlock.height + 1,
-                    reward: round.reward,
+                    reward: round.reward.toFixed(),
                 }),
             );
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("block.forged", expect.any(Object));
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("transaction.forged", expect.any(Object));
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
+                ApplicationEvents.BlockForged,
+                expect.any(Object),
+            );
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
+                ApplicationEvents.TransactionForged,
+                expect.any(Object),
+            );
         });
     });
 
-    describe("__monitor", () => {
+    describe("checkSlot", () => {
         it("should emit failed event if error while monitoring", async () => {
             forgeManager.client.getRound.mockRejectedValue(new Error("oh bollocks"));
 
-            setTimeout(() => forgeManager.stop(), 1000);
-            await forgeManager.__monitor();
+            setTimeout(() => forgeManager.stopForging(), 1000);
+            await forgeManager.checkSlot();
 
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith("forger.failed", "oh bollocks");
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, {
+                error: "oh bollocks",
+            });
         });
     });
 
@@ -103,7 +99,7 @@ describe("Forger Manager", () => {
         it("should return deserialized transactions", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: [Transaction.fromData(sampleTransaction).serialized.toString("hex")],
+                transactions: [Transactions.TransactionFactory.fromData(sampleTransaction).serialized.toString("hex")],
             });
 
             const transactions = await forgeManager.getTransactionsForForging();
@@ -115,12 +111,12 @@ describe("Forger Manager", () => {
         });
     });
 
-    describe("parseNetworkState", () => {
+    describe("isForgingAllowed", () => {
         it("should be TRUE when quorum > 0.66", async () => {
             const networkState = new NetworkState(NetworkStateStatus.Default);
             Object.assign(networkState, { getQuorum: () => 0.9, nodeHeight: 100, lastBlockId: "1233443" });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeTrue();
         });
@@ -129,7 +125,7 @@ describe("Forger Manager", () => {
             const networkState = new NetworkState(NetworkStateStatus.Unknown);
             Object.assign(networkState, { getQuorum: () => 1, nodeHeight: 100, lastBlockId: "1233443" });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
@@ -138,26 +134,19 @@ describe("Forger Manager", () => {
             const networkState = new NetworkState(NetworkStateStatus.Default);
             Object.assign(networkState, { getQuorum: () => 0.65, nodeHeight: 100, lastBlockId: "1233443" });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
-
-            expect(canForge).toBeFalse();
-        });
-
-        it("should be FALSE when coldStart is active", async () => {
-            const networkState = new NetworkState(NetworkStateStatus.ColdStart);
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
         it("should be FALSE when minimumNetworkReach is not sufficient", async () => {
             const networkState = new NetworkState(NetworkStateStatus.BelowMinimumPeers);
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
 
             expect(canForge).toBeFalse();
         });
 
-        it("should be FAIL and detect possible double forging", async () => {
+        it("should be TRUE and detect possible double forging", async () => {
             forgeManager.usernames = [];
 
             const networkState = new NetworkState(NetworkStateStatus.Default);
@@ -176,8 +165,8 @@ describe("Forger Manager", () => {
                 },
             });
 
-            const canForge = await forgeManager.parseNetworkState(networkState, delegate);
-            expect(canForge).toBeFalse();
+            const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
+            expect(canForge).toBeTrue();
         });
     });
 });

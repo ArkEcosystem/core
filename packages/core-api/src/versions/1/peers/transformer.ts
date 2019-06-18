@@ -1,15 +1,14 @@
 import { app } from "@arkecosystem/core-container";
 
-export function transformPeerLegacy(model) {
-    const config = app.getConfig();
+const port = +app.resolveOptions("p2p").server.port;
 
+export const transformPeerLegacy = model => {
     return {
         ip: model.ip,
-        port: model.port,
+        port,
+        ports: model.ports,
         version: model.version,
         height: model.height,
-        status: [200, "OK"].includes(model.status) ? "OK" : "ERROR",
-        os: model.os,
-        delay: model.delay,
+        delay: model.latency,
     };
-}
+};

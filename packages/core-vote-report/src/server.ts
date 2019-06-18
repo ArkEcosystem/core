@@ -2,7 +2,7 @@ import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 import * as Handlebars from "handlebars";
 import { handler } from "./handler";
 
-export async function startServer(config) {
+export const startServer = async config => {
     const server = await createServer(
         {
             host: config.host,
@@ -17,9 +17,6 @@ export async function startServer(config) {
         [require("vision")],
     );
 
-    // @ts-ignore
-    server.app.config = config;
-
     server.route({
         method: "GET",
         path: "/",
@@ -27,4 +24,4 @@ export async function startServer(config) {
     });
 
     return mountServer("Vote Report", server);
-}
+};

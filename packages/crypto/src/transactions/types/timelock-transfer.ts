@@ -1,7 +1,8 @@
 import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../constants";
-import { Bignum } from "../../utils";
+import { TransactionTypes } from "../../enums";
+import { ISerializeOptions } from "../../interfaces";
+import { BigNumber } from "../../utils";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -12,11 +13,11 @@ export class TimelockTransferTransaction extends Transaction {
         return schemas.timelockTransfer;
     }
 
-    public serialize(): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
-        const buffer = new ByteBuffer(4 + 1 + 4 + 24, true);
+        const buffer: ByteBuffer = new ByteBuffer(4 + 1 + 4 + 24, true);
 
-        buffer.writeUint64(+new Bignum(data.amount).toFixed());
+        buffer.writeUint64(+data.amount.toFixed());
         buffer.writeByte(data.timelockType);
         buffer.writeUint64(data.timelock);
         buffer.append(bs58check.decode(data.recipientId));
@@ -25,7 +26,7 @@ export class TimelockTransferTransaction extends Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        data.amount = new Bignum(buf.readUint64().toString());
+        data.amount = BigNumber.make(buf.readUint64().toString());
         data.timelockType = buf.readUint8();
         data.timelock = buf.readUint64().toNumber();
         data.recipientId = bs58check.encode(buf.readBytes(21).toBuffer());

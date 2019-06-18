@@ -1,6 +1,7 @@
 export const transactionPool = {
-    buildWallets: () => null,
-    purgeBlock: () => null,
-    acceptChainedBlock: () => null,
-    purgeSendersWithInvalidTransactions: () => null,
+    buildWallets: () => undefined,
+    purgeByBlock: () => undefined,
+    acceptChainedBlock: () => undefined,
+    purgeSendersWithInvalidTransactions: () => undefined,
+    removeTransactionsById: () => undefined,
 };

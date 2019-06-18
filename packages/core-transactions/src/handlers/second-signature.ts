@@ -1,39 +1,68 @@
-import { Database, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    ITransactionData,
-    SecondSignatureRegistrationTransaction,
-    Transaction,
-    TransactionConstructor,
-} from "@arkecosystem/crypto";
-import { SecondSignatureAlreadyRegisteredError } from "../errors";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class SecondSignatureTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return SecondSignatureRegistrationTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.SecondSignatureRegistrationTransaction;
+    }
+
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+
+        for (const transaction of transactions) {
+            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.secondPublicKey = transaction.asset.signature.publicKey;
+        }
     }
 
     public canBeApplied(
-        transaction: Transaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        transaction: Interfaces.ITransaction,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
         if (wallet.secondPublicKey) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        return super.canBeApplied(transaction, wallet, walletManager);
+        if (databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey).multisignature) {
+            throw new NotSupportedForMultiSignatureWalletError();
+        }
+
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = transaction.data.asset.signature.publicKey;
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            return false;
+        }
+
+        return true;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
-        wallet.secondPublicKey = null;
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey =
+            transaction.data.asset.signature.publicKey;
     }
 
-    public canEnterTransactionPool(data: ITransactionData, guard: TransactionPool.IGuard): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, guard);
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).secondPublicKey = undefined;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
+    }
+
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        return;
     }
 }

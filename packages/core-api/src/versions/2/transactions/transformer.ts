@@ -1,13 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database } from "@arkecosystem/core-interfaces";
 import { formatTimestamp } from "@arkecosystem/core-utils";
-import { Transaction } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
-export function transformTransaction(model) {
+export const transformTransaction = model => {
     const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const { data } = Transaction.fromBytesUnsafe(model.serialized, model.id);
+    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(model.serialized, model.id);
     const sender = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock = blockchain.getLastBlock();
@@ -20,13 +20,14 @@ export function transformTransaction(model) {
         amount: +data.amount,
         fee: +data.fee,
         sender,
+        senderPublicKey: data.senderPublicKey,
         recipient: data.recipientId,
         signature: data.signature,
-        signSignature: data.signSignature,
+        signSignature: data.signSignature || data.secondSignature,
         signatures: data.signatures,
         vendorField: data.vendorField,
         asset: data.asset,
-        confirmations: model.block ? lastBlock.data.height - model.block.height : 0,
+        confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
         timestamp: formatTimestamp(data.timestamp),
     };
-}
+};

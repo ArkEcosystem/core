@@ -1,11 +1,12 @@
-import { Transaction } from "@arkecosystem/crypto";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Transactions as CryptoTransactions } from "@arkecosystem/crypto";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
 
 export class Transactions extends Index {
-    public async index() {
-        const iterations = await this.getIterations();
+    public async index(): Promise<void> {
+        const iterations: number = await this.getIterations();
 
         for (let i = 0; i < iterations; i++) {
             const modelQuery = this.createQuery();
@@ -21,13 +22,13 @@ export class Transactions extends Index {
 
             if (rows.length) {
                 rows = rows.map(row => {
-                    const { data } = Transaction.fromBytesUnsafe(row.serialized, row.id);
+                    const { data } = CryptoTransactions.TransactionFactory.fromBytesUnsafe(row.serialized, row.id);
                     data.blockId = row.blockId;
 
                     return data;
                 });
 
-                const timestamps = rows.map(row => row.data.timestamp);
+                const timestamps = rows.map(row => row.timestamp);
                 this.logger.info(
                     `[ES] Indexing ${rows.length} transactions [${first(timestamps)} to ${last(timestamps)}]`,
                 );
@@ -45,10 +46,10 @@ export class Transactions extends Index {
         }
     }
 
-    public listen() {
-        this.registerListener("create", "transaction.applied");
+    public listen(): void {
+        this.registerListener("create", ApplicationEvents.TransactionApplied);
 
-        this.registerListener("delete", "transaction.expired");
-        this.registerListener("delete", "transaction.reverted");
+        this.registerListener("delete", ApplicationEvents.TransactionExpired);
+        this.registerListener("delete", ApplicationEvents.TransactionReverted);
     }
 }

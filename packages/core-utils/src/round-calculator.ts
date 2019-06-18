@@ -1,22 +1,44 @@
 import { app } from "@arkecosystem/core-container";
 import { Shared } from "@arkecosystem/core-interfaces";
 
+export const isNewRound = (height: number): boolean => {
+    const { config } = app.getConfig();
+
+    // Since milestones are merged, find the first milestone to introduce the delegate count.
+    let milestone;
+    for (let i = config.milestones.length - 1; i >= 0; i--) {
+        const temp = config.milestones[i];
+        if (temp.height > height) {
+            continue;
+        }
+
+        if (!milestone || temp.activeDelegates === milestone.activeDelegates) {
+            milestone = temp;
+        } else {
+            break;
+        }
+    }
+
+    return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
+};
+
 export const calculateRound = (height: number): Shared.IRoundInfo => {
     const config = app.getConfig();
     const { milestones } = config.config;
 
-    let round = 0;
-    let roundHeight = 1;
-    let nextRound = 0;
-    let maxDelegates = 0;
+    let round: number = 0;
+    let roundHeight: number = 1;
+    let nextRound: number = 0;
+    let maxDelegates: number = 0;
 
-    let milestoneHeight = height;
-    let milestone = null;
+    let milestoneHeight: number = height;
+    let milestone;
 
     for (let i = 0, j = 0; i < milestones.length; i++) {
         if (!milestone || milestone.activeDelegates !== milestones[i].activeDelegates) {
             milestone = milestones[i];
         }
+
         maxDelegates = milestone.activeDelegates;
 
         let delegateCountChanged = false;
@@ -61,25 +83,4 @@ export const calculateRound = (height: number): Shared.IRoundInfo => {
     }
 
     return { round, roundHeight, nextRound, maxDelegates };
-};
-
-export const isNewRound = (height: number): boolean => {
-    const { config } = app.getConfig();
-
-    // Since milestones are merged, find the first milestone to introduce the delegate count.
-    let milestone;
-    for (let i = config.milestones.length - 1; i >= 0; i--) {
-        const temp = config.milestones[i];
-        if (temp.height > height) {
-            continue;
-        }
-
-        if (!milestone || temp.activeDelegates === milestone.activeDelegates) {
-            milestone = temp;
-        } else {
-            break;
-        }
-    }
-
-    return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };

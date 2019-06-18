@@ -1,10 +1,14 @@
 export const defaults = {
-    host: process.env.CORE_P2P_HOST || "0.0.0.0",
-    port: process.env.CORE_P2P_PORT || 4002,
+    // https://socketcluster.io/#!/docs/api-socketcluster
+    server: {
+        hostname: process.env.CORE_P2P_HOST || "0.0.0.0",
+        port: process.env.CORE_P2P_PORT || 4002,
+        logLevel: process.env.CORE_NETWORK_NAME === "testnet" ? 1 : 0,
+    },
     /**
      * The minimum peer version we expect
      */
-    minimumVersions: [">=2.3.0", ">=2.3.0-next.0"],
+    minimumVersions: [">=2.4.0", ">=2.4.0-next.0"],
     /**
      * The number of peers we expect to be available to start a relay
      */
@@ -14,13 +18,13 @@ export const defaults = {
      */
     globalTimeout: 5000,
     /**
-     * The number of seconds until we allow forging
-     */
-    coldStart: 30,
-    /**
      * The maximum number of peers we will broadcast data to
      */
     maxPeersBroadcast: 20,
+    /**
+     * The maximum authorized number of peers sharing same ip /24 subnet
+     */
+    maxSameSubnetPeers: process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET || 5,
     /**
      * The list of IPs we allow to be added to the peer list.
      */
@@ -56,15 +60,7 @@ export const defaults = {
      */
     ntp: ["pool.ntp.org", "time.google.com"],
     /**
-     * @see https://github.com/wraithgar/hapi-rate-limit
+     * Rate limit config, used in socket-server worker / master
      */
-    rateLimit: {
-        enabled: true,
-        pathLimit: false,
-        userLimit: 20,
-        userCache: {
-            expiresIn: 1000,
-        },
-        ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    },
+    rateLimit: process.env.CORE_P2P_RATE_LIMIT || 300, // max number of messages per second per socket connection
 };

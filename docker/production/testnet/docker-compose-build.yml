@@ -19,6 +19,8 @@ services:
     build:   
       context: ../../../
       dockerfile: docker/production/Dockerfile
+      args:
+        core_channel: next
     image: core
     container_name: core-testnet
     restart: always

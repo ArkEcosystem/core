@@ -1,12 +1,12 @@
+import "jest-extended";
+
 import "./mocks/core-container";
 
-import { app } from "@arkecosystem/core-container";
-import "jest-extended";
 import { CappedSet } from "../../../packages/core-utils/src/capped-set";
 
 describe("CappedSet", () => {
     it("basic", () => {
-        const cappedSet = new CappedSet();
+        const cappedSet = new CappedSet<number>();
 
         cappedSet.add(20);
 
@@ -16,7 +16,7 @@ describe("CappedSet", () => {
 
     it("overflow", () => {
         const maxSize = 10;
-        const cappedSet = new CappedSet(maxSize);
+        const cappedSet = new CappedSet<number>(maxSize);
 
         for (let i = 0; i < 15; i++) {
             cappedSet.add(i);

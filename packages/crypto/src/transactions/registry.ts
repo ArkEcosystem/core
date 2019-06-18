@@ -1,15 +1,13 @@
 import camelCase from "lodash.camelcase";
-import { TransactionTypes } from "../constants";
+import { TransactionTypes } from "../enums";
 import {
     MissingMilestoneFeeError,
     TransactionAlreadyRegisteredError,
     TransactionTypeInvalidRangeError,
-    UnkownTransactionError,
 } from "../errors";
 import { configManager } from "../managers";
 import { feeManager } from "../managers/fee";
-import { AjvWrapper } from "../validation";
-import { ITransactionData } from "./interfaces";
+import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
@@ -19,6 +17,7 @@ import {
     SecondSignatureRegistrationTransaction,
     TimelockTransferTransaction,
     Transaction,
+    TransactionTypeFactory,
     TransferTransaction,
     VoteTransaction,
 } from "./types";
@@ -26,10 +25,15 @@ import {
 export type TransactionConstructor = typeof Transaction;
 
 class TransactionRegistry {
-    private readonly coreTypes = new Map<TransactionTypes, TransactionConstructor>();
-    private readonly customTypes = new Map<number, TransactionConstructor>();
+    private readonly coreTypes: Map<TransactionTypes, TransactionConstructor> = new Map<
+        TransactionTypes,
+        TransactionConstructor
+    >();
+    private readonly customTypes: Map<number, TransactionConstructor> = new Map<number, TransactionConstructor>();
 
     constructor() {
+        TransactionTypeFactory.initialize(this.coreTypes, this.customTypes);
+
         this.registerCoreType(TransferTransaction);
         this.registerCoreType(SecondSignatureRegistrationTransaction);
         this.registerCoreType(DelegateRegistrationTransaction);
@@ -39,25 +43,6 @@ class TransactionRegistry {
         this.registerCoreType(TimelockTransferTransaction);
         this.registerCoreType(MultiPaymentTransaction);
         this.registerCoreType(DelegateResignationTransaction);
-    }
-
-    public create(data: ITransactionData): Transaction {
-        const instance = new (this.get(data.type) as any)() as Transaction;
-        instance.data = data;
-
-        return instance;
-    }
-
-    public get(type: TransactionTypes | number): TransactionConstructor {
-        if (this.coreTypes.has(type)) {
-            return this.coreTypes.get(type);
-        }
-
-        if (this.customTypes.has(type)) {
-            return this.customTypes.get(type);
-        }
-
-        throw new UnkownTransactionError(type);
     }
 
     public registerCustomType(constructor: TransactionConstructor): void {
@@ -100,7 +85,7 @@ class TransactionRegistry {
         }
     }
 
-    private registerCoreType(constructor: TransactionConstructor) {
+    private registerCoreType(constructor: TransactionConstructor): void {
         const { type } = constructor;
         if (this.coreTypes.has(type)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
@@ -110,8 +95,8 @@ class TransactionRegistry {
         this.updateSchemas(constructor);
     }
 
-    private updateSchemas(transaction: TransactionConstructor, remove?: boolean) {
-        AjvWrapper.extendTransaction(transaction.getSchema(), remove);
+    private updateSchemas(transaction: TransactionConstructor, remove?: boolean): void {
+        validator.extendTransaction(transaction.getSchema(), remove);
     }
 }
 

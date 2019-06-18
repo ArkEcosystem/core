@@ -1,6 +1,6 @@
 import { delegateCalculator } from "@arkecosystem/core-utils";
 
-export function transformDelegateLegacy(model) {
+export const transformDelegateLegacy = model => {
     return {
         username: model.username,
         address: model.address,
@@ -11,4 +11,4 @@ export function transformDelegateLegacy(model) {
         rate: model.rate,
         approval: delegateCalculator.calculateApproval(model),
     };
-}
+};

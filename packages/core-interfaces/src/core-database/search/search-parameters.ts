@@ -8,24 +8,24 @@ export enum SearchOperator {
     OP_CUSTOM = "custom_operator",
 }
 
-export interface SearchParameter {
+export interface ISearchParameter {
     field: string;
     value: any;
     operator: SearchOperator;
 }
 
-export interface SearchOrderBy {
+export interface ISearchOrderBy {
     field: string;
     direction: "asc" | "desc";
 }
 
-export interface SearchPaginate {
+export interface ISearchPaginate {
     offset?: number;
     limit?: number;
 }
 
-export interface SearchParameters {
-    parameters: SearchParameter[];
-    orderBy?: SearchOrderBy[];
-    paginate?: SearchPaginate;
+export interface ISearchParameters {
+    parameters: ISearchParameter[];
+    orderBy?: ISearchOrderBy[];
+    paginate?: ISearchPaginate;
 }

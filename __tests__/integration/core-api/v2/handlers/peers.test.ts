@@ -7,36 +7,36 @@ import { utils } from "../utils";
 const peers = [
     {
         ip: "1.0.0.99",
-        port: 4002,
-        version: "2.3.0-next.3",
+        port: 4000,
+        version: "2.4.0-next.3",
     },
     {
         ip: "1.0.0.98",
-        port: 4002,
-        version: "2.3.0-next.1",
+        port: 4000,
+        version: "2.4.0-next.1",
     },
 ];
 
 beforeAll(async () => {
     await setUp();
 
-    const peerMocks = peers.map(mock => {
-        const peerMock = new Peer(mock.ip, mock.port);
-        peerMock.setStatus("OK");
-        peerMock.version = mock.version;
-        return peerMock;
-    });
+    const peerMocks = peers
+        .map(mock => {
+            const peerMock = new Peer(mock.ip);
+            (peerMock as any).port = mock.port;
+            peerMock.version = mock.version;
+            return peerMock;
+        })
+        .reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
 
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = peerMocks.reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
+    for (const peerMock of Object.values(peerMocks)) {
+        app.resolvePlugin("p2p")
+            .getStorage()
+            .setPeer(peerMock);
+    }
 });
 
-afterAll(async () => {
-    const monitor = app.resolvePlugin("p2p");
-    monitor.peers = {};
-
-    await tearDown();
-});
+afterAll(async () => await tearDown());
 
 describe("API 2.0 - Peers", () => {
     describe("GET /peers", () => {

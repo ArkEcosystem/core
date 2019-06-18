@@ -1,33 +1,13 @@
 import { app } from "@arkecosystem/core-container";
-import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
+import { setUpContainer } from "../../../utils/helpers/container";
 
 jest.setTimeout(60000);
 
-export const setUpFull = async () => {
-    await setUpContainer({
-        exit: "@arkecosystem/core-p2p",
-        exclude: ["@arkecosystem/core-blockchain"],
-    });
+process.env.CORE_RESET_DATABASE = "1";
 
-    const { plugin } = require("../../../../packages/core-blockchain/src/plugin");
-    await registerWithContainer(plugin, {});
+export const setUp = async (options = {}) => setUpContainer({
+    ...options,
+    exit: "@arkecosystem/core-blockchain"
+});
 
-    return app;
-};
-
-export const tearDownFull = async () => {
-    await app.tearDown();
-
-    const { plugin } = require("../../../../packages/core-blockchain/src/plugin");
-    await plugin.deregister(app, {});
-};
-
-export const setUp = async () =>
-    setUpContainer({
-        exit: "@arkecosystem/core-p2p",
-        exclude: ["@arkecosystem/core-blockchain"],
-    });
-
-export const tearDown = async () => {
-    await app.tearDown();
-};
+export const tearDown = async (): Promise<void> => app.tearDown();

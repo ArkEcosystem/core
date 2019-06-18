@@ -5,7 +5,6 @@ import { inspect } from "util";
 export abstract class AbstractLogger implements Logger.ILogger {
     protected logger: any;
     protected silentConsole: boolean = false;
-
     protected readonly defaultLevels: Record<string, string> = {
         error: "error",
         warn: "warn",
@@ -14,31 +13,53 @@ export abstract class AbstractLogger implements Logger.ILogger {
         verbose: "verbose",
     };
 
-    constructor(protected readonly options: any) {}
+    constructor(protected readonly options: Record<string, any>) {}
 
     public abstract make(): Logger.ILogger;
 
-    public error(message: any): void {
-        this.createLog(this.getLevel("error"), message);
+    public getLogger<T = any>(): T {
+        return this.logger;
     }
 
-    public warn(message: any): void {
-        this.createLog(this.getLevel("warn"), message);
+    public log(level: string, message: any): boolean {
+        if (this.silentConsole) {
+            return false;
+        }
+
+        if (isEmpty(message)) {
+            return false;
+        }
+
+        if (typeof message !== "string") {
+            message = inspect(message, { depth: 1 });
+        }
+
+        this.logger[level](message);
+
+        return true;
     }
 
-    public info(message: any): void {
-        this.createLog(this.getLevel("info"), message);
+    public error(message: any): boolean {
+        return this.log(this.getLevel("error"), message);
     }
 
-    public debug(message: any): void {
-        this.createLog(this.getLevel("debug"), message);
+    public warn(message: any): boolean {
+        return this.log(this.getLevel("warn"), message);
     }
 
-    public verbose(message: any): void {
-        this.createLog(this.getLevel("verbose"), message);
+    public info(message: any): boolean {
+        return this.log(this.getLevel("info"), message);
     }
 
-    public suppressConsoleOutput(suppress: boolean): void {
+    public debug(message: any): boolean {
+        return this.log(this.getLevel("debug"), message);
+    }
+
+    public verbose(message: any): boolean {
+        return this.log(this.getLevel("verbose"), message);
+    }
+
+    public suppressConsoleOutput(suppress: boolean = true): void {
         this.silentConsole = suppress;
     }
 
@@ -48,21 +69,5 @@ export abstract class AbstractLogger implements Logger.ILogger {
 
     protected getLevels(): Record<string, string> {
         return this.defaultLevels;
-    }
-
-    private createLog(method: string, message: any): void {
-        if (this.silentConsole) {
-            return;
-        }
-
-        if (isEmpty(message)) {
-            return;
-        }
-
-        if (typeof message !== "string") {
-            message = inspect(message, { depth: 1 });
-        }
-
-        this.logger[method](message);
     }
 }

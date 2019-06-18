@@ -1,4 +1,4 @@
-export function transformFeeStatisticsLegacy(model: any) {
+export const transformFeeStatisticsLegacy = (model: any) => {
     return {
         type: model.type,
         fees: {
@@ -7,4 +7,4 @@ export function transformFeeStatisticsLegacy(model: any) {
             avgFee: parseInt(model.avgFee, 10),
         },
     };
-}
+};

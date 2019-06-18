@@ -1,4 +1,4 @@
-import { ITransactionData } from "../../../../packages/crypto/src/transactions";
+import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { sortTransactions } from "../../../../packages/crypto/src/utils";
 
 describe("sortTransactions", () => {

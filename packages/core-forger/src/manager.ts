@@ -1,46 +1,38 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { ICurrentRound, NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { configManager, ITransactionData, models, networks, slots, Transaction } from "@arkecosystem/crypto";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
 import pluralize from "pluralize";
-
 import { Client } from "./client";
-import { HostNoResponseError } from "./errors";
-
-const { Delegate } = models;
+import { Delegate } from "./delegate";
+import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
-    private logger = app.resolvePlugin<Logger.ILogger>("logger");
-    private config = app.getConfig();
+    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly config = app.getConfig();
 
     private secrets: string[];
-    private network: networks.INetwork;
+    private network: Types.NetworkType;
     private client: Client;
-    private delegates: models.Delegate[];
+    private delegates: Delegate[];
     private usernames: { [key: string]: string };
     private isStopped: boolean;
-    private round: ICurrentRound;
+    private round: P2P.ICurrentRound;
     private initialized: boolean;
 
-    /**
-     * Create a new forger manager instance.
-     * @param  {Object} options
-     */
     constructor(options) {
         this.secrets = this.config.get("delegates.secrets");
         this.network = this.config.get("network");
         this.client = new Client(options.hosts);
     }
 
-    /**
-     * Load all delegates that forge.
-     */
-    public async loadDelegates(bip38: string, password: string): Promise<models.Delegate[] | null> {
+    public async startForging(bip38: string, password: string): Promise<void> {
         if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
             this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
-            return null;
+            return;
         }
 
         this.secrets = uniq(this.secrets.map(secret => secret.trim()));
@@ -52,33 +44,29 @@ export class ForgerManager {
             this.delegates.push(new Delegate(bip38, this.network, password));
         }
 
-        try {
-            await this.loadRound();
-        } catch (error) {
-            this.logger.warn("Waiting for a responsive host.");
+        if (!this.delegates) {
+            this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
+            return;
         }
 
-        return this.delegates;
+        let timeout: number;
+        try {
+            await this.loadRound();
+            timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
+        } catch (error) {
+            timeout = 2000;
+            this.logger.warn("Waiting for a responsive host.");
+        } finally {
+            await this.checkLater(timeout);
+        }
     }
 
-    /**
-     * Start forging on the given node.
-     */
-    public async startForging(): Promise<void> {
-        return this.checkLater(slots.getTimeInMsUntilNextSlot());
-    }
-
-    /**
-     * Stop forging on the given node.
-     */
-    public async stop(): Promise<void> {
+    public async stopForging(): Promise<void> {
         this.isStopped = true;
     }
 
-    /**
-     * Monitor the node for any actions that trigger forging.
-     */
-    public async __monitor(): Promise<void> {
+    // @TODO: make this private
+    public async checkSlot(): Promise<void> {
         try {
             if (this.isStopped) {
                 return;
@@ -91,26 +79,26 @@ export class ForgerManager {
                 return this.checkLater(200);
             }
 
-            const delegate = this.getDelegateByPublicKey(this.round.currentForger.publicKey);
-            if (!delegate) {
-                // this.logger.debug(`Current forging delegate ${
-                //  round.currentForger.publicKey
-                // } is not configured on this node.`)
+            const delegate: Delegate = this.isActiveDelegate(this.round.currentForger.publicKey);
 
-                if (this.getDelegateByPublicKey(this.round.nextForger.publicKey)) {
+            if (!delegate) {
+                if (this.isActiveDelegate(this.round.nextForger.publicKey)) {
                     const username = this.usernames[this.round.nextForger.publicKey];
+
                     this.logger.info(
                         `Next forging delegate ${username} (${
                             this.round.nextForger.publicKey
                         }) is active on this node.`,
                     );
-                    await this.client.syncCheck();
+
+                    await this.client.syncWithNetwork();
                 }
 
-                return this.checkLater(slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
             }
 
-            const networkState = await this.client.getNetworkState();
+            const networkState: P2P.INetworkState = await this.client.getNetworkState();
+
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warn(
                     `The NetworkState height (${networkState.nodeHeight}) and round height (${
@@ -119,17 +107,20 @@ export class ForgerManager {
                 );
             }
 
-            if (this.parseNetworkState(networkState, delegate)) {
+            if (this.isForgingAllowed(networkState, delegate)) {
                 await this.forgeNewBlock(delegate, this.round, networkState);
             }
 
-            return this.checkLater(slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
-            if (error instanceof HostNoResponseError) {
-                this.logger.warn(error.message);
+            if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
+                if (error.message.includes("blockchain isn't ready")) {
+                    this.logger.info("Waiting for relay to become ready.");
+                } else {
+                    this.logger.warn(error.message);
+                }
             } else {
-                this.logger.error(JSON.stringify(error.stack));
-                this.logger.error(`Forging failed: ${error.message}`);
+                this.logger.error(error.stack);
 
                 if (!isEmpty(this.round)) {
                     this.logger.info(
@@ -137,7 +128,7 @@ export class ForgerManager {
                     );
                 }
 
-                this.client.emitEvent("forger.failed", error.message);
+                this.client.emitEvent(ApplicationEvents.ForgerFailed, { error: error.message });
             }
 
             // no idea when this will be ok, so waiting 2s before checking again
@@ -145,104 +136,94 @@ export class ForgerManager {
         }
     }
 
-    /**
-     * Creates new block by the delegate and sends it to relay node for verification and broadcast
-     */
-    public async forgeNewBlock(delegate: models.Delegate, round, networkState: NetworkState) {
-        configManager.setHeight(networkState.nodeHeight);
+    public async forgeNewBlock(
+        delegate: Delegate,
+        round: P2P.ICurrentRound,
+        networkState: P2P.INetworkState,
+    ): Promise<void> {
+        Managers.configManager.setHeight(networkState.nodeHeight);
 
-        const transactions = await this.getTransactionsForForging();
+        const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
-        const previousBlock = {
-            id: networkState.lastBlockId,
-            idHex: null,
-            height: networkState.nodeHeight,
-        };
-
-        if (configManager.getMilestone().block.idFullSha256) {
-            previousBlock.idHex = previousBlock.id;
-        } else {
-            previousBlock.idHex = models.Block.toBytesHex(previousBlock.id);
-        }
-
-        const blockOptions = {
-            previousBlock,
+        const block: Interfaces.IBlock = delegate.forge(transactions, {
+            previousBlock: {
+                id: networkState.lastBlockId,
+                idHex: Managers.configManager.getMilestone().block.idFullSha256
+                    ? networkState.lastBlockId
+                    : Blocks.Block.toBytesHex(networkState.lastBlockId),
+                height: networkState.nodeHeight,
+            },
             timestamp: round.timestamp,
             reward: round.reward,
-        };
+        });
 
-        const block = await delegate.forge(transactions, blockOptions);
+        this.logger.info(
+            `Forged new block ${block.data.id} by delegate ${this.usernames[delegate.publicKey]} (${
+                delegate.publicKey
+            })`,
+        );
 
-        const username = this.usernames[delegate.publicKey];
-        this.logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey})`);
+        await this.client.broadcastBlock(block.toJson());
 
-        await this.client.broadcast(block.toJson());
+        this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
 
-        this.client.emitEvent("block.forged", block.data);
-        transactions.forEach(transaction => this.client.emitEvent("transaction.forged", transaction));
+        for (const transaction of transactions) {
+            this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+        }
     }
 
-    /**
-     * Gets the unconfirmed transactions from the relay nodes transaction pool
-     */
-    public async getTransactionsForForging(): Promise<ITransactionData[]> {
-        const response = await this.client.getTransactions();
-        const transactions = response.transactions
-            ? response.transactions.map(serializedTx => Transaction.fromHex(serializedTx).data)
-            : [];
+    public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
+        const response: P2P.IForgingTransactions = await this.client.getTransactions();
 
         if (isEmpty(response)) {
             this.logger.error("Could not get unconfirmed transactions from transaction pool.");
-        } else {
-            this.logger.debug(
-                `Received ${pluralize("transaction", transactions.length, true)} from the pool containing ${
-                    response.poolSize
-                }`,
-            );
+
+            return [];
         }
+
+        const transactions: Interfaces.ITransactionData[] = response.transactions.map(
+            (hex: string) => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
+        );
+
+        this.logger.debug(
+            `Received ${pluralize("transaction", transactions.length, true)} from the pool containing ${
+                response.poolSize
+            }`,
+        );
 
         return transactions;
     }
 
-    /**
-     * Parses the given network state and decides if forging is allowed.
-     */
-    public parseNetworkState(networkState: NetworkState, delegate: models.Delegate): boolean {
+    public isForgingAllowed(networkState: P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
-            return false;
-        }
 
-        if (networkState.status === NetworkStateStatus.ColdStart) {
-            this.logger.info("Will not forge during the cold start period. Check peers.json for coldStart setting.");
             return false;
         }
 
         if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum. Will not forge.");
+
             return false;
         }
 
-        const overHeightBlockHeaders = networkState.getOverHeightBlockHeaders();
+        const overHeightBlockHeaders: Array<{
+            [id: string]: any;
+        }> = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
             this.logger.info(
-                `Detected ${overHeightBlockHeaders.length} distinct overheight block ${pluralize(
-                    "header",
-                    overHeightBlockHeaders.length,
-                    true,
-                )}.`,
+                `Detected ${pluralize("distinct overheight block header", overHeightBlockHeaders.length, true)}.`,
             );
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
                 if (overHeightBlockHeader.generatorPublicKey === delegate.publicKey) {
-                    const username = this.usernames[delegate.publicKey];
+                    const username: string = this.usernames[delegate.publicKey];
+
                     this.logger.warn(
                         `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${
                             overHeightBlockHeader.id
-                        }. Will not forge.`,
+                        }.`,
                     );
-                    this.logger.debug(`Network State: ${networkState.toJson()}`);
-                    return false;
                 }
             }
         }
@@ -250,16 +231,14 @@ export class ForgerManager {
         if (networkState.getQuorum() < 0.66) {
             this.logger.info("Fork 6 - Not enough quorum to forge next block. Will not forge.");
             this.logger.debug(`Network State: ${networkState.toJson()}`);
+
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Checks if delegate public key is in the loaded (active) delegates list
-     */
-    private getDelegateByPublicKey(publicKey: string): models.Delegate | null {
+    private isActiveDelegate(publicKey: string): Delegate | undefined {
         return this.delegates.find(delegate => delegate.publicKey === publicKey);
     }
 
@@ -279,14 +258,16 @@ export class ForgerManager {
     }
 
     private checkLater(timeout: number): void {
-        setTimeout(() => this.__monitor(), timeout);
+        setTimeout(() => this.checkSlot(), timeout);
     }
 
-    private printLoadedDelegates() {
-        const activeDelegates = this.delegates.filter(delegate => this.usernames.hasOwnProperty(delegate.publicKey));
+    private printLoadedDelegates(): void {
+        const activeDelegates: Delegate[] = this.delegates.filter(delegate =>
+            this.usernames.hasOwnProperty(delegate.publicKey),
+        );
 
         if (activeDelegates.length > 0) {
-            this.logger.debug(
+            this.logger.info(
                 `Loaded ${pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
                     .map(({ publicKey }) => `${this.usernames[publicKey]} (${publicKey})`)
                     .join(", ")}`,
@@ -294,15 +275,17 @@ export class ForgerManager {
         }
 
         if (this.delegates.length > activeDelegates.length) {
-            const inactiveDelegates = this.delegates
+            const inactiveDelegates: string[] = this.delegates
                 .filter(delegate => !activeDelegates.includes(delegate))
                 .map(delegate => delegate.publicKey);
 
-            this.logger.debug(
+            this.logger.info(
                 `Loaded ${pluralize("inactive delegate", inactiveDelegates.length, true)}: ${inactiveDelegates.join(
                     ", ",
                 )}`,
             );
         }
+
+        this.logger.info(`Forger Manager started.`);
     }
 }

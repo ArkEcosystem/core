@@ -5,8 +5,7 @@ export const defaults = {
         whitelist: ["*"],
     },
     client: {
-        host: "localhost:9200",
-        log: "info",
+        nodes: ["http://localhost:9200"],
     },
     chunkSize: 5000,
 };

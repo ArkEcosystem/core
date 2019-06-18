@@ -1,51 +1,54 @@
 {
     "name": "@arkecosystem/core-blockchain",
+    "version": "2.4.12",
     "description": "Blockchain Manager for ARK Core",
-    "version": "2.3.22",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
-        "async": "^2.6.2",
-        "awilix": "^4.2.1",
-        "delay": "^4.1.0",
+        "@arkecosystem/core-container": "^2.4.12",
+        "@arkecosystem/core-database": "^2.4.12",
+        "@arkecosystem/core-event-emitter": "^2.4.12",
+        "@arkecosystem/core-interfaces": "^2.4.12",
+        "@arkecosystem/core-state": "^2.4.12",
+        "@arkecosystem/core-transactions": "^2.4.12",
+        "@arkecosystem/core-utils": "^2.4.12",
+        "@arkecosystem/crypto": "^2.4.12",
+        "async": "^3.0.0",
+        "delay": "^4.2.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^7.0.0",
-        "pretty-ms": "^4.0.0",
-        "xstate": "^4.3.3"
+        "pretty-ms": "^5.0.0",
+        "xstate": "^4.6.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-p2p": "^2.3.22",
-        "@types/async": "^2.4.1",
+        "@arkecosystem/core-p2p": "^2.4.12",
+        "@types/async": "^2.4.2",
         "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0"
     },
-    "publishConfig": {
-        "access": "public"
-    },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

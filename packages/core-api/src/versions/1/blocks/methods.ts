@@ -30,11 +30,11 @@ const show = async request => {
     });
 };
 
-export function registerMethods(server) {
+export const registerMethods = server => {
     ServerCache.make(server)
         .method("v1.blocks.index", index, 8, request => ({
             ...request.query,
             ...paginate(request),
         }))
         .method("v1.blocks.show", show, 600, request => ({ id: request.query.id }));
-}
+};

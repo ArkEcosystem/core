@@ -1,9 +1,9 @@
 const {
-    Transaction
+    Transactions
 } = require('@arkecosystem/crypto')
 
 const data = require('../../helpers').getJSONFixture('transaction/deserialized/0');
 
 exports['core'] = () => {
-    return Transaction.toBytes(data);
+    return Transactions.Utils.toBytes(data);
 };

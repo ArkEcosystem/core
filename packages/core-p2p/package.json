@@ -1,42 +1,43 @@
 {
     "name": "@arkecosystem/core-p2p",
+    "version": "2.4.12",
     "description": "P2P API for ARK Core",
-    "version": "2.3.22",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Kristjan Košič <kristjan@ark.io>",
         "Brian Faust <brian@ark.io>",
         "Alex Barnsley <alex@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "bash ../../scripts/pre-test.sh",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.3.22",
-        "@arkecosystem/core-http-utils": "^2.3.22",
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-transaction-pool": "^2.3.22",
-        "@arkecosystem/core-utils": "^2.3.22",
-        "@arkecosystem/crypto": "^2.3.22",
-        "@faustbrian/dato": "^0.2.0",
+        "@arkecosystem/core-container": "^2.4.12",
+        "@arkecosystem/core-event-emitter": "^2.4.12",
+        "@arkecosystem/core-http-utils": "^2.4.12",
+        "@arkecosystem/core-interfaces": "^2.4.12",
+        "@arkecosystem/core-transaction-pool": "^2.4.12",
+        "@arkecosystem/core-utils": "^2.4.12",
+        "@arkecosystem/crypto": "^2.4.12",
+        "@hapi/boom": "^7.4.2",
+        "@hapi/sntp": "^3.1.1",
         "ajv": "^6.10.0",
-        "boom": "^7.3.0",
-        "delay": "^4.1.0",
-        "hapi-rate-limit": "^3.1.1",
+        "dayjs": "^1.8.14",
+        "delay": "^4.2.0",
+        "hapi-rate-limit": "^3.1.2",
         "ip": "^1.1.5",
         "ipaddr.js": "^1.9.0",
-        "joi": "^14.3.1",
         "lodash.chunk": "^4.2.0",
         "lodash.flatten": "^4.4.0",
         "lodash.get": "^4.4.2",
@@ -49,14 +50,16 @@
         "lodash.take": "^4.1.1",
         "nanomatch": "^1.2.13",
         "pluralize": "^7.0.0",
-        "pretty-ms": "^4.0.0",
-        "semver": "^5.6.0",
-        "sntp": "^3.0.2"
+        "pretty-ms": "^5.0.0",
+        "scc-broker-client": "^6.1.0",
+        "semver": "^6.1.0",
+        "socketcluster": "^14.3.3",
+        "socketcluster-client": "^14.2.2"
     },
     "devDependencies": {
-        "@types/boom": "^7.2.1",
+        "@types/hapi__boom": "^7.4.0",
+        "@types/hapi__sntp": "^3.1.0",
         "@types/ip": "^1.1.0",
-        "@types/joi": "^14.3.2",
         "@types/lodash.chunk": "^4.2.6",
         "@types/lodash.flatten": "^4.4.6",
         "@types/lodash.get": "^4.4.6",
@@ -70,12 +73,15 @@
         "@types/micromatch": "^3.1.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0",
-        "@types/semver": "^5.5.0"
-    },
-    "publishConfig": {
-        "access": "public"
+        "@types/scc-broker-client": "^6.1.0",
+        "@types/semver": "^6.0.0",
+        "@types/socketcluster": "^14.0.2",
+        "@types/socketcluster-client": "^13.0.3"
     },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

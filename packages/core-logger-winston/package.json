@@ -1,38 +1,38 @@
 {
     "name": "@arkecosystem/core-logger-winston",
+    "version": "2.4.12",
     "description": "Winston Logger for ARK Core",
-    "version": "2.3.22",
+    "license": "MIT",
     "contributors": [
         "François-Xavier Thoorens <fx@ark.io>",
         "Brian Faust <brian@ark.io>"
     ],
-    "license": "MIT",
-    "main": "dist/index",
-    "types": "dist/index",
     "files": [
         "dist"
     ],
+    "main": "dist/index",
+    "types": "dist/index",
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist"
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.3.22",
-        "@arkecosystem/core-logger": "^2.3.22",
+        "@arkecosystem/core-interfaces": "^2.4.12",
+        "@arkecosystem/core-logger": "^2.4.12",
         "chalk": "^2.4.2",
         "colors": "^1.3.3",
-        "dayjs-ext": "^2.2.0",
+        "dayjs": "^1.8.14",
         "winston": "^3.2.1",
-        "winston-daily-rotate-file": "^3.6.0",
+        "winston-daily-rotate-file": "^3.9.0",
         "winston-transport": "^4.3.0"
-    },
-    "publishConfig": {
-        "access": "public"
     },
     "engines": {
         "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

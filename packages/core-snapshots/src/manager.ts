@@ -49,7 +49,7 @@ export class SnapshotManager {
 
         if (params.truncate) {
             await this.database.truncate();
-            params.lastBlock = null;
+            params.lastBlock = undefined;
         }
 
         await importTable("blocks", params);
@@ -139,6 +139,7 @@ export class SnapshotManager {
 
         const lastBlock = await this.database.getLastBlock();
         params.lastBlock = lastBlock;
+        params.lastRound = await this.database.getLastRound();
         params.chunkSize = this.options.chunkSize || 50000;
 
         if (exportAction) {
@@ -147,7 +148,7 @@ export class SnapshotManager {
             }
 
             params.meta = utils.setSnapshotInfo(params, lastBlock);
-            params.queries = await this.database.getExportQueries(params.meta.startHeight, params.meta.endHeight);
+            params.queries = await this.database.getExportQueries(params.meta);
 
             if (params.blocks) {
                 if (options.blocks === params.meta.folder) {

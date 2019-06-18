@@ -1,32 +1,51 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import { Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
-    constructor(private databaseServiceProvider: () => Database.IDatabaseService) {}
+    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+
+    public async getBlockRewards(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getBlockRewards();
+    }
+
+    public async getLastForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getLastForgedBlocks();
+    }
+
+    public async getDelegatesForgedBlocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
+    }
 
     /* TODO: Remove with v1 */
-    public async findAll(params: Database.IParameters) {
+    public async findAll(
+        params: Database.IParameters,
+    ): Promise<{
+        rows: Interfaces.IBlockData[];
+        count: number;
+    }> {
         return this.databaseServiceProvider().connection.blocksRepository.findAll(this.parseSearchParams(params));
     }
 
-    public async findAllByGenerator(generatorPublicKey: string, paginate: Database.SearchPaginate) {
+    public async findAllByGenerator(
+        generatorPublicKey: string,
+        paginate: Database.ISearchPaginate,
+    ): Promise<{
+        rows: Interfaces.IBlockData[];
+        count: number;
+    }> {
         return this.findAll({ generatorPublicKey, ...paginate });
     }
 
-    public async findLastByPublicKey(generatorPublicKey: string) {
-        // we order by height,desc by default
-        return this.findAll({ generatorPublicKey });
-    }
-
-    public async findByHeight(height: number) {
+    public async findByHeight(height: number): Promise<Interfaces.IBlockData> {
         return this.databaseServiceProvider().connection.blocksRepository.findByHeight(height);
     }
 
-    public async findById(id: string) {
+    public async findById(id: string): Promise<Interfaces.IBlockData> {
         return this.databaseServiceProvider().connection.blocksRepository.findById(id);
     }
 
-    public async findByIdOrHeight(idOrHeight) {
+    public async findByIdOrHeight(idOrHeight): Promise<Interfaces.IBlockData> {
         try {
             const block = await this.findByHeight(idOrHeight);
 
@@ -36,11 +55,16 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         }
     }
 
-    public async search(params: Database.IParameters) {
+    public async search(
+        params: Database.IParameters,
+    ): Promise<{
+        rows: Interfaces.IBlockData[];
+        count: number;
+    }> {
         return this.databaseServiceProvider().connection.blocksRepository.search(this.parseSearchParams(params));
     }
 
-    private parseSearchParams(params: Database.IParameters): Database.SearchParameters {
+    private parseSearchParams(params: Database.IParameters): Database.ISearchParameters {
         const blocksRepository = this.databaseServiceProvider().connection.blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
         if (!searchParameters.orderBy.length) {

@@ -5,6 +5,7 @@
 </p>
 
 ## Deprecated
+
 Note that this plugin is deprecated and should no longer be used.
 
 ## Documentation

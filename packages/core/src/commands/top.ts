@@ -1,9 +1,10 @@
-import { dato } from "@faustbrian/dato";
+import { ProcessDescription } from "@faustbrian/foreman";
 import Table from "cli-table3";
+import dayjs from "dayjs";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 import { processManager } from "../process-manager";
-import { CommandFlags, ProcessDescription } from "../types";
+import { CommandFlags } from "../types";
 import { renderTable } from "../utils";
 import { BaseCommand } from "./command";
 
@@ -23,7 +24,9 @@ $ ark top
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(TopCommand);
 
-        const processes: ProcessDescription[] = processManager.list(flags.token);
+        const processes: ProcessDescription[] = processManager
+            .list()
+            .filter((p: ProcessDescription) => p.name.startsWith(flags.token));
 
         if (!processes || !Object.keys(processes).length) {
             this.warn("No processes are running.");
@@ -40,7 +43,7 @@ $ ark top
                     process.pm2_env.version,
                     process.pm2_env.status,
                     // @ts-ignore
-                    prettyMs(dato().diff(process.pm2_env.pm_uptime)),
+                    prettyMs(dayjs().diff(process.pm2_env.pm_uptime)),
                     `${process.monit.cpu}%`,
                     prettyBytes(process.monit.memory),
                 ]);

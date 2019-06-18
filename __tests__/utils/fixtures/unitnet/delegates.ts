@@ -1,19 +1,19 @@
-import { configManager, crypto } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 
 /**
  * Get the unitnet genesis delegates information
  * @return {Array} array of objects like { secret, publicKey, address, balance }
  */
 
-configManager.setFromPreset("unitnet");
+Managers.configManager.setFromPreset("unitnet");
 
 import { secrets } from "../../config/unitnet/delegates.json";
-import { transactions as genesisTransactions } from "../../config/unitnet/genesisBlock.json";
+import { genesisBlock } from "../../config/unitnet/genesisBlock";
 
 export const delegates: any = secrets.map(secret => {
-    const publicKey = crypto.getKeys(secret).publicKey;
-    const address = crypto.getAddress(publicKey);
-    const balance = genesisTransactions.find(
+    const publicKey: string = Identities.PublicKey.fromPassphrase(secret);
+    const address: string = Identities.Address.fromPassphrase(secret);
+    const balance = genesisBlock.transactions.find(
         transaction => transaction.recipientId === address && transaction.type === 0,
     ).amount;
     return {

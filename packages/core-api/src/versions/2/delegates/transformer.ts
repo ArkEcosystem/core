@@ -1,11 +1,12 @@
-import { bignumify, delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
+import { delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 
-export function transformDelegate(delegate) {
+export const transformDelegate = delegate => {
     const data = {
         username: delegate.username,
         address: delegate.address,
         publicKey: delegate.publicKey,
-        votes: +bignumify(delegate.voteBalance).toFixed(),
+        votes: +Utils.BigNumber.make(delegate.voteBalance).toFixed(),
         rank: delegate.rate,
         blocks: {
             produced: delegate.producedBlocks,
@@ -32,4 +33,4 @@ export function transformDelegate(delegate) {
     }
 
     return data;
-}
+};

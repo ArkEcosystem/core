@@ -1,29 +1,77 @@
-import { Database, EventEmitter } from "@arkecosystem/core-interfaces";
-import { DelegateResignationTransaction, Transaction, TransactionConstructor } from "@arkecosystem/crypto";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { WalletAlreadyResignedError, WalletUsernameEmptyError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class DelegateResignationTransactionHandler extends TransactionHandler {
-    public getConstructor(): TransactionConstructor {
-        return DelegateResignationTransaction;
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.DelegateResignationTransaction;
+    }
+
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+
+        for (const transaction of transactions) {
+            walletManager.findByPublicKey(transaction.senderPublicKey).resigned = true;
+        }
     }
 
     public canBeApplied(
-        transaction: Transaction,
-        wallet: Database.IWallet,
-        walletManager?: Database.IWalletManager,
+        transaction: Interfaces.ITransaction,
+        wallet: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): boolean {
-        return super.canBeApplied(transaction, wallet, walletManager);
+        if (!wallet.username) {
+            throw new WalletUsernameEmptyError();
+        }
+
+        if (wallet.resigned) {
+            throw new WalletAlreadyResignedError();
+        }
+
+        return super.canBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public apply(transaction: Transaction, wallet: Database.IWallet): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
+        emitter.emit(ApplicationEvents.DelegateResigned, transaction.data);
+    }
+
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Delegate resignation for "${wallet.username}" already in the pool`,
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).resigned = true;
+    }
+
+    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).resigned = false;
+    }
+
+    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
     }
 
-    public revert(transaction: Transaction, wallet: Database.IWallet): void {
+    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         return;
-    }
-
-    public emitEvents(transaction: Transaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit("delegate.resigned", transaction.data);
     }
 }

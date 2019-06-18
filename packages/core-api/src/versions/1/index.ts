@@ -1,4 +1,4 @@
-import Hapi from "hapi";
+import Hapi from "@hapi/hapi";
 import * as Accounts from "./accounts";
 import * as Blocks from "./blocks";
 import * as Delegates from "./delegates";

@@ -1,13 +1,13 @@
-import { bignumify } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/crypto";
 
-export function transformWallet(model) {
+export const transformWallet = model => {
     return {
         address: model.address,
         publicKey: model.publicKey,
         username: model.username,
         secondPublicKey: model.secondPublicKey,
-        balance: +bignumify(model.balance).toFixed(),
+        balance: +Utils.BigNumber.make(model.balance).toFixed(),
         isDelegate: !!model.username,
         vote: model.vote,
     };
-}
+};
