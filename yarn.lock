@@ -6984,6 +6984,14 @@ hapi-rate-limit@^3.1.2:
     boom "^7.2.0"
     joi "^14.3.0"
 
+hapi-rate-limit@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-3.1.3.tgz#c76d0331c4a0a9146598ac4e5ff24d5cc876eee3"
+  integrity sha512-iVbr/ddprCRS22UJX8ddpmNjqh6Ec1PanJgM+lXynO9mwdKjbw1mYDe0fCSys7edLHXy8K9gwSVKbHaUaNp4Wg==
+  dependencies:
+    "@hapi/boom" "^7.4.2"
+    "@hapi/joi" "^15.0.3"
+
 hapi-trailing-slash@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/hapi-trailing-slash/-/hapi-trailing-slash-3.1.0.tgz#b400bad4129782a49f7cd1001d9cd2cada9fe368"
