@@ -95,7 +95,7 @@ export class UpdateCommand extends BaseCommand {
                 if (err) {
                     this.error(err.message);
                 } else if (update && update.summary.changes) {
-                    const { stdout, stderr } = shellSync("cd ../../ && yarn setup");
+                    const { stdout, stderr } = shellSync("cd ../../ && git reset --hard && yarn setup");
 
                     if (stderr) {
                         this.error(stderr);
