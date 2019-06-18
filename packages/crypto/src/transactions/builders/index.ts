@@ -8,6 +8,8 @@ import { TimelockTransferBuilder } from "./transactions/timelock-transfer";
 import { TransferBuilder } from "./transactions/transfer";
 import { VoteBuilder } from "./transactions/vote";
 
+export * from "./transactions/transaction";
+
 export class BuilderFactory {
     public static transfer(): TransferBuilder {
         return new TransferBuilder();
