@@ -201,7 +201,33 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-yarn global add @arkecosystem/core
+shopt -s expand_aliases
+alias ark="/home/bridgechain/core-cscoin/packages/core/bin/run"
+echo 'alias cscoin="/home/bridgechain/core-cscoin/packages/core/bin/run"' >> ~/.bashrc
+
+rm -rf "/home/bridgechain/core-cscoin"
+git clone "https://github.com/criptolot/core-cscoin" "/home/bridgechain/core-cscoin" || FAILED="Y"
+if [ "$FAILED" == "Y" ]; then
+    echo "Failed to fetch core repo with origin 'https://github.com/criptolot/core-cscoin'"
+
+    exit 1
+fi
+
+cd "/home/bridgechain/core-cscoin"
+HAS_REMOTE=$(git branch -a | fgrep -o "remotes/origin/chore/bridgechain-changes")
+if [ ! -z "$HAS_REMOTE" ]; then
+    git checkout chore/bridgechain-changes
+fi
+
+YARN_SETUP="N"
+while [ "$YARN_SETUP" == "N" ]; do
+  YARN_SETUP="Y"
+  yarn setup || YARN_SETUP="N"
+done
+rm -rf "$HOME/.config/@cscoin"
+rm -rf "$HOME/.config/@cscoin"
+rm -rf "$HOME/.config/cscoin-core"
+
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
 ark config:publish
