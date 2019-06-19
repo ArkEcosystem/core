@@ -34,10 +34,8 @@ export const plugin: Container.IPluginDescriptor = {
         new EventListener(service);
 
         if (!process.env.DISABLE_P2P_SERVER) {
-            service.getMonitor().setServer(await startSocketServer(service, options));
+            service.getMonitor().setServer(await startSocketServer(service, options), options);
         }
-
-        await service.getMonitor().start(options);
 
         return service;
     },

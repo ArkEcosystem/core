@@ -8,7 +8,7 @@ export interface INetworkStatus {
 }
 
 export interface INetworkMonitor {
-    start(options): Promise<INetworkMonitor>;
+    start(): Promise<void>;
     updateNetworkStatus(initialRun?: boolean): Promise<void>;
     cleansePeers({
         fast,
@@ -28,6 +28,6 @@ export interface INetworkMonitor {
     broadcastBlock(block: Interfaces.IBlock): Promise<void>;
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster;
-    setServer(server: SocketCluster): void;
+    setServer(server: SocketCluster, options): void;
     stopServer(): void;
 }
