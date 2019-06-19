@@ -85,7 +85,7 @@ export class Database {
     public async getExportQueries(meta: {
         startHeight: number;
         endHeight: number;
-        startRoundId: number;
+        skipRoundRows: number;
         skipCompression: boolean;
         folder: string;
     }) {
@@ -113,7 +113,7 @@ export class Database {
             rounds: rawQuery(this.pgp, queries.rounds.roundRange, {
                 startRound: roundInfoStart.round,
                 endRound: roundInfoEnd.round,
-                startId: meta.startRoundId,
+                skipRoundRows: meta.skipRoundRows,
             }),
         };
     }

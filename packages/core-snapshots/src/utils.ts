@@ -90,7 +90,7 @@ export const setSnapshotInfo = (options, lastBlock) => {
     const meta = {
         startHeight: options.start !== -1 ? options.start : 1,
         endHeight: options.end !== -1 ? options.end : lastBlock.height,
-        startRoundId: 1,
+        skipRoundRows: 0,
         skipCompression: options.skipCompression || false,
         folder: "",
     };
@@ -100,7 +100,7 @@ export const setSnapshotInfo = (options, lastBlock) => {
     if (options.blocks) {
         const oldMeta = this.getSnapshotInfo(options.blocks);
         meta.startHeight = oldMeta.endHeight + 1;
-        meta.startRoundId = oldMeta.rounds.count + 1;
+        meta.skipRoundRows = oldMeta.rounds.count;
         meta.folder = `${oldMeta.startHeight}-${meta.endHeight}`;
     }
 
