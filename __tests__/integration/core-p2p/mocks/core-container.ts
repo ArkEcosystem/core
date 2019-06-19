@@ -111,6 +111,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     return {
                         getStore: () => ({
                             getLastBlock: () => genesisBlock,
+                            getLastBlocks: () => [genesisBlock],
                             getLastHeight: () => genesisBlock.data.height,
                             cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
                             removeCachedTransactionIds: jest.fn().mockReturnValue(undefined),

@@ -84,8 +84,8 @@ export class PeerVerifier {
             return undefined;
         }
 
-        const claimedHeight = Number(claimedState.header.height);
-        const ourHeight: number = await this.ourHeight();
+        const claimedHeight: number = Number(claimedState.header.height);
+        const ourHeight: number = this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
             return new PeerVerificationResult(ourHeight, claimedHeight, claimedHeight);
@@ -118,6 +118,17 @@ export class PeerVerifier {
         }
 
         try {
+            const ownBlock: Interfaces.IBlock = app
+                .resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .getLastBlocks()
+                .find(block => block.data.height === blockHeader.height);
+
+            // Use shortcut to prevent expensive crypto if the block header equals our own.
+            if (ownBlock && JSON.stringify(ownBlock.getHeader()) === JSON.stringify(blockHeader)) {
+                return true;
+            }
+
             const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
             if (claimedBlock.verifySignature()) {
                 return true;
@@ -137,11 +148,7 @@ export class PeerVerifier {
         }
     }
 
-    /**
-     * Retrieve the height of the highest block in our chain.
-     * @return {Number} chain height
-     */
-    private async ourHeight(): Promise<number> {
+    private ourHeight(): number {
         const height: number = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()
