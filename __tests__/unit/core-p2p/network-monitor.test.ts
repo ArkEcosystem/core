@@ -28,7 +28,7 @@ describe("NetworkMonitor", () => {
 
             jest.spyOn(processor, "validatePeerIp").mockReturnValueOnce(true);
 
-            await monitor.start({ networkStart: false });
+            await monitor.start();
 
             expect(validateAndAcceptPeer).toHaveBeenCalledWith(
                 {

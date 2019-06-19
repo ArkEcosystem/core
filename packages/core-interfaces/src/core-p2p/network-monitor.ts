@@ -28,6 +28,6 @@ export interface INetworkMonitor {
     broadcastBlock(block: Interfaces.IBlock): Promise<void>;
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster;
-    setServer(server: SocketCluster, options): void;
+    setServer(server: SocketCluster): void;
     stopServer(): void;
 }

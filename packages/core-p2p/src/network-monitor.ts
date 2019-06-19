@@ -33,11 +33,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         communicator,
         processor,
         storage,
+        options,
     }: {
         communicator: P2P.IPeerCommunicator;
         processor: P2P.IPeerProcessor;
         storage: P2P.IPeerStorage;
+        options;
     }) {
+        this.config = options;
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
@@ -47,8 +50,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         return this.server;
     }
 
-    public setServer(server: SocketCluster, options): void {
-        this.config = options;
+    public setServer(server: SocketCluster): void {
         this.server = server;
     }
 

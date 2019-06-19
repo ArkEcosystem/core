@@ -12,7 +12,7 @@ export const createStubPeer = (stub): P2P.IPeer => {
 };
 
 export const createPeerService = () => {
-    const service = makePeerService();
+    const service = makePeerService({});
 
     return {
         service,

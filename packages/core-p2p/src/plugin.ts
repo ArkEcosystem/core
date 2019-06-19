@@ -9,13 +9,13 @@ import { PeerService } from "./peer-service";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 
-export const makePeerService = (): PeerService => {
+export const makePeerService = (options): PeerService => {
     const storage = new PeerStorage();
     const connector = new PeerConnector();
 
     const communicator = new PeerCommunicator(connector);
     const processor = new PeerProcessor({ storage, connector, communicator });
-    const monitor = new NetworkMonitor({ storage, processor, communicator });
+    const monitor = new NetworkMonitor({ storage, processor, communicator, options });
 
     return new PeerService({ storage, processor, connector, communicator, monitor });
 };
@@ -28,13 +28,13 @@ export const plugin: Container.IPluginDescriptor = {
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");
 
-        const service: P2P.IPeerService = makePeerService();
+        const service: P2P.IPeerService = makePeerService(options);
 
         // tslint:disable-next-line: no-unused-expression
         new EventListener(service);
 
         if (!process.env.DISABLE_P2P_SERVER) {
-            service.getMonitor().setServer(await startSocketServer(service, options), options);
+            service.getMonitor().setServer(await startSocketServer(service, options));
         }
 
         return service;
