@@ -104,23 +104,12 @@ export const postTransactions = async ({ service, req }: { service: P2P.IPeerSer
 
 export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
     const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
     const reqHeadersOnly: boolean = !!req.data.headersOnly;
 
-    let blocks: Interfaces.IBlockData[] = [];
-
-    if (!req.data.lastBlockHeight || isNaN(reqBlockHeight)) {
-        const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
-
-        if (lastBlock) {
-            blocks.push(lastBlock.data);
-        }
-    } else {
-        blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
-    }
+    const blocks: Interfaces.IBlockData[] = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
         `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
