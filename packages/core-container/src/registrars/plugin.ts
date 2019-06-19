@@ -105,7 +105,6 @@ export class PluginRegistrar {
         }
 
         const name = item.plugin.name || item.plugin.pkg.name;
-
         const version = item.plugin.version || item.plugin.pkg.version;
         const defaults = item.plugin.defaults || item.plugin.pkg.defaults;
         const alias = item.plugin.alias || item.plugin.pkg.alias;
