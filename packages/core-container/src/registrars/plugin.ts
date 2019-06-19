@@ -24,13 +24,11 @@ export class PluginRegistrar {
      * @return {void}
      */
     public async setUp() {
-        for (const onlyOptions of [true, false]) {
-            for (const [name, options] of Object.entries(this.plugins)) {
-                await this.register(name, options, onlyOptions);
+        for (const [name, options] of Object.entries(this.plugins)) {
+            await this.register(name, options);
 
-                if ((this.options.exit && this.options.exit === name) || this.container.shuttingDown) {
-                    break;
-                }
+            if ((this.options.exit && this.options.exit === name) || this.container.shuttingDown) {
+                break;
             }
         }
 
@@ -63,7 +61,7 @@ export class PluginRegistrar {
      * @param  {Object} options
      * @return {void}
      */
-    private async register(name, options = {}, onlyOptions: boolean = false) {
+    private async register(name, options = {}) {
         try {
             if (!this.shouldBeRegistered(name)) {
                 return;
@@ -73,7 +71,7 @@ export class PluginRegistrar {
                 options = Hoek.applyToDefaults(this.plugins[name], options);
             }
 
-            return this.registerWithContainer(name, options, onlyOptions);
+            return this.registerWithContainer(name, options);
         } catch (error) {
             this.failedPlugins[name] = error;
         }
@@ -85,15 +83,12 @@ export class PluginRegistrar {
      * @param  {Object} options
      * @return {void}
      */
-    private async registerWithContainer(plugin, options = {}, onlyOptions: boolean = false) {
+    private async registerWithContainer(plugin, options = {}) {
         let item: any;
         try {
             item = this.resolve(plugin);
         } catch (error) {
-            if (!onlyOptions) {
-                this.failedPlugins[plugin] = error;
-            }
-
+            this.failedPlugins[plugin] = error;
             return;
         }
 
@@ -101,7 +96,7 @@ export class PluginRegistrar {
             return;
         }
 
-        if (item.plugin.extends && !onlyOptions) {
+        if (item.plugin.extends) {
             await this.registerWithContainer(item.plugin.extends);
         }
 
@@ -118,16 +113,10 @@ export class PluginRegistrar {
         }
 
         options = this.applyToDefaults(name, defaults, options);
-
         this.container.register(`pkg.${alias || name}.opts`, asValue(options));
-
-        if (onlyOptions) {
-            return;
-        }
 
         try {
             plugin = await item.plugin.register(this.container, options);
-
             this.container.register(
                 alias || name,
                 asValue({
@@ -143,7 +132,6 @@ export class PluginRegistrar {
                 this.deregister.push({ plugin: item.plugin, options });
             }
         } catch (error) {
-            console.log(error);
             if (item.plugin.required) {
                 this.container.forceExit(`Failed to load required plugin '${name}'`, error);
             } else {
