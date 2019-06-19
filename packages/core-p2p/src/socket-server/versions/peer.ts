@@ -107,6 +107,9 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
+    const reqBlockLimit: number = +req.data.blockLimit || 400;
+    const reqHeadersOnly: boolean = !!req.data.headersOnly;
+
     let blocks: Interfaces.IBlockData[] = [];
 
     if (!req.data.lastBlockHeight || isNaN(reqBlockHeight)) {
@@ -116,7 +119,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
             blocks.push(lastBlock.data);
         }
     } else {
-        blocks = await database.getBlocks(reqBlockHeight, 400);
+        blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(

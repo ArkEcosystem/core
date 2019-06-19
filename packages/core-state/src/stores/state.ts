@@ -123,8 +123,8 @@ export class StateStore implements State.IStateStore {
     /**
      * Get the last blocks data.
      */
-    public getLastBlocksData(): Seq<number, Interfaces.IBlockData> {
-        return this.mapToBlockData(this.lastBlocks.valueSeq().reverse());
+    public getLastBlocksData(headersOnly?: boolean): Seq<number, Interfaces.IBlockData> {
+        return this.mapToBlockData(this.lastBlocks.valueSeq().reverse(), headersOnly);
     }
 
     /**
@@ -150,7 +150,7 @@ export class StateStore implements State.IStateStore {
             .valueSeq()
             .filter(block => block.data.height >= start && block.data.height <= end);
 
-        return this.mapToBlockData(blocks).toArray() as Interfaces.IBlockData[];
+        return this.mapToBlockData(blocks, true).toArray() as Interfaces.IBlockData[];
     }
 
     /**
@@ -163,7 +163,7 @@ export class StateStore implements State.IStateStore {
             idsHash[id] = true;
         }
 
-        return this.getLastBlocksData()
+        return this.getLastBlocksData(true)
             .filter(block => idsHash[block.id])
             .toArray() as Interfaces.IBlockData[];
     }
@@ -249,7 +249,13 @@ export class StateStore implements State.IStateStore {
     }
 
     // Map Block instances to block data.
-    private mapToBlockData(blocks: Seq<number, Interfaces.IBlock>): Seq<number, Interfaces.IBlockData> {
-        return blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
+    private mapToBlockData(
+        blocks: Seq<number, Interfaces.IBlock>,
+        headersOnly?: boolean,
+    ): Seq<number, Interfaces.IBlockData> {
+        return blocks.map(block => ({
+            ...block.data,
+            transactions: headersOnly ? undefined : block.transactions.map(tx => tx.data),
+        }));
     }
 }
