@@ -8,6 +8,7 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "wallet-api",
+    depends: "@arkecosystem/core-api",
     async register(container: Container.IContainer, options) {
         if (!isWhitelisted(container.resolveOptions("api").whitelist, ip.address())) {
             container.resolvePlugin<Logger.ILogger>("logger").info("Wallet API is disabled");

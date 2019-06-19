@@ -6,6 +6,7 @@ export interface IPluginDescriptor {
     required?: boolean;
     defaults?: any;
     extends?: string;
+    depends?: string;
     register(container: IContainer, options?: IPluginOptions): Promise<any>;
     deregister?(container: IContainer, options?: any): Promise<void>;
 }
