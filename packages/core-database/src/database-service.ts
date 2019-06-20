@@ -215,7 +215,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return Blocks.BlockFactory.fromData(block);
     }
 
-    public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
+    public async getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]> {
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
         const end: number = offset + limit - 1;
@@ -223,12 +223,14 @@ export class DatabaseService implements Database.IDatabaseService {
         let blocks: Interfaces.IBlockData[] = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()
-            .getLastBlocksByHeight(start, end);
+            .getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
             blocks = await this.connection.blocksRepository.heightRange(start, end);
 
-            await this.loadTransactionsForBlocks(blocks);
+            if (!headersOnly) {
+                await this.loadTransactionsForBlocks(blocks);
+            }
         }
 
         return blocks;
@@ -266,7 +268,7 @@ export class DatabaseService implements Database.IDatabaseService {
             const stateBlocks = app
                 .resolvePlugin<State.IStateService>("state")
                 .getStore()
-                .getLastBlocksByHeight(height, height);
+                .getLastBlocksByHeight(height, height, true);
 
             if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
                 blocks[i] = stateBlocks[0];
