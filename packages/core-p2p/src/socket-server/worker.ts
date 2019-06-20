@@ -1,11 +1,10 @@
-import dayjs, { Dayjs } from "dayjs";
 import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "../enums";
+import { RateLimiter } from "./rate-limiter";
 
 export class Worker extends SCWorker {
-    private peersMsgTimestamps: Record<string, number[]> = {};
     private config: Record<string, any>;
-    private readonly suspensions: Record<string, Dayjs> = {};
+    private rateLimiter: RateLimiter;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -23,6 +22,28 @@ export class Worker extends SCWorker {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
 
         this.config = data;
+        this.rateLimiter = new RateLimiter({
+            whitelist: [...this.config.whitelist, ...this.config.remoteAccess],
+            configurations: {
+                global: {
+                    rateLimit: this.config.rateLimit,
+                },
+                endpoints: [
+                    {
+                        rateLimit: 1,
+                        endpoint: "p2p.peer.postBlock",
+                    },
+                    {
+                        rateLimit: 1,
+                        endpoint: "p2p.peer.getBlocks",
+                    },
+                    {
+                        rateLimit: 5,
+                        endpoint: "p2p.peer.getCommonBlocks",
+                    },
+                ],
+            },
+        });
     }
 
     private async handleConnection(socket): Promise<void> {
@@ -44,31 +65,21 @@ export class Worker extends SCWorker {
 
     private async handleHandshake(req, next): Promise<void> {
         if ((this.config.blacklist || []).includes(req.socket.remoteAddress)) {
-            // @ts-ignore
             req.socket.disconnect(4403, "Forbidden");
             return;
-        }
-
-        if (await this.isSuspended(req.socket.remoteAddress)) {
-            return next(new Error("Banned because exceeded rate limit"));
         }
 
         next();
     }
 
     private async handleEmit(req, next): Promise<void> {
-        if (this.hasExceededRateLimit(req.socket.remoteAddress)) {
-            await this.suspendPeer(req.socket.remoteAddress);
-
-            next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
-
-            req.socket.disconnect(4429, "Rate limit exceeded");
-
-            return;
+        if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
+            return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
         }
 
-        if (!req.data || !req.data.headers) {
-            return next(this.createError(SocketErrors.HeadersRequired, "Request data and data.headers is mandatory"));
+        // @TODO: check if this is still needed
+        if (!req.data) {
+            return next(this.createError(SocketErrors.HeadersRequired, "Request data and is mandatory"));
         }
 
         try {
@@ -124,20 +135,6 @@ export class Worker extends SCWorker {
         next();
     }
 
-    private async suspendPeer(remoteAddress: string): Promise<void> {
-        this.suspensions[remoteAddress] = dayjs().add(1, "minute");
-    }
-
-    private async isSuspended(remoteAddress: string): Promise<boolean> {
-        const suspension: Dayjs = this.suspensions[remoteAddress];
-
-        if (!suspension) {
-            return false;
-        }
-
-        return suspension.isAfter(dayjs());
-    }
-
     private async log(message: string, level: string = "info"): Promise<void> {
         try {
             await this.sendToMasterAsync("p2p.utils.log", {
@@ -158,31 +155,6 @@ export class Worker extends SCWorker {
                 (err, res) => (err ? reject(err) : resolve(res)),
             );
         });
-    }
-
-    private hasExceededRateLimit(remoteAddress: string): boolean {
-        if ([...this.config.whitelist, ...this.config.remoteAccess].includes(remoteAddress)) {
-            return false;
-        }
-
-        this.peersMsgTimestamps[remoteAddress] = this.peersMsgTimestamps[remoteAddress] || [];
-        this.peersMsgTimestamps[remoteAddress].push(new Date().getTime());
-
-        const requestCount = this.peersMsgTimestamps[remoteAddress].length;
-
-        if (requestCount < this.config.rateLimit) {
-            return false;
-        }
-
-        this.peersMsgTimestamps[remoteAddress] = this.peersMsgTimestamps[remoteAddress].slice(
-            requestCount - this.config.rateLimit,
-        );
-
-        return (
-            this.peersMsgTimestamps[remoteAddress][this.config.rateLimit - 1] -
-                this.peersMsgTimestamps[remoteAddress][0] <
-            1000
-        );
     }
 
     private createError(name, message): Error {

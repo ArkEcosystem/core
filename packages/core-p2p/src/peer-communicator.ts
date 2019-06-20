@@ -218,9 +218,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
         switch (error.name) {
             case SocketErrors.Validation:
-                this.logger.error(`Socket data validation error (peer ${peer.ip}) : ${error.message}`);
+                this.logger.debug(`Socket data validation error (peer ${peer.ip}) : ${error.message}`);
                 break;
             case "Error":
+            case "CoreRateLimitExceededError":
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Response error (peer ${peer.ip}) : ${error.message}`);
                 }

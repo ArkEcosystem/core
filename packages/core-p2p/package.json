@@ -36,6 +36,7 @@
         "dayjs": "^1.8.14",
         "delay": "^4.2.0",
         "hapi-rate-limit": "^3.1.2",
+        "rate-limiter-flexible": "^1.0.2",
         "ip": "^1.1.5",
         "ipaddr.js": "^1.9.0",
         "lodash.chunk": "^4.2.0",
