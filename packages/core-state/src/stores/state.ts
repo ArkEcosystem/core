@@ -143,14 +143,14 @@ export class StateStore implements State.IStateStore {
      * @param {Number} start
      * @param {Number} end
      */
-    public getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
         end = end || start;
 
         const blocks = this.lastBlocks
             .valueSeq()
             .filter(block => block.data.height >= start && block.data.height <= end);
 
-        return this.mapToBlockData(blocks, true).toArray() as Interfaces.IBlockData[];
+        return this.mapToBlockData(blocks, headersOnly).toArray() as Interfaces.IBlockData[];
     }
 
     /**

@@ -2,7 +2,7 @@ import "../mocks/";
 import { container } from "../mocks/container";
 import { logger } from "../mocks/logger";
 
-import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
+import { Blocks as cBlocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
@@ -164,6 +164,22 @@ describe("State Storage", () => {
             const lastBlocksByHeight = stateStorage.getLastBlocksByHeight(50);
             expect(lastBlocksByHeight).toHaveLength(1);
             expect(lastBlocksByHeight[0].height).toBe(50);
+        });
+
+        it("should return full blocks and block headers", () => {
+            const block = BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
+
+            stateStorage.setLastBlock(block);
+
+            let lastBlocksByHeight = stateStorage.getLastBlocksByHeight(1, 1, true);
+            expect(lastBlocksByHeight).toHaveLength(1);
+            expect(lastBlocksByHeight[0].height).toBe(1);
+            expect(lastBlocksByHeight[0].transactions).toBeUndefined();
+
+            lastBlocksByHeight = stateStorage.getLastBlocksByHeight(1, 1);
+            expect(lastBlocksByHeight).toHaveLength(1);
+            expect(lastBlocksByHeight[0].height).toBe(1);
+            expect(lastBlocksByHeight[0].transactions).not.toBeEmpty();
         });
     });
 

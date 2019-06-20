@@ -223,7 +223,7 @@ export class DatabaseService implements Database.IDatabaseService {
         let blocks: Interfaces.IBlockData[] = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()
-            .getLastBlocksByHeight(start, end);
+            .getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
             blocks = await this.connection.blocksRepository.heightRange(start, end);
@@ -268,7 +268,7 @@ export class DatabaseService implements Database.IDatabaseService {
             const stateBlocks = app
                 .resolvePlugin<State.IStateService>("state")
                 .getStore()
-                .getLastBlocksByHeight(height, height);
+                .getLastBlocksByHeight(height, height, true);
 
             if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
                 blocks[i] = stateBlocks[0];

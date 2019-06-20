@@ -48,7 +48,7 @@ export class StateStorageStub implements State.IStateStorage {
         return [];
     }
 
-    public getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
         return [];
     }
 
