@@ -22,16 +22,19 @@ export class Worker extends SCWorker {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
 
         this.config = data;
-        this.rateLimiter = new RateLimiter([...this.config.whitelist, ...this.config.remoteAccess], {
-            global: {
-                rateLimit: this.config.rateLimit,
-            },
-            endpoints: [
-                {
-                    rateLimit: 5,
-                    endpoint: "p2p.peer.postBlock",
+        this.rateLimiter = new RateLimiter({
+            whitelist: [...this.config.whitelist, ...this.config.remoteAccess],
+            configurations: {
+                global: {
+                    rateLimit: this.config.rateLimit,
                 },
-            ],
+                endpoints: [
+                    {
+                        rateLimit: 5,
+                        endpoint: "p2p.peer.postBlock",
+                    },
+                ],
+            },
         });
     }
 
