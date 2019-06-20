@@ -142,7 +142,7 @@ describe("Peers handler", () => {
         });
     });
 
-    describe("getBlocks", () => {
+    describe.skip("getBlocks", () => {
         // TODO also test with something like {lastBlockHeight: 1}
         it("should return the blocks", async () => {
             const result = await getBlocks({
