@@ -30,11 +30,11 @@ export class Worker extends SCWorker {
                 },
                 endpoints: [
                     {
-                        rateLimit: 2,
+                        rateLimit: 1,
                         endpoint: "p2p.peer.postBlock",
                     },
                     {
-                        rateLimit: 2,
+                        rateLimit: 1,
                         endpoint: "p2p.peer.getBlocks",
                     },
                     {
