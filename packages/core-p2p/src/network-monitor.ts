@@ -33,11 +33,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         communicator,
         processor,
         storage,
+        options,
     }: {
         communicator: P2P.IPeerCommunicator;
         processor: P2P.IPeerProcessor;
         storage: P2P.IPeerStorage;
+        options;
     }) {
+        this.config = options;
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
@@ -59,11 +62,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
     }
 
-    public async start(options): Promise<this> {
-        this.config = options;
-
-        await this.checkDNSConnectivity(options.dns);
-        await this.checkNTPConnectivity(options.ntp);
+    public async start(): Promise<void> {
+        await this.checkDNSConnectivity(this.config.dns);
+        await this.checkNTPConnectivity(this.config.ntp);
 
         await this.populateSeedPeers();
 
@@ -78,8 +79,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
 
         this.initializing = false;
-
-        return this;
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {

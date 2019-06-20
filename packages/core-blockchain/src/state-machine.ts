@@ -186,6 +186,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             await blockchain.database.restoreCurrentRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
 
+            await blockchain.p2p.getMonitor().start();
+
             return blockchain.dispatch("STARTED");
         } catch (error) {
             logger.error(error.stack);
