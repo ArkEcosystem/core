@@ -22,7 +22,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         try {
             this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
 
-            return await this.getPeerBlocks(peer, fromBlockHeight);
+            return await this.getPeerBlocks(peer, { fromBlockHeight });
         } catch (error) {
             this.logger.error(`Could not download blocks from ${peer.url}: ${error.message}`);
 
@@ -134,11 +134,17 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
     public async getPeerBlocks(
         peer: P2P.IPeer,
-        afterBlockHeight: number,
-        timeoutMsec?: number,
+        {
+            fromBlockHeight,
+            blockLimit,
+            timeoutMsec,
+            headersOnly,
+        }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
         return this.emit(peer, "p2p.peer.getBlocks", {
-            lastBlockHeight: afterBlockHeight,
+            lastBlockHeight: fromBlockHeight,
+            blockLimit,
+            headersOnly,
             headers: {
                 "Content-Type": "application/json",
             },
