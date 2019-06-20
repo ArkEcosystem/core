@@ -48,7 +48,10 @@ beforeAll(async () => {
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
 
-afterAll(() => socket.destroy());
+afterAll(() => {
+    socket.destroy();
+    server.destroy();
+});
 
 describe("Peer socket endpoint", () => {
     describe("socket endpoints", () => {
@@ -188,29 +191,6 @@ describe("Peer socket endpoint", () => {
                     data: { block },
                 }),
             ).toResolve();
-        });
-
-        it("should not be disconnected and banned if is configured in remoteAccess", async () => {
-            const onSocketError = jest.fn();
-            socket.on("error", onSocketError);
-
-            // need to restart the server for config changes to be updated
-            defaults.remoteAccess = ["127.0.0.1", "::ffff:127.0.0.1"];
-            server.destroy();
-            await delay(2000);
-            const { service } = createPeerService();
-            server = await startSocketServer(service, { server: { port: 4007 } });
-
-            await delay(1000);
-
-            for (let i = 0; i < 300; i++) {
-                const { data } = await emit("p2p.peer.getStatus", {
-                    headers,
-                });
-                expect(data.state.height).toBeNumber();
-            }
-
-            expect(socket.getState()).toBe("open");
         });
     });
 });
