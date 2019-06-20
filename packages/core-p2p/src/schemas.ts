@@ -7,7 +7,7 @@ export const requestSchemas = {
             required: ["ids"],
             additionalProperties: false,
             properties: {
-                ids: { type: "array", additionalItems: false, minItems: 1, items: { blockId: {} } },
+                ids: { type: "array", additionalItems: false, minItems: 1, maxItems: 10, items: { blockId: {} } },
             },
         },
         getBlocks: {
