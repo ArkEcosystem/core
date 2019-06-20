@@ -4,6 +4,7 @@ export const getMonitor = {
     // tslint:disable-next-line: no-empty
     checkNetworkHealth: () => {},
     syncWithNetwork: () => [],
+    start: () => undefined,
     refreshPeersAfterFork: () => undefined,
     broadcastBlock: () => undefined,
     hasPeers: () => false,

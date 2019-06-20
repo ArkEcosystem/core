@@ -68,7 +68,7 @@ export interface IStateStore {
      * @param {Number} start
      * @param {Number} end
      */
-    getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[];
+    getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[];
 
     /**
      * Get common blocks for the given IDs.

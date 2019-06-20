@@ -28,7 +28,7 @@ describe("NetworkMonitor", () => {
 
             jest.spyOn(processor, "validatePeerIp").mockReturnValueOnce(true);
 
-            await monitor.start({ networkStart: false });
+            await monitor.start();
 
             expect(validateAndAcceptPeer).toHaveBeenCalledWith(
                 {
@@ -160,7 +160,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks in parallel from 25 peers max", async () => {
             communicator.getPeerBlocks = jest
                 .fn()
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 30; i++) {
                 storage.setPeer(
@@ -187,7 +187,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks in parallel from all peers if less than 25 peers", async () => {
             communicator.getPeerBlocks = jest
                 .fn()
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 18; i++) {
                 storage.setPeer(
@@ -214,7 +214,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks in parallel until median network height and no more", async () => {
             communicator.getPeerBlocks = jest
                 .fn()
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 30; i++) {
                 storage.setPeer(
@@ -242,7 +242,7 @@ describe("NetworkMonitor", () => {
             communicator.getPeerBlocks = jest
                 .fn()
                 .mockRejectedValueOnce("peer mock error")
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 5; i++) {
                 storage.setPeer(

@@ -10,6 +10,16 @@ export const requestSchemas = {
                 ids: { type: "array", additionalItems: false, minItems: 1, maxItems: 10, items: { blockId: {} } },
             },
         },
+        getBlocks: {
+            type: "object",
+            required: ["lastBlockHeight"],
+            additionalProperties: false,
+            properties: {
+                lastBlockHeight: { type: "integer", minimum: 1 },
+                blockLimit: { type: "integer", minimum: 1, maximum: 400 },
+                headersOnly: { type: "boolean" },
+            },
+        },
         postBlock: {
             type: "object",
             required: ["block"],

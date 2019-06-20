@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { createSecureServer, createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
+import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { Logger } from "@arkecosystem/core-interfaces";
 import Hapi from "@hapi/hapi";
 import { registerFormats } from "./formats";
@@ -33,7 +33,11 @@ export class Server {
         }
 
         if (this.config.ssl.enabled) {
-            this.https = await createSecureServer(options, undefined, this.config.ssl);
+            this.https = await createServer({
+                ...options,
+                ...{ host: this.config.ssl.host, port: this.config.ssl.port },
+                ...{ tls: { key: this.config.ssl.key, cert: this.config.ssl.cert } },
+            });
             this.https.app.config = this.config;
 
             this.registerPlugins("HTTPS", this.https);
