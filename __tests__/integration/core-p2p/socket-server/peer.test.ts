@@ -122,17 +122,8 @@ describe("Peer socket endpoint", () => {
     });
 
     describe("Socket errors", () => {
-        it("should send back an error if no data.headers", async () => {
-            try {
-                await emit("p2p.peer.getPeers", {});
-            } catch (e) {
-                expect(e.name).toEqual("CoreHeadersRequiredError");
-                expect(e.message).toEqual("Request data and data.headers is mandatory");
-            }
-        });
-
-        it("should not be disconnected / banned when below rate limit", async () => {
-            await delay(1100);
+        it("should accept the request when below rate limit", async () => {
+            await delay(1000);
             for (let i = 0; i < 18; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
@@ -148,33 +139,60 @@ describe("Peer socket endpoint", () => {
             }
         });
 
-        it("should be disconnected and banned when exceeding rate limit", async () => {
-            const onSocketError = jest.fn();
-            socket.on("error", onSocketError);
-
-            await delay(1100);
-            for (let i = 0; i < 299; i++) {
+        it("should cancel the request when exceeding rate limit", async () => {
+            await delay(1000);
+            for (let i = 0; i < 300; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
                 expect(data.state.height).toBeNumber();
             }
-            // 20th call, should throw CoreRateLimitExceededError
+
             await expect(
-                emit("p2p.peer.postBlock", {
-                    data: {},
+                emit("p2p.peer.getStatus", {
                     headers,
                 }),
             ).rejects.toHaveProperty("name", "CoreRateLimitExceededError");
+        });
 
-            // wait a bit for socket to be disconnected
-            await delay(500);
+        it("should cancel the request when exceeding rate limit on a certain endpoint", async () => {
+            await delay(1000);
 
-            expect(onSocketError).toHaveBeenCalled();
-            expect(socket.getState()).toBe("closed");
+            const block = Blocks.BlockFactory.fromData(genesisBlock).toJson();
+            for (let i = 0; i < 5; i++) {
+                await emit("p2p.peer.postBlock", {
+                    headers,
+                    data: { block },
+                });
+            }
+
+            await expect(
+                emit("p2p.peer.postBlock", {
+                    headers,
+                    data: { block },
+                }),
+            ).rejects.toHaveProperty("name", "CoreRateLimitExceededError");
+
+            await expect(
+                emit("p2p.peer.getStatus", {
+                    headers,
+                }),
+            ).toResolve();
+
+            await delay(1000);
+
+            await expect(
+                emit("p2p.peer.postBlock", {
+                    headers,
+                    data: { block },
+                }),
+            ).toResolve();
         });
 
         it("should not be disconnected and banned if is configured in remoteAccess", async () => {
+            const onSocketError = jest.fn();
+            socket.on("error", onSocketError);
+
             // need to restart the server for config changes to be updated
             defaults.remoteAccess = ["127.0.0.1", "::ffff:127.0.0.1"];
             server.destroy();
