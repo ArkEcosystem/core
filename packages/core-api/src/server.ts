@@ -35,6 +35,7 @@ export class Server {
         if (this.config.ssl.enabled) {
             this.https = await createServer({
                 ...options,
+                ...{ host: this.config.ssl.host, port: this.config.ssl.port },
                 ...{ tls: { key: this.config.ssl.key, cert: this.config.ssl.cert } },
             });
             this.https.app.config = this.config;
