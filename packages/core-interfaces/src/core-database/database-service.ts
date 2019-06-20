@@ -55,7 +55,7 @@ export interface IDatabaseService {
 
     getLastBlock(): Promise<Interfaces.IBlock>;
 
-    getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]>;
+    getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]>;
 
     /**
      * Get the blocks at the given heights.

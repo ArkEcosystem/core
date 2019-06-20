@@ -344,7 +344,14 @@ export class PeerVerifier {
 
         for (let height = startHeight; height <= endHeight; height++) {
             if (hisBlocksByHeight[height] === undefined) {
-                if (!(await this.fetchBlocksFromHeight(height, hisBlocksByHeight, deadline))) {
+                if (
+                    !(await this.fetchBlocksFromHeight({
+                        height,
+                        endHeight,
+                        blocksByHeight: hisBlocksByHeight,
+                        deadline,
+                    }))
+                ) {
                     return false;
                 }
             }
@@ -398,14 +405,28 @@ export class PeerVerifier {
      * @return {Boolean} true if fetched successfully
      * @throws {Error} if the state verification could not complete before the deadline
      */
-    private async fetchBlocksFromHeight(height: number, blocksByHeight: object, deadline: number): Promise<boolean> {
+    private async fetchBlocksFromHeight({
+        height,
+        endHeight,
+        blocksByHeight,
+        deadline,
+    }: {
+        height: number;
+        endHeight: number;
+        blocksByHeight: object;
+        deadline: number;
+    }): Promise<boolean> {
         let response;
 
         try {
             this.throwIfPastDeadline(deadline);
 
             // returns blocks from the next one, thus we do -1
-            response = await this.communicator.getPeerBlocks(this.peer, height - 1);
+            response = await this.communicator.getPeerBlocks(this.peer, {
+                fromBlockHeight: height - 1,
+                blockLimit: endHeight - height,
+                headersOnly: true,
+            });
         } catch (err) {
             this.log(
                 Severity.DEBUG_EXTRA,
@@ -453,8 +474,7 @@ export class PeerVerifier {
         }
 
         const block = Blocks.BlockFactory.fromData(blockData);
-
-        if (!block.verification.verified) {
+        if (!block.verifySignature()) {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: peer's block at height ${expectedHeight} does not pass crypto-validation`,
