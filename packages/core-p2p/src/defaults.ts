@@ -62,5 +62,5 @@ export const defaults = {
     /**
      * Rate limit config, used in socket-server worker / master
      */
-    rateLimit: process.env.CORE_P2P_RATE_LIMIT || 300, // max number of messages per second per socket connection
+    rateLimit: process.env.CORE_P2P_RATE_LIMIT || 100, // max number of messages per second per socket connection
 };
