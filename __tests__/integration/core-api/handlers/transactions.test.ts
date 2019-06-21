@@ -592,4 +592,23 @@ describe("API 2.0 - Transactions", () => {
             },
         );
     });
+
+    describe("GET /transactions/fees", () => {
+        it("should GET all the transaction fees", async () => {
+            const response = await utils.request("GET", "transactions/fees");
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toEqual({
+                delegateRegistration: 2500000000,
+                delegateResignation: 2500000000,
+                ipfs: 500000000,
+                multiPayment: 0,
+                multiSignature: 500000000,
+                secondSignature: 500000000,
+                timelockTransfer: 0,
+                transfer: 10000000,
+                vote: 100000000,
+            });
+        });
+    });
 });
