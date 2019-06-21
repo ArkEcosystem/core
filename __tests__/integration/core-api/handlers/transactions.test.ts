@@ -139,6 +139,16 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toBeObject();
             expect(response.data.data).toHaveProperty("id", transaction.id);
         });
+
+        it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/unconfirmed/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
+        });
     });
 
     describe("GET /transactions/types", () => {

@@ -139,7 +139,7 @@ describe("API 2.0 - Blocks", () => {
         });
 
         it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "blocks/1111111"), 404);
+            utils.expectError(await utils.request("GET", "blocks/111111"), 404);
         });
     });
 
@@ -153,10 +153,14 @@ describe("API 2.0 - Blocks", () => {
             utils.expectTransaction(transaction);
             expect(transaction.blockId).toBe(genesisBlock.id);
         });
+
+        it("should fail to GET all the transactions for the given block by id if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/27184958558311101492/transactions"), 404);
+        });
     });
 
     describe("GET /blocks/:height/transactions", () => {
-        it("should GET all the transactions for the given block by id", async () => {
+        it("should GET all the transactions for the given block by height", async () => {
             const response = await utils.request("GET", `blocks/${genesisBlock.height}/transactions`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -164,6 +168,10 @@ describe("API 2.0 - Blocks", () => {
             const transaction = response.data.data[0];
             utils.expectTransaction(transaction);
             expect(transaction.blockId).toBe(genesisBlock.id);
+        });
+
+        it("should fail to GET all the transactions for the given block by height if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/111111/transactions"), 404);
         });
     });
 

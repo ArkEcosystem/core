@@ -75,5 +75,9 @@ describe("API 2.0 - Peers", () => {
             expect(response.data.data.ip).toBe(peers[0].ip);
             expect(response.data.data.port).toBe(peers[0].port);
         });
+
+        it("should fail to GET a peer by the given ip if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "peers/127.0.0.1"), 404);
+        });
     });
 });
