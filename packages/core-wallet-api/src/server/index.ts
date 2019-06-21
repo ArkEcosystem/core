@@ -31,6 +31,13 @@ export const startServer = async config => {
             options: app.resolveOptions("api").rateLimit,
         });
 
+        await server.register({
+            plugin: plugins.whitelist,
+            options: {
+                whitelist: app.resolveOptions("api").whitelist,
+            },
+        });
+
         server.route({
             method: "*",
             path: "/{path*}",

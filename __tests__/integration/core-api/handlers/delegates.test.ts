@@ -139,6 +139,10 @@ describe("API 2.0 - Delegates", () => {
             utils.expectDelegate(response.data.data);
             expect(response.data.data.publicKey).toEqual(delegate.publicKey);
         });
+
+        it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "delegates/fake_username"), 404);
+        });
     });
 
     describe("POST /delegates/search", () => {
@@ -444,6 +448,10 @@ describe("API 2.0 - Delegates", () => {
 
             await databaseService.deleteBlocks([block2.data]); // reset to genesis block
         });
+
+        it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "delegates/fake_username/blocks"), 404);
+        });
     });
 
     describe("GET /delegates/:id/voters", () => {
@@ -469,6 +477,10 @@ describe("API 2.0 - Delegates", () => {
             }
 
             expect(response.data.data.sort((a, b) => a.balance < b.balance)).toEqual(response.data.data);
+        });
+
+        it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "delegates/fake_username/voters"), 404);
         });
     });
 });
