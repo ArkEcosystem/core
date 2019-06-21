@@ -61,7 +61,7 @@ describe("API 2.0 - Loader", () => {
     });
 
     describe("GET /node/configuration/crypto", () => {
-        it("should GET the node syncing status", async () => {
+        it("should GET the node crypto configuration", async () => {
             const response = await utils.request("GET", "node/configuration/crypto");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
@@ -69,11 +69,12 @@ describe("API 2.0 - Loader", () => {
         });
     });
 
-    describe.skip("GET /node/fees", () => {
-        it("should GET the node syncing status", async () => {
-            const response = await utils.request("GET", "node/fees");
+    describe("GET /node/fees", () => {
+        it("should GET the node fees", async () => {
+            const response = await utils.request("GET", "node/fees", { days: 14 });
             expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
+            expect(response.data.meta.days).toBe(14);
+            expect(response.data.data).toBeArray();
         });
     });
 });
