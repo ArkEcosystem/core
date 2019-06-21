@@ -1,6 +1,7 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
+import { Managers } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -56,6 +57,23 @@ describe("API 2.0 - Loader", () => {
             expect(response.data.data.transactionPool.dynamicFees).toEqual({ enabled: false });
 
             app.resolveOptions("transaction-pool").dynamicFees.enabled = true;
+        });
+    });
+
+    describe("GET /node/configuration/crypto", () => {
+        it("should GET the node syncing status", async () => {
+            const response = await utils.request("GET", "node/configuration/crypto");
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+            expect(response.data.data).toEqual(Managers.configManager.getPreset("testnet"));
+        });
+    });
+
+    describe.skip("GET /node/fees", () => {
+        it("should GET the node syncing status", async () => {
+            const response = await utils.request("GET", "node/fees");
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
         });
     });
 });
