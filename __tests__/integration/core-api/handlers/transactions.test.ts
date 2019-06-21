@@ -107,6 +107,16 @@ describe("API 2.0 - Transactions", () => {
                 id: "8816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
             });
         });
+
+        it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
+        });
     });
 
     describe("GET /transactions/unconfirmed", () => {

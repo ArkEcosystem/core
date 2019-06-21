@@ -117,6 +117,10 @@ describe("API 2.0 - Blocks", () => {
                     "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b",
             });
         });
+
+        it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/27184958558311101492"), 404);
+        });
     });
 
     describe("GET /blocks/:height", () => {
@@ -132,6 +136,10 @@ describe("API 2.0 - Blocks", () => {
                 height: genesisBlock.height,
                 transactions: genesisBlock.numberOfTransactions,
             });
+        });
+
+        it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/1111111"), 404);
         });
     });
 
