@@ -109,7 +109,13 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "transactions/fake-id"), 404);
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
         });
     });
 

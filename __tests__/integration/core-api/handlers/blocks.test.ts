@@ -119,7 +119,7 @@ describe("API 2.0 - Blocks", () => {
         });
 
         it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "blocks/fake-id"), 404);
+            utils.expectError(await utils.request("GET", "blocks/27184958558311101492"), 404);
         });
     });
 
@@ -139,7 +139,7 @@ describe("API 2.0 - Blocks", () => {
         });
 
         it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "blocks/fake-height"), 404);
+            utils.expectError(await utils.request("GET", "blocks/1111111"), 404);
         });
     });
 

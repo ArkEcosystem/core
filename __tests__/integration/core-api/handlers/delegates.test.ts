@@ -141,7 +141,7 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "delegates/fake-id"), 404);
+            utils.expectError(await utils.request("GET", "delegates/fake_username"), 404);
         });
     });
 
@@ -450,7 +450,7 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "delegates/fake-id/blocks"), 404);
+            utils.expectError(await utils.request("GET", "delegates/fake_username/blocks"), 404);
         });
     });
 
@@ -480,7 +480,7 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "delegates/fake-id/voters"), 404);
+            utils.expectError(await utils.request("GET", "delegates/fake_username/voters"), 404);
         });
     });
 });
