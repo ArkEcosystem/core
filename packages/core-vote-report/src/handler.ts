@@ -32,9 +32,7 @@ const formatDelegates = (
             minimumIntegerDigits: 2,
         });
 
-        const votes: string = Number(delegate.voteBalance.div(1e8)).toLocaleString(undefined, {
-            maximumFractionDigits: 0,
-        });
+        const votes: string = delegate.voteBalance.div(1e8).toFixed(0);
 
         const voterCount: string = filteredVoters.length.toLocaleString(undefined, {
             maximumFractionDigits: 0,
@@ -77,11 +75,9 @@ export const handler = (request, h) => {
         .allByPublicKey()
         .filter(wallet => wallet.vote && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
 
-    // @ts-ignore
     const totalVotes: Utils.BigNumber = voters
         .map(wallet => wallet.balance)
         .reduce((a: Utils.BigNumber, b: Utils.BigNumber) => a.plus(b), Utils.BigNumber.ZERO);
-    const percentage: Utils.BigNumber = totalVotes.times(100).div(supply);
 
     const client: {
         token: string;
@@ -101,7 +97,10 @@ export const handler = (request, h) => {
             }),
             supply: supply.div(1e8).toFixed(0),
             totalVotes: totalVotes.div(1e8).toFixed(0),
-            percentage: percentage.toFixed(2),
+            percentage: totalVotes
+                .times(100)
+                .div(supply)
+                .toFixed(2),
         })
         .type("text/plain");
 };
