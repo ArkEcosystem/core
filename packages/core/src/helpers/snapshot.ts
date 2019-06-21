@@ -51,7 +51,7 @@ export const chooseSnapshot = async (flags: CommandFlags, message: string) => {
         },
     ]);
 
-    if (!response.blocks) {
+    if (!response.blocks || !response.confirm) {
         throw new Error("Please select a snapshot and try again.");
     }
 
