@@ -83,10 +83,10 @@ class Helpers {
         expect(block.height).toBeNumber();
         expect(block).toHaveProperty("previous"); // `undefined` or String
         expect(block).toHaveProperty("forged");
-        expect(block.forged.reward).toBeNumber();
-        expect(block.forged.fee).toBeNumber();
-        expect(block.forged.total).toBeNumber();
-        expect(block.forged.amount).toBeNumber();
+        expect(block.forged.reward).toBeString();
+        expect(block.forged.fee).toBeString();
+        expect(block.forged.total).toBeString();
+        expect(block.forged.amount).toBeString();
         expect(block).toHaveProperty("payload");
         expect(block.payload.length).toBeNumber();
         expect(block.payload.hash).toBeString();
@@ -95,9 +95,9 @@ class Helpers {
         expect(block.signature).toBeString();
         expect(block.transactions).toBeNumber();
 
-        Object.keys(expected || {}).forEach(attr => {
+        for (const attr of Object.keys(expected || {})) {
             expect(block[attr]).toEqual(expected[attr]);
-        });
+        }
     }
 
     public expectDelegate(delegate, expected: any = {}) {
@@ -105,19 +105,19 @@ class Helpers {
         expect(delegate.username).toBeString();
         expect(delegate.address).toBeString();
         expect(delegate.publicKey).toBeString();
-        expect(delegate.votes).toBeNumber();
+        expect(delegate.votes).toBeString();
         expect(delegate.rank).toBeNumber();
         expect(delegate.blocks).toBeObject();
         expect(delegate.blocks.produced).toBeNumber();
         expect(delegate.production).toBeObject();
         expect(delegate.production.approval).toBeNumber();
-        expect(delegate.forged.fees).toBeNumber();
-        expect(delegate.forged.rewards).toBeNumber();
-        expect(delegate.forged.total).toBeNumber();
+        expect(delegate.forged.fees).toBeString();
+        expect(delegate.forged.rewards).toBeString();
+        expect(delegate.forged.total).toBeString();
 
-        Object.keys(expected || {}).forEach(attr => {
+        for (const attr of Object.keys(expected || {})) {
             expect(delegate[attr]).toBe(expected[attr]);
-        });
+        }
     }
 
     public expectWallet(wallet) {
