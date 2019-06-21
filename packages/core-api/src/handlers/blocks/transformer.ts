@@ -5,6 +5,10 @@ import { Utils } from "@arkecosystem/crypto";
 
 export const transformBlock = (model, transform) => {
     if (!transform) {
+        model.reward = Utils.BigNumber.make(model.reward).toFixed();
+        model.totalFee = Utils.BigNumber.make(model.totalFee).toFixed();
+        model.totalAmount = Utils.BigNumber.make(model.totalAmount).toFixed();
+
         return model;
     }
 

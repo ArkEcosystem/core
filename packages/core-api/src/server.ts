@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
 import { Logger } from "@arkecosystem/core-interfaces";
 import Hapi from "@hapi/hapi";
-import { registerFormats } from "./formats";
 
 export class Server {
     private logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -90,12 +89,7 @@ export class Server {
             plugin: require("./plugins/set-headers"),
         });
 
-        await server.register({
-            plugin: plugins.hapiAjv,
-            options: {
-                registerFormats,
-            },
-        });
+        await server.register(plugins.hapiAjv);
 
         await server.register({
             plugin: require("hapi-rate-limit"),

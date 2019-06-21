@@ -29,5 +29,12 @@ describe("API 2.0 - Votes", () => {
             expect(response.data.data).toBeObject();
             expect(response.data.data.id).toBe(voteId);
         });
+
+        it("should fail to GET a vote by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request("GET", "votes/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d"),
+                404,
+            );
+        });
     });
 });

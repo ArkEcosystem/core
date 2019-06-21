@@ -107,6 +107,16 @@ describe("API 2.0 - Transactions", () => {
                 id: "8816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
             });
         });
+
+        it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
+        });
     });
 
     describe("GET /transactions/unconfirmed", () => {
@@ -128,6 +138,16 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data).toHaveProperty("id", transaction.id);
+        });
+
+        it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/unconfirmed/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
         });
     });
 
@@ -571,5 +591,24 @@ describe("API 2.0 - Transactions", () => {
                 expect(response.data.data.invalid).toEqual(lastTransaction.map(transaction => transaction.id));
             },
         );
+    });
+
+    describe("GET /transactions/fees", () => {
+        it("should GET all the transaction fees", async () => {
+            const response = await utils.request("GET", "transactions/fees");
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toEqual({
+                delegateRegistration: 2500000000,
+                delegateResignation: 2500000000,
+                ipfs: 500000000,
+                multiPayment: 0,
+                multiSignature: 500000000,
+                secondSignature: 500000000,
+                timelockTransfer: 0,
+                transfer: 10000000,
+                vote: 100000000,
+            });
+        });
     });
 });
