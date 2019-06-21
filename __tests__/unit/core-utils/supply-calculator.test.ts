@@ -1,8 +1,11 @@
 import { app } from "@arkecosystem/core-container";
+import { Utils } from "@arkecosystem/crypto";
 import "jest-extended";
 import { calculate } from "../../../packages/core-utils/src/supply-calculator";
 
 let config;
+
+const toString = value => Utils.BigNumber.make(value).toFixed();
 
 const mockConfig = {
     genesisBlock: { totalAmount: 1000 },
@@ -41,14 +44,14 @@ beforeAll(() => {
 describe("Supply calculator", () => {
     it("should calculate supply with milestone at height 2", () => {
         mockConfig.milestones[0].height = 2;
-        expect(calculate(1)).toBe(mockConfig.genesisBlock.totalAmount);
+        expect(calculate(1)).toBe(toString(mockConfig.genesisBlock.totalAmount));
         mockConfig.milestones[0].height = 1;
     });
 
     describe.each([0, 5, 100, 2000, 4000, 8000])("at height %s", height => {
         it("should calculate the genesis supply without milestone", () => {
             const genesisSupply = config.genesisBlock.totalAmount;
-            expect(calculate(height)).toBe(genesisSupply + height * config.milestones[0].reward);
+            expect(calculate(height)).toBe(toString(genesisSupply + height * config.milestones[0].reward));
         });
     });
 
@@ -65,7 +68,7 @@ describe("Supply calculator", () => {
             };
 
             const genesisSupply = config.genesisBlock.totalAmount;
-            expect(calculate(height)).toBe(genesisSupply + reward(height));
+            expect(calculate(height)).toBe(toString(genesisSupply + reward(height)));
 
             mockConfig.milestones = [{ height: 1, reward: 2 }];
         });
@@ -99,7 +102,7 @@ describe("Supply calculator", () => {
             };
 
             const genesisSupply = config.genesisBlock.totalAmount;
-            expect(calculate(height)).toBe(genesisSupply + reward(height));
+            expect(calculate(height)).toBe(toString(genesisSupply + reward(height)));
 
             mockConfig.milestones = [{ height: 1, reward: 2 }];
         });

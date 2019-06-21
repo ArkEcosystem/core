@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 
-export const calculate = (height: number): number => {
+export const calculate = (height: number): string => {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
@@ -36,7 +36,7 @@ export const calculate = (height: number): number => {
         }
     }
 
-    return +Utils.BigNumber.make(genesisBlock.totalAmount)
+    return Utils.BigNumber.make(genesisBlock.totalAmount)
         .plus(rewards)
         .toFixed();
 };
