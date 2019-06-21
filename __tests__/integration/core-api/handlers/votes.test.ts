@@ -29,5 +29,9 @@ describe("API 2.0 - Votes", () => {
             expect(response.data.data).toBeObject();
             expect(response.data.data.id).toBe(voteId);
         });
+
+        it("should fail to GET a vote by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "votes/fake-id"), 404);
+        });
     });
 });
