@@ -424,7 +424,7 @@ export class PeerVerifier {
             // returns blocks from the next one, thus we do -1
             response = await this.communicator.getPeerBlocks(this.peer, {
                 fromBlockHeight: height - 1,
-                blockLimit: Math.max(Math.min(endHeight - height, 400), 1),
+                blockLimit: Math.max(Math.min(endHeight - height + 1, 400), 1),
                 headersOnly: true,
             });
         } catch (err) {
