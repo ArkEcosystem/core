@@ -86,7 +86,7 @@ describe("Delegate Repository", () => {
 
             for (const delegate of rows) {
                 expect(delegate.hasOwnProperty("forgedTotal"));
-                expect(delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
+                expect(delegate.forgedTotal).toBe(delegateCalculator.calculateForgedTotal(delegate));
             }
         });
 
