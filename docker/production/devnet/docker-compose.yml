@@ -4,8 +4,6 @@ services:
     image: "postgres:alpine"
     container_name: postgres-devnet
     restart: always
-    ports:
-      - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     networks:
@@ -22,6 +20,7 @@ services:
     ports:
      - "4002:4002"
      - "4003:4003"
+     - "4040:4040"
      - "127.0.0.1:4004:4004"
      - "127.0.0.1:4005:4005"
      - "127.0.0.1:8080:8080" 
