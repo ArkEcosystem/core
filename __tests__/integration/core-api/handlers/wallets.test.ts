@@ -28,7 +28,7 @@ describe("API 2.0 - Wallets", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].address).toBe("APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn");
-            expect(+response.data.data[0].balance).toBe(-12500000000000000);
+            expect(response.data.data[0].balance).toBe("-12500000000000000");
         });
 
         it("should GET all the wallets sorted by balance,desc", async () => {
@@ -37,7 +37,7 @@ describe("API 2.0 - Wallets", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].address).toBe("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
-            expect(+response.data.data[0].balance).toBe(245100000000000);
+            expect(response.data.data[0].balance).toBe("245100000000000");
         });
     });
 

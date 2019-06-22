@@ -68,7 +68,7 @@ describe("API 2.0 - Delegates", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].username).toBe(wallet.username);
-            expect(+response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
+            expect(response.data.data[0].votes).toBe(wallet.voteBalance.toFixed());
         });
 
         it("should GET all the delegates sorted by votes,desc", async () => {
@@ -82,7 +82,7 @@ describe("API 2.0 - Delegates", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].username).toBe(wallet.username);
-            expect(+response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
+            expect(response.data.data[0].votes).toBe(wallet.voteBalance.toFixed());
         });
 
         it("should GET all the delegates ordered by descending rank", async () => {
