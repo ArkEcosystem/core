@@ -15,6 +15,7 @@ export const database = {
     getActiveDelegates: () => [],
     restoreCurrentRound: () => undefined,
     getBlocks: () => [],
+    getBlocksForDownload: () => [],
     getBlock: () => undefined,
     revertBlock: () => undefined,
     applyBlock: () => undefined,

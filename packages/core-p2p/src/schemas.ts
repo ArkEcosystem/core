@@ -18,6 +18,7 @@ export const requestSchemas = {
                 lastBlockHeight: { type: "integer", minimum: 1 },
                 blockLimit: { type: "integer", minimum: 1, maximum: 400 },
                 headersOnly: { type: "boolean" },
+                serialized: { type: "boolean" },
             },
         },
         postBlock: {

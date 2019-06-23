@@ -79,6 +79,15 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.manyOrNone(queries.blocks.heightRange, { start, end });
     }
 
+    public async heightRangeWithTransactions(start: number, end: number): Promise<Database.IDownloadBlock[]> {
+        return this.db.manyOrNone(queries.blocks.heightRangeWithTransactions, { start, end }).map(block => {
+            if (block.transactions === null) {
+                delete block.transactions;
+            }
+            return block;
+        });
+    }
+
     public async latest(): Promise<Interfaces.IBlockData> {
         return this.db.oneOrNone(queries.blocks.latest);
     }
