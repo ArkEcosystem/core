@@ -226,14 +226,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     this.logger.debug(`Response error (peer ${peer.ip}) : ${error.message}`);
                 }
                 break;
-            case SocketErrors.Timeout:
-            case "TimeoutError":
-            case "CoreSocketNotOpenError":
-                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
-
-                break;
             default:
-                this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+                if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                    this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+                }
                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
     }
