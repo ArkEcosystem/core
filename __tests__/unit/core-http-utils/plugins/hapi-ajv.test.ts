@@ -24,7 +24,8 @@ describe("register", () => {
             h = { continue: "continue" } as any;
             request = { route: { settings: { plugins: {} } } } as any;
             const validate = jest.spyOn(Validation.validator, "validate");
-            const actual = server.ext.mock.calls[0][0].method(request, h);
+            const validationMethod = server.ext.mock.calls[0][0].method;
+            const actual = validationMethod(request, h);
 
             expect(validate).not.toBeCalled();
             expect(actual).toEqual("continue");
@@ -37,7 +38,9 @@ describe("register", () => {
             } as any;
             const rtn = [true, [{ dataPath: "dataPath", message: "message" }]] as any;
             const validate = jest.spyOn(Validation.validator, "validate").mockReturnValue(rtn);
-            const actual = server.ext.mock.calls[0][0].method(request, h);
+            const validationMethod = server.ext.mock.calls[0][0].method;
+            const actual = validationMethod(request, h);
+
             expect(validate).toHaveBeenCalledWith("foo", "bar");
             expect(actual).toEqual("continue");
         });
