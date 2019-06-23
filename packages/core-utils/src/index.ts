@@ -4,6 +4,7 @@ import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
 import { httpie, IHttpieResponse } from "./httpie";
 import { isBlockChained } from "./is-block-chained";
+import { isWhitelisted } from "./is-whitelisted";
 import { NSect } from "./nsect";
 import { OrderedCappedMap } from "./ordered-capped-map";
 import { calculateRound, isNewRound } from "./round-calculator";
@@ -21,6 +22,7 @@ export {
     httpie,
     IHttpieResponse,
     isBlockChained,
+    isWhitelisted,
     NSect,
     OrderedCappedMap,
     Plugins,

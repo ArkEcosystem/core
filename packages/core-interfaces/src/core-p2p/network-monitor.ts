@@ -8,7 +8,7 @@ export interface INetworkStatus {
 }
 
 export interface INetworkMonitor {
-    start(options): Promise<INetworkMonitor>;
+    start(): Promise<void>;
     updateNetworkStatus(initialRun?: boolean): Promise<void>;
     cleansePeers({
         fast,

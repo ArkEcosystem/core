@@ -59,7 +59,7 @@ export class StateStoreStub implements State.IStateStore {
         return [];
     }
 
-    public getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
         return [];
     }
 

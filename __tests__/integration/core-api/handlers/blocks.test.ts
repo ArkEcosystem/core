@@ -117,6 +117,10 @@ describe("API 2.0 - Blocks", () => {
                     "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b",
             });
         });
+
+        it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/27184958558311101492"), 404);
+        });
     });
 
     describe("GET /blocks/:height", () => {
@@ -133,6 +137,10 @@ describe("API 2.0 - Blocks", () => {
                 transactions: genesisBlock.numberOfTransactions,
             });
         });
+
+        it("should fail to GET a block by the given identifier if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/111111"), 404);
+        });
     });
 
     describe("GET /blocks/:id/transactions", () => {
@@ -145,10 +153,14 @@ describe("API 2.0 - Blocks", () => {
             utils.expectTransaction(transaction);
             expect(transaction.blockId).toBe(genesisBlock.id);
         });
+
+        it("should fail to GET all the transactions for the given block by id if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/27184958558311101492/transactions"), 404);
+        });
     });
 
     describe("GET /blocks/:height/transactions", () => {
-        it("should GET all the transactions for the given block by id", async () => {
+        it("should GET all the transactions for the given block by height", async () => {
             const response = await utils.request("GET", `blocks/${genesisBlock.height}/transactions`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -156,6 +168,10 @@ describe("API 2.0 - Blocks", () => {
             const transaction = response.data.data[0];
             utils.expectTransaction(transaction);
             expect(transaction.blockId).toBe(genesisBlock.id);
+        });
+
+        it("should fail to GET all the transactions for the given block by height if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/111111/transactions"), 404);
         });
     });
 
