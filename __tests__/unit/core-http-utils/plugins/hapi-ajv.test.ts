@@ -20,7 +20,7 @@ describe("register", () => {
         beforeEach(() => {
             hapiAjv.register(server, {});
         });
-        it("should payloadSchema", async () => {
+        it("should continue if no config given", async () => {
             h = { continue: "continue" } as any;
             request = { route: { settings: { plugins: {} } } } as any;
             const validate = jest.spyOn(Validation.validator, "validate");
@@ -37,11 +37,11 @@ describe("register", () => {
             } as any;
             const rtn = [true, [{ dataPath: "dataPath", message: "message" }]] as any;
             const validate = jest.spyOn(Validation.validator, "validate").mockReturnValue(rtn);
-            const actual = server.ext.mock.calls[1][0].method(request, h);
+            const actual = server.ext.mock.calls[0][0].method(request, h);
             expect(validate).toHaveBeenCalledWith("foo", "bar");
             expect(actual).toEqual("continue");
         });
-        /*
+        /*        
         it("should querySchema", async () => {
             
         });
