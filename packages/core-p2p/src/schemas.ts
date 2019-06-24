@@ -60,19 +60,8 @@ export const requestSchemas = {
 export const replySchemas = {
     "p2p.peer.getBlocks": {
         type: "array",
-        additionalProperties: false,
         items: {
-            $ref: "block",
-            $patch: {
-                source: { $ref: "blocks" },
-                with: [
-                    {
-                        op: "add",
-                        path: "/properties/transactions",
-                        value: { type: "string" },
-                    },
-                ],
-            },
+            $ref: "blockHeader",
         },
     },
     "p2p.peer.getCommonBlocks": {
