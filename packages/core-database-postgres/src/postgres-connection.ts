@@ -71,6 +71,13 @@ export class PostgresConnection implements Database.IConnection {
         const pgp: pgPromise.IMain = pgPromise({
             ...this.options.initialization,
             ...{
+                error: async (error, context) => {
+                    if (process.env.NODE_ENV === "test") {
+                        return;
+                    }
+
+                    app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
+                },
                 receive(data) {
                     camelizeColumns(pgp, data);
                 },
