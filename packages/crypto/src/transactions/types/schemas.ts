@@ -212,7 +212,7 @@ export const multiPayment = extend(transactionBaseSchema, {
     $id: "multiPayment",
     properties: {
         type: { transactionType: TransactionTypes.MultiPayment },
-        amount: { bignumber: { minimum: 1 } },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
             type: "object",
             required: ["payments"],

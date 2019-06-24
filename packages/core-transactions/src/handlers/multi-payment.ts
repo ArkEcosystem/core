@@ -1,6 +1,6 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { MultipaymentAmountMismatchError } from "../errors";
+import { InsufficientBalanceError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class MultiPaymentTransactionHandler extends TransactionHandler {
@@ -12,9 +12,11 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
+            const sender: State.IWallet = walletManager.findByAddress(transaction.senderPublicKey);
             for (const payment of transaction.asset.payments) {
                 const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
                 recipient.balance = recipient.balance.plus(payment.amount);
+                sender.balance = sender.balance.minus(payment.amount);
             }
         }
     }
@@ -24,12 +26,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): void {
+        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
+            (a, p) => a.plus(p.amount),
+            Utils.BigNumber.ZERO,
+        );
+
         if (
-            !transaction.data.amount.isEqualTo(
-                transaction.data.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO),
-            )
+            wallet.balance
+                .minus(totalPaymentsAmount)
+                .minus(transaction.data.fee)
+                .isNegative()
         ) {
-            throw new MultipaymentAmountMismatchError();
+            throw new InsufficientBalanceError();
         }
 
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
@@ -41,6 +49,28 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         processor: TransactionPool.IProcessor,
     ): boolean {
         return true;
+    }
+
+    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.applyToSender(transaction, walletManager);
+
+        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
+            (a, p) => a.plus(p.amount),
+            Utils.BigNumber.ZERO,
+        );
+        const sender: State.IWallet = walletManager.findByAddress(transaction.data.senderPublicKey);
+        sender.balance = sender.balance.minus(totalPaymentsAmount);
+    }
+
+    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        super.revertForSender(transaction, walletManager);
+
+        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
+            (a, p) => a.plus(p.amount),
+            Utils.BigNumber.ZERO,
+        );
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.balance = sender.balance.plus(totalPaymentsAmount);
     }
 
     // tslint:disable-next-line:no-empty

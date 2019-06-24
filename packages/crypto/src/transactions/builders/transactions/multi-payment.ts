@@ -27,7 +27,6 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
             amount: BigNumber.make(amount),
             recipientId,
         });
-        this.data.amount = (this.data.amount as BigNumber).plus(amount);
 
         return this;
     }
