@@ -228,12 +228,13 @@ export class DatabaseService implements Database.IDatabaseService {
         if (blocks.length !== limit) {
             blocks = (await this.connection.blocksRepository.heightRangeWithTransactions(start, end)).map(block => ({
                 ...block,
-                transactions: headersOnly
-                    ? undefined
-                    : (block.transactions || []).map(
-                          (transaction: string) =>
-                              Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
-                      ),
+                transactions:
+                    headersOnly || !block.transactions
+                        ? undefined
+                        : block.transactions.map(
+                              (transaction: string) =>
+                                  Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
+                          ),
             }));
         }
 
