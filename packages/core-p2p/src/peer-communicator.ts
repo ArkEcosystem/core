@@ -201,9 +201,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return false;
         }
 
-        const ajv = new AJV();
-        const errors = ajv.validate(schema, reply) ? undefined : ajv.errorsText();
-
         const { error } = Validation.validator.validate(schema, reply);
         if (error) {
             this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
