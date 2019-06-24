@@ -1,5 +1,6 @@
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
+import ajvMergePatch from "ajv-merge-patch";
 import { ISchemaValidationResult } from "../interfaces";
 import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
 import { formats } from "./formats";
@@ -25,6 +26,7 @@ export class Validator {
             ...options,
         });
         ajvKeywords(ajv);
+        ajvMergePatch(ajv);
 
         for (const addKeyword of keywords) {
             addKeyword(ajv);

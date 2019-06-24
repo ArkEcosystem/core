@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import AJV from "ajv";
+import { Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
@@ -205,8 +204,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const ajv = new AJV();
         const errors = ajv.validate(schema, reply) ? undefined : ajv.errorsText();
 
-        if (errors) {
-            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${errors}`);
+        const { error } = Validation.validator.validate(schema, reply);
+        if (error) {
+            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
             return false;
         }
 

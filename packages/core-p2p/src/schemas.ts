@@ -60,24 +60,24 @@ export const requestSchemas = {
 export const replySchemas = {
     "p2p.peer.getBlocks": {
         type: "array",
+        additionalProperties: false,
         items: {
-            type: "object",
-            properties: {
-                height: {
-                    type: "integer",
-                    minimum: 1,
-                },
-                id: {
-                    type: "string",
-                    maxLength: 64,
-                    pattern: "[0-9a-fA-F]+", // hexadecimal
-                },
+            $ref: "block",
+            $patch: {
+                source: { $ref: "blocks" },
+                with: [
+                    {
+                        op: "add",
+                        path: "/properties/transactions",
+                        value: { type: "string" },
+                    },
+                ],
             },
-            required: ["height", "id"],
         },
     },
     "p2p.peer.getCommonBlocks": {
         type: "object",
+        additionalProperties: false,
         properties: {
             common: {
                 anyOf: [
@@ -88,11 +88,7 @@ export const replySchemas = {
                                 type: "integer",
                                 minimum: 1,
                             },
-                            id: {
-                                type: "string",
-                                maxLength: 64,
-                                pattern: "[0-9a-fA-F]+", // hexadecimal
-                            },
+                            id: { blockId: {} },
                         },
                         required: ["height", "id"],
                     },
