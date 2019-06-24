@@ -10,6 +10,10 @@ import {
 } from "./business-repository";
 import { IConnection } from "./database-connection";
 
+export interface IDownloadBlock extends Omit<Interfaces.IBlockData, "transactions"> {
+    transactions: string[];
+}
+
 export interface IDatabaseService {
     walletManager: IWalletManager;
 
@@ -57,6 +61,8 @@ export interface IDatabaseService {
 
     getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]>;
 
+    getBlocksForDownload(offset: number, limit: number, headersOnly?: boolean): Promise<IDownloadBlock[]>;
+
     /**
      * Get the blocks at the given heights.
      * The transactions for those blocks will not be loaded like in `getBlocks()`.
@@ -94,8 +100,6 @@ export interface IDatabaseService {
     reset(): Promise<void>;
 
     loadBlocksFromCurrentRound(): Promise<void>;
-
-    loadTransactionsForBlocks(blocks): Promise<void>;
 
     updateDelegateStats(delegates: IDelegateWallet[]): void;
 

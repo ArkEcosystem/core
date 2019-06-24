@@ -18,6 +18,7 @@ export const requestSchemas = {
                 lastBlockHeight: { type: "integer", minimum: 1 },
                 blockLimit: { type: "integer", minimum: 1, maximum: 400 },
                 headersOnly: { type: "boolean" },
+                serialized: { type: "boolean" },
             },
         },
         postBlock: {
@@ -60,23 +61,12 @@ export const replySchemas = {
     "p2p.peer.getBlocks": {
         type: "array",
         items: {
-            type: "object",
-            properties: {
-                height: {
-                    type: "integer",
-                    minimum: 1,
-                },
-                id: {
-                    type: "string",
-                    maxLength: 64,
-                    pattern: "[0-9a-fA-F]+", // hexadecimal
-                },
-            },
-            required: ["height", "id"],
+            $ref: "blockHeader",
         },
     },
     "p2p.peer.getCommonBlocks": {
         type: "object",
+        additionalProperties: false,
         properties: {
             common: {
                 anyOf: [
@@ -87,11 +77,7 @@ export const replySchemas = {
                                 type: "integer",
                                 minimum: 1,
                             },
-                            id: {
-                                type: "string",
-                                maxLength: 64,
-                                pattern: "[0-9a-fA-F]+", // hexadecimal
-                            },
+                            id: { blockId: {} },
                         },
                         required: ["height", "id"],
                     },

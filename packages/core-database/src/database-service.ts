@@ -226,14 +226,33 @@ export class DatabaseService implements Database.IDatabaseService {
             .getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
-            blocks = await this.connection.blocksRepository.heightRange(start, end);
-
-            if (!headersOnly) {
-                await this.loadTransactionsForBlocks(blocks);
-            }
+            blocks = (await this.connection.blocksRepository.heightRangeWithTransactions(start, end)).map(block => ({
+                ...block,
+                transactions:
+                    headersOnly || !block.transactions
+                        ? undefined
+                        : block.transactions.map(
+                              (transaction: string) =>
+                                  Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
+                          ),
+            }));
         }
 
         return blocks;
+    }
+
+    public async getBlocksForDownload(
+        offset: number,
+        limit: number,
+        headersOnly?: boolean,
+    ): Promise<Database.IDownloadBlock[]> {
+        if (headersOnly) {
+            return (this.connection.blocksRepository.heightRange(offset, offset + limit - 1) as unknown) as Promise<
+                Database.IDownloadBlock[]
+            >;
+        }
+
+        return this.connection.blocksRepository.heightRangeWithTransactions(offset, offset + limit - 1);
     }
 
     /**
@@ -386,32 +405,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
         this.blocksInCurrentRound = await this.getBlocksForRound();
-    }
-
-    public async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
-        if (!blocks.length) {
-            return;
-        }
-
-        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
-
-        const dbTransactions: Array<{
-            id: string;
-            blockId: string;
-            serialized: Buffer;
-        }> = await this.connection.transactionsRepository.latestByBlocks(ids);
-
-        const transactions = dbTransactions.map(tx => {
-            const { data } = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
-            data.blockId = tx.blockId;
-            return data;
-        });
-
-        for (const block of blocks) {
-            if (block.numberOfTransactions > 0) {
-                block.transactions = transactions.filter(transaction => transaction.blockId === block.id);
-            }
-        }
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
@@ -577,6 +570,43 @@ export class DatabaseService implements Database.IDatabaseService {
         } catch {
             return false;
         }
+    }
+
+    private async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
+        const dbTransactions: Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }> = await this.getTransactionsForBlocks(blocks);
+
+        const transactions = dbTransactions.map(tx => {
+            const { data } = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
+            data.blockId = tx.blockId;
+            return data;
+        });
+
+        for (const block of blocks) {
+            if (block.numberOfTransactions > 0) {
+                block.transactions = transactions.filter(transaction => transaction.blockId === block.id);
+            }
+        }
+    }
+
+    private async getTransactionsForBlocks(
+        blocks: Interfaces.IBlockData[],
+    ): Promise<
+        Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }>
+    > {
+        if (!blocks.length) {
+            return [];
+        }
+
+        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
+        return this.connection.transactionsRepository.latestByBlocks(ids);
     }
 
     private async createGenesisBlock(): Promise<void> {
