@@ -101,7 +101,7 @@ export class PluginRegistrar {
         }
 
         if (item.plugin.depends) {
-            await this.registerWithContainer(item.plugin.depends);
+            await this.registerWithContainer(item.plugin.depends, this.plugins[item.plugin.depends]);
         }
 
         const name = item.plugin.name || item.plugin.pkg.name;
