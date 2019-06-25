@@ -700,8 +700,10 @@ describe("MultiPaymentTransaction", () => {
             },
         ]).createOne();
 
-        senderWallet.balance = transaction.amount.plus(transaction.fee);
+        const totalPaymentsAmount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+        senderWallet.balance = totalPaymentsAmount.plus(transaction.fee);
         handler = Handlers.Registry.get(transaction.type);
+
         instance = Transactions.TransactionFactory.fromData(transaction);
     });
 

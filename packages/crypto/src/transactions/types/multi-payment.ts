@@ -38,7 +38,7 @@ export class MultiPaymentTransaction extends Transaction {
             });
         }
 
-        data.amount = payments.reduce((a, p) => a.plus(p.amount), BigNumber.ZERO);
+        data.amount = BigNumber.ZERO;
         data.asset = { payments };
     }
 }
