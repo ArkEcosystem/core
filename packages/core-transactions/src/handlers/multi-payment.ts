@@ -12,7 +12,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
-            const sender: State.IWallet = walletManager.findByAddress(transaction.senderPublicKey);
+            const sender: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             for (const payment of transaction.asset.payments) {
                 const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
                 recipient.balance = recipient.balance.plus(payment.amount);
