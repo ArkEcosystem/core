@@ -60,6 +60,6 @@ export const defaults = {
             "/api/wallets/search",
         ],
     },
-    whitelist: [],
+    whitelist: ["*"],
     plugins: [],
 };
