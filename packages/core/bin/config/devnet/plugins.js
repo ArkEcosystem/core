@@ -43,7 +43,6 @@ module.exports = {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",
         port: process.env.CORE_API_PORT || 4003,
-        whitelist: ["*"],
     },
     "@arkecosystem/core-wallet-api": {},
     "@arkecosystem/core-webhooks": {
