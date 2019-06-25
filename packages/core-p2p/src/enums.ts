@@ -30,4 +30,5 @@ export enum SocketErrors {
     Unknown = "CoreUnknownError",
     Validation = "CoreValidationError",
     RateLimitExceeded = "CoreRateLimitExceededError",
+    Forbidden = "CoreForbiddenError",
 }

@@ -129,14 +129,14 @@ describe("Peer socket endpoint", () => {
     describe("Socket errors", () => {
         it("should accept the request when below rate limit", async () => {
             await delay(1000);
-            for (let i = 0; i < 18; i++) {
+            for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
                 expect(data.state.height).toBeNumber();
             }
             await delay(1100);
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
@@ -146,7 +146,7 @@ describe("Peer socket endpoint", () => {
 
         it("should cancel the request when exceeding rate limit", async () => {
             await delay(1000);
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
                 });
