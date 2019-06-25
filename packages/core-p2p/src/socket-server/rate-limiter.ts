@@ -3,10 +3,16 @@ import { RateLimiterMemory, RLWrapperBlackAndWhite } from "rate-limiter-flexible
 export interface IRateLimiterConfiguration {
     rateLimit: number;
     duration?: number;
+    blockDuration?: number;
 }
 
 export interface IEndpointRateLimiterConfiguration extends IRateLimiterConfiguration {
     endpoint: string;
+}
+
+export interface IRateLimiterConfigurations {
+    global: IRateLimiterConfiguration;
+    endpoints: IEndpointRateLimiterConfiguration[];
 }
 
 export class RateLimiter {
@@ -18,7 +24,7 @@ export class RateLimiter {
         configurations,
     }: {
         whitelist: string[];
-        configurations: { global: IRateLimiterConfiguration; endpoints: IEndpointRateLimiterConfiguration[] };
+        configurations: IRateLimiterConfigurations;
     }) {
         configurations.endpoints = configurations.endpoints || [];
 
@@ -30,17 +36,13 @@ export class RateLimiter {
         }
     }
 
-    public async hasExceededRateLimit(ip: string, requestEndpoint: string): Promise<boolean> {
-        let rateLimiter: RateLimiterMemory;
-
-        if (this.endpoints.has(requestEndpoint)) {
-            rateLimiter = this.endpoints.get(requestEndpoint);
-        } else {
-            rateLimiter = this.global;
-        }
-
+    public async hasExceededRateLimit(ip: string, endpoint?: string): Promise<boolean> {
         try {
-            await rateLimiter.consume(ip);
+            await this.global.consume(ip);
+
+            if (endpoint && this.endpoints.has(endpoint)) {
+                await this.endpoints.get(endpoint).consume(ip);
+            }
         } catch {
             return true;
         }
@@ -48,11 +50,17 @@ export class RateLimiter {
         return false;
     }
 
+    public async isBlocked(ip: string): Promise<boolean> {
+        const res = await this.global.get(ip);
+        return res !== null && res.remainingPoints <= 0;
+    }
+
     private buildRateLimiter(configuration: IRateLimiterConfiguration, whitelist: string[]): RateLimiterMemory {
         return new RLWrapperBlackAndWhite({
             limiter: new RateLimiterMemory({
                 points: configuration.rateLimit,
                 duration: configuration.duration || 1,
+                blockDuration: configuration.blockDuration,
             }),
             whiteList: whitelist,
         });
