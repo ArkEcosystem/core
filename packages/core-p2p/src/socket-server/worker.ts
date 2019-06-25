@@ -27,6 +27,7 @@ export class Worker extends SCWorker {
             configurations: {
                 global: {
                     rateLimit: this.config.rateLimit,
+                    blockDuration: 60 * 1, // 1 minute ban for now
                 },
                 endpoints: [
                     {
@@ -64,8 +65,10 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        if ((this.config.blacklist || []).includes(req.socket.remoteAddress)) {
-            req.socket.disconnect(4403, "Forbidden");
+        const isBlocked = await this.rateLimiter.isBlocked(req.socket.remoteAddress);
+        const isBlacklisted = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        if (isBlocked || isBlacklisted) {
+            next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
             return;
         }
 
@@ -74,6 +77,11 @@ export class Worker extends SCWorker {
 
     private async handleEmit(req, next): Promise<void> {
         if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
+            if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
+                req.socket.disconnect(4403, "Forbidden");
+                return;
+            }
+
             return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
         }
 
