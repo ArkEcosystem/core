@@ -130,14 +130,6 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public purgeSendersWithInvalidTransactions(block: Blocks.Block): void {
-        return;
-    }
-
-    public purgeByBlock(block: Blocks.Block): void {
-        return;
-    }
-
     public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
         return true;
     }
