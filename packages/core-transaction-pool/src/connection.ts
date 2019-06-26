@@ -323,34 +323,12 @@ export class Connection implements TransactionPool.IConnection {
         this.logger.info("Transaction Pool Manager build wallets complete");
     }
 
-    public purgeByBlock(block: Interfaces.IBlock): void {
-        for (const transaction of block.transactions) {
-            if (this.has(transaction.id)) {
-                this.removeTransaction(transaction);
-
-                this.walletManager.revertTransactionForSender(transaction);
-            }
-        }
-    }
-
     public purgeByPublicKey(senderPublicKey: string): void {
         this.logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
 
         this.removeTransactionsForSender(senderPublicKey);
 
         this.walletManager.forget(senderPublicKey);
-    }
-
-    public purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void {
-        const publicKeys: Set<string> = new Set(
-            block.transactions
-                .filter(transaction => !transaction.verified)
-                .map(transaction => transaction.data.senderPublicKey),
-        );
-
-        for (const publicKey of publicKeys) {
-            this.purgeByPublicKey(publicKey);
-        }
     }
 
     public purgeInvalidTransactions(): void {

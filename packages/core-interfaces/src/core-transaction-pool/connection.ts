@@ -35,9 +35,7 @@ export interface IConnection {
     has(transactionId: string): any;
     hasExceededMaxTransactions(senderPublicKey: string): boolean;
     isSenderBlocked(senderPublicKey: string): boolean;
-    purgeByBlock(block: Interfaces.IBlock): void;
     purgeByPublicKey(senderPublicKey: string): void;
-    purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void;
     removeTransaction(transaction: Interfaces.ITransaction): void;
     removeTransactionById(id: string, senderPublicKey?: string): void;
     removeTransactionsById(ids: string[]): void;

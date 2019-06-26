@@ -44,6 +44,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Removed the `ark-node` legacy API known as `v1` ([#2577])
 
+## [2.4.13] - 2019-06-26
+
+### Changed
+
+-   Do not purge transactions when a block is not accepted ([#2751])
+
 ## [2.4.12] - 2019-06-14
 
 ### Changed
@@ -534,7 +540,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
-[2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.5.0
+[2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.13...2.5.0
+[2.4.13]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.4.13
 [2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
 [2.4.1]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
@@ -827,3 +834,4 @@ Closed security vulnerabilities:
 [#2744]: https://github.com/ARKEcosystem/core/pull/2744
 [#2745]: https://github.com/ARKEcosystem/core/pull/2745
 [#2746]: https://github.com/ARKEcosystem/core/pull/2746
+[#2751]: https://github.com/ARKEcosystem/core/pull/2751
