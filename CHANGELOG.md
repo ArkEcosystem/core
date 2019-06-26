@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.13] - 2019-06-26
+
+### Changed
+
+-   Do not purge transactions when a block is not accepted ([#2751])
+
 ## [2.4.12] - 2019-06-14
 
 ### Changed
@@ -497,6 +503,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.4.13]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.4.13
 [2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
 [2.4.1]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
@@ -767,3 +774,4 @@ Closed security vulnerabilities:
 [#2692]: https://github.com/ARKEcosystem/core/pull/2692
 [#2699]: https://github.com/ARKEcosystem/core/pull/2699
 [#2700]: https://github.com/ARKEcosystem/core/pull/2700
+[#2751]: https://github.com/ARKEcosystem/core/pull/2751
