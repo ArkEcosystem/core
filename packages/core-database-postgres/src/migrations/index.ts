@@ -14,4 +14,5 @@ export const migrations = [
     loadQueryFile(__dirname, "./20190307000000-drop-wallets-table.sql"),
     loadQueryFile(__dirname, "./20190313000000-add-asset-column-to-transactions-table.sql"),
     loadQueryFile(__dirname, "./20190606000000-add-block-id-foreign-key-on-transactions.sql"),
+    loadQueryFile(__dirname, "./20190626000000-enforce-chained-blocks.sql"),
 ];
