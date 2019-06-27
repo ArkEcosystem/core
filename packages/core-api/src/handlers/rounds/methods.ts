@@ -4,11 +4,10 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { respondWithCollection } from "../utils";
 
-const config = app.getConfig();
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-const roundsRepository = databaseService.connection.roundsRepository;
-
 const delegates = async request => {
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    const roundsRepository = databaseService.connection.roundsRepository;
+
     const delegates = await roundsRepository.findById(request.params.id);
 
     if (!delegates || !delegates.length) {
@@ -19,7 +18,7 @@ const delegates = async request => {
 };
 
 export const registerMethods = server => {
-    const { activeDelegates, blocktime } = config.getMilestone();
+    const { activeDelegates, blocktime } = app.getConfig().getMilestone();
 
     ServerCache.make(server).method("v2.rounds.delegates", delegates, activeDelegates * blocktime, request => ({
         id: request.params.id,
