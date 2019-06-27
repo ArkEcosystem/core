@@ -6,7 +6,7 @@ export const transformDelegate = delegate => {
         username: delegate.username,
         address: delegate.address,
         publicKey: delegate.publicKey,
-        votes: +Utils.BigNumber.make(delegate.voteBalance).toFixed(),
+        votes: Utils.BigNumber.make(delegate.voteBalance).toFixed(),
         rank: delegate.rate,
         blocks: {
             produced: delegate.producedBlocks,
@@ -15,8 +15,8 @@ export const transformDelegate = delegate => {
             approval: delegateCalculator.calculateApproval(delegate),
         },
         forged: {
-            fees: +delegate.forgedFees.toFixed(),
-            rewards: +delegate.forgedRewards.toFixed(),
+            fees: delegate.forgedFees.toFixed(),
+            rewards: delegate.forgedRewards.toFixed(),
             total: delegateCalculator.calculateForgedTotal(delegate),
         },
     };

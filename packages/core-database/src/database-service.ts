@@ -655,7 +655,7 @@ export class DatabaseService implements Database.IDatabaseService {
     ): Promise<State.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
-        const tempWalletManager = this.walletManager.cloneDelegateWallets();
+        const tempWalletManager = this.walletManager.clone();
 
         // Revert all blocks in reverse order
         const index: number = blocks.length - 1;

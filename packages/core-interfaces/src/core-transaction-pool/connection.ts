@@ -1,5 +1,4 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
-import { Dayjs } from "dayjs";
 import { IProcessor } from "./processor";
 
 export interface IAddTransactionResponse {
@@ -24,7 +23,6 @@ export interface IConnection {
         notAdded: IAddTransactionResponse[];
     };
     acceptChainedBlock(block: Interfaces.IBlock): void;
-    blockSender(senderPublicKey: string): Dayjs;
     buildWallets(): Promise<void>;
     flush(): void;
     getTransaction(id: string): Interfaces.ITransaction;
@@ -34,7 +32,6 @@ export interface IConnection {
     getTransactionsForForging(blockSize: number): Promise<string[]>;
     has(transactionId: string): any;
     hasExceededMaxTransactions(senderPublicKey: string): boolean;
-    isSenderBlocked(senderPublicKey: string): boolean;
     purgeByPublicKey(senderPublicKey: string): void;
     removeTransaction(transaction: Interfaces.ITransaction): void;
     removeTransactionById(id: string, senderPublicKey?: string): void;
