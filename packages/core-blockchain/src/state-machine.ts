@@ -161,6 +161,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 await blockchain.database.buildWallets();
                 await blockchain.database.applyRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
+                await blockchain.p2p.getMonitor().start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -170,6 +171,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
                 stateStorage.setLastBlock(BlockFactory.fromJson(config.get("genesisBlock")));
                 await blockchain.database.buildWallets();
+                await blockchain.p2p.getMonitor().start();
 
                 return blockchain.dispatch("STARTED");
             }
