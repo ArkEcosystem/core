@@ -58,7 +58,11 @@ export class DatabaseService implements Database.IDatabaseService {
 
         Managers.configManager.setHeight(lastBlock.data.height);
 
-        await this.loadBlocksFromCurrentRound();
+        try {
+            await this.loadBlocksFromCurrentRound();
+        } catch (error) {
+            this.logger.warn(`Failed to load blocks from current round: ${error.message}`);
+        }
 
         await this.configureState(lastBlock);
     }
@@ -69,9 +73,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async reset(): Promise<void> {
-        await this.connection.blocksRepository.truncate();
-        await this.connection.roundsRepository.truncate();
-        await this.connection.transactionsRepository.truncate();
+        await this.connection.resetAll();
 
         await this.saveBlock(
             app
@@ -146,24 +148,12 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.buildWallets();
     }
 
-    public async commitQueuedQueries(): Promise<void> {
-        await this.connection.commitQueuedQueries();
-    }
-
-    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.connection.deleteBlock(block);
+    public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
+        await this.connection.deleteBlocks(blocks);
     }
 
     public async deleteRound(round: number): Promise<void> {
         await this.connection.roundsRepository.delete(round);
-    }
-
-    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
-        this.connection.enqueueDeleteBlock(block);
-    }
-
-    public enqueueDeleteRound(height: number): void {
-        this.connection.enqueueDeleteRound(height);
     }
 
     public async getActiveDelegates(
@@ -225,7 +215,7 @@ export class DatabaseService implements Database.IDatabaseService {
         return Blocks.BlockFactory.fromData(block);
     }
 
-    public async getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]> {
+    public async getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]> {
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
         const end: number = offset + limit - 1;
@@ -233,15 +223,36 @@ export class DatabaseService implements Database.IDatabaseService {
         let blocks: Interfaces.IBlockData[] = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()
-            .getLastBlocksByHeight(start, end);
+            .getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
-            blocks = await this.connection.blocksRepository.heightRange(start, end);
-
-            await this.loadTransactionsForBlocks(blocks);
+            blocks = (await this.connection.blocksRepository.heightRangeWithTransactions(start, end)).map(block => ({
+                ...block,
+                transactions:
+                    headersOnly || !block.transactions
+                        ? undefined
+                        : block.transactions.map(
+                              (transaction: string) =>
+                                  Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
+                          ),
+            }));
         }
 
         return blocks;
+    }
+
+    public async getBlocksForDownload(
+        offset: number,
+        limit: number,
+        headersOnly?: boolean,
+    ): Promise<Database.IDownloadBlock[]> {
+        if (headersOnly) {
+            return (this.connection.blocksRepository.heightRange(offset, offset + limit - 1) as unknown) as Promise<
+                Database.IDownloadBlock[]
+            >;
+        }
+
+        return this.connection.blocksRepository.heightRangeWithTransactions(offset, offset + limit - 1);
     }
 
     /**
@@ -276,7 +287,7 @@ export class DatabaseService implements Database.IDatabaseService {
             const stateBlocks = app
                 .resolvePlugin<State.IStateService>("state")
                 .getStore()
-                .getLastBlocksByHeight(height, height);
+                .getLastBlocksByHeight(height, height, true);
 
             if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
                 blocks[i] = stateBlocks[0];
@@ -394,32 +405,6 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
         this.blocksInCurrentRound = await this.getBlocksForRound();
-    }
-
-    public async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
-        if (!blocks.length) {
-            return;
-        }
-
-        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
-
-        const dbTransactions: Array<{
-            id: string;
-            blockId: string;
-            serialized: Buffer;
-        }> = await this.connection.transactionsRepository.latestByBlocks(ids);
-
-        const transactions = dbTransactions.map(tx => {
-            const { data } = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
-            data.blockId = tx.blockId;
-            return data;
-        });
-
-        for (const block of blocks) {
-            if (block.numberOfTransactions > 0) {
-                block.transactions = transactions.filter(transaction => transaction.blockId === block.id);
-            }
-        }
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
@@ -588,6 +573,43 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
+    private async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
+        const dbTransactions: Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }> = await this.getTransactionsForBlocks(blocks);
+
+        const transactions = dbTransactions.map(tx => {
+            const { data } = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
+            data.blockId = tx.blockId;
+            return data;
+        });
+
+        for (const block of blocks) {
+            if (block.numberOfTransactions > 0) {
+                block.transactions = transactions.filter(transaction => transaction.blockId === block.id);
+            }
+        }
+    }
+
+    private async getTransactionsForBlocks(
+        blocks: Interfaces.IBlockData[],
+    ): Promise<
+        Array<{
+            id: string;
+            blockId: string;
+            serialized: Buffer;
+        }>
+    > {
+        if (!blocks.length) {
+            return [];
+        }
+
+        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
+        return this.connection.transactionsRepository.latestByBlocks(ids);
+    }
+
     private async createGenesisBlock(): Promise<void> {
         if (!(await this.getLastBlock())) {
             this.logger.warn("No block found in database");
@@ -634,7 +656,7 @@ export class DatabaseService implements Database.IDatabaseService {
     ): Promise<State.IDelegateWallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
-        const tempWalletManager = this.walletManager.cloneDelegateWallets();
+        const tempWalletManager = this.walletManager.clone();
 
         // Revert all blocks in reverse order
         const index: number = blocks.length - 1;

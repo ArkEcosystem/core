@@ -49,11 +49,11 @@ export class Database {
 
     public async truncate() {
         try {
-            logger.info("Truncating tables: rounds, transactions, blocks");
+            const tables: string = "rounds, transactions, blocks";
 
-            for (const table of ["rounds", "transactions", "blocks"]) {
-                await this.db.none(queries.truncate(table));
-            }
+            logger.info(`Truncating tables: ${tables}`);
+
+            await this.db.none(queries.truncate(tables));
         } catch (error) {
             app.forceExit(error.message);
         }

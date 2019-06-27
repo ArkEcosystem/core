@@ -989,26 +989,6 @@ describe("Transaction Guard", () => {
     //         processor.pool.transactionExists = transactionExists;
     //     });
 
-    //     it("should reject blocked senders", () => {
-    //         const transactionExists = processor.pool.transactionExists;
-    //         processor.pool.transactionExists = jest.fn(() => false);
-    //         const isSenderBlocked = processor.pool.isSenderBlocked;
-    //         processor.pool.isSenderBlocked = jest.fn(() => true);
-
-    //         const tx = { id: "1", senderPublicKey: "affe" };
-    //         processor.__filterAndTransformTransactions([tx]);
-
-    //         expect(processor.errors[tx.id]).toEqual([
-    //             {
-    //                 message: `Transaction ${tx.id} rejected. Sender ${tx.senderPublicKey} is blocked.`,
-    //                 type: "ERR_SENDER_BLOCKED",
-    //             },
-    //         ]);
-
-    //         processor.pool.isSenderBlocked = isSenderBlocked;
-    //         processor.pool.transactionExists = transactionExists;
-    //     });
-
     //     it("should reject transactions that are too large", () => {
     //         const tx = TransactionFactory.transfer(wallets[12].address)
     //             .withNetwork("unitnet")

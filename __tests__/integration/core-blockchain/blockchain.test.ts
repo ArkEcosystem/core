@@ -66,7 +66,12 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
 
 describe("Blockchain", () => {
     beforeAll(async () => {
-        container = await setUp();
+        container = await setUp({
+            options: {
+                // 100 years worth of blocks, so that the genesis transactions don't get expired
+                "@arkecosystem/core-transaction-pool": { maxTransactionAge: 394200000 }
+            }
+        });
 
         blockchain = container.resolvePlugin("blockchain");
 
@@ -113,7 +118,7 @@ describe("Blockchain", () => {
             await blockchain.postTransactions(transferTransactions);
             const transactions = await blockchain.transactionPool.getTransactions(0, 200);
 
-            expect(transactions.length).toBe(transferTransactions.length);
+            expect(transactions).toHaveLength(transferTransactions.length);
 
             expect(transactions).toIncludeAllMembers(transferTransactions.map(transaction => transaction.serialized));
 

@@ -4,7 +4,7 @@ import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
-    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
 
     public async search(
         params: Database.IParameters = {},
@@ -200,13 +200,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             }
 
             delete params.addresses;
-        }
-
-        // TODO: supported by 'findAll' but was replaced by 'addresses' in 'search' so remove this when removing v1 code
-        if (params.ownerId) {
-            // custom OP here
-            params.ownerWallet = databaseService.walletManager.findByAddress(params.ownerId);
-            delete params.ownerId;
         }
 
         const searchParameters: Database.ISearchParameters = new SearchParameterConverter(

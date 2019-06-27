@@ -127,8 +127,8 @@ export class MissingTransactionSignatureError extends CryptoError {
 }
 
 export class BlockSchemaError extends CryptoError {
-    constructor(what: string) {
-        super(what);
+    constructor(height: number, what: string) {
+        super(`Height (${height}): ${what}`);
     }
 }
 

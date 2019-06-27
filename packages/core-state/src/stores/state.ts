@@ -14,7 +14,7 @@ export class StateStore implements State.IStateStore {
     // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
-    public lastDownloadedBlock: Interfaces.IBlock | undefined = undefined;
+    public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
     public started: boolean = false;
     public forkedBlock: Interfaces.IBlock | undefined = undefined;
@@ -123,8 +123,8 @@ export class StateStore implements State.IStateStore {
     /**
      * Get the last blocks data.
      */
-    public getLastBlocksData(): Seq<number, Interfaces.IBlockData> {
-        return this.mapToBlockData(this.lastBlocks.valueSeq().reverse());
+    public getLastBlocksData(headersOnly?: boolean): Seq<number, Interfaces.IBlockData> {
+        return this.mapToBlockData(this.lastBlocks.valueSeq().reverse(), headersOnly);
     }
 
     /**
@@ -143,14 +143,14 @@ export class StateStore implements State.IStateStore {
      * @param {Number} start
      * @param {Number} end
      */
-    public getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
         end = end || start;
 
         const blocks = this.lastBlocks
             .valueSeq()
             .filter(block => block.data.height >= start && block.data.height <= end);
 
-        return this.mapToBlockData(blocks).toArray() as Interfaces.IBlockData[];
+        return this.mapToBlockData(blocks, headersOnly).toArray() as Interfaces.IBlockData[];
     }
 
     /**
@@ -163,7 +163,7 @@ export class StateStore implements State.IStateStore {
             idsHash[id] = true;
         }
 
-        return this.getLastBlocksData()
+        return this.getLastBlocksData(true)
             .filter(block => idsHash[block.id])
             .toArray() as Interfaces.IBlockData[];
     }
@@ -249,7 +249,13 @@ export class StateStore implements State.IStateStore {
     }
 
     // Map Block instances to block data.
-    private mapToBlockData(blocks: Seq<number, Interfaces.IBlock>): Seq<number, Interfaces.IBlockData> {
-        return blocks.map(block => ({ ...block.data, transactions: block.transactions.map(tx => tx.data) }));
+    private mapToBlockData(
+        blocks: Seq<number, Interfaces.IBlock>,
+        headersOnly?: boolean,
+    ): Seq<number, Interfaces.IBlockData> {
+        return blocks.map(block => ({
+            ...block.data,
+            transactions: headersOnly ? undefined : block.transactions.map(tx => tx.data),
+        }));
     }
 }

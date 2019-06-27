@@ -5,7 +5,7 @@ export const transformPlugins = (plugins): P2P.IPeerPlugins => {
 
     for (let [name, options] of Object.entries(plugins) as Array<[string, any]>) {
         if (options.server) {
-            options = options.server;
+            options = { enabled: options.enabled, ...options.server };
         }
 
         const port: number = Number(options.port);

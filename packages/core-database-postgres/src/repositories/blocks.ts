@@ -79,6 +79,15 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.manyOrNone(queries.blocks.heightRange, { start, end });
     }
 
+    public async heightRangeWithTransactions(start: number, end: number): Promise<Database.IDownloadBlock[]> {
+        return this.db.manyOrNone(queries.blocks.heightRangeWithTransactions, { start, end }).map(block => {
+            if (block.transactions === null) {
+                delete block.transactions;
+            }
+            return block;
+        });
+    }
+
     public async latest(): Promise<Interfaces.IBlockData> {
         return this.db.oneOrNone(queries.blocks.latest);
     }
@@ -100,8 +109,8 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.many(queries.blocks.top, { top: count });
     }
 
-    public async delete(id: string): Promise<void> {
-        return this.db.none(queries.blocks.delete, { id });
+    public async delete(ids: string[], db: any): Promise<void> {
+        return db.none(queries.blocks.delete, { ids });
     }
 
     public getModel(): Block {

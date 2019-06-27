@@ -23,7 +23,8 @@ let databaseWalletManager: Wallets.WalletManager;
 beforeAll(async () => {
     Managers.configManager.setFromPreset("testnet");
 
-    memory = new Memory();
+    const maxTransactionAge = 2700;
+    memory = new Memory(maxTransactionAge);
     poolWalletManager = new WalletManager();
     connection = new Connection({
         options: defaults,

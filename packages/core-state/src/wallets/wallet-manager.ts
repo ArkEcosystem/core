@@ -2,8 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Logger, Shared, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
-import cloneDeep from "lodash.clonedeep";
 import pluralize from "pluralize";
+import { TempWalletManager } from "./temp-wallet-manager";
 import { Wallet } from "./wallet";
 
 export class WalletManager implements State.IWalletManager {
@@ -54,24 +54,6 @@ export class WalletManager implements State.IWalletManager {
 
     public findByUsername(username: string): State.IWallet {
         return this.byUsername[username];
-    }
-
-    public setByAddress(address: string, wallet: Wallet): void {
-        if (address && wallet) {
-            this.byAddress[address] = wallet;
-        }
-    }
-
-    public setByPublicKey(publicKey: string, wallet: Wallet): void {
-        if (publicKey && wallet) {
-            this.byPublicKey[publicKey] = wallet;
-        }
-    }
-
-    public setByUsername(username: string, wallet: Wallet): void {
-        if (username && wallet) {
-            this.byUsername[username] = wallet;
-        }
     }
 
     public has(addressOrPublicKey: string): boolean {
@@ -130,10 +112,8 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public cloneDelegateWallets(): WalletManager {
-        const walletManager: WalletManager = new WalletManager();
-        walletManager.index(cloneDeep(this.allByUsername()));
-        return walletManager;
+    public clone(): WalletManager {
+        return new TempWalletManager(this);
     }
 
     public loadActiveDelegateList(roundInfo: Shared.IRoundInfo): State.IDelegateWallet[] {
@@ -174,9 +154,8 @@ export class WalletManager implements State.IWalletManager {
     public applyBlock(block: Interfaces.IBlock): void {
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
-        let delegate: State.IWallet = this.byPublicKey[block.data.generatorPublicKey];
-
-        if (!delegate) {
+        let delegate: State.IWallet;
+        if (!this.has(generatorPublicKey)) {
             const generator: string = Identities.Address.fromPublicKey(generatorPublicKey);
 
             if (block.data.height === 1) {
@@ -185,14 +164,10 @@ export class WalletManager implements State.IWalletManager {
 
                 this.reindex(delegate);
             } else {
-                this.logger.debug(`Delegate by address: ${this.byAddress[generator]}`);
-
-                if (this.byAddress[generator]) {
-                    this.logger.info("This look like a bug, please report");
-                }
-
-                throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`);
+                app.forceExit(`Failed to lookup generator '${generatorPublicKey}' of block '${block.data.id}'.`);
             }
+        } else {
+            delegate = this.findByPublicKey(block.data.generatorPublicKey);
         }
 
         const appliedTransactions: Interfaces.ITransaction[] = [];
@@ -210,7 +185,7 @@ export class WalletManager implements State.IWalletManager {
             // delegate's delegate has to be updated.
             if (applied && delegate.vote) {
                 const increase: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: State.IWallet = this.byPublicKey[delegate.vote];
+                const votedDelegate: State.IWallet = this.findByPublicKey(delegate.vote);
                 votedDelegate.voteBalance = votedDelegate.voteBalance.plus(increase);
             }
         } catch (error) {
@@ -226,12 +201,11 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public revertBlock(block: Interfaces.IBlock): void {
-        const delegate: State.IWallet = this.byPublicKey[block.data.generatorPublicKey];
-
-        if (!delegate) {
+        if (!this.has(block.data.generatorPublicKey)) {
             app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
 
+        const delegate: State.IWallet = this.findByPublicKey(block.data.generatorPublicKey);
         const revertedTransactions: Interfaces.ITransaction[] = [];
 
         try {
@@ -249,7 +223,7 @@ export class WalletManager implements State.IWalletManager {
             // delegate's delegate has to be updated.
             if (reverted && delegate.vote) {
                 const decrease: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: State.IWallet = this.byPublicKey[delegate.vote];
+                const votedDelegate: State.IWallet = this.findByPublicKey(delegate.vote);
                 votedDelegate.voteBalance = votedDelegate.voteBalance.minus(decrease);
             }
         } catch (error) {
@@ -279,7 +253,7 @@ export class WalletManager implements State.IWalletManager {
 
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: State.IWallet = this.findByPublicKey(data.senderPublicKey);
-        const recipient: State.IWallet = this.byAddress[data.recipientId];
+        const recipient: State.IWallet = this.findByAddress(data.recipientId);
 
         transactionHandler.revert(transaction, this);
 
@@ -288,13 +262,11 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public isDelegate(publicKey: string): boolean {
-        const delegateWallet: State.IWallet = this.byPublicKey[publicKey];
-
-        if (delegateWallet && delegateWallet.username) {
-            return this.hasByUsername(delegateWallet.username);
+        if (!this.has(publicKey)) {
+            return false;
         }
 
-        return false;
+        return !!this.findByPublicKey(publicKey).username;
     }
 
     public canBePurged(wallet: State.IWallet): boolean {
@@ -343,7 +315,7 @@ export class WalletManager implements State.IWalletManager {
             })
             .map((delegate, i) => {
                 const rate = i + 1;
-                this.byUsername[delegate.username].rate = rate;
+                this.findByUsername(delegate.username).rate = rate;
                 return { round: roundInfo ? roundInfo.round : 0, ...delegate, rate };
             });
 

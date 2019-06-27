@@ -107,6 +107,16 @@ describe("API 2.0 - Transactions", () => {
                 id: "8816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
             });
         });
+
+        it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
+        });
     });
 
     describe("GET /transactions/unconfirmed", () => {
@@ -128,6 +138,16 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data).toHaveProperty("id", transaction.id);
+        });
+
+        it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
+            utils.expectError(
+                await utils.request(
+                    "GET",
+                    "transactions/unconfirmed/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
+                ),
+                404,
+            );
         });
     });
 
@@ -313,7 +333,7 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(transaction.amount).toBe(amount.toFixed());
+                expect(+transaction.amount).toBe(amount);
             }
         });
 
@@ -350,7 +370,7 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(transaction.fee).toBe(fee.toFixed());
+                expect(+transaction.fee).toBe(fee);
             }
         });
 
@@ -476,8 +496,7 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.message).toBe("should NOT have more than 40 items");
         });
 
-        // TODO: if the first tx of a sender is not accepted, all following tx of the same sender
-        // cant either since the nonce will be out of order
+        // FIXME
         it.skip("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
             const transactions = TransactionFactory.transfer(
                 delegates[1].address,
@@ -514,13 +533,11 @@ describe("API 2.0 - Transactions", () => {
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
 
-            const senderNonce = TransactionFactory.getNonce(sender.publicKey);
-            const lastTransaction = TransactionFactory.transfer(receivers[1].address, lastAmountPlusFee - transferFee)
+            const lastTransaction = TransactionFactory.transfer(receivers[0].address, lastAmountPlusFee - transferFee)
                 .withNetwork("testnet")
+                .withNonce(transactions[transactions.length - 1].nonce)
                 .withPassphrase(sender.secret)
-                .withNonce(senderNonce.plus(txNumber - 1))
                 .create();
-            // we change the receiver in lastTransaction to prevent having 2 exact same transactions with same id (if not, could be same as transactions[0])
 
             const allTransactions = transactions.concat(lastTransaction);
 
@@ -578,5 +595,24 @@ describe("API 2.0 - Transactions", () => {
                 expect(response.data.data.invalid).toEqual(lastTransaction.map(transaction => transaction.id));
             },
         );
+    });
+
+    describe("GET /transactions/fees", () => {
+        it("should GET all the transaction fees", async () => {
+            const response = await utils.request("GET", "transactions/fees");
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toEqual({
+                delegateRegistration: 2500000000,
+                delegateResignation: 2500000000,
+                ipfs: 500000000,
+                multiPayment: 0,
+                multiSignature: 500000000,
+                secondSignature: 500000000,
+                timelockTransfer: 0,
+                transfer: 10000000,
+                vote: 100000000,
+            });
+        });
     });
 });

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-snapshots",
-    "version": "2.4.0-next.11",
+    "version": "2.5.0-next.5",
     "description": "Provides live local streamed snapshots functionality for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -20,11 +20,11 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.11",
-        "@arkecosystem/core-database-postgres": "^2.4.0-next.11",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.11",
-        "@arkecosystem/core-utils": "^2.4.0-next.11",
-        "@arkecosystem/crypto": "^2.4.0-next.11",
+        "@arkecosystem/core-container": "^2.5.0-next.5",
+        "@arkecosystem/core-database-postgres": "^2.5.0-next.5",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.5",
+        "@arkecosystem/core-utils": "^2.5.0-next.5",
+        "@arkecosystem/crypto": "^2.5.0-next.5",
         "JSONStream": "^1.3.5",
         "cpy-cli": "^2.0.0",
         "fs-extra": "^8.0.1",

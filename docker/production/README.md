@@ -33,8 +33,6 @@ services:
     image: "postgres:alpine"
     container_name: postgres-devnet
     restart: always
-    ports:
-      - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     networks:
@@ -50,6 +48,7 @@ services:
     ports:
      - "4002:4002"
      - "4003:4003"
+     - "4040:4040"
      - "127.0.0.1:4004:4004"
      - "127.0.0.1:4005:4005"
      - "127.0.0.1:8080:8080"
@@ -84,6 +83,8 @@ networks:
 ```bash
 MODE=relay
 NETWORK=devnet
+CORE_LOG_LEVEL=info
+CORE_LOG_LEVEL_FILE=info
 CORE_DB_HOST=postgres-devnet
 CORE_DB_USERNAME=node
 CORE_DB_PASSWORD=password
@@ -111,8 +112,6 @@ services:
     image: "postgres:alpine"
     container_name: postgres-mainnet
     restart: always
-    ports:
-      - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     networks:
@@ -128,6 +127,7 @@ services:
     ports:
      - "4001:4001"
      - "4003:4003"
+     - "4040:4040"
      - "127.0.0.1:4004:4004"
      - "127.0.0.1:4005:4005"
      - "127.0.0.1:8080:8080"
@@ -162,6 +162,8 @@ networks:
 ```bash
 MODE=relay
 NETWORK=mainnet
+CORE_LOG_LEVEL=info
+CORE_LOG_LEVEL_FILE=info
 CORE_DB_HOST=postgres-mainnet
 CORE_DB_USERNAME=node
 CORE_DB_PASSWORD=password
@@ -179,9 +181,6 @@ CORE_EXCHANGE_JSON_RPC_PORT=8080
 ```
 
 _If you prefer to use custom DB Name, DB User and DB Password simply adjust variables `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`, `CORE_DB_PASSWORD`, `CORE_DB_USERNAME` and `CORE_DB_DATABASE` correspondingly._
-
-**WARNING!**
-**_PostgreSQL is run in a separate container and it's port gets mapped to your `localhost`, so you should not have PostgreSQL running locally._**
 
 > _Time to start the relay node_:
 

@@ -33,11 +33,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         communicator,
         processor,
         storage,
+        options,
     }: {
         communicator: P2P.IPeerCommunicator;
         processor: P2P.IPeerProcessor;
         storage: P2P.IPeerStorage;
+        options;
     }) {
+        this.config = options;
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
@@ -59,35 +62,34 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
     }
 
-    public async start(options): Promise<this> {
-        this.config = options;
-
-        await this.checkDNSConnectivity(options.dns);
-        await this.checkNTPConnectivity(options.ntp);
+    public async start(): Promise<void> {
+        await this.checkDNSConnectivity(this.config.dns);
+        await this.checkNTPConnectivity(this.config.ntp);
 
         await this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
             this.logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
         } else {
-            await this.updateNetworkStatus(options.networkStart);
+            await this.updateNetworkStatus(true);
 
             for (const [version, peers] of Object.entries(groupBy(this.storage.getPeers(), "version"))) {
                 this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
             }
         }
 
-        this.initializing = false;
+        // Give time to cooldown rate limits after peer verifier finished.
+        await delay(1000);
 
-        return this;
+        this.initializing = false;
     }
 
-    public async updateNetworkStatus(networkStart: boolean = false): Promise<void> {
+    public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
         if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
             return;
         }
 
-        if (networkStart) {
+        if (this.config.networkStart) {
             this.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
             return;
         }
@@ -97,11 +99,13 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return;
         }
 
-        try {
-            await this.discoverPeers();
-            await this.cleansePeers();
-        } catch (error) {
-            this.logger.error(`Network Status: ${error.message}`);
+        if (initialRun || !this.hasMinimumPeers()) {
+            try {
+                await this.discoverPeers();
+                await this.cleansePeers();
+            } catch (error) {
+                this.logger.error(`Network Status: ${error.message}`);
+            }
         }
 
         let nextRunDelaySeconds = 600;
@@ -129,8 +133,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
 
         if (peerCount) {
-            max = peerCount;
             peers = shuffle(peers).slice(0, peerCount);
+            max = Math.min(peers.length, peerCount);
         }
 
         this.logger.info(`Checking ${max} peers`);
@@ -255,7 +259,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         );
 
         // Now rollback blocks equal to the distance to the most common height.
-        return { forked: true, blocksToRollback: lastBlock.data.height - highestCommonHeight };
+        return { forked: true, blocksToRollback: Math.min(lastBlock.data.height - highestCommonHeight, 5000) };
     }
 
     public async syncWithNetwork(
@@ -294,17 +298,16 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         const height: number = fromBlockHeight + chunkSize * index;
                         const peersToTry: P2P.IPeer[] = [peer, sample(peersFiltered), sample(peersFiltered)]; // 2 "fallback" peers to download from if 1st one failed
 
+                        let blocks: Interfaces.IBlockData[];
                         for (const peerToDownloadFrom of peersToTry) {
-                            try {
-                                return await this.communicator.downloadBlocks(peerToDownloadFrom, height);
-                            } catch (e) {} // tslint:disable-line
+                            blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+
+                            if (blocks.length > 0) {
+                                return blocks;
+                            }
                         }
 
-                        throw new Error(
-                            `Could not download blocks at height ${height} from peers: ${peersToTry
-                                .map(p => p.ip)
-                                .join()}`,
-                        );
+                        return blocks;
                     }),
             )).reduce((acc, curr) => [...acc, ...(curr || [])], []);
         } catch (error) {
@@ -410,7 +413,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         this.nextUpdateNetworkStatusScheduled = false;
 
-        this.updateNetworkStatus(this.config.networkStart);
+        this.updateNetworkStatus();
     }
 
     private hasMinimumPeers(): boolean {

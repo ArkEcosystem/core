@@ -1,7 +1,7 @@
 // tslint:disable:no-empty
 
 import { Database } from "@arkecosystem/core-interfaces";
-import { Blocks } from "@arkecosystem/crypto";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 export class DatabaseConnectionStub implements Database.IConnection {
     public blocksRepository: Database.IBlocksRepository;
@@ -14,23 +14,13 @@ export class DatabaseConnectionStub implements Database.IConnection {
         return undefined;
     }
 
-    public commitQueuedQueries(): any {}
-
     public connect(): Promise<void> {
-        return undefined;
-    }
-
-    public deleteBlock(block: Blocks.Block): Promise<any> {
         return undefined;
     }
 
     public disconnect(): Promise<void> {
         return undefined;
     }
-
-    public enqueueDeleteBlock(block: Blocks.Block): any {}
-
-    public enqueueDeleteRound(height: number): any {}
 
     public async make(): Promise<Database.IConnection> {
         return this;
@@ -41,6 +31,14 @@ export class DatabaseConnectionStub implements Database.IConnection {
     }
 
     public saveBlocks(blocks: Blocks.Block[]): Promise<any> {
+        return undefined;
+    }
+
+    public resetAll(): Promise<void> {
+        return undefined;
+    }
+
+    public deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         return undefined;
     }
 }

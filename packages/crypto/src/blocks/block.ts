@@ -15,7 +15,7 @@ export class Block implements IBlock {
             error &&
             !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
         ) {
-            throw new BlockSchemaError(error);
+            throw new BlockSchemaError(data.height, error);
         }
 
         return value;

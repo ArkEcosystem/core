@@ -275,6 +275,10 @@ describe("validator", () => {
                 expect(validator.validate("block", block2).error).not.toBeUndefined();
                 block2.numberOfTransactions = 10;
                 expect(validator.validate("block", block2).error).toBeUndefined();
+                block2.transactions[0] = {} as any;
+                expect(validator.validate("block", block2).error).not.toBeUndefined();
+                block2.transactions[0] = 1234 as any;
+                expect(validator.validate("block", block2).error).not.toBeUndefined();
             });
         });
     });

@@ -4,7 +4,7 @@ import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 export class StateStoreStub implements State.IStateStore {
     public blockchain: any;
-    public lastDownloadedBlock: Interfaces.IBlock | undefined;
+    public lastDownloadedBlock: Interfaces.IBlockData | undefined;
     public genesisBlock: Interfaces.IBlock | undefined;
     public blockPing: any;
     public started: boolean;
@@ -21,9 +21,9 @@ export class StateStoreStub implements State.IStateStore {
         return undefined;
     }
 
-    public clear(): void {}
+    public clear(): void { }
 
-    public clearWakeUpTimeout(): void {}
+    public clearWakeUpTimeout(): void { }
 
     public getCachedTransactionIds(): string[] {
         return [];
@@ -57,7 +57,7 @@ export class StateStoreStub implements State.IStateStore {
         return [];
     }
 
-    public getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[] {
+    public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
         return [];
     }
 
@@ -65,13 +65,13 @@ export class StateStoreStub implements State.IStateStore {
         return false;
     }
 
-    public pushPingBlock(block: Interfaces.IBlockData): void {}
+    public pushPingBlock(block: Interfaces.IBlockData): void { }
 
-    public removeCachedTransactionIds(transactionIds: string[]): void {}
+    public removeCachedTransactionIds(transactionIds: string[]): void { }
 
-    public reset(): void {}
+    public reset(): void { }
 
-    public setLastBlock(block: Blocks.Block): void {}
+    public setLastBlock(block: Blocks.Block): void { }
 }
 
 export const stateStorageStub = new StateStoreStub();
