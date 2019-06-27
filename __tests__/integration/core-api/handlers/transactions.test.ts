@@ -145,6 +145,9 @@ describe("API 2.0 - Transactions", () => {
                 Ipfs: 5,
                 MultiPayment: 7,
                 DelegateResignation: 8,
+                HtlcClaim: 10,
+                HtlcLock: 9,
+                HtlcRefund: 11,
             });
         });
     });

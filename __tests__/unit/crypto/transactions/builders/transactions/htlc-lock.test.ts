@@ -39,7 +39,7 @@ describe("Htlc lock Transaction", () => {
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
             expiration: Date.now(),
         };
-        const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
+        const address = "AVzsSFwicz5gYLqCzZNL8N1RztkWQSMovK";
 
         it("should be valid with a signature", () => {
             const actual = builder

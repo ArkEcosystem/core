@@ -24,7 +24,6 @@ import {
 import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
 import { Handlers } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
-import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
 
 let senderWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
