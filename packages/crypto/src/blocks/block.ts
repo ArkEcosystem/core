@@ -207,6 +207,15 @@ export class Block implements IBlock {
                     }
                 }
 
+                if (transaction.data.version === 1) {
+                    const now: number = block.timestamp;
+                    if (transaction.data.timestamp > now + 3600) {
+                        result.errors.push(`Encountered future transaction: ${transaction.data.id}`);
+                    } else if (now - transaction.data.timestamp > 3600) {
+                        result.errors.push(`Encountered expired transaction: ${transaction.data.id}`);
+                    }
+                }
+
                 appliedTransactions[transaction.data.id] = transaction.data;
 
                 totalAmount = totalAmount.plus(transaction.data.amount);

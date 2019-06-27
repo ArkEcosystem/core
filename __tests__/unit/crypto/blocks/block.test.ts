@@ -159,6 +159,7 @@ describe("Block", () => {
             };
             const transactions = TransactionFactory.transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
+                .withTimestamp(optionsDefault.timestamp)
                 .withPassphrase("super cool passphrase")
                 .create();
 
@@ -189,6 +190,52 @@ describe("Block", () => {
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
+        });
+
+        it("should fail to verify a block with expired transaction timestamp", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
+                .withNetwork("testnet")
+                .withVersion(1)
+                .withTimestamp(optionsDefault.timestamp - 3601)
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
+        });
+
+        it("should fail to verify a block with future transaction timestamp", () => {
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
+                .withNetwork("testnet")
+                .withVersion(1)
+                .withTimestamp(optionsDefault.timestamp + 3601)
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
         });
 
         it("should fail to verify a block if error is thrown", () => {

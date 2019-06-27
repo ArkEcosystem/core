@@ -85,6 +85,7 @@ export class TransactionFactory {
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private fee: Utils.BigNumber;
+    private timestamp: number;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
     private passphraseList: string[];
@@ -99,6 +100,12 @@ export class TransactionFactory {
 
     public withFee(fee: number): TransactionFactory {
         this.fee = Utils.BigNumber.make(fee);
+
+        return this;
+    }
+
+    public withTimestamp(timestamp: number): TransactionFactory {
+        this.timestamp = timestamp;
 
         return this;
     }
@@ -220,6 +227,10 @@ export class TransactionFactory {
 
             if (this.fee) {
                 this.builder.fee(this.fee.toFixed());
+            }
+
+            if (this.timestamp) {
+                this.builder.data.timestamp = this.timestamp;
             }
 
             if (this.senderPublicKey) {
