@@ -1004,65 +1004,6 @@ describe("Connection", () => {
         });
     });
 
-    describe("purgeSendersWithInvalidTransactions", () => {
-        it("should purge transactions from sender when invalid", async () => {
-            const transfersA = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
-                .withNetwork("unitnet")
-                .withPassphrase(delegatesSecrets[0])
-                .build(5);
-
-            const transfersB = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
-                .withNetwork("unitnet")
-                .withPassphrase(delegatesSecrets[1])
-                .build();
-
-            const block = {
-                transactions: [...transfersA, ...transfersB],
-            } as any;
-
-            addTransactions(block.transactions);
-
-            expect(connection.getPoolSize()).toBe(6);
-
-            // Last tx has a unique sender
-            block.transactions[5].isVerified = false;
-
-            connection.purgeSendersWithInvalidTransactions(block);
-            expect(connection.getPoolSize()).toBe(5);
-
-            // The remaining tx all have the same sender
-            block.transactions[0].isVerified = false;
-
-            connection.purgeSendersWithInvalidTransactions(block);
-            expect(connection.getPoolSize()).toBe(0);
-        });
-    });
-
-    describe("purgeByBlock", () => {
-        it("should purge transactions from block", async () => {
-            const revertTransactionForSender = jest
-                .spyOn(connection.walletManager, "revertTransactionForSender")
-                .mockReturnValue();
-
-            const transactions = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
-                .withNetwork("unitnet")
-                .withPassphrase(delegatesSecrets[0])
-                .build(5);
-
-            const block = { transactions } as Blocks.Block;
-
-            addTransactions(block.transactions);
-
-            expect(connection.getPoolSize()).toBe(5);
-
-            connection.purgeByBlock(block);
-            expect(revertTransactionForSender).toHaveBeenCalledTimes(5);
-            expect(connection.getPoolSize()).toBe(0);
-
-            jest.restoreAllMocks();
-        });
-    });
-
     describe("purgeInvalidTransactions", () => {
         it("should flush the pool", () => {
             // 64 char vendor field

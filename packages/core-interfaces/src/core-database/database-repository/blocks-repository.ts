@@ -1,4 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Database } from "../..";
 import { IBlocksPaginated } from "../business-repository";
 import { ISearchParameters } from "../search";
 import { IRepository } from "./repository";
@@ -13,6 +14,7 @@ export interface IBlocksRepository extends IRepository {
     count(): Promise<number>;
     common(ids: string[]): Promise<Interfaces.IBlockData[]>;
     heightRange(start: number, end: number): Promise<Interfaces.IBlockData[]>;
+    heightRangeWithTransactions(start: number, end: number): Promise<Database.IDownloadBlock[]>;
     latest(): Promise<Interfaces.IBlockData>;
     recent(count: number): Promise<Interfaces.IBlockData[]>;
 

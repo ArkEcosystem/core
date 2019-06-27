@@ -75,7 +75,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
         }
 
-        if (blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
+        if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
@@ -152,7 +152,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
              *  state machine data init      *
              ******************************* */
             stateStorage.setLastBlock(block);
-            stateStorage.lastDownloadedBlock = block.data;
 
             // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
             const roundInfo = roundCalculator.calculateRound(block.data.height);
@@ -208,7 +207,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
 
         // Could have changed since entering this function, e.g. due to a rollback.
-        if (lastDownloadedBlock.id !== stateStorage.lastDownloadedBlock.id) {
+        if (stateStorage.lastDownloadedBlock && lastDownloadedBlock.id !== stateStorage.lastDownloadedBlock.id) {
             return;
         }
 
