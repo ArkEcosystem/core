@@ -20,7 +20,10 @@
                 "ipfs": 500000000,
                 "timelockTransfer": 0,
                 "multiPayment": 0,
-                "delegateResignation": 2500000000
+                "delegateResignation": 2500000000,
+                "htlcLock": 10000000,
+                "htlcClaim": 10000000,
+                "htlcRefund": 10000000
             }
         },
         "vendorFieldLength": 64,

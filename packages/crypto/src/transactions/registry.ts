@@ -11,6 +11,9 @@ import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
+    HtlcClaimTransaction,
+    HtlcLockTransaction,
+    HtlcRefundTransaction,
     IpfsTransaction,
     MultiPaymentTransaction,
     MultiSignatureRegistrationTransaction,
@@ -43,6 +46,9 @@ class TransactionRegistry {
         this.registerCoreType(TimelockTransferTransaction);
         this.registerCoreType(MultiPaymentTransaction);
         this.registerCoreType(DelegateResignationTransaction);
+        this.registerCoreType(HtlcLockTransaction);
+        this.registerCoreType(HtlcClaimTransaction);
+        this.registerCoreType(HtlcRefundTransaction);
     }
 
     public registerCustomType(constructor: TransactionConstructor): void {

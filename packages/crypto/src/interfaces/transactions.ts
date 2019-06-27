@@ -37,6 +37,9 @@ export interface ITransactionAsset {
     multiSignature?: IMultiSignatureAsset;
     ipfs?: string;
     payments?: any;
+    lock?: IHtlcLockAsset;
+    claim?: IHtlcClaimAsset;
+    refund?: IHtlcRefundAsset;
     [custom: string]: any;
 }
 
@@ -129,6 +132,20 @@ export interface IMultiSignatureLegacyAsset {
 export interface IMultiSignatureAsset {
     min: number;
     publicKeys: string[];
+}
+
+export interface IHtlcLockAsset {
+    secretHash: string;
+    expiration: number;
+}
+
+export interface IHtlcClaimAsset {
+    lockTransactionId: string;
+    unlockSecret: string;
+}
+
+export interface IHtlcRefundAsset {
+    lockTransactionId: string;
 }
 
 export interface ISerializeOptions {
