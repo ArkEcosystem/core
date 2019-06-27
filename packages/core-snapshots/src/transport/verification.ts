@@ -1,20 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Managers, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Transactions } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
 export const verifyData = (context, data, prevData, verifySignatures) => {
     if (context === "blocks") {
         const isBlockChained = () => {
             if (!prevData) {
-                return true;
-            }
-            // genesis payload different as block.serialize stores
-            // block.previous_block with 00000 instead of undefined
-            // it fails on height 2 - chain check
-            // TODO: check to improve ser/deser for genesis
-            const genesisBlock = Managers.configManager.get("genesisBlock");
-            if (data.height === 2 && data.previous_block === genesisBlock.id) {
                 return true;
             }
 
