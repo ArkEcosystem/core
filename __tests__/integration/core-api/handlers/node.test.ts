@@ -1,7 +1,7 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
