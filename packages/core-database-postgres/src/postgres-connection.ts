@@ -72,11 +72,13 @@ export class PostgresConnection implements Database.IConnection {
             ...this.options.initialization,
             ...{
                 error: async (error, context) => {
-                    if (process.env.NODE_ENV === "test") {
-                        return;
+                    // https://www.postgresql.org/docs/11/errcodes-appendix.html
+                    // Class 53 — Insufficient Resources
+                    // Class 57 — Operator Intervention
+                    // Class 58 — System Error (errors external to PostgreSQL itself)
+                    if (error.code && ["53", "57", "58"].includes(error.code.slice(0, 2))) {
+                        app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
                     }
-
-                    app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
                 },
                 receive(data) {
                     camelizeColumns(pgp, data);

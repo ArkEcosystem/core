@@ -86,7 +86,7 @@ describe("Delegate Repository", () => {
 
             for (const delegate of rows) {
                 expect(delegate.hasOwnProperty("forgedTotal"));
-                expect(+delegate.forgedTotal.toFixed()).toBe(delegateCalculator.calculateForgedTotal(delegate));
+                expect(delegate.forgedTotal).toBe(delegateCalculator.calculateForgedTotal(delegate));
             }
         });
 
@@ -230,9 +230,9 @@ describe("Delegate Repository", () => {
                 expect(count).toBe(3);
                 expect(rows).toHaveLength(3);
 
-                rows.forEach(row => {
+                for (const row of rows) {
                     expect(usernames.includes(row.username)).toBeTrue();
-                });
+                }
             });
 
             describe('when a username is "undefined"', () => {

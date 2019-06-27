@@ -68,7 +68,7 @@ describe("API 2.0 - Delegates", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].username).toBe(wallet.username);
-            expect(response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
+            expect(response.data.data[0].votes).toBe(wallet.voteBalance.toFixed());
         });
 
         it("should GET all the delegates sorted by votes,desc", async () => {
@@ -82,7 +82,7 @@ describe("API 2.0 - Delegates", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].username).toBe(wallet.username);
-            expect(response.data.data[0].votes).toBe(+wallet.voteBalance.toFixed());
+            expect(response.data.data[0].votes).toBe(wallet.voteBalance.toFixed());
         });
 
         it("should GET all the delegates ordered by descending rank", async () => {
@@ -240,8 +240,8 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.production.approval).toBeGreaterThanOrEqual(1);
-                expect(elem.production.approval).toBeLessThanOrEqual(100);
+                expect(+elem.production.approval).toBeGreaterThanOrEqual(1);
+                expect(+elem.production.approval).toBeLessThanOrEqual(100);
             }
         });
 
@@ -259,7 +259,7 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.forged.fees).toEqual(delegate.forgedFees);
+                expect(+elem.forged.fees).toEqual(delegate.forgedFees);
             }
         });
 
@@ -277,8 +277,8 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.forged.fees).toBeGreaterThanOrEqual(0);
-                expect(elem.forged.fees).toBeLessThanOrEqual(delegate.forgedFees);
+                expect(+elem.forged.fees).toBeGreaterThanOrEqual(0);
+                expect(+elem.forged.fees).toBeLessThanOrEqual(delegate.forgedFees);
             }
         });
 
@@ -296,7 +296,7 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.forged.rewards).toEqual(delegate.forgedRewards);
+                expect(+elem.forged.rewards).toEqual(delegate.forgedRewards);
             }
         });
 
@@ -314,8 +314,8 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.forged.rewards).toBeGreaterThanOrEqual(0);
-                expect(elem.forged.rewards).toBeLessThanOrEqual(delegate.forgedRewards);
+                expect(+elem.forged.rewards).toBeGreaterThanOrEqual(0);
+                expect(+elem.forged.rewards).toBeLessThanOrEqual(delegate.forgedRewards);
             }
         });
 
@@ -333,7 +333,7 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.forged.total).toEqual(delegate.forgedTotal);
+                expect(+elem.forged.total).toEqual(delegate.forgedTotal);
             }
         });
 
@@ -351,8 +351,8 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.forged.total).toBeGreaterThanOrEqual(0);
-                expect(elem.forged.total).toBeLessThanOrEqual(delegate.forgedTotal);
+                expect(+elem.forged.total).toBeGreaterThanOrEqual(0);
+                expect(+elem.forged.total).toBeLessThanOrEqual(delegate.forgedTotal);
             }
         });
 
@@ -388,8 +388,8 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.blocks.produced).toBeGreaterThanOrEqual(0);
-                expect(elem.blocks.produced).toBeLessThanOrEqual(delegate.producedBlocks);
+                expect(+elem.blocks.produced).toBeGreaterThanOrEqual(0);
+                expect(+elem.blocks.produced).toBeLessThanOrEqual(delegate.producedBlocks);
             }
         });
 
@@ -407,7 +407,7 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.votes).toEqual(delegate.voteBalance);
+                expect(+elem.votes).toEqual(delegate.voteBalance);
             }
         });
 
@@ -425,8 +425,8 @@ describe("API 2.0 - Delegates", () => {
 
             for (const elem of response.data.data) {
                 utils.expectDelegate(elem);
-                expect(elem.votes).toBeGreaterThanOrEqual(0);
-                expect(elem.votes).toBeLessThanOrEqual(delegate.voteBalance);
+                expect(+elem.votes).toBeGreaterThanOrEqual(0);
+                expect(+elem.votes).toBeLessThanOrEqual(delegate.voteBalance);
             }
         });
     });

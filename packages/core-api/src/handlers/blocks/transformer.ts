@@ -25,10 +25,10 @@ export const transformBlock = (model, transform) => {
         height: +model.height,
         previous: model.previousBlock,
         forged: {
-            reward: +model.reward.toFixed(),
-            fee: +model.totalFee.toFixed(),
-            total: +model.reward.plus(model.totalFee).toFixed(),
-            amount: +Utils.BigNumber.make(model.totalAmount).toFixed(),
+            reward: model.reward.toFixed(),
+            fee: model.totalFee.toFixed(),
+            total: model.reward.plus(model.totalFee).toFixed(),
+            amount: Utils.BigNumber.make(model.totalAmount).toFixed(),
         },
         payload: {
             hash: model.payloadHash,
