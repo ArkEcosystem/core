@@ -206,7 +206,7 @@ describe("Block", () => {
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
-                .withTimestamp(optionsDefault.timestamp - 3601)
+                .withTimestamp(optionsDefault.timestamp - 21601)
                 .withPassphrase("super cool passphrase")
                 .create();
 
