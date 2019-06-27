@@ -29,7 +29,7 @@ BEGIN
   IF previous_block_height IS NULL THEN
     fail_reason := 'a block with id "' || previous_block_arg || '" does not exist';
   ELSE
-    fail_reason := 'a block with id "' || previous_block_arg || '" exists but at an unexpected height '
+    fail_reason := 'a block with id "' || previous_block_arg || '" exists but at an unexpected height ' ||
       previous_block_height || ' instead of ' || height_arg - 1;
   END IF;
 
