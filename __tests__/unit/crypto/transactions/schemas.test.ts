@@ -696,3 +696,288 @@ describe("Multi Signature Registration Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 });
+
+describe("HTLC Lock Transaction", () => {
+    const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
+    const fee = 1 * ARKTOSHI;
+    const amount = 10 * ARKTOSHI;
+    const htlcLockAsset = {
+        secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+        expiration: Date.now(),
+    };
+
+    beforeAll(() => {
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.HtlcLock).getSchema();
+    });
+
+    beforeEach(() => {
+        transaction = BuilderFactory.htlcLock().htlcLockAsset(htlcLockAsset);
+    });
+
+    it("should be valid with valid secret hash and expiration timestamp", () => {
+        transaction
+            .recipientId(address)
+            .fee(fee)
+            .amount(amount)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("should be invalid with incorrect secret hash length", () => {
+        transaction
+            .htlcLockAsset({
+                secretHash: "asdf123asdf123asdf123asdf123asd",
+                expiration: "cool",
+            })
+            .recipientId(address)
+            .fee(fee)
+            .amount(amount)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid when expiration is not a number", () => {
+        transaction
+            .recipientId(address)
+            .fee(fee)
+            .amount(amount)
+            .sign("passphrase");
+
+        const struct = transaction.getStruct();
+        struct.asset.lock.expiration = "woop";
+
+        const { error } = Ajv.validate(transactionSchema.$id, struct);
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to no address", () => {
+        transaction
+            .recipientId(undefined)
+            .amount(amount)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to invalid address", () => {
+        transaction
+            .recipientId(address)
+            .amount(amount)
+            .sign("passphrase");
+
+        const struct = transaction.getStruct();
+        struct.recipientId = "woop";
+
+        const { error } = Ajv.validate(transactionSchema.$id, struct);
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to zero amount", () => {
+        transaction
+            .recipientId(address)
+            .amount(0)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .recipientId(address)
+            .amount("1")
+            .fee("0")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        transaction = BuilderFactory.delegateRegistration();
+        transaction.usernameAsset("delegate_name").sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+});
+
+describe("HTLC Claim Transaction", () => {
+    const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
+    const fee = "" + 1 * ARKTOSHI;
+    const htlcClaimAsset = {
+        lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+        unlockSecret: "my secret that should be 32bytes",
+    };
+
+    beforeAll(() => {
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.HtlcClaim).getSchema();
+    });
+
+    beforeEach(() => {
+        transaction = BuilderFactory.htlcClaim().htlcClaimAsset(htlcClaimAsset);
+    });
+
+    it("should be valid with valid transaction id and unlock secret", () => {
+        transaction
+            .recipientId(address)
+            .fee(fee)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("should be invalid with incorrect transaction id length", () => {
+        transaction
+            .htlcClaimAsset({
+                lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
+                unlockSecret: "my secret that should be 32bytes",
+            })
+            .recipientId(address)
+            .fee(fee)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid with non-hex transaction id", () => {
+        transaction
+            .htlcClaimAsset({
+                lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2ebw",
+                unlockSecret: "my secret that should be 32bytes",
+            })
+            .recipientId(address)
+            .fee(fee)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid with incorrect unlock secret length", () => {
+        transaction
+            .htlcClaimAsset({
+                lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
+                unlockSecret: "my secret that should be 32bytes but is not",
+            })
+            .recipientId(address)
+            .fee(fee)
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to non-zero amount", () => {
+        transaction
+            .recipientId(address)
+            .amount("1")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .recipientId(address)
+            .amount("0")
+            .fee("0")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        transaction = BuilderFactory.delegateRegistration();
+        transaction.usernameAsset("delegate_name").sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+});
+
+describe("HTLC Refund Transaction", () => {
+    const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
+    const fee = "" + 1 * ARKTOSHI;
+    const htlcRefundAsset = {
+        lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+    };
+
+    beforeAll(() => {
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.HtlcRefund).getSchema();
+    });
+
+    beforeEach(() => {
+        transaction = BuilderFactory.htlcRefund()
+            .recipientId(address)
+            .fee(fee)
+            .htlcRefundAsset(htlcRefundAsset);
+    });
+
+    it("should be valid with valid transaction id", () => {
+        transaction.sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("should be invalid with incorrect transaction id length", () => {
+        transaction
+            .htlcRefundAsset({
+                lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
+            })
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid with non-hex transaction id", () => {
+        transaction
+            .htlcRefundAsset({
+                lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2ebw",
+            })
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to non-zero amount", () => {
+        transaction
+            .recipientId(address)
+            .amount("1")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .recipientId(address)
+            .amount("0")
+            .fee("0")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should be invalid due to wrong transaction type", () => {
+        transaction = BuilderFactory.delegateRegistration();
+        transaction.usernameAsset("delegate_name").sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+});

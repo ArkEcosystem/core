@@ -248,29 +248,6 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - timelock transfer", () => {
-        it("should ser/deserialize giving back original fields", () => {
-            const timelockTransfer = BuilderFactory.timelockTransfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount("10000")
-                .fee("50000000")
-                .version(1)
-                .network(23)
-                .timelock(12, 0x00)
-                .sign("dummy passphrase")
-                .getStruct();
-
-            // expect(timelockTransfer).toEqual({})
-            const serialized = TransactionFactory.fromData(timelockTransfer).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, timelockTransfer);
-
-            expect(deserialized.data.timelockType).toEqual(timelockTransfer.timelockType);
-            expect(deserialized.data.timelock).toEqual(timelockTransfer.timelock);
-        });
-    });
-
     describe.skip("ser/deserialize - multi payment", () => {
         it("should ser/deserialize giving back original fields", () => {
             const multiPayment = BuilderFactory.multiPayment()
@@ -304,6 +281,91 @@ describe("Transaction serializer / deserializer", () => {
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateResignation);
+        });
+    });
+
+    describe("ser/deserialize - htlc lock", () => {
+        const htlcLockAsset = {
+            secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+            expiration: Date.now(),
+        };
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const htlcLock = BuilderFactory.htlcLock()
+                .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
+                .amount("10000")
+                .fee("50000000")
+                .version(2)
+                .network(23)
+                .htlcLockAsset(htlcLockAsset)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(htlcLock).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, htlcLock);
+
+            expect(deserialized.data.asset).toEqual(htlcLock.asset);
+        });
+    });
+
+    describe("ser/deserialize - htlc claim", () => {
+        const htlcClaimAsset = {
+            lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+            unlockSecret: "my secret that should be 32bytes",
+        };
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const htlcClaim = BuilderFactory.htlcClaim()
+                .fee("50000000")
+                .version(2)
+                .network(23)
+                .htlcClaimAsset(htlcClaimAsset)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(htlcClaim).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, htlcClaim);
+
+            expect(deserialized.data.asset).toEqual(htlcClaim.asset);
+        });
+    });
+
+    describe("ser/deserialize - htlc refund", () => {
+        const htlcRefundAsset = {
+            lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+        };
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const htlcRefund = BuilderFactory.htlcRefund()
+                .fee("50000000")
+                .version(2)
+                .network(23)
+                .htlcRefundAsset(htlcRefundAsset)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(htlcRefund).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, htlcRefund);
+
+            expect(deserialized.data.asset).toEqual(htlcRefund.asset);
         });
     });
 
