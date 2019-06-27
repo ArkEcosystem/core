@@ -71,9 +71,6 @@ export interface ITransactionData {
     blockId?: string;
     sequence?: number;
 
-    timelock?: any;
-    timelockType?: number;
-
     payments?: { [key: string]: any };
 }
 
@@ -104,9 +101,6 @@ export interface ITransactionJson {
 
     blockId?: string;
     sequence?: number;
-
-    timelock?: any;
-    timelockType?: number;
 
     ipfsHash?: string;
     payments?: { [key: string]: any };

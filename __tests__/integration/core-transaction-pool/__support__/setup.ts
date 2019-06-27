@@ -22,7 +22,6 @@ const options = {
             vote: 100,
             multiSignature: 500,
             ipfs: 250,
-            timelockTransfer: 500,
             multiPayment: 500,
             delegateResignation: 400000,
         },

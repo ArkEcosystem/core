@@ -193,10 +193,6 @@ export class Wallet implements State.IWallet {
             audit.push({ IPFS: true });
         }
 
-        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
-            audit.push({ Timelock: true });
-        }
-
         if (transaction.type === Enums.TransactionTypes.MultiPayment) {
             const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
             audit.push({ "Multipayment remaining amount": amount });

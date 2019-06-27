@@ -6,7 +6,6 @@ import { IpfsTransactionHandler } from "./ipfs";
 import { MultiPaymentTransactionHandler } from "./multi-payment";
 import { MultiSignatureTransactionHandler } from "./multi-signature";
 import { SecondSignatureTransactionHandler } from "./second-signature";
-import { TimelockTransferTransactionHandler } from "./timelock-transfer";
 import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
@@ -29,7 +28,6 @@ export class TransactionHandlerRegistry {
         this.registerCoreTransactionHandler(VoteTransactionHandler);
         this.registerCoreTransactionHandler(MultiSignatureTransactionHandler);
         this.registerCoreTransactionHandler(IpfsTransactionHandler);
-        this.registerCoreTransactionHandler(TimelockTransferTransactionHandler);
         this.registerCoreTransactionHandler(MultiPaymentTransactionHandler);
         this.registerCoreTransactionHandler(DelegateResignationTransactionHandler);
     }

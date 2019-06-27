@@ -18,7 +18,6 @@ import {
     MultiPaymentTransaction,
     MultiSignatureRegistrationTransaction,
     SecondSignatureRegistrationTransaction,
-    TimelockTransferTransaction,
     Transaction,
     TransactionTypeFactory,
     TransferTransaction,
@@ -43,7 +42,6 @@ class TransactionRegistry {
         this.registerCoreType(VoteTransaction);
         this.registerCoreType(MultiSignatureRegistrationTransaction);
         this.registerCoreType(IpfsTransaction);
-        this.registerCoreType(TimelockTransferTransaction);
         this.registerCoreType(MultiPaymentTransaction);
         this.registerCoreType(DelegateResignationTransaction);
         this.registerCoreType(HtlcLockTransaction);

@@ -200,14 +200,6 @@ export const ipfs = extend(transactionBaseSchema, {
     },
 });
 
-export const timelockTransfer = extend(transactionBaseSchema, {
-    $id: "timelockTransfer",
-    properties: {
-        type: { transactionType: TransactionTypes.TimelockTransfer },
-        amount: { bignumber: { minimum: 0, maximum: 0 } },
-    },
-});
-
 export const htlcLock = extend(transactionBaseSchema, {
     $id: "htlcLock",
     properties: {

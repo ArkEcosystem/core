@@ -143,7 +143,6 @@ describe("API 2.0 - Transactions", () => {
                 Vote: 3,
                 MultiSignature: 4,
                 Ipfs: 5,
-                TimelockTransfer: 6,
                 MultiPayment: 7,
                 DelegateResignation: 8,
             });

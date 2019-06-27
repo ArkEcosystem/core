@@ -274,19 +274,6 @@ describe("Models - Wallet", () => {
             ]);
         });
 
-        it("should return correct audit data for timelock type", () => {
-            const transaction = generateTransactionType(TransactionTypes.TimelockTransfer);
-            const audit = testWallet.auditApply(transaction);
-
-            expect(audit).toEqual([
-                {
-                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
-                },
-                { "Signature validation": false },
-                { Timelock: true },
-            ]);
-        });
-
         it("should return correct audit data for multipayment type", () => {
             const asset = {
                 payments: [{ amount: Utils.BigNumber.make(10) }, { amount: Utils.BigNumber.make(20) }],

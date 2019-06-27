@@ -7,7 +7,6 @@ import { IPFSBuilder } from "./transactions/ipfs";
 import { MultiPaymentBuilder } from "./transactions/multi-payment";
 import { MultiSignatureBuilder } from "./transactions/multi-signature";
 import { SecondSignatureBuilder } from "./transactions/second-signature";
-import { TimelockTransferBuilder } from "./transactions/timelock-transfer";
 import { TransferBuilder } from "./transactions/transfer";
 import { VoteBuilder } from "./transactions/vote";
 
@@ -36,10 +35,6 @@ export class BuilderFactory {
 
     public static ipfs(): IPFSBuilder {
         return new IPFSBuilder();
-    }
-
-    public static timelockTransfer(): TimelockTransferBuilder {
-        return new TimelockTransferBuilder();
     }
 
     public static multiPayment(): MultiPaymentBuilder {

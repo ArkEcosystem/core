@@ -45,7 +45,6 @@ describe("Configuration", () => {
         expect(feeManager.get(TransactionTypes.Vote)).toEqual(BigNumber.make(feesStatic.vote));
         expect(feeManager.get(TransactionTypes.MultiSignature)).toEqual(BigNumber.make(feesStatic.multiSignature));
         expect(feeManager.get(TransactionTypes.Ipfs)).toEqual(BigNumber.make(feesStatic.ipfs));
-        expect(feeManager.get(TransactionTypes.TimelockTransfer)).toEqual(BigNumber.make(feesStatic.timelockTransfer));
         expect(feeManager.get(TransactionTypes.MultiPayment)).toEqual(BigNumber.make(feesStatic.multiPayment));
         expect(feeManager.get(TransactionTypes.DelegateResignation)).toEqual(
             BigNumber.make(feesStatic.delegateResignation),
@@ -69,7 +68,6 @@ describe("Configuration", () => {
         expect(feeManager.get(TransactionTypes.Vote)).toEqual(BigNumber.make(staticFees.vote));
         expect(feeManager.get(TransactionTypes.MultiSignature)).toEqual(BigNumber.make(staticFees.multiSignature));
         expect(feeManager.get(TransactionTypes.Ipfs)).toEqual(BigNumber.make(staticFees.ipfs));
-        expect(feeManager.get(TransactionTypes.TimelockTransfer)).toEqual(BigNumber.make(staticFees.timelockTransfer));
         expect(feeManager.get(TransactionTypes.MultiPayment)).toEqual(BigNumber.make(staticFees.multiPayment));
         expect(feeManager.get(TransactionTypes.DelegateResignation)).toEqual(
             BigNumber.make(staticFees.delegateResignation),
@@ -85,7 +83,6 @@ describe("Configuration", () => {
         expect(feeManager.get(TransactionTypes.Vote)).toEqual(BigNumber.make(staticFees.vote));
         expect(feeManager.get(TransactionTypes.MultiSignature)).toEqual(BigNumber.make(staticFees.multiSignature));
         expect(feeManager.get(TransactionTypes.Ipfs)).toEqual(BigNumber.make(staticFees.ipfs));
-        expect(feeManager.get(TransactionTypes.TimelockTransfer)).toEqual(BigNumber.make(staticFees.timelockTransfer));
         expect(feeManager.get(TransactionTypes.MultiPayment)).toEqual(BigNumber.make(staticFees.multiPayment));
         expect(feeManager.get(TransactionTypes.DelegateResignation)).toEqual(
             BigNumber.make(staticFees.delegateResignation),

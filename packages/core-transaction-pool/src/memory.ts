@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class Memory {
@@ -120,11 +120,9 @@ export class Memory {
             this.byType[type].add(transaction);
         }
 
-        if (type !== Enums.TransactionTypes.TimelockTransfer) {
-            if (transaction.data.expiration > 0) {
-                this.byExpiration.push(transaction);
-                this.byExpirationIsSorted = false;
-            }
+        if (transaction.data.expiration > 0) {
+            this.byExpiration.push(transaction);
+            this.byExpirationIsSorted = false;
         }
 
         if (!databaseReady) {

@@ -23,9 +23,6 @@ describe("Constants", () => {
         expect(enums.TransactionTypes.Ipfs).toBeDefined();
         expect(enums.TransactionTypes.Ipfs).toBe(5);
 
-        expect(enums.TransactionTypes.TimelockTransfer).toBeDefined();
-        expect(enums.TransactionTypes.TimelockTransfer).toBe(6);
-
         expect(enums.TransactionTypes.MultiPayment).toBeDefined();
         expect(enums.TransactionTypes.MultiPayment).toBe(7);
 
