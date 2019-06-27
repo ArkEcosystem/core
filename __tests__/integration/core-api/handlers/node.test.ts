@@ -1,7 +1,7 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
-import { Managers } from "@arkecosystem/crypto";
+import { Crypto, Managers } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -18,6 +18,7 @@ describe("API 2.0 - Loader", () => {
             expect(response.data.data.synced).toBeBoolean();
             expect(response.data.data.now).toBeNumber();
             expect(response.data.data.blocksCount).toBeNumber();
+            expect(response.data.data.timestamp).toBeNumber();
         });
     });
 
