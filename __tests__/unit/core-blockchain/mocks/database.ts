@@ -3,6 +3,7 @@ export const database = {
 
     walletManager: {
         findByPublicKey: pubKey => "username",
+        revertBlock: () => undefined,
     },
 
     buildWallets: () => undefined,
@@ -21,4 +22,5 @@ export const database = {
     revertBlock: () => undefined,
     applyBlock: () => undefined,
     getForgedTransactionsIds: () => [],
+    loadBlocksFromCurrentRound: () => undefined,
 };
