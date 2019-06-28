@@ -271,14 +271,18 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - multi payment", () => {
+    describe("ser/deserialize - multi payment", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
         it("should ser/deserialize giving back original fields", () => {
             const multiPayment = BuilderFactory.multiPayment()
                 .fee("50000000")
-                .version(1)
+                .version(2)
                 .network(23)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 5000)
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
                 .sign("dummy passphrase")
                 .getStruct();
 
@@ -292,6 +296,10 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("ser/deserialize - delegate resignation", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
         it("should ser/deserialize giving back original fields", () => {
             const delegateResignation = BuilderFactory.delegateResignation()
                 .fee("50000000")

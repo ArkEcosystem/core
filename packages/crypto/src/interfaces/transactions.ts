@@ -36,7 +36,7 @@ export interface ITransactionAsset {
     multiSignatureLegacy?: IMultiSignatureLegacyAsset;
     multiSignature?: IMultiSignatureAsset;
     ipfs?: string;
-    payments?: any;
+    payments?: IMultiPaymentItem[];
     [custom: string]: any;
 }
 
@@ -70,8 +70,6 @@ export interface ITransactionData {
 
     timelock?: any;
     timelockType?: number;
-
-    payments?: { [key: string]: any };
 }
 
 export interface ITransactionJson {
@@ -106,7 +104,6 @@ export interface ITransactionJson {
     timelockType?: number;
 
     ipfsHash?: string;
-    payments?: { [key: string]: any };
 }
 
 export interface ISchemaValidationResult<T = any> {

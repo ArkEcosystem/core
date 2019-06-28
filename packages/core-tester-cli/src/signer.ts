@@ -100,6 +100,24 @@ export class Signer {
         return transaction.getStruct();
     }
 
+    public makeMultipayment(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.multiPayment()
+            .fee(this.toSatoshi(opts.multipaymentFee))
+            .network(this.network);
+
+        for (const payment of opts.payments) {
+            transaction.addPayment(payment.recipientId, payment.amount);
+        }
+
+        transaction.sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
     private toSatoshi(value): string {
         return Utils.BigNumber.make(value)
             .times(1e8)

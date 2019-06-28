@@ -43,7 +43,7 @@ export class UnexpectedNonceError extends TransactionError {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-            `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`
+                `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
         );
     }
 }

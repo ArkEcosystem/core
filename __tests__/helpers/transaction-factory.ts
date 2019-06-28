@@ -84,13 +84,20 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
     }
 
+    public static multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
+        const builder = Transactions.BuilderFactory.multiPayment();
+        for (const payment of payments) {
+            builder.addPayment(payment.recipientId, payment.amount);
+        }
+        return new TransactionFactory(builder);
+    }
+
     public static getNonce(publicKey: string): Utils.BigNumber {
         try {
             return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(publicKey);
         } catch {
             return Utils.BigNumber.ZERO;
         }
-
     }
 
     private builder: any;

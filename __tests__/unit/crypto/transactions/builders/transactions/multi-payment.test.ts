@@ -34,9 +34,9 @@ describe("Multi Payment Transaction", () => {
 
     describe("addPayment", () => {
         it("should add new payments", () => {
-            builder.addPayment("address", 1);
-            builder.addPayment("address", 2);
-            builder.addPayment("address", 3);
+            builder.addPayment("address", "1");
+            builder.addPayment("address", "2");
+            builder.addPayment("address", "3");
 
             expect(builder.data.asset.payments).toEqual([
                 {
@@ -57,7 +57,7 @@ describe("Multi Payment Transaction", () => {
         it("should throw if we want to add more payments than max authorized", () => {
             builder.data.asset.payments = new Array(2258);
 
-            expect(() => builder.addPayment("address", 2)).toThrow(MaximumPaymentCountExceededError);
+            expect(() => builder.addPayment("address", "2")).toThrow(MaximumPaymentCountExceededError);
         });
     });
 });
