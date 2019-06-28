@@ -15,6 +15,7 @@ beforeAll(async () => {
 
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
+    await databaseService.deleteBlocks([genesisBlock]);
     await databaseService.saveBlock(BlockFactory.fromData(genesisBlock));
 });
 
