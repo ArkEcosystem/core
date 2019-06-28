@@ -123,11 +123,11 @@ export class PostgresConnection implements Database.IConnection {
                 const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
                 const blockIds: string[] = blocks.map(block => block.id);
 
-                return [
+                return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
                     this.blocksRepository.delete(blockIds, t),
                     this.roundsRepository.delete(nextRound, t),
-                ];
+                ]);
             });
         } catch (error) {
             this.logger.error(error.message);
@@ -163,7 +163,7 @@ export class PostgresConnection implements Database.IConnection {
                     queries.push(this.transactionsRepository.insert(transactionInserts, t));
                 }
 
-                return queries;
+                return t.batch(queries);
             });
         } catch (err) {
             this.logger.error(err.message);

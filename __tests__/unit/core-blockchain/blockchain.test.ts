@@ -2,6 +2,7 @@
 import "./mocks/";
 import { container } from "./mocks/container";
 
+import * as Utils from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
@@ -147,7 +148,6 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
             jest.spyOn(database, "saveBlocks").mockRejectedValueOnce(new Error("oops saveBlocks"));
-            jest.spyOn(database, "getLastBlock").mockRejectedValueOnce(new Error("oops getLastBlock"));
             jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
             await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
@@ -158,6 +158,7 @@ describe("Blockchain", () => {
 
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             blockchain.state.started = true;
+            jest.spyOn(Utils, "isBlockChained").mockReturnValueOnce(true);
 
             const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock();
