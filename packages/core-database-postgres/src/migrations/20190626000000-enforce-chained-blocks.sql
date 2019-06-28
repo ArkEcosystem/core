@@ -38,6 +38,6 @@ BEGIN
 END;
 $$
 LANGUAGE PLPGSQL
-STABLE;
+VOLATILE;
 
 ALTER TABLE blocks ADD CONSTRAINT "chained_blocks" CHECK (check_previous_block(id, previous_block, height));
