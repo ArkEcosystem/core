@@ -143,11 +143,11 @@ describe("API 2.0 - Transactions", () => {
                 Vote: 3,
                 MultiSignature: 4,
                 Ipfs: 5,
-                MultiPayment: 7,
-                DelegateResignation: 8,
-                HtlcClaim: 10,
-                HtlcLock: 9,
-                HtlcRefund: 11,
+                MultiPayment: 6,
+                DelegateResignation: 7,
+                HtlcLock: 8,
+                HtlcClaim: 9,
+                HtlcRefund: 10,
             });
         });
     });
