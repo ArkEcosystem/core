@@ -12,6 +12,7 @@ import {
 } from "@arkecosystem/core-interfaces";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
+import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
@@ -385,6 +386,11 @@ export class Blockchain implements blockchain.IBlockchain {
     public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
+
+        if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data)) {
+            return callback();
+        }
+
         for (const block of blocks) {
             lastProcessResult = await this.blockProcessor.process(block);
 
@@ -398,23 +404,33 @@ export class Blockchain implements blockchain.IBlockchain {
         if (acceptedBlocks.length > 0) {
             try {
                 await this.database.saveBlocks(acceptedBlocks);
-            } catch (exceptionSaveBlocks) {
-                logger.error(
-                    `Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`,
+            } catch (error) {
+                logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
+
+                this.clearQueue();
+
+                // Rounds are saved while blocks are being processed and may now be out of sync with the last
+                // block that was written into the database.
+
+                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
+                const lastHeight: number = lastBlock.data.height;
+                const deleteRoundsAfter: number = roundCalculator.calculateRound(lastHeight).round;
+
+                logger.info(
+                    `Reverting ${pluralize("block", acceptedBlocks.length, true)} back to last height: ${lastHeight}`,
                 );
 
-                const resetToHeight = async height => {
-                    try {
-                        return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
-                    } catch (e) {
-                        logger.error(`Could not remove top blocks from database : ${e.stack}`);
+                for (const block of acceptedBlocks.reverse()) {
+                    this.database.walletManager.revertBlock(block);
+                }
 
-                        return resetToHeight(height); // keep trying, we can't do anything while this fails
-                    }
-                };
-                await resetToHeight(acceptedBlocks[0].data.height - 1);
+                this.state.setLastBlock(lastBlock);
+                this.resetLastDownloadedBlock();
 
-                return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
+                await this.database.deleteRound(deleteRoundsAfter + 1);
+                await this.database.loadBlocksFromCurrentRound();
+
+                return callback();
             }
         }
 
