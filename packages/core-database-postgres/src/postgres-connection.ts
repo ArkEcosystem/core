@@ -72,11 +72,13 @@ export class PostgresConnection implements Database.IConnection {
             ...this.options.initialization,
             ...{
                 error: async (error, context) => {
-                    if (process.env.NODE_ENV === "test") {
-                        return;
+                    // https://www.postgresql.org/docs/11/errcodes-appendix.html
+                    // Class 53 — Insufficient Resources
+                    // Class 57 — Operator Intervention
+                    // Class 58 — System Error (errors external to PostgreSQL itself)
+                    if (error.code && ["53", "57", "58"].includes(error.code.slice(0, 2))) {
+                        app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
                     }
-
-                    app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
                 },
                 receive(data) {
                     camelizeColumns(pgp, data);
@@ -121,11 +123,11 @@ export class PostgresConnection implements Database.IConnection {
                 const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
                 const blockIds: string[] = blocks.map(block => block.id);
 
-                return [
+                return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
                     this.blocksRepository.delete(blockIds, t),
                     this.roundsRepository.delete(nextRound, t),
-                ];
+                ]);
             });
         } catch (error) {
             this.logger.error(error.message);
@@ -161,7 +163,7 @@ export class PostgresConnection implements Database.IConnection {
                     queries.push(this.transactionsRepository.insert(transactionInserts, t));
                 }
 
-                return queries;
+                return t.batch(queries);
             });
         } catch (err) {
             this.logger.error(err.message);

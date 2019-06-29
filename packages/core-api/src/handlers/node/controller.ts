@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { Managers } from "@arkecosystem/crypto";
+import { Crypto, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
@@ -14,6 +14,7 @@ export class NodeController extends Controller {
                 synced: this.blockchain.isSynced(),
                 now: lastBlock ? lastBlock.data.height : 0,
                 blocksCount: networkHeight - lastBlock.data.height || 0,
+                timestamp: Crypto.Slots.getTime(),
             },
         };
     }
