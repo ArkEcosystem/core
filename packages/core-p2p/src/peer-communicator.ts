@@ -161,6 +161,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             this.logger.debug(
                 `Peer ${peer.ip} did not return any blocks via height ${fromBlockHeight.toLocaleString()}.`,
             );
+            return [];
         }
 
         // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
