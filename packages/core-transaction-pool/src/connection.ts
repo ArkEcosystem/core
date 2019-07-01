@@ -337,14 +337,17 @@ export class Connection implements TransactionPool.IConnection {
         const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
             const valid = await this.validateTransactions(transactions);
             return transactions.filter(transaction => valid.includes(transaction.serialized.toString("hex")));
-        }
+        };
 
         let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
+        const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
+        for (const transaction of allTransactions) {
             if (data.length === size) {
                 data = await removeInvalid(data);
                 if (data.length === size) {
                     return data;
+                } else {
+                    transactionBytes = 0; // TODO: get rid of `maxBytes`
                 }
             }
 
