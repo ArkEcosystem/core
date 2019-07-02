@@ -3,7 +3,7 @@
     "version": 0,
     "height": 1,
     "previous": null,
-    "forged": { "reward": 0, "fee": 0, "total": 0, "amount": 12500000000000000 },
+    "forged": { "reward": "0", "fee": "0", "total": "0", "amount": "12500000000000000" },
     "payload": { "hash": "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192", "length": 35960 },
     "generator": {
         "address": "AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins",

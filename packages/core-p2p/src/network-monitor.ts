@@ -78,6 +78,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             }
         }
 
+        // Give time to cooldown rate limits after peer verifier finished.
+        await delay(1000);
+
         this.initializing = false;
     }
 
@@ -295,17 +298,16 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         const height: number = fromBlockHeight + chunkSize * index;
                         const peersToTry: P2P.IPeer[] = [peer, sample(peersFiltered), sample(peersFiltered)]; // 2 "fallback" peers to download from if 1st one failed
 
+                        let blocks: Interfaces.IBlockData[];
                         for (const peerToDownloadFrom of peersToTry) {
-                            try {
-                                return await this.communicator.downloadBlocks(peerToDownloadFrom, height);
-                            } catch (e) {} // tslint:disable-line
+                            blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+
+                            if (blocks.length > 0) {
+                                return blocks;
+                            }
                         }
 
-                        throw new Error(
-                            `Could not download blocks at height ${height} from peers: ${peersToTry
-                                .map(p => p.ip)
-                                .join()}`,
-                        );
+                        return blocks;
                     }),
             )).reduce((acc, curr) => [...acc, ...(curr || [])], []);
         } catch (error) {

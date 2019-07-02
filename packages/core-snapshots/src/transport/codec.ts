@@ -59,14 +59,13 @@ const decodeTransaction = (buffer: Buffer) => {
 };
 
 const encodeRound = round => {
-    return encode([round.id, round.public_key || round.publicKey, round.balance, round.round]);
+    return encode([round.public_key || round.publicKey, round.balance, round.round]);
 };
 
 const decodeRound = (buffer: Buffer) => {
-    const [id, publicKey, balance, round] = decode(buffer);
+    const [publicKey, balance, round] = decode(buffer);
 
     return decamelizeKeys({
-        id,
         publicKey,
         balance,
         round,

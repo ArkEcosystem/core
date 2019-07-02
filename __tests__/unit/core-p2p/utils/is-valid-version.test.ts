@@ -22,7 +22,6 @@ describe("isValidVersion", () => {
         expect(isValidVersion({ ...peerMock, ...{ version: "2.8.0" } })).toBeTrue();
         expect(isValidVersion({ ...peerMock, ...{ version: "2.9.0" } })).toBeTrue();
         expect(isValidVersion({ ...peerMock, ...{ version: "2.9.934" } })).toBeTrue();
-        expect(isValidVersion({ ...peerMock, ...{ version: "3.0.0" } })).toBeTrue();
     });
 
     it("should be an invalid version", () => {

@@ -6,7 +6,6 @@ import { state } from "./mocks/state";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import dayjs from "dayjs";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
 import randomSeed from "random-seed";
@@ -611,40 +610,6 @@ describe("Connection", () => {
         });
     });
 
-    describe("isSenderBlocked", () => {
-        it("should return false if sender is not blocked", () => {
-            const publicKey = "thisPublicKeyIsNotBlocked";
-            expect(connection.isSenderBlocked(publicKey)).toBeFalse();
-        });
-
-        it("should return true if sender is blocked", () => {
-            const publicKey = "thisPublicKeyIsBlocked";
-            (connection as any).blockedByPublicKey[publicKey] = dayjs().add(1, "hour");
-            expect(connection.isSenderBlocked(publicKey)).toBeTrue();
-        });
-
-        it("should return false and remove blockedByPublicKey[senderPublicKey] when sender is not blocked anymore", async () => {
-            const publicKey = "thisPublicKeyIsNotBlockedAnymore";
-            (connection as any).blockedByPublicKey[publicKey] = dayjs().subtract(1, "second");
-            expect(connection.isSenderBlocked(publicKey)).toBeFalse();
-            expect((connection as any).blockedByPublicKey[publicKey]).toBeUndefined();
-        });
-    });
-
-    describe("blockSender", () => {
-        it("should block sender for 1 hour", () => {
-            const publicKey = "publicKeyToBlock";
-            const plus1HourBefore = dayjs().add(1, "hour");
-
-            const blockReleaseTime = connection.blockSender(publicKey);
-
-            const plus1HourAfter = dayjs().add(1, "hour");
-            expect((connection as any).blockedByPublicKey[publicKey]).toBe(blockReleaseTime);
-            expect(blockReleaseTime >= plus1HourBefore).toBeTrue();
-            expect(blockReleaseTime <= plus1HourAfter).toBeTrue();
-        });
-    });
-
     describe("acceptChainedBlock", () => {
         let mockWallet;
         beforeEach(() => {
@@ -689,17 +654,21 @@ describe("Connection", () => {
             expect(transactions).toEqual([]);
         });
 
-        it("should purge and block sender if throwIfApplyingFails() failed for a transaction in the chained block", () => {
+        it("should forget sender if throwIfApplyingFails() failed for a transaction in the chained block", () => {
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             jest.spyOn(transactionHandler, "canBeApplied").mockImplementation(() => {
                 throw new Error("test error");
             });
-            const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey");
+
+            const { senderPublicKey } = block2.transactions[0];
+            const forget = jest.spyOn(connection.walletManager, "forget");
+            const applyToSenderInPool = jest.spyOn(transactionHandler, "applyToSenderInPool");
 
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
-            expect(purgeByPublicKey).toHaveBeenCalledTimes(1);
-            expect(connection.isSenderBlocked(block2.transactions[0].senderPublicKey)).toBeTrue();
+            expect(connection.walletManager.hasByPublicKey(senderPublicKey)).toBeFalse();
+            expect(applyToSenderInPool).not.toHaveBeenCalled();
+            expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
         });
 
         it("should delete wallet of transaction sender if its balance is down to zero", () => {
@@ -1001,65 +970,6 @@ describe("Connection", () => {
             );
 
             expect(topFeesReceived).toEqual(topFeesExpected);
-        });
-    });
-
-    describe("purgeSendersWithInvalidTransactions", () => {
-        it("should purge transactions from sender when invalid", async () => {
-            const transfersA = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
-                .withNetwork("unitnet")
-                .withPassphrase(delegatesSecrets[0])
-                .build(5);
-
-            const transfersB = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
-                .withNetwork("unitnet")
-                .withPassphrase(delegatesSecrets[1])
-                .build();
-
-            const block = {
-                transactions: [...transfersA, ...transfersB],
-            } as any;
-
-            addTransactions(block.transactions);
-
-            expect(connection.getPoolSize()).toBe(6);
-
-            // Last tx has a unique sender
-            block.transactions[5].isVerified = false;
-
-            connection.purgeSendersWithInvalidTransactions(block);
-            expect(connection.getPoolSize()).toBe(5);
-
-            // The remaining tx all have the same sender
-            block.transactions[0].isVerified = false;
-
-            connection.purgeSendersWithInvalidTransactions(block);
-            expect(connection.getPoolSize()).toBe(0);
-        });
-    });
-
-    describe("purgeByBlock", () => {
-        it("should purge transactions from block", async () => {
-            const revertTransactionForSender = jest
-                .spyOn(connection.walletManager, "revertTransactionForSender")
-                .mockReturnValue();
-
-            const transactions = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
-                .withNetwork("unitnet")
-                .withPassphrase(delegatesSecrets[0])
-                .build(5);
-
-            const block = { transactions } as Blocks.Block;
-
-            addTransactions(block.transactions);
-
-            expect(connection.getPoolSize()).toBe(5);
-
-            connection.purgeByBlock(block);
-            expect(revertTransactionForSender).toHaveBeenCalledTimes(5);
-            expect(connection.getPoolSize()).toBe(0);
-
-            jest.restoreAllMocks();
         });
     });
 

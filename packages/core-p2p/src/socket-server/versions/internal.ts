@@ -3,6 +3,10 @@ import { Blockchain, Database, EventEmitter, Logger, P2P, TransactionPool } from
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto } from "@arkecosystem/crypto";
 
+export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
+    await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
+};
+
 export const emitEvent = ({ req }): void => {
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 };

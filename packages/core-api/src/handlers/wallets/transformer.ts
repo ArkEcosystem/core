@@ -6,7 +6,7 @@ export const transformWallet = model => {
         publicKey: model.publicKey,
         username: model.username,
         secondPublicKey: model.secondPublicKey,
-        balance: +Utils.BigNumber.make(model.balance).toFixed(),
+        balance: Utils.BigNumber.make(model.balance).toFixed(),
         isDelegate: !!model.username,
         vote: model.vote,
     };
