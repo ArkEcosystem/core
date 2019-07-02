@@ -30,17 +30,17 @@
         "@arkecosystem/core-transactions": "^2.5.0-next.5",
         "@arkecosystem/core-utils": "^2.5.0-next.5",
         "@arkecosystem/crypto": "^2.5.0-next.5",
-        "async": "^3.0.0",
-        "delay": "^4.2.0",
+        "async": "^3.1.0",
+        "delay": "^4.3.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
-        "pluralize": "^7.0.0",
+        "pluralize": "^8.0.0",
         "pretty-ms": "^5.0.0",
-        "xstate": "^4.6.0"
+        "xstate": "^4.6.3"
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^2.5.0-next.5",
-        "@types/async": "^2.4.2",
+        "@types/async": "^3.0.0",
         "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^4.0.0"

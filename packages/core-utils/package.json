@@ -29,7 +29,7 @@
         "nanomatch": "^1.2.13"
     },
     "devDependencies": {
-        "@types/got": "^9.4.4"
+        "@types/got": "^9.6.0"
     },
     "engines": {
         "node": ">=10.x"

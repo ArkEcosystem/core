@@ -32,7 +32,7 @@
     },
     "devDependencies": {
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__hapi": "^18.2.1",
+        "@types/hapi__hapi": "^18.2.5",
         "@types/inert": "^5.1.2",
         "@types/micromatch": "^3.1.0",
         "@types/vision": "^5.3.6"
