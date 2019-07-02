@@ -239,7 +239,6 @@ describe("Block", () => {
         });
 
         it("should accept block with future transaction timestamp if milestone is active", () => {
-            //   configManager.setFromPreset("mainnet");
             const delegate = new Delegate("super cool passphrase", testnet.network);
             const optionsDefault = {
                 timestamp: 12345689,
@@ -263,7 +262,6 @@ describe("Block", () => {
         });
 
         it("should reject block with future transaction timestamp if milestone is not active", () => {
-            //   configManager.setFromPreset("mainnet");
             const delegate = new Delegate("super cool passphrase", testnet.network);
             const optionsDefault = {
                 timestamp: 12345689,
