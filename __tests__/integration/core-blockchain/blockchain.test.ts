@@ -3,9 +3,10 @@ import "../../utils";
 /* tslint:disable:max-line-length */
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
@@ -68,8 +69,8 @@ describe("Blockchain", () => {
         container = await setUp({
             options: {
                 // 100 years worth of blocks, so that the genesis transactions don't get expired
-                "@arkecosystem/core-transaction-pool": { maxTransactionAge: 394200000 }
-            }
+                "@arkecosystem/core-transaction-pool": { maxTransactionAge: 394200000 },
+            },
         });
 
         blockchain = container.resolvePlugin("blockchain");
@@ -202,6 +203,11 @@ describe("Blockchain", () => {
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
+        const timestamp = () => {
+            const lastBlock = blockchain.state.getLastBlock();
+            return Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1);
+        };
+
         const createBlock = (generatorKeys: any, transactions: Interfaces.ITransactionData[]) => {
             const transactionData = {
                 amount: Utils.BigNumber.ZERO,
@@ -218,7 +224,7 @@ describe("Blockchain", () => {
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
-                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                timestamp: timestamp(),
                 version: 0,
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,
@@ -247,11 +253,10 @@ describe("Blockchain", () => {
 
             // First send funds to new voter wallet
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
-            const transfer = Transactions.BuilderFactory.transfer()
-                .recipientId(recipient)
-                .amount("125")
-                .sign(forgerKeys.passphrase)
-                .getStruct();
+            const transfer = TransactionFactory.transfer(recipient, 125)
+                .withTimestamp(timestamp())
+                .withPassphrase(forgerKeys.passphrase)
+                .createOne();
 
             const transferBlock = createBlock(forgerKeys, [transfer]);
             await blockchain.processBlocks([transferBlock], mockCallback);
@@ -265,11 +270,11 @@ describe("Blockchain", () => {
             expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(transfer.amount));
 
             // Now vote with newly created wallet for previous forger.
-            const vote = Transactions.BuilderFactory.vote()
-                .fee("1")
-                .votesAsset([`+${forgerKeys.publicKey}`])
-                .sign("secret")
-                .getStruct();
+            const vote = TransactionFactory.vote(forgerKeys.publicKey)
+                .withFee(1)
+                .withTimestamp(timestamp())
+                .withPassphrase("secret")
+                .createOne();
 
             nextForger = await getNextForger();
             let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
@@ -286,11 +291,11 @@ describe("Blockchain", () => {
             expect(walletForger.voteBalance).toEqual(initialVoteBalance.minus(vote.fee));
 
             // Now unvote again
-            const unvote = Transactions.BuilderFactory.vote()
-                .fee("1")
-                .votesAsset([`-${forgerKeys.publicKey}`])
-                .sign("secret")
-                .getStruct();
+            const unvote = TransactionFactory.unvote(forgerKeys.publicKey)
+                .withFee(1)
+                .withTimestamp(timestamp())
+                .withPassphrase("secret")
+                .createOne();
 
             nextForger = await getNextForger();
             nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
