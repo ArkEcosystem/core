@@ -35,11 +35,11 @@ export class Database {
     }
 
     /**
-     * Get the row with the highest id from the rounds table.
+     * Get the highest row from the rounds table.
      * @return Object latest row
      * @return null if the table is empty.
      */
-    public async getLastRound(): Promise<{ id: number; public_key: string; balance: string; round: string } | null> {
+    public async getLastRound(): Promise<{ public_key: string; balance: string; round: string } | null> {
         return this.db.oneOrNone(queries.rounds.latest);
     }
 
@@ -85,7 +85,7 @@ export class Database {
     public async getExportQueries(meta: {
         startHeight: number;
         endHeight: number;
-        startRoundId: number;
+        skipRoundRows: number;
         skipCompression: boolean;
         folder: string;
     }) {
@@ -113,7 +113,7 @@ export class Database {
             rounds: rawQuery(this.pgp, queries.rounds.roundRange, {
                 startRound: roundInfoStart.round,
                 endRound: roundInfoEnd.round,
-                startId: meta.startRoundId,
+                skipRoundRows: meta.skipRoundRows,
             }),
         };
     }
@@ -178,9 +178,14 @@ export class Database {
             { table: "transactions" },
         );
 
-        this.roundsColumnSet = new this.pgp.helpers.ColumnSet(["id", "public_key", "balance", "round"], {
-            table: "rounds",
-        });
+        this.roundsColumnSet = new this.pgp.helpers.ColumnSet(
+            [
+                "round",
+                "balance",
+                "public_key"
+            ],
+            { table: "rounds" }
+        );
     }
 }
 

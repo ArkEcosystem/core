@@ -1,12 +1,12 @@
 SELECT
-  id,
-  public_key,
+  round,
   balance,
-  round
+  public_key
 FROM
   rounds
 WHERE
-  round BETWEEN ${startRound} AND ${endRound} AND
-  id >= ${startId}
+  round BETWEEN ${startRound} AND ${endRound}
 ORDER BY
-  id
+  round, balance DESC, public_key
+OFFSET
+  ${skipRoundRows}
