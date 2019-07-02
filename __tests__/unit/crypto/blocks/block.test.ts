@@ -238,6 +238,53 @@ describe("Block", () => {
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
         });
 
+        it("should accept block with future transaction timestamp if milestone is active", () => {
+            //   configManager.setFromPreset("mainnet");
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "11111111",
+                    idHex: "11111111",
+                    height: 100,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
+                .withNetwork("mainnet")
+                .withVersion(1)
+                .withTimestamp(optionsDefault.timestamp + 3601)
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeTrue();
+            expect(block.verification.errors).toBeEmpty();
+        });
+
+        it("should reject block with future transaction timestamp if milestone is not active", () => {
+            //   configManager.setFromPreset("mainnet");
+            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const optionsDefault = {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: "c2fa2d400b4c823873d476f6e0c9e423cf925e9b48f1b5706c7e2771d4095538",
+                    height: 8999999,
+                },
+                reward: Utils.BigNumber.make(0),
+            };
+            const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
+                .withNetwork("mainnet")
+                .withVersion(1)
+                .withTimestamp(optionsDefault.timestamp + 3601)
+                .withPassphrase("super cool passphrase")
+                .create();
+
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            expect(block.verification.verified).toBeFalse();
+            expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
+        });
+
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
             jest.spyOn(Slots, "getSlotNumber").mockImplementation(height => {
