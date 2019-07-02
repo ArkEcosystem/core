@@ -543,5 +543,17 @@ describe("Connection", () => {
 
             await expectForgingTransactions(transactions, 4);
         });
+
+        it("should remove all invalid transactions from the transaction pool", async () => {
+            const transactions = TransactionFactory.transfer().build(151);
+            for (let i = 0; i < transactions.length - 1; i++) {
+                transactions[i].serialized = customSerialize(transactions[i].data, {
+                    signature: (b: ByteBuffer) => {
+                        b.writeByte(0x01);
+                    },
+                });
+            }
+            await expectForgingTransactions(transactions, 1);
+        });
     });
 });

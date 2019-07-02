@@ -76,7 +76,7 @@ export abstract class Repository implements Database.IRepository {
         const rows = await this.findMany(selectQuery);
 
         if (rows.length < paginate.limit) {
-            return { rows, count: paginate.limit + rows.length };
+            return { rows, count: paginate.offset + rows.length };
         }
 
         // Get the last rows=... from something that looks like (1 column, few rows):
