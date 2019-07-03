@@ -192,9 +192,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         );
 
         if (initialRun || ownPeers.length < theirPeers.length * 0.5) {
-            await Promise.all(
-                Object.values(theirPeers).map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })),
-            );
+            await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
             return true;
         }
 
