@@ -147,6 +147,7 @@ describe("Delegate", () => {
         };
         const transactions = TransactionFactory.secondSignature(dummy.plainPassphrase)
             .withPassphrase(dummy.plainPassphrase)
+            .withTimestamp(optionsDefault.timestamp)
             .create();
         const expectedBlockData = {
             generatorPublicKey: dummy.publicKey,

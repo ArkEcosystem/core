@@ -172,7 +172,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                    `(listed in options.allowedSenders), thus skipping throttling.`,
+                        `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -240,7 +240,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `Cannot apply transaction ${transaction.id} when trying to accept ` +
-                        `block ${block.data.id}: ${error.message}`,
+                            `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -336,14 +336,25 @@ export class Connection implements TransactionPool.IConnection {
     ): Promise<Interfaces.ITransaction[]> {
         this.purgeExpired();
 
-        const data: Interfaces.ITransaction[] = [];
+        let data: Interfaces.ITransaction[] = [];
 
         let transactionBytes: number = 0;
 
+        const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
+            const valid = await this.validateTransactions(transactions);
+            return transactions.filter(transaction => valid.includes(transaction.serialized.toString("hex")));
+        };
+
         let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
-            if (i >= start + size) {
-                break;
+        const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
+        for (const transaction of allTransactions) {
+            if (data.length === size) {
+                data = await removeInvalid(data);
+                if (data.length === size) {
+                    return data;
+                } else {
+                    transactionBytes = 0; // TODO: get rid of `maxBytes`
+                }
             }
 
             if (i >= start) {
@@ -369,15 +380,14 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        const validTransactions = await this.validateTransactions(data);
-        return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
+        return removeInvalid(data);
     }
 
     private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
         if (this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
@@ -537,7 +547,7 @@ export class Connection implements TransactionPool.IConnection {
             this.walletManager.revertTransactionForSender(transaction);
             this.memory.forget(transaction.id, transaction.data.senderPublicKey);
             this.syncToPersistentStorageIfNecessary();
-        }
+        };
 
         const lowestNonceBySender = {};
         for (const transaction of transactions) {
@@ -580,6 +590,4 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
     }
-
-
 }

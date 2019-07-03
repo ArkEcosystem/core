@@ -79,7 +79,7 @@ describe("NetworkMonitor", () => {
             // @ts-ignore
             monitor.config = { ignoreMinimumNetworkReach: true };
 
-            await monitor.discoverPeers();
+            await expect(monitor.discoverPeers(true)).resolves.toBeTrue();
 
             expect(validateAndAcceptPeer).toHaveBeenCalledTimes(1);
             expect(validateAndAcceptPeer).toHaveBeenCalledWith(getPeersPeerMock, { lessVerbose: true });

@@ -7,7 +7,8 @@
         "block": {
             "version": 0,
             "maxTransactions": 50,
-            "maxPayload": 2097152
+            "maxPayload": 2097152,
+            "acceptExpiredTransactionTimestamps": true
         },
         "epoch": "2017-03-21T13:00:00.000Z",
         "fees": {
@@ -62,5 +63,11 @@
     {
         "height": 2300000,
         "ignoreExpiredTransactions": false
+    },
+    {
+        "height": 2850000,
+        "block": {
+            "acceptExpiredTransactionTimestamps": false
+        }
     }
 ]

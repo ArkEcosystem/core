@@ -7,6 +7,7 @@ import zlib from "zlib";
 
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { Managers } from "@arkecosystem/crypto";
 
 import * as utils from "../utils";
 import { Codec } from "./codec";
@@ -86,6 +87,10 @@ export const importTable = async (table, options) => {
     // @ts-ignore
     for await (const record of readStream) {
         counter++;
+
+        if (table === "blocks" && record.height === 1) {
+            record.id = Managers.configManager.get("genesisBlock").id;
+        }
 
         if (!verifyData(table, record, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
