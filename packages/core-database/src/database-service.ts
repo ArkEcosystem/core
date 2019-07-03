@@ -52,19 +52,13 @@ export class DatabaseService implements Database.IDatabaseService {
             await this.reset();
         }
 
-        await this.createGenesisBlock();
-
-        const lastBlock: Interfaces.IBlock = await this.getLastBlock();
-
-        Managers.configManager.setHeight(lastBlock.data.height);
+        await this.initializeLastBlock();
 
         try {
             await this.loadBlocksFromCurrentRound();
         } catch (error) {
             this.logger.warn(`Failed to load blocks from current round: ${error.message}`);
         }
-
-        await this.configureState(lastBlock);
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -74,13 +68,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async reset(): Promise<void> {
         await this.connection.resetAll();
-
-        await this.saveBlock(
-            app
-                .resolvePlugin<State.IStateService>("state")
-                .getStore()
-                .getGenesisBlock(),
-        );
+        await this.createGenesisBlock();
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
@@ -572,6 +560,40 @@ export class DatabaseService implements Database.IDatabaseService {
         }
     }
 
+    private async initializeLastBlock(): Promise<void> {
+        let lastBlock: Interfaces.IBlock;
+        let tries = 5;
+
+        const getLastBlock = async (): Promise<Interfaces.IBlock> => {
+            try {
+                return await this.getLastBlock();
+            } catch (error) {
+                this.logger.error(error.message);
+
+                if (tries > 0) {
+                    const block: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
+                    await this.deleteBlocks([block]);
+                    tries--;
+                } else {
+                    app.forceExit("Unable to deserialize last block from database.", error);
+                    return undefined;
+                }
+
+                return getLastBlock();
+            }
+        };
+
+        lastBlock = await getLastBlock();
+
+        if (!lastBlock) {
+            this.logger.warn("No block found in database");
+
+            lastBlock = await this.createGenesisBlock();
+        }
+
+        await this.configureState(lastBlock);
+    }
+
     private async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         const dbTransactions: Array<{
             id: string;
@@ -609,17 +631,15 @@ export class DatabaseService implements Database.IDatabaseService {
         return this.connection.transactionsRepository.latestByBlocks(ids);
     }
 
-    private async createGenesisBlock(): Promise<void> {
-        if (!(await this.getLastBlock())) {
-            this.logger.warn("No block found in database");
+    private async createGenesisBlock(): Promise<Interfaces.IBlock> {
+        const genesisBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getGenesisBlock();
 
-            await this.saveBlock(
-                app
-                    .resolvePlugin<State.IStateService>("state")
-                    .getStore()
-                    .getGenesisBlock(),
-            );
-        }
+        await this.saveBlock(genesisBlock);
+
+        return genesisBlock;
     }
 
     private configureState(lastBlock: Interfaces.IBlock): void {

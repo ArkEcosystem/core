@@ -71,7 +71,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (this.config.skipDiscovery) {
             this.logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
         } else {
-            await this.updateNetworkStatus(true);
+            await this.updateNetworkStatus();
 
             for (const [version, peers] of Object.entries(groupBy(this.storage.getPeers(), "version"))) {
                 this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
@@ -99,13 +99,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return;
         }
 
-        if (initialRun || !this.hasMinimumPeers()) {
-            try {
-                await this.discoverPeers();
+        try {
+            if (await this.discoverPeers(initialRun)) {
                 await this.cleansePeers();
-            } catch (error) {
-                this.logger.error(`Network Status: ${error.message}`);
             }
+        } catch (error) {
+            this.logger.error(`Network Status: ${error.message}`);
         }
 
         let nextRunDelaySeconds = 600;
@@ -172,25 +171,32 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
     }
 
-    public async discoverPeers(): Promise<void> {
-        const queryAtLeastNPeers = 4;
-        let queriedPeers = 0;
+    public async discoverPeers(initialRun?: boolean): Promise<boolean> {
+        const ownPeers: P2P.IPeer[] = this.storage.getPeers();
+        const theirPeers: P2P.IPeer[] = Object.values(
+            (await Promise.all(
+                shuffle(this.storage.getPeers())
+                    .slice(0, 4)
+                    .map(async (peer: P2P.IPeer) => {
+                        try {
+                            const hisPeers = await this.communicator.getPeers(peer);
+                            return hisPeers || [];
+                        } catch (error) {
+                            this.logger.debug(`Failed to get peers from ${peer.ip}: ${error.message}`);
+                            return [];
+                        }
+                    }),
+            ))
+                .map(peers => peers.reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}))
+                .reduce((acc, curr) => ({ ...acc, ...curr })),
+        );
 
-        const shuffledPeers = shuffle(this.storage.getPeers());
-
-        for (const peer of shuffledPeers) {
-            try {
-                const hisPeers = await this.communicator.getPeers(peer);
-                queriedPeers++;
-                await Promise.all(hisPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
-            } catch (error) {
-                // Just try with the next peer from shuffledPeers.
-            }
-
-            if (this.hasMinimumPeers() && queriedPeers >= queryAtLeastNPeers) {
-                return;
-            }
+        if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
+            await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            return true;
         }
+
+        return false;
     }
 
     public getNetworkHeight(): number {
