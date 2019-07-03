@@ -30,7 +30,7 @@ const ensureCacheFile = (config: IConfig): string => {
 };
 
 export const installFromChannel = async (pkg, channel) => {
-    const { stdout, stderr } = await sync(`yarn global add ${pkg}@${channel}`, { shell: true });
+    const { stdout, stderr } = sync(`yarn global add ${pkg}@${channel}`, { shell: true });
 
     if (stderr) {
         console.error(stderr);

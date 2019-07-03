@@ -17,7 +17,6 @@
         "no-default-export": true,
         "no-null-keyword": true,
         "no-shadowed-variable": false,
-        "no-use-before-declare": true,
         "object-literal-sort-keys": false,
         "only-arrow-functions": true,
         "radix": false,
