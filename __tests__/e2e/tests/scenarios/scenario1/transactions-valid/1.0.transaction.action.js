@@ -20,13 +20,13 @@ module.exports = async options => {
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
 
-        transactions.push(_genTransaction(txType, wallets, nonces));
+        transactions.push(_genTransaction(txType, wallets));
     });
 
     await testUtils.POST("transactions", { transactions });
 
-    function _genTransaction(type, wallets, nonces) {
-        let nonce = nonces[wallets[0].address];
+    function _genTransaction(type, wallets) {
+        let nonce = noncesByAddress[wallets[0].address];
         if (!nonce) {
             nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[0].passphrase));
             noncesByAddress[wallets[0].address] = nonce;
@@ -53,7 +53,7 @@ module.exports = async options => {
                 break;
         }
 
-        nonces[wallets[0].address] = nonce.plus(1);
+        noncesByAddress[wallets[0].address] = nonce.plus(1);
 
         return transaction
             .withFee(utils.fees[type])

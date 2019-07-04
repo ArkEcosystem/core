@@ -23,19 +23,19 @@ module.exports = async options => {
         Object.keys(secondTxsTypes).forEach(secondTxType => {
             const wallets = secondTxsTypes[secondTxType];
             transactions.push(
-                _genTransaction(firstTxType, wallets, noncesByAddress),
-                _genTransaction(secondTxType, wallets, noncesByAddress)
+                _genTransaction(firstTxType, wallets),
+                _genTransaction(secondTxType, wallets)
             );
         });
     });
 
     await testUtils.POST("transactions", { transactions });
 
-    function _genTransaction(type, wallets, nonces) {
-        let nonce = nonces[wallets[0].address];
+    function _genTransaction(type, wallets) {
+        let nonce = noncesByAddress[wallets[0].address];
         if (!nonce) {
             nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[0].passphrase));
-            nonces[wallets[0].address] = nonce;
+            noncesByAddress[wallets[0].address] = nonce;
         }
 
         let transaction;
@@ -55,7 +55,7 @@ module.exports = async options => {
                 break;
         }
 
-        nonces[wallets[0].address] = nonce.plus(1);
+        noncesByAddress[wallets[0].address] = nonce.plus(1);
 
         return transaction
             .withFee(utils.fee[type])
