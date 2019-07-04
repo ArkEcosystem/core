@@ -33,13 +33,23 @@ export const respondWithCache = (data, h): any => {
     const { value, cached } = data;
     const lastModified = cached ? new Date(cached.stored) : new Date();
 
-    return value.isBoom
-        ? h.response(value.output.payload).code(value.output.statusCode)
-        : h.response({
+    if (value.isBoom) {
+        return h.response(value.output.payload).code(value.output.statusCode);
+    }
+
+    let arg;
+
+    if (value.results && value.totalCount !== undefined && value.totalCountIsEstimate !== undefined) {
+        arg = {
             results: value.results,
             totalCount: value.totalCount,
             response: { totalCountIsEstimate: value.totalCountIsEstimate }
-        }).header("Last-modified", lastModified.toUTCString());
+        };
+    } else {
+        arg = value;
+    }
+
+    return h.response(arg).header("Last-modified", lastModified.toUTCString());
 };
 
 export const toResource = (data, transformer, transform: boolean = true): object => {
