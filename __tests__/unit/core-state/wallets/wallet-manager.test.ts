@@ -140,19 +140,19 @@ describe("Wallet Manager", () => {
 
         describe.skip("the delegate of the block is not indexed", () => {
             describe("not genesis block", () => {
-                it("throw an Error", () => { });
+                it("throw an Error", () => {});
             });
 
             describe("genesis block", () => {
-                it("generates a new wallet", () => { });
+                it("generates a new wallet", () => {});
             });
         });
     });
 
     describe.skip("revertBlock", () => {
-        it("should revert all transactions of the block", () => { });
+        it("should revert all transactions of the block", () => {});
 
-        it("should revert the block of the delegate", () => { });
+        it("should revert the block of the delegate", () => {});
     });
 
     describe("applyTransaction", () => {
@@ -250,7 +250,7 @@ describe("Wallet Manager", () => {
             expect(sender.balance).toEqual(Utils.BigNumber.ZERO);
             expect(recipient.balance).toEqual(transaction.data.amount);
 
-            walletManager.revertTransaction(transaction);
+            await walletManager.revertTransaction(transaction);
 
             expect(sender.balance).toEqual(transaction.data.amount.plus(transaction.data.fee));
             expect(recipient.balance).toEqual(Utils.BigNumber.ZERO);
@@ -286,7 +286,7 @@ describe("Wallet Manager", () => {
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
             expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
 
-            walletManager.revertTransaction(voteTransaction);
+            await walletManager.revertTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
             expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000));
@@ -338,7 +338,7 @@ describe("Wallet Manager", () => {
             );
             expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000));
 
-            walletManager.revertTransaction(unvoteTransaction);
+            await walletManager.revertTransaction(unvoteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
             expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
