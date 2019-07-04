@@ -72,7 +72,7 @@ class TestTransactionHandler extends TransactionHandler {
     public apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): void {
         return;
     }
-    public revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): void {
+    public async revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): Promise<void> {
         return;
     }
 
