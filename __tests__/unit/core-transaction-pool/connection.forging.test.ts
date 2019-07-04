@@ -624,7 +624,9 @@ describe("Connection", () => {
         });
 
         it("should remove all invalid transactions from the transaction pool", async () => {
-            const transactions = TransactionFactory.transfer().build(151);
+            const transactions = TransactionFactory.transfer()
+                .withVersion(1)
+                .build(151);
             for (let i = 0; i < transactions.length - 1; i++) {
                 transactions[i].serialized = customSerialize(transactions[i].data, {
                     signature: (b: ByteBuffer) => {

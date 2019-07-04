@@ -606,7 +606,7 @@ describe("API 2.0 - Transactions", () => {
                 delegateRegistration: 2500000000,
                 delegateResignation: 2500000000,
                 ipfs: 500000000,
-                multiPayment: 0,
+                multiPayment: 10000000,
                 multiSignature: 500000000,
                 secondSignature: 500000000,
                 timelockTransfer: 0,
