@@ -1166,7 +1166,7 @@ describe("Connection", () => {
         it("should purge transactions from block", async () => {
             const revertTransactionForSender = jest
                 .spyOn(connection.walletManager, "revertTransactionForSender")
-                .mockReturnValue();
+                .mockReturnValue(undefined);
 
             const transactions = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
                 .withNetwork("unitnet")
@@ -1189,7 +1189,7 @@ describe("Connection", () => {
         it("should also purge transactions with higher nonces than the transactions from block", async () => {
             const revertTransactionForSender = jest
                 .spyOn(connection.walletManager, "revertTransactionForSender")
-                .mockReturnValue();
+                .mockReturnValue(undefined);
 
             const transactions = TransactionFactory.transfer(mockData.dummy1.data.recipientId)
                 .withNetwork("unitnet")
@@ -1245,7 +1245,7 @@ describe("Connection", () => {
             // Invalidate transactions with a vendor field longer then 64 chars
             Managers.configManager.setHeight(1);
 
-            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce();
+            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce(undefined);
 
             connection.purgeInvalidTransactions();
 
