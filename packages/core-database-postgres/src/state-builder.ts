@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -56,8 +56,13 @@ export class StateBuilder {
 
     private async buildSentTransactions(): Promise<void> {
         const transactions = await this.connection.transactionsRepository.getSentTransactions();
+        const { HtlcLock, HtlcClaim, HtlcRefund } = Enums.TransactionTypes;
 
         for (const transaction of transactions) {
+            if ([HtlcLock, HtlcClaim, HtlcRefund].includes(transaction.type)) {
+                continue; // specific htlc behavior even for sent transactions (handled in htlc lock bootstrap function)
+            }
+
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
             wallet.nonce = Utils.BigNumber.make(transaction.nonce);

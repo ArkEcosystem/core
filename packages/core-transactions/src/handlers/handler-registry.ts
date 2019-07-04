@@ -2,6 +2,9 @@ import { Enums, Transactions } from "@arkecosystem/crypto";
 
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { DelegateResignationTransactionHandler } from "./delegate-resignation";
+import { HtlcClaimTransactionHandler } from "./htlc-claim";
+import { HtlcLockTransactionHandler } from "./htlc-lock";
+import { HtlcRefundTransactionHandler } from "./htlc-refund";
 import { IpfsTransactionHandler } from "./ipfs";
 import { MultiPaymentTransactionHandler } from "./multi-payment";
 import { MultiSignatureTransactionHandler } from "./multi-signature";
@@ -30,6 +33,9 @@ export class TransactionHandlerRegistry {
         this.registerCoreTransactionHandler(IpfsTransactionHandler);
         this.registerCoreTransactionHandler(MultiPaymentTransactionHandler);
         this.registerCoreTransactionHandler(DelegateResignationTransactionHandler);
+        this.registerCoreTransactionHandler(HtlcLockTransactionHandler);
+        this.registerCoreTransactionHandler(HtlcClaimTransactionHandler);
+        this.registerCoreTransactionHandler(HtlcRefundTransactionHandler);
     }
 
     public get(type: Enums.TransactionTypes | number): TransactionHandler {

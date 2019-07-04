@@ -5,6 +5,8 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import {
+    HtlcLockedAmountLowerThanFeeError,
+    HtlcLockTransactionNotFoundError,
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
@@ -14,6 +16,8 @@ import {
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
+
+const { HtlcClaim, HtlcRefund } = Enums.TransactionTypes;
 
 export abstract class TransactionHandler implements ITransactionHandler {
     public abstract getConstructor(): Transactions.TransactionConstructor;
@@ -51,7 +55,22 @@ export abstract class TransactionHandler implements ITransactionHandler {
             throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
         }
 
-        if (sender.balance.minus(data.amount).minus(data.fee).isNegative()) {
+        if ([HtlcClaim, HtlcRefund].includes(data.type)) {
+            const lockId =
+                data.type === HtlcClaim ? data.asset.claim.lockTransactionId : data.asset.refund.lockTransactionId;
+            const lockWallet = databaseWalletManager.findByLockId(lockId);
+            if (!lockWallet) {
+                throw new HtlcLockTransactionNotFoundError();
+            }
+            if (lockWallet.locks[lockId].amount.minus(data.fee).isNegative()) {
+                throw new HtlcLockedAmountLowerThanFeeError();
+            }
+        } else if (
+            sender.balance
+                .minus(data.amount)
+                .minus(data.fee)
+                .isNegative()
+        ) {
             throw new InsufficientBalanceError();
         }
 
@@ -98,8 +117,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
         this.applyToRecipient(transaction, walletManager);
     }
 
-    public revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        this.revertForSender(transaction, walletManager);
+    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+        await this.revertForSender(transaction, walletManager);
         this.revertForRecipient(transaction, walletManager);
     }
 
@@ -108,9 +127,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warn(
-                `Transaction forcibly applied as an exception: ${transaction.id}.`
-            );
+            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         this.throwIfCannotBeApplied(transaction, sender, walletManager);
@@ -123,7 +140,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
             sender.nonce = data.nonce;
         }
 
-        const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
+        // For HTLC claim and refund, specific balance update will be done inside their own transaction handler
+        const newBalance: Utils.BigNumber = [HtlcClaim, HtlcRefund].includes(data.type)
+            ? sender.balance
+            : sender.balance.minus(data.amount).minus(data.fee);
 
         if (process.env.CORE_ENV === "test") {
             assert(Utils.isException(transaction.data) || !newBalance.isNegative());
@@ -138,7 +158,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
-        sender.balance = sender.balance.plus(data.amount).plus(data.fee);
+        // For HTLC claim and refund, specific balance update will be done inside their own transaction handler
+        sender.balance = [HtlcClaim, HtlcRefund].includes(data.type)
+            ? sender.balance
+            : sender.balance.plus(data.amount).plus(data.fee);
 
         if (data.version > 1) {
             if (!sender.nonce.isEqualTo(data.nonce)) {

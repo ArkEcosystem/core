@@ -7,6 +7,8 @@ export interface IWallet {
     publicKey: string | undefined;
     secondPublicKey: string | undefined;
     balance: Utils.BigNumber;
+    locks: { [lockId: string]: Interfaces.ITransactionData };
+    lockedBalance: Utils.BigNumber;
     nonce: Utils.BigNumber;
     vote: string;
     voted: boolean;
@@ -47,6 +49,8 @@ export interface IWalletManager {
 
     allByUsername(): IWallet[];
 
+    allByLockId(): IWallet[];
+
     findByAddress(address: string): IWallet;
 
     has(addressOrPublicKey: string): boolean;
@@ -54,6 +58,8 @@ export interface IWalletManager {
     findByPublicKey(publicKey: string): IWallet;
 
     findByUsername(username: string): IWallet;
+
+    findByLockId(lockId: string): IWallet;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
@@ -67,15 +73,15 @@ export interface IWalletManager {
 
     buildVoteBalances(): void;
 
-    applyBlock(block: Interfaces.IBlock): void;
+    applyBlock(block: Interfaces.IBlock): Promise<void>;
 
     buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
 
-    revertBlock(block: Interfaces.IBlock): void;
+    revertBlock(block: Interfaces.IBlock): Promise<void>;
 
     applyTransaction(transaction: Interfaces.ITransaction): void;
 
-    revertTransaction(transaction: Interfaces.ITransaction): void;
+    revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
     isDelegate(publicKey: string): boolean;
 
@@ -87,17 +93,23 @@ export interface IWalletManager {
 
     forgetByUsername(username: string): void;
 
+    forgetByLockId(lockId: string): void;
+
     setByAddress(address: string, wallet: IWallet): void;
 
     setByPublicKey(publicKey: string, wallet: IWallet): void;
 
     setByUsername(username: string, wallet: IWallet): void;
 
+    setByLockId(lockId: string, wallet: IWallet): void;
+
     hasByAddress(address: string): boolean;
 
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
+
+    hasByLockId(lockId: string): boolean;
 
     purgeEmptyNonDelegates(): void;
 }

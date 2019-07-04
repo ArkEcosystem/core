@@ -7,6 +7,8 @@ export class Wallet implements State.IWallet {
     public publicKey: string | undefined;
     public secondPublicKey: string | undefined;
     public balance: Utils.BigNumber;
+    public locks: { [lockId: string]: Interfaces.ITransactionData };
+    public lockedBalance: Utils.BigNumber;
     public nonce: Utils.BigNumber;
     public vote: string;
     public voted: boolean;
@@ -27,6 +29,8 @@ export class Wallet implements State.IWallet {
         this.publicKey = undefined;
         this.secondPublicKey = undefined;
         this.balance = Utils.BigNumber.ZERO;
+        this.locks = {};
+        this.lockedBalance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
         this.vote = undefined;
         this.voted = false;

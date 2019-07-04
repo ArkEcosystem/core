@@ -16,6 +16,8 @@ export class WalletManager implements State.IWalletManager {
     // @TODO: make this private and read-only
     public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
+    private byLockId: { [key: string]: State.IWallet };
+
     constructor() {
         this.reset();
     }
@@ -30,6 +32,10 @@ export class WalletManager implements State.IWalletManager {
 
     public allByUsername(): State.IWallet[] {
         return Object.values(this.byUsername);
+    }
+
+    public allByLockId(): State.IWallet[] {
+        return Object.values(this.byLockId);
     }
 
     public findByAddress(address: string): State.IWallet {
@@ -56,6 +62,10 @@ export class WalletManager implements State.IWalletManager {
         return this.byUsername[username];
     }
 
+    public findByLockId(lockId: string): State.IWallet {
+        return this.byLockId[lockId];
+    }
+
     public setByAddress(address: string, wallet: Wallet): void {
         if (address && wallet) {
             this.byAddress[address] = wallet;
@@ -74,6 +84,12 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
+    public setByLockId(lockId: string, wallet: Wallet): void {
+        if (lockId && wallet) {
+            this.byLockId[lockId] = wallet;
+        }
+    }
+
     public has(addressOrPublicKey: string): boolean {
         return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
     }
@@ -88,6 +104,10 @@ export class WalletManager implements State.IWalletManager {
 
     public hasByUsername(username: string): boolean {
         return !!this.byUsername[username];
+    }
+
+    public hasByLockId(lockId: string): boolean {
+        return !!this.byLockId[lockId];
     }
 
     public getNonce(publicKey: string): Utils.BigNumber {
@@ -110,6 +130,10 @@ export class WalletManager implements State.IWalletManager {
         delete this.byUsername[username];
     }
 
+    public forgetByLockId(lockId: string): void {
+        delete this.byLockId[lockId];
+    }
+
     public index(wallets: State.IWallet[]): void {
         for (const wallet of wallets) {
             this.reindex(wallet);
@@ -127,6 +151,12 @@ export class WalletManager implements State.IWalletManager {
 
         if (wallet.username) {
             this.byUsername[wallet.username] = wallet;
+        }
+
+        if (wallet.locks) {
+            for (const lockId of Object.keys(wallet.locks)) {
+                this.byLockId[lockId] = wallet;
+            }
         }
     }
 
@@ -157,7 +187,7 @@ export class WalletManager implements State.IWalletManager {
         for (const voter of Object.values(this.byPublicKey)) {
             if (voter.vote) {
                 const delegate: State.IWallet = this.byPublicKey[voter.vote];
-                delegate.voteBalance = delegate.voteBalance.plus(voter.balance);
+                delegate.voteBalance = delegate.voteBalance.plus(voter.balance).plus(voter.lockedBalance);
             }
         }
     }
@@ -171,7 +201,7 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public applyBlock(block: Interfaces.IBlock): void {
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
         let delegate: State.IWallet = this.byPublicKey[block.data.generatorPublicKey];
@@ -218,14 +248,14 @@ export class WalletManager implements State.IWalletManager {
 
             // Revert the applied transactions from last to first
             for (const transaction of appliedTransactions.reverse()) {
-                this.revertTransaction(transaction);
+                await this.revertTransaction(transaction);
             }
 
             throw error;
         }
     }
 
-    public revertBlock(block: Interfaces.IBlock): void {
+    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         const delegate: State.IWallet = this.byPublicKey[block.data.generatorPublicKey];
 
         if (!delegate) {
@@ -238,7 +268,7 @@ export class WalletManager implements State.IWalletManager {
             // Revert the transactions from last to first
             for (let i = block.transactions.length - 1; i >= 0; i--) {
                 const transaction: Interfaces.ITransaction = block.transactions[i];
-                this.revertTransaction(transaction);
+                await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
 
@@ -266,25 +296,41 @@ export class WalletManager implements State.IWalletManager {
     public applyTransaction(transaction: Interfaces.ITransaction): void {
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
+        let lockWallet: State.IWallet;
+        let lockTransaction: Interfaces.ITransactionData;
+        if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            lockWallet = this.findByLockId(lockId);
+            lockTransaction = lockWallet.locks[lockId];
+        }
+
         transactionHandler.apply(transaction, this);
 
         const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(transaction.data.recipientId);
 
-        this.updateVoteBalances(sender, recipient, transaction.data);
+        this.updateVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction);
     }
 
-    public revertTransaction(transaction: Interfaces.ITransaction): void {
+    public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: State.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: State.IWallet = this.byAddress[data.recipientId];
 
-        transactionHandler.revert(transaction, this);
+        await transactionHandler.revert(transaction, this);
+
+        let lockWallet: State.IWallet;
+        let lockTransaction: Interfaces.ITransactionData;
+        if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            lockWallet = this.findByLockId(lockId);
+            lockTransaction = lockWallet.locks[lockId];
+        }
 
         // Revert vote balance updates
-        this.updateVoteBalances(sender, recipient, data, true);
+        this.updateVoteBalances(sender, recipient, data, lockWallet, lockTransaction, true);
     }
 
     public isDelegate(publicKey: string): boolean {
@@ -298,7 +344,13 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public canBePurged(wallet: State.IWallet): boolean {
-        return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username;
+        return (
+            wallet.balance.isZero() &&
+            wallet.lockedBalance.isZero() &&
+            !wallet.secondPublicKey &&
+            !wallet.multisignature &&
+            !wallet.username
+        );
     }
 
     /**
@@ -309,6 +361,7 @@ export class WalletManager implements State.IWalletManager {
         this.byAddress = {};
         this.byPublicKey = {};
         this.byUsername = {};
+        this.byLockId = {};
     }
 
     public buildDelegateRanking(roundInfo?: Shared.IRoundInfo): State.IDelegateWallet[] {
@@ -383,6 +436,8 @@ export class WalletManager implements State.IWalletManager {
         sender: State.IWallet,
         recipient: State.IWallet,
         transaction: Interfaces.ITransactionData,
+        lockWallet: State.IWallet,
+        lockTransaction: Interfaces.ITransactionData,
         revert: boolean = false,
     ): void {
         // TODO: multipayment?
@@ -391,11 +446,33 @@ export class WalletManager implements State.IWalletManager {
             if (sender.vote) {
                 const delegate: State.IWallet = this.findByPublicKey(sender.vote);
                 const total: Utils.BigNumber = transaction.amount.plus(transaction.fee);
-                delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
+
+                if (transaction.type === Enums.TransactionTypes.HtlcLock) {
+                    // HTLC Lock keeps the locked amount as the sender's delegate vote balance
+                    delegate.voteBalance = revert
+                        ? delegate.voteBalance.plus(transaction.fee)
+                        : delegate.voteBalance.minus(transaction.fee);
+                } else if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+                    // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
+                    delegate.voteBalance = revert
+                        ? delegate.voteBalance.plus(transaction.fee).minus(lockTransaction.amount)
+                        : delegate.voteBalance.minus(transaction.fee).plus(lockTransaction.amount);
+
+                    const lockWalletDelegate: State.IWallet = this.findByPublicKey(lockWallet.vote);
+                    lockWalletDelegate.voteBalance = revert
+                        ? delegate.voteBalance.plus(lockTransaction.amount)
+                        : delegate.voteBalance.minus(lockTransaction.amount);
+                } else {
+                    // General case : sender delegate vote balance reduced by amount + fees (or increased if revert)
+                    delegate.voteBalance = revert
+                        ? delegate.voteBalance.plus(total)
+                        : delegate.voteBalance.minus(total);
+                }
             }
 
             // Update vote balance of recipient's delegate
-            if (recipient && recipient.vote) {
+            if (recipient && recipient.vote && transaction.type !== Enums.TransactionTypes.HtlcLock) {
+                // HTLC Lock does not update vote balance of recipient's voted delegate because he didn't receive the funds yet
                 const delegate: State.IWallet = this.findByPublicKey(recipient.vote);
                 delegate.voteBalance = revert
                     ? delegate.voteBalance.minus(transaction.amount)

@@ -43,7 +43,7 @@ export class UnexpectedNonceError extends TransactionError {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-            `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`
+                `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
         );
     }
 }
@@ -178,5 +178,55 @@ export class MultiSignatureKeyCountMismatchError extends TransactionError {
 export class IpfsHashAlreadyExists extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because this IPFS hash is already registered for the wallet.`);
+    }
+}
+
+export class HtlcLockedAmountLowerThanFeeError extends TransactionError {
+    constructor() {
+        super(
+            `Failed to apply transaction, because the amount to be claimed is lower than the fee for the claim transaction.`,
+        );
+    }
+}
+
+export class HtlcLockTransactionNotFoundError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the associated HTLC lock transaction could not be found.`);
+    }
+}
+
+export class HtlcNotLockRecipientError extends TransactionError {
+    constructor() {
+        super(
+            `Failed to apply transaction, because the sender is not the recipient of the associated HTLC lock transaction.`,
+        );
+    }
+}
+
+export class HtlcSecretHashMismatchError extends TransactionError {
+    constructor() {
+        super(
+            `Failed to apply transaction, because the secret provided does not match the associated HTLC lock transaction secret.`,
+        );
+    }
+}
+
+export class HtlcNotLockSenderError extends TransactionError {
+    constructor() {
+        super(
+            `Failed to apply transaction, because the sender is not the sender of the associated HTLC lock transaction.`,
+        );
+    }
+}
+
+export class HtlcLockNotExpiredError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the associated HTLC lock transaction did not expire yet.`);
+    }
+}
+
+export class HtlcLockExpiredError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the associated HTLC lock transaction expired.`);
     }
 }
