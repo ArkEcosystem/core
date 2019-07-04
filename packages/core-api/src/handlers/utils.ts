@@ -35,7 +35,11 @@ export const respondWithCache = (data, h): any => {
 
     return value.isBoom
         ? h.response(value.output.payload).code(value.output.statusCode)
-        : h.response(value).header("Last-modified", lastModified.toUTCString());
+        : h.response({
+            results: value.results,
+            totalCount: value.totalCount,
+            response: { totalCountIsEstimate: value.totalCountIsEstimate }
+        }).header("Last-modified", lastModified.toUTCString());
 };
 
 export const toResource = (data, transformer, transform: boolean = true): object => {
@@ -50,5 +54,6 @@ export const toPagination = (data, transformer, transform: boolean = true): obje
     return {
         results: transformerService.toCollection(data.rows, transformer, transform),
         totalCount: data.count,
+        totalCountIsEstimate: data.countIsEstimate,
     };
 };
