@@ -21,7 +21,7 @@ module.exports = async options => {
         Object.keys(secondTxsTypes).forEach(secondTxType => {
             const wallets = secondTxsTypes[secondTxType];
 
-            const nonce = noncesByAddress[wallets[2].address];
+            let nonce = noncesByAddress[wallets[2].address];
             if (!nonce) {
                 nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[2].passphrase));
                 noncesByAddress[wallets[2].address] = nonce;

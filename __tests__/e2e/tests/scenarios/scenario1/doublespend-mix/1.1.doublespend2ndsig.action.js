@@ -36,7 +36,7 @@ module.exports = async options => {
     await testUtils.POST("transactions", { transactions });
 
     function _genTransaction(type, wallets, nonces) {
-        const nonce = nonces[wallets[2].address];
+        let nonce = nonces[wallets[2].address];
         if (!nonce) {
             nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[2].passphrase));
             noncesByAddress[wallets[2].address] = nonce;

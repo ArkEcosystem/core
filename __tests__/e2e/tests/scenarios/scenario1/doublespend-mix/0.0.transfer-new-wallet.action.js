@@ -14,7 +14,7 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
-    const nonce = TransactionFactory.getNonce(delegates[0].publicKey);
+    let nonce = TransactionFactory.getNonce(delegates[0].publicKey);
     const transactions = [];
     Object.keys(utils.walletsMix).forEach(firstTxType => {
         const secondTxsTypes = utils.walletsMix[firstTxType];

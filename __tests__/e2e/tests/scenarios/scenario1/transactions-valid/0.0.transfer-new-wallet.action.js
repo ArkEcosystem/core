@@ -15,7 +15,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [];
-    const nonce = TransactionFactory.getNonce(delegates[0].publicKey);
+    let nonce = TransactionFactory.getNonce(delegates[0].publicKey);
 
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
