@@ -111,6 +111,9 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.Vote);
             Registry.get(TransactionTypes.MultiSignature);
             Registry.get(TransactionTypes.Ipfs);
+            Registry.get(TransactionTypes.HtlcLock);
+            Registry.get(TransactionTypes.HtlcClaim);
+            Registry.get(TransactionTypes.HtlcRefund);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 
