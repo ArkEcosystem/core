@@ -254,8 +254,8 @@ describe("Transaction serializer / deserializer", () => {
                 .fee("50000000")
                 .version(1)
                 .network(23)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 5000)
+                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", "1555")
+                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", "5000")
                 .sign("dummy passphrase")
                 .getStruct();
 
@@ -290,7 +290,7 @@ describe("Transaction serializer / deserializer", () => {
         });
 
         it("should ser/deserialize giving back original fields", () => {
-            const delegateResignation = BuilderFactory.delegateResignation()
+            const multiPayment = BuilderFactory.multiPayment()
                 .fee("50000000")
                 .version(2)
                 .network(23)
@@ -299,10 +299,10 @@ describe("Transaction serializer / deserializer", () => {
                 .sign("dummy passphrase")
                 .getStruct();
 
-            const serialized = TransactionFactory.fromData(delegateResignation).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(multiPayment).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
-            checkCommonFields(deserialized, delegateResignation);
+            checkCommonFields(deserialized, multiPayment);
         });
     });
 
