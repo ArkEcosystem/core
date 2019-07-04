@@ -1,5 +1,5 @@
 export const defaults = {
-    enabled: false,
+    enabled: !process.env.CORE_API_DISABLED,
     host: process.env.CORE_API_HOST || "0.0.0.0",
     port: process.env.CORE_API_PORT || 4003,
     cache: {
@@ -34,7 +34,6 @@ export const defaults = {
         userCache: {
             expiresIn: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
         },
-        ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
     // @see https://github.com/fknop/hapi-pagination
     pagination: {
@@ -61,6 +60,6 @@ export const defaults = {
             "/api/wallets/search",
         ],
     },
-    whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
+    whitelist: ["*"],
     plugins: [],
 };

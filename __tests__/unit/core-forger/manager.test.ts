@@ -80,7 +80,9 @@ describe("Forger Manager", () => {
             setTimeout(() => forgeManager.stopForging(), 1000);
             await forgeManager.checkSlot();
 
-            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, { error: "oh bollocks" });
+            expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, {
+                error: "oh bollocks",
+            });
         });
     });
 
@@ -144,7 +146,7 @@ describe("Forger Manager", () => {
             expect(canForge).toBeFalse();
         });
 
-        it("should be FAIL and detect possible double forging", async () => {
+        it("should be TRUE and detect possible double forging", async () => {
             forgeManager.usernames = [];
 
             const networkState = new NetworkState(NetworkStateStatus.Default);
@@ -164,7 +166,7 @@ describe("Forger Manager", () => {
             });
 
             const canForge = await forgeManager.isForgingAllowed(networkState, delegate);
-            expect(canForge).toBeFalse();
+            expect(canForge).toBeTrue();
         });
     });
 });

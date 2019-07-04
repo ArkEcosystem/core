@@ -217,7 +217,7 @@ describe("Database Service", () => {
             // Prepare sender wallet
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             const originalApply = transactionHandler.throwIfCannotBeApplied;
-            transactionHandler.throwIfCannotBeApplied = jest.fn(() => {});
+            transactionHandler.throwIfCannotBeApplied = jest.fn();
 
             const sender = new Wallet(keys.address);
             sender.publicKey = keys.publicKey;
@@ -228,15 +228,21 @@ describe("Database Service", () => {
             // reverse the current delegate order.
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
+                const voterKeys = Identities.Keys.fromPassphrase(`voter-${i}`);
+
                 const transfer = Transactions.BuilderFactory.transfer()
-                    .amount(Utils.BigNumber.make(i + 1).times(SATOSHI).toFixed())
+                    .amount(
+                        Utils.BigNumber.make(i + 1)
+                            .times(SATOSHI)
+                            .toFixed(),
+                    )
                     .nonce(sender.nonce.plus(1).toFixed())
-                    .recipientId(delegatesRound2[i].address)
+                    .recipientId(Identities.Address.fromPublicKey(voterKeys.publicKey))
                     .sign(keys.passphrase)
                     .build();
 
-                // Vote for itself
-                walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
+                // Vote for delegate
+                walletManager.findByPublicKey(voterKeys.publicKey).vote = delegatesRound2[i].publicKey;
 
                 const block = BlockFactory.make(
                     {

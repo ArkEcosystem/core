@@ -36,7 +36,7 @@ export interface ITransactionAsset {
     multiSignatureLegacy?: IMultiSignatureLegacyAsset;
     multiSignature?: IMultiSignatureAsset;
     ipfs?: string;
-    payments?: any;
+    payments?: IMultiPaymentItem[];
     lock?: IHtlcLockAsset;
     claim?: IHtlcClaimAsset;
     refund?: IHtlcRefundAsset;
@@ -70,8 +70,6 @@ export interface ITransactionData {
 
     blockId?: string;
     sequence?: number;
-
-    payments?: { [key: string]: any };
 }
 
 export interface ITransactionJson {
@@ -103,7 +101,6 @@ export interface ITransactionJson {
     sequence?: number;
 
     ipfsHash?: string;
-    payments?: { [key: string]: any };
 }
 
 export interface ISchemaValidationResult<T = any> {

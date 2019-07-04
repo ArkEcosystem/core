@@ -23,7 +23,8 @@ let databaseWalletManager: Wallets.WalletManager;
 beforeAll(async () => {
     Managers.configManager.setFromPreset("testnet");
 
-    memory = new Memory();
+    const maxTransactionAge = 2700;
+    memory = new Memory(maxTransactionAge);
     poolWalletManager = new WalletManager();
     connection = new Connection({
         options: defaults,
@@ -620,6 +621,20 @@ describe("Connection", () => {
             appendBytes(transactions[4], Buffer.from("ff" + makeSignature("garbage").repeat(5), "hex"));
 
             await expectForgingTransactions(transactions, 4, true);
+        });
+
+        it("should remove all invalid transactions from the transaction pool", async () => {
+            const transactions = TransactionFactory.transfer()
+                .withVersion(1)
+                .build(151);
+            for (let i = 0; i < transactions.length - 1; i++) {
+                transactions[i].serialized = customSerialize(transactions[i].data, {
+                    signature: (b: ByteBuffer) => {
+                        b.writeByte(0x01);
+                    },
+                });
+            }
+            await expectForgingTransactions(transactions, 1);
         });
     });
 });

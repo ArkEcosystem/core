@@ -10,10 +10,14 @@ export const queries = {
         findByHeights: loadQueryFile(__dirname, "./blocks/find-by-heights.sql"),
         headers: loadQueryFile(__dirname, "./blocks/headers.sql"),
         heightRange: loadQueryFile(__dirname, "./blocks/height-range.sql"),
+        heightRangeWithTransactions: loadQueryFile(__dirname, "./blocks/height-range-with-transactions.sql"),
         latest: loadQueryFile(__dirname, "./blocks/latest.sql"),
         recent: loadQueryFile(__dirname, "./blocks/recent.sql"),
         statistics: loadQueryFile(__dirname, "./blocks/statistics.sql"),
         top: loadQueryFile(__dirname, "./blocks/top.sql"),
+    },
+    common: {
+        truncateAllTables: loadQueryFile(__dirname, "./common/truncate-all-tables.sql"),
     },
     migrations: {
         create: loadQueryFile(__dirname, "./migrations/create.sql"),
@@ -39,5 +43,6 @@ export const queries = {
         forged: loadQueryFile(__dirname, "./transactions/forged.sql"),
         findById: loadQueryFile(__dirname, "./transactions/find-by-id.sql"),
         deleteByBlock: loadQueryFile(__dirname, "./transactions/delete-by-block.sql"),
+        feeStatistics: loadQueryFile(__dirname, "./transactions/fee-statistics.sql"),
     },
 };

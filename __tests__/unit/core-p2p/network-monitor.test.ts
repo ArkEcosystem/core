@@ -28,7 +28,7 @@ describe("NetworkMonitor", () => {
 
             jest.spyOn(processor, "validatePeerIp").mockReturnValueOnce(true);
 
-            await monitor.start({ networkStart: false });
+            await monitor.start();
 
             expect(validateAndAcceptPeer).toHaveBeenCalledWith(
                 {
@@ -76,11 +76,61 @@ describe("NetworkMonitor", () => {
             const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
             const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
 
-            await monitor.discoverPeers();
+            await expect(monitor.discoverPeers(true)).resolves.toBeTrue();
 
             expect(validateAndAcceptPeer).toHaveBeenCalledTimes(2);
             expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
             expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
+
+            validateAndAcceptPeer.mockReset();
+
+            await expect(monitor.discoverPeers()).resolves.toBeFalse();
+
+            expect(validateAndAcceptPeer).not.toHaveBeenCalled();
+
+            validatePeerIp.mockRestore();
+        });
+
+        it("should discover new peers when below minimum", async () => {
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.2.3.4",
+                    port: 4000,
+                }),
+            );
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.2.3.5",
+                    port: 4000,
+                }),
+            );
+
+            // @ts-ignore
+            monitor.config = { ignoreMinimumNetworkReach: true };
+
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
+            const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
+
+            communicator.getPeers = jest.fn().mockReturnValue([{ ip: "1.1.1.1" }, { ip: "2.2.2.2" }]);
+
+            await expect(monitor.discoverPeers()).resolves.toBeFalse();
+
+            expect(validateAndAcceptPeer).not.toHaveBeenCalled();
+
+            const fakePeers = [];
+            for (let i = 0; i < 10; i++) {
+                fakePeers.push({ ip: `${i + 1}.${i + 1}.${i + 1}.${i + 1}` });
+            }
+
+            communicator.getPeers = jest.fn().mockReturnValue(fakePeers);
+
+            await expect(monitor.discoverPeers()).resolves.toBeTrue();
+
+            expect(validateAndAcceptPeer).toHaveBeenCalledTimes(10);
+
+            for (let i = 0; i < 10; i++) {
+                expect(validateAndAcceptPeer).toHaveBeenCalledWith(fakePeers[i], { lessVerbose: true });
+            }
 
             validatePeerIp.mockRestore();
         });
@@ -160,7 +210,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks in parallel from 25 peers max", async () => {
             communicator.getPeerBlocks = jest
                 .fn()
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 30; i++) {
                 storage.setPeer(
@@ -187,7 +237,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks in parallel from all peers if less than 25 peers", async () => {
             communicator.getPeerBlocks = jest
                 .fn()
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 18; i++) {
                 storage.setPeer(
@@ -214,7 +264,7 @@ describe("NetworkMonitor", () => {
         it("should download blocks in parallel until median network height and no more", async () => {
             communicator.getPeerBlocks = jest
                 .fn()
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 30; i++) {
                 storage.setPeer(
@@ -242,7 +292,7 @@ describe("NetworkMonitor", () => {
             communicator.getPeerBlocks = jest
                 .fn()
                 .mockRejectedValueOnce("peer mock error")
-                .mockImplementation((peer, afterBlockHeight) => [{ id: `11${afterBlockHeight}` }]);
+                .mockImplementation((peer, { fromBlockHeight }) => [{ id: `11${fromBlockHeight}` }]);
 
             for (let i = 0; i < 5; i++) {
                 storage.setPeer(

@@ -1,10 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import { Managers } from "@arkecosystem/crypto";
+import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
-import groupBy from "lodash.groupby";
-import math from "mathjs";
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {
@@ -18,6 +16,7 @@ export class NodeController extends Controller {
                     synced: this.blockchain.isSynced(),
                     now: lastBlock ? lastBlock.data.height : 0,
                     blocksCount: networkHeight - lastBlock.data.height || 0,
+                    timestamp: Crypto.Slots.getTime(),
                 },
             };
         } catch (error) {
@@ -80,29 +79,11 @@ export class NodeController extends Controller {
     }
 
     public async fees(request: Hapi.Request) {
-        try {
-            const { transactionsBusinessRepository } = app.resolvePlugin<Database.IDatabaseService>("database");
+        const { transactionsBusinessRepository } = app.resolvePlugin<Database.IDatabaseService>("database");
 
-            // @ts-ignore
-            const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);
+        // @ts-ignore
+        const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);
 
-            const resultsByDays = [];
-            for (const [type, transactions] of Object.entries(groupBy(results, "type"))) {
-                const fees = transactions.map(transaction => math.bignumber(transaction.fee));
-
-                resultsByDays.push({
-                    type,
-                    min: math.min(...fees).toFixed(0),
-                    max: math.max(...fees).toFixed(0),
-                    avg: math.mean(...fees).toFixed(0),
-                    sum: math.sum(...fees).toFixed(0),
-                    median: math.median(...fees).toFixed(0),
-                });
-            }
-
-            return { meta: { days: request.query.days }, data: resultsByDays };
-        } catch (error) {
-            return Boom.badImplementation(error);
-        }
+        return { meta: { days: request.query.days }, data: results };
     }
 }

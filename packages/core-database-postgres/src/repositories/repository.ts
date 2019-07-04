@@ -16,8 +16,9 @@ export abstract class Repository implements Database.IRepository {
         await this.db.none(`TRUNCATE ${this.model.getTable()} RESTART IDENTITY`);
     }
 
-    public async insert(items: object | object[]): Promise<void> {
-        await this.db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
+    public async insert(items: object | object[], db?: any): Promise<void> {
+        db = db || this.db;
+        return db.none(this.pgp.helpers.insert(items, this.model.getColumnSet()));
     }
 
     public async update(items: object | object[]): Promise<void> {
@@ -75,7 +76,7 @@ export abstract class Repository implements Database.IRepository {
         const rows = await this.findMany(selectQuery);
 
         if (rows.length < paginate.limit) {
-            return { rows, count: paginate.limit + rows.length };
+            return { rows, count: paginate.offset + rows.length };
         }
 
         // Get the last rows=... from something that looks like (1 column, few rows):

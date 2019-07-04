@@ -1,5 +1,4 @@
 import { strictEqual } from "assert";
-import dayjs, { Dayjs } from "dayjs";
 import clonedeep from "lodash.clonedeep";
 
 import { app } from "@arkecosystem/core-container";
@@ -22,7 +21,6 @@ export class Connection implements TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly blockedByPublicKey: { [key: string]: Dayjs } = {};
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
         "database",
     );
@@ -55,13 +53,15 @@ export class Connection implements TransactionPool.IConnection {
             this.memory.remember(transaction, true);
         }
 
-        const validTransactions = await this.validateTransactions(transactionsFromDisk);
-        transactionsFromDisk = transactionsFromDisk.filter(transaction =>
-            validTransactions.includes(transaction.serialized.toString("hex")),
-        );
+        this.emitter.once("internal.stateBuilder.finished", async () => {
+            const validTransactions = await this.validateTransactions(transactionsFromDisk);
+            transactionsFromDisk = transactionsFromDisk.filter(transaction =>
+                validTransactions.includes(transaction.serialized.toString("hex")),
+            );
 
-        this.purgeExpired();
-        this.syncToPersistentStorage();
+            this.purgeExpired();
+            this.syncToPersistentStorage();
+        });
 
         this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
 
@@ -200,33 +200,6 @@ export class Connection implements TransactionPool.IConnection {
         return this.memory.has(transactionId);
     }
 
-    // @TODO: move this to a more appropriate place
-    public isSenderBlocked(senderPublicKey: string): boolean {
-        if (!this.blockedByPublicKey[senderPublicKey]) {
-            return false;
-        }
-
-        if (dayjs().isAfter(this.blockedByPublicKey[senderPublicKey])) {
-            delete this.blockedByPublicKey[senderPublicKey];
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public blockSender(senderPublicKey: string): Dayjs {
-        const blockReleaseTime: Dayjs = dayjs().add(1, "hour");
-
-        this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
-
-        this.logger.warn(
-            `Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toString()}`,
-        );
-
-        return blockReleaseTime;
-    }
-
     public acceptChainedBlock(block: Interfaces.IBlock): void {
         for (const transaction of block.transactions) {
             const { data }: Interfaces.ITransaction = transaction;
@@ -257,15 +230,20 @@ export class Connection implements TransactionPool.IConnection {
                     );
                     transactionHandler.applyToSender(transaction, this.walletManager);
                 } catch (error) {
-                    this.purgeByPublicKey(data.senderPublicKey);
-                    this.blockSender(data.senderPublicKey);
+                    this.walletManager.forget(data.senderPublicKey);
+
+                    if (recipientWallet) {
+                        recipientWallet.publicKey
+                            ? this.walletManager.forget(recipientWallet.publicKey)
+                            : this.walletManager.forgetByAddress(recipientWallet.address);
+                    }
 
                     this.logger.error(
                         `Cannot apply transaction ${transaction.id} when trying to accept ` +
                             `block ${block.data.id}: ${error.message}`,
                     );
 
-                    return;
+                    continue;
                 }
             }
 
@@ -327,28 +305,12 @@ export class Connection implements TransactionPool.IConnection {
         this.logger.info("Transaction Pool Manager build wallets complete");
     }
 
-    public purgeByBlock(block: Interfaces.IBlock): void {
-        this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, block.transactions);
-    }
-
     public purgeByPublicKey(senderPublicKey: string): void {
         this.logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
 
         this.removeTransactionsForSender(senderPublicKey);
 
         this.walletManager.forget(senderPublicKey);
-    }
-
-    public purgeSendersWithInvalidTransactions(block: Interfaces.IBlock): void {
-        const publicKeys: Set<string> = new Set(
-            block.transactions
-                .filter(transaction => !transaction.verified)
-                .map(transaction => transaction.data.senderPublicKey),
-        );
-
-        for (const publicKey of publicKeys) {
-            this.purgeByPublicKey(publicKey);
-        }
     }
 
     public purgeInvalidTransactions(): void {
@@ -374,14 +336,25 @@ export class Connection implements TransactionPool.IConnection {
     ): Promise<Interfaces.ITransaction[]> {
         this.purgeExpired();
 
-        const data: Interfaces.ITransaction[] = [];
+        let data: Interfaces.ITransaction[] = [];
 
         let transactionBytes: number = 0;
 
+        const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
+            const valid = await this.validateTransactions(transactions);
+            return transactions.filter(transaction => valid.includes(transaction.serialized.toString("hex")));
+        };
+
         let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
-            if (i >= start + size) {
-                break;
+        const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
+        for (const transaction of allTransactions) {
+            if (data.length === size) {
+                data = await removeInvalid(data);
+                if (data.length === size) {
+                    return data;
+                } else {
+                    transactionBytes = 0; // TODO: get rid of `maxBytes`
+                }
             }
 
             if (i >= start) {
@@ -407,8 +380,7 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        const validTransactions = await this.validateTransactions(data);
-        return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
+        return removeInvalid(data);
     }
 
     private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
@@ -570,8 +542,20 @@ export class Connection implements TransactionPool.IConnection {
      * Remove all provided transactions plus any transactions from the same senders with higher nonces.
      */
     private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {
+        const purge = (transaction: Interfaces.ITransaction) => {
+            this.emitter.emit(event, transaction.data);
+            this.walletManager.revertTransactionForSender(transaction);
+            this.memory.forget(transaction.id, transaction.data.senderPublicKey);
+            this.syncToPersistentStorageIfNecessary();
+        };
+
         const lowestNonceBySender = {};
         for (const transaction of transactions) {
+            if (transaction.data.version === 1) {
+                purge(transaction);
+                continue;
+            }
+
             const senderPublicKey: string = transaction.data.senderPublicKey;
             if (lowestNonceBySender[senderPublicKey] === undefined) {
                 lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
@@ -598,13 +582,7 @@ export class Connection implements TransactionPool.IConnection {
             });
 
             for (const transaction of allTxFromSender) {
-                this.emitter.emit(event, transaction.data);
-
-                this.walletManager.revertTransactionForSender(transaction);
-
-                this.memory.forget(transaction.id, transaction.data.senderPublicKey);
-
-                this.syncToPersistentStorageIfNecessary();
+                purge(transaction);
 
                 if (transaction.data.nonce.isEqualTo(lowestNonceBySender[transaction.data.senderPublicKey])) {
                     break;

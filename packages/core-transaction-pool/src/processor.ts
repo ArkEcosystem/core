@@ -19,7 +19,7 @@ export class Processor implements TransactionPool.IProcessor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) { }
+    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
 
     public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
@@ -105,12 +105,6 @@ export class Processor implements TransactionPool.IProcessor {
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
-            } else if (this.pool.isSenderBlocked(transaction.senderPublicKey)) {
-                this.pushError(
-                    transaction,
-                    "ERR_SENDER_BLOCKED",
-                    `Transaction ${transaction.id} rejected. Sender ${transaction.senderPublicKey} is blocked.`,
-                );
             } else if (JSON.stringify(transaction).length > maxTransactionBytes) {
                 this.pushError(
                     transaction,

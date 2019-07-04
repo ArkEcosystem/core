@@ -5,7 +5,6 @@ export const database = {
         findByPublicKey: pubKey => "username",
     },
 
-    commitQueuedQueries: () => undefined,
     buildWallets: () => undefined,
     saveWallets: () => undefined,
     getLastBlock: () => undefined,
@@ -15,8 +14,8 @@ export const database = {
     applyRound: () => undefined,
     getActiveDelegates: () => [],
     restoreCurrentRound: () => undefined,
-    enqueueDeleteBlock: () => undefined,
     getBlocks: () => [],
+    getBlocksForDownload: () => [],
     getBlock: () => undefined,
     revertBlock: () => undefined,
     applyBlock: () => undefined,

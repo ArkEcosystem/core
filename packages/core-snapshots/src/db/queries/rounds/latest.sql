@@ -1,3 +1,4 @@
 SELECT *
 FROM rounds
-ORDER BY id DESC LIMIT 1
+ORDER BY round DESC, balance, public_key DESC
+LIMIT 1

@@ -67,7 +67,7 @@ export interface IWalletManager {
 
     reindex(wallet: IWallet): void;
 
-    cloneDelegateWallets(): IWalletManager;
+    clone(): IWalletManager;
 
     loadActiveDelegateList(roundInfo: IRoundInfo): IDelegateWallet[];
 

@@ -284,6 +284,28 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
+    describe("ser/deserialize - multi payment", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const delegateResignation = BuilderFactory.delegateResignation()
+                .fee("50000000")
+                .version(2)
+                .network(23)
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(delegateResignation).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, delegateResignation);
+        });
+    });
+
     describe("ser/deserialize - htlc lock", () => {
         const htlcLockAsset = {
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",

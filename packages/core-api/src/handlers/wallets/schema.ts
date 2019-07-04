@@ -68,9 +68,6 @@ export const transactions: object = {
             recipientId: Joi.string()
                 .alphanum()
                 .length(34),
-            ownerId: Joi.string()
-                .alphanum()
-                .length(34),
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -105,9 +102,6 @@ export const transactionsSent: object = {
                 .integer()
                 .positive(),
             recipientId: Joi.string()
-                .alphanum()
-                .length(34),
-            ownerId: Joi.string()
                 .alphanum()
                 .length(34),
             timestamp: Joi.number()
@@ -147,9 +141,6 @@ export const transactionsReceived: object = {
                 .hex()
                 .length(66),
             senderId: Joi.string()
-                .alphanum()
-                .length(34),
-            ownerId: Joi.string()
                 .alphanum()
                 .length(34),
             timestamp: Joi.number()

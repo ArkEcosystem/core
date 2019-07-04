@@ -33,16 +33,14 @@ export class AcceptBlockHandler extends BlockHandler {
             state.setLastBlock(this.block);
 
             // Ensure the lastDownloadedBlock is never behind the last accepted block.
-            if (state.lastDownloadedBlock && state.lastDownloadedBlock.data.height < this.block.data.height) {
-                state.lastDownloadedBlock = this.block;
+            if (state.lastDownloadedBlock && state.lastDownloadedBlock.height < this.block.data.height) {
+                state.lastDownloadedBlock = this.block.data;
             }
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
             this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
             this.logger.debug(error.stack);
-
-            this.blockchain.transactionPool.purgeByBlock(this.block);
 
             return super.execute();
         }

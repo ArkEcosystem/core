@@ -66,7 +66,12 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
 
 describe("Blockchain", () => {
     beforeAll(async () => {
-        container = await setUp();
+        container = await setUp({
+            options: {
+                // 100 years worth of blocks, so that the genesis transactions don't get expired
+                "@arkecosystem/core-transaction-pool": { maxTransactionAge: 394200000 },
+            },
+        });
 
         blockchain = container.resolvePlugin("blockchain");
 
@@ -113,7 +118,7 @@ describe("Blockchain", () => {
             await blockchain.postTransactions(transferTransactions);
             const transactions = await blockchain.transactionPool.getTransactions(0, 200);
 
-            expect(transactions.length).toBe(transferTransactions.length);
+            expect(transactions).toHaveLength(transferTransactions.length);
 
             expect(transactions).toIncludeAllMembers(transferTransactions.map(transaction => transaction.serialized));
 
@@ -198,6 +203,11 @@ describe("Blockchain", () => {
             return activeDelegates[nextSlot % activeDelegates.length];
         };
 
+        const timestamp = () => {
+            const lastBlock = blockchain.state.getLastBlock();
+            return Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1);
+        };
+
         const createBlock = (generatorKeys: any, transactions: Interfaces.ITransactionData[]) => {
             const transactionData = {
                 amount: Utils.BigNumber.ZERO,
@@ -214,7 +224,7 @@ describe("Blockchain", () => {
 
             const lastBlock = blockchain.state.getLastBlock();
             const data = {
-                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1),
+                timestamp: timestamp(),
                 version: 0,
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,
@@ -244,6 +254,7 @@ describe("Blockchain", () => {
             // First send funds to new voter wallet
             const forgerKeys = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
             const transfer = TransactionFactory.transfer(recipient, 125)
+                .withTimestamp(timestamp())
                 .withPassphrase(forgerKeys.passphrase)
                 .createOne();
 
@@ -261,6 +272,7 @@ describe("Blockchain", () => {
             // Now vote with newly created wallet for previous forger.
             const vote = TransactionFactory.vote(forgerKeys.publicKey)
                 .withFee(1)
+                .withTimestamp(timestamp())
                 .withPassphrase("secret")
                 .createOne();
 
@@ -281,6 +293,7 @@ describe("Blockchain", () => {
             // Now unvote again
             const unvote = TransactionFactory.unvote(forgerKeys.publicKey)
                 .withFee(1)
+                .withTimestamp(timestamp())
                 .withPassphrase("secret")
                 .createOne();
 

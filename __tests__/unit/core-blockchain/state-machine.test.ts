@@ -299,7 +299,7 @@ describe("State Machine", () => {
             });
 
             beforeEach(() => {
-                stateStorage.lastDownloadedBlock = BlockFactory.fromData(genesisBlock);
+                stateStorage.lastDownloadedBlock = genesisBlock;
             });
 
             afterEach(() => jest.resetAllMocks());
@@ -368,8 +368,6 @@ describe("State Machine", () => {
                 const loggerInfo = jest.spyOn(logger, "info");
 
                 const methodsCalled = [
-                    // @ts-ignore
-                    jest.spyOn(blockchain.database, "commitQueuedQueries").mockReturnValue(true),
                     // @ts-ignore
                     jest.spyOn(blockchain.transactionPool, "buildWallets").mockReturnValue(true),
                     // @ts-ignore

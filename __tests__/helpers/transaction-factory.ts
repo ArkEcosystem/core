@@ -105,6 +105,14 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset));
     }
 
+    public static multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
+        const builder = Transactions.BuilderFactory.multiPayment();
+        for (const payment of payments) {
+            builder.addPayment(payment.recipientId, payment.amount);
+        }
+        return new TransactionFactory(builder);
+    }
+
     public static getNonce(publicKey: string): Utils.BigNumber {
         try {
             return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(publicKey);
@@ -117,6 +125,7 @@ export class TransactionFactory {
     private network: Types.NetworkName = "testnet";
     private nonce: Utils.BigNumber;
     private fee: Utils.BigNumber;
+    private timestamp: number;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string;
     private passphraseList: string[];
@@ -131,6 +140,12 @@ export class TransactionFactory {
 
     public withFee(fee: number): TransactionFactory {
         this.fee = Utils.BigNumber.make(fee);
+
+        return this;
+    }
+
+    public withTimestamp(timestamp: number): TransactionFactory {
+        this.timestamp = timestamp;
 
         return this;
     }
@@ -277,6 +292,14 @@ export class TransactionFactory {
 
             if (this.fee) {
                 this.builder.fee(this.fee.toFixed());
+            }
+
+            if (this.timestamp) {
+                this.builder.data.timestamp = this.timestamp;
+            }
+
+            if (this.senderPublicKey) {
+                this.builder.senderPublicKey(this.senderPublicKey);
             }
 
             if (this.expiration) {

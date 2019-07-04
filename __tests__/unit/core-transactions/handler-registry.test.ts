@@ -114,6 +114,7 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.HtlcLock);
             Registry.get(TransactionTypes.HtlcClaim);
             Registry.get(TransactionTypes.HtlcRefund);
+            Registry.get(TransactionTypes.MultiPayment);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 

@@ -35,10 +35,12 @@ export class PluginRegistrar {
         const failedPlugins: number = Object.keys(this.failedPlugins).length;
         if (failedPlugins > 0) {
             const logger = this.container.resolvePlugin<Logger.ILogger>("logger");
-            logger.warn(`Failed to load ${failedPlugins} optional plugins.`);
+            if (logger) {
+                logger.warn(`Failed to load ${failedPlugins} optional plugins.`);
 
-            for (const [name, error] of Object.entries(this.failedPlugins)) {
-                logger.warn(`Plugin '${name}': ${error.message}`);
+                for (const [name, error] of Object.entries(this.failedPlugins)) {
+                    logger.warn(`Plugin '${name}': ${error.message}`);
+                }
             }
         }
     }
@@ -98,10 +100,18 @@ export class PluginRegistrar {
             await this.registerWithContainer(item.plugin.extends);
         }
 
+        if (item.plugin.depends) {
+            await this.registerWithContainer(item.plugin.depends, this.plugins[item.plugin.depends]);
+        }
+
         const name = item.plugin.name || item.plugin.pkg.name;
         const version = item.plugin.version || item.plugin.pkg.version;
         const defaults = item.plugin.defaults || item.plugin.pkg.defaults;
         const alias = item.plugin.alias || item.plugin.pkg.alias;
+
+        if (this.container.has(alias || name)) {
+            return;
+        }
 
         if (!semver.valid(version)) {
             throw new Error(
@@ -123,6 +133,8 @@ export class PluginRegistrar {
                     plugin,
                 }),
             );
+
+            this.plugins[name] = options;
 
             if (item.plugin.deregister) {
                 this.deregister.push({ plugin: item.plugin, options });

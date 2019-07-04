@@ -8,6 +8,7 @@ import pgPromise, { IMain } from "pg-promise";
 import { IMigration } from "./interfaces";
 import { migrations } from "./migrations";
 import { Model } from "./models";
+import { queries as sqlQueries } from "./queries";
 import { repositories } from "./repositories";
 import { MigrationsRepository } from "./repositories/migrations";
 import { QueryExecutor } from "./sql/query-executor";
@@ -35,7 +36,6 @@ export class PostgresConnection implements Database.IConnection {
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
-    private queuedQueries: any[];
 
     public constructor(readonly options: Record<string, any>, private readonly walletManager: State.IWalletManager) {}
 
@@ -46,7 +46,6 @@ export class PostgresConnection implements Database.IConnection {
 
         this.logger.debug("Connecting to database");
 
-        this.queuedQueries = undefined;
         this.cache = new Map();
 
         try {
@@ -72,6 +71,15 @@ export class PostgresConnection implements Database.IConnection {
         const pgp: pgPromise.IMain = pgPromise({
             ...this.options.initialization,
             ...{
+                error: async (error, context) => {
+                    // https://www.postgresql.org/docs/11/errcodes-appendix.html
+                    // Class 53 — Insufficient Resources
+                    // Class 57 — Operator Intervention
+                    // Class 58 — System Error (errors external to PostgreSQL itself)
+                    if (error.code && ["53", "57", "58"].includes(error.code.slice(0, 2))) {
+                        app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
+                    }
+                },
                 receive(data) {
                     camelizeColumns(pgp, data);
                 },
@@ -93,8 +101,6 @@ export class PostgresConnection implements Database.IConnection {
         this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
 
         try {
-            await this.commitQueuedQueries();
-
             this.cache.clear();
         } catch (error) {
             this.logger.warn("Issue in commiting blocks, database might be corrupted");
@@ -111,99 +117,62 @@ export class PostgresConnection implements Database.IConnection {
         await new StateBuilder(this, this.walletManager).run();
     }
 
-    public async commitQueuedQueries(): Promise<void> {
-        if (!this.queuedQueries || this.queuedQueries.length === 0) {
-            return;
-        }
-
-        this.logger.debug("Committing database transactions.");
-
+    public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         try {
-            await this.db.tx(t => t.batch(this.queuedQueries));
+            await this.db.tx(t => {
+                const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
+                const blockIds: string[] = blocks.map(block => block.id);
+
+                return t.batch([
+                    this.transactionsRepository.deleteByBlockId(blockIds, t),
+                    this.blocksRepository.delete(blockIds, t),
+                    this.roundsRepository.delete(nextRound, t),
+                ]);
+            });
         } catch (error) {
-            this.logger.error(error);
-
-            throw error;
-        } finally {
-            this.queuedQueries = undefined;
-        }
-    }
-
-    public async deleteBlock(block: Interfaces.IBlock): Promise<void> {
-        try {
-            await this.db.tx(t =>
-                t.batch([
-                    this.transactionsRepository.deleteByBlockId(block.data.id),
-                    this.blocksRepository.delete(block.data.id),
-                ]),
-            );
-        } catch (error) {
-            this.logger.error(error.stack);
-
-            throw error;
-        }
-    }
-
-    public enqueueDeleteBlock(block: Interfaces.IBlock): void {
-        this.enqueueQueries([
-            this.transactionsRepository.deleteByBlockId(block.data.id),
-            this.blocksRepository.delete(block.data.id),
-        ]);
-    }
-
-    public enqueueDeleteRound(height: number): void {
-        const { round, nextRound, maxDelegates } = roundCalculator.calculateRound(height);
-
-        if (nextRound === round + 1 && height >= maxDelegates) {
-            this.enqueueQueries([this.roundsRepository.delete(nextRound)]);
+            this.logger.error(error.message);
         }
     }
 
     public async saveBlock(block: Interfaces.IBlock): Promise<void> {
-        try {
-            const queries = [this.blocksRepository.insert(block.data)];
-
-            if (block.transactions.length > 0) {
-                queries.push(
-                    this.transactionsRepository.insert(
-                        block.transactions.map(tx => ({
-                            ...tx.data,
-                            timestamp: tx.timestamp,
-                            serialized: tx.serialized,
-                        })),
-                    ),
-                );
-            }
-
-            await this.db.tx(t => t.batch(queries));
-        } catch (err) {
-            this.logger.error(err.message);
-        }
+        await this.saveBlocks([block]);
     }
 
     public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
         try {
-            const queries = [this.blocksRepository.insert(blocks.map(block => block.data))];
+            await this.db.tx(t => {
+                const blockInserts: Interfaces.IBlockData[] = [];
+                const transactionInserts: Interfaces.ITransactionData[] = [];
 
-            for (const block of blocks) {
-                if (block.transactions.length > 0) {
-                    queries.push(
-                        this.transactionsRepository.insert(
-                            block.transactions.map(tx => ({
+                for (const block of blocks) {
+                    blockInserts.push(block.data);
+                    if (block.transactions.length > 0) {
+                        transactionInserts.push(
+                            ...block.transactions.map(tx => ({
                                 ...tx.data,
                                 timestamp: tx.timestamp,
                                 serialized: tx.serialized,
                             })),
-                        ),
-                    );
+                        );
+                    }
                 }
-            }
 
-            await this.db.tx(t => t.batch(queries));
+                const queries = [this.blocksRepository.insert(blockInserts, t)];
+
+                if (transactionInserts.length > 0) {
+                    queries.push(this.transactionsRepository.insert(transactionInserts, t));
+                }
+
+                return t.batch(queries);
+            });
         } catch (err) {
             this.logger.error(err.message);
             throw err;
         }
+    }
+
+    public async resetAll(): Promise<void> {
+        return this.db.none(sqlQueries.common.truncateAllTables);
     }
 
     /**
@@ -305,14 +274,6 @@ export class PostgresConnection implements Database.IConnection {
 
     private registerQueryExecutor(): void {
         this.query = new QueryExecutor(this);
-    }
-
-    private enqueueQueries(queries): void {
-        if (!this.queuedQueries) {
-            this.queuedQueries = [];
-        }
-
-        (this.queuedQueries as any).push(...queries);
     }
 
     private exposeRepositories(): void {

@@ -41,8 +41,8 @@ error ()
 }
 
 # Detect pkg type
-DEB=$(which apt-get)
-RPM=$(which yum)
+DEB=$(which apt-get || :)
+RPM=$(which yum || :)
 
 # Detect SystemV / SystemD
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
@@ -182,7 +182,9 @@ elif [[ ! -z $RPM ]]; then
     sudo yum install ntp -y -q
 fi
 
-sudo ntpd -gq
+if [ -z "$(sudo service ntp status |grep running)" ] ; then
+    sudo ntpd -gq
+fi
 
 success "Installed NTP!"
 
@@ -245,7 +247,7 @@ if [[ "$choice" =~ ^(yes|y|Y) ]]; then
     ark env:set CORE_DB_PASSWORD "${databasePassword}"
     ark env:set CORE_DB_DATABASE "${databaseName}"
 
-    userExists=$(sudo -i -u postgres psql -c "SELECT * FROM pg_user WHERE usename = '${databaseUsername}'" | grep -c "1 row")
+    userExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_user WHERE usename = '${databaseUsername}'")
     databaseExists=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${databaseName}'")
 
     if [[ $userExists == 1 ]]; then

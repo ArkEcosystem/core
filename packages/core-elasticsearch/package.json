@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-elasticsearch",
-    "version": "2.4.0-next.11",
+    "version": "2.5.0-next.6",
     "description": "A powerful Elasticsearch integration for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -18,11 +18,11 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.0-next.11",
-        "@arkecosystem/core-event-emitter": "^2.4.0-next.11",
-        "@arkecosystem/core-http-utils": "^2.4.0-next.11",
-        "@arkecosystem/core-interfaces": "^2.4.0-next.11",
-        "@arkecosystem/crypto": "^2.4.0-next.11",
+        "@arkecosystem/core-container": "^2.5.0-next.6",
+        "@arkecosystem/core-event-emitter": "^2.5.0-next.6",
+        "@arkecosystem/core-http-utils": "^2.5.0-next.6",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.6",
+        "@arkecosystem/crypto": "^2.5.0-next.6",
         "@elastic/elasticsearch": "^7.1.0",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.0.3",

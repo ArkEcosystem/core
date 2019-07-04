@@ -31,9 +31,6 @@ export const index: object = {
             recipientId: Joi.string()
                 .alphanum()
                 .length(34),
-            ownerId: Joi.string()
-                .alphanum()
-                .length(34),
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -114,7 +111,6 @@ export const search: object = {
             .length(66),
         senderId: address,
         recipientId: address,
-        ownerId: address,
         addresses: Joi.array()
             .unique()
             .min(1)

@@ -75,7 +75,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
         }
 
-        if (blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
+        if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
@@ -152,7 +152,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
              *  state machine data init      *
              ******************************* */
             stateStorage.setLastBlock(block);
-            stateStorage.lastDownloadedBlock = block;
 
             // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
             const roundInfo = roundCalculator.calculateRound(block.data.height);
@@ -162,6 +161,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 await blockchain.database.buildWallets();
                 await blockchain.database.applyRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
+                await blockchain.p2p.getMonitor().start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -171,6 +171,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
                 stateStorage.setLastBlock(BlockFactory.fromJson(config.get("genesisBlock")));
                 await blockchain.database.buildWallets();
+                await blockchain.p2p.getMonitor().start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -186,6 +187,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             await blockchain.database.restoreCurrentRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
 
+            await blockchain.p2p.getMonitor().start();
+
             return blockchain.dispatch("STARTED");
         } catch (error) {
             logger.error(error.stack);
@@ -195,23 +198,24 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async downloadBlocks() {
-        const lastDownloadedBlock: Interfaces.IBlock = stateStorage.lastDownloadedBlock || stateStorage.getLastBlock();
+        const lastDownloadedBlock: Interfaces.IBlockData =
+            stateStorage.lastDownloadedBlock || stateStorage.getLastBlock().data;
         const blocks: Interfaces.IBlockData[] = await blockchain.p2p
             .getMonitor()
-            .syncWithNetwork(lastDownloadedBlock.data.height);
+            .syncWithNetwork(lastDownloadedBlock.height);
 
         if (blockchain.isStopped) {
             return;
         }
 
         // Could have changed since entering this function, e.g. due to a rollback.
-        if (lastDownloadedBlock.data.id !== stateStorage.lastDownloadedBlock.data.id) {
+        if (stateStorage.lastDownloadedBlock && lastDownloadedBlock.id !== stateStorage.lastDownloadedBlock.id) {
             return;
         }
 
         const empty: boolean = !blocks || blocks.length === 0;
         const chained: boolean =
-            !empty && (isBlockChained(lastDownloadedBlock.data, blocks[0]) || Utils.isException(blocks[0]));
+            !empty && (isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0]));
 
         if (chained) {
             logger.info(
@@ -243,14 +247,14 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.info("No new block found on this peer");
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
-                logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock.data)}`);
+                logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
 
                 blockchain.clearQueue();
             }
 
             if (blockchain.queue.length() === 0) {
                 stateStorage.noBlockCounter++;
-                stateStorage.lastDownloadedBlock = stateStorage.getLastBlock();
+                stateStorage.lastDownloadedBlock = stateStorage.getLastBlock().data;
             }
 
             blockchain.dispatch("NOBLOCK");
@@ -265,8 +269,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         logger.info("Starting fork recovery");
 
         blockchain.clearAndStopQueue();
-
-        await blockchain.database.commitQueuedQueries();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
 

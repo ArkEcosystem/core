@@ -2,7 +2,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 export interface IStateStore {
     blockchain: any;
-    lastDownloadedBlock: Interfaces.IBlock | undefined;
+    lastDownloadedBlock: Interfaces.IBlockData | undefined;
     blockPing: any;
     started: boolean;
     forkedBlock: Interfaces.IBlock | undefined;
@@ -68,7 +68,7 @@ export interface IStateStore {
      * @param {Number} start
      * @param {Number} end
      */
-    getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[];
+    getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[];
 
     /**
      * Get common blocks for the given IDs.
