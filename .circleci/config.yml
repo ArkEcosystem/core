@@ -267,7 +267,7 @@ jobs:
                   name: Install and build packages
                   command: >-
                       source ~/.bashrc && nvm use $USE_NVM_VERSION && yarn && yarn bootstrap && yarn
-                      build && cd __tests__/e2e && yarn install
+                      build && cd __tests__/e2e && tsc && yarn install
             - save_cache:
                   paths:
                       - node_modules
