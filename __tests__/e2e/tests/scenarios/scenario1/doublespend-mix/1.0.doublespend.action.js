@@ -1,6 +1,6 @@
 "use strict";
 
-const { Managers } = require("@arkecosystem/crypto");
+const { Managers, Identities } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { delegates } = require("../../../../lib/utils/testnet");
