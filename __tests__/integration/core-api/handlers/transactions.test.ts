@@ -611,9 +611,11 @@ describe("API 2.0 - Transactions", () => {
                 multiPayment: 10000000,
                 multiSignature: 500000000,
                 secondSignature: 500000000,
-                timelockTransfer: 0,
                 transfer: 10000000,
                 vote: 100000000,
+                htlcClaim: 10000000,
+                htlcLock: 10000000,
+                htlcRefund: 10000000,
             });
         });
     });
