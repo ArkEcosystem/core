@@ -21,21 +21,12 @@ module.exports = async options => {
         Object.keys(secondTxsTypes).forEach(secondTxType => {
             const wallets = secondTxsTypes[secondTxType];
 
-            let nonce = noncesByAddress[wallets[2].address];
-            if (!nonce) {
-                nonce = Utils.BigNumber.ZERO;
-                noncesByAddress[wallets[2].address] = nonce;
-            }
-
             transactions.push(
                 TransactionFactory.secondSignature(wallets[3].passphrase)
                     .withFee(utils.fees.secondSignRegistration)
                     .withPassphrase(wallets[2].passphrase)
-                    .withNonce(nonce.plus(1))
                     .createOne()
             );
-
-            noncesByAddress[wallets[2].address] = nonce.plus(1);
         });
     });
 

@@ -26,11 +26,9 @@ module.exports = async options => {
     await testUtils.POST("transactions", { transactions });
 
     function _genTransaction(type, wallets) {
-        let nonce = noncesByAddress[wallets[0].address];
-        if (!nonce) {
-            nonce = Utils.BigNumber.ZERO;
-            noncesByAddress[wallets[0].address] = nonce;
-        }
+        noncesByAddress[wallets[0].address] = noncesByAddress[wallets[0].address]
+            ? noncesByAddress[wallets[0].address].plus(1)
+            : Utils.BigNumber.ZERO;
 
         let transaction;
         switch (type) {
@@ -53,11 +51,9 @@ module.exports = async options => {
                 break;
         }
 
-        noncesByAddress[wallets[0].address] = nonce.plus(1);
-
         return transaction
             .withFee(utils.fees[type])
-            .withNonce(nonce.plus(1))
+            .withNonce(noncesByAddress[wallets[0].address])
             .withPassphrase(wallets[0].passphrase)
             .createOne();
     }

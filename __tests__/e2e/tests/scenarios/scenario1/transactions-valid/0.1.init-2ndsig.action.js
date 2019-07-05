@@ -22,7 +22,6 @@ module.exports = async options => {
             TransactionFactory.secondSignature(wallets[3].passphrase)
                 .withFee(utils.fees.secondSignRegistration)
                 .withPassphrase(wallets[2].passphrase)
-                .withNonce(Utils.BigNumber.make(1))
                 .createOne(),
         );
     });
