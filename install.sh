@@ -205,7 +205,15 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-while ! yarn global add @arkecosystem/core ; do
+read -p "Do you want to use the unstable development build? [y/N]: " choiceBuild
+
+if [[ "$choiceBuild" =~ ^(yes|y|Y) ]]; then
+    commandInstall="yarn global add @arkecosystem/core@next"
+else
+    commandInstall="yarn global add @arkecosystem/core"
+fi
+
+while ! $commandInstall ; do
     read -p "Installing ARK Core failed, do you want to retry? [y/N]: " choice
     if [[ ! "$choice" =~ ^(yes|y|Y) ]] ; then
         exit 1
