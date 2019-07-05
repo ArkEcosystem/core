@@ -14,11 +14,15 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [];
-    let nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[2].passphrase));
+    let nonce;
 
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
-        nonce = nonce.plus(1);
+        if (!nonce) {
+            nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[2].passphrase))
+        } else {
+            nonce = nonce.plus(1);
+        }
 
         transactions.push(
             TransactionFactory.secondSignature(wallets[3].passphrase)
