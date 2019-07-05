@@ -84,7 +84,8 @@ export const importTable = async (table, options) => {
     };
 
     emitter.emit("start", { count: options.meta[table].count });
-    // @ts-ignore
+
+    // tslint:disable-next-line: await-promise
     for await (const record of readStream) {
         counter++;
 

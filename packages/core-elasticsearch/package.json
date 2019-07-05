@@ -25,13 +25,13 @@
         "@arkecosystem/crypto": "^2.5.0-next.6",
         "@elastic/elasticsearch": "^7.1.0",
         "@hapi/boom": "^7.4.2",
-        "@hapi/joi": "^15.0.3",
-        "fs-extra": "^8.0.1"
+        "@hapi/joi": "^15.1.0",
+        "fs-extra": "^8.1.0"
     },
     "devDependencies": {
-        "@types/fs-extra": "^7.0.0",
+        "@types/fs-extra": "^8.0.0",
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__joi": "^15.0.1"
+        "@types/hapi__joi": "^15.0.2"
     },
     "engines": {
         "node": ">=10.x"
