@@ -80,8 +80,7 @@ export abstract class Repository implements Database.IRepository {
             return { rows, count: paginate.offset + rows.length, countIsEstimate: false };
         }
 
-        // console.error(`findManyWithCount(): this.options.totalCountIsEstimate=${this.options.totalCountIsEstimate}`);
-        if (this.options.totalCountIsEstimate) {
+        if (this.options.estimateTotalCount) {
             // Get the last rows=... from something that looks like (1 column, few rows):
             //
             //                            QUERY PLAN
