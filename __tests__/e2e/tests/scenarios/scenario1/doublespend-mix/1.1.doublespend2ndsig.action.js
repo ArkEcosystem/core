@@ -1,6 +1,6 @@
 "use strict";
 
-const { Managers, Identities } = require("@arkecosystem/crypto");
+const { Managers, Identities, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { delegates } = require("../../../../lib/utils/testnet");
@@ -38,7 +38,7 @@ module.exports = async options => {
     function _genTransaction(type, wallets) {
         let nonce = noncesByAddress[wallets[2].address];
         if (!nonce) {
-            nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[2].passphrase));
+            nonce = Utils.BigNumber.make(1);
             noncesByAddress[wallets[2].address] = nonce;
         }
 
