@@ -43,7 +43,7 @@ export const respondWithCache = (data, h): any => {
         arg = {
             results: value.results,
             totalCount: value.totalCount,
-            response: { totalCountIsEstimate: value.totalCountIsEstimate }
+            response: { meta: { totalCountIsEstimate: value.totalCountIsEstimate } },
         };
     } else {
         arg = value;
@@ -64,6 +64,6 @@ export const toPagination = (data, transformer, transform: boolean = true): obje
     return {
         results: transformerService.toCollection(data.rows, transformer, transform),
         totalCount: data.count,
-        totalCountIsEstimate: data.countIsEstimate,
+        meta: { totalCountIsEstimate: data.countIsEstimate },
     };
 };
