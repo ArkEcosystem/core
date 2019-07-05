@@ -14,21 +14,15 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [];
-    let nonce;
 
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
-        if (!nonce) {
-            nonce = Utils.BigNumber.ZERO;
-        } else {
-            nonce = nonce.plus(1);
-        }
 
         transactions.push(
             TransactionFactory.secondSignature(wallets[3].passphrase)
                 .withFee(utils.fees.secondSignRegistration)
                 .withPassphrase(wallets[2].passphrase)
-                .withNonce(nonce)
+                .withNonce(Utils.BigNumber.make(1))
                 .createOne(),
         );
     });

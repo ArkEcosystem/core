@@ -38,7 +38,7 @@ module.exports = async options => {
     function _genTransaction(type, wallets) {
         let nonce = noncesByAddress[wallets[2].address];
         if (!nonce) {
-            nonce = Utils.BigNumber.make(1);
+            nonce = Utils.BigNumber.ZERO;
             noncesByAddress[wallets[2].address] = nonce;
         }
 
