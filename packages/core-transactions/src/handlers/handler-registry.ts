@@ -11,6 +11,7 @@ import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
 import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "../errors";
+import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { TransactionHandler } from "./transaction";
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
@@ -32,6 +33,7 @@ export class TransactionHandlerRegistry {
         this.registerCoreTransactionHandler(TimelockTransferTransactionHandler);
         this.registerCoreTransactionHandler(MultiPaymentTransactionHandler);
         this.registerCoreTransactionHandler(DelegateResignationTransactionHandler);
+        this.registerCoreTransactionHandler(BusinessRegistrationTransactionHandler);
     }
 
     public get(type: Enums.TransactionTypes | number): TransactionHandler {

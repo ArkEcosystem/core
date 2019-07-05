@@ -245,4 +245,50 @@ export const delegateResignation = extend(transactionBaseSchema, {
     },
 });
 
+export const businessRegistration = extend(transactionBaseSchema, {
+    $id: "businessRegistration",
+    required: ["asset"],
+    properties: {
+        type: { transactionType: TransactionTypes.BusinessRegistration },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["businessRegistration"],
+            properties: {
+                businessRegistration: {
+                    type: "object",
+                    required: ["name", "website"],
+                    properties: {
+                        name: {
+                            type: "string",
+                            minLength: 1,
+                            maxLength: 30,
+                        },
+                        vat: {
+                            type: "string",
+                            minLength: 10,
+                            maxLength: 10,
+                        },
+                        website: {
+                            type: "string",
+                            minLength: 3,
+                            maxLength: 20,
+                        },
+                        githubRepository: {
+                            type: "string",
+                            minLength: 3,
+                            maxLength: 50,
+                        },
+                        trustLink: {
+                            type: "string",
+                            minLength: 3,
+                            maxLength: 50,
+                        },
+                    },
+                },
+            },
+        },
+    },
+});
+
 export type TransactionSchema = typeof transactionBaseSchema;

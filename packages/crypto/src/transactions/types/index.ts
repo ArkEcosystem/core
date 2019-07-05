@@ -9,6 +9,7 @@ export * from "./timelock-transfer";
 export * from "./multi-payment";
 export * from "./delegate-resignation";
 export * from "./factory";
+export * from "./business-registration";
 
 import * as schemas from "./schemas";
 
