@@ -7257,9 +7257,9 @@ handlebars@^4.1.0, handlebars@^4.1.2:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-"hapi-pagination@https://github.com/faustbrian/hapi-pagination":
+"hapi-pagination@https://github.com/faustbrian/hapi-pagination#f4991348ca779b68b8e7139cfcbc601e6d496612":
   version "2.0.0"
-  resolved "https://github.com/faustbrian/hapi-pagination#c3a666ee2404be11bab879f316239ad352329ca1"
+  resolved "https://github.com/faustbrian/hapi-pagination#f4991348ca779b68b8e7139cfcbc601e6d496612"
   dependencies:
     boom "^7.1.1"
     hapi "^17.1.1"

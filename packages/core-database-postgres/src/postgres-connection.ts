@@ -68,8 +68,10 @@ export class PostgresConnection implements Database.IConnection {
     public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
 
+        const options = this.options;
+
         const pgp: pgPromise.IMain = pgPromise({
-            ...this.options.initialization,
+            ...options.initialization,
             ...{
                 error: async (error, context) => {
                     // https://www.postgresql.org/docs/11/errcodes-appendix.html
@@ -85,7 +87,7 @@ export class PostgresConnection implements Database.IConnection {
                 },
                 extend(object) {
                     for (const repository of Object.keys(repositories)) {
-                        object[repository] = new repositories[repository](object, pgp);
+                        object[repository] = new repositories[repository](object, pgp, options);
                     }
                 },
             },
