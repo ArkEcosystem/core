@@ -1,6 +1,10 @@
 ALTER TABLE blocks DROP CONSTRAINT IF EXISTS "chained_blocks";
 
-DROP FUNCTION IF EXISTS check_previous_block;
+DROP FUNCTION IF EXISTS check_previous_block(
+  id_arg VARCHAR(64),
+  previous_block_arg VARCHAR(64),
+  height_arg INTEGER
+);
 
 CREATE FUNCTION check_previous_block(
   id_arg VARCHAR(64),
