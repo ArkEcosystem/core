@@ -14,7 +14,7 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
-    const senderWallet = delegates[3]; // better use a different delegate for each scenario initial transfer
+    const senderWallet = delegates[4]; // better use a different delegate for each scenario initial transfer
     const nonce = Utils.BigNumber.ZERO;
 
     const transactions = [

@@ -15,7 +15,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [];
-    const senderWallet = delegates[5]; // better use a different delegate for each scenario initial transfer
+    const senderWallet = delegates[6]; // better use a different delegate for each scenario initial transfer
     let nonce = Utils.BigNumber.ZERO;
 
     Object.keys(utils.wallets).forEach(txType => {
@@ -25,12 +25,13 @@ module.exports = async options => {
             TransactionFactory.transfer(wallets[0].address, transferAmount)
                 //.vendorField(`init for ${txType}`)
                 .withFee(0.1 * Math.pow(10, 8))
-                .withPassphrase(senderWallet.passphrase)
                 .withNonce(nonce.plus(1))
+                .withPassphrase(senderWallet.passphrase)
                 .createOne(),
             TransactionFactory.transfer(wallets[2].address, transferAmount)
                 //.vendorField(`init for ${txType} - 2nd signed`)
                 .withFee(0.1 * Math.pow(10, 8))
+                .withNonce(nonce.plus(2))
                 .withPassphrase(senderWallet.passphrase)
                 .createOne(),
         );
