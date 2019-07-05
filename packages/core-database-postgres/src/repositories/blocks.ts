@@ -20,12 +20,12 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             } while (!first.operator && parameterList.length);
 
             if (first) {
-                for (const q of [ selectQuery, selectQueryCount ]) {
-                    q.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const query of [ selectQuery, selectQueryCount ]) {
+                    query.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
                 }
                 for (const param of parameterList) {
-                    for (const q of [ selectQuery, selectQueryCount ]) {
-                        q.and(this.query[this.propToColumnName(param.field)][param.operator](param.value));
+                    for (const query of [ selectQuery, selectQueryCount ]) {
+                        query.and(this.query[this.propToColumnName(param.field)][param.operator](param.value));
                     }
                 }
             }

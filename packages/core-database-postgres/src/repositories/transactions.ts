@@ -29,8 +29,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
             if (participants.length > 0) {
                 const [first, last] = participants;
-                for (const q of [ selectQuery, selectQueryCount ]) {
-                    q.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const query of [ selectQuery, selectQueryCount ]) {
+                    query.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
                 }
 
                 if (last) {
@@ -39,27 +39,27 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     );
 
                     if (usesInOperator) {
-                        for (const q of [ selectQuery, selectQueryCount ]) {
-                            q.or(this.query[this.propToColumnName(last.field)][last.operator](last.value));
+                        for (const query of [ selectQuery, selectQueryCount ]) {
+                            query.or(this.query[this.propToColumnName(last.field)][last.operator](last.value));
                         }
                     } else {
                         // This search is 1 `senderPublicKey` and 1 `recipientId`
-                        for (const q of [ selectQuery, selectQueryCount ]) {
-                            q.and(this.query[this.propToColumnName(last.field)][last.operator](last.value));
+                        for (const query of [ selectQuery, selectQueryCount ]) {
+                            query.and(this.query[this.propToColumnName(last.field)][last.operator](last.value));
                         }
                     }
                 }
             } else if (rest.length) {
                 const first = rest.shift();
 
-                for (const q of [ selectQuery, selectQueryCount ]) {
-                    q.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const query of [ selectQuery, selectQueryCount ]) {
+                    query.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
                 }
             }
 
             for (const condition of rest) {
-                for (const q of [ selectQuery, selectQueryCount ]) {
-                    q.and(this.query[this.propToColumnName(condition.field)][condition.operator](condition.value));
+                for (const query of [ selectQuery, selectQueryCount ]) {
+                    query.and(this.query[this.propToColumnName(condition.field)][condition.operator](condition.value));
                 }
             }
         }
@@ -156,8 +156,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
         const selectQuery = this.query.select();
         const selectQueryCount = this.query.select(this.query.count().as("cnt"));
 
-        for (const q of [ selectQuery, selectQueryCount ]) {
-            q.from(this.query).where(this.query.sender_public_key.equals(wallet.publicKey))
+        for (const query of [ selectQuery, selectQueryCount ]) {
+            query.from(this.query).where(this.query.sender_public_key.equals(wallet.publicKey))
             .or(this.query.recipient_id.equals(wallet.address));
         }
 
