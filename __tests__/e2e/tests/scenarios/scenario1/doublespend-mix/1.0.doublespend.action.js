@@ -58,7 +58,7 @@ module.exports = async options => {
         noncesByAddress[wallets[0].address] = nonce.plus(1);
 
         return transaction
-            .withFee(utils.fee[type])
+            .withFee(utils.fees[type])
             .withPassphrase(wallets[0].passphrase)
             .withNonce(nonce.plus(1))
             .createOne()
