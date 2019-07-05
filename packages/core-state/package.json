@@ -28,7 +28,7 @@
         "@arkecosystem/crypto": "^2.5.0-next.6",
         "immutable": "^4.0.0-rc.12",
         "lodash.clonedeep": "^4.5.0",
-        "pluralize": "^7.0.0"
+        "pluralize": "^8.0.0"
     },
     "devDependencies": {
         "@types/lodash.clonedeep": "^4.5.6",

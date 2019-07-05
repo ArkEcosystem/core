@@ -57,7 +57,7 @@ export class ForgerManager {
             timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
         } finally {
-            await this.checkLater(timeout);
+            this.checkLater(timeout);
         }
     }
 
@@ -86,9 +86,7 @@ export class ForgerManager {
                     const username = this.usernames[this.round.nextForger.publicKey];
 
                     this.logger.info(
-                        `Next forging delegate ${username} (${
-                            this.round.nextForger.publicKey
-                        }) is active on this node.`,
+                        `Next forging delegate ${username} (${this.round.nextForger.publicKey}) is active on this node.`,
                     );
 
                     await this.client.syncWithNetwork();
@@ -101,9 +99,7 @@ export class ForgerManager {
 
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warn(
-                    `The NetworkState height (${networkState.nodeHeight}) and round height (${
-                        this.round.lastBlock.height
-                    }) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState.nodeHeight}) and round height (${this.round.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
@@ -220,9 +216,7 @@ export class ForgerManager {
                     const username: string = this.usernames[delegate.publicKey];
 
                     this.logger.warn(
-                        `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${
-                            overHeightBlockHeader.id
-                        }.`,
+                        `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${overHeightBlockHeader.id}.`,
                     );
                 }
             }

@@ -33,7 +33,7 @@
         "lodash.compact": "^3.0.1",
         "lodash.snakecase": "^4.1.1",
         "lodash.uniq": "^4.5.0",
-        "pluralize": "^7.0.0"
+        "pluralize": "^8.0.0"
     },
     "devDependencies": {
         "@types/lodash.clonedeep": "^4.5.6",
