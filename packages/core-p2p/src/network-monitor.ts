@@ -188,7 +188,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                     }),
             ))
                 .map(peers => peers.reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}))
-                .reduce((acc, curr) => ({ ...acc, ...curr })),
+                .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         );
 
         if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
