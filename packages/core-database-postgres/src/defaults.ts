@@ -11,5 +11,5 @@ export const defaults = {
         user: process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN,
         password: process.env.CORE_DB_PASSWORD || "password",
     },
-    estimateTotalCount: true,
+    estimateTotalCount: !process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT,
 };
