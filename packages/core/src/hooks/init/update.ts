@@ -3,7 +3,6 @@ import Chalk from "chalk";
 import cli from "cli-ux";
 import { checkForUpdates, needsRefresh } from "../../helpers/update";
 
-// tslint:disable-next-line:only-arrow-functions
 export const init: Hook<"init"> = async function({ id, config }) {
     if (id === "update") {
         return;
@@ -27,7 +26,7 @@ export const init: Hook<"init"> = async function({ id, config }) {
             latest: "master",
         }[state.channel];
 
-        await cli.url(
+        cli.url(
             `Click here to read the changelog for ${state.currentVersion}.`,
             `https://github.com/ARKEcosystem/core/blob/${branch}/CHANGELOG.md`,
         );

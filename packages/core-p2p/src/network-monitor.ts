@@ -188,7 +188,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                     }),
             ))
                 .map(peers => peers.reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}))
-                .reduce((acc, curr) => ({ ...acc, ...curr })),
+                .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         );
 
         if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
@@ -278,9 +278,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
             if (peersFiltered.length === 0) {
                 this.logger.error(
-                    `Could not download blocks: Failed to pick a random peer from our list of ${
-                        peersAll.length
-                    } peers: all are either banned or on a different chain than us`,
+                    `Could not download blocks: Failed to pick a random peer from our list of ${peersAll.length} peers: all are either banned or on a different chain than us`,
                 );
 
                 return [];

@@ -6,7 +6,7 @@ import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const allPeers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
+        const allPeers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
 
         let result = allPeers.sort((a, b) => a.latency - b.latency);
         result = request.query.version
@@ -30,7 +30,7 @@ export class PeersController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const peers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
+        const peers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
         const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
 
         if (!peer) {
