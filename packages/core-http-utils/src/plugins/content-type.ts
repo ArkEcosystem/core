@@ -7,13 +7,7 @@ export const contentType = {
         server.ext({
             type: "onPreHandler",
             async method(request, h) {
-                const header: string = request.headers["content-type"];
-
-                if (header && header !== "application/json") {
-                    return Boom.unsupportedMediaType();
-                } else {
-                    request.headers["content-type"] = "application/json";
-                }
+                request.headers["content-type"] = "application/json";
 
                 return h.continue;
             },
