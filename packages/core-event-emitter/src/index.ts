@@ -34,4 +34,5 @@ export enum ApplicationEvents {
     TransactionReverted = "transaction.reverted",
     WalletColdCreated = "wallet.created.cold",
     WalletSaved = "wallet.saved",
+    BusinessRegistered = "business.registered", // TODO: not sure if this is necessary
 }

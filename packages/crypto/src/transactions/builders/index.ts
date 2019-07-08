@@ -1,3 +1,4 @@
+import { BusinessRegistrationBuilder } from "./transactions/business-registration";
 import { DelegateRegistrationBuilder } from "./transactions/delegate-registration";
 import { DelegateResignationBuilder } from "./transactions/delegate-resignation";
 import { IPFSBuilder } from "./transactions/ipfs";
@@ -45,5 +46,9 @@ export class BuilderFactory {
 
     public static delegateResignation(): DelegateResignationBuilder {
         return new DelegateResignationBuilder();
+    }
+
+    public static businessRegistration(): BusinessRegistrationBuilder {
+        return new BusinessRegistrationBuilder();
     }
 }

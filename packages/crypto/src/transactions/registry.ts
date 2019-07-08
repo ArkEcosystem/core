@@ -9,6 +9,7 @@ import { configManager } from "../managers";
 import { feeManager } from "../managers/fee";
 import { validator } from "../validation";
 import {
+    BusinessRegistration,
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
     IpfsTransaction,
@@ -43,6 +44,7 @@ class TransactionRegistry {
         this.registerCoreType(TimelockTransferTransaction);
         this.registerCoreType(MultiPaymentTransaction);
         this.registerCoreType(DelegateResignationTransaction);
+        this.registerCoreType(BusinessRegistration);
     }
 
     public registerCustomType(constructor: TransactionConstructor): void {

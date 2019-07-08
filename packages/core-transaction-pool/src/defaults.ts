@@ -29,6 +29,7 @@ export const defaults = {
             timelockTransfer: 500,
             multiPayment: 500,
             delegateResignation: 100,
+            businessRegistration: 500000,
         },
     },
 };

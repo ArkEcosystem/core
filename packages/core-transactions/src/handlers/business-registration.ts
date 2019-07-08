@@ -1,3 +1,4 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
@@ -9,7 +10,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        // TODO
+        emitter.emit(ApplicationEvents.BusinessRegistered, transaction.data);
     }
 
     public throwIfCannotBeApplied(
@@ -17,19 +18,20 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): void {
+        console.log(transaction);
         // TODO
-        const { data }: Interfaces.ITransaction = transaction;
+        // const { data }: Interfaces.ITransaction = transaction;
+        //
+        // // const { name, website }: { name: string; website: string } = data.asset.businessRegistration;
+        // if (!name || !website) {
+        //     // throw new BusinessRegistrationAssetError();
+        // }
+        //
+        // if ((wallet as any).business) {
+        //     // throw new WalletIsAlreadyABusiness();
+        // }
 
-        const { name, website }: { name: string; website: string } = data.asset.businessRegistration;
-        if (!name || !website) {
-            // throw new BusinessRegistrationAssetError();
-        }
-
-        if ((wallet as any).business) {
-            // throw new WalletIsAlreadyABusiness();
-        }
-
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        // super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public canEnterTransactionPool(
@@ -37,34 +39,35 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
-        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
-        const { name }: { name: string } = data.asset.businessRegistration;
-        const businessRegistrationsSameNameInPayload = processor
-            .getTransactions()
-            .filter(tx => tx.type === this.getConstructor().type && tx.asset.businessRegistration.name === name);
-
-        if (businessRegistrationsSameNameInPayload.length > 1) {
-            processor.pushError(
-                data,
-                "ERR_CONFLICT",
-                `Multiple business registrations for "${name}" in transaction payload`,
-            );
-            return false;
-        }
-
-        const businessRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            pool.getTransactionsByType(this.getConstructor().type),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
-        const containsBusinessRegistrationForSameNameInPool: boolean = businessRegistrationsInPool.some(
-            transaction => transaction.asset.businessRegistration.name === name,
-        );
-        if (containsBusinessRegistrationForSameNameInPool) {
-            processor.pushError(data, "ERR_PENDING", `Business registration for "${name}" already in the pool`);
-            return false;
-        }
+        console.log("can eneter");
+        // if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        //     return false;
+        // }
+        //
+        // const { name }: { name: string } = data.asset.businessRegistration;
+        // const businessRegistrationsSameNameInPayload = processor
+        //     .getTransactions()
+        //     .filter(tx => tx.type === this.getConstructor().type && tx.asset.businessRegistration.name === name);
+        //
+        // if (businessRegistrationsSameNameInPayload.length > 1) {
+        //     processor.pushError(
+        //         data,
+        //         "ERR_CONFLICT",
+        //         `Multiple business registrations for "${name}" in transaction payload`,
+        //     );
+        //     return false;
+        // }
+        //
+        // const businessRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
+        //     pool.getTransactionsByType(this.getConstructor().type),
+        // ).map((memTx: Interfaces.ITransaction) => memTx.data);
+        // const containsBusinessRegistrationForSameNameInPool: boolean = businessRegistrationsInPool.some(
+        //     transaction => transaction.asset.businessRegistration.name === name,
+        // );
+        // if (containsBusinessRegistrationForSameNameInPool) {
+        //     processor.pushError(data, "ERR_PENDING", `Business registration for "${name}" already in the pool`);
+        //     return false;
+        // }
 
         return true;
     }

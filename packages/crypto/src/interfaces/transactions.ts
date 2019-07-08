@@ -37,7 +37,7 @@ export interface ITransactionAsset {
     multiSignature?: IMultiSignatureAsset;
     ipfs?: string;
     payments?: IMultiPaymentItem[];
-    businessRegistraion?: IBusinessRegistrationAsset;
+    businessRegistration?: IBusinessRegistrationAsset;
     [custom: string]: any;
 }
 
@@ -137,8 +137,8 @@ export interface ISerializeOptions {
 
 export interface IBusinessRegistrationAsset {
     name: string;
-    vat?: string;
     websiteAddress: string;
+    vat?: string;
     githubRepository?: string;
     trustLink?: string;
 }

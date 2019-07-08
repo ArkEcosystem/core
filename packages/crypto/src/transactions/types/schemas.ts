@@ -257,22 +257,22 @@ export const businessRegistration = extend(transactionBaseSchema, {
             properties: {
                 businessRegistration: {
                     type: "object",
-                    required: ["name", "website"],
+                    required: ["name", "websiteAddress"],
                     properties: {
                         name: {
                             type: "string",
                             minLength: 1,
                             maxLength: 30,
                         },
+                        websiteAddress: {
+                            type: "string",
+                            minLength: 3,
+                            maxLength: 20,
+                        },
                         vat: {
                             type: "string",
                             minLength: 10,
                             maxLength: 10,
-                        },
-                        website: {
-                            type: "string",
-                            minLength: 3,
-                            maxLength: 20,
                         },
                         githubRepository: {
                             type: "string",

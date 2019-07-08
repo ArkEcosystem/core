@@ -5,7 +5,7 @@
         "activeDelegates": 51,
         "blocktime": 8,
         "block": {
-            "version": 0,
+            "version": 2,
             "maxTransactions": 50,
             "maxPayload": 2097152,
             "acceptExpiredTransactionTimestamps": true
@@ -21,9 +21,11 @@
                 "ipfs": 0,
                 "timelockTransfer": 0,
                 "multiPayment": 0,
-                "delegateResignation": 2500000000
+                "delegateResignation": 2500000000,
+                "businessRegistration": 5000000000
             }
         },
+        "aip11": true,
         "ignoreInvalidSecondSignatureField": true,
         "ignoreExpiredTransactions": true,
         "vendorFieldLength": 64

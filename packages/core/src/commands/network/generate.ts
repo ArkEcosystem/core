@@ -237,6 +237,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                         timelockTransfer: 0,
                         multiPayment: 0,
                         delegateResignation: 2500000000,
+                        businessRegistration: 5000000000,
                     },
                 },
                 vendorFieldLength: 64,
