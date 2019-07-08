@@ -29,31 +29,6 @@ export const isException = (blockOrTransaction: IBlockData | ITransactionData): 
     });
 };
 
-/**
- * Sort transactions by type, then id.
- */
-export const sortTransactions = (transactions: ITransactionData[]): ITransactionData[] => {
-    return transactions.sort((a, b) => {
-        if (a.type < b.type) {
-            return -1;
-        }
-
-        if (a.type > b.type) {
-            return 1;
-        }
-
-        if (a.id < b.id) {
-            return -1;
-        }
-
-        if (a.id > b.id) {
-            return 1;
-        }
-
-        return 0;
-    });
-};
-
 export const isGenesisTransaction = (id: string): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
 
