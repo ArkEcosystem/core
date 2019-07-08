@@ -759,3 +759,25 @@ describe("Multi Payment Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 });
+
+// My tests
+describe("Business registration transaction", () => {
+    beforeAll(() => {
+        transactionSchema = TransactionTypeFactory.get(TransactionTypes.BusinessRegistration).getSchema();
+    });
+    beforeEach(() => {
+        transaction = BuilderFactory.businessRegistration();
+    });
+
+    it("a", () => {
+        transaction.businessRegistrationAsset("name", "www.website.com").sign("aaaaaa");
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("a", () => {
+        transaction.businessRegistrationAsset("name", "www.website.com", "1234567890").sign("aaaaaa");
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+});

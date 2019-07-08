@@ -7,65 +7,88 @@ export class BusinessRegistration extends Transaction {
     public static type: TransactionTypes = TransactionTypes.BusinessRegistration;
 
     public static getSchema(): schemas.TransactionSchema {
-        console.log("tukaj");
         return schemas.businessRegistration;
     }
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        console.log(data);
+
+        let businessVat: Buffer;
+        let businessVatLength = 0;
+        let businessGithub: Buffer;
+        let businessGithubLength = 0;
+
         const businessName: Buffer = Buffer.from(data.asset.businessRegistration.name, "utf8");
         const businessWebsite: Buffer = Buffer.from(data.asset.businessRegistration.websiteAddress, "utf8");
-        // const businessVat: Buffer = Buffer.from(data.asset.businessRegistration.vat, "utf8");
-        // const businessGithub: Buffer = Buffer.from(data.asset.businessRegistration.githubRepository, "utf8");
-        // const businessTrustLink: Buffer = Buffer.from(data.asset.businessRegistration.trustLink, "utf8");
 
-        // const buffer: ByteBuffer = new ByteBuffer(businessName.length + businessVat.length + businessWebsite.length
-        //                                             + businessGithub.length + businessTrustLink.length + 5, true);
-        const buffer: ByteBuffer = new ByteBuffer(businessName.length + businessWebsite.length + 2, true);
+        if (data.asset.businessRegistration.vat !== null && data.asset.businessRegistration.vat !== undefined) {
+            businessVat = Buffer.from(data.asset.businessRegistration.vat, "utf8");
+            businessVatLength = businessVat.length;
+        }
+
+        if (data.asset.businessRegistration.githubRepository !== undefined) {
+            businessGithub = Buffer.from(data.asset.businessRegistration.githubRepository, "utf8");
+            businessGithubLength = businessGithub.length;
+        }
+
+        const buffer: ByteBuffer = new ByteBuffer(
+            businessName.length + businessVatLength + businessWebsite.length + businessGithubLength + 4,
+            true,
+        );
+
+        // const buffer: ByteBuffer = new ByteBuffer(businessName.length + businessWebsite.length + 2, true);
+
         buffer.writeByte(businessName.length);
         buffer.append(businessName, "hex");
 
         buffer.writeByte(businessWebsite.length);
         buffer.append(businessWebsite, "hex");
 
-        console.log("BUFFER:");
-        console.log(buffer);
-        // buffer.writeByte(businessVat.length);
-        // buffer.append(businessVat, "hex");
-        //
-        // buffer.writeByte(businessGithub.length);
-        // buffer.append(businessGithub, "hex");
-        //
-        // buffer.writeByte(businessTrustLink.length);
-        // buffer.append(businessTrustLink, "hex");
+        if (businessVat !== null && businessVat !== undefined) {
+            buffer.writeByte(businessVat.length);
+            buffer.append(businessVat, "hex");
+        } else {
+            buffer.writeByte(0);
+        }
+
+        if (businessGithub !== null && businessGithub !== undefined) {
+            buffer.writeByte(businessGithub.length);
+            buffer.append(businessGithub, "hex");
+        } else {
+            buffer.writeByte(0);
+        }
 
         return buffer;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        console.log("deserialize");
-        console.log(data);
+
+        let vat: string;
+        let githubRepository: string;
+
         const nameLength = buf.readUint8();
         const name = buf.readString(nameLength);
 
         const websiteLength = buf.readUint8();
         const websiteAddress = buf.readString(websiteLength);
 
-        // const vatLength = buf.readUint8();
-        // const vat  = buf.readString(vatLength);
-        //
-        // const gitHubLength = buf.readUint8();
-        // const githubRepository = buf.readString(gitHubLength);
-        //
-        // const trustLinkLength = buf.readUint8();
-        // const trustLink = buf.readString(trustLinkLength);
+        const vatLength = buf.readUint8();
+        if (vatLength !== 0) {
+            vat = buf.readString(vatLength);
+        }
+
+        const gitHubLength = buf.readUint8();
+        if (gitHubLength !== 0) {
+            githubRepository = buf.readString(gitHubLength);
+        }
 
         data.asset = {
             businessRegistration: {
                 name,
                 websiteAddress,
+                vat,
+                githubRepository,
             },
         };
     }

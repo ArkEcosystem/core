@@ -270,19 +270,28 @@ export const businessRegistration = extend(transactionBaseSchema, {
                             maxLength: 20,
                         },
                         vat: {
-                            type: "string",
-                            minLength: 10,
-                            maxLength: 10,
+                            anyOf: [
+                                {
+                                    type: "string",
+                                    minLength: 10,
+                                    maxLength: 10,
+                                },
+                                {
+                                    type: "null",
+                                },
+                            ],
                         },
                         githubRepository: {
-                            type: "string",
-                            minLength: 3,
-                            maxLength: 50,
-                        },
-                        trustLink: {
-                            type: "string",
-                            minLength: 3,
-                            maxLength: 50,
+                            anyOf: [
+                                {
+                                    type: "string",
+                                    minLength: 3,
+                                    maxLength: 50,
+                                },
+                                {
+                                    type: "null",
+                                },
+                            ],
                         },
                     },
                 },

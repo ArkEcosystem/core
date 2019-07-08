@@ -180,3 +180,15 @@ export class IpfsHashAlreadyExists extends TransactionError {
         super(`Failed to apply transaction, because this IPFS hash is already registered for the wallet.`);
     }
 }
+
+export class BusinessRegistrationAssetError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction`);
+    }
+}
+
+export class WalletIsAlreadyABusiness extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction`);
+    }
+}

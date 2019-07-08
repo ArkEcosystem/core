@@ -12,12 +12,18 @@ export class BusinessRegistrationBuilder extends TransactionBuilder<BusinessRegi
         this.data.asset = { businessRegistration: {} } as ITransactionAsset;
     }
 
-    public businessRegistrationAsset(name: string, websiteAddress: string): BusinessRegistrationBuilder {
+    public businessRegistrationAsset(
+        name: string,
+        websiteAddress: string,
+        vat?: string,
+        githubRepository?: string,
+    ): BusinessRegistrationBuilder {
         this.data.asset.businessRegistration = {
             name,
             websiteAddress,
+            vat,
+            githubRepository,
         };
-
         return this;
     }
 

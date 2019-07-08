@@ -140,5 +140,4 @@ export interface IBusinessRegistrationAsset {
     websiteAddress: string;
     vat?: string;
     githubRepository?: string;
-    trustLink?: string;
 }
