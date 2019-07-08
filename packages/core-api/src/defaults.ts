@@ -79,7 +79,6 @@ export const defaults = {
             "/api/v2/wallets/search",
         ],
     },
-    whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     plugins: [
         {
             plugin: resolve(__dirname, "./versions/1"),
@@ -90,4 +89,5 @@ export const defaults = {
             routes: { prefix: "/api/v2" },
         },
     ],
+    whitelist: ["*"],
 };
