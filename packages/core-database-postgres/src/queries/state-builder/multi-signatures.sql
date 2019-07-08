@@ -3,4 +3,4 @@ SELECT sender_public_key,
        version
 FROM transactions
 WHERE TYPE = 4
-ORDER BY (timestamp + sequence) DESC
+ORDER BY timestamp DESC, sender_public_key, nonce

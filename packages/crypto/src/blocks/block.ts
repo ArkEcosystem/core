@@ -80,11 +80,9 @@ export class Block implements IBlock {
 
         // fix on real timestamp, this is overloading transaction
         // timestamp with block timestamp for storage only
-        // also add sequence to keep database sequence
         this.transactions = transactions.map((transaction, index) => {
             transaction.data.blockId = this.data.id;
             transaction.timestamp = this.data.timestamp;
-            transaction.data.sequence = index;
             return transaction;
         });
 

@@ -3,4 +3,4 @@ SELECT id,
        serialized
 FROM transactions
 WHERE block_id IN (${ids:list})
-ORDER BY sequence ASC
+ORDER BY sender_public_key, nonce

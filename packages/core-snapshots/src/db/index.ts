@@ -164,7 +164,6 @@ export class Database {
                 "id",
                 "version",
                 "block_id",
-                "sequence",
                 "timestamp",
                 "sender_public_key",
                 "recipient_id",

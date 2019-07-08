@@ -19,10 +19,6 @@ export class Transaction extends Model {
             supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
         },
         {
-            name: "sequence",
-            supportedOperators: [Database.SearchOperator.OP_EQ],
-        },
-        {
             name: "timestamp",
             supportedOperators: [
                 Database.SearchOperator.OP_LTE,

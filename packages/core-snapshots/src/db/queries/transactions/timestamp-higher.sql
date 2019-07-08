@@ -1,2 +1,2 @@
-SELECT id, sequence, serialized FROM transactions
+SELECT id, serialized FROM transactions
 WHERE timestamp > ${start}

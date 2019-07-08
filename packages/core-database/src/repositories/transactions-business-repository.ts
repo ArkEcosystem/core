@@ -221,7 +221,12 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         }
 
         searchParameters.orderBy.push({
-            field: "sequence",
+            field: "sender_public_key",
+            direction: sequenceOrder,
+        });
+
+        searchParameters.orderBy.push({
+            field: "nonce",
             direction: sequenceOrder,
         });
 

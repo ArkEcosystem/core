@@ -57,7 +57,11 @@ describe("Transactions Business Repository", () => {
                             direction: "asc",
                         },
                         {
-                            field: "sequence",
+                            field: "sender_public_key",
+                            direction: "asc",
+                        },
+                        {
+                            field: "nonce",
                             direction: "asc",
                         },
                     ]),
@@ -359,7 +363,11 @@ describe("Transactions Business Repository", () => {
                             direction: "desc",
                         },
                         {
-                            field: "sequence",
+                            field: "sender_public_key",
+                            direction: "asc",
+                        },
+                        {
+                            field: "nonce",
                             direction: "asc",
                         },
                     ],

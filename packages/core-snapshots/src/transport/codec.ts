@@ -29,21 +29,19 @@ const encodeTransaction = transaction => {
     return encode([
         transaction.id,
         transaction.blockId,
-        transaction.sequence,
         transaction.timestamp,
         transaction.serialized,
     ]);
 };
 
 const decodeTransaction = (buffer: Buffer) => {
-    const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
+    const [id, blockId, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data;
     const { asset } = transaction;
     transaction.asset = undefined;
 
     transaction.block_id = blockId;
-    transaction.sequence = sequence;
     transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();

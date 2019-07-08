@@ -3,7 +3,7 @@ SELECT *,
                    (SELECT encode(serialized, 'hex')
                     FROM transactions
                     WHERE transactions.block_id = blocks.id
-					ORDER BY transactions.sequence ASC
+					ORDER BY transactions.sender_public_key, transactions.nonce
 				   ), '{}') AS transactions)
 FROM blocks
 WHERE height
