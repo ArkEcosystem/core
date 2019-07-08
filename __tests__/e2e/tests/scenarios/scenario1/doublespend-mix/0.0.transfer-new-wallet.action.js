@@ -15,7 +15,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const senderWallet = delegates[3]; // better use a different delegate for each scenario initial transfer
-    let nonce = Utils.BigNumber.ZERO;
+    let nonce = Utils.BigNumber.make(1);
     const transactions = [];
     Object.keys(utils.walletsMix).forEach(firstTxType => {
         const secondTxsTypes = utils.walletsMix[firstTxType];

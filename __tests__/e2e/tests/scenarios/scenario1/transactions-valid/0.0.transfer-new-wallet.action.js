@@ -16,7 +16,7 @@ module.exports = async options => {
 
     const transactions = [];
     const senderWallet = delegates[6]; // better use a different delegate for each scenario initial transfer
-    let nonce = Utils.BigNumber.ZERO;
+    let nonce = Utils.BigNumber.make(1);
 
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];

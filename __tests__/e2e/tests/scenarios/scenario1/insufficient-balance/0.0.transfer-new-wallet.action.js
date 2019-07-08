@@ -15,7 +15,7 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const senderWallet = delegates[4]; // better use a different delegate for each scenario initial transfer
-    const nonce = Utils.BigNumber.ZERO;
+    const nonce = Utils.BigNumber.make(1);
 
     const transactions = [
         TransactionFactory.transfer(utils.transferSender.address, 1000 * Math.pow(10, 8), "init for transfer")

@@ -17,7 +17,7 @@ module.exports = async options => {
     const senderWallet = delegates[1]; // better use a different delegate for each scenario initial transfer
     let transaction1 = TransactionFactory.transfer(utils.a.address, 1000 * Math.pow(10, 8), "send coins to wallet A")
         .withFee(0.1 * Math.pow(10, 8))
-        .withNonce(Utils.BigNumber.make(1))
+        .withNonce(Utils.BigNumber.make(2))
         .withPassphrase(senderWallet.passphrase)
         .createOne();
 
