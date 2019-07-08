@@ -1,12 +1,19 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import {
+    HtlcLockedAmountLowerThanFeeError,
     HtlcLockExpiredError,
     HtlcLockTransactionNotFoundError,
     HtlcNotLockRecipientError,
     HtlcSecretHashMismatchError,
+    InvalidMultiSignatureError,
+    InvalidSecondSignatureError,
+    SenderWalletMismatchError,
+    UnexpectedMultiSignatureError,
+    UnexpectedNonceError,
+    UnexpectedSecondSignatureError,
 } from "../errors";
 import { TransactionHandler } from "./transaction";
 
@@ -29,16 +36,68 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
+        sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): void {
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        // Common checks (copied from inherited transaction handler class)
+        // Only common balance check was removed because we need a specific balance check here
+        const data: Interfaces.ITransactionData = transaction.data;
 
+        if (Utils.isException(data)) {
+            return;
+        }
+
+        if (data.version > 1 && data.nonce.isLessThanOrEqualTo(sender.nonce)) {
+            throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+        }
+
+        if (data.senderPublicKey !== sender.publicKey) {
+            throw new SenderWalletMismatchError();
+        }
+
+        if (sender.secondPublicKey) {
+            // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
+            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            if (!dbSender.secondPublicKey) {
+                throw new UnexpectedSecondSignatureError();
+            }
+
+            if (!Transactions.Verifier.verifySecondSignature(data, sender.secondPublicKey)) {
+                throw new InvalidSecondSignatureError();
+            }
+        } else if (data.secondSignature || data.signSignature) {
+            const isException =
+                Managers.configManager.get("network.name") === "devnet" &&
+                Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
+            if (!isException) {
+                throw new UnexpectedSecondSignatureError();
+            }
+        }
+
+        if (sender.multisignature) {
+            // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
+            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            if (!dbSender.multisignature) {
+                throw new UnexpectedMultiSignatureError();
+            }
+
+            if (!sender.verifySignatures(data, sender.multisignature)) {
+                throw new InvalidMultiSignatureError();
+            }
+        } else if (transaction.type !== Enums.TransactionTypes.MultiSignature && transaction.data.signatures) {
+            throw new UnexpectedMultiSignatureError();
+        }
+
+        // Specific HTLC claim checks
         const claimAsset = transaction.data.asset.claim;
         const lockId = claimAsset.lockTransactionId;
         const lockWallet = databaseWalletManager.findByLockId(lockId);
         if (!lockWallet) {
             throw new HtlcLockTransactionNotFoundError();
+        }
+
+        if (lockWallet.locks[lockId].amount.minus(transaction.data.fee).isNegative()) {
+            throw new HtlcLockedAmountLowerThanFeeError();
         }
 
         if (
@@ -55,7 +114,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             throw new HtlcLockExpiredError();
         }
 
-        const unlockSecretHash = Crypto.HashAlgorithms.hash256(claimAsset.unlockSecret).toString("hex");
+        const unlockSecretHash = Crypto.HashAlgorithms.sha256(claimAsset.unlockSecret).toString("hex");
         if (lockWallet.locks[lockId].asset.lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
         }
@@ -70,14 +129,28 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
-
-        const lockId = transaction.data.asset.claim.lockTransactionId;
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const data: Interfaces.ITransactionData = transaction.data;
+
+        if (Utils.isException(data)) {
+            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+        }
+
+        this.throwIfCannotBeApplied(transaction, sender, walletManager);
+
+        if (data.version > 1) {
+            if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
+                throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+            }
+
+            sender.nonce = data.nonce;
+        }
+
+        const lockId = data.asset.claim.lockTransactionId;
         const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
         assert(lockWallet && lockWallet.locks[lockId]);
 
-        const newBalance = sender.balance.plus(lockWallet.locks[lockId].amount).minus(transaction.data.fee);
+        const newBalance = sender.balance.plus(lockWallet.locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
 
         sender.balance = newBalance;
@@ -92,17 +165,25 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.revertForSender(transaction, walletManager);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const data: Interfaces.ITransactionData = transaction.data;
+
+        if (data.version > 1) {
+            if (!sender.nonce.isEqualTo(data.nonce)) {
+                throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
+            }
+
+            sender.nonce = sender.nonce.minus(1);
+        }
 
         // todo to improve : not so good to call database from here, would need a better way
         const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-        const lockId = transaction.data.asset.claim.lockTransactionId;
+        const lockId = data.asset.claim.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
         const lockWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
-        sender.balance = sender.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
+        sender.balance = sender.balance.minus(lockTransaction.amount).plus(data.fee);
         lockWallet.lockedBalance = lockWallet.lockedBalance.plus(lockTransaction.amount);
         lockWallet.locks[lockTransaction.id] = lockTransaction;
 

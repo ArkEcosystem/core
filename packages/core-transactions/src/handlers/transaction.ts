@@ -5,8 +5,6 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import {
-    HtlcLockedAmountLowerThanFeeError,
-    HtlcLockTransactionNotFoundError,
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
@@ -16,8 +14,6 @@ import {
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
-
-const { HtlcClaim, HtlcRefund } = Enums.TransactionTypes;
 
 export abstract class TransactionHandler implements ITransactionHandler {
     public abstract getConstructor(): Transactions.TransactionConstructor;
@@ -55,17 +51,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
         }
 
-        if ([HtlcClaim, HtlcRefund].includes(data.type)) {
-            const lockId =
-                data.type === HtlcClaim ? data.asset.claim.lockTransactionId : data.asset.refund.lockTransactionId;
-            const lockWallet = databaseWalletManager.findByLockId(lockId);
-            if (!lockWallet) {
-                throw new HtlcLockTransactionNotFoundError();
-            }
-            if (lockWallet.locks[lockId].amount.minus(data.fee).isNegative()) {
-                throw new HtlcLockedAmountLowerThanFeeError();
-            }
-        } else if (
+        if (
             sender.balance
                 .minus(data.amount)
                 .minus(data.fee)
@@ -140,10 +126,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             sender.nonce = data.nonce;
         }
 
-        // For HTLC claim and refund, specific balance update will be done inside their own transaction handler
-        const newBalance: Utils.BigNumber = [HtlcClaim, HtlcRefund].includes(data.type)
-            ? sender.balance
-            : sender.balance.minus(data.amount).minus(data.fee);
+        const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
         if (process.env.CORE_ENV === "test") {
             assert(Utils.isException(transaction.data) || !newBalance.isNegative());
@@ -158,10 +141,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
-        // For HTLC claim and refund, specific balance update will be done inside their own transaction handler
-        sender.balance = [HtlcClaim, HtlcRefund].includes(data.type)
-            ? sender.balance
-            : sender.balance.plus(data.amount).plus(data.fee);
+        sender.balance = sender.balance.plus(data.amount).plus(data.fee);
 
         if (data.version > 1) {
             if (!sender.nonce.isEqualTo(data.nonce)) {

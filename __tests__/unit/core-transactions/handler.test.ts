@@ -928,7 +928,7 @@ describe("Htlc claim", () => {
 
         const amount = 6 * 1e8;
         const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.hash256(secret).toString("hex");
+        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
             secretHash,
             expiration: makeTimestamp(99),
@@ -985,7 +985,7 @@ describe("Htlc claim", () => {
         it("should throw if locked amount is not enough to cover the claim fees", () => {
             const amount = 10;
             const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.hash256(secret).toString("hex");
+            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
                 expiration: makeTimestamp(99),
@@ -1042,7 +1042,7 @@ describe("Htlc claim", () => {
         it("should throw if lock expired", () => {
             const amount = 1e9;
             const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.hash256(secret).toString("hex");
+            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
                 expiration: makeTimestamp(-1),
@@ -1137,7 +1137,7 @@ describe("Htlc refund", () => {
 
         const amount = 6 * 1e8;
         const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.hash256(secret).toString("hex");
+        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
             secretHash,
             expiration: makeTimestamp(-1),
@@ -1178,7 +1178,7 @@ describe("Htlc refund", () => {
         it("should throw if locked amount is not enough to cover the refund fees", () => {
             const amount = 10;
             const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.hash256(secret).toString("hex");
+            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
                 expiration: makeTimestamp(-1),
@@ -1232,7 +1232,7 @@ describe("Htlc refund", () => {
         it("should throw if lock didn't expire", () => {
             const amount = 6 * 1e8;
             const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.hash256(secret).toString("hex");
+            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
                 expiration: makeTimestamp(99),
