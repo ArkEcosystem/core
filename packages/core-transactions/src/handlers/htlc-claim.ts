@@ -125,6 +125,17 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): boolean {
+        const lockId = data.asset.claim.lockTransactionId;
+        const lockWallet: State.IWallet = pool.walletManager.findByLockId(lockId);
+        if (!lockWallet || !lockWallet.locks[lockId]) {
+            processor.pushError(
+                data,
+                "ERR_HTLCLOCKNOTFOUND",
+                `The associated lock transaction id "${lockId}" was not found.`,
+            );
+            return false;
+        }
+
         return true;
     }
 

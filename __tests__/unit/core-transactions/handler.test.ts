@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { State } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
@@ -909,12 +909,15 @@ describe("Htlc claim", () => {
 
     let lockTransaction: Interfaces.ITransactionData;
 
+    let pool: Partial<TransactionPool.IConnection>;
+
     beforeAll(() => {
         Managers.configManager.setFromPreset("testnet");
     });
 
     beforeEach(() => {
         walletManager = new Wallets.WalletManager();
+        pool = { walletManager };
 
         lockWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
         lockWallet.publicKey = lockKeys.publicKey;
@@ -1073,6 +1076,33 @@ describe("Htlc claim", () => {
         });
     });
 
+    describe("canEnterTransactionPool", () => {
+        const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
+
+        it("should not throw", () => {
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeTrue();
+        });
+
+        it("should throw if no wallet has a lock with associated transaction id", () => {
+            walletManager.forgetByLockId(lockTransaction.id);
+
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeFalse();
+            expect(processor.pushError).toHaveBeenCalled();
+        });
+    });
+
     describe("apply", () => {
         it("should apply htlc claim transaction", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
@@ -1119,8 +1149,9 @@ describe("Htlc refund", () => {
     const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
 
     let lockWallet;
-
     let lockTransaction: Interfaces.ITransactionData;
+
+    let pool: Partial<TransactionPool.IConnection>;
 
     beforeAll(() => {
         Managers.configManager.setFromPreset("testnet");
@@ -1128,6 +1159,8 @@ describe("Htlc refund", () => {
 
     beforeEach(() => {
         walletManager = new Wallets.WalletManager();
+
+        pool = { walletManager };
 
         lockWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
         lockWallet.publicKey = lockKeys.publicKey;
@@ -1259,6 +1292,33 @@ describe("Htlc refund", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
                 HtlcLockNotExpiredError,
             );
+        });
+    });
+
+    describe("canEnterTransactionPool", () => {
+        const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
+
+        it("should not throw", () => {
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeTrue();
+        });
+
+        it("should throw if no wallet has a lock with associated transaction id", () => {
+            walletManager.forgetByLockId(lockTransaction.id);
+
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeFalse();
+            expect(processor.pushError).toHaveBeenCalled();
         });
     });
 
