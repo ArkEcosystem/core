@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-forger",
-    "version": "2.4.14",
+    "version": "2.4.15",
     "description": "Forger for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,12 +21,12 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.14",
-        "@arkecosystem/core-event-emitter": "^2.4.14",
-        "@arkecosystem/core-interfaces": "^2.4.14",
-        "@arkecosystem/core-p2p": "^2.4.14",
-        "@arkecosystem/core-utils": "^2.4.14",
-        "@arkecosystem/crypto": "^2.4.14",
+        "@arkecosystem/core-container": "^2.4.15",
+        "@arkecosystem/core-event-emitter": "^2.4.15",
+        "@arkecosystem/core-interfaces": "^2.4.15",
+        "@arkecosystem/core-p2p": "^2.4.15",
+        "@arkecosystem/core-utils": "^2.4.15",
+        "@arkecosystem/crypto": "^2.4.15",
         "delay": "^4.2.0",
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",

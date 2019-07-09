@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-utils",
-    "version": "2.4.14",
+    "version": "2.4.15",
     "description": "Utilities for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -18,9 +18,9 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.14",
-        "@arkecosystem/core-interfaces": "^2.4.14",
-        "@arkecosystem/crypto": "^2.4.14",
+        "@arkecosystem/core-container": "^2.4.15",
+        "@arkecosystem/core-interfaces": "^2.4.15",
+        "@arkecosystem/crypto": "^2.4.15",
         "cli-table3": "^0.5.1",
         "dayjs": "^1.8.14",
         "fast-json-parse": "^1.0.3",

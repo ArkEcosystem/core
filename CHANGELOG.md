@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.15] - 2019-07-09
+
+-   Backport various bug fixes from 2.5 ([#2782])
+
 ## [2.4.14] - 2019-07-02
 
 ### Fixed
@@ -509,6 +513,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.4.15]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.4.15
 [2.4.14]: https://github.com/ARKEcosystem/core/compare/2.4.13...2.4.14
 [2.4.13]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.4.13
 [2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
@@ -783,3 +788,4 @@ Closed security vulnerabilities:
 [#2700]: https://github.com/ARKEcosystem/core/pull/2700
 [#2751]: https://github.com/ARKEcosystem/core/pull/2751
 [#2766]: https://github.com/ARKEcosystem/core/pull/2766
+[#2782]: https://github.com/ARKEcosystem/core/pull/2782

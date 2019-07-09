@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-error-tracker-bugsnag",
-    "version": "2.4.14",
+    "version": "2.4.15",
     "description": "Bugsnag error tracker integration for ARK Core.",
     "license": "MIT",
     "contributors": [
@@ -18,7 +18,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.14",
+        "@arkecosystem/core-container": "^2.4.15",
         "@bugsnag/js": "^6.2.0"
     },
     "engines": {
