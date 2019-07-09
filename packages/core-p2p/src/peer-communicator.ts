@@ -83,12 +83,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
-                    if (peer.ports[name] === undefined) {
-                        const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
 
-                        if (status === 200) {
-                            peer.ports[name] = plugin.port;
-                        }
+                    if (status === 200) {
+                        peer.ports[name] = plugin.port;
                     }
                 } catch (error) {
                     peer.ports[name] = -1;
