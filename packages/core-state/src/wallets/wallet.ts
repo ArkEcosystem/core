@@ -21,10 +21,10 @@ export class Wallet implements State.IWallet {
     public forgedFees: Utils.BigNumber;
     public forgedRewards: Utils.BigNumber;
     public rate?: number;
-    // TODO
+    // TODO add Utils.BigNumber
     public business:
         | {
-              lastHeight: Utils.BigNumber;
+              lastHeight: number;
               businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
           }
         | undefined;
@@ -46,6 +46,7 @@ export class Wallet implements State.IWallet {
         this.producedBlocks = 0;
         this.forgedFees = Utils.BigNumber.ZERO;
         this.forgedRewards = Utils.BigNumber.ZERO;
+        this.business = undefined;
     }
 
     public applyBlock(block: Interfaces.IBlockData): boolean {

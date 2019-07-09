@@ -43,7 +43,7 @@ describe("Delegate Registration Transaction", () => {
             builder = BuilderFactory.businessRegistration();
         });
 
-        it("establishes the username of the asset", () => {
+        it("establishes name and websiteAddress of the asset", () => {
             builder.businessRegistrationAsset("name", "www.website.com");
             expect(builder.data.asset.businessRegistration.name).toBe("name");
             expect(builder.data.asset.businessRegistration.websiteAddress).toBe("www.website.com");
@@ -51,7 +51,7 @@ describe("Delegate Registration Transaction", () => {
             expect(builder.data.asset.businessRegistration.githubRepository).toBe(undefined);
         });
 
-        it("establishes the username of the asset", () => {
+        it("establishes name, websiteAddress and VAT of the asset", () => {
             builder.businessRegistrationAsset("name", "www.website.com", "1234567890");
             expect(builder.data.asset.businessRegistration.name).toBe("name");
             expect(builder.data.asset.businessRegistration.websiteAddress).toBe("www.website.com");
@@ -59,7 +59,7 @@ describe("Delegate Registration Transaction", () => {
             expect(builder.data.asset.businessRegistration.githubRepository).toBe(undefined);
         });
 
-        it("establishes the username of the asset", () => {
+        it("establishes name, websiteAddress, VAT and github of the asset", () => {
             builder.businessRegistrationAsset("name", "www.website.com", "1234567890", "www.github.com");
             expect(builder.data.asset.businessRegistration.name).toBe("name");
             expect(builder.data.asset.businessRegistration.websiteAddress).toBe("www.website.com");

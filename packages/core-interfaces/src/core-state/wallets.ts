@@ -21,8 +21,7 @@ export interface IWallet {
     forgedFees: Utils.BigNumber;
     forgedRewards: Utils.BigNumber;
     rate?: number;
-
-    //  TODO ask if this is the way that it should be implemented
+    //  TODO Utils.BigNumber
     business:
         | {
               lastHeight: number;

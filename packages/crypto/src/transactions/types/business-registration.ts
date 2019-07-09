@@ -27,7 +27,10 @@ export class BusinessRegistration extends Transaction {
             businessVatLength = businessVat.length;
         }
 
-        if (data.asset.businessRegistration.githubRepository !== undefined) {
+        if (
+            data.asset.businessRegistration.githubRepository !== null &&
+            data.asset.businessRegistration.githubRepository !== undefined
+        ) {
             businessGithub = Buffer.from(data.asset.businessRegistration.githubRepository, "utf8");
             businessGithubLength = businessGithub.length;
         }
