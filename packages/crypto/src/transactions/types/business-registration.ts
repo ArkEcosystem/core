@@ -15,6 +15,7 @@ export class BusinessRegistration extends Transaction {
 
         let businessVat: Buffer;
         let businessVatLength = 0;
+
         let businessGithub: Buffer;
         let businessGithubLength = 0;
 
@@ -35,8 +36,6 @@ export class BusinessRegistration extends Transaction {
             businessName.length + businessVatLength + businessWebsite.length + businessGithubLength + 4,
             true,
         );
-
-        // const buffer: ByteBuffer = new ByteBuffer(businessName.length + businessWebsite.length + 2, true);
 
         buffer.writeByte(businessName.length);
         buffer.append(businessName, "hex");

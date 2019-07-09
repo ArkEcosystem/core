@@ -183,12 +183,12 @@ export class IpfsHashAlreadyExists extends TransactionError {
 
 export class BusinessRegistrationAssetError extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction`);
+        super(`Failed to apply transaction, because name and websiteAddress are empty`);
     }
 }
 
 export class WalletIsAlreadyABusiness extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction`);
+        super(`Failed to apply transaction, because wallet is already a business`);
     }
 }

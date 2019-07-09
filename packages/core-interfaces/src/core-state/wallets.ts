@@ -22,6 +22,14 @@ export interface IWallet {
     forgedRewards: Utils.BigNumber;
     rate?: number;
 
+    //  TODO ask if this is the way that it should be implemented
+    business:
+        | {
+              lastHeight: Utils.BigNumber;
+              businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
+          }
+        | undefined;
+
     applyBlock(block: Interfaces.IBlockData): boolean;
     revertBlock(block: Interfaces.IBlockData): boolean;
 

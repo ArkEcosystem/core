@@ -2,7 +2,8 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BusinessRegistrationAssetError } from "../errors";
+import { BigNumber } from "@arkecosystem/crypto/dist/utils";
+import { BusinessRegistrationAssetError, WalletIsAlreadyABusiness } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class BusinessRegistrationTransactionHandler extends TransactionHandler {
@@ -14,7 +15,10 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const a = ((wallet as any).business = transaction.asset.businessRegistration);
+            wallet.business = {
+                lastHeight: BigNumber.make(0),
+                businessRegistrationAsset: transaction.asset.businessRegistration,
+            };
         }
     }
 
@@ -33,9 +37,9 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
             throw new BusinessRegistrationAssetError();
         }
 
-        // if ((wallet as any).business) {
-        //     throw new WalletIsAlreadyABusiness();
-        // }
+        if (wallet.business) {
+            throw new WalletIsAlreadyABusiness();
+        }
 
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
@@ -63,6 +67,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
         // TODO: more specific validation for transactions in pool?
+        // currently looks just for name, maybe should for VAT also?
         const businessRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
             pool.getTransactionsByType(this.getConstructor().type),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
@@ -80,15 +85,17 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        sender.business = {
+            lastHeight: BigNumber.make(0), // just as a placeholder before we decide how to add height
+            businessRegistrationAsset: transaction.data.asset.businessRegistration,
+        };
         walletManager.reindex(sender);
-        (sender as any).business = transaction.data.asset.businessRegistration;
     }
 
     public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
-
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        (sender as any).business = undefined;
+        sender.business = undefined;
     }
 
     public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {

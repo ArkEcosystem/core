@@ -21,6 +21,13 @@ export class Wallet implements State.IWallet {
     public forgedFees: Utils.BigNumber;
     public forgedRewards: Utils.BigNumber;
     public rate?: number;
+    // TODO
+    public business:
+        | {
+              lastHeight: Utils.BigNumber;
+              businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
+          }
+        | undefined;
 
     constructor(address: string) {
         this.address = address;
