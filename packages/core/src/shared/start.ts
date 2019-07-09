@@ -50,7 +50,7 @@ export abstract class AbstractStartCommand extends BaseCommand {
                             NODE_ENV: "production",
                             CORE_ENV: flags.env,
                         },
-                        node_args: potato ? "--max_old_space_size=500" : undefined,
+                        node_args: potato ? { max_old_space_size: 500 } : undefined,
                     },
                 },
                 flagsProcess,
