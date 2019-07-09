@@ -1,5 +1,3 @@
-import Boom from "@hapi/boom";
-
 export const contentType = {
     name: "content-type",
     version: "0.1.0",
