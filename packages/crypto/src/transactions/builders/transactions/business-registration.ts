@@ -1,13 +1,15 @@
 import { TransactionTypes } from "../../../enums";
 import { Interfaces, Utils } from "../../../index";
 import { ITransactionAsset } from "../../../interfaces";
+import { feeManager } from "../../../managers";
 import { TransactionBuilder } from "./transaction";
 
 export class BusinessRegistrationBuilder extends TransactionBuilder<BusinessRegistrationBuilder> {
     constructor() {
         super();
         this.data.type = TransactionTypes.BusinessRegistration;
-        this.data.fee = Utils.BigNumber.make(TransactionTypes.BusinessRegistration);
+        this.data.version = 2;
+        this.data.fee = feeManager.get(TransactionTypes.BusinessRegistration);
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { businessRegistration: {} } as ITransactionAsset;
     }

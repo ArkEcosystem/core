@@ -270,34 +270,28 @@ export const businessRegistration = extend(transactionBaseSchema, {
                             maxLength: 20,
                         },
                         vat: {
-                            type: "string",
-                            minLength: 10,
-                            maxLength: 10,
-                            // oneOf: [
-                            //     {
-                            //         type: "string",
-                            //         minLength: 10,
-                            //         maxLength: 10,
-                            //     },
-                            //     {
-                            //         type: "null",
-                            //     },
-                            // ],
+                            oneOf: [
+                                {
+                                    type: "string",
+                                    minLength: 10,
+                                    maxLength: 10,
+                                },
+                                {
+                                    type: "null",
+                                },
+                            ],
                         },
                         githubRepository: {
-                            type: "string",
-                            minLength: 3,
-                            maxLength: 50,
-                            // oneOf: [
-                            //     {
-                            //         type: "string",
-                            //         minLength: 3,
-                            //         maxLength: 50,
-                            //     },
-                            //     {
-                            //         type: "null",
-                            //     },
-                            // ],
+                            oneOf: [
+                                {
+                                    type: "string",
+                                    minLength: 3,
+                                    maxLength: 50,
+                                },
+                                {
+                                    type: "null",
+                                },
+                            ],
                         },
                     },
                 },

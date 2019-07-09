@@ -1,9 +1,9 @@
+import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
 import { State } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BigNumber } from "@arkecosystem/crypto/dist/utils";
-import { BusinessRegistrationAssetError, WalletIsAlreadyABusiness } from "../errors";
+import { BusinessRegistrationAssetError, WalletCannotRegister } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class BusinessRegistrationTransactionHandler extends TransactionHandler {
@@ -14,9 +14,15 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
+            const lastHeight = app
+                .resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .getLastHeight();
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            console.log("block" + lastHeight);
+            console.log(transaction);
             wallet.business = {
-                lastHeight: BigNumber.make(0),
+                lastHeight: 0,
                 businessRegistrationAsset: transaction.asset.businessRegistration,
             };
         }
@@ -33,12 +39,17 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     ): void {
         const { data }: Interfaces.ITransaction = transaction;
 
+        const lastHeight = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
+
         if (!data.asset.businessRegistration.name || !data.asset.businessRegistration.websiteAddress) {
             throw new BusinessRegistrationAssetError();
         }
 
-        if (wallet.business) {
-            throw new WalletIsAlreadyABusiness();
+        if (wallet.business && lastHeight - wallet.business.lastHeight < 10800) {
+            throw new WalletCannotRegister();
         }
 
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
@@ -86,7 +97,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.business = {
-            lastHeight: BigNumber.make(0), // just as a placeholder before we decide how to add height
+            lastHeight: 0,
             businessRegistrationAsset: transaction.data.asset.businessRegistration,
         };
         walletManager.reindex(sender);

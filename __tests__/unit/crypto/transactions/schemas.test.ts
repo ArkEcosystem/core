@@ -760,7 +760,6 @@ describe("Multi Payment Transaction", () => {
     });
 });
 
-// My tests
 describe("Business registration transaction", () => {
     beforeAll(() => {
         transactionSchema = TransactionTypeFactory.get(TransactionTypes.BusinessRegistration).getSchema();
@@ -769,15 +768,39 @@ describe("Business registration transaction", () => {
         transaction = BuilderFactory.businessRegistration();
     });
 
-    it("a", () => {
-        transaction.businessRegistrationAsset("name", "www.website.com").sign("aaaaaa");
+    it("should be valid, without vat and githubRepository", () => {
+        transaction.businessRegistrationAsset("name", "www.website.com").sign("passphrase");
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
     });
 
-    it("a", () => {
-        transaction.businessRegistrationAsset("name", "www.website.com", "1234567890").sign("aaaaaa");
+    it("should be valid, without githubRepository", () => {
+        transaction.businessRegistrationAsset("name", "www.website.com", "1234567890").sign("passphrase");
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
+    });
+
+    it("should be valid, without vat", () => {
+        transaction
+            .businessRegistrationAsset("name", "www.website.com", undefined, "www.github.com")
+            .sign("passphrase");
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("should be valid, with all data inserted", () => {
+        transaction
+            .businessRegistrationAsset("name", "www.website.com", "1234567890", "www.github.com")
+            .sign("passphrase");
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).toBeUndefined();
+    });
+
+    it("should be invalid, duo to wrong vat", () => {
+        transaction
+            .businessRegistrationAsset("name", "www.website.com", "1234567890A", "www.github.com")
+            .sign("passphrase");
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
     });
 });

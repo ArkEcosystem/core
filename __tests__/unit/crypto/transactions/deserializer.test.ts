@@ -469,4 +469,22 @@ describe("Transaction serializer / deserializer", () => {
             expect(() => Serializer.getBytes(transaction)).toThrow(TransactionVersionError);
         });
     });
+
+    describe("ser/deserialize - business registration", () => {
+        // TODO - add more tests
+        it("should ser/deserialize giving back original fields", () => {
+            const delegateRegistration = BuilderFactory.businessRegistration()
+                .businessRegistrationAsset("name", "www.website.com")
+                .network(30)
+                .sign("passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(delegateRegistration).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, delegateRegistration);
+
+            expect(deserialized.data.asset).toEqual(delegateRegistration.asset);
+        });
+    });
 });

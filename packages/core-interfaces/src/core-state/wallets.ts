@@ -25,7 +25,7 @@ export interface IWallet {
     //  TODO ask if this is the way that it should be implemented
     business:
         | {
-              lastHeight: Utils.BigNumber;
+              lastHeight: number;
               businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
           }
         | undefined;

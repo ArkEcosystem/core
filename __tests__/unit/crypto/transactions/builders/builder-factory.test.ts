@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { BuilderFactory } from "../../../../../packages/crypto/src/transactions";
+import { BusinessRegistrationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/business-registration";
 import { DelegateRegistrationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { DelegateResignationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";
 import { IPFSBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/ipfs";
@@ -46,5 +47,9 @@ describe("Builder Factory", () => {
 
     it("should create VoteBuilder", () => {
         expect(BuilderFactory.vote()).toBeInstanceOf(VoteBuilder);
+    });
+
+    it("should create BusinessRegistrationBuilder", () => {
+        expect(BuilderFactory.businessRegistration()).toBeInstanceOf(BusinessRegistrationBuilder);
     });
 });
