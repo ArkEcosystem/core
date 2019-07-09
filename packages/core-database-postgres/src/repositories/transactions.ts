@@ -85,7 +85,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 .valueOf(),
         );
 
-        return this.db.many(queries.transactions.feeStatistics, { age, minFee });
+        return this.db.manyOrNone(queries.transactions.feeStatistics, { age, minFee });
     }
 
     public async findAllByWallet(

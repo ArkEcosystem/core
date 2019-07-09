@@ -25,7 +25,8 @@
         "dayjs": "^1.8.14",
         "fast-json-parse": "^1.0.3",
         "got": "^9.6.0",
-        "immutable": "^4.0.0-rc.12"
+        "immutable": "^4.0.0-rc.12",
+        "nanomatch": "^1.2.13"
     },
     "devDependencies": {
         "@types/got": "^9.4.4"
