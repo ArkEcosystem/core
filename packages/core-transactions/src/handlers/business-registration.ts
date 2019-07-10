@@ -21,8 +21,8 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             console.log("block" + lastHeight);
             console.log(transaction);
-            wallet.business = {
-                lastHeight: 0,
+            wallet.businessInformation = {
+                lastRegistrationHeight: 0,
                 businessRegistrationAsset: transaction.asset.businessRegistration,
             };
         }
@@ -48,7 +48,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
             throw new BusinessRegistrationAssetError();
         }
 
-        if (wallet.business && lastHeight - wallet.business.lastHeight < 10800) {
+        if (wallet.businessInformation && lastHeight - wallet.businessInformation.lastRegistrationHeight < 10800) {
             throw new WalletCannotRegister();
         }
 
@@ -96,8 +96,8 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.business = {
-            lastHeight: 0,
+        sender.businessInformation = {
+            lastRegistrationHeight: 0,
             businessRegistrationAsset: transaction.data.asset.businessRegistration,
         };
         walletManager.reindex(sender);
@@ -106,7 +106,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.business = undefined;
+        sender.businessInformation = undefined;
     }
 
     public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {

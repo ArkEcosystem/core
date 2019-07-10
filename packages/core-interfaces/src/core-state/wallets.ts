@@ -22,12 +22,10 @@ export interface IWallet {
     forgedRewards: Utils.BigNumber;
     rate?: number;
     //  TODO Utils.BigNumber
-    business:
-        | {
-              lastHeight: number;
-              businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
-          }
-        | undefined;
+    businessInformation?: {
+        lastRegistrationHeight: number;
+        businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
+    };
 
     applyBlock(block: Interfaces.IBlockData): boolean;
     revertBlock(block: Interfaces.IBlockData): boolean;
