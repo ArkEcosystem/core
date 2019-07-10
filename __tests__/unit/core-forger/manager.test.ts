@@ -119,8 +119,8 @@ describe("Forger Manager", () => {
             jest.resetAllMocks();
 
             jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
-            jest.spyOn(Crypto.Slots, "getSlotNumber").mockImplementation(epoch => {
-                return epoch ? 1 : 2;
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockImplementation(timestamp => {
+                return timestamp === undefined ? 1 : 2;
             });
 
             await forgeManager.forgeNewBlock(del, round, {
