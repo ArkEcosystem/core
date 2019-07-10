@@ -174,7 +174,7 @@ export class ForgerManager {
                 this.logger.warn(`Failed to forge new block by delegate ${prettyName}, because already in next slot.`);
             } else {
                 this.logger.warn(
-                    `Failed to forge new block by delegate ${prettyName}, because there were less than ${minimumMs}ms left in slot ${currentSlot}.`,
+                    `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`,
                 );
             }
         }
