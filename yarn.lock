@@ -3588,12 +3588,12 @@
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.12.tgz#45dd1d0638e8c8f153e87d296907659296873916"
   integrity sha512-SOhuU4wNBxhhTHxYaiG5NY4HBhDIDnJF60GU+2LqHAdKKer86//e4yg69aENCtQ04n0ovz+tq2YPME5t5yp4pw==
 
-"@typeskrift/foreman@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@typeskrift/foreman/-/foreman-0.2.0.tgz#c04b9711d796f9f7a6f413cc047afff17da4db31"
-  integrity sha512-wGtKPjgpSbjXE6UY5Oc41s+85f3z/DwE1hSCBJ+7OIjP6jLo6D7Eb/mfG0x8+YeyadKN7BML92vA47SEGs3J1w==
+"@typeskrift/foreman@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@typeskrift/foreman/-/foreman-0.2.1.tgz#0e1e25bd8f4a13a6afcb234a175d361165d89f30"
+  integrity sha512-owbyLyUUJjfQ16B1q2dkYwuXzB2WUxsTsrISaKVKeD6kZGXd0EysyAYVYDOQy0ZK4z4wF2qrX93srBrbhuKDuQ==
   dependencies:
-    execa "^2.0.1"
+    execa "^2.0.3"
 
 "@tyriar/fibonacci-heap@^2.0.7":
   version "2.0.9"
@@ -6362,6 +6362,21 @@ execa@^2.0.1, execa@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/execa/-/execa-2.0.2.tgz#3af2650be2b719549dc011a53118ecff5e28d0a2"
   integrity sha512-CkFnhVuWj5stQUvRSeI+zAw0ME+Iprkew4HKSc491vOXLM+hKrDVn+QQoL2CIYy0CpvT0mY+MXlzPreNbuj/8A==
+  dependencies:
+    cross-spawn "^6.0.5"
+    get-stream "^5.0.0"
+    is-stream "^2.0.0"
+    merge-stream "^2.0.0"
+    npm-run-path "^3.0.0"
+    onetime "^5.1.0"
+    p-finally "^2.0.0"
+    signal-exit "^3.0.2"
+    strip-final-newline "^2.0.0"
+
+execa@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/execa/-/execa-2.0.3.tgz#4b84301b33042cfb622771e886ed0b10e5634642"
+  integrity sha512-iM124nlyGSrXmuyZF1EMe83ESY2chIYVyDRZKgmcDynid2Q2v/+GuE7gNMl6Sy9Niwf4MC0DDxagOxeMPjuLsw==
   dependencies:
     cross-spawn "^6.0.5"
     get-stream "^5.0.0"
