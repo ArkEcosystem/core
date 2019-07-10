@@ -12,7 +12,9 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const transactions = await connection.transactionsRepository.getAssetsByType(
+            TransactionTypes.BusinessRegistration,
+        );
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.business = transaction.asset.businessRegistration;
@@ -28,9 +30,9 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): void {
-        const { data }: Interfaces.ITransaction = transaction;
+        const businessAsset: Interfaces.IBusinessRegistrationAsset = transaction.data.asset.businessRegistration;
 
-        if (!data.asset.businessRegistration.name || !data.asset.businessRegistration.websiteAddress) {
+        if (!businessAsset.name || !businessAsset.websiteAddress) {
             throw new BusinessRegistrationAssetError();
         }
 
@@ -46,39 +48,57 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
 
-        const { name, websiteAddress }: { name: string; websiteAddress: string } = data.asset.businessRegistration;
-        const businessRegistrationsSameNameInPayload = processor
-            .getTransactions()
-            .filter(
-                tx =>
-                    tx.type === TransactionTypes.BusinessRegistration ||
-                    tx.asset.businessRegistration.name === name ||
-                    tx.asset.businessRegistration.websiteAddress === websiteAddress ||
-                    (tx.asset.businessRegistration.vat !== undefined &&
-                        tx.asset.businessRegistration.vat === data.asset.businessRegistration.vat) ||
-                    (tx.asset.businessRegistration.githubRepository !== undefined &&
-                        tx.asset.businessRegistration.githubRepository ===
-                            data.asset.businessRegistration.githubRepository),
-            );
+        const { name, websiteAddress, vat, githubRepository } = data.asset.businessRegistration;
 
-        if (businessRegistrationsSameNameInPayload.length > 1) {
+        const findCommonTransactions = (tx: Interfaces.ITransactionData): boolean => {
+            if (tx.type === TransactionTypes.BusinessRegistration) {
+                const txAsset = tx.asset.businessRegistration;
+
+                if (txAsset.name === name) {
+                    return true;
+                }
+
+                if (txAsset.websiteAddress === websiteAddress) {
+                    return true;
+                }
+
+                if (txAsset.vat !== undefined && txAsset.vat === vat) {
+                    return true;
+                }
+
+                if (txAsset.githubRepository !== undefined && txAsset.githubRepository === githubRepository) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        const sameBusinessRegistrationsDataInPayload = processor
+            .getTransactions()
+            .filter(tx => findCommonTransactions(tx) === true);
+
+        if (sameBusinessRegistrationsDataInPayload.length > 1) {
             processor.pushError(
                 data,
                 "ERR_CONFLICT",
-                `Multiple business registrations for "${name}" in transaction payload`,
+                `Multiple business registrations for "${name}", "${websiteAddress}", "${vat}", "${githubRepository}" in transaction payload`,
             );
             return false;
         }
-        // TODO: more specific validation for transactions in pool?
-        // currently looks just for name, maybe should for VAT also?
+
         const businessRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
             pool.getTransactionsByType(TransactionTypes.BusinessRegistration),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
         const containsBusinessRegistrationForSameNameInPool: boolean = businessRegistrationsInPool.some(
-            transaction => transaction.asset.businessRegistration.name === name,
+            transaction => findCommonTransactions(transaction) === true,
         );
         if (containsBusinessRegistrationForSameNameInPool) {
-            processor.pushError(data, "ERR_PENDING", `Business registration for "${name}" already in the pool`);
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Business registration for "${name}", "${websiteAddress}", "${vat}", "${githubRepository}" already in the pool`,
+            );
             return false;
         }
 
@@ -103,11 +123,9 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         sender.business = undefined;
     }
 
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    // tslint:disable-next-line:no-empty
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }
