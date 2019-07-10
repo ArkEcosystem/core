@@ -65,6 +65,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 -   Removed the `ark-node` legacy API known as `v1` ([#2577])
 
+## [2.4.15] - 2019-07-09
+
+-   Backport various bug fixes from 2.5 ([#2782])
+
 ## [2.4.14] - 2019-07-02
 
 ### Fixed
@@ -568,6 +572,7 @@ Closed security vulnerabilities:
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
 [2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.5.0
+[2.4.15]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.4.15
 [2.4.14]: https://github.com/ARKEcosystem/core/compare/2.4.13...2.4.14
 [2.4.13]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.4.13
 [2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
@@ -879,3 +884,5 @@ Closed security vulnerabilities:
 [#2787]: https://github.com/ARKEcosystem/core/pull/2787
 [#2788]: https://github.com/ARKEcosystem/core/pull/2788
 [#2789]: https://github.com/ARKEcosystem/core/pull/2789
+[#2766]: https://github.com/ARKEcosystem/core/pull/2766
+[#2782]: https://github.com/ARKEcosystem/core/pull/2782
