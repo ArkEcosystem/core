@@ -130,6 +130,14 @@ export class Server {
             await server.register(plugin);
         }
 
+        server.route({
+            method: "GET",
+            path: "/",
+            handler() {
+                return { data: "Hello World!" };
+            },
+        });
+
         // @TODO: remove this with the release of 3.0 - adds support for /api and /api/v2
         server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
             const path: string = request.url.pathname.replace("/v2", "");
