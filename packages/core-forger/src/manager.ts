@@ -153,18 +153,28 @@ export class ForgerManager {
             reward: round.reward,
         });
 
-        this.logger.info(
-            `Forged new block ${block.data.id} by delegate ${this.usernames[delegate.publicKey]} (${
-                delegate.publicKey
-            })`,
-        );
+        const minimumMs: number = 2000;
+        const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+        if (timeLeftInMs >= minimumMs) {
+            this.logger.info(
+                `Forged new block ${block.data.id} by delegate ${this.usernames[delegate.publicKey]} (${
+                    delegate.publicKey
+                })`,
+            );
 
-        await this.client.broadcastBlock(block.toJson());
+            await this.client.broadcastBlock(block.toJson());
 
-        this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
+            this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
 
-        for (const transaction of transactions) {
-            this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+            for (const transaction of transactions) {
+                this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+            }
+        } else {
+            this.logger.warn(
+                `Failed to forge new block by delegate ${this.usernames[delegate.publicKey]} (${
+                    delegate.publicKey
+                }, because there were less than ${minimumMs}ms left`,
+            );
         }
     }
 
