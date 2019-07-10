@@ -21,11 +21,7 @@ export interface IWallet {
     forgedFees: Utils.BigNumber;
     forgedRewards: Utils.BigNumber;
     rate?: number;
-    // TODO should it be big number or just number
-    businessInformation?: {
-        lastRegistrationHeight: number;
-        businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
-    };
+    business?: Interfaces.IBusinessRegistrationAsset;
 
     applyBlock(block: Interfaces.IBlockData): boolean;
     revertBlock(block: Interfaces.IBlockData): boolean;

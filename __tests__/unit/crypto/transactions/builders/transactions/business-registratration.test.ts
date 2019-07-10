@@ -7,7 +7,7 @@ import { BusinessRegistrationBuilder } from "../../../../../../packages/crypto/s
 
 let builder: BusinessRegistrationBuilder;
 
-describe("Delegate Registration Transaction", () => {
+describe("Business Registration Transaction", () => {
     describe("verify", () => {
         beforeEach(() => {
             builder = BuilderFactory.businessRegistration();

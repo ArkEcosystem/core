@@ -1,10 +1,10 @@
-import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Database, EventEmitter, TransactionPool } from "@arkecosystem/core-interfaces";
-import { State } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BusinessRegistrationAssetError, WalletCannotRegister } from "../errors";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { BusinessRegistrationAssetError } from "../errors";
 import { TransactionHandler } from "./transaction";
+
+const { TransactionTypes } = Enums;
 
 export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -15,10 +15,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.businessInformation = {
-                lastRegistrationHeight: 0,
-                businessRegistrationAsset: transaction.asset.businessRegistration,
-            };
+            wallet.business = transaction.asset.businessRegistration;
         }
     }
 
@@ -33,17 +30,8 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
     ): void {
         const { data }: Interfaces.ITransaction = transaction;
 
-        const lastHeight = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
-
         if (!data.asset.businessRegistration.name || !data.asset.businessRegistration.websiteAddress) {
             throw new BusinessRegistrationAssetError();
-        }
-
-        if (wallet.businessInformation && lastHeight - wallet.businessInformation.lastRegistrationHeight < 10800) {
-            throw new WalletCannotRegister();
         }
 
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
@@ -58,10 +46,20 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
 
-        const { name }: { name: string } = data.asset.businessRegistration;
+        const { name, websiteAddress }: { name: string; websiteAddress: string } = data.asset.businessRegistration;
         const businessRegistrationsSameNameInPayload = processor
             .getTransactions()
-            .filter(tx => tx.type === this.getConstructor().type && tx.asset.businessRegistration.name === name);
+            .filter(
+                tx =>
+                    tx.type === TransactionTypes.BusinessRegistration ||
+                    tx.asset.businessRegistration.name === name ||
+                    tx.asset.businessRegistration.websiteAddress === websiteAddress ||
+                    (tx.asset.businessRegistration.vat !== undefined &&
+                        tx.asset.businessRegistration.vat === data.asset.businessRegistration.vat) ||
+                    (tx.asset.businessRegistration.githubRepository !== undefined &&
+                        tx.asset.businessRegistration.githubRepository ===
+                            data.asset.businessRegistration.githubRepository),
+            );
 
         if (businessRegistrationsSameNameInPayload.length > 1) {
             processor.pushError(
@@ -74,7 +72,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         // TODO: more specific validation for transactions in pool?
         // currently looks just for name, maybe should for VAT also?
         const businessRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            pool.getTransactionsByType(this.getConstructor().type),
+            pool.getTransactionsByType(TransactionTypes.BusinessRegistration),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
         const containsBusinessRegistrationForSameNameInPool: boolean = businessRegistrationsInPool.some(
             transaction => transaction.asset.businessRegistration.name === name,
@@ -89,18 +87,20 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
 
     public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
+
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.businessInformation = {
-            lastRegistrationHeight: 0,
-            businessRegistrationAsset: transaction.data.asset.businessRegistration,
-        };
+        sender.business = transaction.data.asset.businessRegistration;
+
         walletManager.reindex(sender);
     }
 
     public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
+
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.businessInformation = undefined;
+
+        // add forget by
+        sender.business = undefined;
     }
 
     public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
