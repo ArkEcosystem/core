@@ -3600,11 +3600,6 @@
   resolved "https://registry.yarnpkg.com/@tyriar/fibonacci-heap/-/fibonacci-heap-2.0.9.tgz#df3dcbdb1b9182168601f6318366157ee16666e9"
   integrity sha512-bYuSNomfn4hu2tPiDN+JZtnzCpSpbJ/PNeulmocDy3xN2X5OkJL65zo6rPZp65cPPhLF9vfT/dgE+RtFRCSxOA==
 
-"@vuepress/plugin-google-analytics@^1.0.1":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@vuepress/plugin-google-analytics/-/plugin-google-analytics-1.0.2.tgz#c5754d55d01bf7e1a9a5b1ff5fde07a08e4a797d"
-  integrity sha512-NdU18hTBW4TkNK80dgpPu4yq/smNkIUZi9gL5hCiuW43BnXFA7WFfhGcvZJ61+keNDr6gw9UIv4HQuFFPoRXQA==
-
 "@yarnpkg/lockfile@^1.0.2":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
@@ -7280,14 +7275,6 @@ handlebars@^4.1.0, handlebars@^4.1.2:
     hapi "^17.1.1"
     hoek "^5.0.2"
     joi "^13.0.2"
-
-hapi-rate-limit@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-4.0.0.tgz#4ba294a1f28aec9b7ac70e686796330f32fbe633"
-  integrity sha512-2Nkj/5358XLdH/jL6W1bLBrZm82CbCCEVsgFEBY07eRUhMMLBB8kteANnm62UgE7HZr54uDQjYk0cQGBj1bwuA==
-  dependencies:
-    "@hapi/boom" "^7.4.2"
-    "@hapi/joi" "^15.0.3"
 
 hapi-rate-limit@^4.0.0:
   version "4.0.0"
@@ -14292,12 +14279,10 @@ xregexp@2.0.0:
   resolved "https://registry.yarnpkg.com/xregexp/-/xregexp-2.0.0.tgz#52a63e56ca0b84a7f3a5f3d61872f126ad7a5943"
   integrity sha1-UqY+VsoLhKfzpfPWGHLxJq16WUM=
 
-xstate@^4.6.3:
-  version "4.6.3"
-  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.6.3.tgz#21e5a132867e5509a08d16c32b525ba4898492bd"
-  integrity sha512-ihJcpZWjqW60psaC+RxFhfZxgFDNRpEmHeSsM4DgtKswsz6HxEzNx7rgesZtg8/LqluOba8puy8lVtB748RG6A==
-  dependencies:
-    "@vuepress/plugin-google-analytics" "^1.0.1"
+xstate@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.6.7.tgz#1f325df07d75676c90d65b17a3a56692f259fd41"
+  integrity sha512-mqgtH6BXOgjOHVDxZPyW/h6QUC5kfEggh5IN8uOitjzrdCScE/a/cwcRvgcH8CGAXYReDNvasOKD0aFBWAZ1fg==
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.1"
