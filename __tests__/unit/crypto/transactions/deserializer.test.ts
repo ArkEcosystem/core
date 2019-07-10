@@ -471,20 +471,64 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("ser/deserialize - business registration", () => {
-        // TODO - add more tests
-        it("should ser/deserialize giving back original fields", () => {
-            const delegateRegistration = BuilderFactory.businessRegistration()
+        it("should ser/deserialize with name and websiteAddress giving back original fields", () => {
+            const businessRegistration = BuilderFactory.businessRegistration()
                 .businessRegistrationAsset("name", "www.website.com")
                 .network(30)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = TransactionFactory.fromData(delegateRegistration).serialized.toString("hex");
+            const serialized = TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
-            checkCommonFields(deserialized, delegateRegistration);
+            checkCommonFields(deserialized, businessRegistration);
 
-            expect(deserialized.data.asset).toEqual(delegateRegistration.asset);
+            expect(deserialized.data.asset).toEqual(businessRegistration.asset);
+        });
+
+        it("should ser/deserialize with name, websiteAddress and VAT giving back original fields ", () => {
+            const businessRegistration = BuilderFactory.businessRegistration()
+                .businessRegistrationAsset("name", "www.website.com", "1234567890")
+                .network(30)
+                .sign("passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, businessRegistration);
+
+            expect(deserialized.data.asset).toEqual(businessRegistration.asset);
+        });
+
+        it("should ser/deserialize with name, websiteAddress,VAT and githubRepository giving back original fields", () => {
+            const businessRegistration = BuilderFactory.businessRegistration()
+                .businessRegistrationAsset("name", "www.website.com", "1234567890", "www.github.com")
+                .network(30)
+                .sign("passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, businessRegistration);
+
+            expect(deserialized.data.asset).toEqual(businessRegistration.asset);
+        });
+
+        it("should ser/deserialize with name, websiteAddress and githubRepository giving back original fields", () => {
+            const businessRegistration = BuilderFactory.businessRegistration()
+                .businessRegistrationAsset("name", "www.website.com", undefined, "www.github.com")
+                .network(30)
+                .sign("passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(businessRegistration).serialized.toString("hex");
+            const deserialized = deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, businessRegistration);
+
+            expect(deserialized.data.asset).toEqual(businessRegistration.asset);
         });
     });
 });

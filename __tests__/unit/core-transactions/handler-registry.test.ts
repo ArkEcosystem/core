@@ -112,6 +112,7 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.MultiSignature);
             Registry.get(TransactionTypes.Ipfs);
             Registry.get(TransactionTypes.MultiPayment);
+            Registry.get(TransactionTypes.BusinessRegistration);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 

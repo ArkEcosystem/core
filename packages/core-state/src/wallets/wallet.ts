@@ -21,7 +21,7 @@ export class Wallet implements State.IWallet {
     public forgedFees: Utils.BigNumber;
     public forgedRewards: Utils.BigNumber;
     public rate?: number;
-    // TODO add Utils.BigNumber
+    // TODO should it be big number or just number
     public businessInformation?: {
         lastRegistrationHeight: number;
         businessRegistrationAsset: Interfaces.IBusinessRegistrationAsset;
