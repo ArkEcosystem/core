@@ -48,7 +48,7 @@ describe("Forger Manager", () => {
             const del = new Delegate("a secret", testnet.network);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
-                timestamp: 1,
+                timestamp: Crypto.Slots.getTime(),
                 reward: 2 * 1e8,
             };
 
@@ -92,7 +92,7 @@ describe("Forger Manager", () => {
             const del = new Delegate("a secret", testnet.network);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
-                timestamp: 1,
+                timestamp: Crypto.Slots.getTime(),
                 reward: 2 * 1e8,
             };
 
@@ -108,6 +108,20 @@ describe("Forger Manager", () => {
             jest.resetAllMocks();
 
             jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(1000);
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).not.toHaveBeenCalled();
+
+            jest.resetAllMocks();
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockImplementation(timestamp => {
+                return timestamp === undefined ? 1 : 2;
+            });
 
             await forgeManager.forgeNewBlock(del, round, {
                 lastBlockId: round.lastBlock.id,
