@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Delete last block if deserialization fails ([#2770])
 -   Raise bignumber maximum ([#2777])
 -   Allow future timestamps up to 3600 + blocktime seconds ([#2787])
+-   Handle null url and malformed JSON payloads ([#2797])
 
 ### Changed
 
@@ -886,3 +887,4 @@ Closed security vulnerabilities:
 [#2789]: https://github.com/ARKEcosystem/core/pull/2789
 [#2766]: https://github.com/ARKEcosystem/core/pull/2766
 [#2782]: https://github.com/ARKEcosystem/core/pull/2782
+[#2797]: https://github.com/ARKEcosystem/core/pull/2797
