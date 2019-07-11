@@ -3,6 +3,8 @@ import "jest-extended";
 import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -821,6 +823,27 @@ describe("DelegateResignationTransaction", () => {
             expect(senderWallet.resigned).toBeTrue();
             handler.revert(instance, walletManager);
             expect(senderWallet.resigned).toBeFalse();
+        });
+    });
+});
+describe("BusinessRegistration transaction", () => {
+    describe("throwIfCannotBeApplied", () => {
+        it("should not fail", () => {
+            Managers.configManager.setFromPreset("testnet");
+            const builder = BuilderFactory.businessRegistration();
+            const walletManager = new Wallets.WalletManager();
+            const businessWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
+            businessWallet.balance = Utils.BigNumber.make(50000000000);
+            businessWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            walletManager.reindex(businessWallet);
+            const handler = Handlers.Registry.get(TransactionTypes.BusinessRegistration);
+            const transaction = builder
+                .businessRegistrationAsset("name", "www.website.com")
+                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .nonce("1")
+                .getStruct();
+            const instance = Transactions.TransactionFactory.fromData(transaction);
+            handler.throwIfCannotBeApplied(instance, businessWallet, walletManager);
         });
     });
 });
