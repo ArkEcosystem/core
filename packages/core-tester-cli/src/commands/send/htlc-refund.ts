@@ -1,8 +1,7 @@
 import { Identities } from "@arkecosystem/crypto";
-import { flags } from "@oclif/command";
 import { satoshiFlag } from "../../flags";
 import { SendCommand } from "../../shared/send";
-import { TransferCommand } from "./transfer";
+import { HtlcLockCommand } from "./htlc-lock";
 
 export class HtlcRefundCommand extends SendCommand {
     public static description: string = "create multiple htlc refund transactions";
@@ -13,10 +12,6 @@ export class HtlcRefundCommand extends SendCommand {
             description: "HTLC Refund fee",
             default: 0.1,
         }),
-        lockTransactionId: flags.string({
-            description: "lock transaction id",
-            default: "0b127468138499138c9498d356975c2aac194f5a6963a59d025d1e46fc29241a",
-        }),
     };
 
     protected getCommand(): any {
@@ -24,8 +19,8 @@ export class HtlcRefundCommand extends SendCommand {
     }
 
     protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
-        return TransferCommand.run(
-            [`--amount=${flags.htlcRefundFee}`, `--number=${flags.number}`, "--skipProbing"].concat(
+        return HtlcLockCommand.run(
+            [`--amount=${flags.amount}`, `--expiration=1`, `--number=${flags.number}`, "--skipProbing"].concat(
                 this.castFlags(flags),
             ),
         );
@@ -36,7 +31,7 @@ export class HtlcRefundCommand extends SendCommand {
 
         for (const wallet of Object.values(wallets)) {
             const refundAsset = {
-                lockTransactionId: flags.lockTransactionId,
+                lockTransactionId: wallet.lockTransaction.id,
             };
 
             const transaction = this.signer.makeHtlcRefund({
@@ -59,7 +54,9 @@ export class HtlcRefundCommand extends SendCommand {
             const senderId = Identities.Address.fromPublicKey(transaction.senderPublicKey, this.network);
 
             const currentBalance = await this.getWalletBalance(senderId);
-            wallets[senderId].expectedBalance = currentBalance.minus(transaction.fee).minus(transaction.amount);
+            wallets[senderId].expectedBalance = currentBalance
+                .minus(transaction.fee)
+                .plus(wallets[senderId].lockTransaction.amount);
         }
     }
 

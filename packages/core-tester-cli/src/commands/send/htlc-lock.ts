@@ -1,4 +1,5 @@
 import { Crypto, Identities } from "@arkecosystem/crypto";
+import { flags } from "@oclif/command";
 import { satoshiFlag } from "../../flags";
 import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
@@ -12,6 +13,10 @@ export class HtlcLockCommand extends SendCommand {
             description: "HTLC Lock fee",
             default: 0.1,
         }),
+        expiration: flags.integer({
+            description: "expiration in seconds relative to now",
+            default: 999,
+        }),
     };
 
     protected getCommand(): any {
@@ -20,7 +25,7 @@ export class HtlcLockCommand extends SendCommand {
 
     protected async createWalletsWithBalance(flags: Record<string, any>): Promise<any[]> {
         return TransferCommand.run(
-            [`--amount=${flags.htlcLockFee}`, `--number=${flags.number}`, "--skipProbing"].concat(
+            [`--amount=${flags.htlcLockFee + flags.amount}`, `--number=${flags.number}`, "--skipProbing"].concat(
                 this.castFlags(flags),
             ),
         );
@@ -35,7 +40,7 @@ export class HtlcLockCommand extends SendCommand {
 
             const lockAsset = {
                 secretHash: Crypto.HashAlgorithms.sha256(secret).toString("hex"),
-                expiration: Date.now() + 9999,
+                expiration: Math.floor((Date.now() + flags.expiration * 1000) / 1000),
             };
 
             const transaction = this.signer.makeHtlcLock({
@@ -48,6 +53,9 @@ export class HtlcLockCommand extends SendCommand {
                     passphrase: wallet.passphrase,
                 },
             });
+
+            wallet.lockTransaction = transaction;
+            // this is used by claim and refund commands
 
             transactions.push(transaction);
         }
