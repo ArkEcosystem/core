@@ -140,19 +140,19 @@ describe("Wallet Manager", () => {
 
         describe.skip("the delegate of the block is not indexed", () => {
             describe("not genesis block", () => {
-                it("throw an Error", () => { });
+                it("throw an Error", () => {});
             });
 
             describe("genesis block", () => {
-                it("generates a new wallet", () => { });
+                it("generates a new wallet", () => {});
             });
         });
     });
 
     describe.skip("revertBlock", () => {
-        it("should revert all transactions of the block", () => { });
+        it("should revert all transactions of the block", () => {});
 
-        it("should revert the block of the delegate", () => { });
+        it("should revert the block of the delegate", () => {});
     });
 
     describe("applyTransaction", () => {
@@ -542,6 +542,23 @@ describe("Wallet Manager", () => {
                 expect(delegate.rate).toEqual(i + 1);
                 expect(delegate.voteBalance).toEqual(Utils.BigNumber.make((5 - i) * 1000 * SATOSHI));
             }
+        });
+    });
+
+    describe("findByBusiness methods", () => {
+        describe("findByBusinessName", () => {
+            it("should return same business wallet when searching by name and website", () => {
+                const wallet = new Wallet(walletData1.address);
+                wallet.business = {
+                    name: "testName",
+                    websiteAddress: "www.website.com",
+                };
+                walletManager.reindex(wallet);
+                expect(wallet).toEqual(walletManager.findByBusinessName(wallet.business.name));
+                expect(wallet).toEqual(walletManager.findByBusinessWebsite(wallet.business.websiteAddress));
+                expect(walletManager.findByBusinessVat(wallet.business.vat)).toBeUndefined();
+                expect(walletManager.findByBusinessGithub(wallet.business.githubRepository)).toBeUndefined();
+            });
         });
     });
 });

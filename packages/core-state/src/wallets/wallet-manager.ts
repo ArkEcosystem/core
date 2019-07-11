@@ -16,6 +16,11 @@ export class WalletManager implements State.IWalletManager {
     // @TODO: make this private and read-only
     public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
+    private readonly byBusinessName: { [key: string]: State.IWallet } = {};
+    private readonly byBusinessWebsite: { [key: string]: State.IWallet } = {};
+    private readonly byBusinessVat: { [key: string]: State.IWallet } = {};
+    private readonly byBusinessGitHub: { [key: string]: State.IWallet } = {};
+
     constructor() {
         this.reset();
     }
@@ -56,6 +61,47 @@ export class WalletManager implements State.IWalletManager {
         return this.byUsername[username];
     }
 
+    public findByBusinessName(name: string): State.IWallet | undefined {
+        return this.byBusinessName[name];
+    }
+
+    public findByBusinessWebsite(website: string): State.IWallet | undefined {
+        return this.byBusinessWebsite[website];
+    }
+
+    public findByBusinessVat(vat: string): State.IWallet | undefined {
+        return this.byBusinessVat[vat];
+    }
+
+    public findByBusinessGithub(github: string): State.IWallet | undefined {
+        return this.byBusinessGitHub[github];
+    }
+
+    public hasBusiness(businessAsset: Interfaces.IBusinessRegistrationAsset): boolean {
+        return (
+            this.hasByBusinessName(businessAsset.name) ||
+            this.hasByBusinessWebsite(businessAsset.websiteAddress) ||
+            this.hasByBusinessVat(businessAsset.vat) ||
+            this.hasByBusinessGitHub(businessAsset.githubRepository)
+        );
+    }
+
+    public hasByBusinessName(name: string): boolean {
+        return !!this.byBusinessName[name];
+    }
+
+    public hasByBusinessWebsite(website: string): boolean {
+        return !!this.byBusinessWebsite[website];
+    }
+
+    public hasByBusinessVat(vat: string): boolean {
+        return !!this.byBusinessVat[vat];
+    }
+
+    public hasByBusinessGitHub(byBusinessGitHub: string): boolean {
+        return !!this.byBusinessGitHub[byBusinessGitHub];
+    }
+
     public has(addressOrPublicKey: string): boolean {
         return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
     }
@@ -92,6 +138,13 @@ export class WalletManager implements State.IWalletManager {
         delete this.byUsername[username];
     }
 
+    public forgetByBusiness(businessAsset: Interfaces.IBusinessRegistrationAsset): void {
+        delete this.byBusinessName[businessAsset.name];
+        delete this.byBusinessWebsite[businessAsset.websiteAddress];
+        delete this.byBusinessVat[businessAsset.vat];
+        delete this.byBusinessGitHub[businessAsset.githubRepository];
+    }
+
     public index(wallets: State.IWallet[]): void {
         for (const wallet of wallets) {
             this.reindex(wallet);
@@ -109,6 +162,17 @@ export class WalletManager implements State.IWalletManager {
 
         if (wallet.username) {
             this.byUsername[wallet.username] = wallet;
+        }
+
+        if (wallet.business) {
+            this.byBusinessName[wallet.business.name] = wallet;
+            this.byBusinessWebsite[wallet.business.websiteAddress] = wallet;
+            if (wallet.business.vat !== undefined) {
+                this.byBusinessVat[wallet.business.vat] = wallet;
+            }
+            if (wallet.business.githubRepository !== undefined) {
+                this.byBusinessGitHub[wallet.business.githubRepository] = wallet;
+            }
         }
     }
 

@@ -187,8 +187,8 @@ export class BusinessRegistrationAssetError extends TransactionError {
     }
 }
 
-export class WalletCannotRegister extends TransactionError {
+export class BusinessCredentialsAlreadyExists extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because wallet is already a business`);
+        super(`Failed to apply transaction, because business credentials already exists`);
     }
 }

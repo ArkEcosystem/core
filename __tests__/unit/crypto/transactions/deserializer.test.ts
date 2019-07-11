@@ -474,7 +474,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize with name and websiteAddress giving back original fields", () => {
             const businessRegistration = BuilderFactory.businessRegistration()
                 .businessRegistrationAsset("name", "www.website.com")
-                .network(30)
+                .network(23)
+                .version(2)
                 .sign("passphrase")
                 .getStruct();
 
@@ -489,7 +490,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize with name, websiteAddress and VAT giving back original fields ", () => {
             const businessRegistration = BuilderFactory.businessRegistration()
                 .businessRegistrationAsset("name", "www.website.com", "1234567890")
-                .network(30)
+                .network(23)
+                .version(2)
                 .sign("passphrase")
                 .getStruct();
 
@@ -504,7 +506,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize with name, websiteAddress,VAT and githubRepository giving back original fields", () => {
             const businessRegistration = BuilderFactory.businessRegistration()
                 .businessRegistrationAsset("name", "www.website.com", "1234567890", "www.github.com")
-                .network(30)
+                .network(23)
+                .version(2)
                 .sign("passphrase")
                 .getStruct();
 
@@ -519,7 +522,8 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize with name, websiteAddress and githubRepository giving back original fields", () => {
             const businessRegistration = BuilderFactory.businessRegistration()
                 .businessRegistrationAsset("name", "www.website.com", undefined, "www.github.com")
-                .network(30)
+                .network(23)
+                .version(2)
                 .sign("passphrase")
                 .getStruct();
 

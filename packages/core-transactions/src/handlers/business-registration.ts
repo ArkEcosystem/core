@@ -1,7 +1,7 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BusinessRegistrationAssetError } from "../errors";
+import { BusinessCredentialsAlreadyExists, BusinessRegistrationAssetError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 const { TransactionTypes } = Enums;
@@ -18,6 +18,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             wallet.business = transaction.asset.businessRegistration;
+            walletManager.reindex(wallet);
         }
     }
 
@@ -34,6 +35,10 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
 
         if (!businessAsset.name || !businessAsset.websiteAddress) {
             throw new BusinessRegistrationAssetError();
+        }
+
+        if (databaseWalletManager.hasBusiness(businessAsset)) {
+            throw new BusinessCredentialsAlreadyExists();
         }
 
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
@@ -119,7 +124,7 @@ export class BusinessRegistrationTransactionHandler extends TransactionHandler {
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
-        // add forget by
+        walletManager.forgetByBusiness(transaction.data.asset.businessRegistration);
         sender.business = undefined;
     }
 

@@ -56,6 +56,24 @@ export interface IWalletManager {
 
     findByUsername(username: string): IWallet;
 
+    findByBusinessName(name: string): IWallet;
+
+    findByBusinessWebsite(website: string): IWallet;
+
+    findByBusinessVat(vat: string): IWallet;
+
+    findByBusinessGithub(github: string): IWallet;
+
+    hasBusiness(businessAsset: Interfaces.IBusinessRegistrationAsset): boolean;
+
+    hasByBusinessName(name: string): boolean;
+
+    hasByBusinessWebsite(website: string): boolean;
+
+    hasByBusinessVat(vat: string): boolean;
+
+    hasByBusinessGitHub(byBusinessGitHub: string): boolean;
+
     getNonce(publicKey: string): Utils.BigNumber;
 
     index(wallets: IWallet[]): void;
@@ -87,6 +105,8 @@ export interface IWalletManager {
     forgetByPublicKey(publicKey: string): void;
 
     forgetByUsername(username: string): void;
+
+    forgetByBusiness(businessAsset: Interfaces.IBusinessRegistrationAsset): void;
 
     hasByAddress(address: string): boolean;
 
