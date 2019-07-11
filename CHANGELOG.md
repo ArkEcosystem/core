@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Search transactions by asset via API ([#2618])
 -   Allow easy retrieval of first and last block ([#2641])
 -   Make it configurable whether to use estimates for `core-api` ([#2772])
--   Let the user choose if they want to use @next release ([#2789])
 
 ### Fixed
 
@@ -884,7 +883,6 @@ Closed security vulnerabilities:
 [#2784]: https://github.com/ARKEcosystem/core/pull/2784
 [#2787]: https://github.com/ARKEcosystem/core/pull/2787
 [#2788]: https://github.com/ARKEcosystem/core/pull/2788
-[#2789]: https://github.com/ARKEcosystem/core/pull/2789
 [#2766]: https://github.com/ARKEcosystem/core/pull/2766
 [#2782]: https://github.com/ARKEcosystem/core/pull/2782
 [#2797]: https://github.com/ARKEcosystem/core/pull/2797
