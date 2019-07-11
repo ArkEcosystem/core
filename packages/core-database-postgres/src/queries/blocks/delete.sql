@@ -1,3 +1,3 @@
 DELETE
 FROM blocks
-WHERE id = ${id}
+WHERE id IN (${ids:list})

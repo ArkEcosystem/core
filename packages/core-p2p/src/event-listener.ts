@@ -6,8 +6,12 @@ export class EventListener {
 
     public constructor(service: P2P.IPeerService) {
         const connector: P2P.IPeerConnector = service.getConnector();
+        const storage: P2P.IPeerStorage = service.getStorage();
 
-        this.emitter.on("internal.p2p.disconnectPeer", ({ peer }) => connector.disconnect(peer));
+        this.emitter.on("internal.p2p.disconnectPeer", ({ peer }) => {
+            connector.disconnect(peer);
+            storage.forgetPeer(peer);
+        });
 
         const exitHandler = () => service.getMonitor().stopServer();
 

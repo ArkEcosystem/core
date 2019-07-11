@@ -44,6 +44,7 @@ export const startListeners = (): void => {
                         headers: {
                             Authorization: webhook.token,
                         },
+                        timeout: app.resolveOptions("webhooks").timeout,
                     });
 
                     app.resolvePlugin<Logger.ILogger>("logger").debug(

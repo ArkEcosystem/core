@@ -1,5 +1,4 @@
 import { strictEqual } from "assert";
-import dayjs, { Dayjs } from "dayjs";
 import clonedeep from "lodash.clonedeep";
 
 import { app } from "@arkecosystem/core-container";
@@ -22,7 +21,6 @@ export class Connection implements TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly blockedByPublicKey: { [key: string]: Dayjs } = {};
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
         "database",
     );
@@ -201,33 +199,6 @@ export class Connection implements TransactionPool.IConnection {
         return this.memory.has(transactionId);
     }
 
-    // @TODO: move this to a more appropriate place
-    public isSenderBlocked(senderPublicKey: string): boolean {
-        if (!this.blockedByPublicKey[senderPublicKey]) {
-            return false;
-        }
-
-        if (dayjs().isAfter(this.blockedByPublicKey[senderPublicKey])) {
-            delete this.blockedByPublicKey[senderPublicKey];
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public blockSender(senderPublicKey: string): Dayjs {
-        const blockReleaseTime: Dayjs = dayjs().add(1, "hour");
-
-        this.blockedByPublicKey[senderPublicKey] = blockReleaseTime;
-
-        this.logger.warn(
-            `Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey].toString()}`,
-        );
-
-        return blockReleaseTime;
-    }
-
     public acceptChainedBlock(block: Interfaces.IBlock): void {
         for (const transaction of block.transactions) {
             const { data }: Interfaces.ITransaction = transaction;
@@ -254,8 +225,13 @@ export class Connection implements TransactionPool.IConnection {
                 try {
                     transactionHandler.canBeApplied(transaction, senderWallet, this.databaseService.walletManager);
                 } catch (error) {
-                    this.purgeByPublicKey(data.senderPublicKey);
-                    this.blockSender(data.senderPublicKey);
+                    this.walletManager.forget(data.senderPublicKey);
+
+                    if (recipientWallet) {
+                        recipientWallet.publicKey
+                            ? this.walletManager.forget(recipientWallet.publicKey)
+                            : this.walletManager.forgetByAddress(recipientWallet.address);
+                    }
 
                     this.logger.error(
                         `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
@@ -263,7 +239,7 @@ export class Connection implements TransactionPool.IConnection {
                         } due to ${error.message}. Possible double spending attack`,
                     );
 
-                    return;
+                    continue;
                 }
 
                 transactionHandler.applyToSenderInPool(transaction, this.walletManager);

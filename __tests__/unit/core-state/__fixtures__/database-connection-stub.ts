@@ -14,8 +14,6 @@ export class DatabaseConnectionStub implements Database.IConnection {
         return undefined;
     }
 
-    public commitQueuedQueries(): any {}
-
     public connect(): Promise<void> {
         return undefined;
     }
@@ -27,10 +25,6 @@ export class DatabaseConnectionStub implements Database.IConnection {
     public disconnect(): Promise<void> {
         return undefined;
     }
-
-    public enqueueDeleteBlock(block: Blocks.Block): any {}
-
-    public enqueueDeleteRound(height: number): any {}
 
     public async make(): Promise<Database.IConnection> {
         return this;

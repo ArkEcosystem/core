@@ -12,11 +12,11 @@
                 "message": "Use a regular for loop instead."
             }
         ],
+        "await-promise": true,
         "no-console": false,
         "no-default-export": true,
         "no-null-keyword": true,
         "no-shadowed-variable": false,
-        "no-use-before-declare": true,
         "object-literal-sort-keys": false,
         "only-arrow-functions": true,
         "radix": false,

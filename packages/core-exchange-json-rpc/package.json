@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-exchange-json-rpc",
-    "version": "2.4.15",
+    "version": "2.5.0",
     "description": "Exchange JSON-RPC for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,9 +19,9 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.15",
-        "@arkecosystem/core-interfaces": "^2.4.15",
-        "@arkecosystem/exchange-json-rpc": "^1.0.0"
+        "@arkecosystem/core-container": "^2.5.0",
+        "@arkecosystem/core-interfaces": "^2.5.0",
+        "@arkecosystem/exchange-json-rpc": "^1.0.1"
     },
     "engines": {
         "node": ">=10.x"

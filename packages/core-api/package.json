@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-api",
-    "version": "2.4.15",
+    "version": "2.5.0",
     "description": "Public API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,38 +21,36 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.15",
-        "@arkecosystem/core-http-utils": "^2.4.15",
-        "@arkecosystem/core-interfaces": "^2.4.15",
-        "@arkecosystem/core-transaction-pool": "^2.4.15",
-        "@arkecosystem/core-utils": "^2.4.15",
-        "@arkecosystem/crypto": "^2.4.15",
+        "@arkecosystem/core-container": "^2.5.0",
+        "@arkecosystem/core-http-utils": "^2.5.0",
+        "@arkecosystem/core-interfaces": "^2.5.0",
+        "@arkecosystem/core-transaction-pool": "^2.5.0",
+        "@arkecosystem/core-utils": "^2.5.0",
+        "@arkecosystem/crypto": "^2.5.0",
         "@arkecosystem/utils": "^0.3.0",
-        "@faustbrian/hapi-version": "^0.2.11",
         "@hapi/boom": "^7.4.2",
-        "@hapi/joi": "^15.0.3",
+        "@hapi/joi": "^15.1.0",
         "ajv": "^6.10.0",
         "bs58check": "^2.1.2",
         "dayjs": "^1.8.14",
-        "delay": "^4.2.0",
-        "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
-        "hapi-rate-limit": "^3.1.2",
+        "hapi-pagination": "https://github.com/faustbrian/hapi-pagination#f4991348ca779b68b8e7139cfcbc601e6d496612",
+        "hapi-rate-limit": "^4.0.0",
         "ip": "^1.1.5",
         "lodash.groupby": "^4.6.0",
         "lodash.orderby": "^4.6.0",
         "lodash.partition": "^4.6.0",
         "lodash.snakecase": "^4.1.1",
-        "semver": "^6.1.0"
+        "semver": "^6.2.0"
     },
     "devDependencies": {
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__joi": "^15.0.1",
+        "@types/hapi__joi": "^15.0.2",
         "@types/ip": "^1.1.0",
         "@types/lodash.groupby": "^4.6.6",
         "@types/lodash.orderby": "^4.6.6",
         "@types/lodash.partition": "^4.6.6",
         "@types/lodash.snakecase": "^4.1.6",
-        "@types/semver": "^6.0.0"
+        "@types/semver": "^6.0.1"
     },
     "engines": {
         "node": ">=10.x"

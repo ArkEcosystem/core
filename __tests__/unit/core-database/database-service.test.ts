@@ -65,9 +65,9 @@ describe("Database Service", () => {
 
             expect(walletManager.applyBlock).toHaveBeenCalledWith(genesisBlock);
             expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.BlockApplied, genesisBlock.data);
-            genesisBlock.transactions.forEach(tx =>
-                expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.TransactionApplied, tx.data),
-            );
+            for (const tx of genesisBlock.transactions) {
+                expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.TransactionApplied, tx.data);
+            }
         });
     });
 
@@ -227,18 +227,20 @@ describe("Database Service", () => {
             // reverse the current delegate order.
             const blocksInRound = [];
             for (let i = 0; i < 51; i++) {
+                const voterKeys = Identities.Keys.fromPassphrase(`voter-${i}`);
+
                 const transfer = Transactions.BuilderFactory.transfer()
                     .amount(
                         Utils.BigNumber.make(i + 1)
                             .times(SATOSHI)
                             .toFixed(),
                     )
-                    .recipientId(delegatesRound2[i].address)
+                    .recipientId(Identities.Address.fromPublicKey(voterKeys.publicKey))
                     .sign(keys.passphrase)
                     .build();
 
-                // Vote for itself
-                walletManager.findByPublicKey(delegatesRound2[i].publicKey).vote = delegatesRound2[i].publicKey;
+                // Vote for delegate
+                walletManager.findByPublicKey(voterKeys.publicKey).vote = delegatesRound2[i].publicKey;
 
                 const block = BlockFactory.make(
                     {

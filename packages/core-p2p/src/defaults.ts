@@ -8,7 +8,7 @@ export const defaults = {
     /**
      * The minimum peer version we expect
      */
-    minimumVersions: ["^2.4 || ^2.5"],
+    minimumVersions: ["^2.4 || ^2.5", "^2.4.0-next.0 || ^2.5.0-next.0"],
     /**
      * The number of peers we expect to be available to start a relay
      */
@@ -62,5 +62,5 @@ export const defaults = {
     /**
      * Rate limit config, used in socket-server worker / master
      */
-    rateLimit: process.env.CORE_P2P_RATE_LIMIT || 300, // max number of messages per second per socket connection
+    rateLimit: process.env.CORE_P2P_RATE_LIMIT || 100, // max number of messages per second per socket connection
 };
