@@ -8,5 +8,5 @@ export enum TransactionTypes {
     TimelockTransfer = 6,
     MultiPayment = 7,
     DelegateResignation = 8,
-    BusinessRegistration = 9,
+    BusinessRegistration = 11,
 }

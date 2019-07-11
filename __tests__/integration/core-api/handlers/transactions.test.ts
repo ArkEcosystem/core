@@ -166,6 +166,7 @@ describe("API 2.0 - Transactions", () => {
                 TimelockTransfer: 6,
                 MultiPayment: 7,
                 DelegateResignation: 8,
+                BusinessRegistration: 11,
             });
         });
     });

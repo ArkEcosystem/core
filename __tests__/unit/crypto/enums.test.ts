@@ -31,5 +31,8 @@ describe("Constants", () => {
 
         expect(enums.TransactionTypes.DelegateResignation).toBeDefined();
         expect(enums.TransactionTypes.DelegateResignation).toBe(8);
+
+        expect(enums.TransactionTypes.BusinessRegistration).toBeDefined();
+        expect(enums.TransactionTypes.BusinessRegistration).toBe(11);
     });
 });
