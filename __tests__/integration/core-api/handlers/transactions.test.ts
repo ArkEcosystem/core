@@ -604,6 +604,7 @@ describe("API 2.0 - Transactions", () => {
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toEqual({
+                businessRegistration: 5000000000,
                 delegateRegistration: 2500000000,
                 delegateResignation: 2500000000,
                 ipfs: 500000000,
