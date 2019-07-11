@@ -15,13 +15,6 @@ export class Server {
         const options = {
             host: this.config.host,
             port: this.config.port,
-            routes: {
-                validate: {
-                    async failAction(request, h, err) {
-                        throw err;
-                    },
-                },
-            },
         };
 
         if (this.config.enabled) {
