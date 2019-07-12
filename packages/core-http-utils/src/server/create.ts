@@ -1,4 +1,6 @@
+import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
+import deepmerge from "deepmerge";
 import expandHomeDir from "expand-home-dir";
 import { readFileSync } from "fs";
 import { monitorServer } from "./monitor";
@@ -8,6 +10,24 @@ export const createServer = async (options, callback?: any, plugins?: any[]) => 
         options.tls.key = readFileSync(expandHomeDir(options.tls.key));
         options.tls.cert = readFileSync(expandHomeDir(options.tls.cert));
     }
+
+    options = deepmerge(
+        {
+            routes: {
+                payload: {
+                    async failAction(request, h, err) {
+                        return Boom.badData(err.message);
+                    },
+                },
+                validate: {
+                    async failAction(request, h, err) {
+                        return Boom.badData(err.message);
+                    },
+                },
+            },
+        },
+        options,
+    );
 
     const server = new Hapi.Server(options);
 
