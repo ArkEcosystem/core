@@ -5,6 +5,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { BusinessRegistrationBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/business-registration";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -826,24 +827,56 @@ describe("DelegateResignationTransaction", () => {
         });
     });
 });
+
 describe("BusinessRegistration transaction", () => {
     describe("throwIfCannotBeApplied", () => {
-        it("should not fail", () => {
+        let builder: BusinessRegistrationBuilder;
+        let walletManager: Wallets.WalletManager;
+        let transactionInstance: Interfaces.ITransaction;
+        let handler: TransactionHandler;
+        let businessWallet: Wallets.Wallet;
+
+        let secondBusinessWallet: Wallets.Wallet;
+
+        beforeEach(() => {
             Managers.configManager.setFromPreset("testnet");
-            const builder = BuilderFactory.businessRegistration();
-            const walletManager = new Wallets.WalletManager();
-            const businessWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
+            builder = BuilderFactory.businessRegistration();
+            walletManager = new Wallets.WalletManager();
+            handler = Handlers.Registry.get(TransactionTypes.BusinessRegistration);
+            businessWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
             businessWallet.balance = Utils.BigNumber.make(50000000000);
             businessWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
             walletManager.reindex(businessWallet);
-            const handler = Handlers.Registry.get(TransactionTypes.BusinessRegistration);
+
+            secondBusinessWallet = new Wallets.Wallet("AcfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd");
+            secondBusinessWallet.balance = Utils.BigNumber.make(50000000000);
+            secondBusinessWallet.publicKey = "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d";
+            walletManager.reindex(secondBusinessWallet);
+        });
+
+        it("should not throw", () => {
             const transaction = builder
                 .businessRegistrationAsset("name", "www.website.com")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
                 .nonce("1")
+                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
                 .getStruct();
-            const instance = Transactions.TransactionFactory.fromData(transaction);
-            handler.throwIfCannotBeApplied(instance, businessWallet, walletManager);
+            transactionInstance = Transactions.TransactionFactory.fromData(transaction);
+            expect(() =>
+                handler.throwIfCannotBeApplied(transactionInstance, businessWallet, walletManager),
+            ).not.toThrow();
+        });
+
+        it("should fail duo to business name and website already exist", () => {
+            const transaction = builder
+                .businessRegistrationAsset("takenName", "www.takenWebsite.com")
+                .nonce("1")
+                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .getStruct();
+            transactionInstance = Transactions.TransactionFactory.fromData(transaction);
+            secondBusinessWallet.business = { name: "takenName", websiteAddress: "www.takenWebsite.com" };
+            walletManager.reindex(secondBusinessWallet);
+
+            expect(() => handler.throwIfCannotBeApplied(transactionInstance, businessWallet, walletManager)).toThrow();
         });
     });
 });
