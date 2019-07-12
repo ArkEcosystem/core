@@ -340,7 +340,6 @@ workflows:
             - node10-benchmark
             - node11-benchmark
             - node12-benchmark
-            - node10-e2e
             - node11-e2e
             - node12-e2e
             - node10-integration
