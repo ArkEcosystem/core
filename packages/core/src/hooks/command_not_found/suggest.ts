@@ -19,7 +19,7 @@ export const init: Hook<"init"> = async function(opts) {
 
     let binHelp = `${opts.config.bin} help`;
     const idSplit = opts.id.split(":");
-    if (await opts.config.findTopic(idSplit[0])) {
+    if (opts.config.findTopic(idSplit[0])) {
         // if valid topic, update binHelp with topic
         binHelp = `${binHelp} ${idSplit[0]}`;
     }

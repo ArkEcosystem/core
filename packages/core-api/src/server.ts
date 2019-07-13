@@ -9,19 +9,12 @@ export class Server {
     private http: any;
     private https: any;
 
-    public constructor(private config: any) { }
+    public constructor(private config: any) {}
 
     public async start(): Promise<void> {
         const options = {
             host: this.config.host,
             port: this.config.port,
-            routes: {
-                validate: {
-                    async failAction(request, h, err) {
-                        throw err;
-                    },
-                },
-            },
         };
 
         if (this.config.enabled) {
@@ -130,11 +123,20 @@ export class Server {
             await server.register(plugin);
         }
 
+        server.route({
+            method: "GET",
+            path: "/",
+            handler() {
+                return { data: "Hello World!" };
+            },
+        });
+
         // @TODO: remove this with the release of 3.0 - adds support for /api and /api/v2
         server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-            const path: string = request.url.pathname.replace("/v2", "");
-
-            request.setUrl(request.url.search ? `${path}${request.url.search}` : path);
+            if (request.url) {
+                const path: string = request.url.pathname.replace("/v2", "");
+                request.setUrl(request.url.search ? `${path}${request.url.search}` : path);
+            }
 
             return h.continue;
         });
