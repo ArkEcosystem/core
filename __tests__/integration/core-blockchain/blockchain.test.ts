@@ -215,8 +215,7 @@ describe("Blockchain", () => {
                 ids: [],
             };
 
-            const sortedTransactions = Utils.sortTransactions(transactions);
-            for (const transaction of sortedTransactions) {
+            for (const transaction of transactions) {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
                 transactionData.ids.push(Buffer.from(transaction.id, "hex"));
@@ -229,13 +228,13 @@ describe("Blockchain", () => {
                 previousBlock: lastBlock.data.id,
                 previousBlockHex: lastBlock.data.idHex,
                 height: lastBlock.data.height + 1,
-                numberOfTransactions: sortedTransactions.length,
+                numberOfTransactions: transactions.length,
                 totalAmount: transactionData.amount,
                 totalFee: transactionData.fee,
                 reward: Utils.BigNumber.ZERO,
-                payloadLength: 32 * sortedTransactions.length,
+                payloadLength: 32 * transactions.length,
                 payloadHash: Crypto.HashAlgorithms.sha256(transactionData.ids).toString("hex"),
-                transactions: sortedTransactions,
+                transactions: transactions,
             };
 
             return Blocks.BlockFactory.make(data, Identities.Keys.fromPassphrase(generatorKeys.secret));
