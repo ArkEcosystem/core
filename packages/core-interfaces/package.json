@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-interfaces",
-    "version": "2.5.0-next.6",
+    "version": "2.5.0",
     "description": "Interface types for essential ARK Core modules",
     "license": "MIT",
     "contributors": [
@@ -23,7 +23,7 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^2.5.0-next.6",
+        "@arkecosystem/crypto": "^2.5.0",
         "awilix": "^4.2.2",
         "dayjs": "^1.8.14"
     },

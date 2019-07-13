@@ -144,8 +144,8 @@ describe("keyword bignumber", () => {
         const validate = ajv.compile(schema);
 
         expect(validate(Number.MAX_SAFE_INTEGER)).toBeTrue();
-        expect(validate(Number.MAX_SAFE_INTEGER + 1)).toBeFalse();
-        expect(validate(String(Number.MAX_SAFE_INTEGER) + "100")).toBeFalse();
+        expect(validate("9223372036854775807")).toBeTrue();
+        expect(validate("9223372036854775808")).toBeFalse();
     });
 
     it("should be ok for number, string and bignumber as input", () => {

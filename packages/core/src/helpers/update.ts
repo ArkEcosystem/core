@@ -1,6 +1,6 @@
 import { IConfig } from "@oclif/config";
 import cli from "cli-ux";
-import { shell } from "execa";
+import { sync } from "execa";
 import { closeSync, openSync, statSync } from "fs";
 import { ensureDirSync, existsSync } from "fs-extra";
 import latestVersion from "latest-version";
@@ -30,7 +30,7 @@ const ensureCacheFile = (config: IConfig): string => {
 };
 
 export const installFromChannel = async (pkg, channel) => {
-    const { stdout, stderr } = await shell(`yarn global add ${pkg}@${channel}`);
+    const { stdout, stderr } = sync(`yarn global add ${pkg}@${channel}`, { shell: true });
 
     if (stderr) {
         console.error(stderr);

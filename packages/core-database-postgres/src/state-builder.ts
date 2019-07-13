@@ -14,13 +14,13 @@ export class StateBuilder {
 
     public async run(): Promise<void> {
         const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
-        let steps = transactionHandlers.length + 1;
+        let steps = transactionHandlers.length + 2;
 
         // FIXME: skip state generation of new tx types unless we are on testnet (until develop is on 2.6)
         const aip11 =
             Managers.configManager.getMilestone().aip11 && Managers.configManager.get("network.name") === "testnet";
         if (!aip11) {
-            steps -= 4;
+            steps -= 5;
         }
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);

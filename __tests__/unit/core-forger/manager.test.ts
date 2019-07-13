@@ -4,7 +4,7 @@ import "./mocks/core-container";
 
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Transactions } from "@arkecosystem/crypto";
+import { Crypto, Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
@@ -24,6 +24,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
+    jest.restoreAllMocks();
     defaults.hosts = [{ hostname: "127.0.0.1", port: 4000 }];
     forgeManager = new ForgerManager(defaults);
 });
@@ -47,9 +48,11 @@ describe("Forger Manager", () => {
             const del = new Delegate("a secret", testnet.network);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
-                timestamp: 1,
+                timestamp: Crypto.Slots.getTime(),
                 reward: 2 * 1e8,
             };
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
 
             await forgeManager.forgeNewBlock(del, round, {
                 lastBlockId: round.lastBlock.id,
@@ -70,6 +73,62 @@ describe("Forger Manager", () => {
                 ApplicationEvents.TransactionForged,
                 expect.any(Object),
             );
+        });
+
+        it("should not forge a block when not enough time left", async () => {
+            // NOTE: make sure we have valid transactions from an existing wallet
+            const transactions = TransactionFactory.transfer()
+                .withNetwork("testnet")
+                .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .build();
+
+            // @ts-ignore
+            forgeManager.client.getTransactions.mockReturnValue({
+                transactions: transactions.map(tx => tx.serialized.toString("hex")),
+            });
+
+            forgeManager.usernames = [];
+
+            const del = new Delegate("a secret", testnet.network);
+            const round = {
+                lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
+                timestamp: Crypto.Slots.getTime(),
+                reward: 2 * 1e8,
+            };
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).toHaveBeenCalled();
+
+            jest.resetAllMocks();
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(1000);
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).not.toHaveBeenCalled();
+
+            jest.resetAllMocks();
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockImplementation(timestamp => {
+                return timestamp === undefined ? 1 : 2;
+            });
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).not.toHaveBeenCalled();
         });
     });
 

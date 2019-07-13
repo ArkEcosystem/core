@@ -1,4 +1,4 @@
-import { ProcessDescription } from "@faustbrian/foreman";
+import { ProcessDescription } from "@typeskrift/foreman";
 import Table from "cli-table3";
 import dayjs from "dayjs";
 import prettyBytes from "pretty-bytes";

@@ -9,6 +9,7 @@ export const startServer = async config => {
         port: config.port,
     });
 
+    // @ts-ignore
     await server.register(h2o2);
 
     await server.register({

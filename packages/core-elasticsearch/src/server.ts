@@ -7,13 +7,6 @@ export const startServer = async config => {
     const server = await createServer({
         host: config.host,
         port: config.port,
-        routes: {
-            validate: {
-                async failAction(request, h, err) {
-                    throw err;
-                },
-            },
-        },
     });
 
     server.route([
