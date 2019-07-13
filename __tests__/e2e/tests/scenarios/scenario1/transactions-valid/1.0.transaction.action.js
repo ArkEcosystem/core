@@ -1,6 +1,6 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers, Identities, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { delegates } = require("../../../../lib/utils/testnet");
@@ -20,17 +20,15 @@ module.exports = async options => {
     Object.keys(utils.wallets).forEach(txType => {
         const wallets = utils.wallets[txType];
 
-        transactions.push(_genTransaction(txType, wallets, nonces));
+        transactions.push(_genTransaction(txType, wallets));
     });
 
     await testUtils.POST("transactions", { transactions });
 
-    function _genTransaction(type, wallets, nonces) {
-        const nonce = nonces[wallets[0].address];
-        if (!nonce) {
-            nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[0].passphrase));
-            noncesByAddress[wallets[0].address] = nonce;
-        }
+    function _genTransaction(type, wallets) {
+        noncesByAddress[wallets[0].address] = noncesByAddress[wallets[0].address]
+            ? noncesByAddress[wallets[0].address].plus(1)
+            : Utils.BigNumber.ZERO;
 
         let transaction;
         switch (type) {
@@ -53,11 +51,9 @@ module.exports = async options => {
                 break;
         }
 
-        nonces[wallets[0].address] = nonce.plus(1);
-
         return transaction
             .withFee(utils.fees[type])
-            .withNonce(nonce.plus(1))
+            .withNonce(noncesByAddress[wallets[0].address])
             .withPassphrase(wallets[0].passphrase)
             .createOne();
     }
