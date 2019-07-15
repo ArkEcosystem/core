@@ -46,7 +46,7 @@ export interface IWalletManager {
 
     allByUsername(): IWallet[];
 
-    findByIdentifier(id: string): IWallet;
+    findById(id: string): IWallet;
 
     findByAddress(address: string): IWallet;
 

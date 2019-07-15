@@ -32,7 +32,7 @@ export class WalletManager implements State.IWalletManager {
         return Object.values(this.byUsername);
     }
 
-    public findByIdentifier(id: string): State.IWallet {
+    public findById(id: string): State.IWallet {
         return this.byAddress[id] || this.byPublicKey[id] || this.byUsername[id];
     }
 
