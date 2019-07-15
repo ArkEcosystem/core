@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import {
@@ -90,7 +91,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const refundAsset = transaction.data.asset.refund;
         const lockId = refundAsset.lockTransactionId;
         const lockWallet = databaseWalletManager.findByLockId(lockId);
-        if (!lockWallet) {
+        if (!lockWallet || !lockWallet.locks[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
 
@@ -106,7 +107,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             .resolvePlugin<State.IStateService>("state")
             .getStore()
             .getLastBlock();
-        if (lockWallet.locks[lockId].asset.lock.expiration > lastBlock.data.timestamp) {
+        const lastBlockEpochTimestamp = lastBlock.data.timestamp;
+        if (lockWallet.locks[lockId].asset.lock.expiration > formatTimestamp(lastBlockEpochTimestamp).unix) {
             throw new HtlcLockNotExpiredError();
         }
     }
@@ -157,6 +159,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         lockWallet.balance = newBalance;
         lockWallet.lockedBalance = lockWallet.lockedBalance.minus(lockWallet.locks[lockId].amount);
+        lockWallet.locks = Object.assign({}, lockWallet.locks);
+        // shallow copy to fix strange behaviour, it looks like the database wallet and
+        // the tx pool wallet share the same reference of the locks object, so deleting one lock
+        // in one deletes it too on the other... can't find why yet. TODO
         delete lockWallet.locks[lockId];
 
         walletManager.reindex(lockWallet);
