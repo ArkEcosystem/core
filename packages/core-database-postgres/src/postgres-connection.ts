@@ -51,7 +51,7 @@ export class PostgresConnection implements Database.IConnection {
         try {
             await this.connect();
             this.exposeRepositories();
-            await this.registerQueryExecutor();
+            this.registerQueryExecutor();
             await this.runMigrations();
             await this.registerModels();
             this.logger.debug("Connected to database.");
@@ -68,8 +68,10 @@ export class PostgresConnection implements Database.IConnection {
     public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
 
+        const options = this.options;
+
         const pgp: pgPromise.IMain = pgPromise({
-            ...this.options.initialization,
+            ...options.initialization,
             ...{
                 error: async (error, context) => {
                     // https://www.postgresql.org/docs/11/errcodes-appendix.html
@@ -85,7 +87,7 @@ export class PostgresConnection implements Database.IConnection {
                 },
                 extend(object) {
                     for (const repository of Object.keys(repositories)) {
-                        object[repository] = new repositories[repository](object, pgp);
+                        object[repository] = new repositories[repository](object, pgp, options);
                     }
                 },
             },
@@ -107,7 +109,7 @@ export class PostgresConnection implements Database.IConnection {
             this.logger.warn(error.message);
         }
 
-        await this.pgp.end();
+        this.pgp.end();
 
         this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
         this.logger.debug("Disconnected from database");

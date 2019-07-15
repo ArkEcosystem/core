@@ -7,7 +7,7 @@ import { Controller } from "../shared/controller";
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const allPeers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
+            const allPeers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
 
             let result = allPeers.sort((a, b) => a.latency - b.latency);
             result = request.query.version
@@ -26,7 +26,6 @@ export class PeersController extends Controller {
                             : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
                 }
             }
-
             return super.toPagination({ rows: result, count: allPeers.length }, "peer");
         } catch (error) {
             return Boom.badImplementation(error);
@@ -35,7 +34,7 @@ export class PeersController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
+            const peers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
             const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
 
             if (!peer) {

@@ -1,6 +1,6 @@
 "use strict";
 
-const { Managers } = require("@arkecosystem/crypto");
+const { Managers, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
@@ -15,11 +15,12 @@ module.exports = async options => {
     const transactions = [
         TransactionFactory.secondSignature(utils.double2ndsigRegSender2.passphrase)
             .withFee(5 * Math.pow(10, 8))
-            .withPassphrase(utils.double2ndsigRegSender2.passphrase)
+            .withPassphrase(utils.double2ndsigRegSender.passphrase)
             .createOne(),
         TransactionFactory.secondSignature(utils.double2ndsigRegSender3.passphrase)
             .withFee(5 * Math.pow(10, 8))
-            .withPassphrase(utils.double2ndsigRegSender2.passphrase)
+            .withNonce(Utils.BigNumber.make(1))
+            .withPassphrase(utils.double2ndsigRegSender.passphrase)
             .createOne(),
     ];
 

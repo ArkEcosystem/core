@@ -102,6 +102,7 @@ describe("PeerCommunicator", () => {
                         id: "123456",
                     },
                 },
+                config: { plugins: {} },
             };
 
             await socketManager.addMock("getStatus", mockStatus);
@@ -134,6 +135,7 @@ describe("PeerCommunicator", () => {
                         id: "123456",
                     },
                 },
+                config: { plugins: {} },
             });
 
             stubPeer.lastPinged = undefined;

@@ -41,6 +41,10 @@ describe("Transaction Forging - Multipayment", () => {
     });
 
     it("should broadcast, accept and forge it [500 payments per tx, 200 tx] [Signed with 1 Passphase]", async () => {
+        if (process.version.split(".")[0] === "v10") {
+            return; // don't run on node 10
+        }
+
         // Initial Funds
         const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100000 * 1e8)
             .withPassphrase(secrets[0])

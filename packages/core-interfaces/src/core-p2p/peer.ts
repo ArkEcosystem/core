@@ -20,6 +20,7 @@ export interface IPeer {
 
     latency: number;
     state: IPeerState;
+    plugins: IPeerPlugins;
     lastPinged: Dayjs | undefined;
     verificationResult: IPeerVerificationResult | undefined;
 

@@ -397,7 +397,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
-        await this.walletManager.revertBlock(block);
+        this.walletManager.revertBlock(block);
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
@@ -505,27 +505,21 @@ export class DatabaseService implements Database.IDatabaseService {
         // Number of stored transactions equals the sum of block.numberOfTransactions in the database
         if (blockStats.numberOfTransactions !== transactionStats.count) {
             errors.push(
-                `Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${
-                    blockStats.numberOfTransactions
-                }`,
+                `Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`,
             );
         }
 
         // Sum of all tx fees equals the sum of block.totalFee
         if (blockStats.totalFee !== transactionStats.totalFee) {
             errors.push(
-                `Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${
-                    blockStats.totalFee
-                }`,
+                `Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`,
             );
         }
 
         // Sum of all tx amount equals the sum of block.totalAmount
         if (blockStats.totalAmount !== transactionStats.totalAmount) {
             errors.push(
-                `Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${
-                    blockStats.totalAmount
-                }`,
+                `Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`,
             );
         }
 
@@ -592,7 +586,7 @@ export class DatabaseService implements Database.IDatabaseService {
             lastBlock = await this.createGenesisBlock();
         }
 
-        await this.configureState(lastBlock);
+        this.configureState(lastBlock);
     }
 
     private async loadTransactionsForBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {

@@ -261,7 +261,7 @@ describe("API 2.0 - Transactions", () => {
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(2);
+            expect(response.data.data).toHaveLength(3);
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);

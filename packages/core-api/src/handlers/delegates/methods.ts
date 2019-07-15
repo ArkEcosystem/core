@@ -8,7 +8,7 @@ const databaseService = app.resolvePlugin<Database.IDatabaseService>("database")
 const blocksRepository = databaseService.blocksBusinessRepository;
 
 const index = async request => {
-    const delegates = await databaseService.delegates.search({
+    const delegates = databaseService.delegates.search({
         ...request.query,
         ...paginate(request),
     });
@@ -17,7 +17,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const delegate = await databaseService.delegates.findById(request.params.id);
+    const delegate = databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -27,7 +27,7 @@ const show = async request => {
 };
 
 const search = async request => {
-    const delegates = await databaseService.delegates.search({
+    const delegates = databaseService.delegates.search({
         ...request.payload,
         ...request.query,
         ...paginate(request),
@@ -37,7 +37,7 @@ const search = async request => {
 };
 
 const blocks = async request => {
-    const delegate = await databaseService.delegates.findById(request.params.id);
+    const delegate = databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -49,13 +49,13 @@ const blocks = async request => {
 };
 
 const voters = async request => {
-    const delegate = await databaseService.delegates.findById(request.params.id);
+    const delegate = databaseService.delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = await databaseService.wallets.findAllByVote(delegate.publicKey, {
+    const wallets = databaseService.wallets.findAllByVote(delegate.publicKey, {
         ...request.query,
         ...paginate(request),
     });
