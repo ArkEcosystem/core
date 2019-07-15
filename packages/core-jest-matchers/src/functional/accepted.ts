@@ -28,6 +28,8 @@ expect.extend({
                 parsedBody.errors === undefined &&
                 parsedBody.data.accept.includes(transaction.id) &&
                 parsedBody.data.broadcast.includes(transaction.id);
+
+            error = JSON.stringify(parsedBody.errors);
         } catch (e) {
             error = e.message;
             console.error(error);
