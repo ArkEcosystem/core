@@ -21,7 +21,7 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.5.1",
         "@arkecosystem/core-interfaces": "^2.5.1",
-        "@arkecosystem/exchange-json-rpc": "^1.0.1"
+        "@arkecosystem/exchange-json-rpc": "^1.0.3"
     },
     "engines": {
         "node": ">=10.x"

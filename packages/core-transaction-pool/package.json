@@ -36,7 +36,7 @@
         "@types/pluralize": "^0.0.29",
         "better-sqlite3": "^5.4.0",
         "bs58check": "^2.1.2",
-        "dayjs": "^1.8.14",
+        "dayjs": "^1.8.15",
         "delay": "^4.3.0",
         "fs-extra": "^8.1.0",
         "lodash.camelcase": "^4.3.0",

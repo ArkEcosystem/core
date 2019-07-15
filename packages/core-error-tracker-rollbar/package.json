@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.5.1",
-        "rollbar": "^2.7.1"
+        "rollbar": "^2.8.1"
     },
     "engines": {
         "node": ">=10.x"
