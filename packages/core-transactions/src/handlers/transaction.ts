@@ -103,8 +103,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
         this.applyToRecipient(transaction, walletManager);
     }
 
-    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
-        await this.revertForSender(transaction, walletManager);
+    public revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        this.revertForSender(transaction, walletManager);
         this.revertForRecipient(transaction, walletManager);
     }
 
@@ -190,9 +190,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${
-                    Enums.TransactionTypes[type]
-                }' in the pool`,
+                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionTypes[type]}' in the pool`,
             );
 
             return true;

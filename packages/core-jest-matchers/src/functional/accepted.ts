@@ -6,8 +6,8 @@ declare global {
     namespace jest {
         // tslint:disable-next-line:interface-name
         interface Matchers<R> {
-            toBeAccepted(): R;
-            toBeAllAccepted(): R;
+            toBeAccepted(): Promise<R>;
+            toBeAllAccepted(): Promise<R>;
         }
     }
 }

@@ -208,6 +208,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         walletManager.reindex(lockWallet);
     }
 
+    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+        await this.revertForSender(transaction, walletManager);
+        this.revertForRecipient(transaction, walletManager);
+    }
+
     // tslint:disable-next-line:no-empty
     public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 

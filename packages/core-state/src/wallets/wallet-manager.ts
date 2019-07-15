@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, Shared, State } from "@arkecosystem/core-interfaces";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, Interfaces as TransactionInterfaces } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { TempWalletManager } from "./temp-wallet-manager";
@@ -307,7 +307,7 @@ export class WalletManager implements State.IWalletManager {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const transactionHandler: TransactionInterfaces.ITransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: State.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(data.recipientId);
 
@@ -373,9 +373,7 @@ export class WalletManager implements State.IWalletManager {
 
                     if (a.publicKey === b.publicKey) {
                         throw new Error(
-                            `The balance and public key of both delegates are identical! Delegate "${
-                                a.username
-                            }" appears twice in the list.`,
+                            `The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`,
                         );
                     }
 
