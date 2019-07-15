@@ -42,11 +42,10 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search({ ...params, ...{ vote: publicKey } });
     }
 
-    // @TODO: simplify this
     public findById(id: string): State.IWallet {
-        return this.search().rows.find(
-            wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id,
-        );
+        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
+
+        return walletManager.findByAddress(id) || walletManager.findByPublicKey(id) || walletManager.findByUsername(id);
     }
 
     public count(): number {
