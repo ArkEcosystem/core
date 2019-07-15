@@ -8,7 +8,7 @@ const databaseService = app.resolvePlugin<Database.IDatabaseService>("database")
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
-    const wallets = await databaseService.wallets.search({
+    const wallets = databaseService.wallets.search({
         ...request.query,
         ...paginate(request),
     });
@@ -17,13 +17,13 @@ const index = async request => {
 };
 
 const top = async request => {
-    const wallets = await databaseService.wallets.top(paginate(request));
+    const wallets = databaseService.wallets.top(paginate(request));
 
     return toPagination(wallets, "wallet");
 };
 
 const show = async request => {
-    const wallet = await databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -33,7 +33,7 @@ const show = async request => {
 };
 
 const transactions = async request => {
-    const wallet = await databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -49,7 +49,7 @@ const transactions = async request => {
 };
 
 const transactionsSent = async request => {
-    const wallet = await databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -68,7 +68,7 @@ const transactionsSent = async request => {
 };
 
 const transactionsReceived = async request => {
-    const wallet = await databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -87,7 +87,7 @@ const transactionsReceived = async request => {
 };
 
 const votes = async request => {
-    const wallet = await databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -105,7 +105,7 @@ const votes = async request => {
 };
 
 const search = async request => {
-    const wallets = await databaseService.wallets.search({
+    const wallets = databaseService.wallets.search({
         ...request.payload,
         ...request.query,
         ...paginate(request),
