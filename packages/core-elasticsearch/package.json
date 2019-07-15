@@ -23,7 +23,7 @@
         "@arkecosystem/core-http-utils": "^2.5.1",
         "@arkecosystem/core-interfaces": "^2.5.1",
         "@arkecosystem/crypto": "^2.5.1",
-        "@elastic/elasticsearch": "^7.1.0",
+        "@elastic/elasticsearch": "^7.2.0",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.1.0",
         "fs-extra": "^8.1.0"
