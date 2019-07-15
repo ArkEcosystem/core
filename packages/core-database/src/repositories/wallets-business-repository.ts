@@ -43,9 +43,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     }
 
     public findById(id: string): State.IWallet {
-        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
-
-        return walletManager.findByAddress(id) || walletManager.findByPublicKey(id) || walletManager.findByUsername(id);
+        return this.databaseServiceProvider().walletManager.findByIdentifier(id);
     }
 
     public count(): number {

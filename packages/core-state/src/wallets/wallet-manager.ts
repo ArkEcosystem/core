@@ -32,6 +32,10 @@ export class WalletManager implements State.IWalletManager {
         return Object.values(this.byUsername);
     }
 
+    public findByIdentifier(id: string): State.IWallet {
+        return this.byAddress[id] || this.byPublicKey[id] || this.byUsername[id];
+    }
+
     public findByAddress(address: string): State.IWallet {
         if (address && !this.byAddress[address]) {
             this.byAddress[address] = new Wallet(address);
@@ -310,9 +314,7 @@ export class WalletManager implements State.IWalletManager {
 
                     if (a.publicKey === b.publicKey) {
                         throw new Error(
-                            `The balance and public key of both delegates are identical! Delegate "${
-                                a.username
-                            }" appears twice in the list.`,
+                            `The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`,
                         );
                     }
 
