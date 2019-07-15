@@ -447,17 +447,20 @@ export class WalletManager implements State.IWalletManager {
                     delegate.voteBalance = revert
                         ? delegate.voteBalance.plus(transaction.fee).minus(lockTransaction.amount)
                         : delegate.voteBalance.minus(transaction.fee).plus(lockTransaction.amount);
-
-                    const lockWalletDelegate: State.IWallet = this.findByPublicKey(lockWallet.vote);
-                    lockWalletDelegate.voteBalance = revert
-                        ? delegate.voteBalance.plus(lockTransaction.amount)
-                        : delegate.voteBalance.minus(lockTransaction.amount);
                 } else {
                     // General case : sender delegate vote balance reduced by amount + fees (or increased if revert)
                     delegate.voteBalance = revert
                         ? delegate.voteBalance.plus(total)
                         : delegate.voteBalance.minus(total);
                 }
+            }
+
+            if (transaction.type === Enums.TransactionTypes.HtlcClaim && lockWallet.vote) {
+                // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
+                const lockWalletDelegate: State.IWallet = this.findByPublicKey(lockWallet.vote);
+                lockWalletDelegate.voteBalance = revert
+                    ? lockWalletDelegate.voteBalance.plus(lockTransaction.amount)
+                    : lockWalletDelegate.voteBalance.minus(lockTransaction.amount);
             }
 
             // Update vote balance of recipient's delegate
