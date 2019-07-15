@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.5.1",
-        "@sentry/node": "^5.4.3"
+        "@sentry/node": "^5.5.0"
     },
     "engines": {
         "node": ">=10.x"
