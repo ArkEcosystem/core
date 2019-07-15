@@ -511,6 +511,11 @@ export class Connection implements TransactionPool.IConnection {
             if (!localWalletManager.hasByPublicKey(vote)) {
                 localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
             }
+        } else if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            if (!localWalletManager.hasByLockId(lockId)) {
+                localWalletManager.reindex(clonedeep(databaseWalletManager.findByLockId(lockId)));
+            }
         }
 
         if (recipientId) {
