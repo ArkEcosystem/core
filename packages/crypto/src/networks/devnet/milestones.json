@@ -25,7 +25,6 @@
                 "businessRegistration": 5000000000
             }
         },
-        "aip11": true,
         "ignoreInvalidSecondSignatureField": true,
         "ignoreExpiredTransactions": true,
         "vendorFieldLength": 64
