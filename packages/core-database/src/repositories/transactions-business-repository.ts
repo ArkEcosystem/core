@@ -65,7 +65,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         wallet: State.IWallet,
         parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
-        const searchParameters = this.convertSearchParameters(parameters);
+        const searchParameters: Database.ISearchParameters = this.convertSearchParameters(parameters);
 
         const result = await this.databaseServiceProvider().connection.transactionsRepository.findAllByWallet(
             wallet,
@@ -202,7 +202,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return this.convertSearchParameters(params, sequenceOrder);
     }
 
-    private convertSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc") {
+    private convertSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.ISearchParameters {
         const searchParameters: Database.ISearchParameters = new SearchParameterConverter(
             this.databaseServiceProvider().connection.transactionsRepository.getModel(),
         ).convert(params);
