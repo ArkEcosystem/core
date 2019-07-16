@@ -762,6 +762,7 @@ describe("Multi Payment Transaction", () => {
 
 describe("Business registration transaction", () => {
     beforeAll(() => {
+        configManager.setFromPreset("testnet");
         transactionSchema = TransactionTypeFactory.get(TransactionTypes.BusinessRegistration).getSchema();
     });
     beforeEach(() => {

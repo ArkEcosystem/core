@@ -37,6 +37,10 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.delegateResignation());
     }
 
+    public static businessRegistration(name: string, websiteAddress: string, vat?: string, githubRepository?: string): TransactionFactory {
+        return new TransactionFactory(Transactions.BuilderFactory.businessRegistration().businessRegistrationAsset(name,websiteAddress,vat,githubRepository));
+    }
+
     public static vote(publicKey?: string): TransactionFactory {
         return new TransactionFactory(
             Transactions.BuilderFactory.vote().votesAsset([

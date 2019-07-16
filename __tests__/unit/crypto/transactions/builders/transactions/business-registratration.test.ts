@@ -1,6 +1,7 @@
-import { feeManager } from "@arkecosystem/crypto/src/managers";
-import { BigNumber } from "@arkecosystem/crypto/src/utils";
 import "jest-extended";
+
+import { configManager, feeManager } from "@arkecosystem/crypto/src/managers";
+import { BigNumber } from "@arkecosystem/crypto/src/utils";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
 import { BusinessRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/business-registration";
@@ -8,6 +9,8 @@ import { BusinessRegistrationBuilder } from "../../../../../../packages/crypto/s
 let builder: BusinessRegistrationBuilder;
 
 describe("Business Registration Transaction", () => {
+    configManager.setFromPreset("testnet");
+
     describe("verify", () => {
         beforeEach(() => {
             builder = BuilderFactory.businessRegistration();
