@@ -1,42 +1,28 @@
 [
-    {
-        "height": 1,
-        "reward": 0,
-        "activeDelegates": 51,
-        "blocktime": 8,
-        "block": {
-            "version": 0,
-            "maxTransactions": 150,
-            "maxPayload": 2097152
-        },
-        "epoch": "2017-03-21T13:00:00.000Z",
-        "fees": {
-            "staticFees": {
-                "transfer": 10000000,
-                "secondSignature": 500000000,
-                "delegateRegistration": 2500000000,
-                "vote": 100000000,
-                "multiSignature": 500000000,
-                "ipfs": 0,
-                "timelockTransfer": 0,
-                "multiPayment": 0,
-                "delegateResignation": 0
-            }
-        },
-        "vendorFieldLength": 64
+  {
+    "height": 1,
+    "reward": 200000000,
+    "activeDelegates": 51,
+    "blocktime": 8,
+    "block": {
+      "version": 0,
+      "maxTransactions": 150,
+      "maxPayload": 6291456
     },
-    {
-        "height": 75600,
-        "reward": 200000000
+    "epoch": "2019-07-16T19:55:13.132Z",
+    "fees": {
+      "staticFees": {
+        "transfer": 10000000,
+        "secondSignature": 500000000,
+        "delegateRegistration": 2500000000,
+        "vote": 100000000,
+        "multiSignature": 500000000,
+        "ipfs": 0,
+        "timelockTransfer": 0,
+        "multiPayment": 0,
+        "delegateResignation": 0
+      }
     },
-    {
-        "height": 100000,
-        "vendorFieldLength": 255
-    },
-    {
-        "height": 1000000000,
-        "block": {
-            "idFullSha256": true
-        }
-    }
+    "vendorFieldLength": 255
+  }
 ]
