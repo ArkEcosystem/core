@@ -71,7 +71,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (this.config.skipDiscovery) {
             this.logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
         } else {
-            await this.updateNetworkStatus();
+            await this.updateNetworkStatus(true);
 
             for (const [version, peers] of Object.entries(groupBy(this.storage.getPeers(), "version"))) {
                 this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
@@ -193,8 +193,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
             await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            this.pingPeerPorts(initialRun);
+
             return true;
         }
+
+        this.pingPeerPorts();
 
         return false;
     }
@@ -381,6 +385,25 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         return Promise.all(
             peers.map((peer: P2P.IPeer) => this.communicator.postTransactions(peer, transactionsBroadcast)),
+        );
+    }
+
+    private async pingPeerPorts(initialRun?: boolean): Promise<void> {
+        let peers = this.storage.getPeers();
+        if (!initialRun) {
+            peers = shuffle(peers).slice(0, Math.floor(peers.length / 2));
+        }
+
+        this.logger.debug(`Checking ports of ${pluralize("peer", peers.length, true)}.`);
+
+        Promise.all(
+            peers.map(async peer => {
+                try {
+                    await this.communicator.pingPorts(peer);
+                } catch (error) {
+                    return undefined;
+                }
+            }),
         );
     }
 

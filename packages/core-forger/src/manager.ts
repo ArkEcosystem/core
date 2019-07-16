@@ -153,18 +153,30 @@ export class ForgerManager {
             reward: round.reward,
         });
 
-        this.logger.info(
-            `Forged new block ${block.data.id} by delegate ${this.usernames[delegate.publicKey]} (${
-                delegate.publicKey
-            })`,
-        );
+        const minimumMs: number = 2000;
+        const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+        const currentSlot: number = Crypto.Slots.getSlotNumber();
+        const roundSlot: number = Crypto.Slots.getSlotNumber(round.timestamp);
+        const prettyName: string = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
 
-        await this.client.broadcastBlock(block.toJson());
+        if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
+            this.logger.info(`Forged new block ${block.data.id} by delegate ${prettyName}`);
 
-        this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
+            await this.client.broadcastBlock(block.toJson());
 
-        for (const transaction of transactions) {
-            this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+            this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
+
+            for (const transaction of transactions) {
+                this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+            }
+        } else {
+            if (currentSlot !== roundSlot) {
+                this.logger.warn(`Failed to forge new block by delegate ${prettyName}, because already in next slot.`);
+            } else {
+                this.logger.warn(
+                    `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`,
+                );
+            }
         }
     }
 
