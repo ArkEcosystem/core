@@ -65,10 +65,9 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         wallet: State.IWallet,
         parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
-        const { transactionsRepository }: Database.IConnection = this.databaseServiceProvider().connection;
-        const searchParameters = new SearchParameterConverter(transactionsRepository.getModel()).convert(parameters);
+        const searchParameters = this.convertSearchParameters(parameters);
 
-        const result = await transactionsRepository.findAllByWallet(
+        const result = await this.databaseServiceProvider().connection.transactionsRepository.findAllByWallet(
             wallet,
             searchParameters.paginate,
             searchParameters.orderBy,
@@ -175,8 +174,6 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.ISearchParameters {
-        const databaseService: Database.IDatabaseService = this.databaseServiceProvider();
-
         if (params.senderId) {
             const senderPublicKey = this.getPublicKeyFromAddress(params.senderId);
 
@@ -202,8 +199,12 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
             delete params.addresses;
         }
 
+        return this.convertSearchParameters(params, sequenceOrder);
+    }
+
+    private convertSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc") {
         const searchParameters: Database.ISearchParameters = new SearchParameterConverter(
-            databaseService.connection.transactionsRepository.getModel(),
+            this.databaseServiceProvider().connection.transactionsRepository.getModel(),
         ).convert(params);
 
         if (!searchParameters.paginate) {
