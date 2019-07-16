@@ -29,15 +29,20 @@ import {
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
 import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
-import { Handlers } from "../../../packages/core-transactions/src/index";
+import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
 
 const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
 let mockTransaction;
-let mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: makeTimestamp() };
+let mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() };
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
+            getConfig: () => ({
+                getMilestone: () => ({
+                    epoch: "2017-03-21T13:00:00.000Z",
+                }),
+            }),
             resolvePlugin: name => {
                 switch (name) {
                     case "database":
@@ -64,7 +69,7 @@ let senderWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
 let transaction: Interfaces.ITransactionData;
 let transactionWithSecondSignature: Interfaces.ITransactionData;
-let handler: TransactionHandler;
+let handler: TransactionsInterfaces.ITransactionHandler;
 let instance: Interfaces.ITransaction;
 let walletManager: State.IWalletManager;
 
