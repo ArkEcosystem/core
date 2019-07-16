@@ -12,6 +12,9 @@ export class PeersController extends Controller {
         result = request.query.version
             ? result.filter(peer => peer.version === (request.query as any).version)
             : result;
+
+        const count = result.length;
+
         result = result.slice(0, +request.query.limit || 100);
 
         const orderBy: string = request.query.orderBy as string;
@@ -26,7 +29,7 @@ export class PeersController extends Controller {
             }
         }
 
-        return super.toPagination({ rows: result, count: allPeers.length }, "peer");
+        return super.toPagination({ rows: result, count }, "peer");
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
