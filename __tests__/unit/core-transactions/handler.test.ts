@@ -4,6 +4,7 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionTypes } from "@arkecosystem/crypto/src/enums";
+import { configManager } from "@arkecosystem/crypto/src/managers";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { BusinessRegistrationBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/business-registration";
 import {
@@ -829,6 +830,8 @@ describe("DelegateResignationTransaction", () => {
 });
 
 describe("BusinessRegistration transaction", () => {
+    configManager.setFromPreset("testnet");
+
     describe("throwIfCannotBeApplied", () => {
         let builder: BusinessRegistrationBuilder;
         let walletManager: Wallets.WalletManager;

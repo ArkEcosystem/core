@@ -61,45 +61,13 @@ export class WalletManager implements State.IWalletManager {
         return this.byUsername[username];
     }
 
-    public findByBusinessName(name: string): State.IWallet | undefined {
-        return this.byBusinessName[name];
-    }
-
-    public findByBusinessWebsite(website: string): State.IWallet | undefined {
-        return this.byBusinessWebsite[website];
-    }
-
-    public findByBusinessVat(vat: string): State.IWallet | undefined {
-        return this.byBusinessVat[vat];
-    }
-
-    public findByBusinessGithub(github: string): State.IWallet | undefined {
-        return this.byBusinessGitHub[github];
-    }
-
     public hasBusiness(businessAsset: Interfaces.IBusinessRegistrationAsset): boolean {
-        return (
-            this.hasByBusinessName(businessAsset.name) ||
-            this.hasByBusinessWebsite(businessAsset.websiteAddress) ||
-            this.hasByBusinessVat(businessAsset.vat) ||
-            this.hasByBusinessGitHub(businessAsset.githubRepository)
+        return !!(
+            this.byBusinessName[businessAsset.name] ||
+            this.byBusinessWebsite[businessAsset.websiteAddress] ||
+            (businessAsset.vat !== undefined && this.byBusinessVat[businessAsset.vat]) ||
+            (businessAsset.githubRepository !== undefined && this.byBusinessGitHub[businessAsset.githubRepository])
         );
-    }
-
-    public hasByBusinessName(name: string): boolean {
-        return !!this.byBusinessName[name];
-    }
-
-    public hasByBusinessWebsite(website: string): boolean {
-        return !!this.byBusinessWebsite[website];
-    }
-
-    public hasByBusinessVat(vat: string): boolean {
-        return !!this.byBusinessVat[vat];
-    }
-
-    public hasByBusinessGitHub(byBusinessGitHub: string): boolean {
-        return !!this.byBusinessGitHub[byBusinessGitHub];
     }
 
     public has(addressOrPublicKey: string): boolean {
@@ -187,7 +155,7 @@ export class WalletManager implements State.IWalletManager {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                    `This indicates an issue with the genesis block & delegates.`,
+                `This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -368,7 +336,7 @@ export class WalletManager implements State.IWalletManager {
                         throw new Error(
                             `The balance and public key of both delegates are identical! Delegate "${
                                 a.username
-                            }" appears twice in the list.`,
+                                }" appears twice in the list.`,
                         );
                     }
 

@@ -554,10 +554,13 @@ describe("Wallet Manager", () => {
                     websiteAddress: "www.website.com",
                 };
                 walletManager.reindex(wallet);
-                expect(wallet).toEqual(walletManager.findByBusinessName(wallet.business.name));
-                expect(wallet).toEqual(walletManager.findByBusinessWebsite(wallet.business.websiteAddress));
-                expect(walletManager.findByBusinessVat(wallet.business.vat)).toBeUndefined();
-                expect(walletManager.findByBusinessGithub(wallet.business.githubRepository)).toBeUndefined();
+                expect(walletManager.hasBusiness({ name: "testName", websiteAddress: "www.website.com" })).toBeTrue();
+                expect(
+                    walletManager.hasBusiness({ name: "testNameTwo", websiteAddress: "www.website.com" }),
+                ).toBeTrue();
+                expect(
+                    walletManager.hasBusiness({ name: "testNameTwo", websiteAddress: "www.websiteTwo.com" }),
+                ).toBeFalse();
             });
         });
     });

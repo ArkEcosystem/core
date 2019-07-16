@@ -56,23 +56,7 @@ export interface IWalletManager {
 
     findByUsername(username: string): IWallet;
 
-    findByBusinessName(name: string): IWallet;
-
-    findByBusinessWebsite(website: string): IWallet;
-
-    findByBusinessVat(vat: string): IWallet;
-
-    findByBusinessGithub(github: string): IWallet;
-
     hasBusiness(businessAsset: Interfaces.IBusinessRegistrationAsset): boolean;
-
-    hasByBusinessName(name: string): boolean;
-
-    hasByBusinessWebsite(website: string): boolean;
-
-    hasByBusinessVat(vat: string): boolean;
-
-    hasByBusinessGitHub(byBusinessGitHub: string): boolean;
 
     getNonce(publicKey: string): Utils.BigNumber;
 

@@ -8,7 +8,6 @@ export class BusinessRegistrationBuilder extends TransactionBuilder<BusinessRegi
     constructor() {
         super();
         this.data.type = TransactionTypes.BusinessRegistration;
-        this.data.version = 2;
         this.data.fee = feeManager.get(TransactionTypes.BusinessRegistration);
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { businessRegistration: {} } as ITransactionAsset;
