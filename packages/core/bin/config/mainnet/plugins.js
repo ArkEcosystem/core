@@ -15,7 +15,7 @@ module.exports = {
         maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
         allowedSenders: [],
         dynamicFees: {
-            enabled: true,
+            enabled: false,
             minFeePool: 3000,
             minFeeBroadcast: 3000,
             addonBytes: {
@@ -33,7 +33,7 @@ module.exports = {
     },
     "@arkecosystem/core-p2p": {
         host: process.env.CORE_P2P_HOST || "0.0.0.0",
-        port: process.env.CORE_P2P_PORT || 4001,
+        port: process.env.CORE_P2P_PORT || 4002,
     },
     "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {
@@ -51,7 +51,7 @@ module.exports = {
         },
     },
     "@arkecosystem/core-forger": {
-        hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4001}`],
+        hosts: [`http://127.0.0.1:${process.env.CORE_P2P_PORT || 4002}`],
     },
     "@arkecosystem/core-json-rpc": {
         enabled: process.env.CORE_JSON_RPC_ENABLED,
