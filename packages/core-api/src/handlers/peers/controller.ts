@@ -13,7 +13,7 @@ export class PeersController extends Controller {
             ? result.filter(peer => peer.version === (request.query as any).version)
             : result;
 
-        const count = result.length;
+        const count: number = result.length;
 
         result = result.slice(0, +request.query.limit || 100);
 
