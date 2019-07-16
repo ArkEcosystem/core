@@ -35,6 +35,7 @@ describe("Transaction Forging - HTLC Refund", () => {
         await expect(lockTransaction).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(lockTransaction.id).toBeForged();
+        await support.snoozeForBlock(1);
 
         // Submit htlc refund transaction
         const transaction = TransactionFactory.htlcRefund({
@@ -86,6 +87,7 @@ describe("Transaction Forging - HTLC Refund", () => {
         await expect(lockTransaction).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(lockTransaction.id).toBeForged();
+        await support.snoozeForBlock(1);
 
         // Submit htlc refund transaction
         const refundTransaction = TransactionFactory.htlcRefund({
@@ -155,6 +157,7 @@ describe("Transaction Forging - HTLC Refund", () => {
         await expect(lockTransaction).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(lockTransaction.id).toBeForged();
+        await support.snoozeForBlock(1);
 
         // Submit htlc refund transaction
         const refundTransaction = TransactionFactory.htlcRefund({

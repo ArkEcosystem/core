@@ -28,7 +28,6 @@ import {
     WalletUsernameEmptyError,
     WalletUsernameNotEmptyError,
 } from "../../../packages/core-transactions/src/errors";
-import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
 import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
 
