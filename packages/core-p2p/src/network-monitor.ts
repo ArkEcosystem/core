@@ -17,7 +17,7 @@ import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
-    public server: SocketCluster;
+    private server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
@@ -44,10 +44,6 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
-    }
-
-    public getServer(): SocketCluster {
-        return this.server;
     }
 
     public setServer(server: SocketCluster): void {
