@@ -118,16 +118,14 @@ class TestRunner {
             const pluginsFixed = plugins.replace("process.env.CORE_DB_HOST", `"${nodeInfos.postgresIP}"`);
             fs.writeFileSync(pluginsPath, pluginsFixed);
 
-            if (this.skipLastNode && nodeNumber === (this.nodes.length - 1)) {
+            if (this.skipLastNode && nodeNumber === this.nodes.length - 1) {
                 return;
             }
             // now launch the node, with --network-start for node0
             console.log(`[test-runner] Launching node${nodeNumber}...`);
             const networkStart = nodeNumber > 0 ? "" : "--network-start ";
             console.log(networkStart);
-            const commandLaunch = `docker ps --format "{{.Names}}" | grep ${
-                nodeInfos.name
-            }_ark | xargs -I {} sh -c 'docker exec -d {} bash ark.sh'`;
+            const commandLaunch = `docker ps --format "{{.Names}}" | grep ${nodeInfos.name}_ark | xargs -I {} sh -c 'docker exec -d {} bash ark.sh'`;
             console.log(`Executing: ${commandLaunch}`);
             await exec(commandLaunch);
 
@@ -180,11 +178,10 @@ class TestRunner {
         }
 
         const nodesHeight = await testUtils.getNodesHeight();
-        if (nodesHeight.length > 2 && !!nodesHeight.reduce((prev, curr) => prev === curr ? curr : false)) {
+        if (nodesHeight.length > 2 && !!nodesHeight.reduce((prev, curr) => (prev === curr ? curr : false))) {
             // we are synced
             return true;
-        }
-        else {
+        } else {
             console.log(`[test-runner] Not synced : heights are ${nodesHeight.join()}`);
         }
 
@@ -253,8 +250,8 @@ class TestRunner {
         await delay(2000);
 
         if (
-            blocksDone.length
-            && Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
+            blocksDone.length &&
+            Date.now() - blocksDone.filter(b => b.height === blockHeight)[0].timestamp > 1000 * 60 * 2
         ) {
             return false; // we stop test execution because now new blocks came in the last 2min
         }

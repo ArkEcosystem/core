@@ -33,9 +33,7 @@ describe("throwIfApplyingFails", () => {
 
         expect(() => poolWalletManager.throwIfApplyingFails(delegateReg)).toThrow(
             JSON.stringify([
-                `Failed to apply transaction, because the username '${
-                    delegateReg.data.asset.delegate.username
-                }' is already registered.`,
+                `Failed to apply transaction, because the username '${delegateReg.data.asset.delegate.username}' is already registered.`,
             ]),
         );
     });
@@ -118,9 +116,9 @@ describe("applyPoolTransactionToSender", () => {
             const poolWallets = walletsGen.map(w => poolWalletManager.findByAddress(w.address));
 
             expect(+delegateWallet.balance).toBe(+delegate.balance);
-            poolWallets.forEach(w => {
+            for (const w of poolWallets) {
                 expect(+w.balance).toBe(0);
-            });
+            }
 
             const transfers = [
                 {
@@ -137,7 +135,7 @@ describe("applyPoolTransactionToSender", () => {
                 },
             ];
 
-            transfers.forEach(t => {
+            for (const t of transfers) {
                 const transfer = TransactionFactory.transfer(t.to.address, t.amount)
                     .withNetwork("unitnet")
                     .withPassphrase(t.from.passphrase)
@@ -162,7 +160,7 @@ describe("applyPoolTransactionToSender", () => {
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(
                     transfer.data.senderPublicKey,
                 );
-            });
+            }
 
             expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
             expect(poolWallets[0].balance.isZero()).toBeTrue();

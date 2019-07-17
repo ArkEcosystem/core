@@ -20,7 +20,7 @@ const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {
         data.id = Managers.configManager.get("genesisBlock").id;
     }
-}
+};
 
 export const exportTable = async (table, options) => {
     const snapFileName = utils.getFilePath(table, options.meta.folder);
