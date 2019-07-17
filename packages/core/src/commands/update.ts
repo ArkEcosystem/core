@@ -2,7 +2,7 @@ import { hasSomeProperty } from "@arkecosystem/core-utils";
 import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
-import { shellSync } from "execa";
+import { sync } from "execa";
 import { removeSync } from "fs-extra";
 import git from "simple-git";
 import { configManager } from "../helpers/config";
@@ -95,7 +95,7 @@ export class UpdateCommand extends BaseCommand {
                 if (err) {
                     this.error(err.message);
                 } else if (update && update.summary.changes) {
-                    const { stdout, stderr } = shellSync("cd ../../ && git reset --hard && yarn setup");
+                    const { stdout, stderr } = sync("cd ../../ && git reset --hard && yarn setup", { shell: true });
 
                     if (stderr) {
                         this.error(stderr);
