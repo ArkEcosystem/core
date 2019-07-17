@@ -24,9 +24,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
         const forgingUsername = database.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
 
         logger.warn(
-            `Delegate ${generatorUsername} (${
-                block.data.generatorPublicKey
-            }) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
+            `Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
         );
 
         return false;

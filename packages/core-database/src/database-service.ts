@@ -165,7 +165,7 @@ export class DatabaseService implements Database.IDatabaseService {
         let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
 
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
+            for (let x = 0; x < 4 && i < delCount; i++, x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];
@@ -220,9 +220,9 @@ export class DatabaseService implements Database.IDatabaseService {
                     headersOnly || !block.transactions
                         ? undefined
                         : block.transactions.map(
-                            (transaction: string) =>
-                                Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
-                        ),
+                              (transaction: string) =>
+                                  Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
+                          ),
             }));
         }
 

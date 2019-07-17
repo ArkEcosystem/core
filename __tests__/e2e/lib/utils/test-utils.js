@@ -25,14 +25,14 @@ class Helpers {
 
         let response;
         try {
-            response = ["GET", "DELETE"].includes(method) ?
-                await request(url, {
-                    params,
-                    headers
-                }) :
-                await request(url, params, {
-                    headers
-                });
+            response = ["GET", "DELETE"].includes(method)
+                ? await request(url, {
+                      params,
+                      headers,
+                  })
+                : await request(url, params, {
+                      headers,
+                  });
         } catch (e) {
             console.log("[api] request failed");
             if (method === "POST") {

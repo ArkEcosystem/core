@@ -178,14 +178,7 @@ export class Database {
             { table: "transactions" },
         );
 
-        this.roundsColumnSet = new this.pgp.helpers.ColumnSet(
-            [
-                "round",
-                "balance",
-                "public_key"
-            ],
-            { table: "rounds" }
-        );
+        this.roundsColumnSet = new this.pgp.helpers.ColumnSet(["round", "balance", "public_key"], { table: "rounds" });
     }
 }
 
