@@ -41,6 +41,14 @@ class ConfigManager {
             });
         }
 
+        if (!this.has("token")) {
+            this.set("token", this.config.bin);
+        }
+
+        if (!this.has("channel")) {
+            this.set("channel", getRegistryChannel(this.config));
+        }
+
         if (!this.has("updateMethod")) {
             this.set("updateMethod", "npm");
         }
