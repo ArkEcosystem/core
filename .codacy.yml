@@ -3,3 +3,4 @@ exclude_paths:
   - 'deprecated/**/*'
   - '*.sh'
   - '*.sql'
+  - '*.md'
