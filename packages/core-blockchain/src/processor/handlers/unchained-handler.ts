@@ -150,9 +150,7 @@ export class UnchainedHandler extends BlockHandler {
             }
 
             this.logger.info(
-                `Forked block disregarded because it is not allowed to be forged. Caused by delegate: ${
-                    this.block.data.generatorPublicKey
-                }`,
+                `Forked block disregarded because it is not allowed to be forged. Caused by delegate: ${this.block.data.generatorPublicKey}`,
             );
 
             return UnchainedBlockStatus.GeneratorMismatch;

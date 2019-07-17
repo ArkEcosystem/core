@@ -99,13 +99,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return;
         }
 
-        if (initialRun || !this.hasMinimumPeers()) {
-            try {
-                await this.discoverPeers();
+        try {
+            if (await this.discoverPeers(initialRun)) {
                 await this.cleansePeers();
-            } catch (error) {
-                this.logger.error(`Network Status: ${error.message}`);
             }
+        } catch (error) {
+            this.logger.error(`Network Status: ${error.message}`);
         }
 
         let nextRunDelaySeconds = 600;
@@ -172,25 +171,36 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
     }
 
-    public async discoverPeers(): Promise<void> {
-        const queryAtLeastNPeers = 4;
-        let queriedPeers = 0;
+    public async discoverPeers(initialRun?: boolean): Promise<boolean> {
+        const ownPeers: P2P.IPeer[] = this.storage.getPeers();
+        const theirPeers: P2P.IPeer[] = Object.values(
+            (await Promise.all(
+                shuffle(this.storage.getPeers())
+                    .slice(0, 4)
+                    .map(async (peer: P2P.IPeer) => {
+                        try {
+                            const hisPeers = await this.communicator.getPeers(peer);
+                            return hisPeers || [];
+                        } catch (error) {
+                            this.logger.debug(`Failed to get peers from ${peer.ip}: ${error.message}`);
+                            return [];
+                        }
+                    }),
+            ))
+                .map(peers => peers.reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}))
+                .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+        );
 
-        const shuffledPeers = shuffle(this.storage.getPeers());
+        if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
+            await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            this.pingPeerPorts(initialRun);
 
-        for (const peer of shuffledPeers) {
-            try {
-                const hisPeers = await this.communicator.getPeers(peer);
-                queriedPeers++;
-                await Promise.all(hisPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
-            } catch (error) {
-                // Just try with the next peer from shuffledPeers.
-            }
-
-            if (this.hasMinimumPeers() && queriedPeers >= queryAtLeastNPeers) {
-                return;
-            }
+            return true;
         }
+
+        this.pingPeerPorts();
+
+        return false;
     }
 
     public getNetworkHeight(): number {
@@ -272,9 +282,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
             if (peersFiltered.length === 0) {
                 this.logger.error(
-                    `Could not download blocks: Failed to pick a random peer from our list of ${
-                        peersAll.length
-                    } peers: all are either banned or on a different chain than us`,
+                    `Could not download blocks: Failed to pick a random peer from our list of ${peersAll.length} peers: all are either banned or on a different chain than us`,
                 );
 
                 return [];
@@ -377,6 +385,25 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         return Promise.all(
             peers.map((peer: P2P.IPeer) => this.communicator.postTransactions(peer, transactionsBroadcast)),
+        );
+    }
+
+    private async pingPeerPorts(initialRun?: boolean): Promise<void> {
+        let peers = this.storage.getPeers();
+        if (!initialRun) {
+            peers = shuffle(peers).slice(0, Math.floor(peers.length / 2));
+        }
+
+        this.logger.debug(`Checking ports of ${pluralize("peer", peers.length, true)}.`);
+
+        Promise.all(
+            peers.map(async peer => {
+                try {
+                    await this.communicator.pingPorts(peer);
+                } catch (error) {
+                    return undefined;
+                }
+            }),
         );
     }
 

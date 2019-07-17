@@ -310,9 +310,7 @@ export class WalletManager implements State.IWalletManager {
 
                     if (a.publicKey === b.publicKey) {
                         throw new Error(
-                            `The balance and public key of both delegates are identical! Delegate "${
-                                a.username
-                            }" appears twice in the list.`,
+                            `The balance and public key of both delegates are identical! Delegate "${a.username}" appears twice in the list.`,
                         );
                     }
 

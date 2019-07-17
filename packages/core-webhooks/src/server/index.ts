@@ -12,11 +12,6 @@ export const startServer = async config => {
         port: config.port,
         routes: {
             cors: true,
-            validate: {
-                async failAction(request, h, err) {
-                    throw err;
-                },
-            },
         },
     });
 

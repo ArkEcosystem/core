@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
-import { Blocks } from "@arkecosystem/crypto";
+import { Database, State } from "@arkecosystem/core-interfaces";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "./__support__/setup";
 
@@ -24,6 +24,27 @@ afterAll(async () => {
 });
 
 describe("Connection", () => {
+    describe("init", () => {
+        it("should delete last 5 bad blocks", async () => {
+            const state: State.IStateService = app.resolvePlugin<State.IStateService>("state");
+            const blocks: Interfaces.IBlockData[] = [];
+            for (let i = 0; i < 10; i++) {
+                blocks.push({ height: i + 1, id: "dddd" + i } as Interfaces.IBlockData);
+            }
+            blocks.push(state.getStore().getLastBlock().data);
+
+            jest.spyOn(databaseService.connection.blocksRepository, "latest").mockImplementation(async () =>
+                blocks.shift(),
+            );
+
+            expect(state.getStore().getLastBlock().data.height).toEqual(1);
+            await expect(databaseService.init()).toResolve();
+            expect(state.getStore().getLastBlock().data.height).toEqual(1);
+
+            jest.restoreAllMocks();
+        });
+    });
+
     describe("verifyBlockchain", () => {
         it("should be valid - no errors - when verifying blockchain", async () => {
             await expect(databaseService.verifyBlockchain()).resolves.toBeTrue();

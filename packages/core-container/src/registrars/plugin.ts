@@ -100,7 +100,7 @@ export class PluginRegistrar {
             await this.registerWithContainer(item.plugin.extends);
         }
 
-        if (item.plugin.depends) {
+        if (item.plugin.depends && !this.failedPlugins[item.plugin.depends]) {
             await this.registerWithContainer(item.plugin.depends, this.plugins[item.plugin.depends]);
         }
 
@@ -109,7 +109,7 @@ export class PluginRegistrar {
         const defaults = item.plugin.defaults || item.plugin.pkg.defaults;
         const alias = item.plugin.alias || item.plugin.pkg.alias;
 
-        if (this.container.has(alias || name)) {
+        if (this.container.has(alias) || this.container.has(name)) {
             return;
         }
 

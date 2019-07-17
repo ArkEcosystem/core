@@ -70,27 +70,29 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
-            const { config } = pingResponse;
-            Promise.all(
-                Object.entries(config.plugins).map(async ([name, plugin]) => {
-                    try {
-                        if (peer.ports[name] === undefined) {
-                            const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
-
-                            if (status === 200) {
-                                peer.ports[name] = plugin.port;
-                            }
-                        }
-                    } catch (error) {
-                        peer.ports[name] = -1;
-                    }
-                }),
-            );
         }
 
         peer.lastPinged = dayjs();
         peer.state = pingResponse.state;
+        peer.plugins = pingResponse.config.plugins;
+
         return pingResponse.state;
+    }
+
+    public async pingPorts(peer: P2P.IPeer): Promise<void> {
+        Promise.all(
+            Object.entries(peer.plugins).map(async ([name, plugin]) => {
+                try {
+                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+
+                    if (status === 200) {
+                        peer.ports[name] = plugin.port;
+                    }
+                } catch (error) {
+                    peer.ports[name] = -1;
+                }
+            }),
+        );
     }
 
     public validatePeerConfig(peer: P2P.IPeer, config: IPeerConfig): boolean {
@@ -161,6 +163,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             this.logger.debug(
                 `Peer ${peer.ip} did not return any blocks via height ${fromBlockHeight.toLocaleString()}.`,
             );
+            return [];
         }
 
         // To stay backward compatible, don't assume peers respond with serialized transactions just yet.

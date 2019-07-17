@@ -158,6 +158,7 @@ describe("Delegate", () => {
         };
         const transactions = TransactionFactory.secondSignature(dummy.plainPassphrase)
             .withPassphrase(dummy.plainPassphrase)
+            .withTimestamp(optionsDefault.timestamp)
             .create();
         const expectedBlockData = {
             generatorPublicKey: dummy.publicKey,
@@ -175,9 +176,10 @@ describe("Delegate", () => {
 
             const block = delegate.forge(transactions, optionsDefault);
 
-            Object.keys(expectedBlockData).forEach(key => {
+            for (const key of Object.keys(expectedBlockData)) {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
-            });
+            }
+
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
                 errors: [],
@@ -198,9 +200,10 @@ describe("Delegate", () => {
             expect(spyDecryptKeys).toHaveBeenCalledTimes(1);
             expect(spyEncryptKeys).toHaveBeenCalledTimes(1);
 
-            Object.keys(expectedBlockData).forEach(key => {
+            for (const key of Object.keys(expectedBlockData)) {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
-            });
+            }
+
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
                 errors: [],

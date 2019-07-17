@@ -234,9 +234,7 @@ export class Connection implements TransactionPool.IConnection {
                     }
 
                     this.logger.error(
-                        `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-                            data.id
-                        } due to ${error.message}. Possible double spending attack`,
+                        `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${data.id} due to ${error.message}. Possible double spending attack`,
                     );
 
                     continue;
@@ -330,14 +328,25 @@ export class Connection implements TransactionPool.IConnection {
     ): Promise<Interfaces.ITransaction[]> {
         this.purgeExpired();
 
-        const data: Interfaces.ITransaction[] = [];
+        let data: Interfaces.ITransaction[] = [];
 
         let transactionBytes: number = 0;
 
+        const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
+            const valid = await this.validateTransactions(transactions);
+            return transactions.filter(transaction => valid.includes(transaction.serialized.toString("hex")));
+        };
+
         let i = 0;
-        for (const transaction of this.memory.allSortedByFee()) {
-            if (i >= start + size) {
-                break;
+        const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
+        for (const transaction of allTransactions) {
+            if (data.length === size) {
+                data = await removeInvalid(data);
+                if (data.length === size) {
+                    return data;
+                } else {
+                    transactionBytes = 0; // TODO: get rid of `maxBytes`
+                }
             }
 
             if (i >= start) {
@@ -363,8 +372,7 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        const validTransactions = await this.validateTransactions(data);
-        return data.filter(transaction => validTransactions.includes(transaction.serialized.toString("hex")));
+        return removeInvalid(data);
     }
 
     private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {

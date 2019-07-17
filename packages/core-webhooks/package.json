@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-webhooks",
-    "version": "2.5.0-next.5",
+    "version": "2.5.1",
     "description": "Webhooks for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,22 +19,22 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.0-next.5",
-        "@arkecosystem/core-event-emitter": "^2.5.0-next.5",
-        "@arkecosystem/core-http-utils": "^2.5.0-next.5",
-        "@arkecosystem/core-interfaces": "^2.5.0-next.5",
-        "@arkecosystem/core-utils": "^2.5.0-next.5",
+        "@arkecosystem/core-container": "^2.5.1",
+        "@arkecosystem/core-event-emitter": "^2.5.1",
+        "@arkecosystem/core-http-utils": "^2.5.1",
+        "@arkecosystem/core-interfaces": "^2.5.1",
+        "@arkecosystem/core-utils": "^2.5.1",
         "@hapi/boom": "^7.4.2",
-        "@hapi/joi": "^15.0.3",
-        "fs-extra": "^8.0.1",
+        "@hapi/joi": "^15.1.0",
+        "fs-extra": "^8.1.0",
         "lowdb": "^1.0.0",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "@types/fs-extra": "^7.0.0",
+        "@types/fs-extra": "^8.0.0",
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__joi": "^15.0.1",
-        "@types/uuid": "^3.4.4"
+        "@types/hapi__joi": "^15.0.2",
+        "@types/uuid": "^3.4.5"
     },
     "engines": {
         "node": ">=10.x"

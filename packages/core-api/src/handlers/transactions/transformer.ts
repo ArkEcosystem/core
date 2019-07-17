@@ -31,7 +31,7 @@ export const transformTransaction = (model, transform) => {
         fee: data.fee.toFixed(),
         sender,
         senderPublicKey: data.senderPublicKey,
-        recipient: data.recipientId,
+        recipient: data.recipientId || sender,
         signature: data.signature,
         signSignature: data.signSignature || data.secondSignature,
         signatures: data.signatures,

@@ -87,9 +87,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 return this.processBlocks(blockList.blocks.map(b => Blocks.BlockFactory.fromData(b)), cb);
             } catch (error) {
                 logger.error(
-                    `Failed to process ${blockList.blocks.length} blocks from height ${
-                        blockList.blocks[0].height
-                    } in queue.`,
+                    `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
                 logger.error(error.stack);
                 return cb();
@@ -227,7 +225,7 @@ export class Blockchain implements blockchain.IBlockchain {
     public async postTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
         logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
 
-        await this.transactionPool.addTransactions(transactions);
+        this.transactionPool.addTransactions(transactions);
     }
 
     /**
@@ -316,7 +314,7 @@ export class Blockchain implements blockchain.IBlockchain {
             removedBlocks.push(lastBlock.data);
 
             if (this.transactionPool) {
-                await this.transactionPool.addTransactions(lastBlock.transactions);
+                this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
             const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
