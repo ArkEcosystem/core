@@ -17,7 +17,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
         }
 
         const selectQuery = this.query.select().from(this.query);
-        const selectQueryCount = this.query.select(this.query.count().as("cnt")).from(this.query);
+        const selectQueryCount = this.query.select(this.query.id).from(this.query);
         const params = parameters.parameters;
 
         if (params.length) {
@@ -168,7 +168,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
         orderBy?: Database.ISearchOrderBy[],
     ): Promise<Database.ITransactionsPaginated> {
         const selectQuery = this.query.select();
-        const selectQueryCount = this.query.select(this.query.count().as("cnt"));
+        const selectQueryCount = this.query.select(this.query.id);
 
         for (const query of [selectQuery, selectQueryCount]) {
             query

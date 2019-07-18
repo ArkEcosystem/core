@@ -53,7 +53,7 @@ export abstract class Repository implements Database.IRepository {
         selectQueryCount: Query<any>,
         paginate?: Database.ISearchPaginate,
         orderBy?: Database.ISearchOrderBy[],
-    ): Promise<{ rows: T; count: number, countIsEstimate: boolean }> {
+    ): Promise<{ rows: T; count: number; countIsEstimate: boolean }> {
         if (!!orderBy) {
             for (const o of orderBy) {
                 const column = this.query.columns.find(column => column.prop.toLowerCase() === o.field);
@@ -103,8 +103,8 @@ export abstract class Repository implements Database.IRepository {
             return { rows, count: Math.max(count, rows.length), countIsEstimate: true };
         }
 
-        const countRow = await this.find(selectQueryCount);
+        const { count } = await this.db.one(`SELECT COUNT(*) FROM (${selectQueryCount.toString()}) AS count;`);
 
-        return { rows, count: Number(countRow.cnt), countIsEstimate: false };
+        return { rows, count: Number(count), countIsEstimate: false };
     }
 }
