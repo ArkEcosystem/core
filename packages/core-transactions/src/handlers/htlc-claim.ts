@@ -1,13 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { formatTimestamp } from "@arkecosystem/core-utils";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import {
     HtlcLockedAmountLowerThanFeeError,
     HtlcLockExpiredError,
     HtlcLockTransactionNotFoundError,
-    HtlcNotLockRecipientError,
     HtlcSecretHashMismatchError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
@@ -103,12 +102,6 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             throw new HtlcLockedAmountLowerThanFeeError();
         }
 
-        if (
-            lockWallet.locks[lockId].recipientId !== Identities.Address.fromPublicKey(transaction.data.senderPublicKey)
-        ) {
-            throw new HtlcNotLockRecipientError();
-        }
-
         const lastBlock: Interfaces.IBlock = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()
@@ -169,10 +162,12 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
         assert(lockWallet && lockWallet.locks[lockId]);
 
-        const newBalance = sender.balance.plus(lockWallet.locks[lockId].amount).minus(data.fee);
+        const recipientWallet = walletManager.findByAddress(lockWallet.locks[lockId].recipientId);
+
+        const newBalance = recipientWallet.balance.plus(lockWallet.locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
 
-        sender.balance = newBalance;
+        recipientWallet.balance = newBalance;
         lockWallet.lockedBalance = lockWallet.lockedBalance.minus(lockWallet.locks[lockId].amount);
         lockWallet.locks = Object.assign({}, lockWallet.locks);
         // shallow copy to fix strange behaviour, it looks like the database wallet and
@@ -182,6 +177,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         walletManager.reindex(sender);
         walletManager.reindex(lockWallet);
+        walletManager.reindex(recipientWallet);
     }
 
     public async revertForSender(
@@ -205,13 +201,15 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const lockId = data.asset.claim.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
         const lockWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
+        const recipientWallet = walletManager.findByAddress(lockTransaction.recipientId);
 
-        sender.balance = sender.balance.minus(lockTransaction.amount).plus(data.fee);
+        recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
         lockWallet.lockedBalance = lockWallet.lockedBalance.plus(lockTransaction.amount);
         lockWallet.locks[lockTransaction.id] = lockTransaction;
 
         walletManager.reindex(sender);
         walletManager.reindex(lockWallet);
+        walletManager.reindex(recipientWallet);
     }
 
     public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {

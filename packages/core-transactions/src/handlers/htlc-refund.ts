@@ -7,7 +7,6 @@ import {
     HtlcLockedAmountLowerThanFeeError,
     HtlcLockNotExpiredError,
     HtlcLockTransactionNotFoundError,
-    HtlcNotLockSenderError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
     SenderWalletMismatchError,
@@ -101,10 +100,6 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             throw new HtlcLockedAmountLowerThanFeeError();
         }
 
-        if (lockWallet.locks[lockId].senderPublicKey !== transaction.data.senderPublicKey) {
-            throw new HtlcNotLockSenderError();
-        }
-
         const lastBlock: Interfaces.IBlock = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()
@@ -157,7 +152,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lockId = data.asset.refund.lockTransactionId;
-        const lockWallet: State.IWallet = walletManager.findByLockId(lockId); // lockWallet === senderWallet
+        const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
         assert(lockWallet && lockWallet.locks[lockId]);
 
         const newBalance = lockWallet.balance.plus(lockWallet.locks[lockId].amount).minus(data.fee);

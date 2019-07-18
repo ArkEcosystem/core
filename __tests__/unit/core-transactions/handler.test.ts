@@ -9,8 +9,6 @@ import {
     HtlcLockExpiredError,
     HtlcLockNotExpiredError,
     HtlcLockTransactionNotFoundError,
-    HtlcNotLockRecipientError,
-    HtlcNotLockSenderError,
     HtlcSecretHashMismatchError,
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -1033,7 +1031,7 @@ describe("Htlc claim", () => {
             );
         });
 
-        it("should throw if claiming wallet is not recipient of lock transaction", () => {
+        it("should not throw if claiming wallet is not recipient of lock transaction", () => {
             const dummyPassphrase = "not recipient of lock";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
 
@@ -1052,9 +1050,7 @@ describe("Htlc claim", () => {
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).toThrow(
-                HtlcNotLockRecipientError,
-            );
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
         });
 
         it("should throw if lock expired", () => {
@@ -1264,7 +1260,7 @@ describe("Htlc refund", () => {
             );
         });
 
-        it("should throw if refund wallet is not sender of lock transaction", () => {
+        it("should not throw if refund wallet is not sender of lock transaction", () => {
             const dummyPassphrase = "not lock passphrase";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
 
@@ -1281,9 +1277,7 @@ describe("Htlc refund", () => {
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).toThrow(
-                HtlcNotLockSenderError,
-            );
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
         });
 
         it("should throw if lock didn't expire", () => {

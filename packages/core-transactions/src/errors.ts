@@ -195,26 +195,10 @@ export class HtlcLockTransactionNotFoundError extends TransactionError {
     }
 }
 
-export class HtlcNotLockRecipientError extends TransactionError {
-    constructor() {
-        super(
-            `Failed to apply transaction, because the sender is not the recipient of the associated HTLC lock transaction.`,
-        );
-    }
-}
-
 export class HtlcSecretHashMismatchError extends TransactionError {
     constructor() {
         super(
             `Failed to apply transaction, because the secret provided does not match the associated HTLC lock transaction secret.`,
-        );
-    }
-}
-
-export class HtlcNotLockSenderError extends TransactionError {
-    constructor() {
-        super(
-            `Failed to apply transaction, because the sender is not the sender of the associated HTLC lock transaction.`,
         );
     }
 }
