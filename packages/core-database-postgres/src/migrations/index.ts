@@ -16,4 +16,5 @@ export const migrations = [
     loadQueryFile(__dirname, "./20190606000000-add-block-id-foreign-key-on-transactions.sql"),
     loadQueryFile(__dirname, "./20190619000000-drop-id-column-from-rounds-table.sql"),
     loadQueryFile(__dirname, "./20190626000000-enforce-chained-blocks.sql"),
+    loadQueryFile(__dirname, "./20190718000000-check_previous_block-add-schema.sql"),
 ];
