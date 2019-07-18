@@ -31,6 +31,8 @@ import {
 import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
 
+const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
+
 const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
 let mockTransaction;
 let mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() };
@@ -837,7 +839,10 @@ describe("DelegateResignationTransaction", () => {
 describe("Htlc lock", () => {
     const htlcLockAsset = {
         secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-        expiration: makeTimestamp(99),
+        expiration: {
+            type: UnixTimestamp,
+            value: makeTimestamp(99),
+        },
     };
 
     beforeAll(() => {
@@ -938,7 +943,10 @@ describe("Htlc claim", () => {
         const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
             secretHash,
-            expiration: makeTimestamp(99),
+            expiration: {
+                type: UnixTimestamp,
+                value: makeTimestamp(99),
+            },
         };
         lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
             .withPassphrase(lockPassphrase)
@@ -995,7 +1003,10 @@ describe("Htlc claim", () => {
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
-                expiration: makeTimestamp(99),
+                expiration: {
+                    type: UnixTimestamp,
+                    value: makeTimestamp(99),
+                },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
                 .withPassphrase(lockPassphrase)
@@ -1052,7 +1063,10 @@ describe("Htlc claim", () => {
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
-                expiration: makeTimestamp(-1),
+                expiration: {
+                    type: UnixTimestamp,
+                    value: makeTimestamp(-1),
+                },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
                 .withPassphrase(lockPassphrase)
@@ -1177,7 +1191,10 @@ describe("Htlc refund", () => {
         const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
             secretHash,
-            expiration: makeTimestamp(-1),
+            expiration: {
+                type: UnixTimestamp,
+                value: makeTimestamp(-1),
+            },
         };
         lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, recipientWallet.address, amount)
             .withPassphrase(lockPassphrase)
@@ -1218,7 +1235,10 @@ describe("Htlc refund", () => {
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
-                expiration: makeTimestamp(-1),
+                expiration: {
+                    type: UnixTimestamp,
+                    value: makeTimestamp(-1),
+                },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, recipientWallet.address, amount)
                 .withPassphrase(lockPassphrase)
@@ -1272,7 +1292,10 @@ describe("Htlc refund", () => {
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
-                expiration: makeTimestamp(99),
+                expiration: {
+                    type: UnixTimestamp,
+                    value: makeTimestamp(99),
+                },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, lockWallet.address, amount)
                 .withPassphrase(lockPassphrase)

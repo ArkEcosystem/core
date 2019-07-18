@@ -4,7 +4,10 @@ import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { HtlcLockBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-lock";
+import { HtlcLockExpirationType } from "../../../../../../packages/crypto/src/transactions/types/enums";
 import { transactionBuilder } from "./__shared__/transaction-builder";
+
+const { UnixTimestamp } = HtlcLockExpirationType;
 
 let builder: HtlcLockBuilder;
 
@@ -25,7 +28,10 @@ describe("Htlc lock Transaction", () => {
         it("should set the htlc lock asset", () => {
             const htlcLockAsset = {
                 secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-                expiration: Date.now(),
+                expiration: {
+                    type: UnixTimestamp,
+                    value: Math.floor(Date.now() / 1000),
+                },
             };
 
             builder.htlcLockAsset(htlcLockAsset);
@@ -37,7 +43,10 @@ describe("Htlc lock Transaction", () => {
     describe("verify", () => {
         const htlcLockAsset = {
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-            expiration: Date.now(),
+            expiration: {
+                type: UnixTimestamp,
+                value: Math.floor(Date.now() / 1000),
+            },
         };
         const address = "AVzsSFwicz5gYLqCzZNL8N1RztkWQSMovK";
 

@@ -1,9 +1,11 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Transactions } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;
+
+const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
 
 beforeAll(support.setUp);
 afterAll(support.tearDown);
@@ -22,7 +24,10 @@ describe("Transaction Forging - HTLC Lock", () => {
         // Submit htlc lock transaction
         const transaction = TransactionFactory.htlcLock({
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-            expiration: Math.floor((Date.now() + 100000) / 1000),
+            expiration: {
+                type: UnixTimestamp,
+                value: Math.floor((Date.now() + 100000) / 1000),
+            },
         })
             .withPassphrase(passphrase)
             .createOne();
@@ -57,7 +62,10 @@ describe("Transaction Forging - HTLC Lock", () => {
         // Submit htlc lock transaction
         const transaction = TransactionFactory.htlcLock({
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-            expiration: Math.floor((Date.now() + 100000) / 1000),
+            expiration: {
+                type: UnixTimestamp,
+                value: Math.floor((Date.now() + 100000) / 1000),
+            },
         })
             .withPassphrasePair({ passphrase, secondPassphrase })
             .createOne();
@@ -109,7 +117,10 @@ describe("Transaction Forging - HTLC Lock", () => {
         // Submit htlc lock transaction
         const transaction = TransactionFactory.htlcLock({
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-            expiration: Math.floor((Date.now() + 100000) / 1000),
+            expiration: {
+                type: UnixTimestamp,
+                value: Math.floor((Date.now() + 100000) / 1000),
+            },
         })
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)

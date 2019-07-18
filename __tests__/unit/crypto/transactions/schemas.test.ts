@@ -6,8 +6,11 @@ import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
+import { HtlcLockExpirationType } from "../../../../packages/crypto/src/transactions/types/enums";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
+
+const { UnixTimestamp } = HtlcLockExpirationType;
 
 let transaction;
 let transactionSchema: TransactionSchema;
@@ -766,7 +769,10 @@ describe("HTLC Lock Transaction", () => {
     const amount = 10 * ARKTOSHI;
     const htlcLockAsset = {
         secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-        expiration: Date.now(),
+        expiration: {
+            type: UnixTimestamp,
+            value: Math.floor(Date.now() / 1000),
+        },
     };
 
     beforeAll(() => {
@@ -792,7 +798,10 @@ describe("HTLC Lock Transaction", () => {
         transaction
             .htlcLockAsset({
                 secretHash: "asdf123asdf123asdf123asdf123asd",
-                expiration: "cool",
+                expiration: {
+                    type: UnixTimestamp,
+                    value: Math.floor(Date.now() / 1000),
+                },
             })
             .recipientId(address)
             .fee(fee)
@@ -803,7 +812,7 @@ describe("HTLC Lock Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 
-    it("should be invalid when expiration is not a number", () => {
+    it("should be invalid when expiration value is not a number", () => {
         transaction
             .recipientId(address)
             .fee(fee)
@@ -811,7 +820,7 @@ describe("HTLC Lock Transaction", () => {
             .sign("passphrase");
 
         const struct = transaction.getStruct();
-        struct.asset.lock.expiration = "woop";
+        struct.asset.lock.expiration.value = "woop";
 
         const { error } = Ajv.validate(transactionSchema.$id, struct);
         expect(error).not.toBeUndefined();

@@ -9,6 +9,8 @@ import { TransactionFactory } from "../../../helpers/transaction-factory";
 
 jest.mock("@arkecosystem/core-container", () => require("../mocks/container").container);
 
+const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
+
 let walletManager: State.IWalletManager;
 
 const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
@@ -52,7 +54,10 @@ describe("Wallet Manager", () => {
                 const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
                 const htlcLockAsset = {
                     secretHash,
-                    expiration: makeTimestamp(99),
+                    expiration: {
+                        type: UnixTimestamp,
+                        value: makeTimestamp(99),
+                    },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
                     .withPassphrase(lockPassphrase)
@@ -159,7 +164,10 @@ describe("Wallet Manager", () => {
                 const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
                 const htlcLockAsset = {
                     secretHash,
-                    expiration: makeTimestamp(99),
+                    expiration: {
+                        type: UnixTimestamp,
+                        value: makeTimestamp(99),
+                    },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
                     .withPassphrase(lockPassphrase)
@@ -284,7 +292,10 @@ describe("Wallet Manager", () => {
                 const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
                 const htlcLockAsset = {
                     secretHash,
-                    expiration: makeTimestamp(-9),
+                    expiration: {
+                        type: UnixTimestamp,
+                        value: makeTimestamp(-9),
+                    },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(
                     htlcLockAsset,
