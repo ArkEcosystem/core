@@ -215,7 +215,14 @@ export const htlcLock = extend(transactionBaseSchema, {
                     required: ["secretHash", "expiration"],
                     properties: {
                         secretHash: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
-                        expiration: { type: "integer", minimum: 0 },
+                        expiration: {
+                            type: "object",
+                            required: ["type", "value"],
+                            properties: {
+                                type: { type: "integer", minimum: 1, maximum: 2 },
+                                value: { type: "integer", minimum: 0 },
+                            },
+                        },
                     },
                 },
             },

@@ -15,11 +15,12 @@ export class HtlcLockTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 8 + 21, true);
+        const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 4 + 8 + 21, true);
 
         buffer.writeUint64(+data.amount);
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
-        buffer.writeUint64(data.asset.lock.expiration);
+        buffer.writeUint8(data.asset.lock.expiration.type);
+        buffer.writeUint64(data.asset.lock.expiration.value);
         buffer.append(Base58.decodeCheck(data.recipientId));
 
         return buffer;
@@ -30,7 +31,8 @@ export class HtlcLockTransaction extends Transaction {
 
         const amount = BigNumber.make(buf.readUint64().toString());
         const secretHash: string = buf.readBytes(32).toString("hex");
-        const expiration: number = buf.readUint64().toNumber();
+        const expirationType = buf.readUint8();
+        const expirationValue = buf.readUint64().toNumber();
         const recipientId = Base58.encodeCheck(buf.readBytes(21).toBuffer());
 
         data.amount = amount;
@@ -38,7 +40,10 @@ export class HtlcLockTransaction extends Transaction {
         data.asset = {
             lock: {
                 secretHash,
-                expiration,
+                expiration: {
+                    type: expirationType,
+                    value: expirationValue,
+                },
             },
         };
     }

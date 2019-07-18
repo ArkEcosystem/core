@@ -15,3 +15,7 @@ export * from "./factory";
 import * as schemas from "./schemas";
 
 export { schemas };
+
+import * as enums from "./enums";
+
+export { enums };

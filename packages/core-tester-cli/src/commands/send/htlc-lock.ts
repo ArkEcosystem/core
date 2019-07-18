@@ -40,7 +40,7 @@ export class HtlcLockCommand extends SendCommand {
 
             const lockAsset = {
                 secretHash: Crypto.HashAlgorithms.sha256(secret).toString("hex"),
-                expiration: Math.floor((Date.now() + flags.expiration * 1000) / 1000),
+                expiration: { type: 1, value: Math.floor((Date.now() + flags.expiration * 1000) / 1000) },
             };
 
             const transaction = this.signer.makeHtlcLock({

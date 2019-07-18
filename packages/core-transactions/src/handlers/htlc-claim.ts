@@ -18,6 +18,8 @@ import {
 } from "../errors";
 import { TransactionHandler } from "./transaction";
 
+const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
+
 export class HtlcClaimTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcClaimTransaction;
@@ -112,7 +114,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
-        if (lockWallet.locks[lockId].asset.lock.expiration <= formatTimestamp(lastBlockEpochTimestamp).unix) {
+        const expiration = lockWallet.locks[lockId].asset.lock.expiration;
+        if (
+            (expiration.type === UnixTimestamp && expiration.value <= formatTimestamp(lastBlockEpochTimestamp).unix) ||
+            (expiration.type === BlockHeight && expiration.value <= lastBlock.data.height)
+        ) {
             throw new HtlcLockExpiredError();
         }
 

@@ -1,5 +1,6 @@
 import { ErrorObject } from "ajv";
 import { TransactionTypes } from "../enums";
+import { HtlcLockExpirationType } from "../transactions/types/enums";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
@@ -127,7 +128,10 @@ export interface IMultiSignatureAsset {
 
 export interface IHtlcLockAsset {
     secretHash: string;
-    expiration: number;
+    expiration: {
+        type: HtlcLockExpirationType;
+        value: number;
+    };
 }
 
 export interface IHtlcClaimAsset {
