@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
+import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
@@ -29,11 +30,18 @@ import {
 import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
 
-const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
+const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
 
-const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
+
+const makeUnixTimestamp = (secondsRelativeToLastBlock = 9) =>
+    formatTimestamp(mockLastBlockData.timestamp).unix + secondsRelativeToLastBlock;
+const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
+    mockLastBlockData.height + heightRelativeToLastBlock;
+const makeExpiredTimestamp = type => (type === UnixTimestamp ? makeUnixTimestamp(-9) : makeBlockHeightTimestamp(-2));
+const makeNotExpiredTimestamp = type => (type === UnixTimestamp ? makeUnixTimestamp(99) : makeBlockHeightTimestamp(9));
+
 let mockTransaction;
-let mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() };
 jest.mock("@arkecosystem/core-container", () => {
     return {
         app: {
@@ -834,12 +842,12 @@ describe("DelegateResignationTransaction", () => {
     });
 });
 
-describe("Htlc lock", () => {
+describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
     const htlcLockAsset = {
         secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
         expiration: {
-            type: UnixTimestamp,
-            value: makeTimestamp(99),
+            type: expirationType,
+            value: makeNotExpiredTimestamp(expirationType),
         },
     };
 
@@ -905,7 +913,7 @@ describe("Htlc lock", () => {
     });
 });
 
-describe("Htlc claim", () => {
+describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", expirationType => {
     const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
     const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
     const claimPassphrase = "fatal hat sail asset chase barrel pluck bag approve coral slab bright";
@@ -913,6 +921,8 @@ describe("Htlc claim", () => {
 
     let lockWallet;
     let claimWallet;
+
+    let htlcClaimAsset;
 
     let lockTransaction: Interfaces.ITransactionData;
 
@@ -942,15 +952,15 @@ describe("Htlc claim", () => {
         const htlcLockAsset = {
             secretHash,
             expiration: {
-                type: UnixTimestamp,
-                value: makeTimestamp(99),
+                type: expirationType,
+                value: makeNotExpiredTimestamp(expirationType),
             },
         };
         lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
             .withPassphrase(lockPassphrase)
             .createOne();
 
-        const htlcClaimAsset = {
+        htlcClaimAsset = {
             lockTransactionId: lockTransaction.id,
             unlockSecret: secret,
         };
@@ -1002,8 +1012,8 @@ describe("Htlc claim", () => {
             const htlcLockAsset = {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: makeTimestamp(99),
+                    type: expirationType,
+                    value: makeNotExpiredTimestamp(expirationType),
                 },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
@@ -1060,8 +1070,8 @@ describe("Htlc claim", () => {
             const htlcLockAsset = {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: makeTimestamp(-1),
+                    type: expirationType,
+                    value: makeExpiredTimestamp(expirationType),
                 },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
@@ -1132,6 +1142,32 @@ describe("Htlc claim", () => {
             expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
             expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
         });
+
+        it("should apply htlc claim transaction - when sender is not claim wallet", () => {
+            const dummyPassphrase = "dummy passphrase";
+            const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
+            const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
+            dummyWallet.publicKey = dummyKeys.publicKey;
+
+            transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
+                .withPassphrase(dummyPassphrase)
+                .createOne();
+
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = claimWallet.balance;
+
+            expect(lockWallet.locks[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.lockedBalance).toEqual(lockTransaction.amount);
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.locks[transaction.id]).toBeUndefined();
+            expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+            expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+        });
     });
 
     describe("revert", () => {
@@ -1158,12 +1194,13 @@ describe("Htlc claim", () => {
     });
 });
 
-describe("Htlc refund", () => {
+describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
     const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
     const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
 
     let lockWallet;
     let lockTransaction: Interfaces.ITransactionData;
+    let htlcRefundAsset;
 
     let pool: Partial<TransactionPool.IConnection>;
 
@@ -1188,15 +1225,15 @@ describe("Htlc refund", () => {
         const htlcLockAsset = {
             secretHash,
             expiration: {
-                type: UnixTimestamp,
-                value: makeTimestamp(-1),
+                type: expirationType,
+                value: makeExpiredTimestamp(expirationType),
             },
         };
         lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, recipientWallet.address, amount)
             .withPassphrase(lockPassphrase)
             .createOne();
 
-        const htlcRefundAsset = {
+        htlcRefundAsset = {
             lockTransactionId: lockTransaction.id,
         };
 
@@ -1232,8 +1269,8 @@ describe("Htlc refund", () => {
             const htlcLockAsset = {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: makeTimestamp(-1),
+                    type: expirationType,
+                    value: makeExpiredTimestamp(expirationType),
                 },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, recipientWallet.address, amount)
@@ -1280,15 +1317,15 @@ describe("Htlc refund", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
         });
 
-        it("should throw if lock didn't expire", () => {
+        it("should throw if lock didn't expire - expiration type %i", () => {
             const amount = 6 * 1e8;
             const secret = "my secret that should be 32bytes";
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: makeTimestamp(99),
+                    type: expirationType,
+                    value: makeNotExpiredTimestamp(expirationType),
                 },
             };
             lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, lockWallet.address, amount)
@@ -1358,11 +1395,36 @@ describe("Htlc refund", () => {
             expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
             expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
         });
+
+        it("should apply htlc refund transaction - when sender is not refund wallet", () => {
+            const dummyPassphrase = "dummy passphrase";
+            const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
+            const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
+            dummyWallet.publicKey = dummyKeys.publicKey;
+
+            transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
+                .withPassphrase(dummyPassphrase)
+                .createOne();
+
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = lockWallet.balance;
+
+            expect(lockWallet.locks[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.lockedBalance).toEqual(lockTransaction.amount);
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.locks[transaction.id]).toBeUndefined();
+            expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+        });
     });
 
     describe("revert", () => {
         it("should be ok", async () => {
-            mockLastBlockData = { timestamp: makeTimestamp() };
             expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
 
             mockTransaction = lockTransaction;
