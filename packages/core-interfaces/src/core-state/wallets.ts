@@ -47,6 +47,8 @@ export interface IWalletManager {
 
     allByUsername(): IWallet[];
 
+    findById(id: string): IWallet;
+
     findByAddress(address: string): IWallet;
 
     has(addressOrPublicKey: string): boolean;
