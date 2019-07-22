@@ -172,7 +172,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                        `(listed in options.allowedSenders), thus skipping throttling.`,
+                    `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -240,7 +240,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `Cannot apply transaction ${transaction.id} when trying to accept ` +
-                            `block ${block.data.id}: ${error.message}`,
+                        `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -387,7 +387,7 @@ export class Connection implements TransactionPool.IConnection {
         if (this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                    `in the pool, id: ${transaction.id}`,
+                `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };

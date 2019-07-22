@@ -126,9 +126,7 @@ export class ConfigManager {
 
             if ((current.height - previous.height) % previous.activeDelegates !== 0) {
                 throw new InvalidMilestoneConfigurationError(
-                    `Bad milestone at height: ${
-                        current.height
-                    }. The number of delegates can only be changed at the beginning of a new round.`,
+                    `Bad milestone at height: ${current.height}. The number of delegates can only be changed at the beginning of a new round.`,
                 );
             }
         }

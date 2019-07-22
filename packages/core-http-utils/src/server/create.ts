@@ -7,8 +7,8 @@ import { monitorServer } from "./monitor";
 
 export const createServer = async (options, callback?: any, plugins?: any[]) => {
     if (options.tls) {
-        options.tls.key = readFileSync(expandHomeDir(options.tls.key));
-        options.tls.cert = readFileSync(expandHomeDir(options.tls.cert));
+        options.tls.key = readFileSync(expandHomeDir(options.tls.key)).toString();
+        options.tls.cert = readFileSync(expandHomeDir(options.tls.cert)).toString();
     }
 
     options = deepmerge(
