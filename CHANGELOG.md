@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.1] - 2019-07-11
+
+### Fixed
+
+-   SSL functionality of core-api ([#2800])
+
 ## [2.5.0] - 2019-07-11
 
 ### Added
@@ -571,6 +577,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.1]: https://github.com/ARKEcosystem/core/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.5.0
 [2.4.15]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.4.15
 [2.4.14]: https://github.com/ARKEcosystem/core/compare/2.4.13...2.4.14
@@ -886,3 +893,4 @@ Closed security vulnerabilities:
 [#2766]: https://github.com/ARKEcosystem/core/pull/2766
 [#2782]: https://github.com/ARKEcosystem/core/pull/2782
 [#2797]: https://github.com/ARKEcosystem/core/pull/2797
+[#2800]: https://github.com/ARKEcosystem/core/pull/2800

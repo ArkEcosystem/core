@@ -187,9 +187,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${
-                    Enums.TransactionTypes[type]
-                }' in the pool`,
+                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionTypes[type]}' in the pool`,
             );
 
             return true;

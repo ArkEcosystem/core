@@ -35,7 +35,7 @@ class GenerateManager {
         }
         this.network = options.network;
 
-        this.relay = options.relay
+        this.relay = options.relay;
 
         this.rootPath = path.dirname("../");
         this.coreRootPath = path.dirname("../../..");
@@ -113,9 +113,10 @@ class GenerateManager {
 
             // rework ark.sh script if base network is not testnet + adapt if relay mode
             const arkDistScript = fs.readFileSync(path.join(distNodePath, "ark.sh"), "utf8");
-            let arkDistScriptUpdated = arkDistScript
-                .replace(/config\/testnet/g, `config/${this.network}`);
-            arkDistScriptUpdated = this.relay ? arkDistScriptUpdated.replace(/core:run/, "relay:run") : arkDistScriptUpdated;
+            let arkDistScriptUpdated = arkDistScript.replace(/config\/testnet/g, `config/${this.network}`);
+            arkDistScriptUpdated = this.relay
+                ? arkDistScriptUpdated.replace(/core:run/, "relay:run")
+                : arkDistScriptUpdated;
 
             fs.writeFileSync(path.join(distNodePath, "ark.sh"), arkDistScriptUpdated);
 
@@ -133,8 +134,7 @@ class GenerateManager {
 
             // plugins.js minimumNetworkReach to set to 1
             const plugins = fs.readFileSync(path.join(distCoreNetworkPath, "plugins.js"), "utf8");
-            const pluginsFixed = plugins
-                .replace(/minimumNetworkReach: \d+/, "minimumNetworkReach: 1");
+            const pluginsFixed = plugins.replace(/minimumNetworkReach: \d+/, "minimumNetworkReach: 1");
 
             fs.writeFileSync(path.join(distCoreNetworkPath, "plugins.js"), pluginsFixed);
 

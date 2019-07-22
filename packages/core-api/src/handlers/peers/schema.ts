@@ -6,8 +6,6 @@ export const index: object = {
         ...pagination,
         ...{
             ip: Joi.string().ip(),
-            status: Joi.string(),
-            port: Joi.number().port(),
             version: Joi.string(),
             orderBy: Joi.string(),
         },

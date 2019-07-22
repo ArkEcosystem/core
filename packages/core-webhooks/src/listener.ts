@@ -48,9 +48,7 @@ export const startListeners = (): void => {
                     });
 
                     app.resolvePlugin<Logger.ILogger>("logger").debug(
-                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${
-                            webhook.target
-                        }] with a status of [${status}].`,
+                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
                     );
                 } catch (error) {
                     app.resolvePlugin<Logger.ILogger>("logger").error(

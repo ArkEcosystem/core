@@ -16,6 +16,12 @@ import { canImportRecord, verifyData } from "./verification";
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
+const fixData = (table, data) => {
+    if (table === "blocks" && data.height === 1) {
+        data.id = Managers.configManager.get("genesisBlock").id;
+    }
+};
+
 export const exportTable = async (table, options) => {
     const snapFileName = utils.getFilePath(table, options.meta.folder);
     const gzip = zlib.createGzip();
@@ -89,9 +95,7 @@ export const importTable = async (table, options) => {
     for await (const record of readStream) {
         counter++;
 
-        if (table === "blocks" && record.height === 1) {
-            record.id = Managers.configManager.get("genesisBlock").id;
-        }
+        fixData(table, record);
 
         if (!verifyData(table, record, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
@@ -129,6 +133,7 @@ export const verifyTable = async (table, options) => {
     let prevData;
 
     decodeStream.on("data", data => {
+        fixData(table, data);
         if (!verifyData(table, data, prevData, options.verifySignatures)) {
             app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, undefined, 2)}`);
         }
@@ -136,7 +141,7 @@ export const verifyTable = async (table, options) => {
     });
 
     readStream.on("finish", () => {
-        logger.info(`Snapshot file ${sourceFile} succesfully verified`);
+        logger.info(`Snapshot file ${sourceFile} successfully verified`);
     });
 };
 
