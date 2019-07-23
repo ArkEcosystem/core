@@ -10,7 +10,7 @@ export const transformWallet = (wallet: State.IWallet) => {
         username,
         nonce: wallet.nonce.toFixed(),
         secondPublicKey: wallet.getAttribute("secondPublicKey"),
-        balance: +Utils.BigNumber.make(wallet.balance).toFixed(),
+        balance: Utils.BigNumber.make(wallet.balance).toFixed(),
         isDelegate: !!username,
         vote: wallet.getAttribute("vote"),
     };

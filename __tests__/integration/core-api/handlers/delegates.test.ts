@@ -10,7 +10,6 @@ const { BlockFactory } = Blocks;
 
 import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
-import { Wallets } from "@arkecosystem/core-state";
 
 const delegate = {
     address: "AFyf2qVpX2JbpKcy29XbusedCpFDeYFX8Q",
@@ -21,7 +20,7 @@ const delegate = {
     forgedTotal: 100,
     producedBlocks: 75,
     voteBalance: 100000,
-}
+};
 
 const delegate2 = {
     username: "genesis_11",
@@ -31,16 +30,18 @@ beforeAll(async () => {
     await setUp();
     await calculateRanks();
 
-    const wm = app.resolvePlugin("database").walletManager;
-    const wallet: Wallets.Wallet = wm.findByUsername("genesis_10");
+    const wm: State.IWalletManager = app.resolvePlugin("database").walletManager;
+    const wallet: State.IWallet = wm.findByUsername("genesis_10");
 
-    const delegate: State.IWalletDelegateAttributes = wallet.getAttribute("delegate");
-    wallet.setAttribute("delegate", Object.assign(delegate, {
-        forgedFees: Utils.BigNumber.make(delegate.forgedFees),
-        forgedRewards: Utils.BigNumber.make(delegate.forgedRewards),
-        producedBlocks: 75,
-        voteBalance: Utils.BigNumber.make(delegate.voteBalance),
-    }));
+    wallet.setAttribute(
+        "delegate",
+        Object.assign(wallet.getAttribute("delegate"), {
+            forgedFees: Utils.BigNumber.make(delegate.forgedFees),
+            forgedRewards: Utils.BigNumber.make(delegate.forgedRewards),
+            producedBlocks: 75,
+            voteBalance: Utils.BigNumber.make(delegate.voteBalance),
+        }),
+    );
 
     wm.reindex(wallet);
 });
@@ -64,22 +65,24 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should GET all the delegates sorted by votes,asc", async () => {
-            const wm = app.resolvePlugin("database").walletManager;
-            const wallet = wm.findByUsername("genesis_51");
-            wallet.voteBalance = Utils.BigNumber.ONE;
+            const wm: State.IWalletManager = app.resolvePlugin("database").walletManager;
+            const wallet: State.IWallet = wm.findByUsername("genesis_51");
+            wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.ONE);
             wm.reindex(wallet);
 
             const response = await utils.request("GET", "delegates", { orderBy: "votes:asc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            expect(response.data.data[0].username).toBe(wallet.username);
-            expect(response.data.data[0].votes).toBe(wallet.voteBalance.toFixed());
+            expect(response.data.data[0].username).toBe(wallet.getAttribute<string>("delegate.username"));
+            expect(response.data.data[0].votes).toBe(
+                wallet.getAttribute<Utils.BigNumber>("delegate.voteBalance").toFixed(),
+            );
         });
 
         it("should GET all the delegates sorted by votes,desc", async () => {
-            const wm = app.resolvePlugin("database").walletManager;
-            const wallet: Wallets.Wallet = wm.findByUsername("genesis_1");
+            const wm: State.IWalletManager = app.resolvePlugin("database").walletManager;
+            const wallet: State.IWallet = wm.findByUsername("genesis_1");
             wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(12500000000000000));
             wm.reindex(wallet);
 
@@ -88,7 +91,9 @@ describe("API 2.0 - Delegates", () => {
             expect(response.data.data).toBeArray();
 
             expect(response.data.data[0].username).toBe(wallet.getAttribute("delegate.username"));
-            expect(response.data.data[0].votes).toBe(wallet.getAttribute<Utils.BigNumber>("voteBalance").toFixed());
+            expect(response.data.data[0].votes).toBe(
+                wallet.getAttribute<Utils.BigNumber>("delegate.voteBalance").toFixed(),
+            );
         });
 
         it("should GET all the delegates ordered by descending rank", async () => {

@@ -35,7 +35,14 @@ const resetToHeight1 = async () => {
         const generator = Identities.Address.fromPublicKey(genesisBlock.data.generatorPublicKey);
         const genesis = new Wallets.Wallet(generator);
         genesis.publicKey = genesisBlock.data.generatorPublicKey;
-        genesis.username = "genesis";
+        genesis.setAttribute("delegate", {
+            username: "genesis",
+            voteBalance: Utils.BigNumber.ZERO,
+            producedBlocks: Utils.BigNumber.ZERO,
+            forgedFees: Utils.BigNumber.ZERO,
+            forgedRewards: Utils.BigNumber.ZERO,
+        });
+
         blockchain.database.walletManager.reindex(genesis);
 
         blockchain.state.clear();
@@ -266,7 +273,9 @@ describe("Blockchain", () => {
             // New wallet received funds and vote balance of delegate has been reduced by the same amount,
             // since it forged it's own transaction the fees for the transaction have been recovered.
             expect(wallet.balance).toEqual(transfer.amount);
-            expect(walletForger.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(initialVoteBalance.minus(transfer.amount));
+            expect(walletForger.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
+                initialVoteBalance.minus(transfer.amount),
+            );
 
             // Now vote with newly created wallet for previous forger.
             const vote = TransactionFactory.vote(forgerKeys.publicKey)
@@ -287,7 +296,9 @@ describe("Blockchain", () => {
 
             // Vote balance of delegate now equals initial vote balance minus 1 for the vote fee
             // since it was forged by a different delegate.
-            expect(walletForger.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(initialVoteBalance.minus(vote.fee));
+            expect(walletForger.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
+                initialVoteBalance.minus(vote.fee),
+            );
 
             // Now unvote again
             const unvote = TransactionFactory.unvote(forgerKeys.publicKey)
@@ -307,7 +318,9 @@ describe("Blockchain", () => {
             expect(wallet.hasVoted()).toBeFalse();
 
             // Vote balance of delegate now equals initial vote balance minus the amount sent to the voter wallet.
-            expect(walletForger.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(initialVoteBalance.minus(transfer.amount));
+            expect(walletForger.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
+                initialVoteBalance.minus(transfer.amount),
+            );
 
             // Now rewind 3 blocks back to the initial state
             await blockchain.removeBlocks(3);
