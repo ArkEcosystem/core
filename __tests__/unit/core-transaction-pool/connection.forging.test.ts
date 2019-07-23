@@ -55,11 +55,14 @@ describe("Connection", () => {
             const { publicKey } = delegates[i];
             const wallet = databaseWalletManager.findByPublicKey(publicKey);
             wallet.balance = Utils.BigNumber.make(100_000 * Constants.ARKTOSHI);
-            wallet.username = `delegate-${i + 1}`;
-            wallet.vote = publicKey;
+            wallet.setAttribute("delegate", {
+                username: `delegate-${i + 1}`,
+                voteBalance: Utils.BigNumber.ZERO,
+            });
+            wallet.setAttribute("vote", publicKey);
 
             if (i === 50) {
-                wallet.secondPublicKey = Identities.PublicKey.fromPassphrase("second secret");
+                wallet.setAttribute("secondPublicKey", Identities.PublicKey.fromPassphrase("second secret"));
             }
 
             databaseWalletManager.reindex(wallet);

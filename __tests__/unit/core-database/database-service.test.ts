@@ -194,9 +194,12 @@ describe("Database Service", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                    wallet.setAttribute("delegate.username", Transactions.TransactionFactory.fromBytes(
-                        transaction.serialized,
-                    ).data.asset.delegate.username);
+                    wallet.setAttribute("delegate", {
+                        voteBalance: Utils.BigNumber.ONE,
+                        username: Transactions.TransactionFactory.fromBytes(
+                            transaction.serialized,
+                        ).data.asset.delegate.username,
+                    });
                     wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
@@ -222,6 +225,13 @@ describe("Database Service", () => {
             const sender = new Wallet(keys.address);
             sender.publicKey = keys.publicKey;
             sender.balance = Utils.BigNumber.make(1e12);
+            sender.setAttribute("delegate", {
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+                producedBlocks: Utils.BigNumber.ZERO,
+            });
+
             walletManager.reindex(sender);
 
             // Apply 51 blocks, where each increases the vote balance of a delegate to
@@ -266,6 +276,7 @@ describe("Database Service", () => {
             // The delegates from round 2 are now reversed in rank in round 3.
             const roundInfo2 = roundCalculator.calculateRound(initialHeight + 51);
             const delegatesRound3 = walletManager.loadActiveDelegateList(roundInfo2);
+
             for (let i = 0; i < delegatesRound3.length; i++) {
                 expect(delegatesRound3[i].getAttribute<number>("delegate.rank")).toBe(i + 1);
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);

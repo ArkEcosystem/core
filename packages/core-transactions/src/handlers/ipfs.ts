@@ -12,7 +12,11 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes", {});
+            if (!wallet.hasAttribute("ipfs")) {
+                wallet.setAttribute("ipfs", { hashes: {} });
+            }
+
+            const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
             ipfsHashes[transaction.asset.ipfs] = true;
         }
     }
@@ -42,7 +46,11 @@ export class IpfsTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes", {});
+        if (!sender.hasAttribute("ipfs")) {
+            sender.setAttribute("ipfs", { hashes: {} });
+        }
+
+        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
         ipfsHashes[transaction.data.asset.ipfs] = true;
 
         walletManager.reindex(sender);
@@ -59,8 +67,8 @@ export class IpfsTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 }

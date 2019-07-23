@@ -43,7 +43,7 @@ export class UnexpectedNonceError extends TransactionError {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-                `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
+            `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
         );
     }
 }
@@ -84,13 +84,13 @@ export class WalletAlreadyResignedError extends TransactionError {
     }
 }
 
-export class WalletUsernameEmptyError extends TransactionError {
+export class WalletNotADelegateError extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because the username is empty.`);
+        super(`Failed to apply transaction, because the wallet is not a delegate.`);
     }
 }
 
-export class WalletUsernameNotEmptyError extends TransactionError {
+export class WalletIsAlreadyDelegateError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the wallet already has a registered username.`);
     }

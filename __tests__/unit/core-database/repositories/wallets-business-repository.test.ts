@@ -300,11 +300,12 @@ describe("Wallet Repository", () => {
             const wallets = generateFullWallets();
             walletManager.index(wallets);
 
-            const wallet = repository.findById(wallets[0][key]);
+            const id: string = key === "username" ? wallets[0].getAttribute("delegate.username") : wallets[0][key];
+            const wallet: State.IWallet = repository.findById(id);
             expect(wallet).toBeObject();
             expect(wallet.address).toBe(wallets[0].address);
             expect(wallet.publicKey).toBe(wallets[0].publicKey);
-            expect(wallet.username).toBe(wallets[0].getAttribute("delegate.username"));
+            expect(wallet.getAttribute("delegate.username")).toBe(wallets[0].getAttribute("delegate.username"));
         };
 
         it("should be ok with an address", () => {

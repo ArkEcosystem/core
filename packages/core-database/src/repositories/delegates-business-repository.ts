@@ -42,7 +42,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             delegates = delegates.map(delegate => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
-                        delegate[prop] = method(delegate);
+                        delegate.setAttribute(`delegate.${prop}`, method(delegate));
                     }
                 }
 

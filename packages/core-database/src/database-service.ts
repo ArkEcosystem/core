@@ -707,7 +707,7 @@ export class DatabaseService implements Database.IDatabaseService {
             delegateWallet.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
         }
 
-        return delegates.map(delegate => this.walletManager.findByPublicKey(delegate.publicKey));
+        return delegates;
     }
 
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {

@@ -49,7 +49,7 @@ const generateWallets = (): Wallet[] => {
                     voteBalance: Utils.BigNumber.make(200),
                     rank: index + 1,
                 },
-            }
+            },
         });
     });
 };
@@ -88,8 +88,10 @@ describe("Delegate Repository", () => {
             const { rows } = repository.search({ forgedTotal: undefined });
 
             for (const delegate of rows) {
-                expect(delegate.hasOwnProperty("forgedTotal"));
-                expect(delegate.forgedTotal).toBe(delegateCalculator.calculateForgedTotal(delegate));
+                expect(delegate.hasAttribute("delegate.forgedTotal")).toBeTrue();
+                expect(delegate.getAttribute("delegate.forgedTotal")).toBe(
+                    delegateCalculator.calculateForgedTotal(delegate),
+                );
             }
         });
 
@@ -147,7 +149,7 @@ describe("Delegate Repository", () => {
 
                 expect(count).toBe(1);
                 expect(rows).toHaveLength(1);
-                expect(rows[0].username).toEqual(username);
+                expect(rows[0].getAttribute("delegate.username")).toEqual(username);
             });
 
             it("should search that username contains the string", () => {
@@ -167,7 +169,7 @@ describe("Delegate Repository", () => {
 
                     expect(count).toBe(1);
                     expect(rows).toHaveLength(1);
-                    expect(rows[0].username).toEqual(username);
+                    expect(rows[0].getAttribute("delegate.username")).toEqual(username);
                 });
             });
 
@@ -234,7 +236,7 @@ describe("Delegate Repository", () => {
                 expect(rows).toHaveLength(3);
 
                 for (const row of rows) {
-                    expect(usernames.includes(row.username)).toBeTrue();
+                    expect(usernames.includes(row.getAttribute("delegate.username"))).toBeTrue();
                 }
             });
 
@@ -248,7 +250,7 @@ describe("Delegate Repository", () => {
 
                     expect(count).toBe(1);
                     expect(rows).toHaveLength(1);
-                    expect(rows[0].username).toEqual(usernames[0]);
+                    expect(rows[0].getAttribute("delegate.username")).toEqual(usernames[0]);
                 });
             });
 
@@ -355,11 +357,13 @@ describe("Delegate Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const wallet = repository.findById(wallets[0][key]);
+            const id: string = key === "username" ? wallets[0].getAttribute("delegate.username") : wallets[0][key];
+
+            const wallet = repository.findById(id);
             expect(wallet).toBeObject();
             expect(wallet.address).toBe(wallets[0].address);
             expect(wallet.publicKey).toBe(wallets[0].publicKey);
-            expect(wallet.username).toBe(wallets[0].getAttribute("delegate.username"));
+            expect(wallet.getAttribute("delegate.username")).toBe(wallets[0].getAttribute("delegate.username"));
         };
 
         it("should be ok with an address", () => {

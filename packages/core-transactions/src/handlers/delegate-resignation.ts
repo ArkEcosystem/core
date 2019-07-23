@@ -1,7 +1,7 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { WalletAlreadyResignedError, WalletUsernameEmptyError } from "../errors";
+import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
 import { TransactionHandler } from "./transaction";
 
 export class DelegateResignationTransactionHandler extends TransactionHandler {
@@ -23,7 +23,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         databaseWalletManager: State.IWalletManager,
     ): void {
         if (!wallet.isDelegate()) {
-            throw new WalletUsernameEmptyError();
+            throw new WalletNotADelegateError();
         }
 
         if (wallet.hasAttribute("delegate.resigned")) {
