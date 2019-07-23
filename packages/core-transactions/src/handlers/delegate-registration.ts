@@ -23,20 +23,20 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.setAttribute("delegate", {
+            wallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
                 username: transaction.asset.delegate.username,
                 voteBalance: Utils.BigNumber.ZERO,
                 forgedFees: Utils.BigNumber.ZERO,
                 forgedRewards: Utils.BigNumber.ZERO,
                 producedBlocks: 0,
-                round: 0,
-            } as State.IWalletDelegateAttributes);
+                rank: 0,
+            });
 
             walletManager.reindex(wallet);
         }
 
         for (const block of forgedBlocks) {
-            const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+            const wallet: State.IWallet = walletManager.findByPublicKey(block.generatorPublicKey);
             const delegate: State.IWalletDelegateAttributes = wallet.getAttribute("delegate");
 
             // Genesis wallet is empty
@@ -131,7 +131,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.setAttribute("delegate", {
+        sender.setAttribute<State.IWalletDelegateAttributes>("delegate", {
             username: transaction.data.asset.delegate.username,
             voteBalance: Utils.BigNumber.ZERO,
             forgedFees: Utils.BigNumber.ZERO,
@@ -150,12 +150,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const username: string = sender.getAttribute("delegate.username");
 
         walletManager.forgetByUsername(username);
-        sender.unsetAttribute("delegate.username");
+        sender.unsetAttribute("delegate");
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }

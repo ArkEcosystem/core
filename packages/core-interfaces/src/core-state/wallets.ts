@@ -34,14 +34,14 @@ export interface IWallet {
 
 export interface IWalletDelegateAttributes {
     username: string;
-    rank: number;
     voteBalance: Utils.BigNumber;
     forgedFees: Utils.BigNumber;
     forgedRewards: Utils.BigNumber;
     producedBlocks: number;
-    lastBlock: Interfaces.IBlockData;
-    round: number;
-    resigned: boolean;
+    rank?: number;
+    lastBlock?: Interfaces.IBlockData;
+    round?: number;
+    resigned?: boolean;
 }
 
 export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset;
