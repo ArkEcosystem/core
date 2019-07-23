@@ -42,7 +42,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
+        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes", {});
         ipfsHashes[transaction.data.asset.ipfs] = true;
 
         walletManager.reindex(sender);
