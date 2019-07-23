@@ -194,9 +194,9 @@ describe("Database Service", () => {
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionTypes.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                    wallet.username = Transactions.TransactionFactory.fromBytes(
+                    wallet.setAttribute("delegate.username", Transactions.TransactionFactory.fromBytes(
                         transaction.serialized,
-                    ).data.asset.delegate.username;
+                    ).data.asset.delegate.username);
                     wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
@@ -238,7 +238,7 @@ describe("Database Service", () => {
                     .build();
 
                 // Vote for delegate
-                walletManager.findByPublicKey(voterKeys.publicKey).vote = delegatesRound2[i].publicKey;
+                walletManager.findByPublicKey(voterKeys.publicKey).setAttribute("vote", delegatesRound2[i].publicKey);
 
                 const block = BlockFactory.make(
                     {
@@ -267,7 +267,7 @@ describe("Database Service", () => {
             const roundInfo2 = roundCalculator.calculateRound(initialHeight + 51);
             const delegatesRound3 = walletManager.loadActiveDelegateList(roundInfo2);
             for (let i = 0; i < delegatesRound3.length; i++) {
-                expect(delegatesRound3[i].rate).toBe(i + 1);
+                expect(delegatesRound3[i].getAttribute<number>("delegate.rank")).toBe(i + 1);
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
             }
 
@@ -284,10 +284,10 @@ describe("Database Service", () => {
             });
 
             // Finally recalculate the round 2 list and compare against the original list
-            const restoredDelegatesRound2 = await (databaseService as any).calcPreviousActiveDelegates(roundInfo2);
+            const restoredDelegatesRound2: State.IWallet[] = await (databaseService as any).calcPreviousActiveDelegates(roundInfo2);
 
             for (let i = 0; i < restoredDelegatesRound2.length; i++) {
-                expect(restoredDelegatesRound2[i].rate).toBe(i + 1);
+                expect(restoredDelegatesRound2[i].getAttribute<number>("delegate.rank")).toBe(i + 1);
                 expect(restoredDelegatesRound2[i].publicKey).toBe(delegatesRound2[i].publicKey);
             }
 

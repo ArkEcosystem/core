@@ -38,16 +38,19 @@ const generateWallets = (): Wallet[] => {
         // @TODO: switch to unitnet
         const address: string = Address.fromPublicKey(transaction.data.senderPublicKey, 23);
 
-        return {
-            address,
-            publicKey: `publicKey-${address}`,
-            secondPublicKey: `secondPublicKey-${address}`,
-            vote: `vote-${address}`,
-            username: `username-${address}`,
+        return Object.assign(new Wallet(address), {
             balance: Utils.BigNumber.make(100),
-            voteBalance: Utils.BigNumber.make(200),
-            rate: index + 1,
-        } as Wallet;
+            publicKey: `publicKey-${address}`,
+            attributes: {
+                secondPublicKey: `secondPublicKey-${address}`,
+                vote: `vote-${address}`,
+                delegate: {
+                    username: `username-${address}`,
+                    voteBalance: Utils.BigNumber.make(200),
+                    rank: index + 1,
+                },
+            }
+        });
     });
 };
 
@@ -61,7 +64,7 @@ describe("Delegate Repository", () => {
 
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map(delegate => {
             const wallet = new Wallet("");
-            return Object.assign(wallet, delegate);
+            return Object.assign(wallet, { attributes: { delegate } });
         });
 
         beforeEach(() => {
@@ -157,7 +160,7 @@ describe("Delegate Repository", () => {
             describe('when a username is "undefined"', () => {
                 it("should return it", () => {
                     // Index a wallet with username "undefined"
-                    walletManager.allByAddress()[0].username = "undefined";
+                    walletManager.allByAddress()[0].setAttribute("delegate", { username: "undefined" });
 
                     const username = "undefined";
                     const { count, rows } = repository.search({ username });
@@ -238,7 +241,7 @@ describe("Delegate Repository", () => {
             describe('when a username is "undefined"', () => {
                 it("should return it", () => {
                     // Index a wallet with username "undefined"
-                    walletManager.allByAddress()[0].username = "undefined";
+                    walletManager.allByAddress()[0].setAttribute("delegate", { username: "undefined" });
 
                     const usernames = ["undefined"];
                     const { count, rows } = repository.search({ usernames });
@@ -337,7 +340,7 @@ describe("Delegate Repository", () => {
             describe('when a username is "undefined"', () => {
                 it("should return all results", () => {
                     // Index a wallet with username "undefined"
-                    walletManager.allByAddress()[0].username = "undefined";
+                    walletManager.allByAddress()[0].setAttribute("delegate", { username: "undefined" });
 
                     const { count, rows } = repository.search({});
                     expect(count).toBe(52);
@@ -356,7 +359,7 @@ describe("Delegate Repository", () => {
             expect(wallet).toBeObject();
             expect(wallet.address).toBe(wallets[0].address);
             expect(wallet.publicKey).toBe(wallets[0].publicKey);
-            expect(wallet.username).toBe(wallets[0].username);
+            expect(wallet.username).toBe(wallets[0].getAttribute("delegate.username"));
         };
 
         it("should be ok with an address", () => {

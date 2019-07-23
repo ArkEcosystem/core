@@ -3,6 +3,7 @@ import "jest-extended";
 import { State } from "@arkecosystem/core-interfaces";
 import { Constants, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { configManager } from "@arkecosystem/crypto/src/managers";
+import clonedeep from "lodash.clonedeep";
 import { Wallet } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 
@@ -64,7 +65,7 @@ describe("Models - Wallet", () => {
 
         it("should not apply incorrect block", () => {
             block.generatorPublicKey = ("a" as any).repeat(66);
-            const originalWallet = Object.assign({}, testWallet);
+            const originalWallet = Object.assign(new Wallet(testWallet.address), testWallet);
             const delegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
             const original: State.IWalletDelegateAttributes = originalWallet.getAttribute("delegate");
 
@@ -101,7 +102,7 @@ describe("Models - Wallet", () => {
 
         beforeEach(() => {
             testWallet = new Wallet(walletInit.address);
-            testWallet = Object.assign(testWallet, walletInit);
+            testWallet = clonedeep(Object.assign(testWallet, walletInit));
         });
 
         it("should revert block if generator public key matches the wallet public key", () => {
@@ -171,7 +172,7 @@ describe("Models - Wallet", () => {
 
         beforeEach(() => {
             testWallet = new Wallet(walletInit.address);
-            testWallet = Object.assign(testWallet, walletInit);
+            testWallet = clonedeep(Object.assign(testWallet, walletInit));
         });
 
         it("should return correct audit data for Transfer type", () => {

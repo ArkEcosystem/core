@@ -15,8 +15,8 @@ export interface IWallet {
     toString(): string;
 
     hasAttribute(key: string): boolean;
-    getAttribute<T>(key: string, defaultValue?: T): T;
-    setAttribute(key: string, value: any);
+    getAttribute<T = any>(key: string, defaultValue?: T): T;
+    setAttribute<T = any>(key: string, value: T): void;
     unsetAttribute(key: string): void;
 
     isDelegate(): boolean;
