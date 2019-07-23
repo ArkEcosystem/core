@@ -359,13 +359,33 @@ export class WalletManager implements State.IWalletManager {
         transaction: Interfaces.ITransactionData,
         revert: boolean = false,
     ): void {
-        // TODO: multipayment?
         if (transaction.type !== Enums.TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.vote) {
                 const delegate: State.IWallet = this.findByPublicKey(sender.vote);
-                const total: Utils.BigNumber = transaction.amount.plus(transaction.fee);
+                const amount =
+                    transaction.type === Enums.TransactionTypes.MultiPayment
+                        ? transaction.asset.payments.reduce(
+                              (prev, curr) => prev.plus(curr.amount),
+                              Utils.BigNumber.ZERO,
+                          )
+                        : transaction.amount;
+                const total: Utils.BigNumber = amount.plus(transaction.fee);
+
                 delegate.voteBalance = revert ? delegate.voteBalance.plus(total) : delegate.voteBalance.minus(total);
+            }
+
+            if (transaction.type === Enums.TransactionTypes.MultiPayment) {
+                // go through all payments and update recipients delegates vote balance
+                for (const { recipientId, amount } of transaction.asset.payments) {
+                    const recipientWallet: State.IWallet = this.findByAddress(recipientId);
+                    if (recipientWallet.vote) {
+                        const delegate: State.IWallet = this.findByPublicKey(recipientWallet.vote);
+                        delegate.voteBalance = revert
+                            ? delegate.voteBalance.minus(amount)
+                            : delegate.voteBalance.plus(amount);
+                    }
+                }
             }
 
             // Update vote balance of recipient's delegate
