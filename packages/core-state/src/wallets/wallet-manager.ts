@@ -38,6 +38,10 @@ export class WalletManager implements State.IWalletManager {
         return Object.values(this.byLockId);
     }
 
+    public findById(id: string): State.IWallet {
+        return this.byAddress[id] || this.byPublicKey[id] || this.byUsername[id];
+    }
+
     public findByAddress(address: string): State.IWallet {
         if (address && !this.byAddress[address]) {
             this.byAddress[address] = new Wallet(address);

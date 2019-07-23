@@ -51,6 +51,8 @@ export interface IWalletManager {
 
     allByLockId(): IWallet[];
 
+    findById(id: string): IWallet;
+
     findByAddress(address: string): IWallet;
 
     has(addressOrPublicKey: string): boolean;
