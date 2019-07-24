@@ -46,6 +46,8 @@ export interface IWalletManager {
 
     allByUsername(): IWallet[];
 
+    findById(id: string): IWallet;
+
     findByAddress(address: string): IWallet;
 
     has(addressOrPublicKey: string): boolean;
@@ -58,7 +60,7 @@ export interface IWalletManager {
 
     reindex(wallet: IWallet): void;
 
-    cloneDelegateWallets(): IWalletManager;
+    clone(): IWalletManager;
 
     loadActiveDelegateList(roundInfo: IRoundInfo): IDelegateWallet[];
 
@@ -83,12 +85,6 @@ export interface IWalletManager {
     forgetByPublicKey(publicKey: string): void;
 
     forgetByUsername(username: string): void;
-
-    setByAddress(address: string, wallet: IWallet): void;
-
-    setByPublicKey(publicKey: string, wallet: IWallet): void;
-
-    setByUsername(username: string, wallet: IWallet): void;
 
     hasByAddress(address: string): boolean;
 

@@ -30,6 +30,17 @@ export interface IStateStore {
     getLastHeight(): number;
 
     /**
+     * Get the genesis block.
+     */
+    getGenesisBlock(): Interfaces.IBlock | undefined;
+
+    /**
+     * Sets the genesis block.
+     * @returns {void}
+     */
+    setGenesisBlock(block: Interfaces.IBlock): void;
+
+    /**
      * Get the last block.
      */
     getLastBlock(): Interfaces.IBlock | undefined;
@@ -57,7 +68,7 @@ export interface IStateStore {
      * @param {Number} start
      * @param {Number} end
      */
-    getLastBlocksByHeight(start: number, end?: number): Interfaces.IBlockData[];
+    getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[];
 
     /**
      * Get common blocks for the given IDs.

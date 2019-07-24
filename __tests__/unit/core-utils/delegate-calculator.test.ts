@@ -38,7 +38,7 @@ describe("Delegate Calculator", () => {
             delegate.forgedFees = Utils.BigNumber.make(10);
             delegate.forgedRewards = Utils.BigNumber.make(100);
 
-            expect(calculateForgedTotal(delegate)).toBe(110);
+            expect(calculateForgedTotal(delegate)).toBe("110");
         });
     });
 });

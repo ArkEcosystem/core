@@ -10,6 +10,10 @@ import {
 } from "./business-repository";
 import { IConnection } from "./database-connection";
 
+export interface IDownloadBlock extends Omit<Interfaces.IBlockData, "transactions"> {
+    transactions: string[];
+}
+
 export interface IDatabaseService {
     walletManager: IWalletManager;
 
@@ -49,19 +53,15 @@ export interface IDatabaseService {
 
     // TODO: These methods are exposing database terminology on the business layer, not a fan...
 
-    enqueueDeleteBlock(block: Interfaces.IBlock): void;
-
-    enqueueDeleteRound(height: number): void;
-
-    commitQueuedQueries(): Promise<void>;
-
-    deleteBlock(block: Interfaces.IBlock): Promise<void>;
+    deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void>;
 
     getBlock(id: string): Promise<Interfaces.IBlock>;
 
     getLastBlock(): Promise<Interfaces.IBlock>;
 
-    getBlocks(offset: number, limit: number): Promise<Interfaces.IBlockData[]>;
+    getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]>;
+
+    getBlocksForDownload(offset: number, limit: number, headersOnly?: boolean): Promise<IDownloadBlock[]>;
 
     /**
      * Get the blocks at the given heights.
@@ -100,8 +100,6 @@ export interface IDatabaseService {
     reset(): Promise<void>;
 
     loadBlocksFromCurrentRound(): Promise<void>;
-
-    loadTransactionsForBlocks(blocks): Promise<void>;
 
     updateDelegateStats(delegates: IDelegateWallet[]): void;
 

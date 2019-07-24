@@ -54,16 +54,13 @@ export interface ITransactionsRepository extends IRepository {
         minFeeBroadcast: number,
     ): Promise<Array<{ type: number; fee: number; timestamp: number }>>;
 
-    deleteByBlockId(blockId: string): Promise<void>;
+    deleteByBlockId(blockIds: string[], db: any): Promise<void>;
 
     findAllByWallet(
         wallet: IWallet,
         paginate?: ISearchPaginate,
         orderBy?: ISearchOrderBy[],
     ): Promise<ITransactionsPaginated>;
-
-    /* TODO: Remove with v1 */
-    findAll(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 
     search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

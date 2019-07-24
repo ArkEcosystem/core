@@ -8,8 +8,8 @@ export interface INetworkStatus {
 }
 
 export interface INetworkMonitor {
-    start(options): Promise<INetworkMonitor>;
-    updateNetworkStatus(networkStart?: boolean): Promise<void>;
+    start(): Promise<void>;
+    updateNetworkStatus(initialRun?: boolean): Promise<void>;
     cleansePeers({
         fast,
         forcePing,
@@ -19,7 +19,7 @@ export interface INetworkMonitor {
         forcePing?: boolean;
         peerCount?: number;
     }): Promise<void>;
-    discoverPeers(): Promise<void>;
+    discoverPeers(initialRun?: boolean): Promise<boolean>;
     getNetworkHeight(): number;
     getNetworkState(): Promise<INetworkState>;
     refreshPeersAfterFork(): Promise<void>;

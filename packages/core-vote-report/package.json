@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-vote-report",
-    "version": "2.4.12",
+    "version": "2.5.7",
     "description": "Vote Report for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -18,16 +18,14 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.4.12",
-        "@arkecosystem/core-http-utils": "^2.4.12",
-        "@arkecosystem/core-utils": "^2.4.12",
-        "@arkecosystem/crypto": "^2.4.12",
+        "@arkecosystem/core-container": "^2.5.7",
+        "@arkecosystem/core-http-utils": "^2.5.7",
+        "@arkecosystem/core-utils": "^2.5.7",
+        "@arkecosystem/crypto": "^2.5.7",
         "handlebars": "^4.1.2",
-        "lodash.sumby": "^4.6.0",
         "vision": "^5.4.4"
     },
     "devDependencies": {
-        "@types/lodash.sumby": "^4.6.6",
         "@types/vision": "^5.3.6"
     },
     "engines": {

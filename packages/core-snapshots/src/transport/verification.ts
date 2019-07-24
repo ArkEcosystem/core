@@ -1,20 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Managers, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Transactions, Utils } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
 export const verifyData = (context, data, prevData, verifySignatures) => {
     if (context === "blocks") {
         const isBlockChained = () => {
             if (!prevData) {
-                return true;
-            }
-            // genesis payload different as block.serialize stores
-            // block.previous_block with 00000 instead of undefined
-            // it fails on height 2 - chain check
-            // TODO: check to improve ser/deser for genesis
-            const genesisBlock = Managers.configManager.get("genesisBlock");
-            if (data.height === 2 && data.previous_block === genesisBlock.id) {
                 return true;
             }
 
@@ -81,7 +73,30 @@ export const canImportRecord = (context, data, options) => {
         if (options.lastRound === null) {
             return true;
         }
-        return data.id > options.lastRound.id;
+
+        const dataRound = Number(data.round);
+        const lastRound = Number(options.lastRound.round);
+        if (dataRound > lastRound) {
+            return true;
+        }
+        if (dataRound < lastRound) {
+            return false;
+        }
+
+        const dataBalance = Utils.BigNumber.make(data.balance);
+        const lastBalance = Utils.BigNumber.make(options.lastRound.balance);
+        if (dataBalance.isLessThan(lastBalance)) {
+            return true;
+        }
+        if (dataBalance.isGreaterThan(lastBalance)) {
+            return false;
+        }
+
+        if (data.public_key > options.lastRound.publicKey) {
+            return true;
+        }
+
+        return false;
     }
 
     return false;

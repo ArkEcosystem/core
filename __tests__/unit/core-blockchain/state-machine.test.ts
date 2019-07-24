@@ -369,8 +369,6 @@ describe("State Machine", () => {
 
                 const methodsCalled = [
                     // @ts-ignore
-                    jest.spyOn(blockchain.database, "commitQueuedQueries").mockReturnValue(true),
-                    // @ts-ignore
                     jest.spyOn(blockchain.transactionPool, "buildWallets").mockReturnValue(true),
                     // @ts-ignore
                     jest.spyOn(getMonitor, "refreshPeersAfterFork").mockReturnValue(true),

@@ -90,7 +90,6 @@ jest.mock("@arkecosystem/core-container", () => {
                 if (name === "transaction-pool") {
                     return {
                         transactionExists: jest.fn().mockReturnValue(false),
-                        isSenderBlocked: jest.fn().mockReturnValue(false),
                         hasExceededMaxTransactions: jest.fn().mockReturnValue(false),
                         addTransactions: jest.fn().mockReturnValue({ added: ["111"], notAdded: [] }),
                         walletManager: {
@@ -111,6 +110,7 @@ jest.mock("@arkecosystem/core-container", () => {
                     return {
                         getStore: () => ({
                             getLastBlock: () => genesisBlock,
+                            getLastBlocks: () => [genesisBlock],
                             getLastHeight: () => genesisBlock.data.height,
                             cacheTransactions: jest.fn().mockImplementation(txs => ({ notAdded: txs, added: [] })),
                             removeCachedTransactionIds: jest.fn().mockReturnValue(undefined),
