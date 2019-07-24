@@ -127,7 +127,7 @@ export class WalletManager implements State.IWalletManager {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                `This indicates an issue with the genesis block & delegates.`,
+                    `This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -317,6 +317,9 @@ export class WalletManager implements State.IWalletManager {
 
         if (roundInfo) {
             delegateWallets = delegateWallets.slice(0, roundInfo.maxDelegates);
+            for (const delegate of delegateWallets) {
+                delegate.setAttribute("delegate.round", roundInfo.round);
+            }
         }
 
         return delegateWallets;
