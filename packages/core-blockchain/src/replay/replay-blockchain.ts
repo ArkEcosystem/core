@@ -117,11 +117,18 @@ export class ReplayBlockchain extends Blockchain {
             sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
 
             if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
-                sender.username = transaction.data.asset.delegate.username;
+                sender.setAttribute("delegate", {
+                    username: transaction.data.asset.delegate.username,
+                    voteBalance: Utils.BigNumber.ZERO,
+                    forgedFees: Utils.BigNumber.ZERO,
+                    forgedRewards: Utils.BigNumber.ZERO,
+                    producedBlocks: 0,
+                    round: 0,
+                });
                 this.walletManager.reindex(sender);
             } else if (transaction.type === Enums.TransactionTypes.Vote) {
                 const vote = transaction.data.asset.votes[0];
-                sender.vote = vote.slice(1);
+                sender.setAttribute("vote", vote.slice(1));
             }
         }
 
@@ -130,7 +137,7 @@ export class ReplayBlockchain extends Blockchain {
         this.state.setLastBlock(genesisBlock);
 
         const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(1);
-        const delegates: State.IDelegateWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+        const delegates: State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
         (this.localDatabase as any).forgingDelegates = await this.localDatabase.getActiveDelegates(
             roundInfo,

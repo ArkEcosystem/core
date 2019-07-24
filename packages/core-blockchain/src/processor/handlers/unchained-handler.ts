@@ -71,7 +71,7 @@ export class UnchainedHandler extends BlockHandler {
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(this.block.data.height);
-                const delegates: State.IDelegateWallet[] = await app
+                const delegates: State.IWallet[] = await app
                     .resolvePlugin("database")
                     .getActiveDelegates(roundInfo);
 
@@ -123,7 +123,7 @@ export class UnchainedHandler extends BlockHandler {
 
             this.logger.debug(
                 `Blockchain is still not ready to accept block at height ${this.block.data.height.toLocaleString()} after ${
-                    BlockNotReadyCounter.maxAttempts
+                BlockNotReadyCounter.maxAttempts
                 } tries. Going to rollback. :warning:`,
             );
 

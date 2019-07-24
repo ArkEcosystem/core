@@ -30,7 +30,6 @@ export interface ITransactionAsset {
     };
     delegate?: {
         username: string;
-        publicKey?: string;
     };
     votes?: string[];
     multiSignatureLegacy?: IMultiSignatureLegacyAsset;

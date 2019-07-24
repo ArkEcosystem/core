@@ -18,8 +18,8 @@ import {
     UnvoteMismatchError,
     VotedForResignedDelegateError,
     WalletAlreadyResignedError,
-    WalletUsernameEmptyError,
-    WalletUsernameNotEmptyError,
+    WalletIsAlreadyDelegateError,
+    WalletNotADelegateError,
 } from "../../../packages/core-transactions/src/errors";
 import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
 import { Handlers } from "../../../packages/core-transactions/src/index";
@@ -87,7 +87,7 @@ describe("General Tests", () => {
         });
 
         it("should be false if the wallet has a second public key but the transaction second signature does not match", () => {
-            senderWallet.secondPublicKey = "invalid-public-key";
+            senderWallet.setAttribute("secondPublicKey", "invalid-public-key");
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 InvalidSecondSignatureError,
             );
@@ -208,7 +208,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         senderWallet = new Wallets.Wallet("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd");
         senderWallet.balance = Utils.BigNumber.make("6453530000000");
         senderWallet.publicKey = "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d";
-        senderWallet.secondPublicKey = undefined;
+        senderWallet.forgetAttribute("secondPublicKey");
 
         walletManager.reindex(senderWallet);
 
@@ -229,7 +229,10 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if wallet already has a second signature", () => {
-            senderWallet.secondPublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            senderWallet.setAttribute(
+                "secondPublicKey",
+                "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
+            );
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 SecondSignatureAlreadyRegisteredError,
@@ -250,7 +253,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.secondPublicKey).toBe(
+            expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
         });
@@ -259,7 +262,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.secondPublicKey).toBe(
+            expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
@@ -271,16 +274,16 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", () => {
-            expect(senderWallet.secondPublicKey).toBeUndefined();
+            expect(senderWallet.getAttribute("secondPublicKey")).toBeUndefined();
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.secondPublicKey).toBe(
+            expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
             handler.revert(instance, walletManager);
-            expect(senderWallet.secondPublicKey).toBeUndefined();
+            expect(senderWallet.getAttribute("secondPublicKey")).toBeUndefined();
         });
     });
 });
@@ -302,16 +305,16 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should throw if wallet already registered a username", () => {
-            senderWallet.username = "dummy";
+            senderWallet.setAttribute("delegate", { username: "dummy" });
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
-                WalletUsernameNotEmptyError,
+                WalletIsAlreadyDelegateError,
             );
         });
 
         it("should throw if wallet has insufficient funds", () => {
             walletManager.forgetByUsername("dummy");
-            senderWallet.username = "";
+            senderWallet.forgetAttribute("delegate");
             senderWallet.balance = Utils.BigNumber.ZERO;
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
@@ -323,7 +326,7 @@ describe("DelegateRegistrationTransaction", () => {
     describe("apply", () => {
         it("should set username", () => {
             handler.apply(instance, walletManager);
-            expect(senderWallet.username).toBe("dummy");
+            expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
         });
     });
 
@@ -334,22 +337,22 @@ describe("DelegateRegistrationTransaction", () => {
             handler.revert(instance, walletManager);
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
-            expect(senderWallet.username).toBeUndefined();
+            expect(senderWallet.getAttribute("delegate.username")).toBeUndefined();
         });
     });
 });
 
 describe("VoteTransaction", () => {
-    let voteTransaction;
-    let unvoteTransaction;
-    let delegateWallet;
+    let voteTransaction: Interfaces.ITransactionData;
+    let unvoteTransaction: Interfaces.ITransactionData;
+    let delegateWallet: State.IWallet;
 
     beforeEach(() => {
-        senderWallet.vote = undefined;
+        senderWallet.forgetAttribute("vote");
 
         delegateWallet = new Wallets.Wallet("ARAibxGqLQJTo1bWMJfu5fCc88rdWWjqgv");
         delegateWallet.publicKey = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
-        delegateWallet.username = "test";
+        delegateWallet.setAttribute("delegate", { username: "test" });
 
         walletManager.reindex(senderWallet);
         walletManager.reindex(delegateWallet);
@@ -376,20 +379,20 @@ describe("VoteTransaction", () => {
         });
 
         it("should not throw if the unvote is valid and the wallet has voted", () => {
-            senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
+            senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
             instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
         });
 
         it("should throw if wallet has already voted", () => {
-            senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
+            senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 AlreadyVotedError,
             );
         });
 
         it("should throw if the asset public key differs from the currently voted one", () => {
-            senderWallet.vote = "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0";
+            senderWallet.setAttribute("vote", "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0");
             instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 UnvoteMismatchError,
@@ -412,33 +415,33 @@ describe("VoteTransaction", () => {
     describe("apply", () => {
         describe("vote", () => {
             it("should be ok", () => {
-                expect(senderWallet.vote).toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).toBeUndefined();
 
                 handler.apply(instance, walletManager);
-                expect(senderWallet.vote).not.toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
             });
 
             it("should not be ok", () => {
-                senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
+                senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
-                expect(senderWallet.vote).not.toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
                 expect(() => handler.apply(instance, walletManager)).toThrow(AlreadyVotedError);
 
-                expect(senderWallet.vote).not.toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
             });
         });
 
         describe("unvote", () => {
             it("should remove the vote from the wallet", () => {
-                senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
+                senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
-                expect(senderWallet.vote).not.toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.apply(instance, walletManager);
 
-                expect(senderWallet.vote).toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).toBeUndefined();
             });
         });
     });
@@ -446,15 +449,15 @@ describe("VoteTransaction", () => {
     describe("revert", () => {
         describe("vote", () => {
             it("should remove the vote from the wallet", () => {
-                senderWallet.vote = "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17";
+                senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
                 senderWallet.nonce = Utils.BigNumber.make(1);
 
-                expect(senderWallet.vote).not.toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
                 handler.revert(instance, walletManager);
 
                 expect(senderWallet.nonce.isZero()).toBeTrue();
-                expect(senderWallet.vote).toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).toBeUndefined();
             });
         });
 
@@ -462,13 +465,15 @@ describe("VoteTransaction", () => {
             it("should add the vote to the wallet", () => {
                 senderWallet.nonce = Utils.BigNumber.make(1);
 
-                expect(senderWallet.vote).toBeUndefined();
+                expect(senderWallet.getAttribute("vote")).toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
                 handler.revert(instance, walletManager);
 
                 expect(senderWallet.nonce.isZero()).toBeTrue();
-                expect(senderWallet.vote).toBe("038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
+                expect(senderWallet.getAttribute("vote")).toBe(
+                    "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
+                );
             });
         });
     });
@@ -494,12 +499,12 @@ describe("MultiSignatureRegistrationTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not theow", () => {
+        it("should not throw", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
         });
 
         it("should throw if the wallet already has multisignatures", () => {
-            recipientWallet.multisignature = instance.data.asset.multiSignature;
+            recipientWallet.setAttribute("multiSignature", instance.data.asset.multiSignature);
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 MultiSignatureAlreadyRegisteredError,
             );
@@ -507,7 +512,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         it("should throw if failure to verify signatures", () => {
             senderWallet.verifySignatures = jest.fn(() => false);
-            delete senderWallet.multisignature;
+            senderWallet.forgetAttribute("multiSignature");
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 InvalidMultiSignatureError,
@@ -522,7 +527,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if the number of keys is less than minimum", () => {
-            delete senderWallet.multisignature;
+            senderWallet.forgetAttribute("multiSignature");
 
             senderWallet.verifySignatures = jest.fn(() => true);
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
@@ -534,7 +539,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if the number of keys does not equal the signature count", () => {
-            delete senderWallet.multisignature;
+            senderWallet.forgetAttribute("multiSignature");
 
             senderWallet.verifySignatures = jest.fn(() => true);
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
@@ -546,7 +551,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", () => {
-            delete senderWallet.multisignature;
+            senderWallet.forgetAttribute("multiSignature");
             senderWallet.balance = Utils.BigNumber.ZERO;
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
@@ -557,10 +562,10 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("apply", () => {
         it("should be ok", () => {
-            recipientWallet.multisignature = undefined;
+            recipientWallet.forgetAttribute("multiSignature");
 
-            expect(senderWallet.multisignature).toBeUndefined();
-            expect(recipientWallet.multisignature).toBeUndefined();
+            expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
+            expect(recipientWallet.hasAttribute("multiSignature")).toBeFalse();
 
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(100390000000));
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
@@ -570,8 +575,8 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(98390000000));
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
 
-            expect(senderWallet.multisignature).toBeUndefined();
-            expect(recipientWallet.multisignature).toEqual(transaction.asset.multiSignature);
+            expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
+            expect(recipientWallet.getAttribute("multiSignature")).toEqual(transaction.asset.multiSignature);
         });
     });
 
@@ -582,8 +587,8 @@ describe("MultiSignatureRegistrationTransaction", () => {
             handler.revert(instance, walletManager);
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
-            expect(senderWallet.multisignature).toBeUndefined();
-            expect(recipientWallet.multisignature).toBeUndefined();
+            expect(senderWallet.hasMultiSignature()).toBeFalse();
+            expect(recipientWallet.hasMultiSignature()).toBeFalse();
         });
     });
 });
@@ -622,7 +627,9 @@ describe("Ipfs", () => {
 
             handler.apply(instance, walletManager);
 
-            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeTrue();
+            expect(
+                senderWallet.getAttribute<State.IWalletIpfsAttributes>("ipfs.hashes")[transaction.asset.ipfs],
+            ).toBeTrue();
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
         });
     });
@@ -636,11 +643,13 @@ describe("Ipfs", () => {
             handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
-            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeTrue();
+            expect(
+                senderWallet.getAttribute<State.IWalletIpfsAttributes>("ipfs.hashes")[transaction.asset.ipfs],
+            ).toBeTrue();
 
             handler.revert(instance, walletManager);
 
-            expect(senderWallet.ipfsHashes[transaction.asset.ipfs]).toBeUndefined();
+            expect(senderWallet.getAttribute("ipfs.hashes")[transaction.asset.ipfs]).toBeFalsy();
             expect(senderWallet.balance).toEqual(balanceBefore);
         });
     });
@@ -740,8 +749,8 @@ describe("DelegateResignationTransaction", () => {
             .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .createOne();
 
-        senderWallet.username = "tiredDelegate";
-        delete senderWallet.resigned;
+        senderWallet.setAttribute("delegate", { username: "tiredDelegate" });
+        senderWallet.forgetAttribute("delegate.resigned");
 
         walletManager.reindex(senderWallet);
 
@@ -750,15 +759,15 @@ describe("DelegateResignationTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not throw if wallet has registered username", () => {
-            senderWallet.username = "dummy";
+        it("should not throw if wallet is a delegate", () => {
+            senderWallet.setAttribute("delegate", {});
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
         });
 
-        it("should throw if wallet has no registered username", () => {
-            senderWallet.username = undefined;
+        it("should throw if wallet is not a delegate", () => {
+            senderWallet.forgetAttribute("delegate");
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
-                WalletUsernameEmptyError,
+                WalletNotADelegateError,
             );
         });
 
@@ -775,14 +784,14 @@ describe("DelegateResignationTransaction", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.resigned).toBeTrue();
+            expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
         });
 
         it("should fail when already resigned", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.resigned).toBeTrue();
+            expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 WalletAlreadyResignedError,
@@ -790,10 +799,10 @@ describe("DelegateResignationTransaction", () => {
         });
 
         it("should fail when not a delegate", () => {
-            senderWallet.username = undefined;
+            senderWallet.forgetAttribute("delegate");
 
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
-                WalletUsernameEmptyError,
+                WalletNotADelegateError,
             );
         });
 
@@ -801,7 +810,7 @@ describe("DelegateResignationTransaction", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.resigned).toBeTrue();
+            expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
 
             const vote = Transactions.TransactionFactory.fromData(voteTransaction);
             const voteHandler = Handlers.Registry.get(vote.type);
@@ -814,13 +823,13 @@ describe("DelegateResignationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", () => {
-            expect(senderWallet.resigned).toBeUndefined();
+            expect(senderWallet.hasAttribute("delegate.resigned")).toBeFalse();
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
 
             handler.apply(instance, walletManager);
-            expect(senderWallet.resigned).toBeTrue();
+            expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
             handler.revert(instance, walletManager);
-            expect(senderWallet.resigned).toBeFalse();
+            expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeFalsy();
         });
     });
 });

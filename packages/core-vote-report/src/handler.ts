@@ -18,7 +18,10 @@ const formatDelegates = (
     return delegates.map((delegate: State.IWallet) => {
         const filteredVoters: State.IWallet[] = databaseService.walletManager
             .allByPublicKey()
-            .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance.gt(0.1 * 1e8));
+            .filter(
+                wallet =>
+                    wallet.getAttribute<string>("vote") === delegate.publicKey && wallet.balance.gt(0.1 * 1e8),
+            );
 
         const approval: string = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
             undefined,
@@ -28,11 +31,15 @@ const formatDelegates = (
             },
         );
 
-        const rank: string = delegate.rate.toLocaleString(undefined, {
+        const rank: string = delegate.getAttribute<number>("delegate.rank").toLocaleString(undefined, {
             minimumIntegerDigits: 2,
         });
 
-        const votes: string = delegate.voteBalance.div(1e8).toFixed(0);
+        const votes: string = Number(
+            delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance").div(1e8),
+        ).toLocaleString(undefined, {
+            maximumFractionDigits: 0,
+        });
 
         const voterCount: string = filteredVoters.length.toLocaleString(undefined, {
             maximumFractionDigits: 0,
@@ -40,7 +47,7 @@ const formatDelegates = (
 
         return {
             rank,
-            username: delegate.username.padEnd(25),
+            username: delegate.getAttribute<string>("delegate.username").padEnd(25),
             approval: approval.padEnd(4),
             votes: votes.padStart(10),
             voterCount: voterCount.padStart(5),
@@ -60,10 +67,10 @@ export const handler = (request, h) => {
     const allByUsername: State.IWallet[] = databaseService.walletManager
         .allByUsername()
         .map((delegate, index) => {
-            delegate.rate = delegate.rate || index + 1;
+            delegate.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank") || index + 1);
             return delegate;
         })
-        .sort((a, b) => a.rate - b.rate);
+        .sort((a, b) => a.getAttribute<number>("delegate.rank") - b.getAttribute<number>("delegate.rank"));
 
     const active: State.IWallet[] = allByUsername.slice(0, maxDelegates);
     const standby: State.IWallet[] = allByUsername.slice(
@@ -73,7 +80,7 @@ export const handler = (request, h) => {
 
     const voters: State.IWallet[] = databaseService.walletManager
         .allByPublicKey()
-        .filter(wallet => wallet.vote && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
+        .filter(wallet => wallet.hasVoted() && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
 
     const totalVotes: Utils.BigNumber = voters
         .map(wallet => wallet.balance)
