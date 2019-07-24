@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-container",
-    "version": "2.5.1",
+    "version": "2.5.7",
     "description": "Container for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,8 +19,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.5.1",
-        "@arkecosystem/crypto": "^2.5.1",
+        "@arkecosystem/core-interfaces": "^2.5.7",
+        "@arkecosystem/crypto": "^2.5.7",
         "@hapi/hoek": "^8.0.2",
         "@hapi/joi": "^15.1.0",
         "awilix": "^4.2.2",
@@ -37,7 +37,7 @@
     },
     "devDependencies": {
         "@types/fs-extra": "^8.0.0",
-        "@types/got": "^9.6.0",
+        "@types/got": "^9.6.1",
         "@types/hapi__hoek": "^6.2.0",
         "@types/hapi__joi": "^15.0.2",
         "@types/lodash.get": "^4.4.6",
