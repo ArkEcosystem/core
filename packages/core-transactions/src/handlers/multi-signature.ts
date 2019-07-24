@@ -82,9 +82,9 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
         // Create the multi sig wallet
         if (transaction.data.version >= 2) {
-            walletManager.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature),
-            ).setAttribute("multiSignature", transaction.data.asset.multiSignature);
+            walletManager
+                .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
+                .setAttribute("multiSignature", transaction.data.asset.multiSignature);
         }
     }
 
@@ -113,7 +113,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
                 Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
             );
 
-            recipientWallet.unsetAttribute("multiSignature");
+            recipientWallet.forgetAttribute("multiSignature");
         }
     }
 }

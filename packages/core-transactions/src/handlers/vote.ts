@@ -98,7 +98,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         if (vote.startsWith("+")) {
             sender.setAttribute("vote", vote.slice(1));
         } else {
-            sender.unsetAttribute("vote");
+            sender.forgetAttribute("vote");
         }
     }
 
@@ -109,7 +109,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
-            sender.unsetAttribute("vote");
+            sender.forgetAttribute("vote");
         } else {
             sender.setAttribute("vote", vote.slice(1));
         }

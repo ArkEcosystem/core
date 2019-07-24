@@ -150,7 +150,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const username: string = sender.getAttribute("delegate.username");
 
         walletManager.forgetByUsername(username);
-        sender.unsetAttribute("delegate");
+        sender.forgetAttribute("delegate");
     }
 
     // tslint:disable-next-line:no-empty

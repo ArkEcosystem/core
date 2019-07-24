@@ -31,7 +31,7 @@ export class Wallet implements State.IWallet {
         dottie.set(this.attributes, key, value);
     }
 
-    public unsetAttribute(key: string): void {
+    public forgetAttribute(key: string): void {
         this.setAttribute(key, undefined);
     }
 

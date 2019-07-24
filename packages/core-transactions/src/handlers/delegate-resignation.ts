@@ -64,12 +64,12 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
 
-        walletManager.findByPublicKey(transaction.data.senderPublicKey).unsetAttribute("delegate.resigned");
+        walletManager.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("delegate.resigned");
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }

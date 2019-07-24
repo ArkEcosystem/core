@@ -184,12 +184,12 @@ describe("Blockchain", () => {
             // overwritten in afterEach
             // FIXME: wallet.lastBlock needs to be properly restored when reverting
             for (const forger of forgingDelegates) {
-                forger.unsetAttribute("delegate.lastBlock");
+                forger.forgetAttribute("delegate.lastBlock");
             }
 
             expect(forgingDelegates).toEqual(
                 (blockchain.database as any).forgingDelegates.map(forger => {
-                    forger.unsetAttribute("delegate.lastBlock");
+                    forger.forgetAttribute("delegate.lastBlock");
                     return forger;
                 }),
             );
