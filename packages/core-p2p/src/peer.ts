@@ -19,6 +19,8 @@ export class Peer implements P2P.IPeer {
         header: {},
     };
 
+    public plugins: P2P.IPeerPlugins = {};
+
     constructor(readonly ip: string) {}
 
     get url(): string {

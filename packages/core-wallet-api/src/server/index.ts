@@ -9,6 +9,7 @@ export const startServer = async config => {
         port: config.port,
     });
 
+    // @ts-ignore
     await server.register(h2o2);
 
     await server.register({
@@ -26,6 +27,18 @@ export const startServer = async config => {
     server.route([{ method: "GET", path: "/config", ...handlers.config }]);
 
     if (app.has("api")) {
+        await server.register({
+            plugin: require("hapi-rate-limit"),
+            options: app.resolveOptions("api").rateLimit,
+        });
+
+        await server.register({
+            plugin: plugins.whitelist,
+            options: {
+                whitelist: app.resolveOptions("api").whitelist,
+            },
+        });
+
         server.route({
             method: "*",
             path: "/{path*}",

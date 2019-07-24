@@ -10,10 +10,6 @@ import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
-export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
-    await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
-};
-
 export const getPeers = ({ service }: { service: P2P.IPeerService }): P2P.IPeerBroadcast[] => {
     return service
         .getStorage()
@@ -102,21 +98,19 @@ export const postTransactions = async ({ service, req }: { service: P2P.IPeerSer
     return result.accept;
 };
 
-export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
+export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Database.IDownloadBlock[]> => {
     const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
-    let blocks: Interfaces.IBlockData[] = [];
+    const reqBlockLimit: number = +req.data.blockLimit || 400;
+    const reqHeadersOnly: boolean = !!req.data.headersOnly;
+    const reqSerialized: boolean = !!req.data.serialized; // TODO: remove in 2.6 and only return serialized blocks
 
-    if (!req.data.lastBlockHeight || isNaN(reqBlockHeight)) {
-        const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
-
-        if (lastBlock) {
-            blocks.push(lastBlock.data);
-        }
+    let blocks: Interfaces.IBlockData[] | Database.IDownloadBlock[];
+    if (reqSerialized) {
+        blocks = await database.getBlocksForDownload(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     } else {
-        blocks = await database.getBlocks(reqBlockHeight, 400);
+        blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
@@ -124,7 +118,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[]> => {
             "block",
             blocks.length,
             true,
-        )} from height ${(!isNaN(reqBlockHeight) ? reqBlockHeight : blocks[0].height).toLocaleString()}`,
+        )} from height ${reqBlockHeight.toLocaleString()}`,
     );
 
     return blocks || [];

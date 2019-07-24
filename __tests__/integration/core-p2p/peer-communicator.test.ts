@@ -64,7 +64,7 @@ describe("PeerCommunicator", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("getBlocks", [{ height: 1, id: "1" }, { height: 2, id: "2" }]);
+            await socketManager.addMock("getBlocks", [genesisBlockJSON, genesisBlockJSON]);
 
             const blocks = await communicator.downloadBlocks(stubPeer, 1);
 
@@ -102,6 +102,7 @@ describe("PeerCommunicator", () => {
                         id: "123456",
                     },
                 },
+                config: { plugins: {} },
             };
 
             await socketManager.addMock("getStatus", mockStatus);
@@ -134,6 +135,7 @@ describe("PeerCommunicator", () => {
                         id: "123456",
                     },
                 },
+                config: { plugins: {} },
             });
 
             stubPeer.lastPinged = undefined;

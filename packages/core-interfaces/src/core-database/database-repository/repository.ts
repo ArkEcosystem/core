@@ -5,7 +5,7 @@ export interface IRepository {
 
     truncate(): Promise<void>;
 
-    insert(item: object | object[]): Promise<void>;
+    insert(item: object | object[], db?: any): Promise<void>;
 
     update(item: object | object[]): Promise<void>;
 }

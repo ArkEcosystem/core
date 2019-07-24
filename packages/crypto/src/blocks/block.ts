@@ -200,9 +200,17 @@ export class Block implements IBlock {
 
                 if (transaction.data.expiration > 0 && transaction.data.expiration <= this.data.height) {
                     const isException =
-                        configManager.get("network.name") === "devnet" &&
-                        configManager.getMilestone().ignoreExpiredTransactions;
+                        configManager.get("network.name") === "devnet" && constants.ignoreExpiredTransactions;
                     if (!isException) {
+                        result.errors.push(`Encountered expired transaction: ${transaction.data.id}`);
+                    }
+                }
+
+                if (transaction.data.version === 1 && !constants.block.acceptExpiredTransactionTimestamps) {
+                    const now: number = block.timestamp;
+                    if (transaction.data.timestamp > now + 3600 + constants.blocktime) {
+                        result.errors.push(`Encountered future transaction: ${transaction.data.id}`);
+                    } else if (now - transaction.data.timestamp > 21600) {
                         result.errors.push(`Encountered expired transaction: ${transaction.data.id}`);
                     }
                 }
