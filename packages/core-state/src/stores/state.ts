@@ -102,8 +102,6 @@ export class StateStore implements State.IStateStore {
             app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("internal.milestone.changed");
         }
 
-        Transactions.TransactionRegistry.updateStaticFees(block.data.height);
-
         // Delete oldest block if size exceeds the maximum
         if (this.lastBlocks.size > app.resolveOptions("state").storage.maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);

@@ -1,8 +1,8 @@
 import { TransactionTypes } from "../../../enums";
 import { Keys } from "../../../identities";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { SecondSignatureRegistrationTransaction } from '../../types';
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
@@ -10,7 +10,7 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
         super();
 
         this.data.type = TransactionTypes.SecondSignature;
-        this.data.fee = feeManager.get(TransactionTypes.SecondSignature);
+        this.data.fee = SecondSignatureRegistrationTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

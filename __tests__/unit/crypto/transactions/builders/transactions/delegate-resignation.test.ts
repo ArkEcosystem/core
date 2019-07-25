@@ -1,7 +1,8 @@
 import "jest-extended";
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
-import { configManager, feeManager } from "../../../../../../packages/crypto/src/managers";
+import { configManager } from "../../../../../../packages/crypto/src/managers";
+import { DelegateResignationTransaction } from "../../../../../../packages/crypto/src/transactions/";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
 import { DelegateResignationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
@@ -35,7 +36,7 @@ describe("Delegate Resignation Transaction", () => {
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateResignation);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.DelegateResignation));
+            expect(builder).toHaveProperty("data.fee", DelegateResignationTransaction.staticFee());
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         });
 

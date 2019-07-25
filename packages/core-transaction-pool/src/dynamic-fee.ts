@@ -72,7 +72,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
             );
         }
     } else {
-        const staticFee: Utils.BigNumber = Managers.feeManager.getForTransaction(transaction.data);
+        const staticFee: Utils.BigNumber = transaction.staticFee();
 
         if (fee.isEqualTo(staticFee)) {
             broadcast = true;
