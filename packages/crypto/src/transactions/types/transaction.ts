@@ -1,8 +1,8 @@
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
-import { configManager } from '../../managers/config';
-import { BigNumber } from '../../utils/bignum';
+import { configManager } from "../../managers/config";
+import { BigNumber } from "../../utils/bignum";
 import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
@@ -20,7 +20,11 @@ export abstract class Transaction implements ITransaction {
     }
 
     public get key(): string {
-        return Transaction.key;
+        return (this as any).__proto__.constructor.key;
+    }
+
+    public get staticFee(): BigNumber {
+        return Transaction.staticFee({ data: this.data });
     }
 
     public static type: TransactionTypes = undefined;
@@ -30,7 +34,7 @@ export abstract class Transaction implements ITransaction {
         throw new NotImplementedError();
     }
 
-    public static staticFee(feeContext: { height?: number, data?: ITransactionData } = {}): BigNumber {
+    public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
         const milestones = configManager.getMilestone(feeContext.height);
         if (milestones.fees && milestones.fees.staticFees) {
             const fee: any = milestones.fees.staticFees[this.key];

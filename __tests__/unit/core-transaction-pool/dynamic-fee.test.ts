@@ -1,8 +1,8 @@
 import { container } from "./mocks/core-container";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Handlers } from "@arkecosystem/core-transactions/src";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
-import { calculateMinimumFee, dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
+import { dynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee";
 import { transactions } from "./__fixtures__/transactions";
 
 describe("static fees", () => {
@@ -42,36 +42,63 @@ describe("dynamic fees", () => {
         });
     });
 
-    it("should broadcast transactions with high enough fee", () => {
+    it.only("should broadcast transactions with high enough fee", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
 
-        transactions.dynamicFeeNormalDummy1.data.fee = calculateMinimumFee(
-            dynamicFeeConfig.minFeeBroadcast,
-            transactions.dynamicFeeNormalDummy1,
-        ).plus(100);
+        const addonBytes: number = (container.app.resolveOptions() as any).dynamicFees.addonBytes[
+            transactions.dynamicFeeNormalDummy1.key
+        ];
+
+        const handler = Handlers.Registry.get(transactions.dummy1.type);
+        transactions.dynamicFeeNormalDummy1.data.fee = handler
+            .dynamicFee(transactions.dynamicFeeNormalDummy1, addonBytes, dynamicFeeConfig.minFeeBroadcast)
+            .plus(100);
+
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeTrue();
 
         // testing with transaction fee === min fee for transaction broadcast
-        transactions.dummy3.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy3);
-        transactions.dummy4.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeeBroadcast, transactions.dummy4);
+        transactions.dummy3.data.fee = handler.dynamicFee(
+            transactions.dummy3,
+            addonBytes,
+            dynamicFeeConfig.minFeeBroadcast,
+        );
+        transactions.dummy4.data.fee = handler.dynamicFee(
+            transactions.dummy4,
+            addonBytes,
+            dynamicFeeConfig.minFeeBroadcast,
+        );
         expect(dynamicFeeMatcher(transactions.dummy3).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy4).broadcast).toBeTrue();
     });
 
     it("should accept transactions with high enough fee to enter the pool", () => {
+        const addonBytes: number = (container.app.resolveOptions() as any).dynamicFees.addonBytes[
+            transactions.dynamicFeeNormalDummy1.key
+        ];
+
+        const handler = Handlers.Registry.get(transactions.dummy1.type);
+
         expect(dynamicFeeMatcher(transactions.dummy1).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).enterPool).toBeTrue();
 
-        transactions.dynamicFeeNormalDummy1.data.fee = calculateMinimumFee(
-            dynamicFeeConfig.minFeePool,
-            transactions.dynamicFeeNormalDummy1,
-        ).plus(100);
+        transactions.dynamicFeeNormalDummy1.data.fee = handler
+            .dynamicFee(transactions.dynamicFeeNormalDummy1, addonBytes, dynamicFeeConfig.minFeePool)
+            .plus(100);
+
         expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeTrue();
 
         // testing with transaction fee === min fee for transaction enter pool
-        transactions.dummy3.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeePool, transactions.dummy3);
-        transactions.dummy4.data.fee = calculateMinimumFee(dynamicFeeConfig.minFeePool, transactions.dummy4);
+        transactions.dummy3.data.fee = handler.dynamicFee(
+            transactions.dummy3,
+            addonBytes,
+            dynamicFeeConfig.minFeeBroadcast,
+        );
+        transactions.dummy4.data.fee = handler.dynamicFee(
+            transactions.dummy4,
+            addonBytes,
+            dynamicFeeConfig.minFeeBroadcast,
+        );
         expect(dynamicFeeMatcher(transactions.dummy3).enterPool).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy4).enterPool).toBeTrue();
     });
@@ -82,35 +109,5 @@ describe("dynamic fees", () => {
 
     it("should not allow transactions with too low fee to enter the pool", () => {
         expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2).enterPool).toBeFalse();
-    });
-});
-
-describe("calculateMinimumFee", () => {
-    it("should correctly calculate the transaction fee based on transaction size and addonBytes", () => {
-        jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-            ...defaults,
-            ...{ dynamicFees: { addonBytes: { transfer: 137 } } },
-        });
-
-        expect(calculateMinimumFee(3, transactions.dummy1)).toEqual(
-            Utils.BigNumber.make(137 + transactions.dummy1.serialized.length / 2).times(3),
-        );
-        expect(calculateMinimumFee(6, transactions.dummy1)).toEqual(
-            Utils.BigNumber.make(137 + transactions.dummy1.serialized.length / 2).times(6),
-        );
-
-        jest.spyOn(container.app, "resolveOptions").mockReturnValue({
-            ...defaults,
-            ...{ dynamicFees: { addonBytes: { transfer: 0 } } },
-        });
-
-        expect(calculateMinimumFee(9, transactions.dummy1)).toEqual(
-            Utils.BigNumber.make(transactions.dummy1.serialized.length / 2).times(9),
-        );
-    });
-
-    it("should default satoshiPerByte to 1 if value provided is <= 0", () => {
-        expect(calculateMinimumFee(-50, transactions.dummy1)).toEqual(calculateMinimumFee(1, transactions.dummy1));
-        expect(calculateMinimumFee(0, transactions.dummy1)).toEqual(calculateMinimumFee(1, transactions.dummy1));
     });
 });
