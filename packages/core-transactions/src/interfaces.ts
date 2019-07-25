@@ -1,5 +1,5 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 export interface ITransactionHandler {
     getConstructor(): Transactions.TransactionConstructor;
@@ -7,6 +7,8 @@ export interface ITransactionHandler {
     bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void>;
 
     verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean;
+
+    dynamicFee(transaction: Interfaces.ITransaction, addonBytes: number, satoshiPerByte: number): Utils.BigNumber;
 
     throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,

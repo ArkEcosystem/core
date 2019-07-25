@@ -1,15 +1,34 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
-import { IMultiSignatureAsset, IMultiSignatureLegacyAsset, ISerializeOptions } from "../../interfaces";
+import { IMultiSignatureAsset, IMultiSignatureLegacyAsset, ISerializeOptions, ITransactionData } from "../../interfaces";
+import { BigNumber } from '../../utils/bignum';
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class MultiSignatureRegistrationTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiSignature;
+    public static key: string = "multiSignature";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.multiSignature;
     }
+
+    public static staticFee(feeContext: { height?: number, data?: ITransactionData } = {}): BigNumber {
+        const staticFee = super.staticFee(feeContext);
+
+        const data: ITransactionData = feeContext.data;
+        if (data) {
+            if (data.version === 2) {
+                return staticFee.times(data.asset.multiSignature.publicKeys.length + 1);
+            } else {
+                return staticFee.times(data.asset.multiSignatureLegacy.keysgroup.length + 1);
+            }
+        }
+
+        return staticFee;
+    }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;

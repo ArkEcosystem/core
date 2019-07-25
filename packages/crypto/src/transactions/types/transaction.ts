@@ -1,6 +1,8 @@
 import { TransactionTypes } from "../../enums";
 import { NotImplementedError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import { configManager } from "../../managers/config";
+import { BigNumber } from "../../utils/bignum";
 import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
@@ -12,14 +14,39 @@ export abstract class Transaction implements ITransaction {
     public get type(): TransactionTypes {
         return this.data.type;
     }
+
     public get verified(): boolean {
         return this.isVerified;
     }
+
+    public get key(): string {
+        return (this as any).__proto__.constructor.key;
+    }
+
+    public get staticFee(): BigNumber {
+        return (this as any).__proto__.constructor.staticFee({ data: this.data });
+    }
+
     public static type: TransactionTypes = undefined;
+    public static key: string = undefined;
 
     public static getSchema(): TransactionSchema {
         throw new NotImplementedError();
     }
+
+    public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
+        const milestones = configManager.getMilestone(feeContext.height);
+        if (milestones.fees && milestones.fees.staticFees) {
+            const fee: any = milestones.fees.staticFees[this.key];
+            if (fee !== undefined) {
+                return BigNumber.make(fee);
+            }
+        }
+
+        return this.defaultStaticFee;
+    }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
 
     public isVerified: boolean;
 

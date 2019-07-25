@@ -181,6 +181,38 @@ describe("General Tests", () => {
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
         });
     });
+
+    describe("dynamicFees", () => {
+        const transaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
+            .withNonce(Utils.BigNumber.make(0))
+            .withNetwork("testnet")
+            .withPassphrase("secret")
+            .build()[0];
+
+        it("should correctly calculate the transaction fee based on transaction size and addonBytes", () => {
+            const addonBytes = 137;
+            const handler = Handlers.Registry.get(transaction.type);
+
+            expect(handler.dynamicFee(transaction, addonBytes, 3)).toEqual(
+                Utils.BigNumber.make(137 + transaction.serialized.length / 2).times(3),
+            );
+
+            expect(handler.dynamicFee(transaction, addonBytes, 6)).toEqual(
+                Utils.BigNumber.make(137 + transaction.serialized.length / 2).times(6),
+            );
+
+            expect(handler.dynamicFee(transaction, 0, 9)).toEqual(
+                Utils.BigNumber.make(transaction.serialized.length / 2).times(9),
+            );
+        });
+
+        it("should default satoshiPerByte to 1 if value provided is <= 0", () => {
+            const handler = Handlers.Registry.get(transaction.type);
+
+            expect(handler.dynamicFee(transaction, 0, -50)).toEqual(handler.dynamicFee(transaction, 0, 1));
+            expect(handler.dynamicFee(transaction, 0, 0)).toEqual(handler.dynamicFee(transaction, 0, 1));
+        });
+    });
 });
 
 describe("TransferTransaction", () => {

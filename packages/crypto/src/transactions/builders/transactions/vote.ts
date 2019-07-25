@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { VoteTransaction } from '../../types';
 import { TransactionBuilder } from "./transaction";
 
 export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
@@ -9,7 +9,7 @@ export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
         super();
 
         this.data.type = TransactionTypes.Vote;
-        this.data.fee = feeManager.get(TransactionTypes.Vote);
+        this.data.fee = VoteTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

@@ -36,6 +36,21 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return transaction.isVerified;
     }
 
+    public dynamicFee(
+        transaction: Interfaces.ITransaction,
+        addonBytes: number,
+        satoshiPerByte: number,
+    ): Utils.BigNumber {
+        addonBytes = addonBytes || 0;
+
+        if (satoshiPerByte <= 0) {
+            satoshiPerByte = 1;
+        }
+
+        const transactionSizeInBytes: number = transaction.serialized.length / 2;
+        return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
+    }
+
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
@@ -51,7 +66,12 @@ export abstract class TransactionHandler implements ITransactionHandler {
             throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
         }
 
-        if (sender.balance.minus(data.amount).minus(data.fee).isNegative()) {
+        if (
+            sender.balance
+                .minus(data.amount)
+                .minus(data.fee)
+                .isNegative()
+        ) {
             throw new InsufficientBalanceError();
         }
 
@@ -61,9 +81,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(
-                data.senderPublicKey,
-            );
+            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -84,9 +102,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(
-                transaction.data.senderPublicKey,
-            );
+            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
 
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
@@ -115,9 +131,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warn(
-                `Transaction forcibly applied as an exception: ${transaction.id}.`
-            );
+            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         this.throwIfCannotBeApplied(transaction, sender, walletManager);
@@ -164,7 +178,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
      * Database Service
      */
     // tslint:disable-next-line:no-empty
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void { }
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {}
 
     /**
      * Transaction Pool logic
