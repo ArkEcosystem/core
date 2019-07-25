@@ -42,7 +42,7 @@ describe("dynamic fees", () => {
         });
     });
 
-    it.only("should broadcast transactions with high enough fee", () => {
+    it("should broadcast transactions with high enough fee", () => {
         expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
         expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
 

@@ -24,7 +24,7 @@ export abstract class Transaction implements ITransaction {
     }
 
     public get staticFee(): BigNumber {
-        return Transaction.staticFee({ data: this.data });
+        return (this as any).__proto__.constructor.staticFee({ data: this.data });
     }
 
     public static type: TransactionTypes = undefined;
