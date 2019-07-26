@@ -28,9 +28,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             const lockId = transaction.asset.refund.lockTransactionId;
             const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
-            lockWallet.balance = lockWallet.balance.plus(lockWallet.locks[lockId].amount).minus(transaction.fee);
-            lockWallet.lockedBalance = lockWallet.lockedBalance.minus(lockWallet.locks[lockId].amount);
-            delete lockWallet.locks[lockId];
+            const locks = lockWallet.getAttribute("htlc.locks");
+            lockWallet.balance = lockWallet.balance.plus(locks[lockId].amount).minus(transaction.fee);
+            const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+            lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+            delete locks[lockId];
+            lockWallet.setAttribute("htlc.locks", locks);
         }
     }
 
@@ -92,11 +95,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const refundAsset = transaction.data.asset.refund;
         const lockId = refundAsset.lockTransactionId;
         const lockWallet = databaseWalletManager.findByLockId(lockId);
-        if (!lockWallet || !lockWallet.locks[lockId]) {
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
 
-        if (lockWallet.locks[lockId].amount.minus(transaction.data.fee).isNegative()) {
+        const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
+        if (lockTransaction.amount.minus(transaction.data.fee).isNegative()) {
             throw new HtlcLockedAmountLowerThanFeeError();
         }
 
@@ -105,7 +109,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
-        const expiration = lockWallet.locks[lockId].asset.lock.expiration;
+        const expiration = lockTransaction.asset.lock.expiration;
         if (
             (expiration.type === UnixTimestamp && expiration.value > formatTimestamp(lastBlockEpochTimestamp).unix) ||
             (expiration.type === BlockHeight && expiration.value > lastBlock.data.height)
@@ -121,7 +125,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     ): boolean {
         const lockId = data.asset.refund.lockTransactionId;
         const lockWallet: State.IWallet = pool.walletManager.findByLockId(lockId);
-        if (!lockWallet || !lockWallet.locks[lockId]) {
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             processor.pushError(
                 data,
                 "ERR_HTLCLOCKNOTFOUND",
@@ -153,18 +157,17 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const lockId = data.asset.refund.lockTransactionId;
         const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
-        assert(lockWallet && lockWallet.locks[lockId]);
+        assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
-        const newBalance = lockWallet.balance.plus(lockWallet.locks[lockId].amount).minus(data.fee);
+        const locks = lockWallet.getAttribute("htlc.locks");
+        const newBalance = lockWallet.balance.plus(locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
 
         lockWallet.balance = newBalance;
-        lockWallet.lockedBalance = lockWallet.lockedBalance.minus(lockWallet.locks[lockId].amount);
-        lockWallet.locks = Object.assign({}, lockWallet.locks);
-        // shallow copy to fix strange behaviour, it looks like the database wallet and
-        // the tx pool wallet share the same reference of the locks object, so deleting one lock
-        // in one deletes it too on the other... can't find why yet. TODO
-        delete lockWallet.locks[lockId];
+        const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+        delete locks[lockId];
+        lockWallet.setAttribute("htlc.locks", locks);
 
         walletManager.reindex(lockWallet);
     }
@@ -192,8 +195,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
-        lockWallet.lockedBalance = lockWallet.lockedBalance.plus(lockTransaction.amount);
-        lockWallet.locks[lockTransaction.id] = lockTransaction;
+        const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
+        const locks = lockWallet.getAttribute("htlc.locks", {});
+        locks[lockTransaction.id] = lockTransaction;
+        lockWallet.setAttribute("htlc.locks", locks);
 
         walletManager.reindex(lockWallet);
     }

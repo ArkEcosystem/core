@@ -157,8 +157,9 @@ export class WalletManager implements State.IWalletManager {
             this.byUsername[wallet.getAttribute<string>("delegate.username")] = wallet;
         }
 
-        if (wallet.locks) {
-            for (const lockId of Object.keys(wallet.locks)) {
+        if (wallet.hasLocks()) {
+            const locks = wallet.getAttribute("htlc.locks");
+            for (const lockId of Object.keys(locks)) {
                 this.byLockId[lockId] = wallet;
             }
         }
@@ -190,10 +191,8 @@ export class WalletManager implements State.IWalletManager {
             if (voter.hasVoted()) {
                 const delegate: State.IWallet = this.byPublicKey[voter.getAttribute<string>("vote")];
                 const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
-                delegate.setAttribute(
-                    "delegate.voteBalance",
-                    voteBalance.plus(voter.balance).plus(voter.lockedBalance),
-                );
+                const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+                delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
             }
         }
     }
@@ -303,7 +302,7 @@ export class WalletManager implements State.IWalletManager {
         if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             lockWallet = this.findByLockId(lockId);
-            lockTransaction = lockWallet.locks[lockId];
+            lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
         transactionHandler.apply(transaction, this);
@@ -328,7 +327,7 @@ export class WalletManager implements State.IWalletManager {
         if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             lockWallet = this.findByLockId(lockId);
-            lockTransaction = lockWallet.locks[lockId];
+            lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
         // Revert vote balance updates

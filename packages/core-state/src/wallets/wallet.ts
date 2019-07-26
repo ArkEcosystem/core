@@ -7,8 +7,6 @@ export class Wallet implements State.IWallet {
     public address: string;
     public publicKey: string | undefined;
     public balance: Utils.BigNumber;
-    public locks: { [lockId: string]: Interfaces.ITransactionData };
-    public lockedBalance: Utils.BigNumber;
     public nonce: Utils.BigNumber;
 
     private readonly attributes: Record<string, any>;
@@ -16,8 +14,6 @@ export class Wallet implements State.IWallet {
     constructor(address: string) {
         this.address = address;
         this.balance = Utils.BigNumber.ZERO;
-        this.locks = {};
-        this.lockedBalance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
 
         this.attributes = {};
@@ -55,9 +51,14 @@ export class Wallet implements State.IWallet {
         return !!this.getAttribute("multiSignature");
     }
 
+    public hasLocks(): boolean {
+        return Object.keys(this.getAttribute("htlc.locks", {})).length > 0;
+    }
+
     public canBePurged(): boolean {
         const hasAttributes = Object.keys(this.attributes).length > 0;
-        return this.balance.isZero() && this.lockedBalance.isZero() && !hasAttributes;
+        const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
     }
 
     public applyBlock(block: Interfaces.IBlockData): boolean {

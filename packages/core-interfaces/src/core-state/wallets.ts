@@ -6,8 +6,6 @@ export interface IWallet {
     address: string;
     publicKey: string | undefined;
     balance: Utils.BigNumber;
-    locks: { [lockId: string]: Interfaces.ITransactionData };
-    lockedBalance: Utils.BigNumber;
     nonce: Utils.BigNumber;
 
     applyBlock(block: Interfaces.IBlockData): boolean;
@@ -25,6 +23,7 @@ export interface IWallet {
     hasVoted(): boolean;
     hasSecondSignature(): boolean;
     hasMultiSignature(): boolean;
+    hasLocks(): boolean;
 
     canBePurged(): boolean;
 

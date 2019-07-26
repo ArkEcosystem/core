@@ -1,5 +1,5 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionHandler } from "./transaction";
 
 export class HtlcLockTransactionHandler extends TransactionHandler {
@@ -11,9 +11,12 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         const lockTransactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of lockTransactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.locks[transaction.id] = transaction;
+            const locks = wallet.getAttribute("htlc.locks", {});
+            locks[transaction.id] = transaction;
+            wallet.setAttribute("htlc.locks", locks);
             wallet.balance = wallet.balance.minus(transaction.fee);
-            wallet.lockedBalance = wallet.lockedBalance.plus(transaction.amount);
+            const lockedBalance = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+            wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
         }
     }
 
@@ -37,8 +40,12 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.locks[transaction.id] = transaction.data;
-        sender.lockedBalance = sender.lockedBalance.plus(transaction.data.amount);
+        const locks = sender.getAttribute("htlc.locks", {});
+        locks[transaction.id] = transaction.data;
+        sender.setAttribute("htlc.locks", locks);
+
+        const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        sender.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.data.amount));
 
         walletManager.reindex(sender);
     }
@@ -47,8 +54,12 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.lockedBalance = sender.lockedBalance.minus(transaction.data.amount);
-        delete sender.locks[transaction.id];
+        const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
+
+        const locks = sender.getAttribute("htlc.locks", {});
+        delete locks[transaction.id];
+        sender.setAttribute("htlc.locks", locks);
 
         walletManager.reindex(sender);
     }
