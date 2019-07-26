@@ -1,14 +1,11 @@
 import deepmerge from "deepmerge";
-import camelCase from "lodash.camelcase";
 import get from "lodash.get";
 import set from "lodash.set";
-import { TransactionTypes } from "../enums";
 import { InvalidMilestoneConfigurationError } from "../errors";
 import { IMilestone } from "../interfaces";
 import { INetworkConfig } from "../interfaces/networks";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
-import { feeManager } from "./fee";
 
 export class ConfigManager {
     private config: INetworkConfig;
@@ -31,7 +28,6 @@ export class ConfigManager {
         this.validateMilestones();
 
         this.buildConstants();
-        this.buildFees();
     }
 
     public setFromPreset(network: NetworkName): void {
@@ -56,7 +52,6 @@ export class ConfigManager {
 
     public setHeight(value: number): void {
         this.height = value;
-        this.buildFees();
     }
 
     public getHeight(): number {
@@ -129,12 +124,6 @@ export class ConfigManager {
                     `Bad milestone at height: ${current.height}. The number of delegates can only be changed at the beginning of a new round.`,
                 );
             }
-        }
-    }
-
-    private buildFees(): void {
-        for (const key of Object.keys(TransactionTypes)) {
-            feeManager.set(TransactionTypes[key], this.getMilestone().fees.staticFees[camelCase(key)]);
         }
     }
 }

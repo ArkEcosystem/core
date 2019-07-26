@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { IHtlcRefundAsset, ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { HtlcRefundTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class HtlcRefundBuilder extends TransactionBuilder<HtlcRefundBuilder> {
@@ -9,7 +9,7 @@ export class HtlcRefundBuilder extends TransactionBuilder<HtlcRefundBuilder> {
         super();
 
         this.data.type = TransactionTypes.HtlcRefund;
-        this.data.fee = feeManager.get(TransactionTypes.HtlcRefund);
+        this.data.fee = HtlcRefundTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.asset = {};
     }

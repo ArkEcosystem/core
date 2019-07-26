@@ -6,8 +6,10 @@ configManager.setFromPreset("testnet");
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
+import {
+    BuilderFactory,
+    MultiSignatureRegistrationTransaction,
+} from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -72,7 +74,7 @@ describe("Multi Signature Transaction", () => {
     });
 
     describe("multiSignatureAsset", () => {
-        const multiSignatureFee = feeManager.get(TransactionTypes.MultiSignature);
+        const multiSignatureFee = MultiSignatureRegistrationTransaction.staticFee();
         const multiSignature = {
             publicKeys: ["key a", "key b", "key c"],
             min: 1,

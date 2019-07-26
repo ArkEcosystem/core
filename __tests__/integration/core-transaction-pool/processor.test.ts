@@ -453,8 +453,8 @@ describe("Transaction Guard", () => {
             const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
             const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
 
-            expect(wallet1.username).toBe(undefined);
-            expect(wallet2.username).toBe(undefined);
+            expect(wallet1.isDelegate()).toBeFalse();
+            expect(wallet2.isDelegate()).toBeFalse();
         });
 
         it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {

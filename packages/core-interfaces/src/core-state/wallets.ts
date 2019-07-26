@@ -5,24 +5,10 @@ import { IRoundInfo } from "../shared";
 export interface IWallet {
     address: string;
     publicKey: string | undefined;
-    secondPublicKey: string | undefined;
     balance: Utils.BigNumber;
     locks: { [lockId: string]: Interfaces.ITransactionData };
     lockedBalance: Utils.BigNumber;
     nonce: Utils.BigNumber;
-    vote: string;
-    voted: boolean;
-    username: string | undefined;
-    resigned: boolean;
-    lastBlock: any;
-    voteBalance: Utils.BigNumber;
-    multisignature?: Interfaces.IMultiSignatureAsset;
-    ipfsHashes: { [ipfsHash: string]: boolean };
-    dirty: boolean;
-    producedBlocks: number;
-    forgedFees: Utils.BigNumber;
-    forgedRewards: Utils.BigNumber;
-    rate?: number;
 
     applyBlock(block: Interfaces.IBlockData): boolean;
     revertBlock(block: Interfaces.IBlockData): boolean;
@@ -30,13 +16,41 @@ export interface IWallet {
     auditApply(transaction: Interfaces.ITransactionData): any[];
     toString(): string;
 
+    hasAttribute(key: string): boolean;
+    getAttribute<T = any>(key: string, defaultValue?: T): T;
+    setAttribute<T = any>(key: string, value: T): void;
+    forgetAttribute(key: string): void;
+
+    isDelegate(): boolean;
+    hasVoted(): boolean;
+    hasSecondSignature(): boolean;
+    hasMultiSignature(): boolean;
+
+    canBePurged(): boolean;
+
     verifySignatures(
         transaction: Interfaces.ITransactionData,
         multisignature?: Interfaces.IMultiSignatureAsset,
     ): boolean;
 }
 
-export type IDelegateWallet = IWallet & { rate: number; round: number };
+export interface IWalletDelegateAttributes {
+    username: string;
+    voteBalance: Utils.BigNumber;
+    forgedFees: Utils.BigNumber;
+    forgedRewards: Utils.BigNumber;
+    producedBlocks: number;
+    rank?: number;
+    lastBlock?: Interfaces.IBlockData;
+    round?: number;
+    resigned?: boolean;
+}
+
+export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset;
+
+export interface IWalletIpfsAttributes {
+    [hash: string]: boolean;
+}
 
 export interface IWalletManager {
     logger: Logger.ILogger;
@@ -71,21 +85,19 @@ export interface IWalletManager {
 
     clone(): IWalletManager;
 
-    loadActiveDelegateList(roundInfo: IRoundInfo): IDelegateWallet[];
+    loadActiveDelegateList(roundInfo: IRoundInfo): IWallet[];
 
     buildVoteBalances(): void;
 
     applyBlock(block: Interfaces.IBlock): Promise<void>;
 
-    buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
+    buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IWallet[];
 
     revertBlock(block: Interfaces.IBlock): Promise<void>;
 
     applyTransaction(transaction: Interfaces.ITransaction): void;
 
     revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-
-    isDelegate(publicKey: string): boolean;
 
     canBePurged(wallet: IWallet): boolean;
 

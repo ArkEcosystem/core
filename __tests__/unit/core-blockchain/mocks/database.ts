@@ -2,7 +2,7 @@ export const database = {
     restoredDatabaseIntegrity: true,
 
     walletManager: {
-        findByPublicKey: pubKey => "username",
+        findByPublicKey: pubKey => ({ getAttribute: () => "username" }),
         revertBlock: () => undefined,
     },
 

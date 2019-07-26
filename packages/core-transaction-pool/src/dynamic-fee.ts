@@ -1,25 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-import camelCase from "lodash.camelcase";
+import { Handlers } from "@arkecosystem/core-transactions";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { IDynamicFeeMatch } from "./interfaces";
-
-export const calculateMinimumFee = (satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber => {
-    if (satoshiPerByte <= 0) {
-        satoshiPerByte = 1;
-    }
-
-    const key: string = camelCase(
-        transaction.type in Enums.TransactionTypes
-            ? Enums.TransactionTypes[transaction.type]
-            : transaction.constructor.name.replace("Transaction", ""),
-    );
-
-    const addonBytes: number = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[key];
-    const transactionSizeInBytes: number = transaction.serialized.length / 2;
-
-    return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
-};
 
 // @TODO: better name
 export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynamicFeeMatch => {
@@ -32,7 +15,13 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
     let enterPool: boolean;
 
     if (dynamicFees.enabled) {
-        const minFeeBroadcast: Utils.BigNumber = calculateMinimumFee(dynamicFees.minFeeBroadcast, transaction);
+        const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const addonBytes: number = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[transaction.key];
+        const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
+            transaction,
+            addonBytes,
+            dynamicFees.minFeeBroadcast,
+        );
 
         if (fee.isGreaterThanOrEqualTo(minFeeBroadcast)) {
             broadcast = true;
@@ -52,7 +41,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
             );
         }
 
-        const minFeePool: Utils.BigNumber = calculateMinimumFee(dynamicFees.minFeePool, transaction);
+        const minFeePool: Utils.BigNumber = handler.dynamicFee(transaction, addonBytes, dynamicFees.minFeePool);
 
         if (fee.isGreaterThanOrEqualTo(minFeePool)) {
             enterPool = true;
@@ -72,8 +61,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
             );
         }
     } else {
-        const staticFee: Utils.BigNumber = Managers.feeManager.getForTransaction(transaction.data);
-
+        const staticFee: Utils.BigNumber = transaction.staticFee;
         if (fee.isEqualTo(staticFee)) {
             broadcast = true;
             enterPool = true;

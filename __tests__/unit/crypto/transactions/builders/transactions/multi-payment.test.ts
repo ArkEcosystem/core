@@ -2,8 +2,7 @@ import "jest-extended";
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { MaximumPaymentCountExceededError } from "../../../../../../packages/crypto/src/errors";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
+import { BuilderFactory, MultiPaymentTransaction } from "../../../../../../packages/crypto/src/transactions";
 import { MultiPaymentBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-payment";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -19,7 +18,7 @@ describe("Multi Payment Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.MultiPayment);
-        expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.MultiPayment));
+        expect(builder).toHaveProperty("data.fee", MultiPaymentTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset.payments", []);
         expect(builder).toHaveProperty("data.vendorFieldHex", undefined);
     });

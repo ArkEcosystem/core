@@ -71,9 +71,7 @@ export class UnchainedHandler extends BlockHandler {
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(this.block.data.height);
-                const delegates: State.IDelegateWallet[] = await app
-                    .resolvePlugin("database")
-                    .getActiveDelegates(roundInfo);
+                const delegates: State.IWallet[] = await app.resolvePlugin("database").getActiveDelegates(roundInfo);
 
                 if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {
                     this.blockchain.forkBlock(this.block);

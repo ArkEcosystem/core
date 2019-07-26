@@ -25,6 +25,7 @@
         "@arkecosystem/core-container": "^2.5.7",
         "@arkecosystem/core-event-emitter": "^2.5.7",
         "@arkecosystem/core-interfaces": "^2.5.7",
+        "@arkecosystem/core-state": "^2.5.7",
         "@arkecosystem/core-transactions": "^2.5.7",
         "@arkecosystem/core-utils": "^2.5.7",
         "@arkecosystem/crypto": "^2.5.7",

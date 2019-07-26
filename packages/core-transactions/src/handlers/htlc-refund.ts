@@ -55,14 +55,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             throw new SenderWalletMismatchError();
         }
 
-        if (sender.secondPublicKey) {
+        if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
             const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
-            if (!dbSender.secondPublicKey) {
+            if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
             }
 
-            if (!Transactions.Verifier.verifySecondSignature(data, sender.secondPublicKey)) {
+            if (!Transactions.Verifier.verifySecondSignature(data, sender.getAttribute("secondPublicKey"))) {
                 throw new InvalidSecondSignatureError();
             }
         } else if (data.secondSignature || data.signSignature) {
@@ -74,14 +74,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             }
         }
 
-        if (sender.multisignature) {
+        if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
             const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
-            if (!dbSender.multisignature) {
+            if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
             }
 
-            if (!sender.verifySignatures(data, sender.multisignature)) {
+            if (!sender.verifySignatures(data, sender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
         } else if (transaction.type !== Enums.TransactionTypes.MultiSignature && transaction.data.signatures) {

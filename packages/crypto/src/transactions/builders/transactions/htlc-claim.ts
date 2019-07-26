@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { IHtlcClaimAsset, ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { HtlcClaimTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class HtlcClaimBuilder extends TransactionBuilder<HtlcClaimBuilder> {
@@ -9,7 +9,7 @@ export class HtlcClaimBuilder extends TransactionBuilder<HtlcClaimBuilder> {
         super();
 
         this.data.type = TransactionTypes.HtlcClaim;
-        this.data.fee = feeManager.get(TransactionTypes.HtlcClaim);
+        this.data.fee = HtlcClaimTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.asset = {};
     }

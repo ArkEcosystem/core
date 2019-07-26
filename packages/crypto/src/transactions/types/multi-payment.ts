@@ -1,16 +1,20 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
-import { Base58, BigNumber } from "../../utils";
+import { Base58 } from "../../utils/base58";
+import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class MultiPaymentTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.MultiPayment;
+    public static key: string = "multiPayment";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.multiPayment;
     }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;

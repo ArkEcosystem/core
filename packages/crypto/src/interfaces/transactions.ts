@@ -7,6 +7,8 @@ export interface ITransaction {
     readonly id: string;
     readonly type: TransactionTypes;
     readonly verified: boolean;
+    readonly key: string;
+    readonly staticFee: BigNumber;
 
     isVerified: boolean;
 
@@ -31,7 +33,6 @@ export interface ITransactionAsset {
     };
     delegate?: {
         username: string;
-        publicKey?: string;
     };
     votes?: string[];
     multiSignatureLegacy?: IMultiSignatureLegacyAsset;
