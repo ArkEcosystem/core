@@ -79,7 +79,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            await this.communicator.ping(newPeer, 3000);
+            await this.communicator.ping(newPeer, app.resolveOptions("p2p").verifyTimeout);
 
             this.storage.setPeer(newPeer);
 
