@@ -19,14 +19,21 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const vote = transaction.asset.votes[0];
+            const walletVote: string = wallet.getAttribute("vote");
 
-            if (!wallet.hasAttribute("voted")) {
-                const vote = transaction.asset.votes[0];
-                if (vote.startsWith("+")) {
-                    wallet.setAttribute("vote", vote.slice(1));
+            if (vote.startsWith("+")) {
+                if (walletVote) {
+                    throw new AlreadyVotedError();
                 }
-
-                wallet.setAttribute("voted", true);
+                wallet.setAttribute("vote", vote.slice(1));
+            } else {
+                if (!walletVote) {
+                    throw new NoVoteError();
+                } else if (walletVote !== vote.slice(1)) {
+                    throw new UnvoteMismatchError();
+                }
+                wallet.forgetAttribute("vote");
             }
         }
 
