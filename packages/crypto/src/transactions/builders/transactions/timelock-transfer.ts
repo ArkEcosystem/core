@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { TimelockTransferTransaction } from '../../types';
 import { TransactionBuilder } from "./transaction";
 
 export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransferBuilder> {
@@ -9,7 +9,7 @@ export class TimelockTransferBuilder extends TransactionBuilder<TimelockTransfer
         super();
 
         this.data.type = TransactionTypes.TimelockTransfer;
-        this.data.fee = feeManager.get(TransactionTypes.TimelockTransfer);
+        this.data.fee = TimelockTransferTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

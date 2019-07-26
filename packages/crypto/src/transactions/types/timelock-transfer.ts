@@ -1,16 +1,20 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
-import { Base58, BigNumber } from "../../utils";
+import { Base58 } from "../../utils/base58";
+import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class TimelockTransferTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.TimelockTransfer;
+    public static key: string = "timelockTransfer";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.timelockTransfer;
     }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;

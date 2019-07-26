@@ -2717,6 +2717,11 @@
   resolved "https://registry.yarnpkg.com/@types/depcheck/-/depcheck-0.8.0.tgz#5c33f80c4d4ce6aa576c9ac09d326084d5c0884d"
   integrity sha512-kpGVvWeWWhfZ8SPW+OWYmLfrHVCZtIcOzKaGJHUk4WcheY6UgxUb5xU+3aVymZEvQ7z9MuWmzaKibF8YwxR0Xg==
 
+"@types/dottie@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/dottie/-/dottie-2.0.3.tgz#71725fceafe2df8f1e07d6bb7436524af530b376"
+  integrity sha512-XtN0M6lKMCYiDLnLXB4FSbEr5vgrpNEA24jhjnvhqobIYYDqyahTJrDblLqJ8bz1eG+Vm6BE0yqtsr88prEjww==
+
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
@@ -2998,13 +3003,6 @@
   dependencies:
     "@types/node" "*"
     rxjs "^6.5.1"
-
-"@types/lodash.camelcase@^4.3.6":
-  version "4.3.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.camelcase/-/lodash.camelcase-4.3.6.tgz#393c748b70cd926fc629e6502a9d0929f217d5fd"
-  integrity sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==
-  dependencies:
-    "@types/lodash" "*"
 
 "@types/lodash.chunk@^4.2.6":
   version "4.2.6"
@@ -8988,11 +8986,6 @@ lodash.assignin@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/lodash.assignin/-/lodash.assignin-4.2.0.tgz#ba8df5fb841eb0a3e8044232b0e263a8dc6a28a2"
   integrity sha1-uo31+4QesKPoBEIysOJjqNxqKKI=
-
-lodash.camelcase@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
-  integrity sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
 
 lodash.chunk@^4.2.0:
   version "4.2.0"

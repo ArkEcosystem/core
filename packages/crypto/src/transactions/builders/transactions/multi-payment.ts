@@ -1,8 +1,8 @@
 import { TransactionTypes } from "../../../enums";
 import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { MultiPaymentTransaction } from '../../types';
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
@@ -10,7 +10,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         super();
 
         this.data.type = TransactionTypes.MultiPayment;
-        this.data.fee = feeManager.get(TransactionTypes.MultiPayment);
+        this.data.fee = MultiPaymentTransaction.staticFee();
         this.data.vendorFieldHex = undefined;
         this.data.asset = {
             payments: [],

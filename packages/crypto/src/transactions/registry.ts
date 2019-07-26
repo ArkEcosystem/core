@@ -1,12 +1,8 @@
-import camelCase from "lodash.camelcase";
 import { TransactionTypes } from "../enums";
 import {
-    MissingMilestoneFeeError,
     TransactionAlreadyRegisteredError,
     TransactionTypeInvalidRangeError,
 } from "../errors";
-import { configManager } from "../managers";
-import { feeManager } from "../managers/fee";
 import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
@@ -57,7 +53,6 @@ class TransactionRegistry {
 
         this.customTypes.set(type, constructor);
         this.updateSchemas(constructor);
-        this.updateStaticFees();
     }
 
     public deregisterCustomType(type: number): void {
@@ -65,23 +60,6 @@ class TransactionRegistry {
             const schema = this.customTypes.get(type);
             this.updateSchemas(schema, true);
             this.customTypes.delete(type);
-        }
-    }
-
-    public updateStaticFees(height?: number): void {
-        const customConstructors = Array.from(this.customTypes.values());
-        const milestone = configManager.getMilestone(height);
-        const { staticFees } = milestone.fees;
-        for (const constructor of customConstructors) {
-            const { type, name } = constructor;
-            if (milestone.fees && milestone.fees.staticFees) {
-                const value = staticFees[camelCase(name.replace("Transaction", ""))];
-                if (!value) {
-                    throw new MissingMilestoneFeeError(name);
-                }
-
-                feeManager.set(type, value);
-            }
         }
     }
 

@@ -64,7 +64,7 @@ describe("Wallet Manager", () => {
         }
 
         beforeEach(() => {
-            delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey };
+            delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey, isDelegate: () => false };
             // @ts-ignore
             jest.spyOn(walletManager, "findByPublicKey").mockReturnValue(delegateMock);
             jest.spyOn(walletManager, "applyTransaction").mockImplementation();
@@ -185,8 +185,8 @@ describe("Wallet Manager", () => {
             ${"2nd sign"} | ${secondSign}  | ${Utils.BigNumber.ZERO}        | ${Utils.BigNumber.make(10 * SATOSHI)} | ${Utils.BigNumber.ONE}
             ${"vote"}     | ${vote}        | ${Utils.BigNumber.ZERO}        | ${Utils.BigNumber.make(5 * SATOSHI)}  | ${Utils.BigNumber.ONE}
         `("when the transaction is a $type", ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
-            let sender;
-            let recipient;
+            let sender: State.IWallet;
+            let recipient: State.IWallet;
 
             beforeEach(() => {
                 sender = new Wallet(walletData1.address);
@@ -197,9 +197,6 @@ describe("Wallet Manager", () => {
 
                 walletManager.reindex(sender);
                 walletManager.reindex(recipient);
-
-                // @ts-ignore
-                jest.spyOn(walletManager, "isDelegate").mockReturnValue(true);
             });
 
             it("should apply the transaction to the sender & recipient", async () => {
@@ -207,6 +204,10 @@ describe("Wallet Manager", () => {
 
                 expect(+sender.balance.toFixed()).toBe(+balanceSuccess);
                 expect(+recipient.balance.toFixed()).toBe(0);
+
+                if (type === "vote") {
+                    recipient.setAttribute("delegate", {});
+                }
 
                 await walletManager.applyTransaction(transaction);
 
@@ -261,10 +262,12 @@ describe("Wallet Manager", () => {
             const voterKeys = Identities.Keys.fromPassphrase("secret");
 
             const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-            delegate.username = "unittest";
             delegate.balance = Utils.BigNumber.make(100_000_000);
-            delegate.vote = delegate.publicKey;
-            delegate.voteBalance = delegate.balance;
+            delegate.setAttribute("delegate", {
+                username: "unittest",
+                voteBalance: delegate.balance,
+            });
+            delegate.setAttribute("vote", delegate.publicKey);
             walletManager.reindex(delegate);
 
             const voter = walletManager.findByPublicKey(voterKeys.publicKey);
@@ -278,18 +281,17 @@ describe("Wallet Manager", () => {
                 .build();
 
             expect(delegate.balance).toEqual(Utils.BigNumber.make(100_000_000));
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000));
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000));
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
 
             walletManager.applyTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
-
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
             walletManager.revertTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000));
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000));
         });
 
         it("should revert unvote transaction and correctly update vote balances", async () => {
@@ -297,10 +299,12 @@ describe("Wallet Manager", () => {
             const voterKeys = Identities.Keys.fromPassphrase("secret");
 
             const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-            delegate.username = "unittest";
             delegate.balance = Utils.BigNumber.make(100_000_000);
-            delegate.vote = delegate.publicKey;
-            delegate.voteBalance = delegate.balance;
+            delegate.setAttribute("delegate", {
+                username: "unittest",
+                voteBalance: delegate.balance,
+            });
+            delegate.setAttribute("vote", delegate.publicKey);
             walletManager.reindex(delegate);
 
             const voter = walletManager.findByPublicKey(voterKeys.publicKey);
@@ -314,13 +318,13 @@ describe("Wallet Manager", () => {
                 .build();
 
             expect(delegate.balance).toEqual(Utils.BigNumber.make(100_000_000));
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000));
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000));
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
 
             walletManager.applyTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
 
             const unvoteTransaction = Transactions.BuilderFactory.vote()
                 .votesAsset([`-${delegateKeys.publicKey}`])
@@ -336,12 +340,12 @@ describe("Wallet Manager", () => {
                     .minus(voteTransaction.data.fee)
                     .minus(unvoteTransaction.data.fee),
             );
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000));
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000));
 
             walletManager.revertTransaction(unvoteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
-            expect(delegate.voteBalance).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
+            expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make(100_000_000).plus(voter.balance));
         });
     });
 
@@ -367,10 +371,10 @@ describe("Wallet Manager", () => {
     describe("findByUsername", () => {
         it("should return it by username", () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.username = "dummy-username";
+            wallet.setAttribute("delegate.username", "dummy-username");
 
             walletManager.reindex(wallet);
-            expect(walletManager.findByUsername(wallet.username).username).toBe(wallet.username);
+            expect(walletManager.findByUsername("dummy-username").getAttribute<string>("delegate.username")).toBe("dummy-username");
         });
     });
 
@@ -395,25 +399,25 @@ describe("Wallet Manager", () => {
 
         it("should not be removed if wallet.secondPublicKey is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.secondPublicKey = "secondPublicKey";
+            wallet.setAttribute("secondPublicKey", "secondPublicKey");
 
-            expect(wallet.secondPublicKey).toBe("secondPublicKey");
+            expect(wallet.getAttribute<string>("secondPublicKey")).toBe("secondPublicKey");
             expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
 
         it("should not be removed if wallet.multisignature is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.multisignature = {} as Interfaces.IMultiSignatureAsset;
+            wallet.setAttribute("multiSignature", {});
 
-            expect(wallet.multisignature).toEqual({});
+            expect(wallet.getAttribute("multiSignature")).toEqual({});
             expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
 
         it("should not be removed if wallet.username is set", async () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.username = "username";
+            wallet.setAttribute("delegate.username", "username");
 
-            expect(wallet.username).toBe("username");
+            expect(wallet.getAttribute<string>("delegate.username")).toBe("username");
             expect(walletManager.canBePurged(wallet)).toBeFalse();
         });
     });
@@ -425,7 +429,7 @@ describe("Wallet Manager", () => {
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
-            wallet2.username = "username";
+            wallet2.setAttribute("delegate.username", "username");
 
             walletManager.reindex(wallet2);
 
@@ -437,11 +441,11 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.secondPublicKey is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.secondPublicKey = "dummy-1-secondPublicKey";
+            wallet1.setAttribute("secondPublicKey", "dummy-1-secondPublicKey");
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
-            wallet2.username = "username";
+            wallet2.setAttribute("delegate.username", "username");
 
             walletManager.reindex(wallet2);
 
@@ -453,11 +457,11 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.multisignature is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.multisignature = {} as Interfaces.IMultiSignatureAsset;
+            wallet1.setAttribute("multiSignature", {});
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
-            wallet2.username = "username";
+            wallet2.setAttribute("delegate.username", "username");
 
             walletManager.reindex(wallet2);
 
@@ -469,11 +473,11 @@ describe("Wallet Manager", () => {
         it("should not be purged if wallet.username is set", async () => {
             const wallet1 = new Wallet(walletData1.address);
             wallet1.publicKey = "dummy-1-publicKey";
-            wallet1.username = "dummy-1-username";
+            wallet1.setAttribute("delegate", {});
             walletManager.reindex(wallet1);
 
             const wallet2 = new Wallet(walletData2.address);
-            wallet2.username = "username";
+            wallet2.setAttribute("delegate", {});
 
             walletManager.reindex(wallet2);
 
@@ -489,15 +493,15 @@ describe("Wallet Manager", () => {
                 const delegateKey = i.toString().repeat(66);
                 const delegate = new Wallet(Address.fromPublicKey(delegateKey));
                 delegate.publicKey = delegateKey;
-                delegate.username = `delegate${i}`;
-                delegate.voteBalance = Utils.BigNumber.ZERO;
+                delegate.setAttribute("delegate.username", `delegate${i}`);
+                delegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
                 const voter = new Wallet(Address.fromPublicKey((i + 5).toString().repeat(66)));
                 voter.balance = Utils.BigNumber.make(i + 1)
                     .times(1000)
                     .times(SATOSHI);
                 voter.publicKey = `v${delegateKey}`;
-                voter.vote = delegateKey;
+                voter.setAttribute("vote", delegateKey);
 
                 walletManager.index([delegate, voter]);
             }
@@ -507,7 +511,7 @@ describe("Wallet Manager", () => {
             const delegates = walletManager.allByUsername();
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[4 - i];
-                expect(delegate.voteBalance).toEqual(
+                expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
                     Utils.BigNumber.make(5 - i)
                         .times(1000)
                         .times(SATOSHI),
@@ -522,13 +526,13 @@ describe("Wallet Manager", () => {
                 const delegateKey = i.toString().repeat(66);
                 const delegate = new Wallet(Identities.Address.fromPublicKey(delegateKey));
                 delegate.publicKey = delegateKey;
-                delegate.username = `delegate${i}`;
-                delegate.voteBalance = Utils.BigNumber.ZERO;
+                delegate.setAttribute("delegate.username", `delegate${i}`);
+                delegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
                 const voter = new Wallet(Identities.Address.fromPublicKey((i + 5).toString().repeat(66)));
                 voter.balance = Utils.BigNumber.make((i + 1) * 1000 * SATOSHI);
                 voter.publicKey = `v${delegateKey}`;
-                voter.vote = delegateKey;
+                voter.setAttribute("vote", delegateKey);
 
                 walletManager.index([delegate, voter]);
             }
@@ -539,8 +543,8 @@ describe("Wallet Manager", () => {
 
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[i];
-                expect(delegate.rate).toEqual(i + 1);
-                expect(delegate.voteBalance).toEqual(Utils.BigNumber.make((5 - i) * 1000 * SATOSHI));
+                expect(delegate.getAttribute<number>("delegate.rank")).toEqual(i + 1);
+                expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(Utils.BigNumber.make((5 - i) * 1000 * SATOSHI));
             }
         });
     });

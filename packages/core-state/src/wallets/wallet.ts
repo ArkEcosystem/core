@@ -1,44 +1,59 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import dottie from "dottie";
 
 export class Wallet implements State.IWallet {
     public address: string;
     public publicKey: string | undefined;
-    public secondPublicKey: string | undefined;
     public balance: Utils.BigNumber;
     public nonce: Utils.BigNumber;
-    public vote: string;
-    public voted: boolean;
-    public username: string | undefined;
-    public resigned: boolean;
-    public lastBlock: any;
-    public voteBalance: Utils.BigNumber;
-    public multisignature?: Interfaces.IMultiSignatureAsset;
-    public ipfsHashes: { [ipfsHash: string]: boolean };
-    public dirty: boolean;
-    public producedBlocks: number;
-    public forgedFees: Utils.BigNumber;
-    public forgedRewards: Utils.BigNumber;
-    public rate?: number;
+
+    private readonly attributes: Record<string, any>;
 
     constructor(address: string) {
         this.address = address;
-        this.publicKey = undefined;
-        this.secondPublicKey = undefined;
         this.balance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
-        this.vote = undefined;
-        this.voted = false;
-        this.username = undefined;
-        this.resigned = false;
-        this.lastBlock = undefined;
-        this.voteBalance = Utils.BigNumber.ZERO;
-        this.multisignature = undefined;
-        this.ipfsHashes = {};
-        this.producedBlocks = 0;
-        this.forgedFees = Utils.BigNumber.ZERO;
-        this.forgedRewards = Utils.BigNumber.ZERO;
+
+        this.attributes = {};
+    }
+
+    public hasAttribute(key: string): boolean {
+        return dottie.exists(this.attributes, key);
+    }
+
+    public getAttribute<T>(key: string, defaultValue?: T): T {
+        return dottie.get(this.attributes, key, defaultValue);
+    }
+
+    public setAttribute<T = any>(key: string, value: T): void {
+        dottie.set(this.attributes, key, value);
+    }
+
+    public forgetAttribute(key: string): void {
+        this.setAttribute(key, undefined);
+    }
+
+    public isDelegate(): boolean {
+        return !!this.getAttribute("delegate");
+    }
+
+    public hasVoted(): boolean {
+        return !!this.getAttribute("vote");
+    }
+
+    public hasSecondSignature(): boolean {
+        return !!this.getAttribute("secondPublicKey");
+    }
+
+    public hasMultiSignature(): boolean {
+        return !!this.getAttribute("multiSignature");
+    }
+
+    public canBePurged(): boolean {
+        const hasAttributes = Object.keys(this.attributes).length > 0;
+        return this.balance.isZero() && !hasAttributes;
     }
 
     public applyBlock(block: Interfaces.IBlockData): boolean {
@@ -48,11 +63,13 @@ export class Wallet implements State.IWallet {
         ) {
             this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
-            // update stats
-            this.producedBlocks++;
-            this.forgedFees = this.forgedFees.plus(block.totalFee);
-            this.forgedRewards = this.forgedRewards.plus(block.reward);
-            this.lastBlock = block;
+            const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
+
+            delegate.producedBlocks++;
+            delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);
+            delegate.forgedRewards = delegate.forgedRewards.plus(block.reward);
+            delegate.lastBlock = block;
+
             return true;
         }
 
@@ -66,12 +83,15 @@ export class Wallet implements State.IWallet {
         ) {
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
-            this.forgedFees = this.forgedFees.minus(block.totalFee);
-            this.forgedRewards = this.forgedRewards.minus(block.reward);
-            this.producedBlocks--;
+            const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
+
+            delegate.forgedFees = delegate.forgedFees.minus(block.totalFee);
+            delegate.forgedRewards = delegate.forgedRewards.minus(block.reward);
+            delegate.producedBlocks--;
 
             // TODO: get it back from database?
-            this.lastBlock = undefined;
+            delegate.lastBlock = undefined;
+
             return true;
         }
 
@@ -82,7 +102,7 @@ export class Wallet implements State.IWallet {
         transaction: Interfaces.ITransactionData,
         multiSignature?: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        multiSignature = multiSignature || this.multisignature;
+        multiSignature = multiSignature || this.getAttribute("multiSignature");
         if (!multiSignature) {
             throw new Errors.InvalidMultiSignatureError();
         }
@@ -122,9 +142,13 @@ export class Wallet implements State.IWallet {
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
-        if (this.multisignature) {
+        const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
+        const secondPublicKey: string = this.getAttribute("secondPublicKey");
+        const multiSignature: State.IWalletMultiSignatureAttributes = this.getAttribute("multiSignature");
+
+        if (multiSignature) {
             audit.push({
-                Mutisignature: this.verifySignatures(transaction, this.multisignature),
+                Mutisignature: this.verifySignatures(transaction, multiSignature),
             });
         } else {
             audit.push({
@@ -134,12 +158,11 @@ export class Wallet implements State.IWallet {
                     .toFixed(),
             });
             audit.push({ "Signature validation": Transactions.Verifier.verifyHash(transaction) });
-            // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
-            if (this.secondPublicKey) {
+            if (secondPublicKey) {
                 audit.push({
                     "Second Signature Verification": Transactions.Verifier.verifySecondSignature(
                         transaction,
-                        this.secondPublicKey,
+                        secondPublicKey,
                     ),
                 });
             }
@@ -157,27 +180,27 @@ export class Wallet implements State.IWallet {
         }
 
         if (transaction.type === Enums.TransactionTypes.SecondSignature) {
-            audit.push({ "Second public key": this.secondPublicKey });
+            audit.push({ "Second public key": secondPublicKey });
         }
 
         if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
             const username = transaction.asset.delegate.username;
-            audit.push({ "Current username": this.username });
+            audit.push({ "Current username": delegate.username });
             audit.push({ "New username": username });
         }
 
         if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
-            audit.push({ "Resigned delegate": this.username });
+            audit.push({ "Resigned delegate": delegate.username });
         }
 
         if (transaction.type === Enums.TransactionTypes.Vote) {
-            audit.push({ "Current vote": this.vote });
+            audit.push({ "Current vote": this.getAttribute("vote") });
             audit.push({ "New vote": transaction.asset.votes[0] });
         }
 
         if (transaction.type === Enums.TransactionTypes.MultiSignature) {
             const keysgroup = transaction.asset.multisignature.keysgroup;
-            audit.push({ "Multisignature not yet registered": !this.multisignature });
+            audit.push({ "Multisignature not yet registered": !multiSignature });
             audit.push({
                 "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
             });
