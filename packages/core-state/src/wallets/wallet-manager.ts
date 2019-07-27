@@ -3,9 +3,10 @@ import { Logger, Shared, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { TempWalletManager } from "./temp-wallet-manager";
 import { Wallet } from "./wallet";
-import { WalletIndex } from './wallet-index';
+import { WalletIndex } from "./wallet-index";
 
 export class WalletManager implements State.IWalletManager {
     // @TODO: make this private and read-only
@@ -37,7 +38,7 @@ export class WalletManager implements State.IWalletManager {
 
     public registerIndex(name: string, indexer: State.WalletIndexer): void {
         if (this.indexes[name]) {
-            throw new Error("Already registered.");
+            throw new WalletIndexAlreadyRegisteredError(name);
         }
 
         this.indexes[name] = new WalletIndex(indexer);
@@ -45,7 +46,7 @@ export class WalletManager implements State.IWalletManager {
 
     public unregisterIndex(name: string): void {
         if (!this.indexes[name]) {
-            throw new Error("Index does not exist.");
+            throw new WalletIndexNotFoundError(name);
         }
 
         delete this.indexes[name];
@@ -53,7 +54,7 @@ export class WalletManager implements State.IWalletManager {
 
     public getIndex(name: string): State.IWalletIndex {
         if (!this.indexes[name]) {
-            throw new Error("Index does not exist.");
+            throw new WalletIndexNotFoundError(name);
         }
 
         return this.indexes[name];
@@ -170,7 +171,7 @@ export class WalletManager implements State.IWalletManager {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                `This indicates an issue with the genesis block & delegates.`,
+                    `This indicates an issue with the genesis block & delegates.`,
             );
         }
 

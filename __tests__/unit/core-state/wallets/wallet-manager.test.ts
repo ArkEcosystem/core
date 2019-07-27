@@ -365,17 +365,17 @@ describe("Wallet Manager", () => {
 
     describe("index", () => {
         it("should register an index", () => {
-            walletManager.registerIndex("custom", (index: State.IWalletIndex, wallet: State.IWallet): void => {
-                if (wallet.hasAttribute("custom")) {
-                    index.set(wallet.getAttribute("custom"), wallet);
+            walletManager.registerIndex("customIndex", (index: State.IWalletIndex, wallet: State.IWallet): void => {
+                if (wallet.hasAttribute("custom.attribute")) {
+                    index.set(wallet.getAttribute("custom.attribute"), wallet);
                 }
             });
 
             const wallet = new Wallet(walletData1.address);
-            wallet.setAttribute("custom", "custom-1");
+            wallet.setAttribute("custom.attribute", "something");
             walletManager.reindex(wallet);
 
-            expect(walletManager.findById("custom-1")).toBe(wallet);
+            expect(walletManager.findById("something")).toBe(wallet);
         });
 
         it("should unregister an index", () => {
