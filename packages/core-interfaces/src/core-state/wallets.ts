@@ -2,6 +2,14 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Logger, Shared } from "../index";
 import { IRoundInfo } from "../shared";
 
+export type WalletIndexer = (index: IWalletIndex, wallet: IWallet) => void;
+
+export enum WalletIndexes {
+    Addresses = "addresses",
+    PublicKeys = "publicKeys",
+    Usernames = "usernames"
+}
+
 export interface IWallet {
     address: string;
     publicKey: string | undefined;
@@ -55,11 +63,17 @@ export interface IWalletManager {
 
     reset(): void;
 
-    allByAddress(): IWallet[];
+    registerIndex(name: string, indexer: WalletIndexer): void;
 
-    allByPublicKey(): IWallet[];
+    unregisterIndex(name: string): void;
 
-    allByUsername(): IWallet[];
+    getIndex(name: string): IWalletIndex;
+
+    allByAddress(): ReadonlyArray<IWallet>;
+
+    allByPublicKey(): ReadonlyArray<IWallet>;
+
+    allByUsername(): ReadonlyArray<IWallet>;
 
     findById(id: string): IWallet;
 
@@ -73,7 +87,7 @@ export interface IWalletManager {
 
     getNonce(publicKey: string): Utils.BigNumber;
 
-    index(wallets: IWallet[]): void;
+    index(wallets: ReadonlyArray<IWallet>): void;
 
     reindex(wallet: IWallet): void;
 
@@ -106,6 +120,14 @@ export interface IWalletManager {
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
+}
 
-    purgeEmptyNonDelegates(): void;
+export interface IWalletIndex {
+    index(wallet: IWallet): void;
+    has(key: string): boolean;
+    get(key: string): IWallet | undefined;
+    set(key: string, wallet: IWallet): void;
+    forget(key: string): void;
+    all(): ReadonlyArray<IWallet>;
+    clear(): void;
 }

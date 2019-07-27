@@ -11,11 +11,11 @@ export class WalletManager extends Wallets.WalletManager {
     );
 
     public findByAddress(address: string): State.IWallet {
-        if (address && !this.byAddress[address]) {
+        if (address && !this.hasByAddress(address)) {
             this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));
         }
 
-        return this.byAddress[address];
+        return this.findByAddress(address);
     }
 
     public forget(publicKey: string): void {
