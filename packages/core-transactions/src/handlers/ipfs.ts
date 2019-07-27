@@ -1,10 +1,14 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class IpfsTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.IpfsTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {

@@ -1,11 +1,15 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class TransferTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.TransferTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {

@@ -1,10 +1,14 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class HtlcLockTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcLockTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -65,8 +69,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 }

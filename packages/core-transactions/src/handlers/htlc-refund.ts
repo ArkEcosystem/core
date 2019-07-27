@@ -13,13 +13,18 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { HtlcLockTransactionHandler } from './htlc-lock';
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
 
 export class HtlcRefundTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcRefundTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [HtlcLockTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -215,8 +220,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 }

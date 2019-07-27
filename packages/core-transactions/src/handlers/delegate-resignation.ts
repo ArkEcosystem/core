@@ -2,11 +2,16 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class DelegateResignationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateResignationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [DelegateRegistrationTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {

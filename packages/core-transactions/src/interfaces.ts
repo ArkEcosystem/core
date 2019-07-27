@@ -1,8 +1,11 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { TransactionHandlerConstructor } from "./handlers/transaction";
 
 export interface ITransactionHandler {
     getConstructor(): Transactions.TransactionConstructor;
+
+    dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
 
     bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void>;
 

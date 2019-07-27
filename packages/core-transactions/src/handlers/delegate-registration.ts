@@ -7,13 +7,17 @@ import {
     WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 const { TransactionTypes } = Enums;
 
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateRegistrationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {

@@ -10,7 +10,7 @@ export class StateBuilder {
     constructor(
         private readonly connection: Database.IConnection,
         private readonly walletManager: State.IWalletManager,
-    ) {}
+    ) { }
 
     public async run(): Promise<void> {
         const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
