@@ -7,7 +7,7 @@ export type WalletIndexer = (index: IWalletIndex, wallet: IWallet) => void;
 export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
-    Usernames = "usernames"
+    Usernames = "usernames",
 }
 
 export interface IWallet {
@@ -114,6 +114,8 @@ export interface IWalletManager {
     forgetByPublicKey(publicKey: string): void;
 
     forgetByUsername(username: string): void;
+
+    forgetByIndex(indexName: string, key: string): void;
 
     hasByAddress(address: string): boolean;
 
