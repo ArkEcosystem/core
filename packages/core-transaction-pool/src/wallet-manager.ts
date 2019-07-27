@@ -15,7 +15,7 @@ export class WalletManager extends Wallets.WalletManager {
             this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));
         }
 
-        return this.getIndex(State.WalletIndexes.Addresses).get(address);
+        return this.findByIndex(State.WalletIndexes.Addresses, address);
     }
 
     public forget(publicKey: string): void {
@@ -27,7 +27,7 @@ export class WalletManager extends Wallets.WalletManager {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         const senderPublicKey: string = transaction.data.senderPublicKey;
-        if (!this.databaseService.walletManager.has(senderPublicKey)) {
+        if (!this.databaseService.walletManager.hasByPublicKey(senderPublicKey)) {
             const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {

@@ -431,6 +431,14 @@ describe("Wallet Manager", () => {
             expect(walletManager.findById(wallet.publicKey)).toBe(wallet);
             expect(walletManager.findById("delegate")).toBe(wallet);
         });
+
+        it("should return it by index", () => {
+            const wallet = new Wallet(walletData1.address);
+
+            walletManager.reindex(wallet);
+
+            expect(walletManager.findByIndex(State.WalletIndexes.Addresses, walletData1.address)).toBe(wallet);
+        });
     });
 
     describe("getNonce", () => {
@@ -499,6 +507,67 @@ describe("Wallet Manager", () => {
             walletManager.forgetByIndex(State.WalletIndexes.Usernames, "delegate");
 
             expect(walletManager.hasByUsername("delegate")).toBeFalse();
+        });
+    });
+
+    describe("has", () => {
+        it("should have address", () => {
+            const wallet = new Wallet(walletData1.address);
+
+            expect(walletManager.hasByAddress(wallet.address)).toBeFalse();
+
+            walletManager.reindex(wallet);
+
+            expect(walletManager.hasByAddress(wallet.address)).toBeTrue();
+        });
+
+        it("should have address", () => {
+            const wallet = new Wallet(walletData1.address);
+            wallet.publicKey = walletData1.publicKey;
+
+            expect(walletManager.hasByPublicKey(wallet.publicKey)).toBeFalse();
+
+            walletManager.reindex(wallet);
+
+            expect(walletManager.hasByPublicKey(wallet.publicKey)).toBeTrue();
+        });
+
+        it("should have username", () => {
+            const wallet = new Wallet(walletData1.address);
+            wallet.setAttribute("delegate", { username: "delegate" });
+
+            expect(walletManager.hasByUsername("delegate")).toBeFalse();
+
+            walletManager.reindex(wallet);
+
+            expect(walletManager.hasByUsername("delegate")).toBeTrue();
+        });
+
+        it("should have by index", () => {
+            const wallet = new Wallet(walletData1.address);
+            wallet.setAttribute("delegate", { username: "delegate" });
+
+            expect(walletManager.hasByIndex(State.WalletIndexes.Usernames, "delegate")).toBeFalse();
+
+            walletManager.reindex(wallet);
+
+            expect(walletManager.hasByIndex(State.WalletIndexes.Usernames, "delegate")).toBeTrue();
+        });
+
+        it("should have any", () => {
+            const wallet = new Wallet(walletData1.address);
+            wallet.publicKey = walletData1.publicKey;
+            wallet.setAttribute("delegate", { username: "delegate" });
+
+            expect(walletManager.has(walletData1.address)).toBeFalse();
+            expect(walletManager.has(walletData1.publicKey)).toBeFalse();
+            expect(walletManager.has("delegate")).toBeFalse();
+
+            walletManager.reindex(wallet);
+
+            expect(walletManager.has(walletData1.address)).toBeTrue();
+            expect(walletManager.has(walletData1.publicKey)).toBeTrue();
+            expect(walletManager.has("delegate")).toBeTrue();
         });
     });
 

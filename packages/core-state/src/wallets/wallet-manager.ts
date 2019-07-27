@@ -105,23 +105,37 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public findByUsername(username: string): State.IWallet {
-        return this.getIndex(State.WalletIndexes.Usernames).get(username);
+        return this.findByIndex(State.WalletIndexes.Usernames, username);
     }
 
-    public has(addressOrPublicKey: string): boolean {
-        return this.hasByAddress(addressOrPublicKey) || this.hasByPublicKey(addressOrPublicKey);
+    public findByIndex(indexName: string, key: string): State.IWallet | undefined {
+        return this.getIndex(indexName).get(key);
+    }
+
+    public has(key: string): boolean {
+        for (const walletIndex of Object.values(this.indexes)) {
+            if (walletIndex.has(key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public hasByAddress(address: string): boolean {
-        return this.getIndex(State.WalletIndexes.Addresses).has(address);
+        return this.hasByIndex(State.WalletIndexes.Addresses, address);
     }
 
     public hasByPublicKey(publicKey: string): boolean {
-        return this.getIndex(State.WalletIndexes.PublicKeys).has(publicKey);
+        return this.hasByIndex(State.WalletIndexes.PublicKeys, publicKey);
     }
 
     public hasByUsername(username: string): boolean {
-        return this.getIndex(State.WalletIndexes.Usernames).has(username);
+        return this.hasByIndex(State.WalletIndexes.Usernames, username);
+    }
+
+    public hasByIndex(indexName: string, key: string): boolean {
+        return this.getIndex(indexName).has(key);
     }
 
     public getNonce(publicKey: string): Utils.BigNumber {

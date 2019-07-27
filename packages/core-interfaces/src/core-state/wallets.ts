@@ -79,11 +79,15 @@ export interface IWalletManager {
 
     findByAddress(address: string): IWallet;
 
-    has(addressOrPublicKey: string): boolean;
+    has(key: string): boolean;
+
+    hasByIndex(indexName: string, key: string): boolean;
 
     findByPublicKey(publicKey: string): IWallet;
 
     findByUsername(username: string): IWallet;
+
+    findByIndex(indexName: string, key: string): IWallet | undefined;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
