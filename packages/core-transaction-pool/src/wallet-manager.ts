@@ -15,7 +15,7 @@ export class WalletManager extends Wallets.WalletManager {
             this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));
         }
 
-        return this.findByAddress(address);
+        return this.getIndex(State.WalletIndexes.Addresses).get(address);
     }
 
     public forget(publicKey: string): void {
