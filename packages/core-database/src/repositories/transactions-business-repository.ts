@@ -4,7 +4,7 @@ import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class TransactionsBusinessRepository implements Database.ITransactionsBusinessRepository {
-    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
+    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
     public async search(
         params: Database.IParameters = {},
@@ -120,7 +120,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     private getPublicKeyFromAddress(senderId: string): string {
         const { walletManager }: Database.IDatabaseService = this.databaseServiceProvider();
 
-        return walletManager.has(senderId) ? walletManager.findByAddress(senderId).publicKey : undefined;
+        return walletManager.hasByAddress(senderId) ? walletManager.findByAddress(senderId).publicKey : undefined;
     }
 
     private async mapBlocksToTransactions(rows): Promise<Interfaces.ITransactionData[]> {

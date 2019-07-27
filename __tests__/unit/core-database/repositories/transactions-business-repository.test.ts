@@ -100,7 +100,7 @@ describe("Transactions Business Repository", () => {
 
         it("should lookup senders address from senderId", async () => {
             databaseService.walletManager = {
-                has: addressOrPublicKey => true,
+                hasByAddress: addressOrPublicKey => true,
                 findByAddress: address => ({ publicKey: "pubKey" }),
             } as State.IWalletManager;
 
@@ -179,10 +179,12 @@ describe("Transactions Business Repository", () => {
             }));
 
             databaseService.walletManager = {
-                has: addressOrPublicKey => false,
+                hasByAddress: addressOrPublicKey => false,
+                hasByPublicKey: addressOrPublicKey => false,
             } as State.IWalletManager;
 
-            jest.spyOn(databaseService.walletManager, "has").mockReturnValue(false);
+            jest.spyOn(databaseService.walletManager, "hasByAddress").mockReturnValue(false);
+            jest.spyOn(databaseService.walletManager, "hasByPublicKey").mockReturnValue(false);
 
             await transactionsBusinessRepository.search({
                 addresses: ["addy1", "addy2"],
@@ -205,8 +207,8 @@ describe("Transactions Business Repository", () => {
                     ]),
                 }),
             );
-            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(1, "addy1");
-            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(2, "addy2");
+            expect(databaseService.walletManager.hasByAddress).toHaveBeenNthCalledWith(1, "addy1");
+            expect(databaseService.walletManager.hasByAddress).toHaveBeenNthCalledWith(2, "addy2");
         });
 
         it("should cache blocks if cache-miss ", async () => {
