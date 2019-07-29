@@ -8,7 +8,7 @@ import { getProperty } from "./get-property";
  * @param  {Object} filters
  * @return {Array}
  */
-export = (rows: State.IWallet[], params, filters): State.IWallet[] => {
+export = (rows: ReadonlyArray<State.IWallet>, params, filters): State.IWallet[] => {
     return rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {
