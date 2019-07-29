@@ -3,6 +3,7 @@ import "jest-extended";
 import { container } from "./mocks/core-container";
 import { state } from "./mocks/state";
 
+import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import {
@@ -663,7 +664,8 @@ describe("Connection", () => {
 
             mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
             mockWallet.balance = Utils.BigNumber.make(1e12);
-            jest.spyOn(connection.walletManager, "has").mockReturnValue(true);
+            jest.spyOn(connection.walletManager, "hasByAddress").mockReturnValue(true);
+            jest.spyOn(connection.walletManager, "hasByPublicKey").mockReturnValue(true);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementation(publicKey => {
                 if (publicKey === block2.generatorPublicKey) {
                     return new Wallets.Wallet("thisIsTheDelegateGeneratorAddress0");
@@ -716,7 +718,7 @@ describe("Connection", () => {
             mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
             connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
-            expect(connection.walletManager.hasByPublicKey(senderPublicKey)).toBeFalse();
+            expect(connection.walletManager.hasByIndex(State.WalletIndexes.PublicKeys, senderPublicKey)).toBeFalse();
             expect(applyToSender).not.toHaveBeenCalled();
             expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
         });
