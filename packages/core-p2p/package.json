@@ -33,6 +33,7 @@
         "@hapi/boom": "^7.4.2",
         "@hapi/sntp": "^3.1.1",
         "ajv": "^6.10.2",
+        "better-sqlite3": "^5.4.0",
         "dayjs": "^1.8.15",
         "delay": "^4.3.0",
         "hapi-rate-limit": "^4.0.0",
@@ -58,6 +59,7 @@
         "socketcluster-client": "^14.2.2"
     },
     "devDependencies": {
+        "@types/better-sqlite3": "^5.4.0",
         "@types/hapi__boom": "^7.4.0",
         "@types/hapi__sntp": "^3.1.0",
         "@types/ip": "^1.1.0",
