@@ -36,6 +36,10 @@ BEGIN
     RETURN TRUE;
   END IF;
 
+  IF nonce_arg IS NULL THEN
+    RAISE 'Invalid transaction: version=%s, but nonce is NULL (id="%s")', version_arg, id_arg;
+  END IF;
+
   error_message_prefix := 'Invalid transaction (id="' || id_arg || '", sender_public_key="' ||
     sender_public_key_arg || '", nonce=' || nonce_arg || ')';
 
