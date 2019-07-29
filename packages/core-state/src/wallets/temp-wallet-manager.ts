@@ -14,27 +14,15 @@ export class TempWalletManager extends WalletManager {
     }
 
     public findByAddress(address: string): State.IWallet {
-        if (!this.byAddress[address]) {
-            this.byAddress[address] = cloneDeep(this.walletManager.findByAddress(address));
-        }
-
-        return this.byAddress[address];
+        return this.findClone(State.WalletIndexes.Addresses, address);
     }
 
     public findByPublicKey(publicKey: string): State.IWallet {
-        if (!this.byPublicKey[publicKey]) {
-            this.byPublicKey[publicKey] = cloneDeep(this.walletManager.findByPublicKey(publicKey));
-        }
-
-        return this.byPublicKey[publicKey];
+        return this.findClone(State.WalletIndexes.PublicKeys, publicKey);
     }
 
     public findByUsername(username: string): State.IWallet {
-        if (!this.byUsername[username]) {
-            this.byUsername[username] = cloneDeep(this.walletManager.findByUsername(username));
-        }
-
-        return this.byUsername[username];
+        return this.findClone(State.WalletIndexes.Usernames, username);
     }
 
     public hasByAddress(address: string): boolean {
@@ -47,5 +35,15 @@ export class TempWalletManager extends WalletManager {
 
     public hasByUsername(username: string): boolean {
         return this.walletManager.hasByUsername(username);
+    }
+
+    private findClone(indexName: string, key: string): State.IWallet {
+        const index: State.IWalletIndex = this.getIndex(indexName);
+        if (!index.has(key)) {
+            const parentIndex: State.IWalletIndex = this.walletManager.getIndex(indexName);
+            index.set(key, cloneDeep(parentIndex.get(key)));
+        }
+
+        return index.get(key);
     }
 }

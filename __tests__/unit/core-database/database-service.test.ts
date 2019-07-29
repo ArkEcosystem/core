@@ -289,7 +289,7 @@ describe("Database Service", () => {
             // Necessary for revertRound to not blow up.
             // @ts-ignore
             walletManager.allByUsername = jest.fn(() => {
-                const usernames = Object.values((walletManager as any).byUsername);
+                const usernames = walletManager.getIndex(State.WalletIndexes.Usernames).all() as any;
                 usernames.push(sender);
                 return usernames;
             });
