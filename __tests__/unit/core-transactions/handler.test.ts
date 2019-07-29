@@ -1008,7 +1008,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
         lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
         lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-        walletManager.setByLockId(lockTransaction.id, lockWallet);
+        walletManager.reindex(lockWallet);
 
         transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
             .withPassphrase(claimPassphrase)
@@ -1024,7 +1024,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
         });
 
         it("should throw if no wallet has a lock with associated transaction id", () => {
-            walletManager.forgetByLockId(lockTransaction.id);
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
             expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
                 HtlcLockTransactionNotFoundError,
@@ -1068,7 +1068,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
             lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
             lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-            walletManager.setByLockId(lockTransaction.id, lockWallet);
+            walletManager.reindex(lockWallet);
 
             transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                 .withPassphrase(claimPassphrase)
@@ -1126,7 +1126,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
             lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
             lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-            walletManager.setByLockId(lockTransaction.id, lockWallet);
+            walletManager.reindex(lockWallet);
 
             transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                 .withPassphrase(claimPassphrase)
@@ -1155,7 +1155,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
         });
 
         it("should throw if no wallet has a lock with associated transaction id", () => {
-            walletManager.forgetByLockId(lockTransaction.id);
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
             expect(
                 handler.canEnterTransactionPool(
@@ -1226,7 +1226,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
             await handler.revert(instance, walletManager);
 
-            lockWallet = walletManager.findByLockId(lockTransaction.id);
+            lockWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockTransaction.id);
             expect(lockWallet).toBeDefined();
             expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toEqual(lockTransaction);
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
@@ -1280,7 +1280,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
         lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
         lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-        walletManager.setByLockId(lockTransaction.id, lockWallet);
+        walletManager.reindex(lockWallet);
 
         transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
             .withPassphrase(lockPassphrase)
@@ -1296,7 +1296,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
         });
 
         it("should throw if no wallet has a lock with associated transaction id", () => {
-            walletManager.forgetByLockId(lockTransaction.id);
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
             expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
                 HtlcLockTransactionNotFoundError,
@@ -1324,7 +1324,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
             lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-            walletManager.setByLockId(lockTransaction.id, lockWallet);
+            walletManager.reindex(lockWallet);
 
             transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
                 .withPassphrase(lockPassphrase)
@@ -1379,7 +1379,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
             lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-            walletManager.setByLockId(lockTransaction.id, lockWallet);
+            walletManager.reindex(lockWallet);
 
             transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
                 .withPassphrase(lockPassphrase)
@@ -1408,7 +1408,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
         });
 
         it("should throw if no wallet has a lock with associated transaction id", () => {
-            walletManager.forgetByLockId(lockTransaction.id);
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
             expect(
                 handler.canEnterTransactionPool(
@@ -1480,7 +1480,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             await handler.revert(instance, walletManager);
 
-            lockWallet = walletManager.findByLockId(lockTransaction.id);
+            lockWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockTransaction.id);
             expect(lockWallet).toBeDefined();
             expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toEqual(lockTransaction);
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);

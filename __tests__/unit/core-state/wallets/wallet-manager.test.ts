@@ -112,7 +112,7 @@ describe("Wallet Manager", () => {
                 expect(block2.transactions.length).toBe(3);
 
                 try {
-                    walletManager.applyBlock(block2);
+                    await walletManager.applyBlock(block2);
 
                     expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
@@ -133,7 +133,7 @@ describe("Wallet Manager", () => {
                 });
 
                 try {
-                    walletManager.applyBlock(block2);
+                    await walletManager.applyBlock(block2);
 
                     expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
