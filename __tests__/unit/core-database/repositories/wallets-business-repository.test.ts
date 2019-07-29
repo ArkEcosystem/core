@@ -201,9 +201,9 @@ describe("Wallet Repository", () => {
             for (let i = 0; i < wallets.length; i++) {
                 const wallet = wallets[i];
                 if (i < 13) {
-                    wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(53));
+                    wallet.balance = Utils.BigNumber.make(53);
                 } else if (i < 36) {
-                    wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(99));
+                    wallet.balance = Utils.BigNumber.make(99);
                 }
             }
             walletManager.index(wallets);
