@@ -28,7 +28,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const lockId = transaction.asset.claim.lockTransactionId;
-            const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
+            const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
             const claimWallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const locks = lockWallet.getAttribute("htlc.locks");
             claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount).minus(transaction.fee);
@@ -96,7 +96,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         // Specific HTLC claim checks
         const claimAsset = transaction.data.asset.claim;
         const lockId = claimAsset.lockTransactionId;
-        const lockWallet = databaseWalletManager.findByLockId(lockId);
+        const lockWallet = databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
@@ -131,7 +131,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         processor: TransactionPool.IProcessor,
     ): boolean {
         const lockId = data.asset.claim.lockTransactionId;
-        const lockWallet: State.IWallet = pool.walletManager.findByLockId(lockId);
+        const lockWallet: State.IWallet = pool.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             processor.pushError(
                 data,
@@ -163,7 +163,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lockId = data.asset.claim.lockTransactionId;
-        const lockWallet: State.IWallet = walletManager.findByLockId(lockId);
+        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
         const locks = lockWallet.getAttribute("htlc.locks");

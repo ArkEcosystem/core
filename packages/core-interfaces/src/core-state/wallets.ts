@@ -8,6 +8,7 @@ export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
     Usernames = "usernames",
+    Locks = "locks",
 }
 
 export interface IWallet {
@@ -74,8 +75,6 @@ export interface IWalletManager {
     allByPublicKey(): ReadonlyArray<IWallet>;
 
     allByUsername(): ReadonlyArray<IWallet>;
-
-    allByLockId(): IWallet[];
 
     findById(id: string): IWallet;
 

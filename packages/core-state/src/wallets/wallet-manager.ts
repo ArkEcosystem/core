@@ -34,6 +34,15 @@ export class WalletManager implements State.IWalletManager {
                 index.set(wallet.getAttribute("delegate.username"), wallet);
             }
         });
+
+        this.registerIndex(State.WalletIndexes.Locks, (index: State.IWalletIndex, wallet: State.IWallet) => {
+            const locks = wallet.getAttribute("htlc.locks");
+            if (locks) {
+                for (const lockId of Object.keys(locks)) {
+                    index.set(lockId, wallet);
+                }
+            }
+        });
     }
 
     public registerIndex(name: string, indexer: State.WalletIndexer): void {
@@ -70,10 +79,6 @@ export class WalletManager implements State.IWalletManager {
 
     public allByUsername(): ReadonlyArray<State.IWallet> {
         return this.getIndex(State.WalletIndexes.Usernames).all();
-    }
-
-    public allByLockId(): State.IWallet[] {
-        return Object.values(this.byLockId);
     }
 
     public findById(id: string): State.IWallet {
@@ -142,10 +147,6 @@ export class WalletManager implements State.IWalletManager {
         return this.getIndex(indexName).has(key);
     }
 
-    public hasByLockId(lockId: string): boolean {
-        return !!this.byLockId[lockId];
-    }
-
     public getNonce(publicKey: string): Utils.BigNumber {
         if (this.hasByPublicKey(publicKey)) {
             return this.findByPublicKey(publicKey).nonce;
@@ -179,13 +180,6 @@ export class WalletManager implements State.IWalletManager {
     public reindex(wallet: State.IWallet): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.index(wallet);
-        }
-
-        const locks = wallet.getAttribute("htlc.locks");
-        if (locks) {
-            for (const lockId of Object.keys(locks)) {
-                this.byLockId[lockId] = wallet;
-            }
         }
     }
 
@@ -221,7 +215,7 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public applyBlock(block: Interfaces.IBlock): void {
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
         let delegate: State.IWallet;
@@ -316,7 +310,7 @@ export class WalletManager implements State.IWalletManager {
         let lockTransaction: Interfaces.ITransactionData;
         if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
-            lockWallet = this.findByLockId(lockId);
+            lockWallet = this.findByIndex(State.WalletIndexes.Locks, lockId);
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
@@ -341,7 +335,7 @@ export class WalletManager implements State.IWalletManager {
         let lockTransaction: Interfaces.ITransactionData;
         if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
-            lockWallet = this.findByLockId(lockId);
+            lockWallet = this.findByIndex(State.WalletIndexes.Locks, lockId);
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
