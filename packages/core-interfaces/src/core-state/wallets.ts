@@ -23,7 +23,6 @@ export interface IWallet {
     hasVoted(): boolean;
     hasSecondSignature(): boolean;
     hasMultiSignature(): boolean;
-    hasLocks(): boolean;
 
     canBePurged(): boolean;
 

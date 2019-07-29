@@ -157,8 +157,8 @@ export class WalletManager implements State.IWalletManager {
             this.byUsername[wallet.getAttribute<string>("delegate.username")] = wallet;
         }
 
-        if (wallet.hasLocks()) {
-            const locks = wallet.getAttribute("htlc.locks");
+        const locks = wallet.getAttribute("htlc.locks");
+        if (locks) {
             for (const lockId of Object.keys(locks)) {
                 this.byLockId[lockId] = wallet;
             }

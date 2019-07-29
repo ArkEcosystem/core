@@ -51,10 +51,6 @@ export class Wallet implements State.IWallet {
         return !!this.getAttribute("multiSignature");
     }
 
-    public hasLocks(): boolean {
-        return Object.keys(this.getAttribute("htlc.locks", {})).length > 0;
-    }
-
     public canBePurged(): boolean {
         const hasAttributes = Object.keys(this.attributes).length > 0;
         const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
