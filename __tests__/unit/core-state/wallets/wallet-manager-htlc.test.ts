@@ -77,10 +77,10 @@ describe("Wallet Manager", () => {
                 // lock wallet will vote for a delegate and we will check vote balance
                 const delegateKeys = Identities.Keys.fromPassphrase("delegate");
                 const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-                delegate.username = "unittest";
+                delegate.setAttribute("username", "unittest");
                 delegate.balance = initialDelegateWalletBalance;
-                delegate.vote = delegate.publicKey;
-                delegate.voteBalance = delegate.balance;
+                delegate.setAttribute("vote", delegate.publicKey);
+                delegate.setAttribute("delegate.voteBalance", delegate.balance);
                 walletManager.reindex(delegate);
 
                 const voteTransaction = Transactions.BuilderFactory.vote()
@@ -91,20 +91,26 @@ describe("Wallet Manager", () => {
                     .build();
 
                 expect(lockWallet.balance).toEqual(initialLockWalletBalance);
-                expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                    Utils.BigNumber.ZERO,
+                );
                 expect(claimWallet.balance).toEqual(Utils.BigNumber.ZERO);
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance);
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 // apply vote
                 walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeLockTx = () => {
                     expect(lockWallet.balance).toEqual(initialLockWalletBalance.minus(voteTransaction.data.fee));
-                    expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                    expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                        Utils.BigNumber.ZERO,
+                    );
                     expect(claimWallet.balance).toEqual(Utils.BigNumber.ZERO);
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(lockWallet.balance));
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance.plus(lockWallet.balance),
+                    );
                 };
                 expectBeforeLockTx();
 
@@ -117,11 +123,15 @@ describe("Wallet Manager", () => {
                             .minus(amount)
                             .minus(lockTransaction.data.fee),
                     );
-                    expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.make(amount));
+                    expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                        Utils.BigNumber.make(amount),
+                    );
                     expect(claimWallet.balance).toEqual(Utils.BigNumber.ZERO);
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(
-                        initialDelegateWalletBalance.plus(lockWallet.balance).plus(lockWallet.lockedBalance),
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance
+                            .plus(lockWallet.balance)
+                            .plus(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)),
                     );
                 };
                 expectAfterLockTx();
@@ -134,11 +144,15 @@ describe("Wallet Manager", () => {
                         .minus(amount)
                         .minus(lockTransaction.data.fee),
                 );
-                expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                    Utils.BigNumber.ZERO,
+                );
                 expect(claimWallet.balance).toEqual(Utils.BigNumber.make(amount).minus(claimTransaction.data.fee));
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(
-                    initialDelegateWalletBalance.plus(lockWallet.balance).plus(lockWallet.lockedBalance),
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                    initialDelegateWalletBalance
+                        .plus(lockWallet.balance)
+                        .plus(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)),
                 );
 
                 // mock findById to return lock transaction if correct id provided
@@ -189,10 +203,10 @@ describe("Wallet Manager", () => {
                 // claim wallet will vote for a delegate and we will check vote balance
                 const delegateKeys = Identities.Keys.fromPassphrase("delegate");
                 const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-                delegate.username = "unittest";
+                delegate.setAttribute("username", "unittest");
                 delegate.balance = initialDelegateWalletBalance;
-                delegate.vote = delegate.publicKey;
-                delegate.voteBalance = delegate.balance;
+                delegate.setAttribute("vote", delegate.publicKey);
+                delegate.setAttribute("delegate.voteBalance", delegate.balance);
                 walletManager.reindex(delegate);
 
                 const voteTransaction = Transactions.BuilderFactory.vote()
@@ -203,19 +217,23 @@ describe("Wallet Manager", () => {
                     .build();
 
                 expect(lockWallet.balance).toEqual(initialLockWalletBalance);
-                expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
                 expect(claimWallet.balance).toEqual(initialClaimWalletBalance);
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance);
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeLockTx = () => {
                     expect(lockWallet.balance).toEqual(initialLockWalletBalance);
-                    expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                    expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                        Utils.BigNumber.ZERO,
+                    );
                     expect(claimWallet.balance).toEqual(initialClaimWalletBalance.minus(voteTransaction.data.fee));
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(claimWallet.balance));
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance.plus(claimWallet.balance),
+                    );
                 };
                 expectBeforeLockTx();
 
@@ -225,10 +243,14 @@ describe("Wallet Manager", () => {
                     expect(lockWallet.balance).toEqual(
                         initialLockWalletBalance.minus(amount).minus(lockTransaction.data.fee),
                     );
-                    expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.make(amount));
+                    expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                        Utils.BigNumber.make(amount),
+                    );
                     expect(claimWallet.balance).toEqual(initialClaimWalletBalance.minus(voteTransaction.data.fee));
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(claimWallet.balance));
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance.plus(claimWallet.balance),
+                    );
                 };
                 expectAfterLockTx();
 
@@ -237,7 +259,9 @@ describe("Wallet Manager", () => {
                 expect(lockWallet.balance).toEqual(
                     initialLockWalletBalance.minus(amount).minus(lockTransaction.data.fee),
                 );
-                expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                    Utils.BigNumber.ZERO,
+                );
                 expect(claimWallet.balance).toEqual(
                     initialClaimWalletBalance
                         .minus(voteTransaction.data.fee)
@@ -245,7 +269,9 @@ describe("Wallet Manager", () => {
                         .minus(claimTransaction.data.fee),
                 );
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(claimWallet.balance));
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                    initialDelegateWalletBalance.plus(claimWallet.balance),
+                );
 
                 // mock findById to return lock transaction if correct id provided
                 database.transactionsBusinessRepository.findById = id =>
@@ -320,10 +346,10 @@ describe("Wallet Manager", () => {
                 // lock wallet will vote for a delegate and we will check vote balance
                 const delegateKeys = Identities.Keys.fromPassphrase("delegate");
                 const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-                delegate.username = "unittest";
+                delegate.setAttribute("username", "unittest");
                 delegate.balance = initialDelegateWalletBalance;
-                delegate.vote = delegate.publicKey;
-                delegate.voteBalance = delegate.balance;
+                delegate.setAttribute("vote", delegate.publicKey);
+                delegate.setAttribute("delegate.voteBalance", delegate.balance);
                 walletManager.reindex(delegate);
 
                 const voteTransaction = Transactions.BuilderFactory.vote()
@@ -334,17 +360,23 @@ describe("Wallet Manager", () => {
                     .build();
 
                 expect(lockWallet.balance).toEqual(initialLockWalletBalance);
-                expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                    Utils.BigNumber.ZERO,
+                );
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance);
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeLockTx = () => {
                     expect(lockWallet.balance).toEqual(initialLockWalletBalance.minus(voteTransaction.data.fee));
-                    expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                    expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                        Utils.BigNumber.ZERO,
+                    );
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(lockWallet.balance));
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance.plus(lockWallet.balance),
+                    );
                 };
                 expectBeforeLockTx();
 
@@ -357,10 +389,14 @@ describe("Wallet Manager", () => {
                             .minus(amount)
                             .minus(lockTransaction.data.fee),
                     );
-                    expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.make(amount));
+                    expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                        Utils.BigNumber.make(amount),
+                    );
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(
-                        initialDelegateWalletBalance.plus(lockWallet.balance).plus(lockWallet.lockedBalance),
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance
+                            .plus(lockWallet.balance)
+                            .plus(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)),
                     );
                 };
                 expectAfterLockTx();
@@ -373,10 +409,14 @@ describe("Wallet Manager", () => {
                         .minus(lockTransaction.data.fee)
                         .minus(refundTransaction.data.fee),
                 );
-                expect(lockWallet.lockedBalance).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
+                    Utils.BigNumber.ZERO,
+                );
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(
-                    initialDelegateWalletBalance.plus(lockWallet.balance).plus(lockWallet.lockedBalance),
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                    initialDelegateWalletBalance
+                        .plus(lockWallet.balance)
+                        .plus(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)),
                 );
 
                 // mock findById to return lock transaction if correct id provided
