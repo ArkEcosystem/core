@@ -55,7 +55,7 @@ describe("Database Service", () => {
 
     describe("applyBlock", () => {
         it("should applyBlock", async () => {
-            jest.spyOn(walletManager, "applyBlock").mockImplementation(block => block);
+            jest.spyOn(walletManager, "applyBlock").mockImplementation(block => new Promise(jest.fn()));
             jest.spyOn(emitter, "emit");
 
             databaseService = createService();
@@ -196,9 +196,8 @@ describe("Database Service", () => {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
                     wallet.setAttribute("delegate", {
                         voteBalance: Utils.BigNumber.ONE,
-                        username: Transactions.TransactionFactory.fromBytes(
-                            transaction.serialized,
-                        ).data.asset.delegate.username,
+                        username: Transactions.TransactionFactory.fromBytes(transaction.serialized).data.asset.delegate
+                            .username,
                     });
                     wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
@@ -220,7 +219,7 @@ describe("Database Service", () => {
             // Prepare sender wallet
             const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
             const originalApply = transactionHandler.throwIfCannotBeApplied;
-            transactionHandler.throwIfCannotBeApplied = jest.fn(() => { });
+            transactionHandler.throwIfCannotBeApplied = jest.fn();
 
             const sender = new Wallet(keys.address);
             sender.publicKey = keys.publicKey;
@@ -241,7 +240,11 @@ describe("Database Service", () => {
                 const voterKeys = Identities.Keys.fromPassphrase(`voter-${i}`);
 
                 const transfer = Transactions.BuilderFactory.transfer()
-                    .amount(Utils.BigNumber.make(i + 1).times(SATOSHI).toFixed())
+                    .amount(
+                        Utils.BigNumber.make(i + 1)
+                            .times(SATOSHI)
+                            .toFixed(),
+                    )
                     .nonce(sender.nonce.plus(1).toFixed())
                     .recipientId(Identities.Address.fromPublicKey(voterKeys.publicKey))
                     .sign(keys.passphrase)
@@ -295,7 +298,9 @@ describe("Database Service", () => {
             });
 
             // Finally recalculate the round 2 list and compare against the original list
-            const restoredDelegatesRound2: State.IWallet[] = await (databaseService as any).calcPreviousActiveDelegates(roundInfo2);
+            const restoredDelegatesRound2: State.IWallet[] = await (databaseService as any).calcPreviousActiveDelegates(
+                roundInfo2,
+            );
 
             for (let i = 0; i < restoredDelegatesRound2.length; i++) {
                 expect(restoredDelegatesRound2[i].getAttribute<number>("delegate.rank")).toBe(i + 1);
