@@ -7,10 +7,13 @@ import { Transaction } from "./transaction";
 
 export class HtlcLockTransaction extends Transaction {
     public static type: TransactionTypes = TransactionTypes.HtlcLock;
+    public static key: string = "htlcLock";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcLock;
     }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
