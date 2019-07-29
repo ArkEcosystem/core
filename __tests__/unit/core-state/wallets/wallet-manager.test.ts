@@ -64,7 +64,12 @@ describe("Wallet Manager", () => {
         }
 
         beforeEach(() => {
-            delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey, isDelegate: () => false };
+            delegateMock = {
+                applyBlock: jest.fn(),
+                publicKey: delegatePublicKey,
+                isDelegate: () => false,
+                getAttribute: jest.fn(),
+            };
             // @ts-ignore
             jest.spyOn(walletManager, "findByPublicKey").mockReturnValue(delegateMock);
             jest.spyOn(walletManager, "applyTransaction").mockImplementation();
@@ -292,7 +297,7 @@ describe("Wallet Manager", () => {
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
                 Utils.BigNumber.make(100_000_000).plus(voter.balance),
             );
-            walletManager.revertTransaction(voteTransaction);
+            await walletManager.revertTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
