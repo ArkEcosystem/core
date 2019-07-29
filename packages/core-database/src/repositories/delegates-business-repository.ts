@@ -30,7 +30,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         this.applyOrder(params);
 
         // Execute...
-        let delegates: State.IWallet[] = this.databaseServiceProvider().walletManager.allByUsername();
+        let delegates: ReadonlyArray<State.IWallet> = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,
