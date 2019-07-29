@@ -1,7 +1,8 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
-import { Base58, BigNumber } from "../../utils";
+import { Base58 } from "../../utils/base58";
+import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 

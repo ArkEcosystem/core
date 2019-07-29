@@ -9,7 +9,6 @@ import {
     MultiPaymentTransaction,
     MultiSignatureRegistrationTransaction,
     SecondSignatureRegistrationTransaction,
-    TimelockTransferTransaction,
     TransactionFactory,
     TransferTransaction,
     VoteTransaction,
@@ -158,7 +157,6 @@ describe("Transaction", () => {
                 BigNumber.make(staticFees.multiSignature),
             );
             expect(IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
-            expect(TimelockTransferTransaction.staticFee()).toEqual(BigNumber.make(staticFees.timelockTransfer));
             expect(MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
             expect(DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
 
@@ -177,7 +175,6 @@ describe("Transaction", () => {
                 BigNumber.make(staticFees.multiSignature),
             );
             expect(IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
-            expect(TimelockTransferTransaction.staticFee()).toEqual(BigNumber.make(staticFees.timelockTransfer));
             expect(MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
             expect(DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
 

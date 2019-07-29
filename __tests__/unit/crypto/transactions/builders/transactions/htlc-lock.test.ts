@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { HtlcLockBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-lock";
 import { HtlcLockExpirationType } from "../../../../../../packages/crypto/src/transactions/types/enums";
+import { HtlcLockTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-lock";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
 const { UnixTimestamp } = HtlcLockExpirationType;
@@ -20,7 +20,7 @@ describe("Htlc lock Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.HtlcLock);
-        expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.HtlcLock));
+        expect(builder).toHaveProperty("data.fee", HtlcLockTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset", {});
     });
 

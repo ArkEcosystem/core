@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { HtlcClaimBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-claim";
+import { HtlcClaimTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-claim";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
@@ -18,7 +18,7 @@ describe("Htlc claim Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionTypes.HtlcClaim);
-        expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.HtlcClaim));
+        expect(builder).toHaveProperty("data.fee", HtlcClaimTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", BigNumber.make(0));
         expect(builder).toHaveProperty("data.asset", {});
     });
