@@ -48,10 +48,10 @@ describe("Wallet Manager", () => {
                 // sender wallet will vote for a delegate and we will check vote balance
                 const delegateKeys = Identities.Keys.fromPassphrase("delegate");
                 const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-                delegate.username = "unittest";
+                delegate.setAttribute("delegate.username", "unittest");
                 delegate.balance = initialDelegateWalletBalance;
-                delegate.vote = delegate.publicKey;
-                delegate.voteBalance = delegate.balance;
+                delegate.setAttribute("vote", delegate.publicKey);
+                delegate.setAttribute("delegate.voteBalance", delegate.balance);
                 walletManager.reindex(delegate);
 
                 const voteTransaction = Transactions.BuilderFactory.vote()
@@ -63,7 +63,7 @@ describe("Wallet Manager", () => {
                 expect(senderWallet.balance).toEqual(initialSenderWalletBalance);
                 recipientsWallets.map(w => expect(w.balance).toEqual(Utils.BigNumber.ZERO));
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance);
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 // apply vote
                 walletManager.applyTransaction(voteTransaction);
@@ -72,7 +72,9 @@ describe("Wallet Manager", () => {
                     expect(senderWallet.balance).toEqual(initialSenderWalletBalance.minus(voteTransaction.data.fee));
                     recipientsWallets.map(w => expect(w.balance).toEqual(Utils.BigNumber.ZERO));
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(senderWallet.balance));
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                        initialDelegateWalletBalance.plus(senderWallet.balance),
+                    );
                 };
                 expectBeforeMultiPayment();
 
@@ -96,7 +98,9 @@ describe("Wallet Manager", () => {
                 );
                 recipientsWallets.map(w => expect(w.balance).toEqual(Utils.BigNumber.make(multiPaymentAmount)));
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance.plus(senderWallet.balance));
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
+                    initialDelegateWalletBalance.plus(senderWallet.balance),
+                );
 
                 walletManager.revertTransaction(multipaymentTransaction);
                 expectBeforeMultiPayment();
@@ -106,10 +110,10 @@ describe("Wallet Manager", () => {
                 // recipients wallets will vote for a delegate and we will check vote balance
                 const delegateKeys = Identities.Keys.fromPassphrase("delegate");
                 const delegate = walletManager.findByPublicKey(delegateKeys.publicKey);
-                delegate.username = "unittest";
+                delegate.setAttribute("delegate.username", "unittest");
                 delegate.balance = initialDelegateWalletBalance;
-                delegate.vote = delegate.publicKey;
-                delegate.voteBalance = delegate.balance;
+                delegate.setAttribute("vote", delegate.publicKey);
+                delegate.setAttribute("delegate.voteBalance", delegate.balance);
                 walletManager.reindex(delegate);
 
                 const initialRecipientsBalance = Utils.BigNumber.make(123 * 1e8);
@@ -118,7 +122,7 @@ describe("Wallet Manager", () => {
                 expect(senderWallet.balance).toEqual(initialSenderWalletBalance);
                 recipientsWallets.map(w => expect(w.balance).toEqual(initialRecipientsBalance));
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(initialDelegateWalletBalance);
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 // apply vote
                 const voteTransactionFee = "125";
@@ -137,7 +141,7 @@ describe("Wallet Manager", () => {
                         expect(w.balance).toEqual(initialRecipientsBalance.minus(voteTransactionFee)),
                     );
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                    expect(delegate.voteBalance).toEqual(
+                    expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
                         initialDelegateWalletBalance.plus(
                             recipientsWallets.reduce((prev, curr) => prev.plus(curr.balance), Utils.BigNumber.ZERO),
                         ),
@@ -168,7 +172,7 @@ describe("Wallet Manager", () => {
                     ),
                 );
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
-                expect(delegate.voteBalance).toEqual(
+                expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
                     initialDelegateWalletBalance.plus(
                         recipientsWallets.reduce((prev, curr) => prev.plus(curr.balance), Utils.BigNumber.ZERO),
                     ),
