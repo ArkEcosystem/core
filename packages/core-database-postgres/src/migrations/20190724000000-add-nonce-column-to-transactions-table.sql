@@ -37,14 +37,14 @@ BEGIN
   END IF;
 
   IF nonce_arg IS NULL THEN
-    RAISE 'Invalid transaction: version=%s, but nonce is NULL (id="%s")', version_arg, id_arg;
+    RAISE 'Invalid transaction: version=%, but nonce is NULL (id="%")', version_arg, id_arg;
   END IF;
 
   error_message_prefix := 'Invalid transaction (id="' || id_arg || '", sender_public_key="' ||
     sender_public_key_arg || '", nonce=' || nonce_arg || ')';
 
   IF nonce_arg < 0 THEN
-    RAISE '%s: negative nonce', error_message_prefix;
+    RAISE '%: negative nonce', error_message_prefix;
   END IF;
 
   -- First transaction from this sender.
@@ -67,17 +67,17 @@ BEGIN
   ${schema~}.transactions.block_id = ${schema~}.blocks.id;
 
   IF NOT FOUND THEN
-    RAISE '%s: the previous transaction from the same sender (nonce=%s) does not exist',
+    RAISE '%: the previous transaction from the same sender (nonce=%) does not exist',
     error_message_prefix, nonce_arg - 1;
   END IF;
 
   IF previous_tx_block_height > current_tx_block_height THEN
-    RAISE '%s: the previous transaction from the same sender (nonce=%s) is in a higher block (%s > %s)',
+    RAISE '%: the previous transaction from the same sender (nonce=%) is in a higher block (% > %)',
     error_message_prefix, nonce_arg - 1, previous_tx_block_height, current_tx_block_height;
   END IF;
 
   IF previous_tx_block_height = current_tx_block_height AND previous_tx_sequence >= sequence_arg THEN
-    RAISE '%s: the previous transaction from the same sender (nonce=%s) is in the same block (height=%s) but with a bigger sequence (%s >= %s)',
+    RAISE '%: the previous transaction from the same sender (nonce=%) is in the same block (height=%) but with a bigger sequence (% >= %)',
     error_message_prefix, nonce_arg - 1, previous_tx_block_height, previous_tx_sequence, sequence_arg;
   END IF;
 
