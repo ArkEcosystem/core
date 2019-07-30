@@ -82,11 +82,13 @@ export class Transaction extends Model {
         },
         {
             name: "nonce",
+            init: col => col.value !== undefined ? Utils.BigNumber.make(col.value).toFixed() : undefined,
             supportedOperators: [
                 Database.SearchOperator.OP_LTE,
                 Database.SearchOperator.OP_GTE,
                 Database.SearchOperator.OP_EQ,
             ],
+            def: undefined,
         },
     ];
 
