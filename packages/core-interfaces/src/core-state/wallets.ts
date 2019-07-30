@@ -101,15 +101,15 @@ export interface IWalletManager {
 
     buildVoteBalances(): void;
 
-    applyBlock(block: Interfaces.IBlock): void;
+    applyBlock(block: Interfaces.IBlock): Promise<void>;
 
     buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IWallet[];
 
-    revertBlock(block: Interfaces.IBlock): void;
+    revertBlock(block: Interfaces.IBlock): Promise<void>;
 
     applyTransaction(transaction: Interfaces.ITransaction): void;
 
-    revertTransaction(transaction: Interfaces.ITransaction): void;
+    revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
     canBePurged(wallet: IWallet): boolean;
 
