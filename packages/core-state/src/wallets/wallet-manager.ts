@@ -205,7 +205,7 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public applyBlock(block: Interfaces.IBlock): void {
+    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
         let delegate: State.IWallet;
@@ -248,14 +248,14 @@ export class WalletManager implements State.IWalletManager {
 
             // Revert the applied transactions from last to first
             for (const transaction of appliedTransactions.reverse()) {
-                this.revertTransaction(transaction);
+                await this.revertTransaction(transaction);
             }
 
             throw error;
         }
     }
 
-    public revertBlock(block: Interfaces.IBlock): void {
+    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         if (!this.has(block.data.generatorPublicKey)) {
             app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
@@ -304,7 +304,7 @@ export class WalletManager implements State.IWalletManager {
         this.updateVoteBalances(sender, recipient, transaction.data);
     }
 
-    public revertTransaction(transaction: Interfaces.ITransaction): void {
+    public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
@@ -387,12 +387,18 @@ export class WalletManager implements State.IWalletManager {
         transaction: Interfaces.ITransactionData,
         revert: boolean = false,
     ): void {
-        // TODO: multipayment?
         if (transaction.type !== Enums.TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.hasVoted()) {
                 const delegate: State.IWallet = this.findByPublicKey(sender.getAttribute("vote"));
-                const total: Utils.BigNumber = transaction.amount.plus(transaction.fee);
+                const amount =
+                    transaction.type === Enums.TransactionTypes.MultiPayment
+                        ? transaction.asset.payments.reduce(
+                              (prev, curr) => prev.plus(curr.amount),
+                              Utils.BigNumber.ZERO,
+                          )
+                        : transaction.amount;
+                const total: Utils.BigNumber = amount.plus(transaction.fee);
 
                 const voteBalance: Utils.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",
@@ -402,6 +408,25 @@ export class WalletManager implements State.IWalletManager {
                     "delegate.voteBalance",
                     revert ? voteBalance.plus(total) : voteBalance.minus(total),
                 );
+            }
+
+            if (transaction.type === Enums.TransactionTypes.MultiPayment) {
+                // go through all payments and update recipients delegates vote balance
+                for (const { recipientId, amount } of transaction.asset.payments) {
+                    const recipientWallet: State.IWallet = this.findByAddress(recipientId);
+                    const vote = recipientWallet.getAttribute("vote");
+                    if (vote) {
+                        const delegate: State.IWallet = this.findByPublicKey(vote);
+                        const voteBalance: Utils.BigNumber = delegate.getAttribute(
+                            "delegate.voteBalance",
+                            Utils.BigNumber.ZERO,
+                        );
+                        delegate.setAttribute(
+                            "delegate.voteBalance",
+                            revert ? voteBalance.minus(amount) : voteBalance.plus(amount),
+                        );
+                    }
+                }
             }
 
             // Update vote balance of recipient's delegate
