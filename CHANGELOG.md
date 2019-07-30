@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Add content-type header for all requests ([#2840])
 -   Return data directly if cache is disabled in `core-api` ([#2831])
 -   Internal server error caused by invalid orderBy field in `core-api` ([#2847])
+-   Peer discovery limit ([#2850])
 
 ### Changed
 
@@ -935,4 +936,4 @@ Closed security vulnerabilities:
 [#2837]: https://github.com/ARKEcosystem/core/pull/2837
 [#2823]: https://github.com/ARKEcosystem/core/pull/2823
 [#2848]: https://github.com/ARKEcosystem/core/pull/2848
-[#2810]: https://github.com/ARKEcosystem/core/pull/2810
+[#2850]: https://github.com/ARKEcosystem/core/pull/2850
