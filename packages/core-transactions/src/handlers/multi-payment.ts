@@ -58,7 +58,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             (a, p) => a.plus(p.amount),
             Utils.BigNumber.ZERO,
         );
-        const sender: State.IWallet = walletManager.findByAddress(transaction.data.senderPublicKey);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.minus(totalPaymentsAmount);
     }
 

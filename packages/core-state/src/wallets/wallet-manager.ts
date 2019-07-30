@@ -415,12 +415,18 @@ export class WalletManager implements State.IWalletManager {
         lockTransaction: Interfaces.ITransactionData,
         revert: boolean = false,
     ): void {
-        // TODO: multipayment?
         if (transaction.type !== Enums.TransactionTypes.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.hasVoted()) {
                 const delegate: State.IWallet = this.findByPublicKey(sender.getAttribute("vote"));
-                const total: Utils.BigNumber = transaction.amount.plus(transaction.fee);
+                const amount =
+                    transaction.type === Enums.TransactionTypes.MultiPayment
+                        ? transaction.asset.payments.reduce(
+                              (prev, curr) => prev.plus(curr.amount),
+                              Utils.BigNumber.ZERO,
+                          )
+                        : transaction.amount;
+                const total: Utils.BigNumber = amount.plus(transaction.fee);
 
                 const voteBalance: Utils.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",
@@ -456,6 +462,25 @@ export class WalletManager implements State.IWalletManager {
                         ? lockWalletDelegateVoteBalance.plus(lockTransaction.amount)
                         : lockWalletDelegateVoteBalance.minus(lockTransaction.amount),
                 );
+            }
+
+            if (transaction.type === Enums.TransactionTypes.MultiPayment) {
+                // go through all payments and update recipients delegates vote balance
+                for (const { recipientId, amount } of transaction.asset.payments) {
+                    const recipientWallet: State.IWallet = this.findByAddress(recipientId);
+                    const vote = recipientWallet.getAttribute("vote");
+                    if (vote) {
+                        const delegate: State.IWallet = this.findByPublicKey(vote);
+                        const voteBalance: Utils.BigNumber = delegate.getAttribute(
+                            "delegate.voteBalance",
+                            Utils.BigNumber.ZERO,
+                        );
+                        delegate.setAttribute(
+                            "delegate.voteBalance",
+                            revert ? voteBalance.minus(amount) : voteBalance.plus(amount),
+                        );
+                    }
+                }
             }
 
             // Update vote balance of recipient's delegate

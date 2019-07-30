@@ -738,23 +738,23 @@ describe("MultiPaymentTransaction", () => {
         transaction = TransactionFactory.multiPayment([
             {
                 amount: "10",
-                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                recipientId: "ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN",
             },
             {
                 amount: "20",
-                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                recipientId: "AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD",
             },
             {
                 amount: "30",
-                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                recipientId: "AJwD3UJM7UESFnP1fsKYr4EX9Gc1EJNSqm",
             },
             {
                 amount: "40",
-                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                recipientId: "AUsi9ZcFkcwG7WMpRE121TR4HaTjnAP7qD",
             },
             {
                 amount: "50",
-                recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+                recipientId: "ARugw4i18i2pVnYZEMWKJj2mAnQQ97wuat",
             },
         ]).createOne();
 
@@ -782,6 +782,55 @@ describe("MultiPaymentTransaction", () => {
             expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
                 InsufficientBalanceError,
             );
+        });
+    });
+
+    describe("apply", () => {
+        it("should be ok", () => {
+            const senderBalance = senderWallet.balance;
+            const totalPaymentsAmount = instance.data.asset.payments.reduce(
+                (prev, curr) => prev.plus(curr.amount),
+                Utils.BigNumber.ZERO,
+            );
+
+            handler.apply(instance, walletManager);
+
+            expect(senderWallet.balance).toEqual(
+                Utils.BigNumber.make(senderBalance)
+                    .minus(totalPaymentsAmount)
+                    .minus(instance.data.fee),
+            );
+
+            for (const { recipientId, amount } of instance.data.asset.payments) {
+                const paymentRecipientWallet = walletManager.findByAddress(recipientId);
+                expect(paymentRecipientWallet.balance).toEqual(amount);
+            }
+        });
+    });
+
+    describe("revert", () => {
+        it("should be ok", async () => {
+            const senderBalance = senderWallet.balance;
+            senderWallet.nonce = Utils.BigNumber.make(1);
+
+            for (const { recipientId, amount } of instance.data.asset.payments) {
+                const paymentRecipientWallet = walletManager.findByAddress(recipientId);
+                paymentRecipientWallet.balance = amount;
+            }
+            const totalPaymentsAmount = instance.data.asset.payments.reduce(
+                (prev, curr) => prev.plus(curr.amount),
+                Utils.BigNumber.ZERO,
+            );
+
+            handler.revert(instance, walletManager);
+            expect(senderWallet.balance).toEqual(
+                Utils.BigNumber.make(senderBalance)
+                    .plus(totalPaymentsAmount)
+                    .plus(instance.data.fee),
+            );
+
+            expect(senderWallet.nonce.isZero()).toBeTrue();
+            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
         });
     });
 });
