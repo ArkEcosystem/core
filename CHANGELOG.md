@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.14] - 2019-07-30
+
+### Fixed
+
+-   Add content-type header for all requests ([#2840])
+-   Return data directly if cache is disabled in `core-api` ([#2831])
+-   Internal server error caused by invalid orderBy field in `core-api` ([#2847])
+-   Peer discovery limit ([#2850])
+
+### Changed
+
+-   Lookup delegates by key to improve performance ([#2837])
+-   Add ntp and google servers for ntpd to docker image ([#2823])
+-   Improve performance of transactions endpoint in `core-p2p` ([#2848])
+
 ## [2.5.7] - 2019-07-16
 
 ### Fixed
@@ -591,6 +606,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7...2.5.14
 [2.5.7]: https://github.com/ARKEcosystem/core/compare/2.5.1...2.5.7
 [2.5.1]: https://github.com/ARKEcosystem/core/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.5.0
@@ -914,3 +930,10 @@ Closed security vulnerabilities:
 [#2808]: https://github.com/ARKEcosystem/core/pull/2808
 [#2809]: https://github.com/ARKEcosystem/core/pull/2809
 [#2810]: https://github.com/ARKEcosystem/core/pull/2810
+[#2840]: https://github.com/ARKEcosystem/core/pull/2840
+[#2831]: https://github.com/ARKEcosystem/core/pull/2831
+[#2847]: https://github.com/ARKEcosystem/core/pull/2847
+[#2837]: https://github.com/ARKEcosystem/core/pull/2837
+[#2823]: https://github.com/ARKEcosystem/core/pull/2823
+[#2848]: https://github.com/ARKEcosystem/core/pull/2848
+[#2850]: https://github.com/ARKEcosystem/core/pull/2850

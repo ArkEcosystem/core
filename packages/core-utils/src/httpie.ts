@@ -68,6 +68,12 @@ class Httpie {
             opts = {};
         }
 
+        if (!opts.headers) {
+            opts.headers = {};
+        }
+
+        opts.headers["content-type"] = "application/json";
+
         if (opts.body && typeof opts !== "string") {
             opts.body = JSON.stringify(opts.body);
         }

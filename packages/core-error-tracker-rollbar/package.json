@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-error-tracker-rollbar",
-    "version": "2.5.7",
+    "version": "2.5.14",
     "description": "Rollbar error tracker integration for ARK Core.",
     "license": "MIT",
     "contributors": [
@@ -18,7 +18,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.7",
+        "@arkecosystem/core-container": "^2.5.14",
         "rollbar": "^2.8.1"
     },
     "engines": {
