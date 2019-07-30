@@ -67,17 +67,17 @@ BEGIN
   ${schema~}.transactions.block_id = ${schema~}.blocks.id;
 
   IF NOT FOUND THEN
-    RAISE '%: the previous transaction from the same sender (nonce=%) does not exist',
+    RAISE '%: the previous transaction from the same sender does not exist (with nonce=%)',
     error_message_prefix, nonce_arg - 1;
   END IF;
 
   IF previous_tx_block_height > current_tx_block_height THEN
-    RAISE '%: the previous transaction from the same sender (nonce=%) is in a higher block (% > %)',
+    RAISE '%: the previous transaction from the same sender (with nonce=%) is in a higher block (% > %)',
     error_message_prefix, nonce_arg - 1, previous_tx_block_height, current_tx_block_height;
   END IF;
 
   IF previous_tx_block_height = current_tx_block_height AND previous_tx_sequence >= sequence_arg THEN
-    RAISE '%: the previous transaction from the same sender (nonce=%) is in the same block (height=%) but with a bigger sequence (% >= %)',
+    RAISE '%: the previous transaction from the same sender (with nonce=%) is in the same block (height=%) but with a bigger sequence (% >= %)',
     error_message_prefix, nonce_arg - 1, previous_tx_block_height, previous_tx_sequence, sequence_arg;
   END IF;
 
