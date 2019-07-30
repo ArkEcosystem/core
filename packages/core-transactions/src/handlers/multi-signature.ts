@@ -17,17 +17,21 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            if (!wallet.hasMultiSignature()) {
-                let multiSignature: State.IWalletMultiSignatureAttributes;
-                if (transaction.version === 1) {
-                    multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
-                } else {
-                    multiSignature = transaction.asset.multiSignature;
-                }
+            let wallet: State.IWallet;
+            let multiSignature: State.IWalletMultiSignatureAttributes;
 
-                wallet.setAttribute("multiSignature", multiSignature);
+            if (transaction.version === 1) {
+                multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            } else {
+                multiSignature = transaction.asset.multiSignature;
+                wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
             }
+            if (wallet.hasMultiSignature()) {
+                throw new MultiSignatureAlreadyRegisteredError();
+            }
+
+            wallet.setAttribute("multiSignature", multiSignature);
         }
     }
 

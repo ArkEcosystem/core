@@ -18,7 +18,8 @@ export class StateBuilder {
 
         // FIXME: skip state generation of new tx types unless we are on testnet (until develop is on 2.6)
         const aip11 =
-            Managers.configManager.getMilestone().aip11 && Managers.configManager.get("network.name") === "testnet";
+            Managers.configManager.getMilestone().aip11 &&
+            ["testnet", "unitnet"].includes(Managers.configManager.get("network.name"));
         if (!aip11) {
             steps -= 5;
         }
