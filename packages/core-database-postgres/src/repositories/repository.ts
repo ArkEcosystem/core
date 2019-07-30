@@ -53,15 +53,13 @@ export abstract class Repository implements Database.IRepository {
         selectQueryCount: Query<any>,
         paginate?: Database.ISearchPaginate,
         orderBy?: Database.ISearchOrderBy[],
-    ): Promise<{ rows: T; count: number, countIsEstimate: boolean }> {
+    ): Promise<{ rows: T; count: number; countIsEstimate: boolean }> {
         if (!!orderBy) {
             for (const o of orderBy) {
                 const column = this.query.columns.find(column => column.prop.toLowerCase() === o.field);
                 if (column) {
                     selectQuery.order(column[o.direction]);
                 }
-
-                selectQuery.order(this.query[o.field][o.direction]);
             }
         }
 

@@ -57,9 +57,8 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         };
     }
 
-    // @TODO: simplify this
     public findById(id): State.IWallet {
-        return this.search().rows.find(a => a.address === id || a.publicKey === id || a.username === id);
+        return this.databaseServiceProvider().walletManager.findById(id);
     }
 
     private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
