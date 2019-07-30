@@ -3,4 +3,4 @@ SELECT sender_public_key,
        version
 FROM transactions
 WHERE TYPE = ${type}
-ORDER BY timestamp DESC, sequence ASC
+ORDER BY timestamp ASC, sequence ASC

@@ -82,7 +82,7 @@ describe("Wallet Manager", () => {
         });
 
         it("should apply sequentially the transactions of the block", async () => {
-            walletManager.applyBlock(block2);
+            await walletManager.applyBlock(block2);
 
             for (let i = 0; i < block2.transactions.length; i++) {
                 expect(walletManager.applyTransaction).toHaveBeenNthCalledWith(i + 1, block2.transactions[i]);
@@ -90,7 +90,7 @@ describe("Wallet Manager", () => {
         });
 
         it("should apply the block data to the delegate", async () => {
-            walletManager.applyBlock(block);
+            await walletManager.applyBlock(block);
 
             expect(delegateMock.applyBlock).toHaveBeenCalledWith(block.data);
         });
@@ -107,7 +107,7 @@ describe("Wallet Manager", () => {
                 expect(block2.transactions.length).toBe(3);
 
                 try {
-                    walletManager.applyBlock(block2);
+                    await walletManager.applyBlock(block2);
 
                     expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
@@ -128,7 +128,7 @@ describe("Wallet Manager", () => {
                 });
 
                 try {
-                    walletManager.applyBlock(block2);
+                    await walletManager.applyBlock(block2);
 
                     expect(undefined).toBe("this should fail if no error is thrown");
                 } catch (error) {
