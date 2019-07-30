@@ -129,7 +129,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
+        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);
@@ -172,11 +172,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public async discoverPeers(initialRun?: boolean): Promise<boolean> {
+        const maxPeersPerPeer: number = 50;
         const ownPeers: P2P.IPeer[] = this.storage.getPeers();
         const theirPeers: P2P.IPeer[] = Object.values(
             (await Promise.all(
                 shuffle(this.storage.getPeers())
-                    .slice(0, 4)
+                    .slice(0, 8)
                     .map(async (peer: P2P.IPeer) => {
                         try {
                             const hisPeers = await this.communicator.getPeers(peer);
@@ -187,7 +188,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         }
                     }),
             ))
-                .map(peers => peers.reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}))
+                .map(peers =>
+                    shuffle(peers)
+                        .slice(0, maxPeersPerPeer)
+                        .reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}),
+                )
                 .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         );
 
