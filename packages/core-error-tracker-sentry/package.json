@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-error-tracker-sentry",
-    "version": "2.5.7",
+    "version": "2.5.14",
     "description": "Sentry error tracker integration for ARK Core.",
     "license": "MIT",
     "contributors": [
@@ -18,7 +18,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.7",
+        "@arkecosystem/core-container": "^2.5.14",
         "@sentry/node": "^5.5.0"
     },
     "engines": {
