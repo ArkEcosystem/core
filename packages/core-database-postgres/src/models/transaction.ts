@@ -80,6 +80,14 @@ export class Transaction extends Model {
             },
             supportedOperators: [Database.SearchOperator.OP_CONTAINS],
         },
+        {
+            name: "nonce",
+            supportedOperators: [
+                Database.SearchOperator.OP_LTE,
+                Database.SearchOperator.OP_GTE,
+                Database.SearchOperator.OP_EQ,
+            ],
+        },
     ];
 
     public getTable(): string {
