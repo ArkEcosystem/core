@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Logger } from "@arkecosystem/core-interfaces";
 import sqlite3 from "better-sqlite3";
 import delay from "delay";
-import { existsSync, unlinkSync } from "fs";
+import { ensureFileSync } from "fs-extra";
 import pluralize from "pluralize";
 import SocketCluster from "socketcluster";
 import { getHeaders } from "./utils/get-headers";
@@ -19,9 +19,7 @@ class PayloadProcessor {
     private listener: any;
 
     public constructor() {
-        if (existsSync(this.payloadDatabasePath)) {
-            unlinkSync(this.payloadDatabasePath);
-        }
+        ensureFileSync(this.payloadDatabasePath);
 
         this.payloadDatabase = new sqlite3(this.payloadDatabasePath);
         this.payloadDatabase.exec(`
