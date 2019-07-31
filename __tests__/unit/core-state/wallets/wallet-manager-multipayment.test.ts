@@ -102,7 +102,7 @@ describe("Wallet Manager", () => {
                     initialDelegateWalletBalance.plus(senderWallet.balance),
                 );
 
-                walletManager.revertTransaction(multipaymentTransaction);
+                await walletManager.revertTransaction(multipaymentTransaction);
                 expectBeforeMultiPayment();
             });
 
@@ -178,7 +178,7 @@ describe("Wallet Manager", () => {
                     ),
                 );
 
-                walletManager.revertTransaction(multipaymentTransaction);
+                await walletManager.revertTransaction(multipaymentTransaction);
                 expectBeforeMultiPayment();
             });
         });

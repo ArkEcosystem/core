@@ -13,6 +13,7 @@ export class WalletManager implements State.IWalletManager {
     public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     private readonly indexes: Record<string, State.IWalletIndex> = {};
+    private currentBlock: Interfaces.IBlock;
 
     constructor() {
         this.reset();
@@ -183,6 +184,10 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
+    public getCurrentBlock(): Readonly<Interfaces.IBlock> {
+        return this.currentBlock;
+    }
+
     public clone(): WalletManager {
         return new TempWalletManager(this);
     }
@@ -216,6 +221,7 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
+        this.currentBlock = block;
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
         let delegate: State.IWallet;
@@ -262,6 +268,8 @@ export class WalletManager implements State.IWalletManager {
             }
 
             throw error;
+        } finally {
+            this.currentBlock = undefined;
         }
     }
 
@@ -269,6 +277,7 @@ export class WalletManager implements State.IWalletManager {
         if (!this.has(block.data.generatorPublicKey)) {
             app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
+        this.currentBlock = block;
 
         const delegate: State.IWallet = this.findByPublicKey(block.data.generatorPublicKey);
         const revertedTransactions: Interfaces.ITransaction[] = [];
@@ -300,6 +309,8 @@ export class WalletManager implements State.IWalletManager {
             }
 
             throw error;
+        } finally {
+            this.currentBlock = undefined;
         }
     }
 

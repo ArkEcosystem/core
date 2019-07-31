@@ -1,4 +1,5 @@
 SELECT sender_public_key,
+       timestamp,
        asset,
        version
 FROM transactions
