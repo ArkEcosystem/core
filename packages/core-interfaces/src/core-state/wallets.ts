@@ -95,7 +95,7 @@ export interface IWalletManager {
 
     reindex(wallet: IWallet): void;
 
-    getCurrentBlock(): Interfaces.IBlock;
+    getCurrentBlock(): Readonly<Interfaces.IBlock>;
 
     clone(): IWalletManager;
 

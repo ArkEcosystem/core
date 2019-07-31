@@ -175,7 +175,7 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public getCurrentBlock(): Interfaces.IBlock {
+    public getCurrentBlock(): Readonly<Interfaces.IBlock> {
         return this.currentBlock;
     }
 
