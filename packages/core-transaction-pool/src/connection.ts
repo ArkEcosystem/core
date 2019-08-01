@@ -513,6 +513,13 @@ export class Connection implements TransactionPool.IConnection {
             if (!localWalletManager.hasByPublicKey(vote)) {
                 localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
             }
+        } else if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            if (!localWalletManager.hasByIndex(State.WalletIndexes.Locks, lockId)) {
+                localWalletManager.reindex(
+                    clonedeep(databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId)),
+                );
+            }
         }
 
         if (recipientId) {

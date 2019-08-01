@@ -48,7 +48,7 @@ export class WalletManager extends Wallets.WalletManager {
         );
     }
 
-    public revertTransactionForSender(transaction: Interfaces.ITransaction): void {
-        Handlers.Registry.get(transaction.type).revertForSender(transaction, this);
+    public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        return Handlers.Registry.get(transaction.type).revertForSender(transaction, this);
     }
 }

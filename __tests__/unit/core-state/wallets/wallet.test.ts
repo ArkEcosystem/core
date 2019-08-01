@@ -91,12 +91,12 @@ describe("Models - Wallet", () => {
             lastBlock: { id: 1234856 },
         });
 
-        const block = {
+        const block = ({
             id: 1,
             generatorPublicKey: walletInit.publicKey,
             reward: Utils.BigNumber.make(2 * SATOSHI),
             totalFee: Utils.BigNumber.make(1 * SATOSHI),
-        } as unknown as Interfaces.IBlockData;
+        } as unknown) as Interfaces.IBlockData;
 
         let testWallet: Wallet;
 
@@ -296,19 +296,6 @@ describe("Models - Wallet", () => {
             ]);
         });
 
-        it("should return correct audit data for timelock type", () => {
-            const transaction = generateTransactionType(TransactionTypes.TimelockTransfer);
-            const audit = testWallet.auditApply(transaction);
-
-            expect(audit).toEqual([
-                {
-                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
-                },
-                { "Signature validation": false },
-                { Timelock: true },
-            ]);
-        });
-
         it("should return correct audit data for multipayment type", () => {
             const asset = {
                 payments: [{ amount: Utils.BigNumber.make(10) }, { amount: Utils.BigNumber.make(20) }],
@@ -391,7 +378,10 @@ describe("Models - Wallet", () => {
                     })
                     .create()[0];
 
-                testWallet.setAttribute("secondPublicKey", "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d");
+                testWallet.setAttribute(
+                    "secondPublicKey",
+                    "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d",
+                );
 
                 const audit = testWallet.auditApply(transaction);
 

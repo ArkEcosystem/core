@@ -7,7 +7,10 @@ configManager.setFromPreset("testnet");
 import { Utils } from "@arkecosystem/crypto";
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { Keys } from "../../../../../../packages/crypto/src/identities";
-import { BuilderFactory, SecondSignatureRegistrationTransaction } from "../../../../../../packages/crypto/src/transactions";
+import {
+    BuilderFactory,
+    SecondSignatureRegistrationTransaction,
+} from "../../../../../../packages/crypto/src/transactions";
 import { SecondSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
 import { identity } from "../../../../../utils/identities";
 import { transactionBuilder } from "./__shared__/transaction-builder";

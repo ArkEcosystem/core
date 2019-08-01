@@ -19,7 +19,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
     if (!forgingDelegate) {
         logger.debug(
             `Could not decide if delegate ${generatorUsername} (${
-            block.data.generatorPublicKey
+                block.data.generatorPublicKey
             }) is allowed to forge block ${block.data.height.toLocaleString()}`,
         );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
@@ -36,7 +36,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
 
     logger.debug(
         `Delegate ${generatorUsername} (${
-        block.data.generatorPublicKey
+            block.data.generatorPublicKey
         }) allowed to forge block ${block.data.height.toLocaleString()}`,
     );
 

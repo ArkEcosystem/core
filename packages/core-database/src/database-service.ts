@@ -74,7 +74,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        this.walletManager.applyBlock(block);
+        await this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
             this.blocksInCurrentRound.push(block);
@@ -697,7 +697,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 break;
             }
 
-            tempWalletManager.revertBlock(blocks[i]);
+            await tempWalletManager.revertBlock(blocks[i]);
         }
 
         const delegates: State.IWallet[] = tempWalletManager.loadActiveDelegateList(roundInfo);

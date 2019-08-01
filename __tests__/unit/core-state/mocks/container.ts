@@ -3,6 +3,7 @@ import { config } from "./config";
 import { database } from "./database";
 import { logger } from "./logger";
 import { p2p } from "./p2p";
+import { state } from "./state";
 import { transactionPool } from "./transactionPool";
 
 export const container = {
@@ -14,38 +15,32 @@ export const container = {
                 getMilestone: () => ({
                     activeDelegates: 51,
                     blocktime: 8000,
+                    epoch: "2017-03-21T13:00:00.000Z",
                 }),
             };
         },
         resolvePlugin: name => {
-            if (name === "logger") {
-                return logger;
+            switch (name) {
+                case "logger":
+                    return logger;
+                case "blockchain":
+                    return blockchain;
+                case "event-emitter":
+                    return {
+                        emit: () => ({}),
+                        once: () => ({}),
+                    };
+                case "database":
+                    return database;
+                case "p2p":
+                    return p2p;
+                case "transaction-pool":
+                    return transactionPool;
+                case "state":
+                    return state;
+                default:
+                    return undefined;
             }
-
-            if (name === "blockchain") {
-                return blockchain;
-            }
-
-            if (name === "event-emitter") {
-                return {
-                    emit: () => ({}),
-                    once: () => ({}),
-                };
-            }
-
-            if (name === "database") {
-                return database;
-            }
-
-            if (name === "p2p") {
-                return p2p;
-            }
-
-            if (name === "transaction-pool") {
-                return transactionPool;
-            }
-
-            return undefined;
         },
         resolveOptions: () => ({}),
         has: () => false,
