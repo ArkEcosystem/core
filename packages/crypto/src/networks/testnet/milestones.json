@@ -20,7 +20,11 @@
                 "ipfs": 500000000,
                 "timelockTransfer": 0,
                 "multiPayment": 10000000,
-                "delegateResignation": 2500000000
+                "delegateResignation": 2500000000,
+                "businessRegistration": 5000000000,
+                "businessResignation": 5000000000,
+                "bridgechainRegistration": 5000000000,
+                "bridgechainResignation": 5000000000
             }
         },
         "vendorFieldLength": 64,
