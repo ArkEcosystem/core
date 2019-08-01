@@ -17,8 +17,8 @@ export class Serializer {
 
         if (version === 1) {
             return this.getBytesV1(transaction, options);
-        } else if (version === 2 && configManager.getMilestone().aip11) {
-            return this.getBytesV2(transaction, options);
+        } else if (configManager.getMilestone().aip11) {
+            return this.serialize(TransactionTypeFactory.create(transaction), options);
         } else {
             throw new TransactionVersionError(version);
         }
@@ -189,21 +189,17 @@ export class Serializer {
         return Buffer.from(buffer);
     }
 
-    private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
-        return this.serialize(TransactionTypeFactory.create(transaction), options);
-    }
-
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
         transaction.version = transaction.version || 0x01;
-
-        buffer.writeByte(0xff); // fill, to disambiguate from v1
+        buffer.writeByte(0xff);
         buffer.writeByte(transaction.version);
-        buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash")); // ark = 0x17, devnet = 0x30
-        buffer.writeByte(transaction.type);
+        buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash"));
 
         if (transaction.version === 1) {
+            buffer.writeByte(transaction.type);
             buffer.writeUint32(transaction.timestamp);
         } else {
+            buffer.writeUint16(transaction.type);
             buffer.writeUint64(+transaction.nonce);
         }
 
