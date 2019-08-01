@@ -95,6 +95,8 @@ export interface IWalletManager {
 
     reindex(wallet: IWallet): void;
 
+    getCurrentBlock(): Readonly<Interfaces.IBlock>;
+
     clone(): IWalletManager;
 
     loadActiveDelegateList(roundInfo: IRoundInfo): IWallet[];
