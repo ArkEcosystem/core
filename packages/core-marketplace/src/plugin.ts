@@ -27,12 +27,6 @@ export const plugin: Container.IPluginDescriptor = {
             }
         });
 
-        walletManager.registerIndex("byBridgechain", (index: State.IWalletIndex, wallet: State.IWallet): void => {
-            if (wallet.hasAttribute("business.bridgechains")) {
-                index.set(wallet.publicKey, wallet);
-            }
-        });
-
         container.resolvePlugin<Logger.ILogger>("logger").info("Registering marketplace transactions");
         Handlers.Registry.registerCustomTransactionHandler(BusinessRegistrationTransactionHandler);
         Handlers.Registry.registerCustomTransactionHandler(BusinessResignationTransactionHandler);
