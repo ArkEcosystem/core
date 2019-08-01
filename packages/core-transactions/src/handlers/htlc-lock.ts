@@ -1,5 +1,5 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class HtlcLockTransactionHandler extends TransactionHandler {
@@ -22,6 +22,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
             walletManager.reindex(wallet);
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public throwIfCannotBeApplied(
@@ -69,8 +73,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }

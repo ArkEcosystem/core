@@ -21,6 +21,10 @@ export class TransferTransactionHandler extends TransactionHandler {
         }
     }
 
+    public async isActivated(): Promise<boolean> {
+        return true;
+    }
+
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,

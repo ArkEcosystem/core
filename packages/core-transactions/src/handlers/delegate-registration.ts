@@ -61,6 +61,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         walletManager.buildDelegateRanking();
     }
 
+    public async isActivated(): Promise<boolean> {
+        return true;
+    }
+
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

@@ -9,6 +9,8 @@ export interface ITransactionHandler {
 
     bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void>;
 
+    isActivated(): Promise<boolean>;
+
     verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean;
 
     dynamicFee(transaction: Interfaces.ITransaction, addonBytes: number, satoshiPerByte: number): Utils.BigNumber;

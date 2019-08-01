@@ -40,6 +40,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return transaction.isVerified;
     }
 
+    public abstract async isActivated(): Promise<boolean>;
+
     public dynamicFee(
         transaction: Interfaces.ITransaction,
         addonBytes: number,

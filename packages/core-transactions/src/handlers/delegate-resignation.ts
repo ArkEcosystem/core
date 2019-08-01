@@ -1,6 +1,6 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
@@ -20,6 +20,10 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             walletManager.findByPublicKey(transaction.senderPublicKey).setAttribute("delegate.resigned", true);
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public throwIfCannotBeApplied(

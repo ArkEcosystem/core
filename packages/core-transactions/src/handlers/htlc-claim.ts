@@ -14,7 +14,7 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { HtlcLockTransactionHandler } from './htlc-lock';
+import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
@@ -42,6 +42,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             lockWallet.setAttribute("htlc.locks", locks);
             walletManager.reindex(lockWallet);
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public dynamicFee(
@@ -234,8 +238,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
 }

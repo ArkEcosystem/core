@@ -43,8 +43,8 @@ export class TransactionHandlerRegistry {
         throw new InvalidTransactionTypeError(type);
     }
 
-    public all(): TransactionHandler[] {
-        return [...this.registeredTransactionHandlers.values()];
+    public async getActivatedTransactions(): Promise<TransactionHandler[]> {
+        return [...this.registeredTransactionHandlers.values()].filter(async handler => await handler.isActivated());
     }
 
     public registerTransactionHandler(constructor: TransactionHandlerConstructor) {

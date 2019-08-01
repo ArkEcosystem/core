@@ -1,5 +1,5 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class IpfsTransactionHandler extends TransactionHandler {
@@ -23,6 +23,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
             const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
             ipfsHashes[transaction.asset.ipfs] = true;
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public throwIfCannotBeApplied(

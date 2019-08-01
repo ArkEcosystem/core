@@ -45,6 +45,10 @@ export class VoteTransactionHandler extends TransactionHandler {
         walletManager.buildVoteBalances();
     }
 
+    public async isActivated(): Promise<boolean> {
+        return true;
+    }
+
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
