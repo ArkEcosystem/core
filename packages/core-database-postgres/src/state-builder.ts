@@ -63,13 +63,14 @@ export class StateBuilder {
         const { HtlcLock, HtlcClaim, HtlcRefund } = Enums.TransactionTypes;
 
         for (const transaction of transactions) {
-            if ([HtlcLock, HtlcClaim, HtlcRefund].includes(transaction.type)) {
-                continue; // specific htlc behavior even for sent transactions (handled in htlc lock bootstrap function)
-            }
-
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
             wallet.nonce = Utils.BigNumber.make(transaction.nonce);
+
+            if (![HtlcLock, HtlcClaim, HtlcRefund].includes(transaction.type)) {
+                wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
+                // only for transactions other than htlc
+                // specific htlc behavior for balance (handled in htlc lock bootstrap function)
+            }
         }
     }
 
