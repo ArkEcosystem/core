@@ -6,18 +6,9 @@ import { ensureDirSync } from "fs-extra";
 import latestVersion from "latest-version";
 import { join } from "path";
 import semver from "semver";
-
+import { StatusSummary } from "simple-git";
+import git from "simple-git/promise";
 import { configManager } from "./config";
-
-const getLatestVersion = async (name: string, channel: string): Promise<string> => {
-    try {
-        const version = await latestVersion(name, { version: channel });
-
-        return version;
-    } catch (error) {
-        return undefined;
-    }
-};
 
 const ensureCacheFile = (config: IConfig): string => {
     ensureDirSync(config.cacheDir);
@@ -27,6 +18,54 @@ const ensureCacheFile = (config: IConfig): string => {
     closeSync(openSync(fileName, "w"));
 
     return fileName;
+};
+
+const checkForUpdatesFromNpm = async ({ state, config, warn }): Promise<string> => {
+    state.currentVersion = config.version;
+    state.channel = configManager.get("channel");
+
+    const version = await latestVersion(state.name, { version: state.channel });
+
+    if (version === undefined) {
+        warn(`We were unable to find any releases for the "${state.channel}" channel.`);
+
+        return state;
+    }
+
+    if (semver.gt(version, config.version)) {
+        return {
+            ...state,
+            ...{
+                ready: true,
+                updateVersion: version,
+                cache: ensureCacheFile(config),
+            },
+        };
+    }
+
+    return state;
+};
+
+const checkForUpdatesFromGit = async ({ state, config, warn }): Promise<any> => {
+    const statusSummary: StatusSummary = await git().status();
+
+    if (statusSummary.behind <= 0) {
+        warn("We were unable to find any new commits.");
+
+        return state;
+    }
+
+    state.channel = await git().revparse(["--abbrev-ref", "HEAD"]);
+    state.currentVersion = await git().revparse(["HEAD"]);
+    state.updateVersion = await git().revparse([state.channel]);
+
+    return {
+        ...state,
+        ...{
+            ready: true,
+            cache: ensureCacheFile(config),
+        },
+    };
 };
 
 export const installFromChannel = async (pkg, channel) => {
@@ -69,33 +108,18 @@ export const checkForUpdates = async ({ config, error, warn }): Promise<any> => 
     const state = {
         ready: false,
         name: config.name,
-        currentVersion: config.version,
-        channel: configManager.get("channel"),
     };
 
     try {
-        const cacheFile = ensureCacheFile(config);
+        cli.action.start("Checking for updates");
 
-        cli.action.start(`Checking for updates`);
-        const latestVersion = await getLatestVersion(state.name, state.channel);
-        cli.action.stop();
-
-        if (latestVersion === undefined) {
-            error(`We were unable to find any releases for the "${state.channel}" channel.`);
-
-            return state;
+        if (configManager.get("updateMethod") === "git") {
+            return checkForUpdatesFromGit({ state, config, warn });
+        } else if (configManager.get("updateMethod") === "npm") {
+            return checkForUpdatesFromNpm({ state, config, warn });
         }
 
-        if (semver.gt(latestVersion, config.version)) {
-            return {
-                ...state,
-                ...{
-                    ready: true,
-                    updateVersion: latestVersion,
-                    cache: cacheFile,
-                },
-            };
-        }
+        error("We were unable to determine an update method.");
     } catch (err) {
         error(err.message);
     } finally {
