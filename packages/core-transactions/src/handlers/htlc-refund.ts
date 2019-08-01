@@ -28,11 +28,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             const lockId = transaction.asset.refund.lockTransactionId;
             const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
             const locks = lockWallet.getAttribute("htlc.locks");
-            lockWallet.balance = lockWallet.balance.plus(locks[lockId].amount).minus(transaction.fee);
+            lockWallet.balance = lockWallet.balance.plus(locks[lockId].amount);
             const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
             delete locks[lockId];
             lockWallet.setAttribute("htlc.locks", locks);
+            walletManager.reindex(lockWallet);
         }
     }
 

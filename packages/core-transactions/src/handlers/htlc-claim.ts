@@ -28,13 +28,14 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             const lockId = transaction.asset.claim.lockTransactionId;
             const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
-            const claimWallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const locks = lockWallet.getAttribute("htlc.locks");
-            claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount).minus(transaction.fee);
+            const claimWallet: State.IWallet = walletManager.findByAddress(locks[lockId].recipientId);
+            claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount);
             const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
             delete locks[lockId];
             lockWallet.setAttribute("htlc.locks", locks);
+            walletManager.reindex(lockWallet);
         }
     }
 

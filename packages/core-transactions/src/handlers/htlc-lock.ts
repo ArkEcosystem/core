@@ -14,9 +14,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             const locks = wallet.getAttribute("htlc.locks", {});
             locks[transaction.id] = transaction;
             wallet.setAttribute("htlc.locks", locks);
-            wallet.balance = wallet.balance.minus(transaction.fee);
             const lockedBalance = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
+            walletManager.reindex(wallet);
         }
     }
 
