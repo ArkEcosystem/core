@@ -13,7 +13,7 @@ export class HtlcClaimTransaction extends Transaction {
         return schemas.htlcClaim;
     }
 
-    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
+    protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;

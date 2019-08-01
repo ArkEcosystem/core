@@ -181,14 +181,6 @@ export class IpfsHashAlreadyExists extends TransactionError {
     }
 }
 
-export class HtlcLockedAmountLowerThanFeeError extends TransactionError {
-    constructor() {
-        super(
-            `Failed to apply transaction, because the amount to be claimed is lower than the fee for the claim transaction.`,
-        );
-    }
-}
-
 export class HtlcLockTransactionNotFoundError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the associated HTLC lock transaction could not be found.`);

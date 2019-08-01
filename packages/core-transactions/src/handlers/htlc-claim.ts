@@ -4,7 +4,6 @@ import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import {
-    HtlcLockedAmountLowerThanFeeError,
     HtlcLockExpiredError,
     HtlcLockTransactionNotFoundError,
     HtlcSecretHashMismatchError,
@@ -37,6 +36,15 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             delete locks[lockId];
             lockWallet.setAttribute("htlc.locks", locks);
         }
+    }
+
+    public dynamicFee(
+        transaction: Interfaces.ITransaction,
+        addonBytes: number,
+        satoshiPerByte: number,
+    ): Utils.BigNumber {
+        // override dynamicFee calculation as this is a zero-fee transaction
+        return Utils.BigNumber.ZERO;
     }
 
     public throwIfCannotBeApplied(
@@ -102,10 +110,6 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
-        if (lockTransaction.amount.minus(transaction.data.fee).isNegative()) {
-            throw new HtlcLockedAmountLowerThanFeeError();
-        }
-
         const lastBlock: Interfaces.IBlock = app
             .resolvePlugin<State.IStateService>("state")
             .getStore()

@@ -21,8 +21,8 @@
                 "multiPayment": 10000000,
                 "delegateResignation": 2500000000,
                 "htlcLock": 10000000,
-                "htlcClaim": 10000000,
-                "htlcRefund": 10000000
+                "htlcClaim": 0,
+                "htlcRefund": 0
             }
         },
         "vendorFieldLength": 64,

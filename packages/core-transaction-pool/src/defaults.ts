@@ -29,8 +29,8 @@ export const defaults = {
             multiPayment: 500,
             delegateResignation: 100,
             htlcLock: 100,
-            htlcClaim: 100,
-            htlcRefund: 100,
+            htlcClaim: 0,
+            htlcRefund: 0,
         },
     },
 };
