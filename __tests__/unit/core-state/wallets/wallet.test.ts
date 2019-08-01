@@ -8,7 +8,7 @@ import { Wallet } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 
 const { SATOSHI } = Constants;
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 describe("Models - Wallet", () => {
     beforeEach(() => Managers.configManager.setFromPreset("devnet"));
@@ -266,7 +266,7 @@ describe("Models - Wallet", () => {
                     min: 2,
                 },
             };
-            const transaction = generateTransactionType(TransactionTypes.MultiSignature, 2, asset);
+            const transaction = generateTransactionType(TransactionType.MultiSignature, 2, asset);
             transaction.version = 2;
             transaction.signatures = [];
             const audit = testWallet.auditApply(transaction);
@@ -284,7 +284,7 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for ipfs type", () => {
-            const transaction = generateTransactionType(TransactionTypes.Ipfs);
+            const transaction = generateTransactionType(TransactionType.Ipfs);
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -300,7 +300,7 @@ describe("Models - Wallet", () => {
             const asset = {
                 payments: [{ amount: Utils.BigNumber.make(10) }, { amount: Utils.BigNumber.make(20) }],
             };
-            const transaction = generateTransactionType(TransactionTypes.MultiPayment, 1, asset);
+            const transaction = generateTransactionType(TransactionType.MultiPayment, 1, asset);
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -313,7 +313,7 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for delegate resignation type", () => {
-            const transaction = generateTransactionType(TransactionTypes.DelegateResignation);
+            const transaction = generateTransactionType(TransactionType.DelegateResignation);
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([

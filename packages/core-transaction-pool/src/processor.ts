@@ -116,12 +116,14 @@ export class Processor implements TransactionPool.IProcessor {
             } else if (this.validateTransaction(transaction)) {
                 try {
                     const receivedId: string = transaction.id;
-                    const trx: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
-                    const handler = Handlers.Registry.get(trx.type);
-                    if (handler.verify(trx, this.pool.walletManager)) {
+                    const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
+                        transaction,
+                    );
+                    const handler = Handlers.Registry.get(transactionInstance.type, transactionInstance.typeGroup);
+                    if (handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
-                            this.walletManager.throwIfCannotBeApplied(trx);
-                            const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(trx);
+                            this.walletManager.throwIfCannotBeApplied(transactionInstance);
+                            const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -130,11 +132,11 @@ export class Processor implements TransactionPool.IProcessor {
                                 );
                             } else {
                                 if (dynamicFee.enterPool) {
-                                    this.accept.set(trx.data.id, trx);
+                                    this.accept.set(transactionInstance.data.id, transactionInstance);
                                 }
 
                                 if (dynamicFee.broadcast) {
-                                    this.broadcast.set(trx.data.id, trx);
+                                    this.broadcast.set(transactionInstance.data.id, transactionInstance);
                                 }
                             }
                         } catch (error) {
@@ -201,13 +203,17 @@ export class Processor implements TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return Handlers.Registry.get(transaction.type).canEnterTransactionPool(transaction, this.pool, this);
+            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterTransactionPool(
+                transaction,
+                this.pool,
+                this,
+            );
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
                     transaction,
                     "ERR_UNSUPPORTED",
-                    `Invalidating transaction of unsupported type '${Enums.TransactionTypes[transaction.type]}'`,
+                    `Invalidating transaction of unsupported type '${Enums.TransactionType[transaction.type]}'`,
                 );
             } else {
                 this.pushError(transaction, "ERR_UNKNOWN", error.message);

@@ -6,7 +6,7 @@ import ByteBuffer from "bytebuffer";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Constants, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Constants, Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -106,6 +106,8 @@ describe("Connection", () => {
     const customSerialize = (transaction: Interfaces.ITransactionData, options: any = {}) => {
         const buffer = new ByteBuffer(512, true);
         const writeByte = (txField, value) => (options[txField] ? options[txField](buffer) : buffer.writeByte(value));
+        const writeUint16 = (txField, value) =>
+            options[txField] ? options[txField](buffer) : buffer.writeUint16(value);
         const writeUint32 = (txField, value) =>
             options[txField] ? options[txField](buffer) : buffer.writeUint32(value);
         const writeUint64 = (txField, value) =>
@@ -116,7 +118,8 @@ describe("Connection", () => {
         buffer.writeByte(0xff); // fill, to disambiguate from v1
         writeByte("version", 0x02);
         writeByte("network", transaction.network); // ark = 0x17, devnet = 0x30
-        writeByte("type", transaction.type);
+        writeUint32("typeGroup", transaction.typeGroup || Enums.TransactionTypeGroup.Core);
+        writeUint16("type", transaction.type);
 
         if (transaction.nonce) {
             writeUint64("nonce", transaction.nonce.toString());
@@ -340,7 +343,7 @@ describe("Connection", () => {
             for (let i = 0; i < handlers.length; i++) {
                 expect(handlers[0].getConstructor().type).toEqual(0);
                 transactions[i].serialized = customSerialize(transactions[i].data, {
-                    type: (b: ByteBuffer) => b.writeUint8(handlers[i].getConstructor().type),
+                    type: (b: ByteBuffer) => b.writeUint16(handlers[i].getConstructor().type),
                 });
             }
 

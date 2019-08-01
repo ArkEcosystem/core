@@ -1,4 +1,4 @@
-export enum TransactionTypes {
+export enum TransactionType {
     Transfer = 0,
     SecondSignature = 1,
     DelegateRegistration = 2,
@@ -10,4 +10,12 @@ export enum TransactionTypes {
     HtlcLock = 8,
     HtlcClaim = 9,
     HtlcRefund = 10,
+}
+
+export enum TransactionTypeGroup {
+    Test = 0,
+    Core = 1,
+
+    // Everything above is available to anyone
+    Reserved = 1000,
 }

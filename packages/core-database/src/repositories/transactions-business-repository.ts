@@ -27,7 +27,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
         return this.search({
-            ...{ senderPublicKey, type: Enums.TransactionTypes.Vote },
+            ...{ senderPublicKey, type: Enums.TransactionType.Vote },
             ...parameters,
         });
     }
@@ -105,7 +105,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         );
     }
 
-    public async getAssetsByType(type: Enums.TransactionTypes | number): Promise<any> {
+    public async getAssetsByType(type: Enums.TransactionType | number): Promise<any> {
         return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type);
     }
 

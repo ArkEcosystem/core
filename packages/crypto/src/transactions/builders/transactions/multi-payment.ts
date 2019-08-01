@@ -1,4 +1,3 @@
-import { TransactionTypes } from "../../../enums";
 import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
@@ -9,7 +8,8 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.MultiPayment;
+        this.data.type = MultiPaymentTransaction.type;
+        this.data.typeGroup = MultiPaymentTransaction.typeGroup;
         this.data.fee = MultiPaymentTransaction.staticFee();
         this.data.vendorFieldHex = undefined;
         this.data.asset = {

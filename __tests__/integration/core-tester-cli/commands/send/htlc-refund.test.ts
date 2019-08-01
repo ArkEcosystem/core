@@ -43,7 +43,7 @@ describe("Commands - Htlc refund", () => {
         expect(httpie.post).toHaveBeenCalledTimes(3);
 
         expectedTransactions
-            .filter(tx => tx.type === Enums.TransactionTypes.HtlcRefund)
+            .filter(tx => tx.type === Enums.TransactionType.HtlcRefund)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(opts.htlcRefundFee));
                 expect(tx.asset.refund.lockTransactionId).toBeDefined();
@@ -64,7 +64,7 @@ describe("Commands - Htlc refund", () => {
         expect(httpie.post).toHaveBeenCalledTimes(3);
 
         expectedTransactions
-            .filter(tx => tx.type === Enums.TransactionTypes.HtlcRefund)
+            .filter(tx => tx.type === Enums.TransactionType.HtlcRefund)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(0.1));
                 expect(tx.asset.refund.lockTransactionId).toBeDefined();

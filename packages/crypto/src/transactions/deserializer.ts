@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../enums";
+import { TransactionType, TransactionTypeGroup } from "../enums";
 import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ITransaction, ITransactionData } from "../interfaces";
@@ -25,7 +25,9 @@ class Deserializer {
 
         if (data.version === 1) {
             this.applyV1Compatibility(data);
-        } else if (!configManager.getMilestone().aip11) {
+        } else if (data.version === 2 && configManager.getMilestone().aip11) {
+            //
+        } else {
             throw new TransactionVersionError(data.version);
         }
 
@@ -43,6 +45,7 @@ class Deserializer {
             transaction.type = buf.readUint8();
             transaction.timestamp = buf.readUint32();
         } else {
+            transaction.typeGroup = buf.readUint32();
             transaction.type = buf.readUint16();
             transaction.nonce = BigNumber.make(buf.readUint64().toString());
         }
@@ -151,10 +154,11 @@ class Deserializer {
     // tslint:disable-next-line:member-ordering
     public applyV1Compatibility(transaction: ITransactionData): void {
         transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
+        transaction.typeGroup = TransactionTypeGroup.Core;
 
-        if (transaction.type === TransactionTypes.Vote) {
+        if (transaction.type === TransactionType.Vote) {
             transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-        } else if (transaction.type === TransactionTypes.MultiSignature) {
+        } else if (transaction.type === TransactionType.MultiSignature) {
             transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
                 k.startsWith("+") ? k : `+${k}`,
             );

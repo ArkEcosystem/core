@@ -4,7 +4,7 @@ import { configManager } from "../../../../../../packages/crypto/src/managers";
 
 configManager.setFromPreset("testnet");
 
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { Keys } from "../../../../../../packages/crypto/src/identities";
 import { BuilderFactory, VoteTransaction } from "../../../../../../packages/crypto/src/transactions";
 import { VoteBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/vote";
@@ -43,7 +43,7 @@ describe("Vote Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.Vote);
+        expect(builder).toHaveProperty("data.type", TransactionType.Vote);
         expect(builder).toHaveProperty("data.fee", VoteTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);

@@ -3,39 +3,39 @@ import * as enums from "../../../packages/crypto/src/enums";
 
 describe("Constants", () => {
     it("transaction types are defined", () => {
-        expect(enums.TransactionTypes).toBeDefined();
+        expect(enums.TransactionType).toBeDefined();
 
-        expect(enums.TransactionTypes.Transfer).toBeDefined();
-        expect(enums.TransactionTypes.Transfer).toBe(0);
+        expect(enums.TransactionType.Transfer).toBeDefined();
+        expect(enums.TransactionType.Transfer).toBe(0);
 
-        expect(enums.TransactionTypes.SecondSignature).toBeDefined();
-        expect(enums.TransactionTypes.SecondSignature).toBe(1);
+        expect(enums.TransactionType.SecondSignature).toBeDefined();
+        expect(enums.TransactionType.SecondSignature).toBe(1);
 
-        expect(enums.TransactionTypes.DelegateRegistration).toBeDefined();
-        expect(enums.TransactionTypes.DelegateRegistration).toBe(2);
+        expect(enums.TransactionType.DelegateRegistration).toBeDefined();
+        expect(enums.TransactionType.DelegateRegistration).toBe(2);
 
-        expect(enums.TransactionTypes.Vote).toBeDefined();
-        expect(enums.TransactionTypes.Vote).toBe(3);
+        expect(enums.TransactionType.Vote).toBeDefined();
+        expect(enums.TransactionType.Vote).toBe(3);
 
-        expect(enums.TransactionTypes.MultiSignature).toBeDefined();
-        expect(enums.TransactionTypes.MultiSignature).toBe(4);
+        expect(enums.TransactionType.MultiSignature).toBeDefined();
+        expect(enums.TransactionType.MultiSignature).toBe(4);
 
-        expect(enums.TransactionTypes.Ipfs).toBeDefined();
-        expect(enums.TransactionTypes.Ipfs).toBe(5);
+        expect(enums.TransactionType.Ipfs).toBeDefined();
+        expect(enums.TransactionType.Ipfs).toBe(5);
 
-        expect(enums.TransactionTypes.MultiPayment).toBeDefined();
-        expect(enums.TransactionTypes.MultiPayment).toBe(6);
+        expect(enums.TransactionType.MultiPayment).toBeDefined();
+        expect(enums.TransactionType.MultiPayment).toBe(6);
 
-        expect(enums.TransactionTypes.DelegateResignation).toBeDefined();
-        expect(enums.TransactionTypes.DelegateResignation).toBe(7);
+        expect(enums.TransactionType.DelegateResignation).toBeDefined();
+        expect(enums.TransactionType.DelegateResignation).toBe(7);
 
-        expect(enums.TransactionTypes.HtlcLock).toBeDefined();
-        expect(enums.TransactionTypes.HtlcLock).toBe(8);
+        expect(enums.TransactionType.HtlcLock).toBeDefined();
+        expect(enums.TransactionType.HtlcLock).toBe(8);
 
-        expect(enums.TransactionTypes.HtlcClaim).toBeDefined();
-        expect(enums.TransactionTypes.HtlcClaim).toBe(9);
+        expect(enums.TransactionType.HtlcClaim).toBeDefined();
+        expect(enums.TransactionType.HtlcClaim).toBe(9);
 
-        expect(enums.TransactionTypes.HtlcRefund).toBeDefined();
-        expect(enums.TransactionTypes.HtlcRefund).toBe(10);
+        expect(enums.TransactionType.HtlcRefund).toBeDefined();
+        expect(enums.TransactionType.HtlcRefund).toBe(10);
     });
 });

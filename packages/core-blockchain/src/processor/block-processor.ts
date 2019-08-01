@@ -62,7 +62,10 @@ export class BlockProcessor {
     private verifyBlock(block: Interfaces.IBlock): boolean {
         if (block.verification.containsMultiSignatures) {
             for (const transaction of block.transactions) {
-                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                    transaction.type,
+                    transaction.typeGroup,
+                );
                 handler.verify(transaction, this.blockchain.database.walletManager);
             }
 

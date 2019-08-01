@@ -315,11 +315,14 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public applyTransaction(transaction: Interfaces.ITransaction): void {
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
+        );
 
         let lockWallet: State.IWallet;
         let lockTransaction: Interfaces.ITransactionData;
-        if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+        if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             lockWallet = this.findByIndex(State.WalletIndexes.Locks, lockId);
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
@@ -336,7 +339,10 @@ export class WalletManager implements State.IWalletManager {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: TransactionInterfaces.ITransactionHandler = Handlers.Registry.get(transaction.type);
+        const transactionHandler: TransactionInterfaces.ITransactionHandler = Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
+        );
         const sender: State.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(data.recipientId);
 
@@ -344,7 +350,7 @@ export class WalletManager implements State.IWalletManager {
 
         let lockWallet: State.IWallet;
         let lockTransaction: Interfaces.ITransactionData;
-        if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+        if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             lockWallet = this.findByIndex(State.WalletIndexes.Locks, lockId);
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
@@ -426,12 +432,12 @@ export class WalletManager implements State.IWalletManager {
         lockTransaction: Interfaces.ITransactionData,
         revert: boolean = false,
     ): void {
-        if (transaction.type !== Enums.TransactionTypes.Vote) {
+        if (transaction.type !== Enums.TransactionType.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.hasVoted()) {
                 const delegate: State.IWallet = this.findByPublicKey(sender.getAttribute("vote"));
                 const amount =
-                    transaction.type === Enums.TransactionTypes.MultiPayment
+                    transaction.type === Enums.TransactionType.MultiPayment
                         ? transaction.asset.payments.reduce(
                               (prev, curr) => prev.plus(curr.amount),
                               Utils.BigNumber.ZERO,
@@ -445,10 +451,10 @@ export class WalletManager implements State.IWalletManager {
                 );
                 let newVoteBalance: Utils.BigNumber;
 
-                if (transaction.type === Enums.TransactionTypes.HtlcLock) {
+                if (transaction.type === Enums.TransactionType.HtlcLock) {
                     // HTLC Lock keeps the locked amount as the sender's delegate vote balance
                     newVoteBalance = revert ? voteBalance.plus(transaction.fee) : voteBalance.minus(transaction.fee);
-                } else if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+                } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
                     // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
                     newVoteBalance = revert
                         ? voteBalance.plus(transaction.fee).minus(lockTransaction.amount)
@@ -460,7 +466,7 @@ export class WalletManager implements State.IWalletManager {
                 delegate.setAttribute("delegate.voteBalance", newVoteBalance);
             }
 
-            if (transaction.type === Enums.TransactionTypes.HtlcClaim && lockWallet.hasAttribute("vote")) {
+            if (transaction.type === Enums.TransactionType.HtlcClaim && lockWallet.hasAttribute("vote")) {
                 // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
                 const lockWalletDelegate: State.IWallet = this.findByPublicKey(lockWallet.getAttribute("vote"));
                 const lockWalletDelegateVoteBalance: Utils.BigNumber = lockWalletDelegate.getAttribute(
@@ -475,7 +481,7 @@ export class WalletManager implements State.IWalletManager {
                 );
             }
 
-            if (transaction.type === Enums.TransactionTypes.MultiPayment) {
+            if (transaction.type === Enums.TransactionType.MultiPayment) {
                 // go through all payments and update recipients delegates vote balance
                 for (const { recipientId, amount } of transaction.asset.payments) {
                     const recipientWallet: State.IWallet = this.findByAddress(recipientId);
@@ -495,7 +501,7 @@ export class WalletManager implements State.IWalletManager {
             }
 
             // Update vote balance of recipient's delegate
-            if (recipient && recipient.hasVoted() && transaction.type !== Enums.TransactionTypes.HtlcLock) {
+            if (recipient && recipient.hasVoted() && transaction.type !== Enums.TransactionType.HtlcLock) {
                 const delegate: State.IWallet = this.findByPublicKey(recipient.getAttribute("vote"));
                 const voteBalance: Utils.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",

@@ -46,6 +46,11 @@ export class Transaction extends Model {
             supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
         },
         {
+            name: "type_group",
+            prop: "typeGroup",
+            supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
+        },
+        {
             name: "vendor_field_hex",
             prop: "vendorFieldHex",
             supportedOperators: [Database.SearchOperator.OP_LIKE],

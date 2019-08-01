@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Managers, Utils, Validation } from "../../../../packages/crypto";
-import { TransactionTypes } from "../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../packages/crypto/src/enums";
 
 const ajv = Validation.validator.getInstance();
 
@@ -45,11 +45,11 @@ describe("keyword network", () => {
 
 describe("keyword transactionType", () => {
     it("should be ok", () => {
-        const schema = { transactionType: TransactionTypes.Transfer };
+        const schema = { transactionType: TransactionType.Transfer };
         const validate = ajv.compile(schema);
 
         expect(validate(0)).toBeTrue();
-        expect(validate(TransactionTypes.Vote)).toBeFalse();
+        expect(validate(TransactionType.Vote)).toBeFalse();
         expect(validate(-1)).toBeFalse();
         expect(validate("")).toBeFalse();
         expect(validate("0")).toBeFalse();

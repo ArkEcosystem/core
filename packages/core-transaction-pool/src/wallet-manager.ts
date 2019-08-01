@@ -41,7 +41,7 @@ export class WalletManager extends Wallets.WalletManager {
 
         const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
 
-        Handlers.Registry.get(transaction.type).throwIfCannotBeApplied(
+        Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
             transaction,
             sender,
             this.databaseService.walletManager,
@@ -49,6 +49,6 @@ export class WalletManager extends Wallets.WalletManager {
     }
 
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        return Handlers.Registry.get(transaction.type).revertForSender(transaction, this);
+        return Handlers.Registry.get(transaction.type, transaction.typeGroup).revertForSender(transaction, this);
     }
 }
