@@ -355,7 +355,7 @@ describe("Transaction serializer / deserializer", () => {
 
         it("should ser/deserialize giving back original fields", () => {
             const htlcClaim = BuilderFactory.htlcClaim()
-                .fee("50000000")
+                .fee("0")
                 .version(2)
                 .network(23)
                 .htlcClaimAsset(htlcClaimAsset)
@@ -382,7 +382,7 @@ describe("Transaction serializer / deserializer", () => {
 
         it("should ser/deserialize giving back original fields", () => {
             const htlcRefund = BuilderFactory.htlcRefund()
-                .fee("50000000")
+                .fee("0")
                 .version(2)
                 .network(23)
                 .htlcRefundAsset(htlcRefundAsset)

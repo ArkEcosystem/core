@@ -6,7 +6,6 @@ import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
-    HtlcLockedAmountLowerThanFeeError,
     HtlcLockExpiredError,
     HtlcLockNotExpiredError,
     HtlcLockTransactionNotFoundError,
@@ -1095,42 +1094,6 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             );
         });
 
-        it("should throw if locked amount is not enough to cover the claim fees", () => {
-            const amount = 10;
-            const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
-            const htlcLockAsset = {
-                secretHash,
-                expiration: {
-                    type: expirationType,
-                    value: makeNotExpiredTimestamp(expirationType),
-                },
-            };
-            lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
-                .withPassphrase(lockPassphrase)
-                .createOne();
-
-            const htlcClaimAsset = {
-                lockTransactionId: lockTransaction.id,
-                unlockSecret: secret,
-            };
-
-            lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
-            lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-            walletManager.reindex(lockWallet);
-
-            transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
-                .withPassphrase(claimPassphrase)
-                .createOne();
-
-            handler = Handlers.Registry.get(transaction.type);
-            instance = Transactions.TransactionFactory.fromData(transaction);
-
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
-                HtlcLockedAmountLowerThanFeeError,
-            );
-        });
-
         it("should not throw if claiming wallet is not recipient of lock transaction", () => {
             const dummyPassphrase = "not recipient of lock";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
@@ -1349,41 +1312,6 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
                 HtlcLockTransactionNotFoundError,
-            );
-        });
-
-        it("should throw if locked amount is not enough to cover the refund fees", () => {
-            const amount = 10;
-            const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
-            const htlcLockAsset = {
-                secretHash,
-                expiration: {
-                    type: expirationType,
-                    value: makeExpiredTimestamp(expirationType),
-                },
-            };
-            lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, recipientWallet.address, amount)
-                .withPassphrase(lockPassphrase)
-                .createOne();
-
-            const htlcRefundAsset = {
-                lockTransactionId: lockTransaction.id,
-            };
-
-            lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
-            lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
-            walletManager.reindex(lockWallet);
-
-            transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
-                .withPassphrase(lockPassphrase)
-                .createOne();
-
-            handler = Handlers.Registry.get(transaction.type);
-            instance = Transactions.TransactionFactory.fromData(transaction);
-
-            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
-                HtlcLockedAmountLowerThanFeeError,
             );
         });
 

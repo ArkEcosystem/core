@@ -71,7 +71,6 @@ describe("Wallet Manager", () => {
                 };
                 const claimTransaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                     .withPassphrase(claimPassphrase)
-                    .withFee(1e7)
                     .build(1)[0];
 
                 // lock wallet will vote for a delegate and we will check vote balance
@@ -195,7 +194,6 @@ describe("Wallet Manager", () => {
                 };
                 const claimTransaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                     .withPassphrase(claimPassphrase)
-                    .withFee(1e7)
                     .withNonce(Utils.BigNumber.make(1))
                     .build(1)[0];
 
@@ -339,7 +337,6 @@ describe("Wallet Manager", () => {
                 };
                 const refundTransaction = TransactionFactory.htlcRefund(htlcRefundAsset)
                     .withPassphrase(lockPassphrase)
-                    .withFee(1e7)
                     .withNonce(Utils.BigNumber.make(2))
                     .build(1)[0];
 

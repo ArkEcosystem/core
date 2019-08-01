@@ -881,7 +881,7 @@ describe("HTLC Lock Transaction", () => {
 
 describe("HTLC Claim Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
-    const fee = "" + 1 * ARKTOSHI;
+    const fee = "0";
     const htlcClaimAsset = {
         lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
         unlockSecret: "my secret that should be 32bytes",
@@ -957,11 +957,11 @@ describe("HTLC Claim Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 
-    it("should be invalid due to zero fee", () => {
+    it("should be invalid due to non-zero fee", () => {
         transaction
             .recipientId(address)
             .amount("0")
-            .fee("0")
+            .fee("1")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -979,7 +979,6 @@ describe("HTLC Claim Transaction", () => {
 
 describe("HTLC Refund Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
-    const fee = "" + 1 * ARKTOSHI;
     const htlcRefundAsset = {
         lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
     };
@@ -991,7 +990,7 @@ describe("HTLC Refund Transaction", () => {
     beforeEach(() => {
         transaction = BuilderFactory.htlcRefund()
             .recipientId(address)
-            .fee(fee)
+            .fee("0")
             .htlcRefundAsset(htlcRefundAsset);
     });
 
@@ -1034,11 +1033,11 @@ describe("HTLC Refund Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 
-    it("should be invalid due to zero fee", () => {
+    it("should be invalid due to non-zero fee", () => {
         transaction
             .recipientId(address)
             .amount("0")
-            .fee("0")
+            .fee("1")
             .sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
