@@ -44,7 +44,15 @@ export class TransactionHandlerRegistry {
     }
 
     public async getActivatedTransactions(): Promise<TransactionHandler[]> {
-        return [...this.registeredTransactionHandlers.values()].filter(async handler => await handler.isActivated());
+        const activatedTransactions: TransactionHandler[] = [];
+
+        for (const handler of this.registeredTransactionHandlers.values()) {
+            if (await handler.isActivated()) {
+                activatedTransactions.push(handler);
+            }
+        }
+
+        return activatedTransactions;
     }
 
     public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
@@ -58,6 +66,10 @@ export class TransactionHandlerRegistry {
 
         if (this.registeredTransactionHandlers.has(type)) {
             return;
+        }
+
+        if (!(type in Enums.TransactionTypes)) {
+            Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
         }
 
         this.registeredTransactionHandlers.set(type, service);

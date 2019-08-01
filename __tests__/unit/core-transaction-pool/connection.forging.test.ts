@@ -334,7 +334,7 @@ describe("Connection", () => {
         });
 
         it("should remove transactions that have have data of a another transaction type", async () => {
-            const handlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
+            const handlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
             const transactions: Interfaces.ITransaction[] = TransactionFactory.transfer().build(handlers.length);
 
             for (let i = 0; i < handlers.length; i++) {
