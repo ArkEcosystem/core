@@ -1175,7 +1175,7 @@ describe("Connection", () => {
             // Invalidate transactions with a vendor field longer then 64 chars
             Managers.configManager.setHeight(1);
 
-            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce();
+            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce(undefined);
 
             connection.purgeInvalidTransactions();
 

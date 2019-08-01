@@ -55,7 +55,7 @@ describe("Database Service", () => {
 
     describe("applyBlock", () => {
         it("should applyBlock", async () => {
-            jest.spyOn(walletManager, "applyBlock").mockImplementation(block => new Promise(jest.fn()));
+            jest.spyOn(walletManager, "applyBlock").mockImplementation(async block => undefined);
             jest.spyOn(emitter, "emit");
 
             databaseService = createService();

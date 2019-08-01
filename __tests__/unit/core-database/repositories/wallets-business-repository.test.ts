@@ -38,18 +38,18 @@ beforeEach(async () => {
 });
 
 const generateWallets = (): State.IWallet[] => {
-    return genesisSenders.map((senderPublicKey, index) => Object.assign(
-        new Wallets.Wallet(Address.fromPublicKey(senderPublicKey)), {
+    return genesisSenders.map((senderPublicKey, index) =>
+        Object.assign(new Wallets.Wallet(Address.fromPublicKey(senderPublicKey)), {
             balance: Utils.BigNumber.make(index),
-        })
+        }),
     );
 };
 
 const generateVotes = (): State.IWallet[] => {
-    return genesisSenders.map(senderPublicKey => Object.assign(
-        new Wallets.Wallet(Address.fromPublicKey(senderPublicKey)), {
-            attributes: { vote: genesisBlock.transactions[0].data.senderPublicKey, }
-        })
+    return genesisSenders.map(senderPublicKey =>
+        Object.assign(new Wallets.Wallet(Address.fromPublicKey(senderPublicKey)), {
+            attributes: { vote: genesisBlock.transactions[0].data.senderPublicKey },
+        }),
     );
 };
 
@@ -67,8 +67,8 @@ const generateFullWallets = (): State.IWallet[] => {
                     voteBalance: Utils.BigNumber.make(200),
                 },
                 vote: `vote-${address}`,
-            }
-        })
+            },
+        });
     });
 };
 
@@ -198,13 +198,14 @@ describe("Wallet Repository", () => {
 
         it("should search wallets by the specified closed inverval (included) of balance", () => {
             const wallets = generateFullWallets();
-            wallets.forEach((wallet, i) => {
+            for (let i = 0; i < wallets.length; i++) {
+                const wallet = wallets[i];
                 if (i < 13) {
                     wallet.balance = Utils.BigNumber.make(53);
                 } else if (i < 36) {
                     wallet.balance = Utils.BigNumber.make(99);
                 }
-            });
+            }
             walletManager.index(wallets);
 
             expectSearch(
@@ -221,13 +222,14 @@ describe("Wallet Repository", () => {
 
         it("should search wallets by the specified closed interval (included) of voteBalance", () => {
             const wallets = generateFullWallets();
-            wallets.forEach((wallet, i) => {
+            for (let i = 0; i < wallets.length; i++) {
+                const wallet = wallets[i];
                 if (i < 17) {
                     wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(12));
                 } else if (i < 29) {
                     wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(17));
                 }
-            });
+            }
             walletManager.index(wallets);
 
             expectSearch(
@@ -248,13 +250,14 @@ describe("Wallet Repository", () => {
 
         beforeEach(() => {
             const wallets = generateVotes();
-            wallets.forEach((wallet, i) => {
+            for (let i = 0; i < wallets.length; i++) {
+                const wallet = wallets[i];
                 if (i < 17) {
                     wallet.setAttribute("vote", vote);
                 }
 
                 wallet.balance = Utils.BigNumber.make(0);
-            });
+            }
             walletManager.index(wallets);
         });
 
@@ -332,15 +335,15 @@ describe("Wallet Repository", () => {
 
     describe("top", () => {
         beforeEach(() => {
-            [
+            for (const o of [
                 { address: "dummy-1", balance: Utils.BigNumber.make(1000) },
                 { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
                 { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
-            ].forEach(o => {
+            ]) {
                 const wallet = new Wallets.Wallet(o.address);
                 wallet.balance = o.balance;
                 walletManager.reindex(wallet);
-            });
+            }
         });
 
         it("should be ok without params", () => {

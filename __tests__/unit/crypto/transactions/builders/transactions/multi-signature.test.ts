@@ -6,7 +6,10 @@ configManager.setFromPreset("testnet");
 
 import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
 import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import { BuilderFactory, MultiSignatureRegistrationTransaction } from "../../../../../../packages/crypto/src/transactions";
+import {
+    BuilderFactory,
+    MultiSignatureRegistrationTransaction,
+} from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";

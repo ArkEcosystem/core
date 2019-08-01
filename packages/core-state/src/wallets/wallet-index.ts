@@ -1,4 +1,4 @@
-import { State } from '@arkecosystem/core-interfaces';
+import { State } from "@arkecosystem/core-interfaces";
 
 export class WalletIndex implements State.IWalletIndex {
     private walletIndex: Record<string, State.IWallet>;

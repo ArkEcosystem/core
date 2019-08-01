@@ -53,7 +53,8 @@ export class Wallet implements State.IWallet {
 
     public canBePurged(): boolean {
         const hasAttributes = Object.keys(this.attributes).length > 0;
-        return this.balance.isZero() && !hasAttributes;
+        const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
     }
 
     public applyBlock(block: Interfaces.IBlockData): boolean {
@@ -214,10 +215,6 @@ export class Wallet implements State.IWallet {
 
         if (transaction.type === Enums.TransactionTypes.Ipfs) {
             audit.push({ IPFS: true });
-        }
-
-        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
-            audit.push({ Timelock: true });
         }
 
         if (transaction.type === Enums.TransactionTypes.MultiPayment) {

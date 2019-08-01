@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, Shared, State } from "@arkecosystem/core-interfaces";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, Interfaces as TransactionInterfaces } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
@@ -33,6 +33,15 @@ export class WalletManager implements State.IWalletManager {
         this.registerIndex(State.WalletIndexes.Usernames, (index: State.IWalletIndex, wallet: State.IWallet) => {
             if (wallet.isDelegate()) {
                 index.set(wallet.getAttribute("delegate.username"), wallet);
+            }
+        });
+
+        this.registerIndex(State.WalletIndexes.Locks, (index: State.IWalletIndex, wallet: State.IWallet) => {
+            const locks = wallet.getAttribute("htlc.locks");
+            if (locks) {
+                for (const lockId of Object.keys(locks)) {
+                    index.set(lockId, wallet);
+                }
             }
         });
     }
@@ -205,7 +214,8 @@ export class WalletManager implements State.IWalletManager {
             if (voter.hasVoted()) {
                 const delegate: State.IWallet = this.findByPublicKey(voter.getAttribute<string>("vote"));
                 const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
-                delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance));
+                const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+                delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
             }
         }
     }
@@ -276,7 +286,7 @@ export class WalletManager implements State.IWalletManager {
             // Revert the transactions from last to first
             for (let i = block.transactions.length - 1; i >= 0; i--) {
                 const transaction: Interfaces.ITransaction = block.transactions[i];
-                this.revertTransaction(transaction);
+                await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
 
@@ -307,25 +317,41 @@ export class WalletManager implements State.IWalletManager {
     public applyTransaction(transaction: Interfaces.ITransaction): void {
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
 
+        let lockWallet: State.IWallet;
+        let lockTransaction: Interfaces.ITransactionData;
+        if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            lockWallet = this.findByIndex(State.WalletIndexes.Locks, lockId);
+            lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
+        }
+
         transactionHandler.apply(transaction, this);
 
         const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(transaction.data.recipientId);
 
-        this.updateVoteBalances(sender, recipient, transaction.data);
+        this.updateVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction);
     }
 
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const transactionHandler: TransactionInterfaces.ITransactionHandler = Handlers.Registry.get(transaction.type);
         const sender: State.IWallet = this.findByPublicKey(data.senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(data.recipientId);
 
-        transactionHandler.revert(transaction, this);
+        await transactionHandler.revert(transaction, this);
+
+        let lockWallet: State.IWallet;
+        let lockTransaction: Interfaces.ITransactionData;
+        if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            lockWallet = this.findByIndex(State.WalletIndexes.Locks, lockId);
+            lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
+        }
 
         // Revert vote balance updates
-        this.updateVoteBalances(sender, recipient, data, true);
+        this.updateVoteBalances(sender, recipient, data, lockWallet, lockTransaction, true);
     }
 
     public canBePurged(wallet: State.IWallet): boolean {
@@ -396,6 +422,8 @@ export class WalletManager implements State.IWalletManager {
         sender: State.IWallet,
         recipient: State.IWallet,
         transaction: Interfaces.ITransactionData,
+        lockWallet: State.IWallet,
+        lockTransaction: Interfaces.ITransactionData,
         revert: boolean = false,
     ): void {
         if (transaction.type !== Enums.TransactionTypes.Vote) {
@@ -415,9 +443,35 @@ export class WalletManager implements State.IWalletManager {
                     "delegate.voteBalance",
                     Utils.BigNumber.ZERO,
                 );
-                delegate.setAttribute(
+                let newVoteBalance: Utils.BigNumber;
+
+                if (transaction.type === Enums.TransactionTypes.HtlcLock) {
+                    // HTLC Lock keeps the locked amount as the sender's delegate vote balance
+                    newVoteBalance = revert ? voteBalance.plus(transaction.fee) : voteBalance.minus(transaction.fee);
+                } else if (transaction.type === Enums.TransactionTypes.HtlcClaim) {
+                    // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
+                    newVoteBalance = revert
+                        ? voteBalance.plus(transaction.fee).minus(lockTransaction.amount)
+                        : voteBalance.minus(transaction.fee).plus(lockTransaction.amount);
+                } else {
+                    // General case : sender delegate vote balance reduced by amount + fees (or increased if revert)
+                    newVoteBalance = revert ? voteBalance.plus(total) : voteBalance.minus(total);
+                }
+                delegate.setAttribute("delegate.voteBalance", newVoteBalance);
+            }
+
+            if (transaction.type === Enums.TransactionTypes.HtlcClaim && lockWallet.hasAttribute("vote")) {
+                // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
+                const lockWalletDelegate: State.IWallet = this.findByPublicKey(lockWallet.getAttribute("vote"));
+                const lockWalletDelegateVoteBalance: Utils.BigNumber = lockWalletDelegate.getAttribute(
                     "delegate.voteBalance",
-                    revert ? voteBalance.plus(total) : voteBalance.minus(total),
+                    Utils.BigNumber.ZERO,
+                );
+                lockWalletDelegate.setAttribute(
+                    "delegate.voteBalance",
+                    revert
+                        ? lockWalletDelegateVoteBalance.plus(lockTransaction.amount)
+                        : lockWalletDelegateVoteBalance.minus(lockTransaction.amount),
                 );
             }
 
@@ -441,7 +495,7 @@ export class WalletManager implements State.IWalletManager {
             }
 
             // Update vote balance of recipient's delegate
-            if (recipient && recipient.hasVoted()) {
+            if (recipient && recipient.hasVoted() && transaction.type !== Enums.TransactionTypes.HtlcLock) {
                 const delegate: State.IWallet = this.findByPublicKey(recipient.getAttribute("vote"));
                 const voteBalance: Utils.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",

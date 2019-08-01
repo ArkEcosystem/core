@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { IMultiSignatureAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { MultiSignatureRegistrationTransaction } from '../../types';
+import { MultiSignatureRegistrationTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {

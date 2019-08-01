@@ -84,6 +84,27 @@ export class TransactionFactory {
         return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
     }
 
+    public static htlcLock(
+        lockAsset: Interfaces.IHtlcLockAsset,
+        recipientId?: string,
+        amount: number = 2 * 1e8,
+    ): TransactionFactory {
+        const builder = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset(lockAsset)
+            .amount(Utils.BigNumber.make(amount).toFixed())
+            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
+
+        return new TransactionFactory(builder);
+    }
+
+    public static htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory {
+        return new TransactionFactory(Transactions.BuilderFactory.htlcClaim().htlcClaimAsset(claimAsset));
+    }
+
+    public static htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory {
+        return new TransactionFactory(Transactions.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset));
+    }
+
     public static multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
         const builder = Transactions.BuilderFactory.multiPayment();
         for (const payment of payments) {

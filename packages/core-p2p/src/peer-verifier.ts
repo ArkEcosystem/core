@@ -8,7 +8,7 @@ import { inspect } from "util";
 import { Severity } from "./enums";
 
 export class PeerVerificationResult implements P2P.IPeerVerificationResult {
-    public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) { }
+    public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
     get forked(): boolean {
         return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
@@ -172,7 +172,7 @@ export class PeerVerifier {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `peer's claimed chain is ${blocksAhead} block(s) higher than ` +
-                `ours (our height ${ourHeight}, his claimed height ${claimedHeight})`,
+                    `ours (our height ${ourHeight}, his claimed height ${claimedHeight})`,
             );
 
             return false;
@@ -184,8 +184,8 @@ export class PeerVerifier {
             blocks.length,
             1,
             `database.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
-            this.anyToString(blocks) +
-            ` (our chain is at height ${ourHeight})`,
+                this.anyToString(blocks) +
+                ` (our chain is at height ${ourHeight})`,
         );
 
         const ourBlockAtHisHeight = blocks[0];
@@ -195,14 +195,14 @@ export class PeerVerifier {
                 this.log(
                     Severity.DEBUG_EXTRA,
                     `success: peer's latest block is the same as our latest ` +
-                    `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`,
+                        `block (height=${claimedHeight}, id=${claimedState.header.id}). Identical chains.`,
                 );
             } else {
                 this.log(
                     Severity.DEBUG_EXTRA,
                     `success: peer's latest block ` +
-                    `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
-                    `Peer is ${ourHeight - claimedHeight} block(s) behind us.`,
+                        `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
+                        `Peer is ${ourHeight - claimedHeight} block(s) behind us.`,
                 );
             }
             return true;
@@ -211,9 +211,9 @@ export class PeerVerifier {
         this.log(
             Severity.DEBUG,
             `peer's latest block (height=${claimedHeight}, id=${claimedState.header.id}), is different than the ` +
-            `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
-            (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) +
-            ` different chain.`,
+                `block at the same height in our chain (id=${ourBlockAtHisHeight.id}). Peer has ` +
+                (claimedHeight < ourHeight ? `a shorter and` : `an equal-height but`) +
+                ` different chain.`,
         );
 
         return false;
@@ -282,7 +282,7 @@ export class PeerVerifier {
                 this.log(
                     Severity.DEBUG_EXTRA,
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
-                    `peer replied with block id ${highestCommon.id} which we did not ask for`,
+                        `peer replied with block id ${highestCommon.id} which we did not ask for`,
                 );
                 return undefined;
             }
@@ -291,9 +291,9 @@ export class PeerVerifier {
                 this.log(
                     Severity.DEBUG_EXTRA,
                     `failure: bogus reply from peer for common blocks ${ourBlocksPrint}: ` +
-                    `peer pretends to have block with id ${highestCommon.id} at height ` +
-                    `${highestCommon.height}, however a block with the same id is at ` +
-                    `different height ${probesHeightById[highestCommon.id]} in our chain`,
+                        `peer pretends to have block with id ${highestCommon.id} at height ` +
+                        `${highestCommon.height}, however a block with the same id is at ` +
+                        `different height ${probesHeightById[highestCommon.id]} in our chain`,
                 );
                 return undefined;
             }
@@ -379,7 +379,7 @@ export class PeerVerifier {
                 delegates.length,
                 maxDelegates,
                 `Couldn't derive the list of delegates for round ${round}. The database ` +
-                `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
+                    `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
             );
         }
 
@@ -435,7 +435,7 @@ export class PeerVerifier {
             this.log(
                 Severity.DEBUG_EXTRA,
                 `failure: could not get blocks starting from height ${height} ` +
-                `from peer: unexpected response: ${this.anyToString(response)}`,
+                    `from peer: unexpected response: ${this.anyToString(response)}`,
             );
             return false;
         }
@@ -502,8 +502,8 @@ export class PeerVerifier {
         this.log(
             Severity.DEBUG_EXTRA,
             `failure: block ${this.anyToString(blockData)} is not signed by any of the delegates ` +
-            `for the corresponding round: ` +
-            this.anyToString(Object.values(delegatesByPublicKey)),
+                `for the corresponding round: ` +
+                this.anyToString(Object.values(delegatesByPublicKey)),
         );
 
         return false;

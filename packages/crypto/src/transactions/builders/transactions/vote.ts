@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { VoteTransaction } from '../../types';
+import { VoteTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class VoteBuilder extends TransactionBuilder<VoteBuilder> {

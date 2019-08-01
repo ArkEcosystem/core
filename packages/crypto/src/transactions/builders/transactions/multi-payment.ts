@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../enums";
 import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { MultiPaymentTransaction } from '../../types';
+import { MultiPaymentTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {

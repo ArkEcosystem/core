@@ -19,8 +19,7 @@ const formatDelegates = (
         const filteredVoters: State.IWallet[] = databaseService.walletManager
             .allByPublicKey()
             .filter(
-                wallet =>
-                    wallet.getAttribute<string>("vote") === delegate.publicKey && wallet.balance.gt(0.1 * 1e8),
+                wallet => wallet.getAttribute<string>("vote") === delegate.publicKey && wallet.balance.gt(0.1 * 1e8),
             );
 
         const approval: string = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(

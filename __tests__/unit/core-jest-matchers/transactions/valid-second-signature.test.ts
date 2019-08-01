@@ -38,8 +38,6 @@ const transaction = {
         "3045022100fff70add8db1d54d1c504c354417c2ba5a03401e93cd9ec3f75605a64888d04502203c70c1a86c3c416af913a4d657b461d73f2297061801982463d7bd47f5a91cfe",
     asset: undefined,
     expiration: 0,
-    timelock: undefined,
-    timelockType: undefined,
     data: {
         version: 1,
         network: 23,
