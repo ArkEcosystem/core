@@ -613,9 +613,9 @@ describe("API 2.0 - Transactions", () => {
                 secondSignature: 500000000,
                 transfer: 10000000,
                 vote: 100000000,
-                htlcClaim: 10000000,
-                htlcLock: 10000000,
-                htlcRefund: 10000000,
+                htlcClaim: 0,
+                htlcLock: 100000000,
+                htlcRefund: 0,
             });
         });
     });
