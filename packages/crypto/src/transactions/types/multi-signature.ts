@@ -1,7 +1,12 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionTypes } from "../../enums";
-import { IMultiSignatureAsset, IMultiSignatureLegacyAsset, ISerializeOptions, ITransactionData } from "../../interfaces";
-import { BigNumber } from '../../utils/bignum';
+import {
+    IMultiSignatureAsset,
+    IMultiSignatureLegacyAsset,
+    ISerializeOptions,
+    ITransactionData,
+} from "../../interfaces";
+import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
@@ -13,7 +18,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
         return schemas.multiSignature;
     }
 
-    public static staticFee(feeContext: { height?: number, data?: ITransactionData } = {}): BigNumber {
+    public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
         const staticFee = super.staticFee(feeContext);
 
         const data: ITransactionData = feeContext.data;

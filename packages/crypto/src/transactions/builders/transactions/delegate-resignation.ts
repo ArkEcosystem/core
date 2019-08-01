@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { DelegateResignationTransaction } from '../../types';
+import { DelegateResignationTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateResignationBuilder extends TransactionBuilder<DelegateResignationBuilder> {

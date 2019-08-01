@@ -4,7 +4,7 @@ import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
     public search(params: Database.IParameters = {}): Database.IWalletsPaginated {
         const query: Record<string, string[]> = {

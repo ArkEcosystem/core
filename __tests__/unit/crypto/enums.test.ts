@@ -23,13 +23,19 @@ describe("Constants", () => {
         expect(enums.TransactionTypes.Ipfs).toBeDefined();
         expect(enums.TransactionTypes.Ipfs).toBe(5);
 
-        expect(enums.TransactionTypes.TimelockTransfer).toBeDefined();
-        expect(enums.TransactionTypes.TimelockTransfer).toBe(6);
-
         expect(enums.TransactionTypes.MultiPayment).toBeDefined();
-        expect(enums.TransactionTypes.MultiPayment).toBe(7);
+        expect(enums.TransactionTypes.MultiPayment).toBe(6);
 
         expect(enums.TransactionTypes.DelegateResignation).toBeDefined();
-        expect(enums.TransactionTypes.DelegateResignation).toBe(8);
+        expect(enums.TransactionTypes.DelegateResignation).toBe(7);
+
+        expect(enums.TransactionTypes.HtlcLock).toBeDefined();
+        expect(enums.TransactionTypes.HtlcLock).toBe(8);
+
+        expect(enums.TransactionTypes.HtlcClaim).toBeDefined();
+        expect(enums.TransactionTypes.HtlcClaim).toBe(9);
+
+        expect(enums.TransactionTypes.HtlcRefund).toBeDefined();
+        expect(enums.TransactionTypes.HtlcRefund).toBe(10);
     });
 });

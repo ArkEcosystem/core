@@ -200,11 +200,78 @@ export const ipfs = extend(transactionBaseSchema, {
     },
 });
 
-export const timelockTransfer = extend(transactionBaseSchema, {
-    $id: "timelockTransfer",
+export const htlcLock = extend(transactionBaseSchema, {
+    $id: "htlcLock",
     properties: {
-        type: { transactionType: TransactionTypes.TimelockTransfer },
+        type: { transactionType: TransactionTypes.HtlcLock },
+        amount: { bignumber: { minimum: 1 } },
+        recipientId: { $ref: "address" },
+        asset: {
+            type: "object",
+            required: ["lock"],
+            properties: {
+                lock: {
+                    type: "object",
+                    required: ["secretHash", "expiration"],
+                    properties: {
+                        secretHash: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                        expiration: {
+                            type: "object",
+                            required: ["type", "value"],
+                            properties: {
+                                type: { type: "integer", minimum: 1, maximum: 2 },
+                                value: { type: "integer", minimum: 0 },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+});
+
+export const htlcClaim = extend(transactionBaseSchema, {
+    $id: "htlcClaim",
+    properties: {
+        type: { transactionType: TransactionTypes.HtlcClaim },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        fee: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["claim"],
+            properties: {
+                claim: {
+                    type: "object",
+                    required: ["lockTransactionId", "unlockSecret"],
+                    properties: {
+                        lockTransactionId: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                        unlockSecret: { type: "string", minLength: 32, maxLength: 32 },
+                    },
+                },
+            },
+        },
+    },
+});
+
+export const htlcRefund = extend(transactionBaseSchema, {
+    $id: "htlcRefund",
+    properties: {
+        type: { transactionType: TransactionTypes.HtlcRefund },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+        fee: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["refund"],
+            properties: {
+                refund: {
+                    type: "object",
+                    required: ["lockTransactionId"],
+                    properties: {
+                        lockTransactionId: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                    },
+                },
+            },
+        },
     },
 });
 

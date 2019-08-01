@@ -163,9 +163,11 @@ describe("API 2.0 - Transactions", () => {
                 Vote: 3,
                 MultiSignature: 4,
                 Ipfs: 5,
-                TimelockTransfer: 6,
-                MultiPayment: 7,
-                DelegateResignation: 8,
+                MultiPayment: 6,
+                DelegateResignation: 7,
+                HtlcLock: 8,
+                HtlcClaim: 9,
+                HtlcRefund: 10,
             });
         });
     });
@@ -609,9 +611,11 @@ describe("API 2.0 - Transactions", () => {
                 multiPayment: 10000000,
                 multiSignature: 500000000,
                 secondSignature: 500000000,
-                timelockTransfer: 0,
                 transfer: 10000000,
                 vote: 100000000,
+                htlcClaim: 0,
+                htlcLock: 10000000,
+                htlcRefund: 0,
             });
         });
     });

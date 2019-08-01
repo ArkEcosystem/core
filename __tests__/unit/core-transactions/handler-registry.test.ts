@@ -72,7 +72,7 @@ class TestTransactionHandler extends TransactionHandler {
     public apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): void {
         return;
     }
-    public revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): void {
+    public async revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): Promise<void> {
         return;
     }
 
@@ -111,6 +111,9 @@ describe("Registry", () => {
             Registry.get(TransactionTypes.Vote);
             Registry.get(TransactionTypes.MultiSignature);
             Registry.get(TransactionTypes.Ipfs);
+            Registry.get(TransactionTypes.HtlcLock);
+            Registry.get(TransactionTypes.HtlcClaim);
+            Registry.get(TransactionTypes.HtlcRefund);
             Registry.get(TransactionTypes.MultiPayment);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });

@@ -63,8 +63,8 @@ export class StateBuilder {
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
             wallet.nonce = Utils.BigNumber.make(transaction.nonce);
+            wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
         }
     }
 

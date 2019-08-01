@@ -49,7 +49,7 @@ describe("Wallet Manager", () => {
         });
     });
 
-    describe("applyBlock", () => {
+    describe("block processing", () => {
         let delegateMock;
         let block2: Interfaces.IBlock;
 
@@ -64,7 +64,14 @@ describe("Wallet Manager", () => {
         }
 
         beforeEach(() => {
-            delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey, isDelegate: () => false };
+            delegateMock = {
+                applyBlock: jest.fn(),
+                revertBlock: jest.fn(),
+                publicKey: delegatePublicKey,
+                isDelegate: () => false,
+                getAttribute: jest.fn(),
+            };
+
             // @ts-ignore
             jest.spyOn(walletManager, "findByPublicKey").mockReturnValue(delegateMock);
             jest.spyOn(walletManager, "applyTransaction").mockImplementation();
@@ -81,78 +88,106 @@ describe("Wallet Manager", () => {
             walletManager.reindex(delegateMock);
         });
 
-        it("should apply sequentially the transactions of the block", async () => {
-            await walletManager.applyBlock(block2);
+        describe("applyBlock", () => {
+            it("should apply sequentially the transactions of the block", async () => {
+                await walletManager.applyBlock(block2);
 
-            for (let i = 0; i < block2.transactions.length; i++) {
-                expect(walletManager.applyTransaction).toHaveBeenNthCalledWith(i + 1, block2.transactions[i]);
-            }
-        });
+                for (let i = 0; i < block2.transactions.length; i++) {
+                    expect(walletManager.applyTransaction).toHaveBeenNthCalledWith(i + 1, block2.transactions[i]);
+                }
+            });
 
-        it("should apply the block data to the delegate", async () => {
-            await walletManager.applyBlock(block);
+            it("should apply the block data to the delegate", async () => {
+                await walletManager.applyBlock(block);
 
-            expect(delegateMock.applyBlock).toHaveBeenCalledWith(block.data);
-        });
+                expect(delegateMock.applyBlock).toHaveBeenCalledWith(block.data);
+            });
 
-        describe("when 1 transaction fails while applying it", () => {
-            it("should revert sequentially (from last to first) all the transactions of the block", async () => {
-                // @ts-ignore
-                jest.spyOn(walletManager, "applyTransaction").mockImplementation(tx => {
-                    if (tx === block2.transactions[2]) {
-                        throw new Error("Fake error");
+            describe("when 1 transaction fails while applying it", () => {
+                it("should revert sequentially (from last to first) all the transactions of the block", async () => {
+                    // @ts-ignore
+                    jest.spyOn(walletManager, "applyTransaction").mockImplementation(tx => {
+                        if (tx === block2.transactions[2]) {
+                            throw new Error("Fake error");
+                        }
+                    });
+
+                    expect(block2.transactions.length).toBe(3);
+
+                    try {
+                        await walletManager.applyBlock(block2);
+
+                        expect(undefined).toBe("this should fail if no error is thrown");
+                    } catch (error) {
+                        expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
+                        // tslint:disable-next-line: ban
+                        block2.transactions.slice(0, 1).forEach((transaction, i, total) => {
+                            expect(walletManager.revertTransaction).toHaveBeenNthCalledWith(
+                                total.length + 1 - i,
+                                block2.transactions[i],
+                            );
+                        });
                     }
                 });
 
-                expect(block2.transactions.length).toBe(3);
-
-                try {
-                    await walletManager.applyBlock(block2);
-
-                    expect(undefined).toBe("this should fail if no error is thrown");
-                } catch (error) {
-                    expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
-                    // tslint:disable-next-line: ban
-                    block2.transactions.slice(0, 1).forEach((transaction, i, total) => {
-                        expect(walletManager.revertTransaction).toHaveBeenNthCalledWith(
-                            total.length + 1 - i,
-                            block2.transactions[i],
-                        );
+                it("throws the Error", async () => {
+                    walletManager.applyTransaction = jest.fn(tx => {
+                        throw new Error("Fake error");
                     });
-                }
+
+                    try {
+                        await walletManager.applyBlock(block2);
+
+                        expect(undefined).toBe("this should fail if no error is thrown");
+                    } catch (error) {
+                        expect(error).toBeInstanceOf(Error);
+                        expect(error.message).toBe("Fake error");
+                    }
+                });
             });
 
-            it("throws the Error", async () => {
-                walletManager.applyTransaction = jest.fn(tx => {
-                    throw new Error("Fake error");
+            it("should return the current block", async () => {
+                expect(walletManager.getCurrentBlock()).toBeUndefined();
+
+                const applyTransaction = jest.spyOn(walletManager, "applyTransaction").mockImplementationOnce(() => {
+                    expect(walletManager.getCurrentBlock()).toBe(block2);
                 });
 
-                try {
-                    await walletManager.applyBlock(block2);
+                await walletManager.applyBlock(block2);
+                expect(applyTransaction).toHaveBeenCalled();
+                expect(walletManager.getCurrentBlock()).toBeUndefined();
+            });
 
-                    expect(undefined).toBe("this should fail if no error is thrown");
-                } catch (error) {
-                    expect(error).toBeInstanceOf(Error);
-                    expect(error.message).toBe("Fake error");
-                }
+            describe.skip("the delegate of the block is not indexed", () => {
+                describe("not genesis block", () => {
+                    it("throw an Error", () => {});
+                });
+
+                describe("genesis block", () => {
+                    it("generates a new wallet", () => {});
+                });
             });
         });
 
-        describe.skip("the delegate of the block is not indexed", () => {
-            describe("not genesis block", () => {
-                it("throw an Error", () => {});
-            });
+        describe("revertBlock", () => {
+            it.todo("should revert all transactions of the block");
 
-            describe("genesis block", () => {
-                it("generates a new wallet", () => {});
+            it.todo("should revert the block of the delegate");
+
+            it("should return the current block", async () => {
+                expect(walletManager.getCurrentBlock()).toBeUndefined();
+
+                const revertTransaction = jest
+                    .spyOn(walletManager, "revertTransaction")
+                    .mockImplementationOnce(async () => {
+                        expect(walletManager.getCurrentBlock()).toBe(block2);
+                    });
+
+                await walletManager.revertBlock(block2);
+                expect(revertTransaction).toHaveBeenCalled();
+                expect(walletManager.getCurrentBlock()).toBeUndefined();
             });
         });
-    });
-
-    describe.skip("revertBlock", () => {
-        it("should revert all transactions of the block", () => {});
-
-        it("should revert the block of the delegate", () => {});
     });
 
     describe("applyTransaction", () => {
@@ -251,7 +286,7 @@ describe("Wallet Manager", () => {
             expect(sender.balance).toEqual(Utils.BigNumber.ZERO);
             expect(recipient.balance).toEqual(transaction.data.amount);
 
-            walletManager.revertTransaction(transaction);
+            await walletManager.revertTransaction(transaction);
 
             expect(sender.balance).toEqual(transaction.data.amount.plus(transaction.data.fee));
             expect(recipient.balance).toEqual(Utils.BigNumber.ZERO);
@@ -292,7 +327,7 @@ describe("Wallet Manager", () => {
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
                 Utils.BigNumber.make(100_000_000).plus(voter.balance),
             );
-            walletManager.revertTransaction(voteTransaction);
+            await walletManager.revertTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
@@ -354,7 +389,7 @@ describe("Wallet Manager", () => {
                 Utils.BigNumber.make(100_000_000),
             );
 
-            walletManager.revertTransaction(unvoteTransaction);
+            await walletManager.revertTransaction(unvoteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(

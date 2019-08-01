@@ -1,0 +1,222 @@
+import { app } from "@arkecosystem/core-container";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { formatTimestamp } from "@arkecosystem/core-utils";
+import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import assert = require("assert");
+import {
+    HtlcLockNotExpiredError,
+    HtlcLockTransactionNotFoundError,
+    InvalidMultiSignatureError,
+    InvalidSecondSignatureError,
+    SenderWalletMismatchError,
+    UnexpectedMultiSignatureError,
+    UnexpectedNonceError,
+    UnexpectedSecondSignatureError,
+} from "../errors";
+import { TransactionHandler } from "./transaction";
+
+const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
+
+export class HtlcRefundTransactionHandler extends TransactionHandler {
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.HtlcRefundTransaction;
+    }
+
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        for (const transaction of transactions) {
+            const lockId = transaction.asset.refund.lockTransactionId;
+            const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+            const locks = lockWallet.getAttribute("htlc.locks");
+            lockWallet.balance = lockWallet.balance.plus(locks[lockId].amount);
+            const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+            lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+            delete locks[lockId];
+            lockWallet.setAttribute("htlc.locks", locks);
+            walletManager.reindex(lockWallet);
+        }
+    }
+
+    public dynamicFee(
+        transaction: Interfaces.ITransaction,
+        addonBytes: number,
+        satoshiPerByte: number,
+    ): Utils.BigNumber {
+        // override dynamicFee calculation as this is a zero-fee transaction
+        return Utils.BigNumber.ZERO;
+    }
+
+    public throwIfCannotBeApplied(
+        transaction: Interfaces.ITransaction,
+        sender: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
+    ): void {
+        // Common checks (copied from inherited transaction handler class)
+        // Only common balance check was removed because we need a specific balance check here
+        const data: Interfaces.ITransactionData = transaction.data;
+
+        if (Utils.isException(data)) {
+            return;
+        }
+
+        if (data.version > 1 && data.nonce.isLessThanOrEqualTo(sender.nonce)) {
+            throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+        }
+
+        if (data.senderPublicKey !== sender.publicKey) {
+            throw new SenderWalletMismatchError();
+        }
+
+        if (sender.hasSecondSignature()) {
+            // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
+            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            if (!dbSender.hasSecondSignature()) {
+                throw new UnexpectedSecondSignatureError();
+            }
+
+            if (!Transactions.Verifier.verifySecondSignature(data, sender.getAttribute("secondPublicKey"))) {
+                throw new InvalidSecondSignatureError();
+            }
+        } else if (data.secondSignature || data.signSignature) {
+            const isException =
+                Managers.configManager.get("network.name") === "devnet" &&
+                Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
+            if (!isException) {
+                throw new UnexpectedSecondSignatureError();
+            }
+        }
+
+        if (sender.hasMultiSignature()) {
+            // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
+            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            if (!dbSender.hasMultiSignature()) {
+                throw new UnexpectedMultiSignatureError();
+            }
+
+            if (!sender.verifySignatures(data, sender.getAttribute("multiSignature"))) {
+                throw new InvalidMultiSignatureError();
+            }
+        } else if (transaction.type !== Enums.TransactionTypes.MultiSignature && transaction.data.signatures) {
+            throw new UnexpectedMultiSignatureError();
+        }
+
+        // Specific HTLC refund checks
+        const refundAsset = transaction.data.asset.refund;
+        const lockId = refundAsset.lockTransactionId;
+        const lockWallet = databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
+            throw new HtlcLockTransactionNotFoundError();
+        }
+
+        const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
+        const lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
+        const lastBlockEpochTimestamp = lastBlock.data.timestamp;
+        const expiration = lockTransaction.asset.lock.expiration;
+        if (
+            (expiration.type === UnixTimestamp && expiration.value > formatTimestamp(lastBlockEpochTimestamp).unix) ||
+            (expiration.type === BlockHeight && expiration.value > lastBlock.data.height)
+        ) {
+            throw new HtlcLockNotExpiredError();
+        }
+    }
+
+    public canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): boolean {
+        const lockId = data.asset.refund.lockTransactionId;
+        const lockWallet: State.IWallet = pool.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
+            processor.pushError(
+                data,
+                "ERR_HTLCLOCKNOTFOUND",
+                `The associated lock transaction id "${lockId}" was not found.`,
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const data: Interfaces.ITransactionData = transaction.data;
+
+        if (Utils.isException(data)) {
+            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+        }
+
+        this.throwIfCannotBeApplied(transaction, sender, walletManager);
+
+        if (data.version > 1) {
+            if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
+                throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+            }
+
+            sender.nonce = data.nonce;
+        }
+
+        const lockId = data.asset.refund.lockTransactionId;
+        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
+
+        const locks = lockWallet.getAttribute("htlc.locks");
+        const newBalance = lockWallet.balance.plus(locks[lockId].amount).minus(data.fee);
+        assert(!newBalance.isNegative());
+
+        lockWallet.balance = newBalance;
+        const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+        delete locks[lockId];
+        lockWallet.setAttribute("htlc.locks", locks);
+
+        walletManager.reindex(lockWallet);
+    }
+
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const data: Interfaces.ITransactionData = transaction.data;
+
+        if (data.version > 1) {
+            if (!sender.nonce.isEqualTo(data.nonce)) {
+                throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
+            }
+
+            sender.nonce = sender.nonce.minus(1);
+        }
+
+        // todo to improve : not so good to call database from here, would need a better way
+        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
+        const lockId = transaction.data.asset.refund.lockTransactionId;
+        const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
+        const lockWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
+
+        lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
+        const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
+        const locks = lockWallet.getAttribute("htlc.locks", {});
+        locks[lockTransaction.id] = lockTransaction;
+        lockWallet.setAttribute("htlc.locks", locks);
+
+        walletManager.reindex(lockWallet);
+    }
+
+    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+        await this.revertForSender(transaction, walletManager);
+        this.revertForRecipient(transaction, walletManager);
+    }
+
+    // tslint:disable-next-line:no-empty
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+
+    // tslint:disable-next-line:no-empty
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+}

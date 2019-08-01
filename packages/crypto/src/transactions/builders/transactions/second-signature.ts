@@ -2,7 +2,7 @@ import { TransactionTypes } from "../../../enums";
 import { Keys } from "../../../identities";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { SecondSignatureRegistrationTransaction } from '../../types';
+import { SecondSignatureRegistrationTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {

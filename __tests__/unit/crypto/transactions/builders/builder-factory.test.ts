@@ -7,7 +7,6 @@ import { IPFSBuilder } from "../../../../../packages/crypto/src/transactions/bui
 import { MultiPaymentBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/multi-payment";
 import { MultiSignatureBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import { SecondSignatureBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
-import { TimelockTransferBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/timelock-transfer";
 import { TransferBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
 import { VoteBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/vote";
 
@@ -34,10 +33,6 @@ describe("Builder Factory", () => {
 
     it("should create SecondSignatureBuilder", () => {
         expect(BuilderFactory.secondSignature()).toBeInstanceOf(SecondSignatureBuilder);
-    });
-
-    it("should create TimelockTransferBuilder", () => {
-        expect(BuilderFactory.timelockTransfer()).toBeInstanceOf(TimelockTransferBuilder);
     });
 
     it("should create TransferBuilder", () => {

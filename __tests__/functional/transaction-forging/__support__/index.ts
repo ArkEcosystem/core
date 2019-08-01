@@ -48,6 +48,9 @@ export const setUp = async (): Promise<void> => {
 };
 
 export const tearDown = async (): Promise<void> => {
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    await databaseService.reset();
+
     await app.tearDown();
 };
 

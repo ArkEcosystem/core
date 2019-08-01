@@ -8,6 +8,7 @@ export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
     Usernames = "usernames",
+    Locks = "locks",
 }
 
 export interface IWallet {
@@ -94,6 +95,8 @@ export interface IWalletManager {
     index(wallets: ReadonlyArray<IWallet>): void;
 
     reindex(wallet: IWallet): void;
+
+    getCurrentBlock(): Readonly<Interfaces.IBlock>;
 
     clone(): IWalletManager;
 

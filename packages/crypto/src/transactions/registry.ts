@@ -1,17 +1,16 @@
 import { TransactionTypes } from "../enums";
-import {
-    TransactionAlreadyRegisteredError,
-    TransactionTypeInvalidRangeError,
-} from "../errors";
+import { TransactionAlreadyRegisteredError, TransactionTypeInvalidRangeError } from "../errors";
 import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
+    HtlcClaimTransaction,
+    HtlcLockTransaction,
+    HtlcRefundTransaction,
     IpfsTransaction,
     MultiPaymentTransaction,
     MultiSignatureRegistrationTransaction,
     SecondSignatureRegistrationTransaction,
-    TimelockTransferTransaction,
     Transaction,
     TransactionTypeFactory,
     TransferTransaction,
@@ -36,9 +35,11 @@ class TransactionRegistry {
         this.registerCoreType(VoteTransaction);
         this.registerCoreType(MultiSignatureRegistrationTransaction);
         this.registerCoreType(IpfsTransaction);
-        this.registerCoreType(TimelockTransferTransaction);
         this.registerCoreType(MultiPaymentTransaction);
         this.registerCoreType(DelegateResignationTransaction);
+        this.registerCoreType(HtlcLockTransaction);
+        this.registerCoreType(HtlcClaimTransaction);
+        this.registerCoreType(HtlcRefundTransaction);
     }
 
     public registerCustomType(constructor: TransactionConstructor): void {

@@ -1,7 +1,7 @@
 import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { IpfsTransaction } from '../../types';
+import { IpfsTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
