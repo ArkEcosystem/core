@@ -18,7 +18,7 @@ export default {
         {
             file: pkg.browser,
             format: "iife",
-            name: "arkcrypto" // the global which can be used in a browser
+            name: "ArkCrypto" // the global which can be used in a browser
         }
     ],
     external: [
