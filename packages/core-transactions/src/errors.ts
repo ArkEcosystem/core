@@ -26,12 +26,6 @@ export class NotImplementedError extends TransactionError {
     }
 }
 
-export class TransactionHandlerAlreadyRegisteredError extends TransactionError {
-    constructor(type: number) {
-        super(`Transaction service for type ${type} is already registered.`);
-    }
-}
-
 export class InvalidTransactionTypeError extends TransactionError {
     constructor(type: number) {
         super(`Transaction type ${type} does not exist.`);

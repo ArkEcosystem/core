@@ -1,11 +1,15 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { InsufficientBalanceError } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class MultiPaymentTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiPaymentTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -19,6 +23,10 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
                 sender.balance = sender.balance.minus(payment.amount);
             }
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public throwIfCannotBeApplied(
