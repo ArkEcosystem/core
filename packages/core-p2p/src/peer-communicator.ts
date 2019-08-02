@@ -140,9 +140,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         {
             fromBlockHeight,
             blockLimit,
-            timeoutMsec,
             headersOnly,
-        }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
+        }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
         const peerBlocks = await this.emit(
             peer,
@@ -156,7 +155,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            timeoutMsec || 10000,
+            app.resolveOptions("p2p").getBlocksTimeout,
         );
 
         if (!peerBlocks) {

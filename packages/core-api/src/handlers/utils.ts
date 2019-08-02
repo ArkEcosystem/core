@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { transformerService } from "../services/transformer";
@@ -30,6 +31,10 @@ export const respondWithCollection = (data, transformer, transform: boolean = tr
 };
 
 export const respondWithCache = (data, h): any => {
+    if (!app.resolveOptions("api").cache.enabled) {
+        return data;
+    }
+
     const { value, cached } = data;
     const lastModified = cached ? new Date(cached.stored) : new Date();
 
