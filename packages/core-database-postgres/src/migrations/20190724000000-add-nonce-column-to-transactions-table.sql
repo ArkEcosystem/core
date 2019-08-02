@@ -1,6 +1,6 @@
 ALTER TABLE ${schema~}.transactions DROP CONSTRAINT IF EXISTS "transactions_nonce";
 
-DROP FUNCTION IF EXISTS check_transaction_nonce(
+DROP FUNCTION IF EXISTS ${schema~}.check_transaction_nonce(
   version_arg ${schema~}.transactions.version%TYPE,
   id_arg ${schema~}.transactions.id%TYPE,
   sender_public_key_arg ${schema~}.transactions.sender_public_key%TYPE,
@@ -40,7 +40,7 @@ BEGIN
     ${schema~}.transactions.sequence
   LOOP
     IF current_row.sender_public_key != previous_sender_public_key THEN
-      i := 0;
+      i := 1;
     END IF;
     UPDATE ${schema~}.transactions SET nonce = i WHERE id = current_row.id;
     previous_sender_public_key := current_row.sender_public_key;
@@ -61,7 +61,7 @@ CREATE FUNCTION ${schema~}.set_row_nonce() RETURNS TRIGGER
 AS
 $$
 BEGIN
-  SELECT COUNT(*) INTO NEW.nonce
+  SELECT COUNT(*) + 1 INTO NEW.nonce
   FROM ${schema~}.transactions
   WHERE sender_public_key = NEW.sender_public_key;
 
@@ -95,10 +95,6 @@ DECLARE
   previous_tx_sequence ${schema~}.transactions.sequence%TYPE;
   error_message_prefix TEXT;
 BEGIN
-  IF version_arg = 1 THEN
-    RETURN TRUE;
-  END IF;
-
   IF nonce_arg IS NULL THEN
     RAISE 'Invalid transaction: version=%, but nonce is NULL (id="%")', version_arg, id_arg;
   END IF;
@@ -111,7 +107,7 @@ BEGIN
   END IF;
 
   -- First transaction from this sender.
-  IF nonce_arg = 0 THEN
+  IF nonce_arg = 1 THEN
     RETURN TRUE;
   END IF;
 
