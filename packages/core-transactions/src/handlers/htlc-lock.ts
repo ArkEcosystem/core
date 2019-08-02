@@ -1,10 +1,14 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { TransactionHandler } from "./transaction";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class HtlcLockTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcLockTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -18,6 +22,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
             walletManager.reindex(wallet);
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public throwIfCannotBeApplied(

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-logger",
-    "version": "2.5.7",
+    "version": "2.5.0-next.10",
     "description": "Logger Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,8 +19,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.7",
-        "@arkecosystem/core-interfaces": "^2.5.7",
+        "@arkecosystem/core-container": "^2.5.0-next.10",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.10",
         "lodash.isempty": "^4.4.0"
     },
     "devDependencies": {

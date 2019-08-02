@@ -15,8 +15,12 @@ import {
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
 
+export type TransactionHandlerConstructor = new () => TransactionHandler;
+
 export abstract class TransactionHandler implements ITransactionHandler {
     public abstract getConstructor(): Transactions.TransactionConstructor;
+
+    public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
 
     /**
      * Wallet logic
@@ -35,6 +39,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         return transaction.isVerified;
     }
+
+    public abstract async isActivated(): Promise<boolean>;
 
     public dynamicFee(
         transaction: Interfaces.ITransaction,

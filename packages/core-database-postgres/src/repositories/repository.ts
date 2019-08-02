@@ -60,8 +60,6 @@ export abstract class Repository implements Database.IRepository {
                 if (column) {
                     selectQuery.order(column[o.direction]);
                 }
-
-                selectQuery.order(this.query[o.field][o.direction]);
             }
         }
 

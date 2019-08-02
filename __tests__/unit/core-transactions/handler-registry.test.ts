@@ -5,6 +5,8 @@ import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } 
 import ByteBuffer from "bytebuffer";
 import { Errors } from "../../../packages/core-transactions/src";
 import { Registry, TransactionHandler } from "../../../packages/core-transactions/src/handlers";
+import { TransactionHandlerConstructor } from "../../../packages/core-transactions/src/handlers/transaction";
+import { TransferTransactionHandler } from "../../../packages/core-transactions/src/handlers/transfer";
 
 import { testnet } from "../../../packages/crypto/src/networks";
 
@@ -61,8 +63,16 @@ class TestTransaction extends Transactions.Transaction {
 
 // tslint:disable-next-line:max-classes-per-file
 class TestTransactionHandler extends TransactionHandler {
+    public dependencies(): TransactionHandlerConstructor[] {
+        return [];
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         return;
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return true;
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
@@ -85,10 +95,10 @@ class TestTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line: no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 
     // tslint:disable-next-line: no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
 }
 
 beforeAll(() => {
@@ -96,10 +106,6 @@ beforeAll(() => {
     testnet.milestones[0].fees.staticFees.test = 1234;
 
     Managers.configManager.setConfig(testnet);
-});
-
-afterEach(() => {
-    Registry.deregisterCustomTransactionHandler(TestTransactionHandler);
 });
 
 describe("Registry", () => {
@@ -119,13 +125,14 @@ describe("Registry", () => {
     });
 
     it("should register a custom type", () => {
-        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError();
+        expect(() => Registry.registerTransactionHandler(TestTransactionHandler)).not.toThrowError();
         expect(Registry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
         expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
+        expect(() => Registry.deregisterTransactionHandler(TestTransactionHandler)).not.toThrowError();
     });
 
     it("should be able to instantiate a custom transaction", () => {
-        Registry.registerCustomTransactionHandler(TestTransactionHandler);
+        Registry.registerTransactionHandler(TestTransactionHandler);
 
         const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
@@ -151,15 +158,43 @@ describe("Registry", () => {
         const deserialized = Transactions.TransactionFactory.fromBytes(bytes);
         expect(deserialized.verified);
         expect(deserialized.data.asset.test).toBe(256);
+
+        expect(() => Registry.deregisterTransactionHandler(TestTransactionHandler)).not.toThrowError();
     });
 
-    it("should not be ok when registering the same type again", () => {
-        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).not.toThrowError(
-            Errors.TransactionHandlerAlreadyRegisteredError,
-        );
+    it("should throw when trying to deregister a Core transaction type", () => {
+        expect(() => Registry.deregisterTransactionHandler(TransferTransactionHandler)).toThrowError();
+    });
 
-        expect(() => Registry.registerCustomTransactionHandler(TestTransactionHandler)).toThrowError(
-            Errors.TransactionHandlerAlreadyRegisteredError,
-        );
+    it("should return all activated transactions", async () => {
+        let handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2);
+
+        Registry.registerTransactionHandler(TestTransactionHandler);
+
+        handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2 + 1);
+
+        jest.spyOn(Registry.get(TEST_TRANSACTION_TYPE), "isActivated").mockResolvedValueOnce(false);
+
+        handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2);
+
+        handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2 + 1);
+
+        Registry.deregisterTransactionHandler(TestTransactionHandler);
+    });
+
+    it("should only return V1 transactions when AIP11 is off", async () => {
+        Managers.configManager.getMilestone().aip11 = false;
+
+        let handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(4);
+
+        Managers.configManager.getMilestone().aip11 = true;
+
+        handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2);
     });
 });

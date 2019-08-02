@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -13,16 +13,8 @@ export class StateBuilder {
     ) {}
 
     public async run(): Promise<void> {
-        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
-        let steps = transactionHandlers.length + 2;
-
-        // FIXME: skip state generation of new tx types unless we are on testnet (until develop is on 2.6)
-        const aip11 =
-            Managers.configManager.getMilestone().aip11 &&
-            ["testnet", "unitnet"].includes(Managers.configManager.get("network.name"));
-        if (!aip11) {
-            steps -= 5;
-        }
+        const transactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
+        const steps = transactionHandlers.length + 2;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
@@ -30,11 +22,12 @@ export class StateBuilder {
         this.logger.info(`State Generation - Step 2 of ${steps}: Fees & Nonces`);
         await this.buildSentTransactions();
 
-        for (let i = 0; i < (aip11 ? transactionHandlers.length : 4); i++) {
+        const capitalize = (key: string) => key[0].toUpperCase() + key.slice(1);
+        for (let i = 0; i < transactionHandlers.length; i++) {
             const transactionHandler = transactionHandlers[i];
-            const transactionName = transactionHandler.constructor.name.replace("TransactionHandler", "");
-
-            this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${transactionName}`);
+            this.logger.info(
+                `State Generation - Step ${3 + i} of ${steps}: ${capitalize(transactionHandler.getConstructor().key)}`,
+            );
 
             await transactionHandler.bootstrap(this.connection, this.walletManager);
         }

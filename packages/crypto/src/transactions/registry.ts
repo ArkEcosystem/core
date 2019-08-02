@@ -1,5 +1,5 @@
 import { TransactionTypes } from "../enums";
-import { TransactionAlreadyRegisteredError, TransactionTypeInvalidRangeError } from "../errors";
+import { TransactionAlreadyRegisteredError } from "../errors";
 import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
@@ -20,58 +20,49 @@ import {
 export type TransactionConstructor = typeof Transaction;
 
 class TransactionRegistry {
-    private readonly coreTypes: Map<TransactionTypes, TransactionConstructor> = new Map<
+    private readonly transactionTypes: Map<number, TransactionConstructor> = new Map<
         TransactionTypes,
         TransactionConstructor
     >();
-    private readonly customTypes: Map<number, TransactionConstructor> = new Map<number, TransactionConstructor>();
 
     constructor() {
-        TransactionTypeFactory.initialize(this.coreTypes, this.customTypes);
+        TransactionTypeFactory.initialize(this.transactionTypes);
 
-        this.registerCoreType(TransferTransaction);
-        this.registerCoreType(SecondSignatureRegistrationTransaction);
-        this.registerCoreType(DelegateRegistrationTransaction);
-        this.registerCoreType(VoteTransaction);
-        this.registerCoreType(MultiSignatureRegistrationTransaction);
-        this.registerCoreType(IpfsTransaction);
-        this.registerCoreType(MultiPaymentTransaction);
-        this.registerCoreType(DelegateResignationTransaction);
-        this.registerCoreType(HtlcLockTransaction);
-        this.registerCoreType(HtlcClaimTransaction);
-        this.registerCoreType(HtlcRefundTransaction);
+        this.registerTransactionType(TransferTransaction);
+        this.registerTransactionType(SecondSignatureRegistrationTransaction);
+        this.registerTransactionType(DelegateRegistrationTransaction);
+        this.registerTransactionType(VoteTransaction);
+        this.registerTransactionType(MultiSignatureRegistrationTransaction);
+        this.registerTransactionType(IpfsTransaction);
+        this.registerTransactionType(MultiPaymentTransaction);
+        this.registerTransactionType(DelegateResignationTransaction);
+        this.registerTransactionType(HtlcLockTransaction);
+        this.registerTransactionType(HtlcClaimTransaction);
+        this.registerTransactionType(HtlcRefundTransaction);
     }
 
-    public registerCustomType(constructor: TransactionConstructor): void {
+    public registerTransactionType(constructor: TransactionConstructor): void {
         const { type } = constructor;
-        if (this.customTypes.has(type)) {
+        if (this.transactionTypes.has(type)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
 
-        if (type < 100) {
-            throw new TransactionTypeInvalidRangeError(type);
-        }
-
-        this.customTypes.set(type, constructor);
+        this.transactionTypes.set(type, constructor);
         this.updateSchemas(constructor);
     }
 
-    public deregisterCustomType(type: number): void {
-        if (this.customTypes.has(type)) {
-            const schema = this.customTypes.get(type);
-            this.updateSchemas(schema, true);
-            this.customTypes.delete(type);
-        }
-    }
-
-    private registerCoreType(constructor: TransactionConstructor): void {
-        const { type } = constructor;
-        if (this.coreTypes.has(type)) {
-            throw new TransactionAlreadyRegisteredError(constructor.name);
+    public deregisterTransactionType(type: number): void {
+        if (!this.transactionTypes.has(type)) {
+            throw new TransactionAlreadyRegisteredError(this.transactionTypes.get(type).constructor.name);
         }
 
-        this.coreTypes.set(type, constructor);
-        this.updateSchemas(constructor);
+        if (type in TransactionTypes) {
+            throw new Error("Cannot deregister Core type.");
+        }
+
+        const schema = this.transactionTypes.get(type);
+        this.updateSchemas(schema, true);
+        this.transactionTypes.delete(type);
     }
 
     private updateSchemas(transaction: TransactionConstructor, remove?: boolean): void {
