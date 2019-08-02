@@ -10,11 +10,13 @@ export class BridgechainResignationBuilder extends Transactions.TransactionBuild
         this.data.type = bridgechainResignationType;
         this.data.fee = BridgechainResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
-        this.data.asset = { registrationTransactionId: {} };
+        this.data.asset = { bridgechainResignation: {} };
     }
 
-    public businessResignationAsset(registrationTransactionId: string): BridgechainResignationBuilder {
-        this.data.asset.registrationTransactionId = registrationTransactionId;
+    public businessResignationAsset(registeredBridgechainId: string): BridgechainResignationBuilder {
+        this.data.asset.bridgechainResignation = {
+            registeredBridgechainId,
+        };
         return this;
     }
 

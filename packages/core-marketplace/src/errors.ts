@@ -7,6 +7,12 @@ export class BusinessRegistrationAssetError extends Errors.TransactionError {
     }
 }
 
+export class BusinessAlreadyRegisteredError extends Errors.TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because wallet was already registered as a business.`);
+    }
+}
+
 export class BusinessIsNotRegisteredError extends Errors.TransactionError {
     constructor() {
         super(`Failed to apply transaction, because wallet is not a business.`);

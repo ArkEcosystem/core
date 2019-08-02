@@ -1,7 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BusinessRegistrationAssetError } from "../errors";
+import { BusinessAlreadyRegisteredError, BusinessRegistrationAssetError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessRegistrationAsset, IBusinessWalletProperty } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
@@ -32,6 +32,10 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const businessAsset: IBusinessRegistrationAsset = transaction.data.asset.businessRegistration;
         if (!businessAsset.name || !businessAsset.website) {
             throw new BusinessRegistrationAssetError();
+        }
+
+        if (wallet.hasAttribute("business")) {
+            throw new BusinessAlreadyRegisteredError();
         }
 
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);

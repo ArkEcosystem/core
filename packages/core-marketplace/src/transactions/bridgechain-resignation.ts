@@ -1,6 +1,7 @@
 import { Transactions } from "@arkecosystem/crypto";
 import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { IBridgechainResignationAsset } from "../interfaces";
 import { MarketplaceTransactionTypes } from "../marketplace-transactions";
 
 const { schemas } = Transactions;
@@ -17,15 +18,21 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
             properties: {
                 type: { transactionType: bridgechainResignationType },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
-            },
-            asset: {
-                type: "object",
-                required: ["registrationTransactionId"],
-                properties: {
-                    registrationTransactionId: {
-                        type: "string",
-                        minLength: 64,
-                        maxLength: 64,
+                asset: {
+                    type: "object",
+                    required: ["bridgechainResignation"],
+                    properties: {
+                        bridgechainResignation: {
+                            type: "object",
+                            required: ["registeredBridgechainId"],
+                            properties: {
+                                registeredBridgechainId: {
+                                    type: "string",
+                                    minLength: 64,
+                                    maxLength: 64,
+                                },
+                            },
+                        },
                     },
                 },
             },
@@ -35,22 +42,23 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        const registrationTransactionId: Buffer = Buffer.from(data.asset.registrationTransactionId, "utf8");
 
-        const buffer: ByteBuffer = new ByteBuffer(64);
+        const bridgechainResignationAsset = data.asset.bridgechainResignation as IBridgechainResignationAsset;
 
-        buffer.append(registrationTransactionId);
+        const buffer: ByteBuffer = new ByteBuffer(64, true);
+
+        buffer.append(Buffer.from(bridgechainResignationAsset.registeredBridgechainId, "utf-8"));
 
         return buffer;
     }
 
     public deserialize(buf: ByteBuffer): void {
-        const { data } = this;
+        const registeredBridgechainId = buf.readString(64);
 
-        const registrationTransactionId = buf.readString(64);
-
-        data.asset = {
-            registrationTransactionId,
+        this.data.asset = {
+            bridgechainResignation: {
+                registeredBridgechianId: registeredBridgechainId,
+            },
         };
     }
 }

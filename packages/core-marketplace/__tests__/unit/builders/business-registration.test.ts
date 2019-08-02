@@ -40,6 +40,21 @@ describe("Business registration builder", () => {
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });
+
+        it("should verify correctly with all fields", () => {
+            const actual = builder
+                .nonce("3")
+                .businessRegistrationAsset({
+                    name: "businessName",
+                    website: "www.website.com",
+                    vat: "1234567890",
+                    github: "www.github.com/google",
+                })
+                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+            expect(actual.build().verified).toBeTrue();
+            expect(actual.verify()).toBeTrue();
+        });
     });
 
     describe("should test properties", () => {

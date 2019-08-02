@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Interfaces } from "@arkecosystem/crypto";
 
 export const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {

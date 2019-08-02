@@ -23,6 +23,10 @@ export interface ISeedNode {
     ipv6?: string;
 }
 
+export interface IBridgechainResignationAsset {
+    registeredBridgechainId: string;
+}
+
 export interface IBridgechainWalletProperty {
     bridgechain: IBridgechainRegistrationAsset;
     registrationTransactionId: string;

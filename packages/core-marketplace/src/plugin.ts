@@ -14,13 +14,11 @@ export const plugin: Container.IPluginDescriptor = {
     defaults,
     alias: "core-marketplace",
     async register(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Setting up wallet manager");
-        const walletManager = app.resolvePlugin("database").walletManager;
-
         container
             .resolvePlugin<Logger.ILogger>("logger")
             .info("Setting up wallet manager for business transaction types");
 
+        const walletManager = app.resolvePlugin("database").walletManager;
         walletManager.registerIndex("byBusiness", (index: State.IWalletIndex, wallet: State.IWallet): void => {
             if (wallet.hasAttribute("business") && wallet.publicKey) {
                 index.set(wallet.publicKey, wallet);
