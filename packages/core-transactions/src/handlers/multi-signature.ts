@@ -1,16 +1,20 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class MultiSignatureTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiSignatureRegistrationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -33,6 +37,10 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
             wallet.setAttribute("multiSignature", multiSignature);
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public throwIfCannotBeApplied(

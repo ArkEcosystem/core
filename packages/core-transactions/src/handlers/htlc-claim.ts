@@ -14,13 +14,18 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { HtlcLockTransactionHandler } from "./htlc-lock";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
 
 export class HtlcClaimTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcClaimTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [HtlcLockTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -37,6 +42,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             lockWallet.setAttribute("htlc.locks", locks);
             walletManager.reindex(lockWallet);
         }
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public dynamicFee(

@@ -12,83 +12,84 @@ import { SecondSignatureTransactionHandler } from "./second-signature";
 import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
-import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "../errors";
-import { TransactionHandler } from "./transaction";
-
-export type TransactionHandlerConstructor = new () => TransactionHandler;
+import { InvalidTransactionTypeError } from "../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class TransactionHandlerRegistry {
-    private readonly coreTransactionHandlers: Map<Enums.TransactionTypes, TransactionHandler> = new Map<
+    private readonly registeredTransactionHandlers: Map<number, TransactionHandler> = new Map<
         Enums.TransactionTypes,
         TransactionHandler
     >();
-    private readonly customTransactionHandlers: Map<number, TransactionHandler> = new Map<number, TransactionHandler>();
 
     constructor() {
-        this.registerCoreTransactionHandler(TransferTransactionHandler);
-        this.registerCoreTransactionHandler(SecondSignatureTransactionHandler);
-        this.registerCoreTransactionHandler(DelegateRegistrationTransactionHandler);
-        this.registerCoreTransactionHandler(VoteTransactionHandler);
-        this.registerCoreTransactionHandler(MultiSignatureTransactionHandler);
-        this.registerCoreTransactionHandler(IpfsTransactionHandler);
-        this.registerCoreTransactionHandler(MultiPaymentTransactionHandler);
-        this.registerCoreTransactionHandler(DelegateResignationTransactionHandler);
-        this.registerCoreTransactionHandler(HtlcLockTransactionHandler);
-        this.registerCoreTransactionHandler(HtlcClaimTransactionHandler);
-        this.registerCoreTransactionHandler(HtlcRefundTransactionHandler);
+        this.registerTransactionHandler(TransferTransactionHandler);
+        this.registerTransactionHandler(SecondSignatureTransactionHandler);
+        this.registerTransactionHandler(DelegateRegistrationTransactionHandler);
+        this.registerTransactionHandler(VoteTransactionHandler);
+        this.registerTransactionHandler(MultiSignatureTransactionHandler);
+        this.registerTransactionHandler(IpfsTransactionHandler);
+        this.registerTransactionHandler(MultiPaymentTransactionHandler);
+        this.registerTransactionHandler(DelegateResignationTransactionHandler);
+        this.registerTransactionHandler(HtlcLockTransactionHandler);
+        this.registerTransactionHandler(HtlcClaimTransactionHandler);
+        this.registerTransactionHandler(HtlcRefundTransactionHandler);
     }
 
     public get(type: Enums.TransactionTypes | number): TransactionHandler {
-        if (this.coreTransactionHandlers.has(type)) {
-            return this.coreTransactionHandlers.get(type);
-        }
-
-        if (this.customTransactionHandlers.has(type)) {
-            return this.customTransactionHandlers.get(type);
+        if (this.registeredTransactionHandlers.has(type)) {
+            return this.registeredTransactionHandlers.get(type);
         }
 
         throw new InvalidTransactionTypeError(type);
     }
 
-    public all(): TransactionHandler[] {
-        return [...this.coreTransactionHandlers.values(), ...this.customTransactionHandlers.values()];
+    public async getActivatedTransactions(): Promise<TransactionHandler[]> {
+        const activatedTransactions: TransactionHandler[] = [];
+
+        for (const handler of this.registeredTransactionHandlers.values()) {
+            if (await handler.isActivated()) {
+                activatedTransactions.push(handler);
+            }
+        }
+
+        return activatedTransactions;
     }
 
-    public registerCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
+    public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 
-        if (this.customTransactionHandlers.has(type)) {
-            throw new TransactionHandlerAlreadyRegisteredError(type);
+        for (const dependency of service.dependencies()) {
+            this.registerTransactionHandler(dependency);
         }
 
-        Transactions.TransactionRegistry.registerCustomType(transactionConstructor);
+        if (this.registeredTransactionHandlers.has(type)) {
+            return;
+        }
 
-        this.customTransactionHandlers.set(type, service);
+        if (!(type in Enums.TransactionTypes)) {
+            Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
+        }
+
+        this.registeredTransactionHandlers.set(type, service);
     }
 
-    public deregisterCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
+    public deregisterTransactionHandler(constructor: TransactionHandlerConstructor): void {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
         const { type } = transactionConstructor;
 
-        if (this.customTransactionHandlers.has(type)) {
-            Transactions.TransactionRegistry.deregisterCustomType(type);
-            this.customTransactionHandlers.delete(type);
-        }
-    }
-
-    private registerCoreTransactionHandler(constructor: TransactionHandlerConstructor) {
-        const service: TransactionHandler = new constructor();
-        const transactionConstructor = service.getConstructor();
-        const { type } = transactionConstructor;
-
-        if (this.coreTransactionHandlers.has(type)) {
-            throw new TransactionHandlerAlreadyRegisteredError(type);
+        if (type in Enums.TransactionTypes) {
+            throw new Error("Cannot deregister Core transaction.");
         }
 
-        this.coreTransactionHandlers.set(type, service);
+        if (!this.registeredTransactionHandlers.has(type)) {
+            throw new InvalidTransactionTypeError(type);
+        }
+
+        Transactions.TransactionRegistry.deregisterTransactionType(type);
+        this.registeredTransactionHandlers.delete(type);
     }
 }
 
