@@ -11,6 +11,7 @@ export * from "./htlc-lock";
 export * from "./htlc-claim";
 export * from "./htlc-refund";
 export * from "./factory";
+export * from "./internal-transaction-type";
 
 import * as schemas from "./schemas";
 

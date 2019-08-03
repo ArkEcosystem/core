@@ -43,7 +43,7 @@ describe("Commands - Htlc claim", () => {
         expect(httpie.post).toHaveBeenCalledTimes(3);
 
         expectedTransactions
-            .filter(tx => tx.type === Enums.TransactionTypes.HtlcClaim)
+            .filter(tx => tx.type === Enums.TransactionType.HtlcClaim)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(opts.htlcClaimFee));
                 expect(tx.asset.claim.unlockSecret).toEqual(
@@ -67,7 +67,7 @@ describe("Commands - Htlc claim", () => {
         expect(httpie.post).toHaveBeenCalledTimes(3);
 
         expectedTransactions
-            .filter(tx => tx.type === Enums.TransactionTypes.HtlcClaim)
+            .filter(tx => tx.type === Enums.TransactionType.HtlcClaim)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(0.1));
                 expect(tx.asset.claim.unlockSecret).toEqual(

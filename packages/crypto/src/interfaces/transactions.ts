@@ -1,11 +1,11 @@
 import { ErrorObject } from "ajv";
-import { TransactionTypes } from "../enums";
 import { HtlcLockExpirationType } from "../transactions/types/enums";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
     readonly id: string;
-    readonly type: TransactionTypes;
+    readonly typeGroup: number;
+    readonly type: number;
     readonly verified: boolean;
     readonly key: string;
     readonly staticFee: BigNumber;
@@ -49,7 +49,8 @@ export interface ITransactionData {
     version?: number;
     network?: number;
 
-    type: TransactionTypes;
+    typeGroup?: number;
+    type: number;
     timestamp: number;
     nonce?: BigNumber;
     senderPublicKey: string;
@@ -78,7 +79,9 @@ export interface ITransactionJson {
     version?: number;
     network?: number;
 
-    type: TransactionTypes;
+    typeGroup?: number;
+    type: number;
+
     timestamp?: number;
     nonce?: string;
     senderPublicKey: string;

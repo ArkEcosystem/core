@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../enums";
+import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
 import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
@@ -7,7 +7,8 @@ import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class HtlcLockTransaction extends Transaction {
-    public static type: TransactionTypes = TransactionTypes.HtlcLock;
+    public static typeGroup: number = TransactionTypeGroup.Core;
+    public static type: number = TransactionType.HtlcLock;
     public static key: string = "htlcLock";
 
     public static getSchema(): schemas.TransactionSchema {

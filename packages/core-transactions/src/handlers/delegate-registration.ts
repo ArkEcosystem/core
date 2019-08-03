@@ -9,7 +9,7 @@ import {
 } from "../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -109,7 +109,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
-            .filter(tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username);
+            .filter(tx => tx.type === TransactionType.DelegateRegistration && tx.asset.delegate.username === username);
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
             processor.pushError(
@@ -121,7 +121,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
+            pool.getTransactionsByType(TransactionType.DelegateRegistration),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
         const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(

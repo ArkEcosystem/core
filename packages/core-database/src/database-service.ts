@@ -554,7 +554,10 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: State.IWallet = this.walletManager.findByAddress(senderId);
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
+        );
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -713,7 +716,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit(ApplicationEvents.TransactionApplied, transaction.data);
 
-        Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
+        Handlers.Registry.get(transaction.type, transaction.typeGroup).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

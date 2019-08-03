@@ -1,4 +1,3 @@
-import { TransactionTypes } from "../../../enums";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
 import { DelegateRegistrationTransaction } from "../../types";
@@ -8,7 +7,8 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.DelegateRegistration;
+        this.data.type = DelegateRegistrationTransaction.type;
+        this.data.typeGroup = DelegateRegistrationTransaction.typeGroup;
         this.data.fee = DelegateRegistrationTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;

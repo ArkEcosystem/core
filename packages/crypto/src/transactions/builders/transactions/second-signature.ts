@@ -1,4 +1,3 @@
-import { TransactionTypes } from "../../../enums";
 import { Keys } from "../../../identities";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
@@ -9,7 +8,8 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.SecondSignature;
+        this.data.type = SecondSignatureRegistrationTransaction.type;
+        this.data.typeGroup = SecondSignatureRegistrationTransaction.typeGroup;
         this.data.fee = SecondSignatureRegistrationTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;

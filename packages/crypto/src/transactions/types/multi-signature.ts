@@ -1,5 +1,5 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../enums";
+import { TransactionType, TransactionTypeGroup } from "../../enums";
 import {
     IMultiSignatureAsset,
     IMultiSignatureLegacyAsset,
@@ -11,7 +11,8 @@ import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class MultiSignatureRegistrationTransaction extends Transaction {
-    public static type: TransactionTypes = TransactionTypes.MultiSignature;
+    public static typeGroup: number = TransactionTypeGroup.Core;
+    public static type: number = TransactionType.MultiSignature;
     public static key: string = "multiSignature";
 
     public static getSchema(): schemas.TransactionSchema {

@@ -1,12 +1,13 @@
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../enums";
+import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class DelegateRegistrationTransaction extends Transaction {
-    public static type: TransactionTypes = TransactionTypes.DelegateRegistration;
+    public static typeGroup: number = TransactionTypeGroup.Core;
+    public static type: number = TransactionType.DelegateRegistration;
     public static key: string = "delegateRegistration";
 
     public static getSchema(): schemas.TransactionSchema {

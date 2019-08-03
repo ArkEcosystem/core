@@ -1,5 +1,6 @@
 import { TransactionFactory, Utils } from "../..";
 import { Slots } from "../../../crypto";
+import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
@@ -18,6 +19,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data = {
             id: undefined,
             timestamp: Slots.getTime(),
+            typeGroup: TransactionTypeGroup.Test,
             nonce: BigNumber.ZERO,
             version: configManager.getMilestone().aip11 ? 0x02 : 0x01,
         } as ITransactionData;
@@ -29,6 +31,12 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     public version(version: number): TBuilder {
         this.data.version = version;
+
+        return this.instance();
+    }
+
+    public typeGroup(typeGroup: number): TBuilder {
+        this.data.typeGroup = typeGroup;
 
         return this.instance();
     }
@@ -162,6 +170,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         if (this.data.version === 1) {
             struct.timestamp = this.data.timestamp;
         } else {
+            struct.typeGroup = this.data.typeGroup;
             struct.nonce = this.data.nonce;
         }
 

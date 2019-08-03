@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { Utils } from "../../../../packages/crypto/src";
+import { Enums, Utils } from "../../../../packages/crypto/src";
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
@@ -9,9 +9,9 @@ import {
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
 import { Keys } from "../../../../packages/crypto/src/identities";
-import { ITransaction } from "../../../../packages/crypto/src/interfaces";
+import { ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory, Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory, Utils as TransactionUtils, Verifier } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
@@ -27,12 +27,15 @@ describe("Transaction serializer / deserializer", () => {
         if (deserialized.data.version === 1) {
             fieldsToCheck.push("timestamp");
         } else {
+            fieldsToCheck.push("typeGroup");
             fieldsToCheck.push("nonce");
         }
 
         for (const field of fieldsToCheck) {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
         }
+
+        expect(Verifier.verify(deserialized.data)).toBeTrue();
     };
 
     describe("ser/deserialize - transfer", () => {
@@ -40,8 +43,7 @@ describe("Transaction serializer / deserializer", () => {
             .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
             .amount("10000")
             .fee("50000000")
-            .vendorField("yo")
-            .version(1)
+            .vendorField("cool vendor field")
             .network(30)
             .sign("dummy passphrase")
             .getStruct();
@@ -78,7 +80,6 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("y".repeat(255))
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -99,7 +100,6 @@ describe("Transaction serializer / deserializer", () => {
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -117,7 +117,6 @@ describe("Transaction serializer / deserializer", () => {
             const secondSignature = BuilderFactory.secondSignature()
                 .signatureAsset("signature")
                 .fee("50000000")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -135,7 +134,6 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateRegistration = BuilderFactory.delegateRegistration()
                 .usernameAsset("homer")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -154,7 +152,6 @@ describe("Transaction serializer / deserializer", () => {
             const vote = BuilderFactory.vote()
                 .votesAsset(["+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9"])
                 .fee("50000000")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -252,31 +249,10 @@ describe("Transaction serializer / deserializer", () => {
         });
     });
 
-    describe.skip("ser/deserialize - multi payment", () => {
-        it("should ser/deserialize giving back original fields", () => {
-            const multiPayment = BuilderFactory.multiPayment()
-                .fee("50000000")
-                .version(1)
-                .network(23)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", "1555")
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", "5000")
-                .sign("dummy passphrase")
-                .getStruct();
-
-            const serialized = TransactionFactory.fromData(multiPayment).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, multiPayment);
-
-            expect(deserialized.data.asset).toEqual(multiPayment.asset);
-        });
-    });
-
     describe("ser/deserialize - delegate resignation", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateResignation = BuilderFactory.delegateResignation()
                 .fee("50000000")
-                .version(1)
                 .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -296,7 +272,6 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const multiPayment = BuilderFactory.multiPayment()
                 .fee("50000000")
-                .version(2)
                 .network(23)
                 .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
                 .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
@@ -328,7 +303,6 @@ describe("Transaction serializer / deserializer", () => {
                 .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
                 .amount("10000")
                 .fee("50000000")
-                .version(2)
                 .network(23)
                 .htlcLockAsset(htlcLockAsset)
                 .sign("dummy passphrase")
@@ -356,7 +330,6 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const htlcClaim = BuilderFactory.htlcClaim()
                 .fee("0")
-                .version(2)
                 .network(23)
                 .htlcClaimAsset(htlcClaimAsset)
                 .sign("dummy passphrase")
@@ -383,7 +356,6 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const htlcRefund = BuilderFactory.htlcRefund()
                 .fee("0")
-                .version(2)
                 .network(23)
                 .htlcRefundAsset(htlcRefundAsset)
                 .sign("dummy passphrase")
@@ -400,14 +372,15 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("deserialize - others", () => {
         it("should throw if type is not supported", () => {
-            const serializeWrongType = transaction => {
+            const serializeWrongType = (transaction: ITransactionData) => {
                 // copy-paste from transaction serializer, common stuff
                 const buffer = new ByteBuffer(512, true);
-                buffer.writeByte(0xff); // fill, to disambiguate from v1
-                buffer.writeByte(transaction.version || 0x01); // version
+                buffer.writeByte(0xff);
+                buffer.writeByte(2);
                 buffer.writeByte(transaction.network);
-                buffer.writeByte(transaction.type);
-                buffer.writeUint32(transaction.timestamp);
+                buffer.writeUint32(Enums.TransactionTypeGroup.Core);
+                buffer.writeUint16(transaction.type);
+                buffer.writeUint64(+transaction.nonce.toFixed());
                 buffer.append(transaction.senderPublicKey, "hex");
                 buffer.writeUint64(+Utils.BigNumber.make(transaction.fee).toFixed());
                 buffer.writeByte(0x00);
@@ -419,7 +392,6 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("yo")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -437,7 +409,6 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("yo")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();

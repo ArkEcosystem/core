@@ -117,7 +117,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
-        } else if (transaction.type !== Enums.TransactionTypes.MultiSignature && transaction.data.signatures) {
+        } else if (transaction.type !== Enums.TransactionType.MultiSignature && transaction.data.signatures) {
             throw new UnexpectedMultiSignatureError();
         }
     }
@@ -197,7 +197,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         processor.pushError(
             data,
             "ERR_UNSUPPORTED",
-            `Invalidating transaction of unsupported type '${Enums.TransactionTypes[data.type]}'`,
+            `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
         );
 
         return false;
@@ -214,7 +214,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionTypes[type]}' in the pool`,
+                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionType[type]}' in the pool`,
             );
 
             return true;

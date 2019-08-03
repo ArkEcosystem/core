@@ -11,13 +11,14 @@ import { TransferTransactionHandler } from "../../../packages/core-transactions/
 import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 const { Slots } = Crypto;
 
 const TEST_TRANSACTION_TYPE = 100;
 
 class TestTransaction extends Transactions.Transaction {
     public static type = TEST_TRANSACTION_TYPE;
+    public static typeGroup = Enums.TransactionTypeGroup.Test;
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return extend(transactionBaseSchema, {
@@ -109,25 +110,29 @@ beforeAll(() => {
 });
 
 describe("Registry", () => {
+    const NUMBER_OF_CORE_TRANSACTIONS: number = Object.keys(Enums.TransactionType).length / 2;
+
     it("should register core transaction types", () => {
         expect(() => {
-            Registry.get(TransactionTypes.Transfer);
-            Registry.get(TransactionTypes.SecondSignature);
-            Registry.get(TransactionTypes.DelegateRegistration);
-            Registry.get(TransactionTypes.Vote);
-            Registry.get(TransactionTypes.MultiSignature);
-            Registry.get(TransactionTypes.Ipfs);
-            Registry.get(TransactionTypes.HtlcLock);
-            Registry.get(TransactionTypes.HtlcClaim);
-            Registry.get(TransactionTypes.HtlcRefund);
-            Registry.get(TransactionTypes.MultiPayment);
+            Registry.get(TransactionType.Transfer);
+            Registry.get(TransactionType.SecondSignature);
+            Registry.get(TransactionType.DelegateRegistration);
+            Registry.get(TransactionType.Vote);
+            Registry.get(TransactionType.MultiSignature);
+            Registry.get(TransactionType.Ipfs);
+            Registry.get(TransactionType.HtlcLock);
+            Registry.get(TransactionType.HtlcClaim);
+            Registry.get(TransactionType.HtlcRefund);
+            Registry.get(TransactionType.MultiPayment);
         }).not.toThrow(Errors.InvalidTransactionTypeError);
     });
 
     it("should register a custom type", () => {
         expect(() => Registry.registerTransactionHandler(TestTransactionHandler)).not.toThrowError();
-        expect(Registry.get(TEST_TRANSACTION_TYPE)).toBeInstanceOf(TestTransactionHandler);
-        expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE)).toBe(TestTransaction);
+        expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBeInstanceOf(TestTransactionHandler);
+        expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBe(
+            TestTransaction,
+        );
         expect(() => Registry.deregisterTransactionHandler(TestTransactionHandler)).not.toThrowError();
     });
 
@@ -136,7 +141,10 @@ describe("Registry", () => {
 
         const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
+            version: 2,
+            typeGroup: Enums.TransactionTypeGroup.Test,
             type: TEST_TRANSACTION_TYPE,
+            nonce: Utils.BigNumber.ONE,
             timestamp: Slots.getTime(),
             senderPublicKey: keys.publicKey,
             fee: Utils.BigNumber.make("10000000"),
@@ -168,20 +176,20 @@ describe("Registry", () => {
 
     it("should return all activated transactions", async () => {
         let handlers = await Registry.getActivatedTransactions();
-        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2);
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
 
         Registry.registerTransactionHandler(TestTransactionHandler);
 
         handlers = await Registry.getActivatedTransactions();
-        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2 + 1);
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
-        jest.spyOn(Registry.get(TEST_TRANSACTION_TYPE), "isActivated").mockResolvedValueOnce(false);
-
-        handlers = await Registry.getActivatedTransactions();
-        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2);
+        jest.spyOn(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test), "isActivated").mockResolvedValueOnce(false);
 
         handlers = await Registry.getActivatedTransactions();
-        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2 + 1);
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
+
+        handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
         Registry.deregisterTransactionHandler(TestTransactionHandler);
     });
@@ -195,6 +203,16 @@ describe("Registry", () => {
         Managers.configManager.getMilestone().aip11 = true;
 
         handlers = await Registry.getActivatedTransactions();
-        expect(handlers).toHaveLength(Object.keys(Enums.TransactionTypes).length / 2);
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
+    });
+
+    it("should not find the transaction type on typeGroup mismatch", async () => {
+        Registry.registerTransactionHandler(TestTransactionHandler);
+
+        const handlers = await Registry.getActivatedTransactions();
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
+
+        expect(() => Registry.get(TEST_TRANSACTION_TYPE)).toThrowError();
+        expect(() => Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).not.toThrowError();
     });
 });
