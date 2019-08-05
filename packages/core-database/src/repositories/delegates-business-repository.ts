@@ -59,7 +59,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
     }
 
     public findById(id): State.IWallet {
-        return this.databaseServiceProvider().walletManager.findById(id);
+        return this.databaseServiceProvider().walletManager.findDelegateById(id);
     }
 
     private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
