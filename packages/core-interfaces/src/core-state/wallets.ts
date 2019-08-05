@@ -78,8 +78,6 @@ export interface IWalletManager {
 
     findById(id: string): IWallet;
 
-    findDelegateById(id: string): IWallet;
-
     findByAddress(address: string): IWallet;
 
     has(key: string): boolean;
