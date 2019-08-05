@@ -1,76 +1,74 @@
-import { TransactionTypes } from "../enums";
+import { TransactionTypeGroup } from "../enums";
 import {
+    CoreTransactionTypeGroupImmutableError,
     TransactionAlreadyRegisteredError,
-    TransactionTypeInvalidRangeError,
+    UnkownTransactionError,
 } from "../errors";
 import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
     DelegateResignationTransaction,
+    HtlcClaimTransaction,
+    HtlcLockTransaction,
+    HtlcRefundTransaction,
     IpfsTransaction,
     MultiPaymentTransaction,
     MultiSignatureRegistrationTransaction,
     SecondSignatureRegistrationTransaction,
-    TimelockTransferTransaction,
     Transaction,
     TransactionTypeFactory,
     TransferTransaction,
     VoteTransaction,
 } from "./types";
+import { InternalTransactionType } from "./types/internal-transaction-type";
 
 export type TransactionConstructor = typeof Transaction;
 
 class TransactionRegistry {
-    private readonly coreTypes: Map<TransactionTypes, TransactionConstructor> = new Map<
-        TransactionTypes,
-        TransactionConstructor
-    >();
-    private readonly customTypes: Map<number, TransactionConstructor> = new Map<number, TransactionConstructor>();
+    private readonly transactionTypes: Map<InternalTransactionType, TransactionConstructor> = new Map();
 
     constructor() {
-        TransactionTypeFactory.initialize(this.coreTypes, this.customTypes);
+        TransactionTypeFactory.initialize(this.transactionTypes);
 
-        this.registerCoreType(TransferTransaction);
-        this.registerCoreType(SecondSignatureRegistrationTransaction);
-        this.registerCoreType(DelegateRegistrationTransaction);
-        this.registerCoreType(VoteTransaction);
-        this.registerCoreType(MultiSignatureRegistrationTransaction);
-        this.registerCoreType(IpfsTransaction);
-        this.registerCoreType(TimelockTransferTransaction);
-        this.registerCoreType(MultiPaymentTransaction);
-        this.registerCoreType(DelegateResignationTransaction);
+        this.registerTransactionType(TransferTransaction);
+        this.registerTransactionType(SecondSignatureRegistrationTransaction);
+        this.registerTransactionType(DelegateRegistrationTransaction);
+        this.registerTransactionType(VoteTransaction);
+        this.registerTransactionType(MultiSignatureRegistrationTransaction);
+        this.registerTransactionType(IpfsTransaction);
+        this.registerTransactionType(MultiPaymentTransaction);
+        this.registerTransactionType(DelegateResignationTransaction);
+        this.registerTransactionType(HtlcLockTransaction);
+        this.registerTransactionType(HtlcClaimTransaction);
+        this.registerTransactionType(HtlcRefundTransaction);
     }
 
-    public registerCustomType(constructor: TransactionConstructor): void {
-        const { type } = constructor;
-        if (this.customTypes.has(type)) {
+    public registerTransactionType(constructor: TransactionConstructor): void {
+        const { typeGroup, type } = constructor;
+        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
+        if (this.transactionTypes.has(internalType)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
 
-        if (type < 100) {
-            throw new TransactionTypeInvalidRangeError(type);
-        }
-
-        this.customTypes.set(type, constructor);
+        this.transactionTypes.set(internalType, constructor);
         this.updateSchemas(constructor);
     }
 
-    public deregisterCustomType(type: number): void {
-        if (this.customTypes.has(type)) {
-            const schema = this.customTypes.get(type);
-            this.updateSchemas(schema, true);
-            this.customTypes.delete(type);
-        }
-    }
+    public deregisterTransactionType(constructor: TransactionConstructor): void {
+        const { typeGroup, type } = constructor;
+        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
 
-    private registerCoreType(constructor: TransactionConstructor): void {
-        const { type } = constructor;
-        if (this.coreTypes.has(type)) {
-            throw new TransactionAlreadyRegisteredError(constructor.name);
+        if (!this.transactionTypes.has(internalType)) {
+            throw new UnkownTransactionError(internalType.toString());
         }
 
-        this.coreTypes.set(type, constructor);
-        this.updateSchemas(constructor);
+        if (typeGroup === TransactionTypeGroup.Core) {
+            throw new CoreTransactionTypeGroupImmutableError();
+        }
+
+        const schema = this.transactionTypes.get(internalType);
+        this.updateSchemas(schema, true);
+        this.transactionTypes.delete(internalType);
     }
 
     private updateSchemas(transaction: TransactionConstructor, remove?: boolean): void {

@@ -8,6 +8,7 @@ export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
     Usernames = "usernames",
+    Locks = "locks",
 }
 
 export interface IWallet {

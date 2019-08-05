@@ -106,7 +106,7 @@ export class ReplayBlockchain extends Blockchain {
 
         const { transactions }: Interfaces.IBlock = genesisBlock;
         for (const transaction of transactions) {
-            if (transaction.type === Enums.TransactionTypes.Transfer) {
+            if (transaction.type === Enums.TransactionType.Transfer) {
                 const recipient: State.IWallet = this.walletManager.findByAddress(transaction.data.recipientId);
                 recipient.balance = new Utils.BigNumber(transaction.data.amount);
             }
@@ -116,7 +116,7 @@ export class ReplayBlockchain extends Blockchain {
             const sender: State.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
             sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
 
-            if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
+            if (transaction.type === Enums.TransactionType.DelegateRegistration) {
                 sender.setAttribute("delegate", {
                     username: transaction.data.asset.delegate.username,
                     voteBalance: Utils.BigNumber.ZERO,
@@ -126,7 +126,7 @@ export class ReplayBlockchain extends Blockchain {
                     round: 0,
                 });
                 this.walletManager.reindex(sender);
-            } else if (transaction.type === Enums.TransactionTypes.Vote) {
+            } else if (transaction.type === Enums.TransactionType.Vote) {
                 const vote = transaction.data.asset.votes[0];
                 sender.setAttribute("vote", vote.slice(1));
             }

@@ -15,7 +15,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
     let enterPool: boolean;
 
     if (dynamicFees.enabled) {
-        const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type, transaction.typeGroup);
         const addonBytes: number = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[transaction.key];
         const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
             transaction,

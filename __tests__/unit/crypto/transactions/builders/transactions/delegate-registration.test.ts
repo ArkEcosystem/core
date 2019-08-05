@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { DelegateRegistrationTransaction, Utils } from "../../../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
 import { DelegateRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
@@ -38,7 +38,7 @@ describe("Delegate Registration Transaction", () => {
         });
 
         it("should have its specific properties", () => {
-            expect(builder).toHaveProperty("data.type", TransactionTypes.DelegateRegistration);
+            expect(builder).toHaveProperty("data.type", TransactionType.DelegateRegistration);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
             expect(builder).toHaveProperty("data.fee", DelegateRegistrationTransaction.staticFee());
             expect(builder).toHaveProperty("data.recipientId", undefined);

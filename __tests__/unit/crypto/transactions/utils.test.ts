@@ -131,6 +131,7 @@ describe("Transaction", () => {
                     }
 
                     if (transaction.data.version === 1) {
+                        delete transaction.data.typeGroup;
                         delete transaction.data.nonce;
                     }
 

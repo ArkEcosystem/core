@@ -46,7 +46,7 @@ export class Verifier {
     }
 
     public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
-        const { $id } = TransactionTypeFactory.get(data.type).getSchema();
+        const { $id } = TransactionTypeFactory.get(data.type, data.typeGroup).getSchema();
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 

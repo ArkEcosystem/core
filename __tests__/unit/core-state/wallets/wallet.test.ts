@@ -8,7 +8,7 @@ import { Wallet } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 
 const { SATOSHI } = Constants;
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 describe("Models - Wallet", () => {
     beforeEach(() => Managers.configManager.setFromPreset("devnet"));
@@ -91,12 +91,12 @@ describe("Models - Wallet", () => {
             lastBlock: { id: 1234856 },
         });
 
-        const block = {
+        const block = ({
             id: 1,
             generatorPublicKey: walletInit.publicKey,
             reward: Utils.BigNumber.make(2 * SATOSHI),
             totalFee: Utils.BigNumber.make(1 * SATOSHI),
-        } as unknown as Interfaces.IBlockData;
+        } as unknown) as Interfaces.IBlockData;
 
         let testWallet: Wallet;
 
@@ -266,7 +266,7 @@ describe("Models - Wallet", () => {
                     min: 2,
                 },
             };
-            const transaction = generateTransactionType(TransactionTypes.MultiSignature, 2, asset);
+            const transaction = generateTransactionType(TransactionType.MultiSignature, 2, asset);
             transaction.version = 2;
             transaction.signatures = [];
             const audit = testWallet.auditApply(transaction);
@@ -284,7 +284,7 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for ipfs type", () => {
-            const transaction = generateTransactionType(TransactionTypes.Ipfs);
+            const transaction = generateTransactionType(TransactionType.Ipfs);
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -296,24 +296,11 @@ describe("Models - Wallet", () => {
             ]);
         });
 
-        it("should return correct audit data for timelock type", () => {
-            const transaction = generateTransactionType(TransactionTypes.TimelockTransfer);
-            const audit = testWallet.auditApply(transaction);
-
-            expect(audit).toEqual([
-                {
-                    "Remaining amount": +walletInit.balance.minus(transaction.amount).minus(transaction.fee),
-                },
-                { "Signature validation": false },
-                { Timelock: true },
-            ]);
-        });
-
         it("should return correct audit data for multipayment type", () => {
             const asset = {
                 payments: [{ amount: Utils.BigNumber.make(10) }, { amount: Utils.BigNumber.make(20) }],
             };
-            const transaction = generateTransactionType(TransactionTypes.MultiPayment, 1, asset);
+            const transaction = generateTransactionType(TransactionType.MultiPayment, 1, asset);
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -326,7 +313,7 @@ describe("Models - Wallet", () => {
         });
 
         it("should return correct audit data for delegate resignation type", () => {
-            const transaction = generateTransactionType(TransactionTypes.DelegateResignation);
+            const transaction = generateTransactionType(TransactionType.DelegateResignation);
             const audit = testWallet.auditApply(transaction);
 
             expect(audit).toEqual([
@@ -391,7 +378,10 @@ describe("Models - Wallet", () => {
                     })
                     .create()[0];
 
-                testWallet.setAttribute("secondPublicKey", "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d");
+                testWallet.setAttribute(
+                    "secondPublicKey",
+                    "02db1d199f20038e569500895b3521a453b2924e4a07c75aa9f7bf2aa4ad71392d",
+                );
 
                 const audit = testWallet.auditApply(transaction);
 

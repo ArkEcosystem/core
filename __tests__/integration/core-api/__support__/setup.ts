@@ -56,7 +56,10 @@ const calculateRanks = async () => {
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
     const delegateWallets = Object.values(databaseService.walletManager.allByUsername()).sort(
-        (a: State.IWallet, b: State.IWallet) => b.getAttribute<Utils.BigNumber>("delegate.voteBalance").comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
+        (a: State.IWallet, b: State.IWallet) =>
+            b
+                .getAttribute<Utils.BigNumber>("delegate.voteBalance")
+                .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
     );
 
     // tslint:disable-next-line: ban

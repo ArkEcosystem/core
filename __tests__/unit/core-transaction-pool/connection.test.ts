@@ -34,7 +34,7 @@ import { database as databaseService } from "./mocks/database";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 const delegatesSecrets = delegates.map(d => d.secret);
 
@@ -659,7 +659,7 @@ describe("Connection", () => {
     describe("acceptChainedBlock", () => {
         let mockWallet;
         beforeEach(() => {
-            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockReturnValue();
 
             mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
@@ -705,7 +705,7 @@ describe("Connection", () => {
         });
 
         it("should forget sender if throwIfApplyingFails() failed for a transaction in the chained block", () => {
-            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("test error");
             });
@@ -743,7 +743,7 @@ describe("Connection", () => {
         findByPublicKeyWallet.publicKey = "02778aa3d5b332965ea2a5ef6ac479ce2478535bc681a098dff1d683ff6eccc417";
 
         beforeEach(() => {
-            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockReturnValue();
             applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockReturnValue();
 
@@ -793,7 +793,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
-            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("throw from test");
             });
@@ -818,14 +818,14 @@ describe("Connection", () => {
         it("should be false for non-existent sender", () => {
             addTransactions([mockData.dummy1]);
 
-            expect(connection.senderHasTransactionsOfType("nonexistent", TransactionTypes.Vote)).toBeFalse();
+            expect(connection.senderHasTransactionsOfType("nonexistent", TransactionType.Vote)).toBeFalse();
         });
 
         it("should be false for existent sender with no votes", () => {
             addTransactions([mockData.dummy1]);
 
             expect(
-                connection.senderHasTransactionsOfType(mockData.dummy1.data.senderPublicKey, TransactionTypes.Vote),
+                connection.senderHasTransactionsOfType(mockData.dummy1.data.senderPublicKey, TransactionType.Vote),
             ).toBeFalse();
         });
 
@@ -834,7 +834,7 @@ describe("Connection", () => {
 
             const voteTx = Transactions.TransactionFactory.fromData(cloneDeep(tx.data));
             voteTx.data.id = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-            voteTx.data.type = TransactionTypes.Vote;
+            voteTx.data.type = TransactionType.Vote;
             voteTx.data.amount = Utils.BigNumber.ZERO;
             voteTx.data.asset = { votes: [`+${tx.data.senderPublicKey}`] };
 
@@ -842,7 +842,7 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
-            expect(connection.senderHasTransactionsOfType(tx.data.senderPublicKey, TransactionTypes.Vote)).toBeTrue();
+            expect(connection.senderHasTransactionsOfType(tx.data.senderPublicKey, TransactionType.Vote)).toBeTrue();
         });
     });
 
@@ -1175,7 +1175,7 @@ describe("Connection", () => {
             // Invalidate transactions with a vendor field longer then 64 chars
             Managers.configManager.setHeight(1);
 
-            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce();
+            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce(undefined);
 
             connection.purgeInvalidTransactions();
 

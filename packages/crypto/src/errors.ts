@@ -91,7 +91,7 @@ export class TransactionVersionError extends CryptoError {
 }
 
 export class UnkownTransactionError extends CryptoError {
-    constructor(given: number) {
+    constructor(given: string) {
         super(`Transaction type ${given} is not registered.`);
     }
 }
@@ -102,9 +102,9 @@ export class TransactionAlreadyRegisteredError extends CryptoError {
     }
 }
 
-export class TransactionTypeInvalidRangeError extends CryptoError {
-    constructor(given: number) {
-        super(`Custom transaction type must be in the range 100-255 (${given}).`);
+export class CoreTransactionTypeGroupImmutableError extends CryptoError {
+    constructor() {
+        super(`The Core transaction type group is immutable.`);
     }
 }
 

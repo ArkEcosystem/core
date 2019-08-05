@@ -1,10 +1,11 @@
 import { ErrorObject } from "ajv";
-import { TransactionTypes } from "../enums";
+import { HtlcLockExpirationType } from "../transactions/types/enums";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
     readonly id: string;
-    readonly type: TransactionTypes;
+    readonly typeGroup: number;
+    readonly type: number;
     readonly verified: boolean;
     readonly key: string;
     readonly staticFee: BigNumber;
@@ -38,6 +39,9 @@ export interface ITransactionAsset {
     multiSignature?: IMultiSignatureAsset;
     ipfs?: string;
     payments?: IMultiPaymentItem[];
+    lock?: IHtlcLockAsset;
+    claim?: IHtlcClaimAsset;
+    refund?: IHtlcRefundAsset;
     [custom: string]: any;
 }
 
@@ -45,7 +49,8 @@ export interface ITransactionData {
     version?: number;
     network?: number;
 
-    type: TransactionTypes;
+    typeGroup?: number;
+    type: number;
     timestamp: number;
     nonce?: BigNumber;
     senderPublicKey: string;
@@ -68,16 +73,15 @@ export interface ITransactionData {
 
     blockId?: string;
     sequence?: number;
-
-    timelock?: any;
-    timelockType?: number;
 }
 
 export interface ITransactionJson {
     version?: number;
     network?: number;
 
-    type: TransactionTypes;
+    typeGroup?: number;
+    type: number;
+
     timestamp?: number;
     nonce?: string;
     senderPublicKey: string;
@@ -100,9 +104,6 @@ export interface ITransactionJson {
 
     blockId?: string;
     sequence?: number;
-
-    timelock?: any;
-    timelockType?: number;
 
     ipfsHash?: string;
 }
@@ -127,6 +128,23 @@ export interface IMultiSignatureLegacyAsset {
 export interface IMultiSignatureAsset {
     min: number;
     publicKeys: string[];
+}
+
+export interface IHtlcLockAsset {
+    secretHash: string;
+    expiration: {
+        type: HtlcLockExpirationType;
+        value: number;
+    };
+}
+
+export interface IHtlcClaimAsset {
+    lockTransactionId: string;
+    unlockSecret: string;
+}
+
+export interface IHtlcRefundAsset {
+    lockTransactionId: string;
 }
 
 export interface ISerializeOptions {

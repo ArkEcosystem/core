@@ -1,14 +1,14 @@
-import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { VoteTransaction } from '../../types';
+import { VoteTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.Vote;
+        this.data.type = VoteTransaction.type;
+        this.data.typeGroup = VoteTransaction.typeGroup;
         this.data.fee = VoteTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;

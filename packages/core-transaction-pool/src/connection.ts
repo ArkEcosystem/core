@@ -205,7 +205,10 @@ export class Connection implements TransactionPool.IConnection {
             const { data }: Interfaces.ITransaction = transaction;
             const exists: boolean = this.has(data.id);
             const senderPublicKey: string = data.senderPublicKey;
-            const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+            const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
+            );
 
             const senderWallet: State.IWallet = this.walletManager.hasByPublicKey(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
@@ -288,7 +291,10 @@ export class Connection implements TransactionPool.IConnection {
 
             // TODO: rework error handling
             try {
-                const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+                    transaction.type,
+                    transaction.typeGroup,
+                );
                 transactionHandler.throwIfCannotBeApplied(
                     transaction,
                     senderWallet,
@@ -317,7 +323,7 @@ export class Connection implements TransactionPool.IConnection {
         this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
-    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
+    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionType): boolean {
         this.purgeExpired();
 
         for (const transaction of this.memory.getBySender(senderPublicKey)) {
@@ -423,7 +429,7 @@ export class Connection implements TransactionPool.IConnection {
 
         try {
             this.walletManager.throwIfCannotBeApplied(transaction);
-            Handlers.Registry.get(transaction.type).applyToSender(transaction, this.walletManager);
+            Handlers.Registry.get(transaction.type, transaction.typeGroup).applyToSender(transaction, this.walletManager);
         } catch (error) {
             this.logger.error(error.message);
 
@@ -469,7 +475,10 @@ export class Connection implements TransactionPool.IConnection {
 
                 const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletManager);
 
-                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                    transaction.type,
+                    transaction.typeGroup,
+                );
                 handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
 
                 handler.applyToSender(transaction, localWalletManager);
@@ -508,10 +517,17 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         // HACK: need tx agonistic way for wallets which are modified by transaction
-        if (transaction.type === Enums.TransactionTypes.Vote) {
+        if (transaction.type === Enums.TransactionType.Vote) {
             const vote = transaction.data.asset.votes[0].slice(1);
             if (!localWalletManager.hasByPublicKey(vote)) {
                 localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
+            }
+        } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
+            const lockId = transaction.data.asset.claim.lockTransactionId;
+            if (!localWalletManager.hasByIndex(State.WalletIndexes.Locks, lockId)) {
+                localWalletManager.reindex(
+                    clonedeep(databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId)),
+                );
             }
         }
 

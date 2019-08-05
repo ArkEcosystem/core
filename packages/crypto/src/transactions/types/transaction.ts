@@ -1,4 +1,4 @@
-import { TransactionTypes } from "../../enums";
+import { TransactionTypeGroup } from "../../enums";
 import { NotImplementedError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { configManager } from "../../managers/config";
@@ -11,8 +11,12 @@ export abstract class Transaction implements ITransaction {
         return this.data.id;
     }
 
-    public get type(): TransactionTypes {
+    public get type(): number {
         return this.data.type;
+    }
+
+    public get typeGroup(): number {
+        return this.data.typeGroup;
     }
 
     public get verified(): boolean {
@@ -27,7 +31,8 @@ export abstract class Transaction implements ITransaction {
         return (this as any).__proto__.constructor.staticFee({ data: this.data });
     }
 
-    public static type: TransactionTypes = undefined;
+    public static type: number = undefined;
+    public static typeGroup: number = undefined;
     public static key: string = undefined;
 
     public static getSchema(): TransactionSchema {
@@ -71,6 +76,10 @@ export abstract class Transaction implements ITransaction {
 
     public toJson(): ITransactionJson {
         const data: ITransactionJson = JSON.parse(JSON.stringify(this.data));
+
+        if (data.typeGroup === TransactionTypeGroup.Core) {
+            delete data.typeGroup;
+        }
 
         if (data.version === 1) {
             delete data.nonce;

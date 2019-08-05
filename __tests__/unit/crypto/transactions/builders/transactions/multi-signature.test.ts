@@ -4,9 +4,12 @@ import { configManager } from "../../../../../../packages/crypto/src/managers";
 
 configManager.setFromPreset("testnet");
 
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import { BuilderFactory, MultiSignatureRegistrationTransaction } from "../../../../../../packages/crypto/src/transactions";
+import {
+    BuilderFactory,
+    MultiSignatureRegistrationTransaction,
+} from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -60,7 +63,7 @@ describe("Multi Signature Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
+        expect(builder).toHaveProperty("data.type", TransactionType.MultiSignature);
         expect(builder).toHaveProperty("data.version", 0x02);
         expect(builder).toHaveProperty("data.fee", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
@@ -108,9 +111,9 @@ describe("Multi Signature Transaction", () => {
                 .multiSign("secret 3", 2);
 
             expect(actual.data.signatures).toEqual([
-                "003c736a01ad8a240c41cf9e9f6b863b21c3514c49068d93105ee5d00083e0d66bf333ab2fcda5b90fffa8969ccb2fe1233a29eca31a90f9d809e33dec169c7698",
-                "0112d150d02cbdf29309dd578683659d6a90666aaff950a4a4c2837815727d4b3d1eaaab24f4f1e6e57b845ff7b74b37eecd72dc85829a6652ccddf26b4c9e4a39",
-                "0211b1c08bc30ef7aed19c61ec36bddedf336bb58935789a89430eb15028226ee3cc93db436a7896f3315d8da94f4d2d1b1cc6c1a03934b7c60502c33add0d0a7a",
+                "009fe6ca3b83a9a5e693fecb2b184900c5135a8c07e704c473b2f19117630f840428416f583f1a24ff371ba7e6fbca9a7fb796226ef9ef6542f44ed911951ac88d",
+                "0116779a98b2009b35d4003dda7628e46365f1a52068489bfbd80594770967a3949f76bc09e204eddd7d460e1e519b826c53dc6e2c9573096326dbc495050cf292",
+                "02687bd0f4a91be39daf648a5b1e1af5ffa4a3d4319b2e38b1fc2dc206db03f542f3b26c4803e0b4c8a53ddfb6cf4533b512d71ae869d4e4ccba989c4a4222396b",
             ]);
             expect(actual.data.signatures.length).toBe(3);
         });

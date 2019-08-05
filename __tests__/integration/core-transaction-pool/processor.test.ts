@@ -1047,7 +1047,7 @@ describe("Transaction Guard", () => {
     //         const tx = {
     //             id: "1",
     //             network: 23,
-    //             type: Enums.TransactionTypes.Transfer,
+    //             type: Enums.TransactionType.Transfer,
     //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
     //             recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
     //         };
@@ -1075,7 +1075,7 @@ describe("Transaction Guard", () => {
 
     //         const tx = {
     //             id: "1",
-    //             type: Enums.TransactionTypes.Transfer,
+    //             type: Enums.TransactionType.Transfer,
     //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
     //             recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
     //         };
@@ -1223,7 +1223,7 @@ describe("Transaction Guard", () => {
     //                     type: "ERR_PENDING",
     //                     message:
     //                         `Sender ${tx.data.senderPublicKey} already has a transaction of type ` +
-    //                         `'${Enums.TransactionTypes[tx.type]}' in the pool`,
+    //                         `'${Enums.TransactionType[tx.type]}' in the pool`,
     //                 },
     //             ]);
     //         }
@@ -1241,11 +1241,10 @@ describe("Transaction Guard", () => {
     //             .build()[0];
 
     //         for (const transactionType of [
-    //             Enums.TransactionTypes.MultiSignature,
-    //             Enums.TransactionTypes.Ipfs,
-    //             Enums.TransactionTypes.TimelockTransfer,
-    //             Enums.TransactionTypes.MultiPayment,
-    //             Enums.TransactionTypes.DelegateResignation,
+    //             Enums.TransactionType.MultiSignature,
+    //             Enums.TransactionType.Ipfs,
+    //             Enums.TransactionType.MultiPayment,
+    //             Enums.TransactionType.DelegateResignation,
     //             99,
     //         ]) {
     //             baseTransaction.data.type = transactionType;
@@ -1258,7 +1257,7 @@ describe("Transaction Guard", () => {
     //                 {
     //                     type: "ERR_UNSUPPORTED",
     //                     message: `Invalidating transaction of unsupported type '${
-    //                         Enums.TransactionTypes[transactionType]
+    //                         Enums.TransactionType[transactionType]
     //                     }'`,
     //                 },
     //             ]);

@@ -5,9 +5,12 @@ import { configManager } from "../../../../../../packages/crypto/src/managers";
 configManager.setFromPreset("testnet");
 
 import { Utils } from "@arkecosystem/crypto";
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { Keys } from "../../../../../../packages/crypto/src/identities";
-import { BuilderFactory, SecondSignatureRegistrationTransaction } from "../../../../../../packages/crypto/src/transactions";
+import {
+    BuilderFactory,
+    SecondSignatureRegistrationTransaction,
+} from "../../../../../../packages/crypto/src/transactions";
 import { SecondSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
 import { identity } from "../../../../../utils/identities";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -31,7 +34,7 @@ describe("Second Signature Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.SecondSignature);
+        expect(builder).toHaveProperty("data.type", TransactionType.SecondSignature);
         expect(builder).toHaveProperty("data.fee", SecondSignatureRegistrationTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);

@@ -7,11 +7,16 @@ import {
     VotedForNonDelegateError,
     VotedForResignedDelegateError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class VoteTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.VoteTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [DelegateRegistrationTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -38,6 +43,10 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
 
         walletManager.buildVoteBalances();
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return true;
     }
 
     public throwIfCannotBeApplied(

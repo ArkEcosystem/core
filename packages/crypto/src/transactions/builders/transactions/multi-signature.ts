@@ -1,14 +1,14 @@
-import { TransactionTypes } from "../../../enums";
 import { IMultiSignatureAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { MultiSignatureRegistrationTransaction } from '../../types';
+import { MultiSignatureRegistrationTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.MultiSignature;
+        this.data.type = MultiSignatureRegistrationTransaction.type;
+        this.data.typeGroup = MultiSignatureRegistrationTransaction.typeGroup;
         this.data.version = 2;
         this.data.fee = BigNumber.ZERO;
         this.data.amount = BigNumber.ZERO;

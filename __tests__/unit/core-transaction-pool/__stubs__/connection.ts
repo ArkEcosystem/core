@@ -121,7 +121,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
+    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionType): boolean {
         return true;
     }
 }

@@ -234,7 +234,6 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                         vote: 100000000,
                         multiSignature: 500000000,
                         ipfs: 500000000,
-                        timelockTransfer: 0,
                         multiPayment: 0,
                         delegateResignation: 2500000000,
                     },

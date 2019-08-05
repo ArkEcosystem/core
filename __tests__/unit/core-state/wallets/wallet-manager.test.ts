@@ -69,6 +69,7 @@ describe("Wallet Manager", () => {
                 revertBlock: jest.fn(),
                 publicKey: delegatePublicKey,
                 isDelegate: () => false,
+                getAttribute: jest.fn(),
             };
 
             // @ts-ignore
@@ -285,7 +286,7 @@ describe("Wallet Manager", () => {
             expect(sender.balance).toEqual(Utils.BigNumber.ZERO);
             expect(recipient.balance).toEqual(transaction.data.amount);
 
-            walletManager.revertTransaction(transaction);
+            await walletManager.revertTransaction(transaction);
 
             expect(sender.balance).toEqual(transaction.data.amount.plus(transaction.data.fee));
             expect(recipient.balance).toEqual(Utils.BigNumber.ZERO);
@@ -326,7 +327,7 @@ describe("Wallet Manager", () => {
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
                 Utils.BigNumber.make(100_000_000).plus(voter.balance),
             );
-            walletManager.revertTransaction(voteTransaction);
+            await walletManager.revertTransaction(voteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000));
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(
@@ -388,7 +389,7 @@ describe("Wallet Manager", () => {
                 Utils.BigNumber.make(100_000_000),
             );
 
-            walletManager.revertTransaction(unvoteTransaction);
+            await walletManager.revertTransaction(unvoteTransaction);
 
             expect(voter.balance).toEqual(Utils.BigNumber.make(100_000).minus(voteTransaction.data.fee));
             expect(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance")).toEqual(

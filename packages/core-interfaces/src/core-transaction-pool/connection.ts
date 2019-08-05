@@ -37,5 +37,5 @@ export interface IConnection {
     removeTransactionById(id: string, senderPublicKey?: string): void;
     removeTransactionsById(ids: string[]): void;
     removeTransactionsForSender(senderPublicKey: string): void;
-    senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean;
+    senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionType): boolean;
 }

@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class Memory {
@@ -296,11 +296,6 @@ export class Memory {
             now: number;
         },
     ): number {
-        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
-            // tslint:disable-next-line:no-null-keyword
-            return null;
-        }
-
         // We ignore data.expiration in v1 transactions because it is not signed
         // by the transaction creator.
         // TODO: check if ok

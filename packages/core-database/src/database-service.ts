@@ -74,7 +74,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        this.walletManager.applyBlock(block);
+        await this.walletManager.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
             this.blocksInCurrentRound.push(block);
@@ -554,7 +554,10 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: State.IWallet = this.walletManager.findByAddress(senderId);
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
+        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
+        );
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -697,7 +700,7 @@ export class DatabaseService implements Database.IDatabaseService {
                 break;
             }
 
-            tempWalletManager.revertBlock(blocks[i]);
+            await tempWalletManager.revertBlock(blocks[i]);
         }
 
         const delegates: State.IWallet[] = tempWalletManager.loadActiveDelegateList(roundInfo);
@@ -713,7 +716,7 @@ export class DatabaseService implements Database.IDatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.emit(ApplicationEvents.TransactionApplied, transaction.data);
 
-        Handlers.Registry.get(transaction.type).emitEvents(transaction, this.emitter);
+        Handlers.Registry.get(transaction.type, transaction.typeGroup).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

@@ -26,7 +26,7 @@ export interface ITransactionsBusinessRepository {
 
     findByTypeAndId(type: number, id: string): Promise<Interfaces.ITransactionData>;
 
-    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
+    getAssetsByType(type: Enums.TransactionType | number): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 

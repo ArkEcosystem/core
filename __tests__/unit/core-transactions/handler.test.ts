@@ -1,10 +1,15 @@
 import "jest-extended";
 
-import { State } from "@arkecosystem/core-interfaces";
+import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
-import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { formatTimestamp } from "@arkecosystem/core-utils";
+import { Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
+    HtlcLockExpiredError,
+    HtlcLockNotExpiredError,
+    HtlcLockTransactionNotFoundError,
+    HtlcSecretHashMismatchError,
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
@@ -21,16 +26,56 @@ import {
     WalletIsAlreadyDelegateError,
     WalletNotADelegateError,
 } from "../../../packages/core-transactions/src/errors";
-import { TransactionHandler } from "../../../packages/core-transactions/src/handlers/transaction";
-import { Handlers } from "../../../packages/core-transactions/src/index";
+import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers";
-import { transaction as transactionFixture } from "../crypto/transactions/__fixtures__/transaction";
+
+const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
+
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
+
+const makeUnixTimestamp = (secondsRelativeToLastBlock = 9) =>
+    formatTimestamp(mockLastBlockData.timestamp).unix + secondsRelativeToLastBlock;
+const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
+    mockLastBlockData.height + heightRelativeToLastBlock;
+const makeExpiredTimestamp = type => (type === UnixTimestamp ? makeUnixTimestamp(-9) : makeBlockHeightTimestamp(-2));
+const makeNotExpiredTimestamp = type => (type === UnixTimestamp ? makeUnixTimestamp(99) : makeBlockHeightTimestamp(9));
+
+let mockTransaction;
+jest.mock("@arkecosystem/core-container", () => {
+    return {
+        app: {
+            getConfig: () => ({
+                getMilestone: () => ({
+                    epoch: "2017-03-21T13:00:00.000Z",
+                }),
+            }),
+            resolvePlugin: name => {
+                switch (name) {
+                    case "database":
+                        return {
+                            transactionsBusinessRepository: {
+                                findById: id => mockTransaction,
+                            },
+                        };
+                    case "state":
+                        return {
+                            getStore: () => ({
+                                getLastBlock: () => ({ data: mockLastBlockData }),
+                            }),
+                        };
+                    default:
+                        return {};
+                }
+            },
+        },
+    };
+});
 
 let senderWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
 let transaction: Interfaces.ITransactionData;
 let transactionWithSecondSignature: Interfaces.ITransactionData;
-let handler: TransactionHandler;
+let handler: TransactionsInterfaces.ITransactionHandler;
 let instance: Interfaces.ITransaction;
 let walletManager: State.IWalletManager;
 
@@ -145,12 +190,12 @@ describe("General Tests", () => {
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
             senderWallet.nonce = Utils.BigNumber.make(1);
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .plus(instance.data.amount)
@@ -161,7 +206,7 @@ describe("General Tests", () => {
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
         });
 
-        it("should not fail due to case mismatch", () => {
+        it("should not fail due to case mismatch", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
 
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
@@ -170,7 +215,7 @@ describe("General Tests", () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .plus(instance.data.amount)
@@ -687,35 +732,6 @@ describe("Ipfs", () => {
     });
 });
 
-describe.skip("TimelockTransferTransaction", () => {
-    beforeEach(() => {
-        transaction = transactionFixture;
-        senderWallet.balance = transaction.amount.plus(transaction.fee);
-        handler = Handlers.Registry.get(transaction.type);
-        instance = Transactions.TransactionFactory.fromData(transaction);
-    });
-
-    describe("canApply", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
-        });
-
-        it("should throw", () => {
-            instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
-                SenderWalletMismatchError,
-            );
-        });
-
-        it("should throw if wallet has insufficient funds", () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
-                InsufficientBalanceError,
-            );
-        });
-    });
-});
-
 describe("MultiPaymentTransaction", () => {
     beforeEach(() => {
         transaction = TransactionFactory.multiPayment([
@@ -911,6 +927,541 @@ describe("DelegateResignationTransaction", () => {
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
             handler.revert(instance, walletManager);
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeFalsy();
+        });
+    });
+});
+
+describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
+    const htlcLockAsset = {
+        secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+        expiration: {
+            type: expirationType,
+            value: makeNotExpiredTimestamp(expirationType),
+        },
+    };
+
+    beforeAll(() => {
+        Managers.configManager.setFromPreset("testnet");
+    });
+
+    beforeEach(() => {
+        transaction = TransactionFactory.htlcLock(htlcLockAsset)
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
+
+        handler = Handlers.Registry.get(transaction.type);
+        instance = Transactions.TransactionFactory.fromData(transaction);
+    });
+
+    describe("throwIfCannotBeApplied", () => {
+        it("should not throw", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        });
+
+        it("should throw if wallet has insufficient funds", () => {
+            senderWallet.balance = Utils.BigNumber.ZERO;
+
+            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+                InsufficientBalanceError,
+            );
+        });
+    });
+
+    describe("apply", () => {
+        it("should apply htlc lock transaction", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = senderWallet.balance;
+
+            handler.apply(instance, walletManager);
+
+            expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeDefined();
+            expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(transaction.amount);
+            expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee).minus(transaction.amount));
+        });
+    });
+
+    describe("revert", () => {
+        it("should be ok", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = senderWallet.balance;
+
+            handler.apply(instance, walletManager);
+
+            expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeDefined();
+            expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(transaction.amount);
+            expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee).minus(transaction.amount));
+
+            handler.revert(instance, walletManager);
+
+            expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.balance).toEqual(balanceBefore);
+        });
+    });
+});
+
+describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", expirationType => {
+    const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
+    const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
+    const claimPassphrase = "fatal hat sail asset chase barrel pluck bag approve coral slab bright";
+    const claimKeys = Identities.Keys.fromPassphrase(claimPassphrase);
+
+    let lockWallet;
+    let claimWallet;
+
+    let htlcClaimAsset;
+
+    let lockTransaction: Interfaces.ITransactionData;
+
+    let pool: Partial<TransactionPool.IConnection>;
+
+    beforeAll(() => {
+        Managers.configManager.setFromPreset("testnet");
+    });
+
+    beforeEach(() => {
+        walletManager = new Wallets.WalletManager();
+        pool = { walletManager };
+
+        lockWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
+        lockWallet.publicKey = lockKeys.publicKey;
+        lockWallet.balance = Utils.BigNumber.make(4527654310);
+
+        claimWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(claimKeys.publicKey, 23));
+        claimWallet.publicKey = claimKeys.publicKey;
+
+        walletManager.reindex(lockWallet);
+        walletManager.reindex(claimWallet);
+
+        const amount = 6 * 1e8;
+        const secret = "my secret that should be 32bytes";
+        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
+        const htlcLockAsset = {
+            secretHash,
+            expiration: {
+                type: expirationType,
+                value: makeNotExpiredTimestamp(expirationType),
+            },
+        };
+        lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
+            .withPassphrase(lockPassphrase)
+            .createOne();
+
+        htlcClaimAsset = {
+            lockTransactionId: lockTransaction.id,
+            unlockSecret: secret,
+        };
+
+        lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+        lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
+        walletManager.reindex(lockWallet);
+
+        transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
+            .withPassphrase(claimPassphrase)
+            .createOne();
+
+        handler = Handlers.Registry.get(transaction.type);
+        instance = Transactions.TransactionFactory.fromData(transaction);
+    });
+
+    describe("throwIfCannotBeApplied", () => {
+        it("should not throw", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
+        });
+
+        it("should throw if no wallet has a lock with associated transaction id", () => {
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
+                HtlcLockTransactionNotFoundError,
+            );
+        });
+
+        it("should throw if secret hash does not match", () => {
+            transaction = TransactionFactory.htlcClaim({
+                lockTransactionId: lockTransaction.id,
+                unlockSecret: "wrong 32 bytes unlock secret =((",
+            })
+                .withPassphrase(claimPassphrase)
+                .createOne();
+            handler = Handlers.Registry.get(transaction.type);
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
+                HtlcSecretHashMismatchError,
+            );
+        });
+
+        it("should not throw if claiming wallet is not recipient of lock transaction", () => {
+            const dummyPassphrase = "not recipient of lock";
+            const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
+
+            const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
+            dummyWallet.publicKey = dummyKeys.publicKey;
+
+            const htlcClaimAsset = {
+                lockTransactionId: lockTransaction.id,
+                unlockSecret: "my secret that should be 32bytes",
+            };
+
+            transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
+                .withPassphrase(dummyPassphrase)
+                .createOne();
+
+            handler = Handlers.Registry.get(transaction.type);
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+        });
+
+        it("should throw if lock expired", () => {
+            const amount = 1e9;
+            const secret = "my secret that should be 32bytes";
+            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
+            const htlcLockAsset = {
+                secretHash,
+                expiration: {
+                    type: expirationType,
+                    value: makeExpiredTimestamp(expirationType),
+                },
+            };
+            lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
+                .withPassphrase(lockPassphrase)
+                .createOne();
+
+            const htlcClaimAsset = {
+                lockTransactionId: lockTransaction.id,
+                unlockSecret: secret,
+            };
+
+            lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+            lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
+            walletManager.reindex(lockWallet);
+
+            transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
+                .withPassphrase(claimPassphrase)
+                .createOne();
+
+            handler = Handlers.Registry.get(transaction.type);
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
+                HtlcLockExpiredError,
+            );
+        });
+    });
+
+    describe("canEnterTransactionPool", () => {
+        const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
+
+        it("should not throw", () => {
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeTrue();
+        });
+
+        it("should throw if no wallet has a lock with associated transaction id", () => {
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
+
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeFalse();
+            expect(processor.pushError).toHaveBeenCalled();
+        });
+    });
+
+    describe("apply", () => {
+        it("should apply htlc claim transaction", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = claimWallet.balance;
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+        });
+
+        it("should apply htlc claim transaction - when sender is not claim wallet", () => {
+            const dummyPassphrase = "dummy passphrase";
+            const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
+            const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
+            dummyWallet.publicKey = dummyKeys.publicKey;
+
+            transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
+                .withPassphrase(dummyPassphrase)
+                .createOne();
+
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = claimWallet.balance;
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+        });
+    });
+
+    describe("revert", () => {
+        it("should be ok", async () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
+
+            mockTransaction = lockTransaction;
+            const balanceBefore = claimWallet.balance;
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+
+            await handler.revert(instance, walletManager);
+
+            lockWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockTransaction.id);
+            expect(lockWallet).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toEqual(lockTransaction);
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+            expect(claimWallet.balance).toEqual(balanceBefore);
+        });
+    });
+});
+
+describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
+    const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
+    const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
+
+    let lockWallet;
+    let lockTransaction: Interfaces.ITransactionData;
+    let htlcRefundAsset;
+
+    let pool: Partial<TransactionPool.IConnection>;
+
+    beforeAll(() => {
+        Managers.configManager.setFromPreset("testnet");
+    });
+
+    beforeEach(() => {
+        walletManager = new Wallets.WalletManager();
+
+        pool = { walletManager };
+
+        lockWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
+        lockWallet.publicKey = lockKeys.publicKey;
+        lockWallet.balance = Utils.BigNumber.make(4527654310);
+
+        walletManager.reindex(lockWallet);
+
+        const amount = 6 * 1e8;
+        const secret = "my secret that should be 32bytes";
+        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
+        const htlcLockAsset = {
+            secretHash,
+            expiration: {
+                type: expirationType,
+                value: makeExpiredTimestamp(expirationType),
+            },
+        };
+        lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, recipientWallet.address, amount)
+            .withPassphrase(lockPassphrase)
+            .createOne();
+
+        htlcRefundAsset = {
+            lockTransactionId: lockTransaction.id,
+        };
+
+        lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+        lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
+        walletManager.reindex(lockWallet);
+
+        transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
+            .withPassphrase(lockPassphrase)
+            .createOne();
+
+        handler = Handlers.Registry.get(transaction.type);
+        instance = Transactions.TransactionFactory.fromData(transaction);
+    });
+
+    describe("throwIfCannotBeApplied", () => {
+        it("should not throw", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
+        });
+
+        it("should throw if no wallet has a lock with associated transaction id", () => {
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
+                HtlcLockTransactionNotFoundError,
+            );
+        });
+
+        it("should not throw if refund wallet is not sender of lock transaction", () => {
+            const dummyPassphrase = "not lock passphrase";
+            const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
+
+            const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
+            dummyWallet.publicKey = dummyKeys.publicKey;
+
+            const htlcRefundAsset = {
+                lockTransactionId: lockTransaction.id,
+            };
+            transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
+                .withPassphrase(dummyPassphrase)
+                .createOne();
+
+            handler = Handlers.Registry.get(transaction.type);
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+        });
+
+        it("should throw if lock didn't expire - expiration type %i", () => {
+            const amount = 6 * 1e8;
+            const secret = "my secret that should be 32bytes";
+            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
+            const htlcLockAsset = {
+                secretHash,
+                expiration: {
+                    type: expirationType,
+                    value: makeNotExpiredTimestamp(expirationType),
+                },
+            };
+            lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, lockWallet.address, amount)
+                .withPassphrase(lockPassphrase)
+                .createOne();
+
+            const htlcRefundAsset = {
+                lockTransactionId: lockTransaction.id,
+            };
+
+            lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+            lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
+            walletManager.reindex(lockWallet);
+
+            transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
+                .withPassphrase(lockPassphrase)
+                .createOne();
+
+            handler = Handlers.Registry.get(transaction.type);
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
+                HtlcLockNotExpiredError,
+            );
+        });
+    });
+
+    describe("canEnterTransactionPool", () => {
+        const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
+
+        it("should not throw", () => {
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeTrue();
+        });
+
+        it("should throw if no wallet has a lock with associated transaction id", () => {
+            walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
+
+            expect(
+                handler.canEnterTransactionPool(
+                    transaction,
+                    pool as TransactionPool.IConnection,
+                    processor as TransactionPool.IProcessor,
+                ),
+            ).toBeFalse();
+            expect(processor.pushError).toHaveBeenCalled();
+        });
+    });
+
+    describe("apply", () => {
+        it("should apply htlc refund transaction", () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = lockWallet.balance;
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+        });
+
+        it("should apply htlc refund transaction - when sender is not refund wallet", () => {
+            const dummyPassphrase = "dummy passphrase";
+            const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
+            const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
+            dummyWallet.publicKey = dummyKeys.publicKey;
+
+            transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
+                .withPassphrase(dummyPassphrase)
+                .createOne();
+
+            instance = Transactions.TransactionFactory.fromData(transaction);
+
+            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+
+            const balanceBefore = lockWallet.balance;
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+        });
+    });
+
+    describe("revert", () => {
+        it("should be ok", async () => {
+            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
+
+            mockTransaction = lockTransaction;
+            console.log(mockTransaction.id);
+            const balanceBefore = lockWallet.balance;
+
+            handler.apply(instance, walletManager);
+
+            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
+
+            await handler.revert(instance, walletManager);
+
+            lockWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockTransaction.id);
+            expect(lockWallet).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toEqual(lockTransaction);
+            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+            expect(lockWallet.balance).toEqual(balanceBefore);
         });
     });
 });

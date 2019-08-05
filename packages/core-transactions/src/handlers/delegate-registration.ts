@@ -7,13 +7,17 @@ import {
     WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateRegistrationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -55,6 +59,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         walletManager.buildDelegateRanking();
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return true;
     }
 
     public throwIfCannotBeApplied(
@@ -101,7 +109,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
-            .filter(tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username);
+            .filter(tx => tx.type === TransactionType.DelegateRegistration && tx.asset.delegate.username === username);
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
             processor.pushError(
@@ -113,7 +121,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
+            pool.getTransactionsByType(TransactionType.DelegateRegistration),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
         const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(
