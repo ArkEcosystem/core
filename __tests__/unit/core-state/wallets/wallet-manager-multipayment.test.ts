@@ -66,7 +66,7 @@ describe("Wallet Manager", () => {
                 expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 // apply vote
-                walletManager.applyTransaction(voteTransaction);
+                await walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeMultiPayment = () => {
                     expect(senderWallet.balance).toEqual(initialSenderWalletBalance.minus(voteTransaction.data.fee));
@@ -88,7 +88,7 @@ describe("Wallet Manager", () => {
                 }
                 const multipaymentTransaction = multipaymentBuilder.sign(senderPassphrase).build();
 
-                walletManager.applyTransaction(multipaymentTransaction);
+                await walletManager.applyTransaction(multipaymentTransaction);
 
                 expect(senderWallet.balance).toEqual(
                     initialSenderWalletBalance
@@ -126,14 +126,15 @@ describe("Wallet Manager", () => {
 
                 // apply vote
                 const voteTransactionFee = "125";
-                recipientsPassphrases.map(p => {
+                for (const passphrase of recipientsPassphrases) {
                     const voteTransaction = Transactions.BuilderFactory.vote()
                         .votesAsset([`+${delegateKeys.publicKey}`])
                         .fee(voteTransactionFee)
-                        .sign(p)
+                        .sign(passphrase)
                         .build();
-                    walletManager.applyTransaction(voteTransaction);
-                });
+
+                    await walletManager.applyTransaction(voteTransaction);
+                }
 
                 const expectBeforeMultiPayment = () => {
                     expect(senderWallet.balance).toEqual(initialSenderWalletBalance);
@@ -159,7 +160,7 @@ describe("Wallet Manager", () => {
                 }
                 const multipaymentTransaction = multipaymentBuilder.sign(senderPassphrase).build();
 
-                walletManager.applyTransaction(multipaymentTransaction);
+                await walletManager.applyTransaction(multipaymentTransaction);
 
                 expect(senderWallet.balance).toEqual(
                     initialSenderWalletBalance

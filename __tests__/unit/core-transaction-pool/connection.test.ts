@@ -87,40 +87,40 @@ describe("Connection", () => {
     };
 
     describe("getPoolSize", () => {
-        it("should return 0 if no transactions were added", () => {
-            expect(connection.getPoolSize()).toBe(0);
+        it("should return 0 if no transactions were added", async () => {
+            await expect(connection.getPoolSize()).resolves.toBe(0);
         });
 
-        it("should return 2 if transactions were added", () => {
-            expect(connection.getPoolSize()).toBe(0);
+        it("should return 2 if transactions were added", async () => {
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
             memory.remember(mockData.dummy1);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
 
             memory.remember(mockData.dummy2);
 
-            expect(connection.getPoolSize()).toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(2);
         });
     });
 
     describe("getSenderSize", () => {
-        it("should return 0 if no transactions were added", () => {
-            expect(connection.getSenderSize("undefined")).toBe(0);
+        it("should return 0 if no transactions were added", async () => {
+            expect(await connection.getSenderSize("undefined")).toBe(0);
         });
 
-        it("should return 2 if transactions were added", () => {
+        it("should return 2 if transactions were added", async () => {
             const senderPublicKey = mockData.dummy1.data.senderPublicKey;
 
-            expect(connection.getSenderSize(senderPublicKey)).toBe(0);
+            expect(await connection.getSenderSize(senderPublicKey)).toBe(0);
 
             memory.remember(mockData.dummy1);
 
-            expect(connection.getSenderSize(senderPublicKey)).toBe(1);
+            expect(await connection.getSenderSize(senderPublicKey)).toBe(1);
 
             memory.remember(mockData.dummy3);
 
-            expect(connection.getSenderSize(senderPublicKey)).toBe(2);
+            expect(await connection.getSenderSize(senderPublicKey)).toBe(2);
         });
     });
 
@@ -129,34 +129,34 @@ describe("Connection", () => {
         beforeAll(() => {
             const mockWallet = new Wallets.Wallet(delegates[0].address);
             jest.spyOn(connection.walletManager, "findByPublicKey").mockReturnValue(mockWallet);
-            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue(undefined);
         });
         afterAll(() => {
             jest.restoreAllMocks();
         });
 
-        it("should add the transaction to the pool", () => {
-            expect(connection.getPoolSize()).toBe(0);
+        it("should add the transaction to the pool", async () => {
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
-            connection.addTransactions([mockData.dummy1]);
+            await connection.addTransactions([mockData.dummy1]);
 
             // Test adding already existent transaction
-            connection.addTransactions([mockData.dummy1]);
+            await connection.addTransactions([mockData.dummy1]);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
         });
 
-        it("should return error when adding 1 more transaction than maxTransactionsInPool", () => {
-            expect(connection.getPoolSize()).toBe(0);
+        it("should return error when adding 1 more transaction than maxTransactionsInPool", async () => {
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
-            connection.addTransactions([mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4]);
+            await connection.addTransactions([mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4]);
 
-            expect(connection.getPoolSize()).toBe(4);
+            await expect(connection.getPoolSize()).resolves.toBe(4);
 
             const maxTransactionsInPoolOrig = connection.options.maxTransactionsInPool;
             connection.options.maxTransactionsInPool = 4;
 
-            expect(connection.addTransactions([mockData.dummy5])).toEqual({
+            await expect(connection.addTransactions([mockData.dummy5])).toEqual({
                 transaction: mockData.dummy5,
                 type: "ERR_POOL_FULL",
                 message:
@@ -168,21 +168,21 @@ describe("Connection", () => {
         });
 
         it("should replace lowest fee transaction when adding 1 more transaction than maxTransactionsInPool", async () => {
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
-            connection.addTransactions([
+            await connection.addTransactions([
                 mockData.dummy1,
                 mockData.dummy2,
                 mockData.dummy3,
                 mockData.dynamicFeeNormalDummy1,
             ]);
 
-            expect(connection.getPoolSize()).toBe(4);
+            await expect(connection.getPoolSize()).resolves.toBe(4);
 
             const maxTransactionsInPoolOrig = connection.options.maxTransactionsInPool;
             connection.options.maxTransactionsInPool = 4;
 
-            expect(connection.addTransactions([mockData.dummy5])).toEqual({});
+            expect(await connection.addTransactions([mockData.dummy5])).toEqual({});
 
             const transactionIds = await connection.getTransactionIdsForForging(0, 10);
             expect(transactionIds).toEqual([
@@ -207,25 +207,25 @@ describe("Connection", () => {
             mockWallet = new Wallets.Wallet(delegates[0].address);
 
             connection.walletManager.reindex(mockWallet);
-            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockResolvedValue(undefined);
         });
         afterAll(() => {
             jest.restoreAllMocks();
         });
 
-        it("should add the transactions to the pool", () => {
-            expect(connection.getPoolSize()).toBe(0);
+        it("should add the transactions to the pool", async () => {
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
             const wallet = new Wallets.Wallet(Identities.Address.fromPublicKey(mockData.dummy1.data.senderPublicKey));
             wallet.balance = Utils.BigNumber.make(1e12);
             connection.walletManager.reindex(wallet);
 
-            connection.addTransactions([mockData.dummy1, mockData.dummy2]);
+            await connection.addTransactions([mockData.dummy1, mockData.dummy2]);
 
-            expect(connection.getPoolSize()).toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(2);
         });
 
-        it("should not add not-appliable transactions", () => {
+        it("should not add not-appliable transactions", async () => {
             // This should be skipped due to insufficient funds
             const highFeeTransaction = Transactions.TransactionFactory.fromData(cloneDeep(mockData.dummy3.data));
             highFeeTransaction.data.fee = Utils.BigNumber.make(1e9 * SATOSHI);
@@ -236,19 +236,19 @@ describe("Connection", () => {
             jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockImplementation(tx => {
                 throw new Error(JSON.stringify(["Some error in throwIfCannotBeApplied"]));
             });
-            const { notAdded } = connection.addTransactions([highFeeTransaction]);
+            const { notAdded } = await connection.addTransactions([highFeeTransaction]);
             expect(notAdded[0]).toEqual({
                 message: '["Some error in throwIfCannotBeApplied"]',
                 transaction: highFeeTransaction,
                 type: "ERR_APPLY",
             });
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
         });
     });
 
     describe("addTransactions with expiration", () => {
         beforeAll(() => {
-            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockResolvedValue(undefined);
             connection.walletManager.reset();
         });
         afterAll(() => {
@@ -272,7 +272,7 @@ describe("Connection", () => {
 
             setHeight(heightAtStart);
 
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
             const expireAfterBlocks: number = 3;
             const expiration: number = heightAtStart + expireAfterBlocks;
@@ -297,25 +297,25 @@ describe("Connection", () => {
                 nonce = nonce.plus(1);
             }
 
-            const { added, notAdded } = connection.addTransactions(transactions);
+            const { added, notAdded } = await connection.addTransactions(transactions);
 
             expect(notAdded).toBeEmpty();
             expect(added).toHaveLength(3);
 
-            expect(connection.getPoolSize()).toBe(3);
+            await expect(connection.getPoolSize()).resolves.toBe(3);
 
             setHeight(expiration - 1);
 
-            expect(connection.getPoolSize()).toBe(3);
+            await expect(connection.getPoolSize()).resolves.toBe(3);
 
             setHeight(expiration);
 
             switch (transactionVersion) {
                 case 1:
-                    expect(connection.getPoolSize()).toBe(3);
+                    await expect(connection.getPoolSize()).resolves.toBe(3);
                     break;
                 case 2:
-                    expect(connection.getPoolSize()).toBe(1);
+                    await expect(connection.getPoolSize()).resolves.toBe(1);
                     break;
             }
 
@@ -323,10 +323,10 @@ describe("Connection", () => {
 
             switch (transactionVersion) {
                 case 1:
-                    expect(connection.getPoolSize()).toBe(0);
+                    await expect(connection.getPoolSize()).resolves.toBe(0);
                     break;
                 case 2:
-                    expect(connection.getPoolSize()).toBe(1); // v2 transactions do not expire
+                    await expect(connection.getPoolSize()).resolves.toBe(1); // v2 transactions do not expire
                     break;
             }
 
@@ -337,39 +337,39 @@ describe("Connection", () => {
     });
 
     describe("removeTransaction", () => {
-        it("should remove the specified transaction from the pool", () => {
+        it("should remove the specified transaction from the pool", async () => {
             memory.remember(mockData.dummy1);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
 
             connection.removeTransaction(mockData.dummy1);
 
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
         });
     });
 
     describe("removeTransactionById", () => {
-        it("should remove the specified transaction from the pool (by id)", () => {
+        it("should remove the specified transaction from the pool (by id)", async () => {
             memory.remember(mockData.dummy1);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
 
             connection.removeTransactionById(mockData.dummy1.id);
 
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
         });
 
-        it("should do nothing when asked to delete a non-existent transaction", () => {
+        it("should do nothing when asked to delete a non-existent transaction", async () => {
             memory.remember(mockData.dummy1);
 
             connection.removeTransactionById("nonexistenttransactionid");
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
         });
     });
 
     describe("removeTransactionsForSender", () => {
-        it("should remove the senders transactions from the pool", () => {
+        it("should remove the senders transactions from the pool", async () => {
             addTransactions([
                 mockData.dummy1,
                 mockData.dummy3,
@@ -379,30 +379,30 @@ describe("Connection", () => {
                 mockData.dummy10,
             ]);
 
-            expect(connection.getPoolSize()).toBe(6);
+            await expect(connection.getPoolSize()).resolves.toBe(6);
 
             connection.removeTransactionsForSender(mockData.dummy1.data.senderPublicKey);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
         });
     });
 
     describe("has", () => {
-        it("should return true if transaction is IN pool", () => {
+        it("should return true if transaction is IN pool", async () => {
             addTransactions([mockData.dummy1, mockData.dummy2]);
 
-            expect(connection.has(mockData.dummy1.id)).toBeTrue();
-            expect(connection.has(mockData.dummy2.id)).toBeTrue();
+            expect(await connection.has(mockData.dummy1.id)).toBeTrue();
+            expect(await connection.has(mockData.dummy2.id)).toBeTrue();
         });
 
-        it("should return false if transaction is NOT pool", () => {
-            expect(connection.has(mockData.dummy1.id)).toBeFalse();
-            expect(connection.has(mockData.dummy2.id)).toBeFalse();
+        it("should return false if transaction is NOT pool", async () => {
+            expect(await connection.has(mockData.dummy1.id)).toBeFalse();
+            expect(await connection.has(mockData.dummy2.id)).toBeFalse();
         });
     });
 
     describe("hasExceededMaxTransactions", () => {
-        it("should be true if exceeded", () => {
+        it("should be true if exceeded", async () => {
             connection.options.maxTransactionsPerSender = 5;
             connection.options.allowedSenders = [];
             addTransactions([
@@ -415,23 +415,23 @@ describe("Connection", () => {
                 mockData.dummy9,
             ]);
 
-            expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
+            await expect(connection.getPoolSize()).resolves.toBe(7);
+            const exceeded = await connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeTrue();
         });
 
-        it("should be falsy if not exceeded", () => {
+        it("should be falsy if not exceeded", async () => {
             connection.options.maxTransactionsPerSender = 7;
             connection.options.allowedSenders = [];
 
             addTransactions([mockData.dummy4, mockData.dummy5, mockData.dummy6]);
 
-            expect(connection.getPoolSize()).toBe(3);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
+            await expect(connection.getPoolSize()).resolves.toBe(3);
+            const exceeded = await connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeFalse();
         });
 
-        it("should be allowed to exceed if whitelisted", () => {
+        it("should be allowed to exceed if whitelisted", async () => {
             connection.flush();
             connection.options.maxTransactionsPerSender = 5;
             connection.options.allowedSenders = [delegates[0].publicKey, delegates[1].publicKey];
@@ -445,23 +445,23 @@ describe("Connection", () => {
                 mockData.dummy9,
             ]);
 
-            expect(connection.getPoolSize()).toBe(7);
-            const exceeded = connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
+            await expect(connection.getPoolSize()).resolves.toBe(7);
+            const exceeded = await connection.hasExceededMaxTransactions(mockData.dummy3.data.senderPublicKey);
             expect(exceeded).toBeFalse();
         });
     });
 
     describe("getTransaction", () => {
-        it("should return the specified transaction", () => {
+        it("should return the specified transaction", async () => {
             addTransactions([mockData.dummy1]);
 
-            const poolTransaction = connection.getTransaction(mockData.dummy1.id);
+            const poolTransaction = await connection.getTransaction(mockData.dummy1.id);
             expect(poolTransaction).toBeObject();
             expect(poolTransaction.id).toBe(mockData.dummy1.id);
         });
 
-        it("should return undefined for nonexisting transaction", () => {
-            const poolTransaction = connection.getTransaction("non existing id");
+        it("should return undefined for nonexisting transaction", async () => {
+            const poolTransaction = await connection.getTransaction("non existing id");
             expect(poolTransaction).toBeFalsy();
         });
     });
@@ -566,7 +566,7 @@ describe("Connection", () => {
             const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4];
             addTransactions(transactions);
 
-            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
+            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
             const transactionsForForging = await connection.getTransactionsForForging(4);
             spy.mockRestore();
 
@@ -584,7 +584,7 @@ describe("Connection", () => {
                 mockData.dummy1.id,
                 mockData.dummy2.id,
             ]);
-            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
 
             const transactionsForForging = await connection.getTransactionsForForging(3);
             expect(transactionsForForging.length).toBe(1);
@@ -617,7 +617,7 @@ describe("Connection", () => {
 
             addTransactions([...transactions, ...largeTransactions]);
 
-            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
             let transactionsForForging = await connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
@@ -645,14 +645,14 @@ describe("Connection", () => {
     });
 
     describe("flush", () => {
-        it("should flush the pool", () => {
+        it("should flush the pool", async () => {
             addTransactions([mockData.dummy1]);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
 
             connection.flush();
 
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
         });
     });
 
@@ -660,7 +660,7 @@ describe("Connection", () => {
         let mockWallet;
         beforeEach(() => {
             const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
-            jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
 
             mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
             mockWallet.balance = Utils.BigNumber.make(1e12);
@@ -678,9 +678,9 @@ describe("Connection", () => {
             jest.restoreAllMocks();
         });
 
-        it("should update wallet when accepting a chained block", () => {
+        it("should update wallet when accepting a chained block", async () => {
             const balanceBefore = mockWallet.balance;
-            connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
         });
@@ -698,13 +698,13 @@ describe("Connection", () => {
             const chainedBlock = BlockFactory.fromData(block2);
             chainedBlock.transactions.push(mockData.dummy2);
 
-            connection.acceptChainedBlock(chainedBlock);
+            await connection.acceptChainedBlock(chainedBlock);
 
             transactions = await connection.getTransactions(0, 10);
             expect(transactions).toEqual([]);
         });
 
-        it("should forget sender if throwIfApplyingFails() failed for a transaction in the chained block", () => {
+        it("should forget sender if throwIfApplyingFails() failed for a transaction in the chained block", async () => {
             const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("test error");
@@ -716,20 +716,20 @@ describe("Connection", () => {
 
             // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
             mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
-            connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(connection.walletManager.hasByIndex(State.WalletIndexes.PublicKeys, senderPublicKey)).toBeFalse();
             expect(applyToSender).not.toHaveBeenCalled();
             expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
         });
 
-        it("should delete wallet of transaction sender if its balance is down to zero", () => {
+        it("should delete wallet of transaction sender if its balance is down to zero", async () => {
             jest.spyOn(connection.walletManager, "canBePurged").mockReturnValue(true);
             const forget = jest.spyOn(connection.walletManager, "forget");
 
             // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
             mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
-            connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
 
             expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
         });
@@ -744,8 +744,8 @@ describe("Connection", () => {
 
         beforeEach(() => {
             const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
-            throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockReturnValue();
-            applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockReturnValue();
+            throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
+            applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockResolvedValue();
 
             (connection as any).databaseService.walletManager.findByPublicKey(
                 mockData.dummy1.data.senderPublicKey,
@@ -815,21 +815,23 @@ describe("Connection", () => {
     });
 
     describe("senderHasTransactionsOfType", () => {
-        it("should be false for non-existent sender", () => {
+        it("should be false for non-existent sender", async () => {
             addTransactions([mockData.dummy1]);
 
-            expect(connection.senderHasTransactionsOfType("nonexistent", TransactionType.Vote)).toBeFalse();
+            await expect(
+                connection.senderHasTransactionsOfType("nonexistent", TransactionType.Vote),
+            ).resolves.toBeFalse();
         });
 
-        it("should be false for existent sender with no votes", () => {
+        it("should be false for existent sender with no votes", async () => {
             addTransactions([mockData.dummy1]);
 
-            expect(
+            await expect(
                 connection.senderHasTransactionsOfType(mockData.dummy1.data.senderPublicKey, TransactionType.Vote),
-            ).toBeFalse();
+            ).resolves.toBeFalse();
         });
 
-        it("should be true for existent sender with votes", () => {
+        it("should be true for existent sender with votes", async () => {
             const tx = mockData.dummy1;
 
             const voteTx = Transactions.TransactionFactory.fromData(cloneDeep(tx.data));
@@ -842,13 +844,15 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
-            expect(connection.senderHasTransactionsOfType(tx.data.senderPublicKey, TransactionType.Vote)).toBeTrue();
+            await expect(
+                connection.senderHasTransactionsOfType(tx.data.senderPublicKey, TransactionType.Vote),
+            ).resolves.toBeTrue();
         });
     });
 
     describe("shutdown and start", () => {
         it("save and restore transactions", async () => {
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
             indexWalletWithSufficientBalance(mockData.dummy1);
             indexWalletWithSufficientBalance(mockData.dummyLarge1);
@@ -857,7 +861,7 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
-            expect(connection.getPoolSize()).toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(2);
 
             connection.disconnect();
 
@@ -867,17 +871,17 @@ describe("Connection", () => {
 
             await delay(200);
 
-            expect(connection.getPoolSize()).toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(2);
 
             for (const t of transactions) {
-                expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized);
+                expect((await connection.getTransaction(t.id)).serialized).toEqual(t.serialized);
             }
 
             connection.flush();
         });
 
         it("remove forged when starting", async () => {
-            expect(connection.getPoolSize()).toBe(0);
+            await expect(connection.getPoolSize()).resolves.toBe(0);
 
             jest.spyOn(databaseService, "getForgedTransactionsIds").mockReturnValue([mockData.dummy2.id]);
 
@@ -892,7 +896,7 @@ describe("Connection", () => {
 
             addTransactions(transactions);
 
-            expect(connection.getPoolSize()).toBe(3);
+            await expect(connection.getPoolSize()).resolves.toBe(3);
 
             connection.disconnect();
 
@@ -902,12 +906,12 @@ describe("Connection", () => {
 
             await delay(200);
 
-            expect(connection.getPoolSize()).toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(2);
 
             transactions.splice(1, 1);
 
             for (const t of transactions) {
-                expect(connection.getTransaction(t.id).serialized).toEqual(t.serialized);
+                expect((await connection.getTransaction(t.id)).serialized).toEqual(t.serialized);
             }
 
             connection.flush();
@@ -918,7 +922,7 @@ describe("Connection", () => {
 
     describe("stress", () => {
         beforeAll(() => {
-            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockReturnValue();
+            jest.spyOn(connection.walletManager, "throwIfCannotBeApplied").mockResolvedValue();
         });
 
         beforeEach(() => {
@@ -970,7 +974,7 @@ describe("Connection", () => {
             for (let i = 0; i < testSize; i++) {
                 const transaction = testTransactions[i];
 
-                connection.addTransactions([transaction]);
+                await connection.addTransactions([transaction]);
 
                 if (i % 27 === 0) {
                     connection.removeTransaction(transaction);
@@ -979,12 +983,12 @@ describe("Connection", () => {
 
             for (let i = 0; i < testSize * 2; i++) {
                 const transaction = testTransactions[i % testSize];
-                connection.getPoolSize();
+                await connection.getPoolSize();
                 for (const senderPublicKey of ["nonexistent", transaction.data.senderPublicKey]) {
-                    connection.getSenderSize(senderPublicKey);
-                    connection.hasExceededMaxTransactions(senderPublicKey);
+                    await connection.getSenderSize(senderPublicKey);
+                    await connection.hasExceededMaxTransactions(senderPublicKey);
                 }
-                connection.getTransaction(transaction.id);
+                await connection.getTransaction(transaction.id);
                 await connection.getTransactions(0, i);
             }
 
@@ -995,15 +999,15 @@ describe("Connection", () => {
             // console.timeEnd("multiple additions and retrievals");
         });
 
-        it("delete + add after sync", () => {
+        it("delete + add after sync", async () => {
             const testTransactions: Interfaces.ITransaction[] = generateTestTransactions(
                 connection.options.syncInterval,
             );
 
-            connection.addTransactions(testTransactions);
+            await connection.addTransactions(testTransactions);
 
             connection.removeTransaction(testTransactions[0]);
-            connection.addTransactions([testTransactions[0]]);
+            await connection.addTransactions([testTransactions[0]]);
         });
 
         it("add many then get first few", async () => {
@@ -1027,7 +1031,7 @@ describe("Connection", () => {
             }
 
             // console.time(`time to add ${nAdd}`)
-            connection.addTransactions(testTransactions);
+            await connection.addTransactions(testTransactions);
             // console.timeEnd(`time to add ${nAdd}`)
 
             const nGet = 150;
@@ -1141,7 +1145,7 @@ describe("Connection", () => {
     });
 
     describe("purgeInvalidTransactions", () => {
-        it("should flush the pool", () => {
+        it("should flush the pool", async () => {
             // 64 char vendor field
             Managers.configManager.setHeight(1);
 
@@ -1152,11 +1156,11 @@ describe("Connection", () => {
                     .build()[0],
             ]);
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
 
-            connection.purgeInvalidTransactions();
+            await connection.purgeInvalidTransactions();
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
 
             // 255 char vendor field
             Managers.configManager.setHeight(100000);
@@ -1168,18 +1172,18 @@ describe("Connection", () => {
                     .build()[0],
             ]);
 
-            connection.purgeInvalidTransactions();
+            await connection.purgeInvalidTransactions();
 
-            expect(connection.getPoolSize()).toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(2);
 
             // Invalidate transactions with a vendor field longer then 64 chars
             Managers.configManager.setHeight(1);
 
-            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockReturnValueOnce(undefined);
+            jest.spyOn(connection.walletManager, "revertTransactionForSender").mockResolvedValueOnce(undefined);
 
-            connection.purgeInvalidTransactions();
+            await connection.purgeInvalidTransactions();
 
-            expect(connection.getPoolSize()).toBe(1);
+            await expect(connection.getPoolSize()).resolves.toBe(1);
         });
     });
 });

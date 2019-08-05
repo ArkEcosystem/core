@@ -410,7 +410,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 );
 
                 for (const block of acceptedBlocks.reverse()) {
-                    this.database.walletManager.revertBlock(block);
+                    await this.database.walletManager.revertBlock(block);
                 }
 
                 this.state.setLastBlock(lastBlock);

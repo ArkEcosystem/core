@@ -22,7 +22,7 @@ export interface IConnection {
         added: Interfaces.ITransaction[];
         notAdded: IAddTransactionResponse[];
     }>;
-    acceptChainedBlock(block: Interfaces.IBlock): void;
+    acceptChainedBlock(block: Interfaces.IBlock): Promise<void>;
     buildWallets(): Promise<void>;
     flush(): void;
     getTransaction(id: string): Promise<Interfaces.ITransaction>;
