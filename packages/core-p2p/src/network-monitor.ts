@@ -129,7 +129,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
+        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);

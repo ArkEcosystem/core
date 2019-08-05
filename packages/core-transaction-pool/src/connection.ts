@@ -234,9 +234,7 @@ export class Connection implements TransactionPool.IConnection {
                     }
 
                     this.logger.error(
-                        `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${
-                            data.id
-                        } due to ${error.message}. Possible double spending attack`,
+                        `CanApply transaction test failed on acceptChainedBlock() in transaction pool for transaction id:${data.id} due to ${error.message}. Possible double spending attack`,
                     );
 
                     continue;

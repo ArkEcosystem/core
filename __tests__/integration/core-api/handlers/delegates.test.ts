@@ -143,6 +143,15 @@ describe("API 2.0 - Delegates", () => {
         it("should fail to GET a delegate by the given identifier if it doesn't exist", async () => {
             utils.expectError(await utils.request("GET", "delegates/fake_username"), 404);
         });
+
+        it("should fail to GET a delegate by the given identifier if the resource is not a delegate (has no username)", async () => {
+            const wallet = { address: 'non_delegate_address' }
+
+            const wm = app.resolvePlugin("database").walletManager;
+            wm.index([wallet]);
+
+            utils.expectError(await utils.request("GET", `delegates/${wallet.address}`), 404);
+        });
     });
 
     describe("POST /delegates/search", () => {
