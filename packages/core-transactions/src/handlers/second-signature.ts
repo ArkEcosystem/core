@@ -25,11 +25,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         if (wallet.hasSecondSignature()) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
@@ -41,11 +41,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
@@ -53,7 +53,10 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         super.applyToSender(transaction, walletManager);
 
         walletManager
@@ -61,15 +64,24 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
             .setAttribute("secondPublicKey", transaction.data.asset.signature.publicKey);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         super.revertForSender(transaction, walletManager);
 
         walletManager.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("secondPublicKey");
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 }

@@ -26,11 +26,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         if (!wallet.isDelegate()) {
             throw new WalletNotADelegateError();
         }
@@ -46,11 +46,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         emitter.emit(ApplicationEvents.DelegateResigned, transaction.data);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
@@ -64,21 +64,33 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         super.applyToSender(transaction, walletManager);
 
         walletManager.findByPublicKey(transaction.data.senderPublicKey).setAttribute("delegate.resigned", true);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         super.revertForSender(transaction, walletManager);
 
         walletManager.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("delegate.resigned");
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 }

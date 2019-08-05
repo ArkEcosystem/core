@@ -11,7 +11,7 @@ export interface ITransactionHandler {
 
     isActivated(): Promise<boolean>;
 
-    verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean;
+    verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<boolean>;
 
     dynamicFee(transaction: Interfaces.ITransaction, addonBytes: number, satoshiPerByte: number): Utils.BigNumber;
 
@@ -19,15 +19,15 @@ export interface ITransactionHandler {
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void;
-    apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
-    revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void | Promise<void>;
+    ): Promise<void>;
+    apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void>;
+    revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void>;
 
     canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean;
+    ): Promise<boolean>;
 
     emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void;
 }

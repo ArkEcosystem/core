@@ -30,7 +30,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         walletManager: State.IWalletManager,
     ): Promise<void>;
 
-    public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
+    public async verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<boolean> {
         const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
@@ -57,11 +57,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -122,17 +122,20 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
     }
 
-    public apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
         this.applyToSender(transaction, walletManager);
         this.applyToRecipient(transaction, walletManager);
     }
 
-    public revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
         this.revertForSender(transaction, walletManager);
         this.revertForRecipient(transaction, walletManager);
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -161,7 +164,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
         sender.balance = newBalance;
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -176,9 +182,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
     }
 
-    public abstract applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
+    public abstract async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void>;
 
-    public abstract revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
+    public abstract async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void>;
 
     /**
      * Database Service
@@ -189,11 +201,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Transaction Pool logic
      */
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         processor.pushError(
             data,
             "ERR_UNSUPPORTED",

@@ -80,26 +80,32 @@ class TestTransactionHandler extends TransactionHandler {
         return TestTransaction;
     }
 
-    public apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): void {
+    public async apply(transaction: Transactions.Transaction, walletManager: State.IWalletManager): Promise<void> {
         return;
     }
     public async revert(transaction: Transactions.Transaction, wallet: State.IWalletManager): Promise<void> {
         return;
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         return true;
     }
 
     // tslint:disable-next-line: no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 
     // tslint:disable-next-line: no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void { }
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 }
 
 beforeAll(() => {
@@ -129,7 +135,9 @@ describe("Registry", () => {
 
     it("should register a custom type", () => {
         expect(() => Registry.registerTransactionHandler(TestTransactionHandler)).not.toThrowError();
-        expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBeInstanceOf(TestTransactionHandler);
+        expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBeInstanceOf(
+            TestTransactionHandler,
+        );
         expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBe(
             TestTransaction,
         );
@@ -183,7 +191,10 @@ describe("Registry", () => {
         handlers = await Registry.getActivatedTransactions();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
-        jest.spyOn(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test), "isActivated").mockResolvedValueOnce(false);
+        jest.spyOn(
+            Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test),
+            "isActivated",
+        ).mockResolvedValueOnce(false);
 
         handlers = await Registry.getActivatedTransactions();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);

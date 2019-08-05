@@ -25,11 +25,11 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
     }
 
@@ -37,11 +37,11 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         if (!isRecipientOnActiveNetwork(data)) {
             processor.pushError(
                 data,
@@ -56,12 +56,18 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
 
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
