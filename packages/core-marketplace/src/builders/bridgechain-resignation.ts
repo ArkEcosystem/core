@@ -1,5 +1,5 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
 import { BridgechainResignationTransaction } from "../transactions";
 
 const bridgechainResignationType: number = MarketplaceTransactionTypes.BridgechainResignation;
@@ -7,6 +7,8 @@ const bridgechainResignationType: number = MarketplaceTransactionTypes.Bridgecha
 export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {
     constructor() {
         super();
+        this.data.version = 2;
+        this.data.typeGroup = MarketplaceTransactionsGroup;
         this.data.type = bridgechainResignationType;
         this.data.fee = BridgechainResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;

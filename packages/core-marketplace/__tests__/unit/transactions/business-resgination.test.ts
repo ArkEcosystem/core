@@ -15,14 +15,13 @@ let builder: BusinessResignationBuilder;
 
 describe("Business resignation ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BusinessResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BusinessResignationTransaction);
 
     beforeEach(() => {
         builder = new BusinessResignationBuilder();
     });
     it("should ser/deserialize giving back original fields", () => {
         const businessResignation = builder
-            .fee("50000000")
             .network(23)
             .version(2)
             .sign("passphrase")

@@ -1,6 +1,6 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { IBusinessRegistrationAsset } from "../interfaces";
-import { MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
 import { BusinessRegistrationTransaction } from "../transactions";
 
 const businessRegistrationType: number = MarketplaceTransactionTypes.BusinessRegistration;
@@ -8,6 +8,8 @@ const businessRegistrationType: number = MarketplaceTransactionTypes.BusinessReg
 export class BusinessRegistrationBuilder extends Transactions.TransactionBuilder<BusinessRegistrationBuilder> {
     constructor() {
         super();
+        this.data.version = 2;
+        this.data.typeGroup = MarketplaceTransactionsGroup;
         this.data.type = businessRegistrationType;
         this.data.fee = BusinessRegistrationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;

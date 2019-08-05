@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredError,
     BridgechainIsResignedError,
@@ -14,6 +14,10 @@ import { BridgechainResignationTransaction } from "../transactions";
 export class BridgechainResignationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return BridgechainResignationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<any> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -30,7 +34,9 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             walletManager.reindex(wallet);
         }
     }
-
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
+    }
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

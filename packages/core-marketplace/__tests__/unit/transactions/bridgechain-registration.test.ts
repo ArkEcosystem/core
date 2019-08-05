@@ -15,7 +15,7 @@ let builder: BridgechainRegistrationBuilder;
 
 describe("Bridgechain registration ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BridgechainRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
 
     beforeEach(() => {
         builder = new BridgechainRegistrationBuilder();
@@ -37,7 +37,6 @@ describe("Bridgechain registration ser/deser", () => {
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 githubRepository: "github",
             })
-            .fee("50000000")
             .network(23)
             .sign("passphrase")
             .getStruct();

@@ -3,12 +3,11 @@ import "jest-extended";
 import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Utils } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import { BusinessRegistrationBuilder, BusinessResignationBuilder } from "../../../src/builders";
 import { BusinessAlreadyRegisteredError, BusinessIsNotRegisteredError } from "../../../src/errors";
 import { BusinessRegistrationTransactionHandler, BusinessResignationTransactionHandler } from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
-import { MarketplaceTransactionTypes } from "../../../src/marketplace-transactions";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
@@ -20,18 +19,20 @@ let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
 
 describe("should test business handlers", () => {
-    Handlers.Registry.registerCustomTransactionHandler(BusinessRegistrationTransactionHandler);
-    Handlers.Registry.registerCustomTransactionHandler(BusinessResignationTransactionHandler);
+    Managers.configManager.setFromPreset("testnet");
+
+    Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
+    Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);
 
     beforeEach(() => {
-        businessRegistrationHandler = Handlers.Registry.get(MarketplaceTransactionTypes.BusinessRegistration);
-        businessResignationHandler = Handlers.Registry.get(MarketplaceTransactionTypes.BusinessResignation);
+        businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
+        businessResignationHandler = new BusinessResignationTransactionHandler();
 
         businessRegistrationBuilder = new BusinessRegistrationBuilder();
         businessResignationBuilder = new BusinessResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
-        walletManager.registerIndex("byBusiness", (index: State.IWalletIndex, wallet: State.IWallet): void => {
+        walletManager.registerIndex("byBusiness", (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
             if (wallet.hasAttribute("business") && wallet.publicKey) {
                 index.set(wallet.publicKey, wallet);
             }
@@ -39,7 +40,6 @@ describe("should test business handlers", () => {
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654310);
         senderWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
-
         walletManager.reindex(senderWallet);
     });
 
@@ -53,7 +53,6 @@ describe("should test business handlers", () => {
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
             expect(() =>
                 businessRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
             ).not.toThrow();

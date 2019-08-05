@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError, BusinessRegistrationAssetError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessRegistrationAsset, IBusinessWalletProperty } from "../interfaces";
@@ -9,6 +9,10 @@ import { BusinessRegistrationTransaction } from "../transactions";
 export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return BusinessRegistrationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<any> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -23,7 +27,9 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             walletManager.reindex(wallet);
         }
     }
-
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
+    }
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

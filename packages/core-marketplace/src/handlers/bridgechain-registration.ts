@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BridgechainRegistrationAssetError, BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBridgechainRegistrationAsset, IBusinessWalletProperty } from "../interfaces";
@@ -9,6 +9,10 @@ import { BridgechainRegistrationTransaction } from "../transactions";
 export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return BridgechainRegistrationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<any> {
+        return [];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -24,7 +28,9 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             walletManager.reindex(wallet);
         }
     }
-
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
+    }
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,

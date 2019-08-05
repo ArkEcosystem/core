@@ -5,17 +5,17 @@ import { BridgechainResignationBuilder } from "../../../src/builders";
 import { BridgechainResignationTransaction } from "../../../src/transactions";
 
 const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {
-  const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
-  for (const field of fieldsToCheck) {
-    expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
-  }
+    const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
+    for (const field of fieldsToCheck) {
+        expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
+    }
 };
 
 let builder: BridgechainResignationBuilder;
 
 describe("Business registration ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BridgechainResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BridgechainResignationTransaction);
 
     beforeEach(() => {
         builder = new BridgechainResignationBuilder();
@@ -23,7 +23,6 @@ describe("Business registration ser/deser", () => {
     it("should ser/deserialize giving back original fields", () => {
         const bridgechainResignation = builder
             .businessResignationAsset("127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935")
-            .fee("50000000")
             .network(23)
             .version(2)
             .sign("passphrase")

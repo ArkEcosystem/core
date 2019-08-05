@@ -1,5 +1,5 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
 import { BusinessResignationTransaction } from "../transactions";
 
 const businessResignationType: number = MarketplaceTransactionTypes.BusinessResignation;
@@ -7,6 +7,8 @@ const businessResignationType: number = MarketplaceTransactionTypes.BusinessResi
 export class BusinessResignationBuilder extends Transactions.TransactionBuilder<BusinessResignationBuilder> {
     constructor() {
         super();
+        this.data.version = 2;
+        this.data.typeGroup = MarketplaceTransactionsGroup;
         this.data.type = businessResignationType;
         this.data.fee = BusinessResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;

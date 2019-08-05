@@ -1,6 +1,8 @@
 export enum MarketplaceTransactionTypes {
-    BusinessRegistration = 100,
-    BusinessResignation = 101,
-    BridgechainRegistration = 102,
-    BridgechainResignation = 103,
+    BusinessRegistration = 11,
+    BusinessResignation = 12,
+    BridgechainRegistration = 13,
+    BridgechainResignation = 14,
 }
+
+export const MarketplaceTransactionsGroup = 100;

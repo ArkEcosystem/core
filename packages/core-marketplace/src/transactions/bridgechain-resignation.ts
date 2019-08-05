@@ -2,13 +2,14 @@ import { Transactions } from "@arkecosystem/crypto";
 import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBridgechainResignationAsset } from "../interfaces";
-import { MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
 
 const { schemas } = Transactions;
 
 const bridgechainResignationType: number = MarketplaceTransactionTypes.BridgechainResignation;
 
 export class BridgechainResignationTransaction extends Transactions.Transaction {
+    public static typeGroup: number = MarketplaceTransactionsGroup;
     public static type = bridgechainResignationType;
     public static key: string = "bridgechainResignation";
 

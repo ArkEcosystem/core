@@ -8,7 +8,7 @@ let builder: BridgechainResignationBuilder;
 
 describe("Bridgechain resignation builder", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BridgechainResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BridgechainResignationTransaction);
 
     beforeEach(() => {
         builder = new BridgechainResignationBuilder();

@@ -9,7 +9,7 @@ let builder: BusinessRegistrationBuilder;
 
 describe("Business registration builder", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BusinessRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BusinessRegistrationTransaction);
 
     beforeEach(() => {
         builder = new BusinessRegistrationBuilder();
@@ -51,7 +51,7 @@ describe("Business registration builder", () => {
                     github: "www.github.com/google",
                 })
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
+            console.log(actual.build());
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });

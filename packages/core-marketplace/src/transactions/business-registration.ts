@@ -1,13 +1,14 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBusinessRegistrationAsset } from "../interfaces";
-import { MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
 
 const { schemas } = Transactions;
 
 const businessRegistrationType: number = MarketplaceTransactionTypes.BusinessRegistration;
 
 export class BusinessRegistrationTransaction extends Transactions.Transaction {
+    public static typeGroup: number = MarketplaceTransactionsGroup;
     public static type = businessRegistrationType;
     public static key: string = "businessRegistration";
 

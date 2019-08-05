@@ -8,7 +8,7 @@ let builder: BusinessResignationBuilder;
 
 describe("Business resignation builder", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BusinessResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BusinessResignationTransaction);
 
     beforeEach(() => {
         builder = new BusinessResignationBuilder();

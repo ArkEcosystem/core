@@ -9,7 +9,7 @@ let builder: BridgechainRegistrationBuilder;
 
 describe("Bridgechain registration builder", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BridgechainRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
 
     beforeEach(() => {
         builder = new BridgechainRegistrationBuilder();

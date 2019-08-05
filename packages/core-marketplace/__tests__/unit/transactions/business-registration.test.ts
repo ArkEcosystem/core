@@ -15,7 +15,8 @@ let builder: BusinessRegistrationBuilder;
 
 describe("Business registration ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerCustomType(BusinessRegistrationTransaction);
+
+    Transactions.TransactionRegistry.registerTransactionType(BusinessRegistrationTransaction);
 
     beforeEach(() => {
         builder = new BusinessRegistrationBuilder();
@@ -26,7 +27,6 @@ describe("Business registration ser/deser", () => {
                 name: "businessName",
                 website: "www.website.com",
             })
-            .fee("50000000")
             .network(23)
             .version(2)
             .sign("passphrase")
