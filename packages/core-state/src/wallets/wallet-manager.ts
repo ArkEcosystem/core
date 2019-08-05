@@ -36,6 +36,12 @@ export class WalletManager implements State.IWalletManager {
         return this.byAddress[id] || this.byPublicKey[id] || this.byUsername[id];
     }
 
+    public findDelegateById(id: string): State.IWallet {
+        const wallet: State.IWallet = this.findById(id);
+
+        return (wallet && !!wallet.username) ? wallet : undefined;
+    }
+
     public findByAddress(address: string): State.IWallet {
         if (address && !this.byAddress[address]) {
             this.byAddress[address] = new Wallet(address);
