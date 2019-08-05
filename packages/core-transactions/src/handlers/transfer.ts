@@ -30,7 +30,7 @@ export class TransferTransactionHandler extends TransactionHandler {
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
     }
 
     public hasVendorField(): boolean {

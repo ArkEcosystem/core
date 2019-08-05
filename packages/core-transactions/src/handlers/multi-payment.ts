@@ -48,7 +48,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             throw new InsufficientBalanceError();
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public async canEnterTransactionPool(
@@ -63,7 +63,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletManager);
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
@@ -77,7 +77,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletManager);
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),

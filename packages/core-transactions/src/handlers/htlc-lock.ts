@@ -33,7 +33,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public async canEnterTransactionPool(
@@ -48,7 +48,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const locks = sender.getAttribute("htlc.locks", {});
@@ -65,7 +65,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
@@ -78,15 +78,15 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    // tslint:disable-next-line:no-empty
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

@@ -74,7 +74,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new InvalidMultiSignatureError();
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public async canEnterTransactionPool(
@@ -82,7 +82,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
@@ -93,7 +93,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletManager);
 
         // Create the multi sig wallet
         if (transaction.data.version >= 2) {
@@ -107,7 +107,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletManager);
         // Nothing else to do for the sender since the recipient wallet
         // is made into a multi sig wallet.
     }

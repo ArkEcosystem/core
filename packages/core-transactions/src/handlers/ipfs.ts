@@ -39,7 +39,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         //     throw new IpfsHashAlreadyExists();
         // }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public async canEnterTransactionPool(
@@ -54,7 +54,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         if (!sender.hasAttribute("ipfs")) {
@@ -71,7 +71,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
@@ -80,15 +80,15 @@ export class IpfsTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    // tslint:disable-next-line:no-empty
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

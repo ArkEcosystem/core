@@ -38,7 +38,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public async canEnterTransactionPool(
@@ -46,7 +46,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
@@ -57,7 +57,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletManager);
 
         walletManager
             .findByPublicKey(transaction.data.senderPublicKey)
@@ -68,20 +68,20 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletManager);
 
         walletManager.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("secondPublicKey");
     }
 
-    // tslint:disable-next-line:no-empty
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

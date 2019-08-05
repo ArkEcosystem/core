@@ -123,13 +123,13 @@ export abstract class TransactionHandler implements ITransactionHandler {
     }
 
     public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
-        this.applyToSender(transaction, walletManager);
-        this.applyToRecipient(transaction, walletManager);
+        await this.applyToSender(transaction, walletManager);
+        await this.applyToRecipient(transaction, walletManager);
     }
 
     public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
-        this.revertForSender(transaction, walletManager);
-        this.revertForRecipient(transaction, walletManager);
+        await this.revertForSender(transaction, walletManager);
+        await this.revertForRecipient(transaction, walletManager);
     }
 
     public async applyToSender(
@@ -143,7 +143,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -215,14 +215,14 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return false;
     }
 
-    protected typeFromSenderAlreadyInPool(
+    protected async typeFromSenderAlreadyInPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 
-        if (pool.senderHasTransactionsOfType(senderPublicKey, type)) {
+        if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             processor.pushError(
                 data,
                 "ERR_PENDING",

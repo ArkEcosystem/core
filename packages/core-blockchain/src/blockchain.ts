@@ -220,15 +220,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Hand the given transactions to the transaction handler.
-     */
-    public async postTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
-        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
-
-        this.transactionPool.addTransactions(transactions);
-    }
-
-    /**
      * Push a block to the process queue.
      */
     public handleIncomingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
@@ -314,7 +305,7 @@ export class Blockchain implements blockchain.IBlockchain {
             removedBlocks.push(lastBlock.data);
 
             if (this.transactionPool) {
-                this.transactionPool.addTransactions(lastBlock.transactions);
+                await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
             const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());

@@ -169,7 +169,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -235,20 +235,15 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         walletManager.reindex(recipientWallet);
     }
 
-    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
-        await this.revertForSender(transaction, walletManager);
-        this.revertForRecipient(transaction, walletManager);
-    }
-
-    // tslint:disable-next-line:no-empty
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }
