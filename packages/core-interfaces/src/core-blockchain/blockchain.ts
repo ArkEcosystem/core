@@ -51,13 +51,6 @@ export interface IBlockchain {
     clearAndStopQueue(): void;
 
     /**
-     * Hand the given transactions to the transaction handler.
-     * @param  {Array}   transactions
-     * @return {void}
-     */
-    postTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
-
-    /**
      * Push a block to the process queue.
      */
     handleIncomingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;

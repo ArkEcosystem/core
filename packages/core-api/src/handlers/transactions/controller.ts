@@ -67,7 +67,7 @@ export class TransactionsController extends Controller {
 
             return super.toPagination(
                 {
-                    count: this.transactionPool.getPoolSize(),
+                    count: await this.transactionPool.getPoolSize(),
                     rows: data,
                 },
                 "transaction",
@@ -80,7 +80,7 @@ export class TransactionsController extends Controller {
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const transaction: Interfaces.ITransaction = this.transactionPool.getTransaction(request.params.id);
+            const transaction: Interfaces.ITransaction = await this.transactionPool.getTransaction(request.params.id);
 
             if (!transaction) {
                 return Boom.notFound("Transaction not found");

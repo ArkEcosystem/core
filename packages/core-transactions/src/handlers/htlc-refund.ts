@@ -55,11 +55,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return Utils.BigNumber.ZERO;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         // Common checks (copied from inherited transaction handler class)
         // Only common balance check was removed because we need a specific balance check here
         const data: Interfaces.ITransactionData = transaction.data;
@@ -132,12 +132,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
-        const lockId = data.asset.refund.lockTransactionId;
+    ): Promise<boolean> {
+        const lockId: string = data.asset.refund.lockTransactionId;
         const lockWallet: State.IWallet = pool.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             processor.pushError(
@@ -151,7 +151,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -159,7 +162,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -169,7 +172,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             sender.nonce = data.nonce;
         }
 
-        const lockId = data.asset.refund.lockTransactionId;
+        const lockId: string = data.asset.refund.lockTransactionId;
         const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
@@ -218,14 +221,15 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         walletManager.reindex(lockWallet);
     }
 
-    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
-        await this.revertForSender(transaction, walletManager);
-        this.revertForRecipient(transaction, walletManager);
-    }
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
-
-    // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 }

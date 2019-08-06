@@ -29,11 +29,11 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
             Utils.BigNumber.ZERO,
@@ -48,19 +48,22 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             throw new InsufficientBalanceError();
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.applyToSender(transaction, walletManager);
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
@@ -70,8 +73,11 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         sender.balance = sender.balance.minus(totalPaymentsAmount);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.revertForSender(transaction, walletManager);
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.revertForSender(transaction, walletManager);
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
@@ -82,7 +88,10 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         for (const payment of transaction.data.asset.payments) {
             const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
             recipient.balance = recipient.balance.plus(payment.amount);
@@ -90,7 +99,10 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     }
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         for (const payment of transaction.data.asset.payments) {
             const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
             recipient.balance = recipient.balance.minus(payment.amount);

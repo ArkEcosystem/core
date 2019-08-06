@@ -29,29 +29,32 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         // TODO implement unique ipfs hash on blockchain (not just on wallet)
         // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
         //     throw new IpfsHashAlreadyExists();
         // }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         if (!sender.hasAttribute("ipfs")) {
@@ -64,8 +67,11 @@ export class IpfsTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.revertForSender(transaction, walletManager);
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
@@ -74,9 +80,15 @@ export class IpfsTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 }

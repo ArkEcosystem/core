@@ -25,11 +25,11 @@ export class Processor implements TransactionPool.IProcessor {
         this.cacheTransactions(transactions);
 
         if (this.transactions.length > 0) {
-            this.filterAndTransformTransactions(this.transactions);
+            await this.filterAndTransformTransactions(this.transactions);
 
             await this.removeForgedTransactions();
 
-            this.addTransactionsToPool();
+            await this.addTransactionsToPool();
 
             this.printStats();
         }
@@ -97,11 +97,11 @@ export class Processor implements TransactionPool.IProcessor {
         }
     }
 
-    private filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): void {
+    private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
         const { maxTransactionBytes } = app.resolveOptions("transaction-pool");
 
         for (const transaction of transactions) {
-            const exists: boolean = this.pool.has(transaction.id);
+            const exists: boolean = await this.pool.has(transaction.id);
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
@@ -111,18 +111,21 @@ export class Processor implements TransactionPool.IProcessor {
                     "ERR_TOO_LARGE",
                     `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
                 );
-            } else if (this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
+            } else if (await this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
                 this.excess.push(transaction.id);
-            } else if (this.validateTransaction(transaction)) {
+            } else if (await this.validateTransaction(transaction)) {
                 try {
                     const receivedId: string = transaction.id;
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
-                    const handler = Handlers.Registry.get(transactionInstance.type, transactionInstance.typeGroup);
-                    if (handler.verify(transactionInstance, this.pool.walletManager)) {
+                    const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                        transactionInstance.type,
+                        transactionInstance.typeGroup,
+                    );
+                    if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
-                            this.walletManager.throwIfCannotBeApplied(transactionInstance);
+                            await this.walletManager.throwIfCannotBeApplied(transactionInstance);
                             const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
@@ -162,7 +165,7 @@ export class Processor implements TransactionPool.IProcessor {
         }
     }
 
-    private validateTransaction(transaction: Interfaces.ITransactionData): boolean {
+    private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
         const lastHeight: number = app
             .resolvePlugin<State.IStateService>("state")
@@ -223,8 +226,8 @@ export class Processor implements TransactionPool.IProcessor {
         return false;
     }
 
-    private addTransactionsToPool(): void {
-        const { notAdded }: ITransactionsProcessed = this.pool.addTransactions(Array.from(this.accept.values()));
+    private async addTransactionsToPool(): Promise<void> {
+        const { notAdded }: ITransactionsProcessed = await this.pool.addTransactions(Array.from(this.accept.values()));
 
         for (const item of notAdded) {
             this.accept.delete(item.transaction.id);
