@@ -25,7 +25,7 @@ afterAll(async () => {
 });
 
 describe("throwIfCannotBeApplied", () => {
-    it("should add an error for delegate registration when username is already taken", () => {
+    it("should add an error for delegate registration when username is already taken", async () => {
         const delegateReg = TransactionFactory.delegateRegistration("genesis_11")
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
@@ -33,19 +33,19 @@ describe("throwIfCannotBeApplied", () => {
 
         const username: string = delegateReg.data.asset.delegate.username;
 
-        expect(() => poolWalletManager.throwIfCannotBeApplied(delegateReg)).toThrow(
-            `Failed to apply transaction, because the username '${username}' is already registered.`
+        await expect(poolWalletManager.throwIfCannotBeApplied(delegateReg)).rejects.toThrow(
+            `Failed to apply transaction, because the username '${username}' is already registered.`,
         );
     });
 
-    it("should add an error when voting for a delegate that doesn't exist", () => {
+    it("should add an error when voting for a delegate that doesn't exist", async () => {
         const vote = TransactionFactory.vote(wallets[12].keys.publicKey)
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
 
-        expect(() => poolWalletManager.throwIfCannotBeApplied(vote)).toThrow(
-            `Failed to apply transaction, because only delegates can be voted.`
+        await expect(poolWalletManager.throwIfCannotBeApplied(vote)).rejects.toThrow(
+            `Failed to apply transaction, because only delegates can be voted.`,
         );
     });
 });
@@ -73,7 +73,7 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(newWallet);
 
             const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSender(transfer, poolWalletManager);
+            await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -102,7 +102,7 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(newWallet);
 
             const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSender(transfer, poolWalletManager);
+            await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -149,8 +149,8 @@ describe("applyPoolTransactionToSender", () => {
                     .walletManager.findByPublicKey(transfer.data.senderPublicKey);
 
                 try {
-                    poolWalletManager.throwIfCannotBeApplied(transfer);
-                    transactionHandler.applyToSender(transfer, poolWalletManager);
+                    await poolWalletManager.throwIfCannotBeApplied(transfer);
+                    await transactionHandler.applyToSender(transfer, poolWalletManager);
                     expect(t.from).toBe(delegate);
                 } catch (error) {
                     expect(t.from).toBe(walletsGen[0]);

@@ -271,7 +271,7 @@ describe("Database Service", () => {
                 );
 
                 block.data.generatorPublicKey = keys.publicKey;
-                walletManager.applyBlock(block);
+                await walletManager.applyBlock(block);
 
                 blocksInRound.push(block);
             }

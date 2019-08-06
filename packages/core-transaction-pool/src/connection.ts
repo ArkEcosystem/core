@@ -59,7 +59,7 @@ export class Connection implements TransactionPool.IConnection {
                 validTransactions.includes(transaction.serialized.toString("hex")),
             );
 
-            this.purgeExpired();
+            await this.purgeExpired();
             this.syncToPersistentStorage();
         });
 
@@ -77,30 +77,30 @@ export class Connection implements TransactionPool.IConnection {
         return new Processor(this, this.walletManager);
     }
 
-    public getTransactionsByType(type: number): Set<Interfaces.ITransaction> {
-        this.purgeExpired();
+    public async getTransactionsByType(type: number): Promise<Set<Interfaces.ITransaction>> {
+        await this.purgeExpired();
 
         return this.memory.getByType(type);
     }
 
-    public getPoolSize(): number {
-        this.purgeExpired();
+    public async getPoolSize(): Promise<number> {
+        await this.purgeExpired();
 
         return this.memory.count();
     }
 
-    public getSenderSize(senderPublicKey: string): number {
-        this.purgeExpired();
+    public async getSenderSize(senderPublicKey: string): Promise<number> {
+        await this.purgeExpired();
 
         return this.memory.getBySender(senderPublicKey).size;
     }
 
-    public addTransactions(transactions: Interfaces.ITransaction[]): ITransactionsProcessed {
+    public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<ITransactionsProcessed> {
         const added: Interfaces.ITransaction[] = [];
         const notAdded: TransactionPool.IAddTransactionResponse[] = [];
 
         for (const transaction of transactions) {
-            const result: TransactionPool.IAddTransactionResponse = this.addTransaction(transaction);
+            const result: TransactionPool.IAddTransactionResponse = await this.addTransaction(transaction);
 
             result.message ? notAdded.push(result) : added.push(transaction);
         }
@@ -134,8 +134,8 @@ export class Connection implements TransactionPool.IConnection {
         }
     }
 
-    public getTransaction(id: string): Interfaces.ITransaction {
-        this.purgeExpired();
+    public async getTransaction(id: string): Promise<Interfaces.ITransaction> {
+        await this.purgeExpired();
 
         return this.memory.getById(id);
     }
@@ -165,8 +165,8 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     // @TODO: move this to a more appropriate place
-    public hasExceededMaxTransactions(senderPublicKey: string): boolean {
-        this.purgeExpired();
+    public async hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean> {
+        await this.purgeExpired();
 
         if (this.options.allowedSenders.includes(senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
@@ -190,20 +190,20 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.deleteAll();
     }
 
-    public has(transactionId: string): boolean {
+    public async has(transactionId: string): Promise<boolean> {
         if (!this.memory.has(transactionId)) {
             return false;
         }
 
-        this.purgeExpired();
+        await this.purgeExpired();
 
         return this.memory.has(transactionId);
     }
 
-    public acceptChainedBlock(block: Interfaces.IBlock): void {
+    public async acceptChainedBlock(block: Interfaces.IBlock): Promise<void> {
         for (const transaction of block.transactions) {
             const { data }: Interfaces.ITransaction = transaction;
-            const exists: boolean = this.has(data.id);
+            const exists: boolean = await this.has(data.id);
             const senderPublicKey: string = data.senderPublicKey;
             const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
                 transaction.type,
@@ -219,19 +219,19 @@ export class Connection implements TransactionPool.IConnection {
                 : undefined;
 
             if (recipientWallet) {
-                transactionHandler.applyToRecipient(transaction, this.walletManager);
+                await transactionHandler.applyToRecipient(transaction, this.walletManager);
             }
 
             if (exists) {
                 this.removeTransaction(transaction);
             } else if (senderWallet) {
                 try {
-                    transactionHandler.throwIfCannotBeApplied(
+                    await transactionHandler.throwIfCannotBeApplied(
                         transaction,
                         senderWallet,
                         this.databaseService.walletManager,
                     );
-                    transactionHandler.applyToSender(transaction, this.walletManager);
+                    await transactionHandler.applyToSender(transaction, this.walletManager);
                 } catch (error) {
                     this.walletManager.forget(data.senderPublicKey);
 
@@ -253,7 +253,7 @@ export class Connection implements TransactionPool.IConnection {
             if (
                 senderWallet &&
                 this.walletManager.canBePurged(senderWallet) &&
-                this.getSenderSize(senderPublicKey) === 0
+                (await this.getSenderSize(senderPublicKey)) === 0
             ) {
                 this.walletManager.forget(senderPublicKey);
             }
@@ -274,14 +274,14 @@ export class Connection implements TransactionPool.IConnection {
     public async buildWallets(): Promise<void> {
         this.walletManager.reset();
 
-        const transactionIds: string[] = await this.getTransactionIdsForForging(0, this.getPoolSize());
+        const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
         app.resolvePlugin<State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(transactionIds);
 
         for (const transactionId of transactionIds) {
-            const transaction: Interfaces.ITransaction = this.getTransaction(transactionId);
+            const transaction: Interfaces.ITransaction = await this.getTransaction(transactionId);
 
             if (!transaction) {
                 return;
@@ -295,12 +295,12 @@ export class Connection implements TransactionPool.IConnection {
                     transaction.type,
                     transaction.typeGroup,
                 );
-                transactionHandler.throwIfCannotBeApplied(
+                await transactionHandler.throwIfCannotBeApplied(
                     transaction,
                     senderWallet,
                     this.databaseService.walletManager,
                 );
-                transactionHandler.applyToSender(transaction, this.walletManager);
+                await transactionHandler.applyToSender(transaction, this.walletManager);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
 
@@ -319,12 +319,15 @@ export class Connection implements TransactionPool.IConnection {
         this.walletManager.forget(senderPublicKey);
     }
 
-    public purgeInvalidTransactions(): void {
-        this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, this.memory.getInvalid());
+    public async purgeInvalidTransactions(): Promise<void> {
+        return this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
-    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionType): boolean {
-        this.purgeExpired();
+    public async senderHasTransactionsOfType(
+        senderPublicKey: string,
+        transactionType: Enums.TransactionType,
+    ): Promise<boolean> {
+        await this.purgeExpired();
 
         for (const transaction of this.memory.getBySender(senderPublicKey)) {
             if (transaction.type === transactionType) {
@@ -340,7 +343,7 @@ export class Connection implements TransactionPool.IConnection {
         size: number,
         maxBytes: number = 0,
     ): Promise<Interfaces.ITransaction[]> {
-        this.purgeExpired();
+        await this.purgeExpired();
 
         let data: Interfaces.ITransaction[] = [];
 
@@ -389,8 +392,10 @@ export class Connection implements TransactionPool.IConnection {
         return removeInvalid(data);
     }
 
-    private addTransaction(transaction: Interfaces.ITransaction): TransactionPool.IAddTransactionResponse {
-        if (this.has(transaction.id)) {
+    private async addTransaction(
+        transaction: Interfaces.ITransaction,
+    ): Promise<TransactionPool.IAddTransactionResponse> {
+        if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
                     `in the pool, id: ${transaction.id}`,
@@ -411,7 +416,7 @@ export class Connection implements TransactionPool.IConnection {
             const lowestFee: Utils.BigNumber = lowest.data.fee;
 
             if (lowestFee.isLessThan(fee)) {
-                this.walletManager.revertTransactionForSender(lowest);
+                await this.walletManager.revertTransactionForSender(lowest);
                 this.memory.forget(lowest.id, lowest.data.senderPublicKey);
             } else {
                 return {
@@ -428,8 +433,11 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.remember(transaction);
 
         try {
-            this.walletManager.throwIfCannotBeApplied(transaction);
-            Handlers.Registry.get(transaction.type, transaction.typeGroup).applyToSender(transaction, this.walletManager);
+            await this.walletManager.throwIfCannotBeApplied(transaction);
+            await Handlers.Registry.get(transaction.type, transaction.typeGroup).applyToSender(
+                transaction,
+                this.walletManager,
+            );
         } catch (error) {
             this.logger.error(error.message);
 
@@ -479,12 +487,12 @@ export class Connection implements TransactionPool.IConnection {
                     transaction.type,
                     transaction.typeGroup,
                 );
-                handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
 
-                handler.applyToSender(transaction, localWalletManager);
+                await handler.applyToSender(transaction, localWalletManager);
 
                 if (recipient && sender.address !== recipient.address) {
-                    handler.applyToRecipient(transaction, localWalletManager);
+                    await handler.applyToRecipient(transaction, localWalletManager);
                 }
 
                 validTransactions.push(deserialized.serialized.toString("hex"));
@@ -552,17 +560,17 @@ export class Connection implements TransactionPool.IConnection {
         return forgedIds;
     }
 
-    private purgeExpired(): void {
-        this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired());
+    private async purgeExpired(): Promise<void> {
+        return this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired());
     }
 
     /**
      * Remove all provided transactions plus any transactions from the same senders with higher nonces.
      */
-    private purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): void {
-        const purge = (transaction: Interfaces.ITransaction) => {
+    private async purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): Promise<void> {
+        const purge = async (transaction: Interfaces.ITransaction) => {
             this.emitter.emit(event, transaction.data);
-            this.walletManager.revertTransactionForSender(transaction);
+            await this.walletManager.revertTransactionForSender(transaction);
             this.memory.forget(transaction.id, transaction.data.senderPublicKey);
             this.syncToPersistentStorageIfNecessary();
         };
@@ -570,7 +578,7 @@ export class Connection implements TransactionPool.IConnection {
         const lowestNonceBySender = {};
         for (const transaction of transactions) {
             if (transaction.data.version === 1) {
-                purge(transaction);
+                await purge(transaction);
                 continue;
             }
 
@@ -600,7 +608,7 @@ export class Connection implements TransactionPool.IConnection {
             });
 
             for (const transaction of allTxFromSender) {
-                purge(transaction);
+                await purge(transaction);
 
                 if (transaction.data.nonce.isEqualTo(lowestNonceBySender[transaction.data.senderPublicKey])) {
                     break;

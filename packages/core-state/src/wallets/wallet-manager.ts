@@ -244,7 +244,7 @@ export class WalletManager implements State.IWalletManager {
 
         try {
             for (const transaction of block.transactions) {
-                this.applyTransaction(transaction);
+                await this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
             }
 
@@ -305,7 +305,7 @@ export class WalletManager implements State.IWalletManager {
             this.logger.error(error.stack);
 
             for (const transaction of revertedTransactions.reverse()) {
-                this.applyTransaction(transaction);
+                await this.applyTransaction(transaction);
             }
 
             throw error;
@@ -314,7 +314,7 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public applyTransaction(transaction: Interfaces.ITransaction): void {
+    public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
@@ -328,7 +328,7 @@ export class WalletManager implements State.IWalletManager {
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
-        transactionHandler.apply(transaction, this);
+        await transactionHandler.apply(transaction, this);
 
         const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
         const recipient: State.IWallet = this.findByAddress(transaction.data.recipientId);

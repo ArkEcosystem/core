@@ -16,7 +16,7 @@ export class AcceptBlockHandler extends BlockHandler {
 
             if (transactionPool) {
                 try {
-                    transactionPool.acceptChainedBlock(this.block);
+                    await transactionPool.acceptChainedBlock(this.block);
                 } catch (error) {
                     this.logger.warn("Issue applying block to transaction pool");
                     this.logger.debug(error.stack);

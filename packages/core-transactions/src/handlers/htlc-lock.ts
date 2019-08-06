@@ -28,24 +28,27 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+    ): Promise<void> {
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         return true;
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const locks = sender.getAttribute("htlc.locks", {});
@@ -58,8 +61,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.revertForSender(transaction, walletManager);
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
@@ -72,9 +78,15 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         walletManager.reindex(sender);
     }
 
-    // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 }
