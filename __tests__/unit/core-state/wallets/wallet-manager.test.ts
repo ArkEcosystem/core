@@ -2,6 +2,7 @@
 import "../../core-database/mocks/core-container";
 
 import { State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { Blocks, Constants, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { Address } from "@arkecosystem/crypto/src/identities";
@@ -409,10 +410,17 @@ describe("Wallet Manager", () => {
             });
 
             const wallet = new Wallet(walletData1.address);
-            wallet.setAttribute("custom.attribute", "something");
+            expect(() => wallet.setAttribute("custom.attribute", "something")).toThrow();
+
+            const spy = jest.spyOn(Handlers.Registry, "isKnownWalletAttribute").mockReturnValue(true);
+
+            expect(() => wallet.setAttribute("custom.attribute", "something")).not.toThrow();
+
             walletManager.reindex(wallet);
 
             expect(walletManager.findById("something")).toBe(wallet);
+
+            spy.mockRestore();
         });
 
         it("should unregister an index", () => {
