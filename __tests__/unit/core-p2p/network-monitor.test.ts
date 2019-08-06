@@ -15,6 +15,8 @@ let processor: P2P.IPeerProcessor;
 let storage: P2P.IPeerStorage;
 let communicator: P2P.IPeerCommunicator;
 
+jest.setTimeout(60000);
+
 beforeEach(() => {
     jest.resetAllMocks();
 
@@ -132,6 +134,38 @@ describe("NetworkMonitor", () => {
                 expect(validateAndAcceptPeer).toHaveBeenCalledWith(fakePeers[i], { lessVerbose: true });
             }
 
+            validatePeerIp.mockRestore();
+        });
+
+        it("should only pick up to 50 returned peers from a peer", async () => {
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.2.3.4",
+                    port: 4000,
+                }),
+            );
+
+            // @ts-ignore
+            monitor.config = { ignoreMinimumNetworkReach: true };
+
+            const mockPeers = [];
+            for (let i = 0; i < 100; i++) {
+                mockPeers.push({ ip: `3.3.3.${i + 1}` });
+                mockPeers.push({ ip: `3.3.${i + 1}.3` });
+                mockPeers.push({ ip: `3.${i + 1}.3.3` });
+                mockPeers.push({ ip: `${i + 1}.3.3.3` });
+            }
+
+            communicator.getPeers = jest.fn().mockReturnValue(mockPeers);
+
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
+            const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
+
+            await expect(monitor.discoverPeers(true)).resolves.toBeTrue();
+
+            expect(validateAndAcceptPeer).toHaveBeenCalledTimes(50);
+
+            validateAndAcceptPeer.mockReset();
             validatePeerIp.mockRestore();
         });
     });

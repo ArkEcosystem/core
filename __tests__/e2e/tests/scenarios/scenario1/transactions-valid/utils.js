@@ -119,6 +119,7 @@ const fees = {
     vote: 1 * arktoshi,
     secondSignRegistration: 5 * arktoshi,
     delegateRegistration: 25 * arktoshi,
+    ipfs: 5 * arktoshi,
 };
 
 module.exports = {

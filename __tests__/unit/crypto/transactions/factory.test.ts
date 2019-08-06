@@ -80,6 +80,7 @@ describe("TransactionFactory", () => {
 
             const transaction = TransactionFactory.fromBytesUnsafe(bytes, id);
             expect(transaction).toBeInstanceOf(Transaction);
+            delete transactionDataJSON.typeGroup;
             expect(transaction.toJson()).toEqual(transactionDataJSON);
         });
     });

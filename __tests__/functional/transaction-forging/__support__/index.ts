@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { Container, Database, State } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
@@ -29,13 +30,16 @@ export const setUp = async (): Promise<void> => {
         await databaseService.reset();
         await databaseService.buildWallets();
         await databaseService.saveRound(
-            secrets.map(
-                secret =>
-                    ({
-                        round: 1,
-                        publicKey: Identities.PublicKey.fromPassphrase(secret),
-                        voteBalance: Utils.BigNumber.make("245098000000000"),
-                    } as State.IDelegateWallet),
+            secrets.map(secret =>
+                Object.assign(new Wallets.Wallet(Identities.Address.fromPassphrase(secret)), {
+                    publicKey: Identities.PublicKey.fromPassphrase(secret),
+                    attributes: {
+                        delegate: {
+                            voteBalance: Utils.BigNumber.make("245098000000000"),
+                            round: 1,
+                        },
+                    },
+                }),
             ),
         );
     } catch (error) {
@@ -44,6 +48,9 @@ export const setUp = async (): Promise<void> => {
 };
 
 export const tearDown = async (): Promise<void> => {
+    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    await databaseService.reset();
+
     await app.tearDown();
 };
 
@@ -59,6 +66,10 @@ export const getLastHeight = (): number => {
         .resolvePlugin<State.IStateService>("state")
         .getStore()
         .getLastHeight();
+};
+
+export const getSenderNonce = (senderPublicKey: string): Utils.BigNumber => {
+    return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(senderPublicKey);
 };
 
 export const passphrases = {

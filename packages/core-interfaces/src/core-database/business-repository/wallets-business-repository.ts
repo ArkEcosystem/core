@@ -2,7 +2,7 @@ import { IWallet } from "../../core-state/wallets";
 import { IParameters } from "./parameters";
 
 export interface IWalletsPaginated {
-    rows: IWallet[];
+    rows: ReadonlyArray<IWallet>;
     count: number;
 }
 

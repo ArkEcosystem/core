@@ -1,6 +1,7 @@
 import { SATOSHI } from "../constants";
 import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
+import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 
 let genesisTransactions: { [key: string]: boolean };
@@ -28,31 +29,6 @@ export const isException = (blockOrTransaction: IBlockData | ITransactionData): 
     });
 };
 
-/**
- * Sort transactions by type, then id.
- */
-export const sortTransactions = (transactions: ITransactionData[]): ITransactionData[] => {
-    return transactions.sort((a, b) => {
-        if (a.type < b.type) {
-            return -1;
-        }
-
-        if (a.type > b.type) {
-            return 1;
-        }
-
-        if (a.id < b.id) {
-            return -1;
-        }
-
-        if (a.id > b.id) {
-            return 1;
-        }
-
-        return 0;
-    });
-};
-
 export const isGenesisTransaction = (id: string): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
 
@@ -75,4 +51,4 @@ export const numberToHex = (num: number, padding = 2): string => {
 
 export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
 
-export { BigNumber };
+export { Base58, BigNumber };

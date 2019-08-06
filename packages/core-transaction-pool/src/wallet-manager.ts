@@ -2,7 +2,8 @@ import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces } from "@arkecosystem/crypto";
+import clonedeep from "lodash.clonedeep";
 
 export class WalletManager extends Wallets.WalletManager {
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
@@ -10,13 +11,11 @@ export class WalletManager extends Wallets.WalletManager {
     );
 
     public findByAddress(address: string): State.IWallet {
-        if (address && !this.byAddress[address]) {
-            this.reindex(
-                Object.assign(new Wallets.Wallet(address), this.databaseService.walletManager.findByAddress(address)),
-            );
+        if (address && !this.hasByAddress(address)) {
+            this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));
         }
 
-        return this.byAddress[address];
+        return this.findByIndex(State.WalletIndexes.Addresses, address);
     }
 
     public forget(publicKey: string): void {
@@ -24,48 +23,32 @@ export class WalletManager extends Wallets.WalletManager {
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
-    public throwIfApplyingFails(transaction: Interfaces.ITransaction): void {
+    public async throwIfCannotBeApplied(transaction: Interfaces.ITransaction): Promise<void> {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
-        const { senderPublicKey } = transaction.data;
-        if (!this.databaseService.walletManager.has(senderPublicKey)) {
+        const senderPublicKey: string = transaction.data.senderPublicKey;
+        if (!this.databaseService.walletManager.hasByPublicKey(senderPublicKey)) {
             const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
-                const message: string = "Cold wallet is not allowed to send until receiving transaction is confirmed.";
+                const message: string = "Wallet not allowed to spend before funding is confirmed.";
 
                 this.logger.error(message);
 
-                throw new Error(JSON.stringify([message]));
+                throw new Error(message);
             }
         }
 
-        if (Utils.isException(transaction.data)) {
-            this.logger.warn(
-                `Transaction forcibly applied because it has been added as an exception: ${transaction.id}`,
-            );
-        } else {
-            const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
+        const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
 
-            try {
-                Handlers.Registry.get(transaction.type).canBeApplied(
-                    transaction,
-                    sender,
-                    this.databaseService.walletManager,
-                );
-            } catch (error) {
-                this.logger.error(
-                    `[PoolWalletManager] Can't apply transaction ${transaction.id} from ${
-                        sender.address
-                    } due to ${JSON.stringify(error.message)}`,
-                );
-
-                throw new Error(JSON.stringify([error.message]));
-            }
-        }
+        return Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
+            transaction,
+            sender,
+            this.databaseService.walletManager,
+        );
     }
 
-    public revertTransactionForSender(transaction: Interfaces.ITransaction): void {
-        Handlers.Registry.get(transaction.type).revertForSenderInPool(transaction, this);
+    public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        return Handlers.Registry.get(transaction.type, transaction.typeGroup).revertForSender(transaction, this);
     }
 }

@@ -2,7 +2,8 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
-import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
+import { TransactionFactory } from "../../helpers";
 import { ApiHelpers } from "../../utils/helpers/api";
 
 class Helpers {
@@ -124,6 +125,7 @@ class Helpers {
         expect(wallet).toBeObject();
         expect(wallet).toHaveProperty("address");
         expect(wallet).toHaveProperty("publicKey");
+        expect(wallet).toHaveProperty("nonce");
         expect(wallet).toHaveProperty("balance");
         expect(wallet).toHaveProperty("isDelegate");
         expect(wallet).toHaveProperty("vote");
@@ -132,12 +134,9 @@ class Helpers {
     public async createTransaction() {
         Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
-        const transaction = Transactions.BuilderFactory.transfer()
-            .amount("100000000")
-            .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
-            .vendorField("test")
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
-            .getStruct();
+        const transaction = TransactionFactory.transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
         await httpie.post("http://127.0.0.1:4003/api/transactions", {
             body: {

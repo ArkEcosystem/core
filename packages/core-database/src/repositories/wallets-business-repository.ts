@@ -42,11 +42,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search({ ...params, ...{ vote: publicKey } });
     }
 
-    // @TODO: simplify this
     public findById(id: string): State.IWallet {
-        return this.search().rows.find(
-            wallet => wallet.address === id || wallet.publicKey === id || wallet.username === id,
-        );
+        return this.databaseServiceProvider().walletManager.findById(id);
     }
 
     public count(): number {
@@ -57,6 +54,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search({ ...params, ...{ orderBy: "balance:desc" } });
     }
 
+    // TODO: check if order still works
     private applyOrder(params: Database.IParameters): void {
         const assignOrder = (params, value) => (params.orderBy = value);
 
