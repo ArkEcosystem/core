@@ -25,10 +25,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             wsEngine: "ws",
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
-            pingTimeout: Math.max(
-                app.resolveOptions("p2p").getBlocksTimeout,
-                app.resolveOptions("p2p").verifyTimeout,
-            ),
+            pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
         },
         ...config.server,
     });

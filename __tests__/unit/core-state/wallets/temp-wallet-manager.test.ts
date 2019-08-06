@@ -59,11 +59,11 @@ describe("TempWalletManager", () => {
     describe("findByUsername", () => {
         it("should return a copy", () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.username = "test";
+            wallet.setAttribute("delegate", { username: "test" });
             walletManager.reindex(wallet);
 
             const tempWalletManager = walletManager.clone();
-            const tempWallet = tempWalletManager.findByUsername(wallet.username);
+            const tempWallet = tempWalletManager.findByUsername(wallet.getAttribute("delegate.username"));
             tempWallet.balance = Utils.BigNumber.ONE;
 
             expect(wallet.balance).not.toEqual(tempWallet.balance);
@@ -94,11 +94,11 @@ describe("TempWalletManager", () => {
     describe("hasByUsername", () => {
         it("should be ok", () => {
             const wallet = new Wallet(walletData1.address);
-            wallet.username = "test";
+            wallet.setAttribute("delegate", { username: "test" });
             walletManager.reindex(wallet);
 
             const tempWalletManager = walletManager.clone();
-            expect(tempWalletManager.hasByUsername(wallet.username)).toBeTrue();
+            expect(tempWalletManager.hasByUsername(wallet.getAttribute("delegate.username"))).toBeTrue();
         });
     });
 });

@@ -12,8 +12,8 @@ export class MemoryDatabaseService extends DatabaseService {
         return;
     }
 
-    public async saveRound(activeDelegates: State.IDelegateWallet[]): Promise<void> {
-        this.logger.info(`Saving round ${activeDelegates[0].round.toLocaleString()}`);
+    public async saveRound(activeDelegates: State.IWallet[]): Promise<void> {
+        this.logger.info(`Saving round ${activeDelegates[0].getAttribute("delegate.round").toLocaleString()}`);
     }
 
     public async deleteRound(round: number): Promise<void> {

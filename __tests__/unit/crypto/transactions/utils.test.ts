@@ -130,6 +130,11 @@ describe("Transaction", () => {
                         delete transaction.data.secondSignature;
                     }
 
+                    if (transaction.data.version === 1) {
+                        delete transaction.data.typeGroup;
+                        delete transaction.data.nonce;
+                    }
+
                     // @ts-ignore
                     transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
                     // @ts-ignore
@@ -155,9 +160,22 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting an unsupported version", () => {
-            let hex = TransactionUtils.toBytes(transactionData).toString("hex");
-            hex = hex.slice(0, 2) + "99" + hex.slice(4);
+            configManager.setFromPreset("testnet");
+
+            const transaction = BuilderFactory.transfer()
+                .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
+                .amount("1000")
+                .vendorField(Math.random().toString(36))
+                .nonce("1")
+                .sign(Math.random().toString(36))
+                .secondSign(Math.random().toString(36))
+                .build();
+
+            let hex = transaction.serialized.toString("hex");
+            hex = hex.slice(0, 2) + "04" + hex.slice(4);
             expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
+
+            configManager.setFromPreset("devnet");
         });
     });
 

@@ -1,5 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IDelegateWallet, IWalletManager } from "../core-state/wallets";
+import { IWallet, IWalletManager } from "../core-state/wallets";
 import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {
@@ -41,7 +41,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<boolean>;
 
-    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
+    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IWallet[]): Promise<IWallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
@@ -87,7 +87,7 @@ export interface IDatabaseService {
 
     getRecentBlockIds(): Promise<string[]>;
 
-    saveRound(activeDelegates: IDelegateWallet[]): Promise<void>;
+    saveRound(activeDelegates: IWallet[]): Promise<void>;
 
     deleteRound(round: number): Promise<void>;
 
@@ -101,7 +101,7 @@ export interface IDatabaseService {
 
     loadBlocksFromCurrentRound(): Promise<void>;
 
-    updateDelegateStats(delegates: IDelegateWallet[]): void;
+    updateDelegateStats(delegates: IWallet[]): void;
 
     applyRound(height: number): Promise<void>;
 

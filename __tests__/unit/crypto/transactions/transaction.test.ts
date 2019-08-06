@@ -1,8 +1,19 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory } from "../../../../packages/crypto/src/transactions";
+import { devnet } from "../../../../packages/crypto/src/networks";
+import {
+    DelegateRegistrationTransaction,
+    DelegateResignationTransaction,
+    IpfsTransaction,
+    MultiPaymentTransaction,
+    MultiSignatureRegistrationTransaction,
+    SecondSignatureRegistrationTransaction,
+    TransactionFactory,
+    TransferTransaction,
+    VoteTransaction,
+} from "../../../../packages/crypto/src/transactions";
+import { BigNumber } from "../../../../packages/crypto/src/utils";
 
 describe("Transaction", () => {
     describe("should deserialize correctly some tests transactions", () => {
@@ -21,8 +32,8 @@ describe("Transaction", () => {
                     height: 918991,
                     type: 1,
                     timestamp: 7410965,
-                    amount: Utils.BigNumber.make(0),
-                    fee: Utils.BigNumber.make(500000000),
+                    amount: BigNumber.make(0),
+                    fee: BigNumber.make(500000000),
                     recipientId: "AP4UQ6j9hAHsxudpXh47RNQi7oF1AEfkAG",
                     senderPublicKey: "03ca269b2942104b2ad601ccfbe7bd30b14b99cb55210ef7c1a5e25b6669646b99",
                     signature:
@@ -35,12 +46,12 @@ describe("Transaction", () => {
                 },
             ];
 
-            txs.forEach(tx =>
+            for (const tx of txs) {
                 it(`txid: ${tx.id}`, () => {
                     const newtx = TransactionFactory.fromData(tx);
                     expect(newtx.data.id).toEqual(tx.id);
-                }),
-            );
+                });
+            }
         });
 
         describe("devnet", () => {
@@ -52,8 +63,8 @@ describe("Transaction", () => {
                     senderPublicKey: "03b7d1da5c1b9f8efd0737d47123eb9cf7eb6d58198ef31bb6f01aa04bc4dda19d",
                     recipientId: "DHPNjqCaTR9KYtC8nHh7Zt1G86Xj4YiU2V",
                     type: 1,
-                    amount: Utils.BigNumber.make("0"),
-                    fee: Utils.BigNumber.make("500000000"),
+                    amount: BigNumber.make("0"),
+                    fee: BigNumber.make("500000000"),
                     signature:
                         "3045022100e8e03bdac70e18f220feacba25c1575aa89d1ab61673e54eb2aff38439666d2702207e2d84290d7ef2571f5b2fab7e22a77dec96b1c4187cf9def15be74db98e2700",
                     asset: {
@@ -69,8 +80,8 @@ describe("Transaction", () => {
                     senderPublicKey: "03173fd793c4bac0d64e9bd74ec5c2055716a7c0266feec9d6d94cb75be097b75d",
                     recipientId: "DQrj9eh9otRgz2jWdu1K1ASBQqZA6dTkra",
                     type: 1,
-                    amount: Utils.BigNumber.make("0"),
-                    fee: Utils.BigNumber.make("500000000"),
+                    amount: BigNumber.make("0"),
+                    fee: BigNumber.make("500000000"),
                     signature:
                         "3045022100b263d28a5da58b17c874a5666afab0657f8492266554ad8ff722b00d41e1493d02200c2156dd9b9c1739f1c2099e98b763952bc7ef0423ad9786dcd32f7ffaf4aafc",
                     asset: {
@@ -86,8 +97,8 @@ describe("Transaction", () => {
                     senderPublicKey: "02813ade967f05384e0567841d175294b4102c06c428011646e5ef989212925fcf",
                     recipientId: "D8PGSYLUC3CxYaXoKjMA2gjV4RaeBpwghZ",
                     type: 1,
-                    amount: Utils.BigNumber.make("0"),
-                    fee: Utils.BigNumber.make("500000000"),
+                    amount: BigNumber.make("0"),
+                    fee: BigNumber.make("500000000"),
                     signature:
                         "3045022100e593eb501e89941461e247606d088b6e226cc5b5224f89cede532d35f9b16250022034bbdd098493639221e808301e0a99c3790ef9c6d357ac10266c518a2a66066f",
                     asset: {
@@ -103,8 +114,8 @@ describe("Transaction", () => {
                     senderPublicKey: "03f9f9dafc06faf4a54be2e45cd7a5523e41f38bb439f6f93cf00a0990e7afc116",
                     recipientId: "DNuwcwYGTHDdhTPWMTYekhuGM1fFUpW9Jj",
                     type: 1,
-                    amount: Utils.BigNumber.make("0"),
-                    fee: Utils.BigNumber.make("500000000"),
+                    amount: BigNumber.make("0"),
+                    fee: BigNumber.make("500000000"),
                     signature:
                         "3044022052d1e5be426a79f827a67597fd460237de65e035593144e4e3afb0e82ab40f3802201d6e31892d000e73532bf8659851a3d221205d65ed1c0b8d08ce46b72c7f00ae",
                     asset: {
@@ -114,12 +125,60 @@ describe("Transaction", () => {
                     },
                 },
             ];
-            txs.forEach(tx =>
+            for (const tx of txs) {
                 it(`txid: ${tx.id}`, () => {
                     const newtx = TransactionFactory.fromData(tx);
                     expect(newtx.data.id).toEqual(tx.id);
-                }),
+                });
+            }
+        });
+    });
+
+    describe("static fees", () => {
+        it("should update fees on milestone change", () => {
+            devnet.milestones.push({
+                height: 100000000,
+                fees: { staticFees: { transfer: 1234 } },
+            } as any);
+
+            configManager.setConfig(devnet);
+            configManager.setHeight(100000000);
+
+            let { staticFees } = configManager.getMilestone().fees;
+            expect(TransferTransaction.staticFee()).toEqual(BigNumber.make(1234));
+            expect(SecondSignatureRegistrationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.secondSignature),
             );
+            expect(DelegateRegistrationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.delegateRegistration),
+            );
+            expect(VoteTransaction.staticFee()).toEqual(BigNumber.make(staticFees.vote));
+            expect(MultiSignatureRegistrationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.multiSignature),
+            );
+            expect(IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
+            expect(MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
+            expect(DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
+
+            configManager.setHeight(1);
+            staticFees = configManager.getMilestone().fees.staticFees;
+
+            expect(TransferTransaction.staticFee()).toEqual(BigNumber.make(staticFees.transfer));
+            expect(SecondSignatureRegistrationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.secondSignature),
+            );
+            expect(DelegateRegistrationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.delegateRegistration),
+            );
+            expect(VoteTransaction.staticFee()).toEqual(BigNumber.make(staticFees.vote));
+            expect(MultiSignatureRegistrationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.multiSignature),
+            );
+            expect(IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
+            expect(MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
+            expect(DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
+
+            devnet.milestones.pop();
         });
     });
 });

@@ -1,3 +1,5 @@
+import { Utils } from "@arkecosystem/crypto";
+
 // tslint:disable:max-classes-per-file
 
 export class TransactionError extends Error {
@@ -24,15 +26,19 @@ export class NotImplementedError extends TransactionError {
     }
 }
 
-export class TransactionHandlerAlreadyRegisteredError extends TransactionError {
-    constructor(type: number) {
-        super(`Transaction service for type ${type} is already registered.`);
+export class InvalidTransactionTypeError extends TransactionError {
+    constructor(type: string) {
+        super(`Transaction type ${type} does not exist.`);
     }
 }
 
-export class InvalidTransactionTypeError extends TransactionError {
-    constructor(type: number) {
-        super(`Transaction type ${type} does not exist.`);
+export class UnexpectedNonceError extends TransactionError {
+    constructor(txNonce: Utils.BigNumber, walletNonce: Utils.BigNumber, reversal: boolean) {
+        const action: string = reversal ? "revert" : "apply";
+        super(
+            `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
+                `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
+        );
     }
 }
 
@@ -72,13 +78,13 @@ export class WalletAlreadyResignedError extends TransactionError {
     }
 }
 
-export class WalletUsernameEmptyError extends TransactionError {
+export class WalletNotADelegateError extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because the username is empty.`);
+        super(`Failed to apply transaction, because the wallet is not a delegate.`);
     }
 }
 
-export class WalletUsernameNotEmptyError extends TransactionError {
+export class WalletIsAlreadyDelegateError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the wallet already has a registered username.`);
     }
@@ -109,7 +115,7 @@ export class NotSupportedForMultiSignatureWalletError extends TransactionError {
 
 export class AlreadyVotedError extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because the wallet already voted.`);
+        super(`Failed to apply transaction, because the sender wallet has already voted.`);
     }
 }
 
@@ -166,5 +172,31 @@ export class MultiSignatureKeyCountMismatchError extends TransactionError {
 export class IpfsHashAlreadyExists extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because this IPFS hash is already registered for the wallet.`);
+    }
+}
+
+export class HtlcLockTransactionNotFoundError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the associated HTLC lock transaction could not be found.`);
+    }
+}
+
+export class HtlcSecretHashMismatchError extends TransactionError {
+    constructor() {
+        super(
+            `Failed to apply transaction, because the secret provided does not match the associated HTLC lock transaction secret.`,
+        );
+    }
+}
+
+export class HtlcLockNotExpiredError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the associated HTLC lock transaction did not expire yet.`);
+    }
+}
+
+export class HtlcLockExpiredError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because the associated HTLC lock transaction expired.`);
     }
 }
