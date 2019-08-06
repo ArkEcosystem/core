@@ -5,14 +5,15 @@ import { BridgechainRegistrationAssetError, BusinessIsResignedError, WalletIsNot
 import { MarketplaceAplicationEvents } from "../events";
 import { IBridgechainRegistrationAsset, IBusinessWalletProperty } from "../interfaces";
 import { BridgechainRegistrationTransaction } from "../transactions";
+import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
 export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return BridgechainRegistrationTransaction;
     }
 
-    public dependencies(): ReadonlyArray<any> {
-        return [];
+    public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
+        return [BusinessRegistrationTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -20,6 +21,9 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
+            if (!businessWalletProperty.bridgechains) {
+                businessWalletProperty.bridgechains = [];
+            }
             businessWalletProperty.bridgechains.push({
                 bridgechain: transaction.data.asset.bridgechainRegistration,
                 registrationTransactionId: transaction.id,
@@ -75,6 +79,9 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessProperty: IBusinessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
+        if (!businessProperty.bridgechains) {
+            businessProperty.bridgechains = [];
+        }
         businessProperty.bridgechains.push({
             bridgechain: transaction.data.asset.bridgechainRegistration,
             registrationTransactionId: transaction.id,

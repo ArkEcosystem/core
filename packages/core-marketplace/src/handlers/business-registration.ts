@@ -11,7 +11,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         return BusinessRegistrationTransaction;
     }
 
-    public dependencies(): ReadonlyArray<any> {
+    public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [];
     }
 
@@ -27,9 +27,11 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             walletManager.reindex(wallet);
         }
     }
+
     public async isActivated(): Promise<boolean> {
         return !!Managers.configManager.getMilestone().aip11;
     }
+
     public throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
@@ -40,7 +42,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             throw new BusinessRegistrationAssetError();
         }
 
-        if (wallet.hasAttribute("business")) {
+        if (wallet.hasAttribute("business") && wallet.getAttribute("business.isBusinessResigned") !== true) {
             throw new BusinessAlreadyRegisteredError();
         }
 

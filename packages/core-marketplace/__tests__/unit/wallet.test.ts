@@ -16,7 +16,7 @@ describe("should test wallet", () => {
                 {
                     registrationTransactionId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechain: {
-                        name: "nameeeee",
+                        name: "googleCrypto",
                         seedNodes: [
                             {
                                 ipv4: "1.2.3.4",
@@ -34,6 +34,7 @@ describe("should test wallet", () => {
             ],
         };
         senderWallet.setAttribute("business", businessProperty);
-        // console.log(senderWallet.getAttribute<IBusinessWalletProperty>("business"));
+        const senderWalletData = senderWallet.getAttribute<IBusinessWalletProperty>("business");
+        expect(senderWalletData).toStrictEqual(businessProperty);
     });
 });

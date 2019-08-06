@@ -16,9 +16,7 @@ export class BridgechainResignationBuilder extends Transactions.TransactionBuild
     }
 
     public businessResignationAsset(registeredBridgechainId: string): BridgechainResignationBuilder {
-        this.data.asset.bridgechainResignation = {
-            registeredBridgechainId,
-        };
+        this.data.asset.bridgechainResignation.registeredBridgechainId = registeredBridgechainId;
         return this;
     }
 

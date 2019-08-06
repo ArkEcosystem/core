@@ -10,14 +10,15 @@ import {
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessWalletProperty } from "../interfaces";
 import { BridgechainResignationTransaction } from "../transactions";
+import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
 export class BridgechainResignationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return BridgechainResignationTransaction;
     }
 
-    public dependencies(): ReadonlyArray<any> {
-        return [];
+    public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
+        return [BridgechainRegistrationTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -26,7 +27,10 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
             businessWalletProperty.bridgechains.map(bridgechain => {
-                if (bridgechain.registrationTransactionId === transaction.data.asset.registrationTransactionId) {
+                if (
+                    bridgechain.registrationTransactionId ===
+                    transaction.data.asset.bridgechainResignation.registeredBridgechainId
+                ) {
                     bridgechain.isBridgechainResigned = true;
                 }
             });
@@ -45,17 +49,16 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
-
-        if (wallet.getAttribute<IBusinessWalletProperty>("business").isBusinessResigned) {
+        const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
+        if (businessWalletProperty.isBusinessResigned) {
             throw new BusinessIsNotRegisteredError();
         }
 
-        const hasBridgechain = wallet
-            .getAttribute<IBusinessWalletProperty>("business")
-            .bridgechains.find(
-                bridgechain =>
-                    bridgechain.registrationTransactionId === transaction.data.asset.registrationTransactionId,
-            );
+        const hasBridgechain = businessWalletProperty.bridgechains.find(
+            bridgechain =>
+                bridgechain.registrationTransactionId ===
+                transaction.data.asset.bridgechainResignation.registeredBridgechainId,
+        );
 
         if (!hasBridgechain) {
             throw new BridgechainIsNotRegisteredError();
@@ -91,10 +94,14 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
     public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.applyToSender(transaction, walletManager);
+
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
         businessWalletProperty.bridgechains.map(bridgechain => {
-            if (bridgechain.registrationTransactionId === transaction.data.asset.registrationTransactionId) {
+            if (
+                bridgechain.registrationTransactionId ===
+                transaction.data.asset.bridgechainResignation.registeredBridgechainId
+            ) {
                 bridgechain.isBridgechainResigned = true;
             }
         });
@@ -102,10 +109,14 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
     public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
         super.revertForSender(transaction, walletManager);
+
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
         businessWalletProperty.bridgechains.map(bridgechain => {
-            if (bridgechain.registrationTransactionId === transaction.data.asset.registrationTransactionId) {
+            if (
+                bridgechain.registrationTransactionId ===
+                transaction.data.asset.bridgechainResignation.registeredBridgechainId
+            ) {
                 bridgechain.isBridgechainResigned = false;
             }
         });

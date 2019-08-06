@@ -5,14 +5,15 @@ import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessWalletProperty } from "../interfaces";
 import { BusinessResignationTransaction } from "../transactions";
+import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
 export class BusinessResignationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return BusinessResignationTransaction;
     }
 
-    public dependencies(): ReadonlyArray<any> {
-        return [];
+    public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
+        return [BusinessRegistrationTransactionHandler];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
