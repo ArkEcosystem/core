@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-jest-matchers",
-    "version": "2.5.14",
+    "version": "2.5.17",
     "description": "Jest matchers for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -20,8 +20,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.14",
-        "@arkecosystem/crypto": "^2.5.14",
+        "@arkecosystem/core-container": "^2.5.17",
+        "@arkecosystem/crypto": "^2.5.17",
         "@arkecosystem/utils": "^0.3.0",
         "bip39": "^3.0.2",
         "got": "^9.6.0",
