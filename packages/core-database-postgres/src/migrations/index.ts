@@ -17,5 +17,6 @@ export const migrations = [
     loadQueryFile(__dirname, "./20190619000000-drop-id-column-from-rounds-table.sql"),
     loadQueryFile(__dirname, "./20190626000000-enforce-chained-blocks.sql"),
     loadQueryFile(__dirname, "./20190718000000-check_previous_block-add-schema.sql"),
-    loadQueryFile(__dirname, "./20190724000000-add-nonce-column-to-transactions-table.sql"),
+    loadQueryFile(__dirname, "./20190803000000-add-type_group-column-to-transactions-table.sql"),
+    loadQueryFile(__dirname, "./20190806000000-add-nonce-column-to-transactions-table.sql"),
 ];

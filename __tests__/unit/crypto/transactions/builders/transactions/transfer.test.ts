@@ -5,7 +5,7 @@ import { configManager } from "../../../../../../packages/crypto/src/managers";
 configManager.setFromPreset("testnet");
 
 import { Utils } from "@arkecosystem/crypto";
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { Keys, WIF } from "../../../../../../packages/crypto/src/identities";
 import { devnet } from "../../../../../../packages/crypto/src/networks";
 import { BuilderFactory, TransferTransaction } from "../../../../../../packages/crypto/src/transactions";
@@ -96,7 +96,7 @@ describe("Transfer Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.Transfer);
+        expect(builder).toHaveProperty("data.type", TransactionType.Transfer);
         expect(builder).toHaveProperty("data.fee", TransferTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);

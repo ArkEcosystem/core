@@ -15,7 +15,7 @@ import { stateStorageStub } from "./__fixtures__/state-storage-stub";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
@@ -192,7 +192,7 @@ describe("Database Service", () => {
 
             // Create delegates
             for (const transaction of genesisBlock.transactions) {
-                if (transaction.type === TransactionTypes.DelegateRegistration) {
+                if (transaction.type === TransactionType.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
                     wallet.setAttribute("delegate", {
                         voteBalance: Utils.BigNumber.ONE,
@@ -217,7 +217,7 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
+            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             const originalApply = transactionHandler.throwIfCannotBeApplied;
             transactionHandler.throwIfCannotBeApplied = jest.fn();
 
@@ -271,7 +271,7 @@ describe("Database Service", () => {
                 );
 
                 block.data.generatorPublicKey = keys.publicKey;
-                walletManager.applyBlock(block);
+                await walletManager.applyBlock(block);
 
                 blocksInRound.push(block);
             }

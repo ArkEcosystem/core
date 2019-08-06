@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { HtlcLockBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-lock";
 import { HtlcLockExpirationType } from "../../../../../../packages/crypto/src/transactions/types/enums";
@@ -19,7 +19,7 @@ describe("Htlc lock Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.HtlcLock);
+        expect(builder).toHaveProperty("data.type", TransactionType.HtlcLock);
         expect(builder).toHaveProperty("data.fee", HtlcLockTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset", {});
     });

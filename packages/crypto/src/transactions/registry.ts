@@ -1,5 +1,9 @@
-import { TransactionTypes } from "../enums";
-import { TransactionAlreadyRegisteredError } from "../errors";
+import { TransactionTypeGroup } from "../enums";
+import {
+    CoreTransactionTypeGroupImmutableError,
+    TransactionAlreadyRegisteredError,
+    UnkownTransactionError,
+} from "../errors";
 import { validator } from "../validation";
 import {
     DelegateRegistrationTransaction,
@@ -16,14 +20,12 @@ import {
     TransferTransaction,
     VoteTransaction,
 } from "./types";
+import { InternalTransactionType } from "./types/internal-transaction-type";
 
 export type TransactionConstructor = typeof Transaction;
 
 class TransactionRegistry {
-    private readonly transactionTypes: Map<number, TransactionConstructor> = new Map<
-        TransactionTypes,
-        TransactionConstructor
-    >();
+    private readonly transactionTypes: Map<InternalTransactionType, TransactionConstructor> = new Map();
 
     constructor() {
         TransactionTypeFactory.initialize(this.transactionTypes);
@@ -42,27 +44,31 @@ class TransactionRegistry {
     }
 
     public registerTransactionType(constructor: TransactionConstructor): void {
-        const { type } = constructor;
-        if (this.transactionTypes.has(type)) {
+        const { typeGroup, type } = constructor;
+        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
+        if (this.transactionTypes.has(internalType)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
 
-        this.transactionTypes.set(type, constructor);
+        this.transactionTypes.set(internalType, constructor);
         this.updateSchemas(constructor);
     }
 
-    public deregisterTransactionType(type: number): void {
-        if (!this.transactionTypes.has(type)) {
-            throw new TransactionAlreadyRegisteredError(this.transactionTypes.get(type).constructor.name);
+    public deregisterTransactionType(constructor: TransactionConstructor): void {
+        const { typeGroup, type } = constructor;
+        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
+
+        if (!this.transactionTypes.has(internalType)) {
+            throw new UnkownTransactionError(internalType.toString());
         }
 
-        if (type in TransactionTypes) {
-            throw new Error("Cannot deregister Core type.");
+        if (typeGroup === TransactionTypeGroup.Core) {
+            throw new CoreTransactionTypeGroupImmutableError();
         }
 
-        const schema = this.transactionTypes.get(type);
+        const schema = this.transactionTypes.get(internalType);
         this.updateSchemas(schema, true);
-        this.transactionTypes.delete(type);
+        this.transactionTypes.delete(internalType);
     }
 
     private updateSchemas(transaction: TransactionConstructor, remove?: boolean): void {

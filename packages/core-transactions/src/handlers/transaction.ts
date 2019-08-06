@@ -30,7 +30,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         walletManager: State.IWalletManager,
     ): Promise<void>;
 
-    public verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): boolean {
+    public async verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<boolean> {
         const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
@@ -57,11 +57,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -117,22 +117,25 @@ export abstract class TransactionHandler implements ITransactionHandler {
             if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
-        } else if (transaction.type !== Enums.TransactionTypes.MultiSignature && transaction.data.signatures) {
+        } else if (transaction.type !== Enums.TransactionType.MultiSignature && transaction.data.signatures) {
             throw new UnexpectedMultiSignatureError();
         }
     }
 
-    public apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        this.applyToSender(transaction, walletManager);
-        this.applyToRecipient(transaction, walletManager);
+    public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+        await this.applyToSender(transaction, walletManager);
+        await this.applyToRecipient(transaction, walletManager);
     }
 
-    public revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        this.revertForSender(transaction, walletManager);
-        this.revertForRecipient(transaction, walletManager);
+    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+        await this.revertForSender(transaction, walletManager);
+        await this.revertForRecipient(transaction, walletManager);
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -140,7 +143,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -161,7 +164,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
         sender.balance = newBalance;
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -176,9 +182,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
     }
 
-    public abstract applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
+    public abstract async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void>;
 
-    public abstract revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void;
+    public abstract async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void>;
 
     /**
      * Database Service
@@ -189,32 +201,32 @@ export abstract class TransactionHandler implements ITransactionHandler {
     /**
      * Transaction Pool logic
      */
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         processor.pushError(
             data,
             "ERR_UNSUPPORTED",
-            `Invalidating transaction of unsupported type '${Enums.TransactionTypes[data.type]}'`,
+            `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
         );
 
         return false;
     }
 
-    protected typeFromSenderAlreadyInPool(
+    protected async typeFromSenderAlreadyInPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
+    ): Promise<boolean> {
         const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 
-        if (pool.senderHasTransactionsOfType(senderPublicKey, type)) {
+        if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionTypes[type]}' in the pool`,
+                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionType[type]}' in the pool`,
             );
 
             return true;

@@ -1,11 +1,11 @@
 /* tslint:disable:no-shadowed-variable */
 import ByteBuffer from "bytebuffer";
 import { Utils } from "..";
-import { TransactionTypes } from "../enums";
+import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
-import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
+import { ISerializeOptions } from "../interfaces";
 import { configManager } from "../managers";
 import { Base58 } from "../utils";
 import { TransactionTypeFactory } from "./types";
@@ -18,7 +18,7 @@ export class Serializer {
         if (version === 1) {
             return this.getBytesV1(transaction, options);
         } else if (version === 2 && configManager.getMilestone().aip11) {
-            return this.getBytesV2(transaction, options);
+            return this.serialize(TransactionTypeFactory.create(transaction), options);
         } else {
             throw new TransactionVersionError(version);
         }
@@ -52,7 +52,7 @@ export class Serializer {
         let assetBytes: Buffer | Uint8Array;
 
         switch (transaction.type) {
-            case TransactionTypes.SecondSignature: {
+            case TransactionType.SecondSignature: {
                 const { signature } = transaction.asset;
                 const bb = new ByteBuffer(33, true);
                 const publicKeyBuffer = Buffer.from(signature.publicKey, "hex");
@@ -68,13 +68,13 @@ export class Serializer {
                 break;
             }
 
-            case TransactionTypes.DelegateRegistration: {
+            case TransactionType.DelegateRegistration: {
                 assetBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
                 assetSize = assetBytes.length;
                 break;
             }
 
-            case TransactionTypes.Vote: {
+            case TransactionType.Vote: {
                 if (transaction.asset.votes) {
                     assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
                     assetSize = assetBytes.length;
@@ -82,7 +82,7 @@ export class Serializer {
                 break;
             }
 
-            case TransactionTypes.MultiSignature: {
+            case TransactionType.MultiSignature: {
                 const keysgroupBuffer: Buffer = Buffer.from(
                     transaction.asset.multiSignatureLegacy.keysgroup.join(""),
                     "utf8",
@@ -189,21 +189,22 @@ export class Serializer {
         return Buffer.from(buffer);
     }
 
-    private static getBytesV2(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
-        return this.serialize(TransactionTypeFactory.create(transaction), options);
-    }
-
     private static serializeCommon(transaction: ITransactionData, buffer: ByteBuffer): void {
         transaction.version = transaction.version || 0x01;
+        if (transaction.typeGroup === undefined) {
+            transaction.typeGroup = TransactionTypeGroup.Core;
+        }
 
-        buffer.writeByte(0xff); // fill, to disambiguate from v1
+        buffer.writeByte(0xff);
         buffer.writeByte(transaction.version);
-        buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash")); // ark = 0x17, devnet = 0x30
-        buffer.writeByte(transaction.type);
+        buffer.writeByte(transaction.network || configManager.get("network.pubKeyHash"));
 
         if (transaction.version === 1) {
+            buffer.writeByte(transaction.type);
             buffer.writeUint32(transaction.timestamp);
         } else {
+            buffer.writeUint32(transaction.typeGroup);
+            buffer.writeUint16(transaction.type);
             buffer.writeUint64(+transaction.nonce);
         }
 

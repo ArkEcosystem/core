@@ -176,30 +176,30 @@ export class Wallet implements State.IWallet {
             });
         }
 
-        if (transaction.type === Enums.TransactionTypes.Transfer) {
+        if (transaction.type === Enums.TransactionType.Transfer) {
             audit.push({ Transfer: true });
         }
 
-        if (transaction.type === Enums.TransactionTypes.SecondSignature) {
+        if (transaction.type === Enums.TransactionType.SecondSignature) {
             audit.push({ "Second public key": secondPublicKey });
         }
 
-        if (transaction.type === Enums.TransactionTypes.DelegateRegistration) {
+        if (transaction.type === Enums.TransactionType.DelegateRegistration) {
             const username = transaction.asset.delegate.username;
             audit.push({ "Current username": delegate.username });
             audit.push({ "New username": username });
         }
 
-        if (transaction.type === Enums.TransactionTypes.DelegateResignation) {
+        if (transaction.type === Enums.TransactionType.DelegateResignation) {
             audit.push({ "Resigned delegate": delegate.username });
         }
 
-        if (transaction.type === Enums.TransactionTypes.Vote) {
+        if (transaction.type === Enums.TransactionType.Vote) {
             audit.push({ "Current vote": this.getAttribute("vote") });
             audit.push({ "New vote": transaction.asset.votes[0] });
         }
 
-        if (transaction.type === Enums.TransactionTypes.MultiSignature) {
+        if (transaction.type === Enums.TransactionType.MultiSignature) {
             const keysgroup = transaction.asset.multisignature.keysgroup;
             audit.push({ "Multisignature not yet registered": !multiSignature });
             audit.push({
@@ -213,16 +213,16 @@ export class Wallet implements State.IWallet {
             });
         }
 
-        if (transaction.type === Enums.TransactionTypes.Ipfs) {
+        if (transaction.type === Enums.TransactionType.Ipfs) {
             audit.push({ IPFS: true });
         }
 
-        if (transaction.type === Enums.TransactionTypes.MultiPayment) {
+        if (transaction.type === Enums.TransactionType.MultiPayment) {
             const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
             audit.push({ "Multipayment remaining amount": amount });
         }
 
-        if (!Object.values(Enums.TransactionTypes).includes(transaction.type)) {
+        if (!Object.values(Enums.TransactionType).includes(transaction.type)) {
             audit.push({ "Unknown Type": true });
         }
 

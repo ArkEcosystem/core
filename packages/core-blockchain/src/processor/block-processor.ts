@@ -37,7 +37,7 @@ export class BlockProcessor {
             return new ExceptionHandler(this.blockchain, block);
         }
 
-        if (!this.verifyBlock(block)) {
+        if (!(await this.verifyBlock(block))) {
             return new VerificationFailedHandler(this.blockchain, block);
         }
 
@@ -59,11 +59,14 @@ export class BlockProcessor {
         return new AcceptBlockHandler(this.blockchain, block);
     }
 
-    private verifyBlock(block: Interfaces.IBlock): boolean {
+    private async verifyBlock(block: Interfaces.IBlock): Promise<boolean> {
         if (block.verification.containsMultiSignatures) {
             for (const transaction of block.transactions) {
-                const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type);
-                handler.verify(transaction, this.blockchain.database.walletManager);
+                const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                    transaction.type,
+                    transaction.typeGroup,
+                );
+                await handler.verify(transaction, this.blockchain.database.walletManager);
             }
 
             block.verification = block.verify();

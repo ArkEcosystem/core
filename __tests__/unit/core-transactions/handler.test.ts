@@ -113,53 +113,53 @@ describe("General Tests", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should be false if wallet publicKey does not match tx senderPublicKey", () => {
+        it("should be false if wallet publicKey does not match tx senderPublicKey", async () => {
             instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(
                 SenderWalletMismatchError,
             );
         });
 
-        it("should be false if the transaction has a second signature but wallet does not", () => {
+        it("should be false if the transaction has a second signature but wallet does not", async () => {
             instance = Transactions.TransactionFactory.fromData(transactionWithSecondSignature);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(
                 UnexpectedSecondSignatureError,
             );
         });
 
-        it("should be false if the wallet has a second public key but the transaction second signature does not match", () => {
+        it("should be false if the wallet has a second public key but the transaction second signature does not match", async () => {
             senderWallet.setAttribute("secondPublicKey", "invalid-public-key");
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InvalidSecondSignatureError,
             );
         });
 
-        it("should be false if wallet has not enough balance", () => {
+        it("should be false if wallet has not enough balance", async () => {
             // 1 arktoshi short
             senderWallet.balance = transaction.amount.plus(transaction.fee).minus(1);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
 
-        it("should be true even with publicKey case mismatch", () => {
+        it("should be true even with publicKey case mismatch", async () => {
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             senderWallet.publicKey = senderWallet.publicKey.toLowerCase();
             instance = Transactions.TransactionFactory.fromData(transaction);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
     });
 
     describe("apply", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
@@ -170,14 +170,14 @@ describe("General Tests", () => {
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).plus(instance.data.amount));
         });
 
-        it("should not fail due to case mismatch", () => {
+        it("should not fail due to case mismatch", async () => {
             transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase();
             const instance = Transactions.TransactionFactory.fromData(transaction);
 
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
@@ -267,13 +267,13 @@ describe("TransferTransaction", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw", () => {
+        it("should throw", async () => {
             instance.data.senderPublicKey = "a".repeat(66);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 SenderWalletMismatchError,
             );
         });
@@ -301,65 +301,65 @@ describe("SecondSignatureRegistrationTransaction", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet already has a second signature", () => {
+        it("should throw if wallet already has a second signature", async () => {
             senderWallet.setAttribute(
                 "secondPublicKey",
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 SecondSignatureAlreadyRegisteredError,
             );
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should not throw with second signature registration", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw with second signature registration", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
         });
 
-        it("should be invalid to apply a second signature registration twice", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should be invalid to apply a second signature registration twice", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 SecondSignatureAlreadyRegisteredError,
             );
         });
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             expect(senderWallet.getAttribute("secondPublicKey")).toBeUndefined();
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             );
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
             expect(senderWallet.getAttribute("secondPublicKey")).toBeUndefined();
         });
     });
@@ -377,41 +377,41 @@ describe("DelegateRegistrationTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet already registered a username", () => {
+        it("should throw if wallet already registered a username", async () => {
             senderWallet.setAttribute("delegate", { username: "dummy" });
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 WalletIsAlreadyDelegateError,
             );
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             walletManager.forgetByUsername("dummy");
             senderWallet.forgetAttribute("delegate");
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should set username", () => {
-            handler.apply(instance, walletManager);
+        it("should set username", async () => {
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
         });
     });
 
     describe("revert", () => {
-        it("should unset username", () => {
+        it("should unset username", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(senderWallet.getAttribute("delegate.username")).toBeUndefined();
@@ -451,39 +451,41 @@ describe("VoteTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not throw if the vote is valid and the wallet has not voted", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw if the vote is valid and the wallet has not voted", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should not throw if the unvote is valid and the wallet has voted", () => {
+        it("should not throw if the unvote is valid and the wallet has voted", async () => {
             senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
             instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet has already voted", () => {
+        it("should throw if wallet has already voted", async () => {
             senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 AlreadyVotedError,
             );
         });
 
-        it("should throw if the asset public key differs from the currently voted one", () => {
+        it("should throw if the asset public key differs from the currently voted one", async () => {
             senderWallet.setAttribute("vote", "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0");
             instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 UnvoteMismatchError,
             );
         });
 
-        it("should throw if unvoting a non-voted wallet", () => {
+        it("should throw if unvoting a non-voted wallet", async () => {
             instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(NoVoteError);
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
+                NoVoteError,
+            );
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
@@ -491,32 +493,32 @@ describe("VoteTransaction", () => {
 
     describe("apply", () => {
         describe("vote", () => {
-            it("should be ok", () => {
+            it("should be ok", async () => {
                 expect(senderWallet.getAttribute("vote")).toBeUndefined();
 
-                handler.apply(instance, walletManager);
+                await handler.apply(instance, walletManager);
                 expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
             });
 
-            it("should not be ok", () => {
+            it("should not be ok", async () => {
                 senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
                 expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
-                expect(() => handler.apply(instance, walletManager)).toThrow(AlreadyVotedError);
+                await expect(handler.apply(instance, walletManager)).rejects.toThrow(AlreadyVotedError);
 
                 expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
             });
         });
 
         describe("unvote", () => {
-            it("should remove the vote from the wallet", () => {
+            it("should remove the vote from the wallet", async () => {
                 senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
                 expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
-                handler.apply(instance, walletManager);
+                await handler.apply(instance, walletManager);
 
                 expect(senderWallet.getAttribute("vote")).toBeUndefined();
             });
@@ -525,13 +527,13 @@ describe("VoteTransaction", () => {
 
     describe("revert", () => {
         describe("vote", () => {
-            it("should remove the vote from the wallet", () => {
+            it("should remove the vote from the wallet", async () => {
                 senderWallet.setAttribute("vote", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
                 senderWallet.nonce = Utils.BigNumber.make(1);
 
                 expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
-                handler.revert(instance, walletManager);
+                await handler.revert(instance, walletManager);
 
                 expect(senderWallet.nonce.isZero()).toBeTrue();
                 expect(senderWallet.getAttribute("vote")).toBeUndefined();
@@ -539,13 +541,13 @@ describe("VoteTransaction", () => {
         });
 
         describe("unvote", () => {
-            it("should add the vote to the wallet", () => {
+            it("should add the vote to the wallet", async () => {
                 senderWallet.nonce = Utils.BigNumber.make(1);
 
                 expect(senderWallet.getAttribute("vote")).toBeUndefined();
 
                 instance = Transactions.TransactionFactory.fromData(unvoteTransaction);
-                handler.revert(instance, walletManager);
+                await handler.revert(instance, walletManager);
 
                 expect(senderWallet.nonce.isZero()).toBeTrue();
                 expect(senderWallet.getAttribute("vote")).toBe(
@@ -576,69 +578,69 @@ describe("MultiSignatureRegistrationTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if the wallet already has multisignatures", () => {
+        it("should throw if the wallet already has multisignatures", async () => {
             recipientWallet.setAttribute("multiSignature", instance.data.asset.multiSignature);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 MultiSignatureAlreadyRegisteredError,
             );
         });
 
-        it("should throw if failure to verify signatures", () => {
+        it("should throw if failure to verify signatures", async () => {
             senderWallet.verifySignatures = jest.fn(() => false);
             senderWallet.forgetAttribute("multiSignature");
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InvalidMultiSignatureError,
             );
         });
 
-        it("should throw if failure to verify signatures in asset", () => {
+        it("should throw if failure to verify signatures in asset", async () => {
             instance.data.signatures[0] = instance.data.signatures[0].replace("00", "02");
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InvalidMultiSignatureError,
             );
         });
 
-        it("should throw if the number of keys is less than minimum", () => {
+        it("should throw if the number of keys is less than minimum", async () => {
             senderWallet.forgetAttribute("multiSignature");
 
             senderWallet.verifySignatures = jest.fn(() => true);
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
 
             instance.data.asset.multiSignature.publicKeys.splice(0, 5);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 MultiSignatureMinimumKeysError,
             );
         });
 
-        it("should throw if the number of keys does not equal the signature count", () => {
+        it("should throw if the number of keys does not equal the signature count", async () => {
             senderWallet.forgetAttribute("multiSignature");
 
             senderWallet.verifySignatures = jest.fn(() => true);
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
 
             instance.data.signatures.splice(0, 2);
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 MultiSignatureKeyCountMismatchError,
             );
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.forgetAttribute("multiSignature");
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             recipientWallet.forgetAttribute("multiSignature");
 
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
@@ -647,7 +649,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(100390000000));
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(98390000000));
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
@@ -658,10 +660,10 @@ describe("MultiSignatureRegistrationTransaction", () => {
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(senderWallet.hasMultiSignature()).toBeFalse();
@@ -683,26 +685,26 @@ describe("Ipfs", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should apply ipfs transaction", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should apply ipfs transaction", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
             const balanceBefore = senderWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(
                 senderWallet.getAttribute<State.IWalletIpfsAttributes>("ipfs.hashes")[transaction.asset.ipfs],
@@ -712,19 +714,19 @@ describe("Ipfs", () => {
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should be ok", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
             const balanceBefore = senderWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee));
             expect(
                 senderWallet.getAttribute<State.IWalletIpfsAttributes>("ipfs.hashes")[transaction.asset.ipfs],
             ).toBeTrue();
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
 
             expect(senderWallet.getAttribute("ipfs.hashes")[transaction.asset.ipfs]).toBeFalsy();
             expect(senderWallet.balance).toEqual(balanceBefore);
@@ -765,34 +767,34 @@ describe("MultiPaymentTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
 
-        it("should throw if wallet has insufficient funds send all payouts", () => {
+        it("should throw if wallet has insufficient funds send all payouts", async () => {
             senderWallet.balance = Utils.BigNumber.make(150); // short by the fee
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
             const totalPaymentsAmount = instance.data.asset.payments.reduce(
                 (prev, curr) => prev.plus(curr.amount),
                 Utils.BigNumber.ZERO,
             );
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
@@ -821,7 +823,7 @@ describe("MultiPaymentTransaction", () => {
                 Utils.BigNumber.ZERO,
             );
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
                     .plus(totalPaymentsAmount)
@@ -856,76 +858,76 @@ describe("DelegateResignationTransaction", () => {
     });
 
     describe("canApply", () => {
-        it("should not throw if wallet is a delegate", () => {
+        it("should not throw if wallet is a delegate", async () => {
             senderWallet.setAttribute("delegate", {});
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet is not a delegate", () => {
+        it("should throw if wallet is not a delegate", async () => {
             senderWallet.forgetAttribute("delegate");
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 WalletNotADelegateError,
             );
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should apply delegate resignation", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should apply delegate resignation", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
         });
 
-        it("should fail when already resigned", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should fail when already resigned", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 WalletAlreadyResignedError,
             );
         });
 
-        it("should fail when not a delegate", () => {
+        it("should fail when not a delegate", async () => {
             senderWallet.forgetAttribute("delegate");
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 WalletNotADelegateError,
             );
         });
 
-        it("should fail when voting for a resigned delegate", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should fail when voting for a resigned delegate", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
 
             const vote = Transactions.TransactionFactory.fromData(voteTransaction);
             const voteHandler = Handlers.Registry.get(vote.type);
 
-            expect(() => voteHandler.throwIfCannotBeApplied(vote, senderWallet, walletManager)).toThrow(
+            await expect(voteHandler.throwIfCannotBeApplied(vote, senderWallet, walletManager)).rejects.toThrow(
                 VotedForResignedDelegateError,
             );
         });
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
+        it("should be ok", async () => {
             expect(senderWallet.hasAttribute("delegate.resigned")).toBeFalse();
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
             expect(senderWallet.getAttribute<boolean>("delegate.resigned")).toBeFalsy();
         });
     });
@@ -954,26 +956,26 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", ex
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
 
-        it("should throw if wallet has insufficient funds", () => {
+        it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
     });
 
     describe("apply", () => {
-        it("should apply htlc lock transaction", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should apply htlc lock transaction", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
             const balanceBefore = senderWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeDefined();
             expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(transaction.amount);
@@ -982,18 +984,18 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", ex
     });
 
     describe("revert", () => {
-        it("should be ok", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).not.toThrow();
+        it("should be ok", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
             const balanceBefore = senderWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeDefined();
             expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(transaction.amount);
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee).minus(transaction.amount));
 
-            handler.revert(instance, walletManager);
+            await handler.revert(instance, walletManager);
 
             expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
@@ -1067,19 +1069,19 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toResolve();
         });
 
-        it("should throw if no wallet has a lock with associated transaction id", () => {
+        it("should throw if no wallet has a lock with associated transaction id", async () => {
             walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).rejects.toThrow(
                 HtlcLockTransactionNotFoundError,
             );
         });
 
-        it("should throw if secret hash does not match", () => {
+        it("should throw if secret hash does not match", async () => {
             transaction = TransactionFactory.htlcClaim({
                 lockTransactionId: lockTransaction.id,
                 unlockSecret: "wrong 32 bytes unlock secret =((",
@@ -1089,12 +1091,12 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).rejects.toThrow(
                 HtlcSecretHashMismatchError,
             );
         });
 
-        it("should not throw if claiming wallet is not recipient of lock transaction", () => {
+        it("should not throw if claiming wallet is not recipient of lock transaction", async () => {
             const dummyPassphrase = "not recipient of lock";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
 
@@ -1113,10 +1115,10 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).toResolve();
         });
 
-        it("should throw if lock expired", () => {
+        it("should throw if lock expired", async () => {
             const amount = 1e9;
             const secret = "my secret that should be 32bytes";
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
@@ -1147,7 +1149,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).rejects.toThrow(
                 HtlcLockExpiredError,
             );
         });
@@ -1156,47 +1158,47 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
     describe("canEnterTransactionPool", () => {
         const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
 
-        it("should not throw", () => {
-            expect(
+        it("should not throw", async () => {
+            await expect(
                 handler.canEnterTransactionPool(
                     transaction,
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).toBeTrue();
+            ).resolves.toBeTrue();
         });
 
-        it("should throw if no wallet has a lock with associated transaction id", () => {
+        it("should throw if no wallet has a lock with associated transaction id", async () => {
             walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
-            expect(
+            await expect(
                 handler.canEnterTransactionPool(
                     transaction,
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).toBeFalse();
+            ).resolves.toBeFalse();
             expect(processor.pushError).toHaveBeenCalled();
         });
     });
 
     describe("apply", () => {
-        it("should apply htlc claim transaction", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
+        it("should apply htlc claim transaction", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toResolve();
 
             const balanceBefore = claimWallet.balance;
 
             expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
             expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
         });
 
-        it("should apply htlc claim transaction - when sender is not claim wallet", () => {
+        it("should apply htlc claim transaction - when sender is not claim wallet", async () => {
             const dummyPassphrase = "dummy passphrase";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
             const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
@@ -1208,14 +1210,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).toResolve();
 
             const balanceBefore = claimWallet.balance;
 
             expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
@@ -1225,12 +1227,12 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
     describe("revert", () => {
         it("should be ok", async () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, claimWallet, walletManager)).toResolve();
 
             mockTransaction = lockTransaction;
             const balanceBefore = claimWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
@@ -1303,19 +1305,19 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
     });
 
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
+        it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toResolve();
         });
 
-        it("should throw if no wallet has a lock with associated transaction id", () => {
+        it("should throw if no wallet has a lock with associated transaction id", async () => {
             walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).rejects.toThrow(
                 HtlcLockTransactionNotFoundError,
             );
         });
 
-        it("should not throw if refund wallet is not sender of lock transaction", () => {
+        it("should not throw if refund wallet is not sender of lock transaction", async () => {
             const dummyPassphrase = "not lock passphrase";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
 
@@ -1332,10 +1334,10 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).toResolve();
         });
 
-        it("should throw if lock didn't expire - expiration type %i", () => {
+        it("should throw if lock didn't expire - expiration type %i", async () => {
             const amount = 6 * 1e8;
             const secret = "my secret that should be 32bytes";
             const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
@@ -1365,7 +1367,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
             handler = Handlers.Registry.get(transaction.type);
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toThrow(
+            await expect(handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).rejects.toThrow(
                 HtlcLockNotExpiredError,
             );
         });
@@ -1374,47 +1376,47 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
     describe("canEnterTransactionPool", () => {
         const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
 
-        it("should not throw", () => {
-            expect(
+        it("should not throw", async () => {
+            await expect(
                 handler.canEnterTransactionPool(
                     transaction,
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).toBeTrue();
+            ).resolves.toBeTrue();
         });
 
-        it("should throw if no wallet has a lock with associated transaction id", () => {
+        it("should throw if no wallet has a lock with associated transaction id", async () => {
             walletManager.forgetByIndex(State.WalletIndexes.Locks, lockTransaction.id);
 
-            expect(
+            await expect(
                 handler.canEnterTransactionPool(
                     transaction,
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).toBeFalse();
+            ).resolves.toBeFalse();
             expect(processor.pushError).toHaveBeenCalled();
         });
     });
 
     describe("apply", () => {
-        it("should apply htlc refund transaction", () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
+        it("should apply htlc refund transaction", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toResolve();
 
             const balanceBefore = lockWallet.balance;
 
             expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
             expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
         });
 
-        it("should apply htlc refund transaction - when sender is not refund wallet", () => {
+        it("should apply htlc refund transaction - when sender is not refund wallet", async () => {
             const dummyPassphrase = "dummy passphrase";
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
             const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
@@ -1426,14 +1428,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             instance = Transactions.TransactionFactory.fromData(transaction);
 
-            expect(() => handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, dummyWallet, walletManager)).toResolve();
 
             const balanceBefore = lockWallet.balance;
 
             expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
@@ -1443,13 +1445,12 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
     describe("revert", () => {
         it("should be ok", async () => {
-            expect(() => handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).not.toThrow();
+            await expect(handler.throwIfCannotBeApplied(instance, lockWallet, walletManager)).toResolve();
 
             mockTransaction = lockTransaction;
-            console.log(mockTransaction.id);
             const balanceBefore = lockWallet.balance;
 
-            handler.apply(instance, walletManager);
+            await handler.apply(instance, walletManager);
 
             expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);

@@ -27,7 +27,7 @@ export class NotImplementedError extends TransactionError {
 }
 
 export class InvalidTransactionTypeError extends TransactionError {
-    constructor(type: number) {
+    constructor(type: string) {
         super(`Transaction type ${type} does not exist.`);
     }
 }

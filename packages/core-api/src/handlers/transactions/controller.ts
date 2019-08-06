@@ -67,7 +67,7 @@ export class TransactionsController extends Controller {
 
             return super.toPagination(
                 {
-                    count: this.transactionPool.getPoolSize(),
+                    count: await this.transactionPool.getPoolSize(),
                     rows: data,
                 },
                 "transaction",
@@ -80,7 +80,7 @@ export class TransactionsController extends Controller {
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const transaction: Interfaces.ITransaction = this.transactionPool.getTransaction(request.params.id);
+            const transaction: Interfaces.ITransaction = await this.transactionPool.getTransaction(request.params.id);
 
             if (!transaction) {
                 return Boom.notFound("Transaction not found");
@@ -107,12 +107,12 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            // Remove reverse mapping from TransactionTypes enum.
-            const { TransactionTypes } = Enums;
-            const data = Object.assign({}, TransactionTypes);
+            // Remove reverse mapping from TransactionType enum.
+            const { TransactionType } = Enums;
+            const data = Object.assign({}, TransactionType);
 
             // tslint:disable-next-line: ban
-            Object.values(TransactionTypes)
+            Object.values(TransactionType)
                 .filter(value => typeof value === "string")
                 .map((type: string) => data[type])
                 .forEach((key: string) => delete data[key]);

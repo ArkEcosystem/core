@@ -324,7 +324,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: Enums.TransactionTypes.Vote,
+                            value: Enums.TransactionType.Vote,
                         },
                     ]),
                 }),
@@ -438,7 +438,7 @@ describe("Transactions Business Repository", () => {
                 count: 0,
             }));
 
-            await transactionsBusinessRepository.findAllByType(Enums.TransactionTypes.Transfer);
+            await transactionsBusinessRepository.findAllByType(Enums.TransactionType.Transfer);
 
             expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -446,7 +446,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: Enums.TransactionTypes.Transfer,
+                            value: Enums.TransactionType.Transfer,
                         },
                     ],
                 }),
@@ -507,7 +507,7 @@ describe("Transactions Business Repository", () => {
                 count: 0,
             }));
 
-            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionTypes.Transfer, "id");
+            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionType.Transfer, "id");
 
             expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -515,7 +515,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: Enums.TransactionTypes.Transfer,
+                            value: Enums.TransactionType.Transfer,
                         },
                         {
                             field: "id",

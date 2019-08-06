@@ -23,7 +23,7 @@ export class WalletManager extends Wallets.WalletManager {
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
-    public throwIfCannotBeApplied(transaction: Interfaces.ITransaction): void {
+    public async throwIfCannotBeApplied(transaction: Interfaces.ITransaction): Promise<void> {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         const senderPublicKey: string = transaction.data.senderPublicKey;
@@ -41,7 +41,7 @@ export class WalletManager extends Wallets.WalletManager {
 
         const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
 
-        Handlers.Registry.get(transaction.type).throwIfCannotBeApplied(
+        return Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
             transaction,
             sender,
             this.databaseService.walletManager,
@@ -49,6 +49,6 @@ export class WalletManager extends Wallets.WalletManager {
     }
 
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        return Handlers.Registry.get(transaction.type).revertForSender(transaction, this);
+        return Handlers.Registry.get(transaction.type, transaction.typeGroup).revertForSender(transaction, this);
     }
 }

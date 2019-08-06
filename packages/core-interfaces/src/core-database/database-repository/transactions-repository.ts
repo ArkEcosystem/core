@@ -35,7 +35,7 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
-    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
+    getAssetsByType(type: Enums.TransactionType | number): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 

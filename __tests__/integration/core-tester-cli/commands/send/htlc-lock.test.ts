@@ -43,7 +43,7 @@ describe("Commands - Htlc lock", () => {
         expect(httpie.post).toHaveBeenCalledTimes(2);
 
         expectedTransactions
-            .filter(tx => tx.type === Enums.TransactionTypes.HtlcLock)
+            .filter(tx => tx.type === Enums.TransactionType.HtlcLock)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(opts.htlcLockFee));
                 expect(tx.asset.lock.secretHash).toEqual(
@@ -68,7 +68,7 @@ describe("Commands - Htlc lock", () => {
         expect(httpie.post).toHaveBeenCalledTimes(2);
 
         expectedTransactions
-            .filter(tx => tx.type === Enums.TransactionTypes.HtlcLock)
+            .filter(tx => tx.type === Enums.TransactionType.HtlcLock)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(0.1));
                 expect(tx.asset.lock.secretHash).toEqual(

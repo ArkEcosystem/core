@@ -1,6 +1,6 @@
 import { Utils } from "@arkecosystem/crypto";
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
-import { TransactionTypes } from "../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../packages/crypto/src/enums";
 import { PublicKey } from "../../../../packages/crypto/src/identities";
 import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
@@ -21,7 +21,7 @@ describe("Transfer Transaction", () => {
     const amount = 10 * ARKTOSHI;
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.Transfer).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.Transfer).getSchema();
     });
 
     beforeEach(() => {
@@ -243,7 +243,7 @@ describe("Transfer Transaction", () => {
 
 describe("Second Signature Transaction", () => {
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.SecondSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.SecondSignature).getSchema();
     });
 
     beforeEach(() => {
@@ -314,7 +314,7 @@ describe("Second Signature Transaction", () => {
 
 describe("Delegate Registration Transaction", () => {
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.DelegateRegistration).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.DelegateRegistration).getSchema();
     });
 
     beforeEach(() => {
@@ -407,7 +407,7 @@ describe("Vote Transaction", () => {
     ];
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.Vote).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.Vote).getSchema();
     });
 
     beforeEach(() => {
@@ -504,7 +504,7 @@ describe("Multi Signature Registration Transaction", () => {
     let multiSignatureAsset: IMultiSignatureAsset;
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.MultiSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.MultiSignature).getSchema();
     });
 
     beforeEach(() => {
@@ -705,7 +705,7 @@ describe("Multi Payment Transaction", () => {
     let multiPayment = BuilderFactory.multiPayment();
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.MultiPayment).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.MultiPayment).getSchema();
     });
 
     beforeEach(() => {
@@ -776,7 +776,7 @@ describe("HTLC Lock Transaction", () => {
     };
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.HtlcLock).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.HtlcLock).getSchema();
     });
 
     beforeEach(() => {
@@ -888,7 +888,7 @@ describe("HTLC Claim Transaction", () => {
     };
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.HtlcClaim).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.HtlcClaim).getSchema();
     });
 
     beforeEach(() => {
@@ -984,7 +984,7 @@ describe("HTLC Refund Transaction", () => {
     };
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionTypes.HtlcRefund).getSchema();
+        transactionSchema = TransactionTypeFactory.get(TransactionType.HtlcRefund).getSchema();
     });
 
     beforeEach(() => {
