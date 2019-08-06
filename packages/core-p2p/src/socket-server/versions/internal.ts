@@ -21,7 +21,7 @@ export const getUnconfirmedTransactions = async (): Promise<P2P.IUnconfirmedTran
 
     return {
         transactions: await transactionPool.getTransactionsForForging(maxTransactions),
-        poolSize: transactionPool.getPoolSize(),
+        poolSize: await transactionPool.getPoolSize(),
     };
 };
 

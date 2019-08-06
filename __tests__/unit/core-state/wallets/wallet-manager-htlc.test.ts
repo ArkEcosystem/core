@@ -98,7 +98,7 @@ describe("Wallet Manager", () => {
                 expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
                 // apply vote
-                walletManager.applyTransaction(voteTransaction);
+                await walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeLockTx = () => {
                     expect(lockWallet.balance).toEqual(initialLockWalletBalance.minus(voteTransaction.data.fee));
@@ -113,7 +113,7 @@ describe("Wallet Manager", () => {
                 };
                 expectBeforeLockTx();
 
-                walletManager.applyTransaction(lockTransaction);
+                await walletManager.applyTransaction(lockTransaction);
 
                 const expectAfterLockTx = () => {
                     expect(lockWallet.balance).toEqual(
@@ -135,7 +135,7 @@ describe("Wallet Manager", () => {
                 };
                 expectAfterLockTx();
 
-                walletManager.applyTransaction(claimTransaction);
+                await walletManager.applyTransaction(claimTransaction);
 
                 expect(lockWallet.balance).toEqual(
                     initialLockWalletBalance
@@ -220,7 +220,7 @@ describe("Wallet Manager", () => {
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
                 expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
-                walletManager.applyTransaction(voteTransaction);
+                await walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeLockTx = () => {
                     expect(lockWallet.balance).toEqual(initialLockWalletBalance);
@@ -235,7 +235,7 @@ describe("Wallet Manager", () => {
                 };
                 expectBeforeLockTx();
 
-                walletManager.applyTransaction(lockTransaction);
+                await walletManager.applyTransaction(lockTransaction);
 
                 const expectAfterLockTx = () => {
                     expect(lockWallet.balance).toEqual(
@@ -252,7 +252,7 @@ describe("Wallet Manager", () => {
                 };
                 expectAfterLockTx();
 
-                walletManager.applyTransaction(claimTransaction);
+                await walletManager.applyTransaction(claimTransaction);
 
                 expect(lockWallet.balance).toEqual(
                     initialLockWalletBalance.minus(amount).minus(lockTransaction.data.fee),
@@ -363,7 +363,7 @@ describe("Wallet Manager", () => {
                 expect(delegate.balance).toEqual(initialDelegateWalletBalance);
                 expect(delegate.getAttribute("delegate.voteBalance")).toEqual(initialDelegateWalletBalance);
 
-                walletManager.applyTransaction(voteTransaction);
+                await walletManager.applyTransaction(voteTransaction);
 
                 const expectBeforeLockTx = () => {
                     expect(lockWallet.balance).toEqual(initialLockWalletBalance.minus(voteTransaction.data.fee));
@@ -377,7 +377,7 @@ describe("Wallet Manager", () => {
                 };
                 expectBeforeLockTx();
 
-                walletManager.applyTransaction(lockTransaction);
+                await walletManager.applyTransaction(lockTransaction);
 
                 const expectAfterLockTx = () => {
                     expect(lockWallet.balance).toEqual(
@@ -398,7 +398,7 @@ describe("Wallet Manager", () => {
                 };
                 expectAfterLockTx();
 
-                walletManager.applyTransaction(refundTransaction);
+                await walletManager.applyTransaction(refundTransaction);
 
                 expect(lockWallet.balance).toEqual(
                     initialLockWalletBalance
