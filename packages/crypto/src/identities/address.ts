@@ -1,8 +1,8 @@
-import bs58check from "bs58check";
 import { HashAlgorithms } from "../crypto";
 import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
+import { Base58 } from "../utils";
 import { PublicKey } from "./public-key";
 
 export class Address {
@@ -25,7 +25,7 @@ export class Address {
         payload.writeUInt8(networkVersion, 0);
         buffer.copy(payload, 1);
 
-        return bs58check.encode(payload);
+        return Base58.encodeCheck(payload);
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
@@ -42,7 +42,7 @@ export class Address {
         }
 
         try {
-            return bs58check.decode(address)[0] === networkVersion;
+            return Base58.decodeCheck(address)[0] === networkVersion;
         } catch (err) {
             return false;
         }

@@ -1,8 +1,9 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
+const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
  * Attempt to spend with insufficient balance
@@ -13,11 +14,10 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory.secondSignature()
-            .signatureAsset(utils.secondsigRegSender2.passphrase)
-            .fee(5 * Math.pow(10, 8))
-            .sign(utils.secondsigRegSender.passphrase)
-            .getStruct(),
+        TransactionFactory.secondSignature(utils.secondsigRegSender2.passphrase)
+            .withFee(5 * Math.pow(10, 8))
+            .withPassphrase(utils.secondsigRegSender.passphrase)
+            .createOne(),
     ];
 
     await testUtils.POST("transactions", { transactions });

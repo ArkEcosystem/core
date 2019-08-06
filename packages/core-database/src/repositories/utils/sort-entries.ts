@@ -1,12 +1,17 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
+import { Utils } from "@arkecosystem/crypto";
 import { orderBy } from "@arkecosystem/utils";
+import { getProperty } from "./get-property";
 
-export const sortEntries = (params: Database.IParameters, entries: any[], defaultValue) => {
+export const sortEntries = (params: Database.IParameters, entries: State.IWallet[], defaultValue) => {
     const [iteratee, order] = params.orderBy ? params.orderBy : defaultValue;
 
     if (["balance", "voteBalance"].includes(iteratee)) {
-        return Object.values(entries).sort((a: any, b: any) => {
-            return order === "asc" ? a[iteratee].comparedTo(b[iteratee]) : b[iteratee].comparedTo(a[iteratee]);
+        return Object.values(entries).sort((a: State.IWallet, b: State.IWallet) => {
+            const iterateeA: Utils.BigNumber = getProperty(a, iteratee) || Utils.BigNumber.ZERO;
+            const iterateeB: Utils.BigNumber = getProperty(b, iteratee) || Utils.BigNumber.ZERO;
+
+            return order === "asc" ? iterateeA.comparedTo(iterateeB) : iterateeB.comparedTo(iterateeA);
         });
     }
 

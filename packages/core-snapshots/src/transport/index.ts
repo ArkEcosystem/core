@@ -29,7 +29,7 @@ export const exportTable = async (table, options) => {
 
     logger.info(
         `Starting to export table ${table} to folder ${
-        options.meta.folder
+            options.meta.folder
         }, append:${!!options.blocks}, skipCompression: ${options.meta.skipCompression}`,
     );
     try {
@@ -73,9 +73,9 @@ export const importTable = async (table, options) => {
     const readStream = options.meta.skipCompression
         ? fs.createReadStream(sourceFile).pipe(decodeStream)
         : fs
-            .createReadStream(sourceFile)
-            .pipe(gunzip)
-            .pipe(decodeStream);
+              .createReadStream(sourceFile)
+              .pipe(gunzip)
+              .pipe(decodeStream);
 
     let values = [];
     let prevData;
@@ -125,9 +125,9 @@ export const verifyTable = async (table, options) => {
     const readStream = options.meta.skipCompression
         ? fs.createReadStream(sourceFile).pipe(decodeStream)
         : fs
-            .createReadStream(sourceFile)
-            .pipe(gunzip)
-            .pipe(decodeStream);
+              .createReadStream(sourceFile)
+              .pipe(gunzip)
+              .pipe(decodeStream);
 
     logger.info(`Starting to verify snapshot file ${sourceFile}`);
     let prevData;

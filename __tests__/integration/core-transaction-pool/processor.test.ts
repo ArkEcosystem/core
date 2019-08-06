@@ -92,7 +92,7 @@ describe("Transaction Guard", () => {
                 await processor.validate([transfer.data]);
 
                 const expectedError = {
-                    message: '["Cold wallet is not allowed to send until receiving transaction is confirmed."]',
+                    message: "Wallet not allowed to spend before funding is confirmed.",
                     type: "ERR_APPLY",
                 };
                 expect(processor.getErrors()[transfer.id]).toContainEqual(expectedError);
@@ -155,7 +155,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -182,22 +182,28 @@ describe("Transaction Guard", () => {
             const voteFee = 10 ** 8;
             const delegateRegFee = 25 * 10 ** 8;
             const signatureFee = 5 * 10 ** 8;
+
             const transfers = TransactionFactory.transfer(newAddress, amount1)
                 .withNetwork("unitnet")
                 .withFee(fee)
                 .withPassphrase(delegate2.secret)
                 .build();
+
+            const nonce = TransactionFactory.getNonce(publicKey);
             const votes = TransactionFactory.vote(delegate2.publicKey)
                 .withNetwork("unitnet")
                 .withPassphrase(newWalletPassphrase)
+                .withNonce(nonce)
                 .build();
             const delegateRegs = TransactionFactory.delegateRegistration()
                 .withNetwork("unitnet")
                 .withPassphrase(newWalletPassphrase)
+                .withNonce(nonce.plus(1))
                 .build();
             const signatures = TransactionFactory.secondSignature()
                 .withNetwork("unitnet")
                 .withPassphrase(newWalletPassphrase)
+                .withNonce(nonce.plus(2))
                 .build();
 
             // Index wallets to not encounter cold wallet error
@@ -212,7 +218,7 @@ describe("Transaction Guard", () => {
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers[0].type);
-            transactionHandler.applyToRecipientInPool(transfers[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
             expect(+newWallet.balance).toBe(amount1);
@@ -248,14 +254,14 @@ describe("Transaction Guard", () => {
             const amount1 = 1000 * 10 ** 8;
             const fee = 0.1 * 10 ** 8;
             const transfers1 = TransactionFactory.transfer(newAddress, amount1)
-                .withNetwork("unitnet")
+                .withNetwork("testnet")
                 .withPassphrase(delegate3.secret)
                 .build();
             await processor.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
             const transactionHandler = Handlers.Registry.get(transfers1[0].type);
-            transactionHandler.applyToRecipientInPool(transfers1[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
             expect(+newWallet.balance).toBe(amount1);
@@ -263,49 +269,55 @@ describe("Transaction Guard", () => {
             // transfer almost everything from new wallet so that we don't have enough for any other transaction
             const amount2 = 999 * 10 ** 8;
             const transfers2 = TransactionFactory.transfer(delegate3.address, amount2)
-                .withNetwork("unitnet")
+                .withNetwork("testnet")
                 .withPassphrase(newWalletPassphrase)
                 .build();
             await processor.validate(transfers2.map(tx => tx.data));
 
             // simulate forged transaction
-            transactionHandler.applyToRecipientInPool(transfers2[0], transactionPool.walletManager);
+            transactionHandler.applyToRecipient(transfers2[0], transactionPool.walletManager);
 
             expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
 
             // now try to validate any other transaction - should not be accepted because in excess
+
             const transferAmount = 0.5 * 10 ** 8;
             const transferDynFee = 0.5 * 10 ** 8;
+
             const allTransactions = [
                 TransactionFactory.transfer(delegate3.address, transferAmount)
-                    .withNetwork("unitnet")
+                    .withNetwork("testnet")
                     .withFee(transferDynFee)
                     .withPassphrase(newWalletPassphrase)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.secondSignature()
-                    .withNetwork("unitnet")
+                    .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.vote(delegate3.publicKey)
-                    .withNetwork("unitnet")
+                    .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
                 TransactionFactory.delegateRegistration()
-                    .withNetwork("unitnet")
+                    .withNetwork("testnet")
                     .withPassphrase(newWalletPassphrase)
+                    .withNonce(Utils.BigNumber.ONE)
                     .build(),
             ];
 
-            for (const transaction of allTransactions) {
-                await processor.validate(transaction.map(tx => tx.data));
+            for (const transactions of allTransactions) {
+                await processor.validate(transactions.map(tx => tx.data));
 
                 const errorExpected = [
                     {
-                        message: `["Insufficient balance in the wallet."]`,
+                        message: "Insufficient balance in the wallet.",
                         type: "ERR_APPLY",
                     },
                 ];
-                expect(processor.getErrors()[transaction[0].id]).toEqual(errorExpected);
+                expect(processor.getErrors()[transactions[0].id]).toEqual(errorExpected);
 
                 expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee + amount2);
                 expect(+newWallet.balance).toBe(amount1 - amount2 - fee);
@@ -315,15 +327,16 @@ describe("Transaction Guard", () => {
         it("should not validate 2 double spending transactions", async () => {
             const amount = 245098000000000 - 5098000000000; // a bit less than the delegates' balance
             const transactions = TransactionFactory.transfer(delegates[1].address, amount)
-                .withNetwork("unitnet")
+                .withNetwork("testnet")
                 .withPassphrase(delegates[0].secret)
+                .withNonce(Utils.BigNumber.ZERO)
                 .create(2);
 
             const result = await processor.validate(transactions);
 
             expect(result.errors[transactions[1].id]).toEqual([
                 {
-                    message: `["Insufficient balance in the wallet."]`,
+                    message: "Insufficient balance in the wallet.",
                     type: "ERR_APPLY",
                 },
             ]);
@@ -331,23 +344,25 @@ describe("Transaction Guard", () => {
 
         it.each([3, 5, 8])("should validate emptying wallet with %i transactions", async txNumber => {
             // use txNumber so that we use a different delegate for each test case
-            const sender = delegates[txNumber];
+            const sender = delegates[txNumber + 1];
             const senderWallet = transactionPool.walletManager.findByPublicKey(sender.publicKey);
-            const receivers = generateWallets("unitnet", 2);
+
+            const receivers = generateWallets("testnet", 2);
             const amountPlusFee = Math.floor(senderWallet.balance / txNumber);
             const lastAmountPlusFee = senderWallet.balance - (txNumber - 1) * amountPlusFee;
             const transferFee = 10000000;
 
+            const nonce = senderWallet.nonce;
             const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
-                .withNetwork("unitnet")
+                .withNetwork("testnet")
+                .withNonce(nonce)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
-            const lastTransaction = TransactionFactory.transfer(receivers[1].address, lastAmountPlusFee - transferFee)
-                .withNetwork("unitnet")
+            const lastTransaction = TransactionFactory.transfer(receivers[0].address, lastAmountPlusFee - transferFee)
+                .withNetwork("testnet")
+                .withNonce(nonce.plus(txNumber - 1))
                 .withPassphrase(sender.secret)
                 .create();
-            // we change the receiver in lastTransaction to prevent having 2 exact
-            // same transactions with same id (if not, could be same as transactions[0])
 
             const result = await processor.validate(transactions.concat(lastTransaction));
 
@@ -358,21 +373,23 @@ describe("Transaction Guard", () => {
             "should not validate emptying wallet with %i transactions when the last one is 1 satoshi too much",
             async txNumber => {
                 // use txNumber + 1 so that we don't use the same delegates as the above test
-                const sender = delegates[txNumber + 1];
-                const receivers = generateWallets("unitnet", 2);
+                const sender = delegates[txNumber + 2];
+                const receivers = generateWallets("testnet", 2);
                 const amountPlusFee = Math.floor(sender.balance / txNumber);
                 const lastAmountPlusFee = sender.balance - (txNumber - 1) * amountPlusFee + 1;
                 const transferFee = 10000000;
 
+                const nonce = TransactionFactory.getNonce(sender.publicKey);
                 const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
-                    .withNetwork("unitnet")
+                    .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .create(txNumber - 1);
                 const lastTransaction = TransactionFactory.transfer(
                     receivers[1].address,
                     lastAmountPlusFee - transferFee,
                 )
-                    .withNetwork("unitnet")
+                    .withNetwork("testnet")
+                    .withNonce(nonce.plus(txNumber - 1))
                     .withPassphrase(sender.secret)
                     .create();
                 // we change the receiver in lastTransaction to prevent having 2
@@ -385,7 +402,7 @@ describe("Transaction Guard", () => {
                 expect(Object.keys(result.errors).length).toBe(1);
                 expect(result.errors[lastTransaction[0].id]).toEqual([
                     {
-                        message: `["Insufficient balance in the wallet."]`,
+                        message: "Insufficient balance in the wallet.",
                         type: "ERR_APPLY",
                     },
                 ]);
@@ -436,18 +453,22 @@ describe("Transaction Guard", () => {
             const wallet1 = transactionPool.walletManager.findByPublicKey(wallets[14].keys.publicKey);
             const wallet2 = transactionPool.walletManager.findByPublicKey(wallets[15].keys.publicKey);
 
-            expect(wallet1.username).toBe(undefined);
-            expect(wallet2.username).toBe(undefined);
+            expect(wallet1.isDelegate()).toBeFalse();
+            expect(wallet2.isDelegate()).toBeFalse();
         });
 
         it("should not validate a transaction if a second signature registration for the same wallet exists in the pool", async () => {
+            const nonce = TransactionFactory.getNonce(Identities.PublicKey.fromPassphrase(wallets[16].passphrase));
+
             const secondSignatureTransaction = TransactionFactory.secondSignature()
                 .withNetwork("unitnet")
+                .withNonce(nonce)
                 .withPassphrase(wallets[16].passphrase)
                 .build()[0];
 
             const transferTransaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
                 .withNetwork("unitnet")
+                .withNonce(nonce.plus(1))
                 .withPassphrase(wallets[16].passphrase)
                 .withSecondPassphrase(wallets[17].passphrase)
                 .build()[0];
@@ -460,7 +481,7 @@ describe("Transaction Guard", () => {
             expect(result.accept).toBeEmpty();
             expect(result.errors[transferTransaction.id]).toEqual([
                 {
-                    message: `["Failed to apply transaction, because wallet does not allow second signatures."]`,
+                    message: "Failed to apply transaction, because wallet does not allow second signatures.",
                     type: "ERR_APPLY",
                 },
             ]);
@@ -1026,7 +1047,7 @@ describe("Transaction Guard", () => {
     //         const tx = {
     //             id: "1",
     //             network: 23,
-    //             type: Enums.TransactionTypes.Transfer,
+    //             type: Enums.TransactionType.Transfer,
     //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
     //             recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
     //         };
@@ -1054,7 +1075,7 @@ describe("Transaction Guard", () => {
 
     //         const tx = {
     //             id: "1",
-    //             type: Enums.TransactionTypes.Transfer,
+    //             type: Enums.TransactionType.Transfer,
     //             senderPublicKey: "023ee98f453661a1cb765fd60df95b4efb1e110660ffb88ae31c2368a70f1f7359",
     //             recipientId: "DEJHR83JFmGpXYkJiaqn7wPGztwjheLAmY",
     //         };
@@ -1202,7 +1223,7 @@ describe("Transaction Guard", () => {
     //                     type: "ERR_PENDING",
     //                     message:
     //                         `Sender ${tx.data.senderPublicKey} already has a transaction of type ` +
-    //                         `'${Enums.TransactionTypes[tx.type]}' in the pool`,
+    //                         `'${Enums.TransactionType[tx.type]}' in the pool`,
     //                 },
     //             ]);
     //         }
@@ -1220,11 +1241,10 @@ describe("Transaction Guard", () => {
     //             .build()[0];
 
     //         for (const transactionType of [
-    //             Enums.TransactionTypes.MultiSignature,
-    //             Enums.TransactionTypes.Ipfs,
-    //             Enums.TransactionTypes.TimelockTransfer,
-    //             Enums.TransactionTypes.MultiPayment,
-    //             Enums.TransactionTypes.DelegateResignation,
+    //             Enums.TransactionType.MultiSignature,
+    //             Enums.TransactionType.Ipfs,
+    //             Enums.TransactionType.MultiPayment,
+    //             Enums.TransactionType.DelegateResignation,
     //             99,
     //         ]) {
     //             baseTransaction.data.type = transactionType;
@@ -1237,7 +1257,7 @@ describe("Transaction Guard", () => {
     //                 {
     //                     type: "ERR_UNSUPPORTED",
     //                     message: `Invalidating transaction of unsupported type '${
-    //                         Enums.TransactionTypes[transactionType]
+    //                         Enums.TransactionType[transactionType]
     //                     }'`,
     //                 },
     //             ]);

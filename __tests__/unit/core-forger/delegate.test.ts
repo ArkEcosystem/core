@@ -2,9 +2,7 @@ import "jest-extended";
 
 import { Types, Utils } from "@arkecosystem/crypto";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
-import { ITransactionData } from "../../../packages/crypto/src/interfaces";
 import { testnet } from "../../../packages/crypto/src/networks";
-import { sortTransactions } from "../../../packages/crypto/src/utils";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 
 const dummy = {
@@ -137,15 +135,6 @@ describe("Delegate", () => {
         });
     });
 
-    describe("sortTransactions", () => {
-        it("returns the transactions ordered by type and id", () => {
-            const ordered = [{ type: 1, id: "2" }, { type: 1, id: "8" }, { type: 2, id: "5" }, { type: 2, id: "9" }];
-            const unordered = [ordered[3], ordered[2], ordered[1], ordered[0]] as ITransactionData[];
-
-            expect(sortTransactions(unordered)).toEqual(ordered);
-        });
-    });
-
     describe("forge", () => {
         const optionsDefault = {
             timestamp: 12345689,
@@ -179,7 +168,6 @@ describe("Delegate", () => {
             for (const key of Object.keys(expectedBlockData)) {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             }
-
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
                 errors: [],
@@ -203,7 +191,6 @@ describe("Delegate", () => {
             for (const key of Object.keys(expectedBlockData)) {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             }
-
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
                 errors: [],
@@ -230,6 +217,25 @@ describe("Delegate", () => {
 
             const block = delegate.forge(transactions, optionsDefault);
             expect(block).toBeUndefined();
+        });
+
+        it("should forge a block with transactions ordered by nonce", () => {
+            const transfers = TransactionFactory.transfer()
+                .withPassphrase(dummy.plainPassphrase)
+                .create(10);
+
+            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+
+            const block = delegate.forge(transfers, optionsDefault);
+
+            expect(block.verification).toEqual({
+                containsMultiSignatures: false,
+                errors: [],
+                verified: true,
+            });
+            expect(block.transactions.map(tx => tx.data.nonce)).toEqual(
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => new Utils.BigNumber(n)),
+            );
         });
     });
 });

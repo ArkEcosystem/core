@@ -129,4 +129,23 @@ describe("Transaction Forging - Transfer", () => {
         await support.snoozeForBlock(1);
         await expect(transfer.id).not.toBeForged();
     });
+
+    it("should broadcast, accept and forge it [Legacy, Without Nonce]", async () => {
+        const transferWithNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(transferWithNonce).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(transferWithNonce.id).toBeForged();
+
+        const transferLegacyWithoutNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withVersion(1)
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(transferLegacyWithoutNonce).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(transferLegacyWithoutNonce.id).toBeForged();
+    });
 });

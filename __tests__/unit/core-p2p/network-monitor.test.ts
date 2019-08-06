@@ -15,6 +15,8 @@ let processor: P2P.IPeerProcessor;
 let storage: P2P.IPeerStorage;
 let communicator: P2P.IPeerCommunicator;
 
+jest.setTimeout(60000);
+
 beforeEach(() => {
     jest.resetAllMocks();
 
@@ -166,7 +168,6 @@ describe("NetworkMonitor", () => {
             validateAndAcceptPeer.mockReset();
             validatePeerIp.mockRestore();
         });
-
     });
 
     describe("getNetworkHeight", () => {

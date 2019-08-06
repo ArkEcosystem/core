@@ -28,8 +28,8 @@ export class IpfsCommand extends SendCommand {
         const transactions = [];
 
         for (const wallet of Object.values(wallets)) {
-            const ipfs = `Qm${wallet.keys.publicKey.slice(0, 44)}`;
-            // we use stripped publickey as ipfs hash with Qm indicating SHA-256
+            const ipfs = `Qm${wallet.address.repeat(2).slice(0, 44)}`;
+            // we use stripped address as ipfs hash with Qm indicating SHA-256
 
             const transaction = this.signer.makeIpfs({
                 ...flags,

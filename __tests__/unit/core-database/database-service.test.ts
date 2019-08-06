@@ -15,7 +15,7 @@ import { stateStorageStub } from "./__fixtures__/state-storage-stub";
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 let connection: Database.IConnection;
 let databaseService: DatabaseService;
@@ -55,7 +55,7 @@ describe("Database Service", () => {
 
     describe("applyBlock", () => {
         it("should applyBlock", async () => {
-            jest.spyOn(walletManager, "applyBlock").mockImplementation(block => block);
+            jest.spyOn(walletManager, "applyBlock").mockImplementation(async block => undefined);
             jest.spyOn(emitter, "emit");
 
             databaseService = createService();
@@ -192,11 +192,13 @@ describe("Database Service", () => {
 
             // Create delegates
             for (const transaction of genesisBlock.transactions) {
-                if (transaction.type === TransactionTypes.DelegateRegistration) {
+                if (transaction.type === TransactionType.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-                    wallet.username = Transactions.TransactionFactory.fromBytes(
-                        transaction.serialized,
-                    ).data.asset.delegate.username;
+                    wallet.setAttribute("delegate", {
+                        voteBalance: Utils.BigNumber.ONE,
+                        username: Transactions.TransactionFactory.fromBytes(transaction.serialized).data.asset.delegate
+                            .username,
+                    });
                     wallet.address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
                     walletManager.reindex(wallet);
                 }
@@ -215,12 +217,20 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = Handlers.Registry.get(TransactionTypes.Transfer);
-            const originalApply = transactionHandler.canBeApplied;
-            transactionHandler.canBeApplied = jest.fn(() => true);
+            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const originalApply = transactionHandler.throwIfCannotBeApplied;
+            transactionHandler.throwIfCannotBeApplied = jest.fn();
 
             const sender = new Wallet(keys.address);
             sender.publicKey = keys.publicKey;
+            sender.balance = Utils.BigNumber.make(1e12);
+            sender.setAttribute("delegate", {
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+                producedBlocks: Utils.BigNumber.ZERO,
+            });
+
             walletManager.reindex(sender);
 
             // Apply 51 blocks, where each increases the vote balance of a delegate to
@@ -235,12 +245,13 @@ describe("Database Service", () => {
                             .times(SATOSHI)
                             .toFixed(),
                     )
+                    .nonce(sender.nonce.plus(1).toFixed())
                     .recipientId(Identities.Address.fromPublicKey(voterKeys.publicKey))
                     .sign(keys.passphrase)
                     .build();
 
                 // Vote for delegate
-                walletManager.findByPublicKey(voterKeys.publicKey).vote = delegatesRound2[i].publicKey;
+                walletManager.findByPublicKey(voterKeys.publicKey).setAttribute("vote", delegatesRound2[i].publicKey);
 
                 const block = BlockFactory.make(
                     {
@@ -260,7 +271,7 @@ describe("Database Service", () => {
                 );
 
                 block.data.generatorPublicKey = keys.publicKey;
-                walletManager.applyBlock(block);
+                await walletManager.applyBlock(block);
 
                 blocksInRound.push(block);
             }
@@ -268,8 +279,9 @@ describe("Database Service", () => {
             // The delegates from round 2 are now reversed in rank in round 3.
             const roundInfo2 = roundCalculator.calculateRound(initialHeight + 51);
             const delegatesRound3 = walletManager.loadActiveDelegateList(roundInfo2);
+
             for (let i = 0; i < delegatesRound3.length; i++) {
-                expect(delegatesRound3[i].rate).toBe(i + 1);
+                expect(delegatesRound3[i].getAttribute<number>("delegate.rank")).toBe(i + 1);
                 expect(delegatesRound3[i].publicKey).toBe(delegatesRound2[delegatesRound3.length - i - 1].publicKey);
             }
 
@@ -280,20 +292,22 @@ describe("Database Service", () => {
             // Necessary for revertRound to not blow up.
             // @ts-ignore
             walletManager.allByUsername = jest.fn(() => {
-                const usernames = Object.values((walletManager as any).byUsername);
+                const usernames = walletManager.getIndex(State.WalletIndexes.Usernames).all() as any;
                 usernames.push(sender);
                 return usernames;
             });
 
             // Finally recalculate the round 2 list and compare against the original list
-            const restoredDelegatesRound2 = await (databaseService as any).calcPreviousActiveDelegates(roundInfo2);
+            const restoredDelegatesRound2: State.IWallet[] = await (databaseService as any).calcPreviousActiveDelegates(
+                roundInfo2,
+            );
 
             for (let i = 0; i < restoredDelegatesRound2.length; i++) {
-                expect(restoredDelegatesRound2[i].rate).toBe(i + 1);
+                expect(restoredDelegatesRound2[i].getAttribute<number>("delegate.rank")).toBe(i + 1);
                 expect(restoredDelegatesRound2[i].publicKey).toBe(delegatesRound2[i].publicKey);
             }
 
-            transactionHandler.canBeApplied = originalApply;
+            transactionHandler.throwIfCannotBeApplied = originalApply;
         });
     });
 });

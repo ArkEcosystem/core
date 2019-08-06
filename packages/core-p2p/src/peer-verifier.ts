@@ -7,10 +7,6 @@ import assert from "assert";
 import { inspect } from "util";
 import { Severity } from "./enums";
 
-interface IDelegateWallets {
-    [publicKey: string]: State.IDelegateWallet;
-}
-
 export class PeerVerificationResult implements P2P.IPeerVerificationResult {
     public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
@@ -368,7 +364,7 @@ export class PeerVerifier {
     /**
      * Get the delegates for the given round.
      */
-    private async getDelegatesByRound(roundInfo: Shared.IRoundInfo): Promise<IDelegateWallets> {
+    private async getDelegatesByRound(roundInfo: Shared.IRoundInfo): Promise<Record<string, State.IWallet>> {
         const { round, maxDelegates } = roundInfo;
 
         let delegates = await this.database.getActiveDelegates(roundInfo);
@@ -387,7 +383,7 @@ export class PeerVerifier {
             );
         }
 
-        const delegatesByPublicKey = {} as IDelegateWallets;
+        const delegatesByPublicKey = {} as Record<string, State.IWallet>;
 
         for (const delegate of delegates) {
             delegatesByPublicKey[delegate.publicKey] = delegate;
@@ -462,7 +458,7 @@ export class PeerVerifier {
     private async verifyPeerBlock(
         blockData: Interfaces.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: IDelegateWallets,
+        delegatesByPublicKey: Record<string, State.IWallet>,
     ): Promise<boolean> {
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
             this.log(

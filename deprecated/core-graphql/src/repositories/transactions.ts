@@ -3,7 +3,7 @@ import { dato } from "@faustbrian/dato";
 import { Repository } from "./repository";
 import { buildFilterQuery } from "./utils/filter-query";
 
-const { TransactionTypes } = constants;
+const { TransactionType } = constants;
 
 class TransactionsRepository extends Repository {
     /**
@@ -26,7 +26,7 @@ class TransactionsRepository extends Repository {
         }
 
         if (parameters.type) {
-            parameters.type = TransactionTypes[parameters.type];
+            parameters.type = TransactionType[parameters.type];
         }
 
         const applyConditions = queries => {
@@ -159,7 +159,7 @@ class TransactionsRepository extends Repository {
      */
     public async allVotesBySender(senderPublicKey, parameters = {}) {
         return this.findAll({
-            ...{ senderPublicKey, type: TransactionTypes.Vote },
+            ...{ senderPublicKey, type: TransactionType.Vote },
             ...parameters,
         });
     }

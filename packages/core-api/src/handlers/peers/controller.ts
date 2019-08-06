@@ -33,13 +33,17 @@ export class PeersController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const peers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
-        const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
+        try {
+            const peers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
+            const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
 
-        if (!peer) {
-            return Boom.notFound("Peer not found");
+            if (!peer) {
+                return Boom.notFound("Peer not found");
+            }
+
+            return super.respondWithResource(peer, "peer");
+        } catch (error) {
+            return Boom.badImplementation(error);
         }
-
-        return super.respondWithResource(peer, "peer");
     }
 }

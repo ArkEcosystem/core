@@ -1,15 +1,15 @@
-import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { IpfsTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.Ipfs;
-        this.data.fee = feeManager.get(TransactionTypes.Ipfs);
+        this.data.type = IpfsTransaction.type;
+        this.data.typeGroup = IpfsTransaction.typeGroup;
+        this.data.fee = IpfsTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.asset = {};
     }

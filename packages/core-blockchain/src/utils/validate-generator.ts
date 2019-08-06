@@ -8,11 +8,13 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
     const logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
     const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
-    const delegates: State.IDelegateWallet[] = await database.getActiveDelegates(roundInfo);
+    const delegates: State.IWallet[] = await database.getActiveDelegates(roundInfo);
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
-    const forgingDelegate: State.IDelegateWallet = delegates[slot % delegates.length];
+    const forgingDelegate: State.IWallet = delegates[slot % delegates.length];
 
-    const generatorUsername: string = database.walletManager.findByPublicKey(block.data.generatorPublicKey).username;
+    const generatorUsername: string = database.walletManager
+        .findByPublicKey(block.data.generatorPublicKey)
+        .getAttribute("delegate.username");
 
     if (!forgingDelegate) {
         logger.debug(
@@ -21,7 +23,9 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
             }) is allowed to forge block ${block.data.height.toLocaleString()}`,
         );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-        const forgingUsername = database.walletManager.findByPublicKey(forgingDelegate.publicKey).username;
+        const forgingUsername: string = database.walletManager
+            .findByPublicKey(forgingDelegate.publicKey)
+            .getAttribute("delegate.username");
 
         logger.warn(
             `Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
