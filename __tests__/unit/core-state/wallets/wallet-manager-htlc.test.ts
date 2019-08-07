@@ -3,6 +3,7 @@ import { database } from "../mocks/database";
 import { state } from "../mocks/state";
 
 import { State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Identities, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
@@ -14,6 +15,14 @@ const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
 let walletManager: State.IWalletManager;
 
 const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
+
+beforeAll(() => {
+    jest.spyOn(Handlers.Registry, "isKnownWalletAttribute").mockReturnValue(true);
+});
+
+afterAll(() => {
+    jest.restoreAllMocks();
+});
 
 describe("Wallet Manager", () => {
     describe("HTLC claim", () => {

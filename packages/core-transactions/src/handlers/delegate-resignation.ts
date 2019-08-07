@@ -14,6 +14,10 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return [DelegateRegistrationTransactionHandler];
     }
 
+    public walletAttributes(): ReadonlyArray<string> {
+        return ["delegate.resigned"];
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 

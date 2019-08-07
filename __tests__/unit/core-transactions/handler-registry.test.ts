@@ -64,7 +64,11 @@ class TestTransaction extends Transactions.Transaction {
 
 // tslint:disable-next-line:max-classes-per-file
 class TestTransactionHandler extends TransactionHandler {
-    public dependencies(): TransactionHandlerConstructor[] {
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
+    }
+
+    public walletAttributes(): ReadonlyArray<string> {
         return [];
     }
 
