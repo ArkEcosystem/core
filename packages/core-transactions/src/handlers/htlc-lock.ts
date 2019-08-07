@@ -11,6 +11,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         return [];
     }
 
+    public walletAttributes(): ReadonlyArray<string> {
+        return ["htlc.locks", "htlc.lockedBalance"];
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const lockTransactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of lockTransactions) {
