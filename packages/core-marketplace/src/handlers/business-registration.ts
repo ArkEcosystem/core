@@ -87,15 +87,15 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         walletManager.reindex(sender);
     }
 
-    // tslint:disable-next-line:no-empty
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
-    // tslint:disable-next-line:no-empty
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
+        // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }
