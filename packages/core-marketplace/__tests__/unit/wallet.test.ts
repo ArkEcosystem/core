@@ -4,7 +4,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { IBusinessWalletProperty } from "../../src/interfaces";
 
 describe("should test wallet", () => {
-    it("should", () => {
+    it("should return the same data as added", () => {
         const senderWallet: Wallets.Wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         const businessProperty: IBusinessWalletProperty = {
             businessAsset: {

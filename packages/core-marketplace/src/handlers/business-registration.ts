@@ -32,11 +32,11 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public throwIfCannotBeApplied(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): void {
+    ): Promise<void> {
         const businessAsset: IBusinessRegistrationAsset = transaction.data.asset.businessRegistration;
         if (!businessAsset.name || !businessAsset.website) {
             throw new BusinessRegistrationAssetError();
@@ -46,23 +46,26 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             throw new BusinessAlreadyRegisteredError();
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit(MarketplaceAplicationEvents.BusinessRegistered, transaction.data);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
-        return !this.typeFromSenderAlreadyInPool(data, pool, processor);
+    ): Promise<boolean> {
+        return !(await this.typeFromSenderAlreadyInPool(data, pool, processor));
     }
 
-    public applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessProperty: IBusinessWalletProperty = {
@@ -73,8 +76,11 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         walletManager.reindex(sender);
     }
 
-    public revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.revertForSender(transaction, walletManager);
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.forgetAttribute("business");
@@ -82,8 +88,14 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     }
 
     // tslint:disable-next-line:no-empty
-    public applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 
     // tslint:disable-next-line:no-empty
-    public revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {}
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {}
 }

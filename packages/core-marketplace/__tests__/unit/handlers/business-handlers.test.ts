@@ -14,6 +14,7 @@ import {
     BridgechainIsResignedError,
     BusinessAlreadyRegisteredError,
     BusinessIsNotRegisteredError,
+    BusinessIsResignedError,
     WalletIsNotBusinessError,
 } from "../../../src/errors";
 import {
@@ -27,13 +28,11 @@ import { IBusinessWalletProperty } from "../../../src/interfaces";
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
 let bridgechainRegistrationHandler: Handlers.TransactionHandler;
-// @ts-ignore
 let bridgechainResignationHandler: Handlers.TransactionHandler;
 
 let businessRegistrationBuilder: BusinessRegistrationBuilder;
 let businessResignationBuilder: BusinessResignationBuilder;
 let bridgechianRegistrationBuilder: BridgechainRegistrationBuilder;
-// @ts-ignore
 let bridgechainResignationBuilder: BridgechainResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
@@ -71,7 +70,7 @@ describe("should test marketplace transaction handlers", () => {
     });
 
     describe("should test business registration handler", () => {
-        it("should pass all handler methods", () => {
+        it("should pass all handler methods", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset({
                     name: "businessName",
@@ -80,11 +79,11 @@ describe("should test marketplace transaction handlers", () => {
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-            expect(() =>
+            await expect(
                 businessRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-            ).not.toThrow();
+            ).toResolve();
 
-            businessRegistrationHandler.applyToSender(actual.build(), walletManager);
+            await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
             const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletProperty>("business");
             expect(currentSenderWallet.businessAsset).toStrictEqual({
                 name: "businessName",
@@ -93,11 +92,11 @@ describe("should test marketplace transaction handlers", () => {
                 github: undefined,
             });
 
-            businessRegistrationHandler.revertForSender(actual.build(), walletManager);
+            await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
             expect(senderWallet.hasAttribute("business")).toBeFalse();
         });
 
-        it("should pass all handler methods, with name, website, vat and github", () => {
+        it("should pass all handler methods, with name, website, vat and github", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset({
                     name: "businessName",
@@ -109,11 +108,11 @@ describe("should test marketplace transaction handlers", () => {
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            expect(() =>
+            await expect(
                 businessRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-            ).not.toThrow();
+            ).toResolve();
 
-            businessRegistrationHandler.applyToSender(actual.build(), walletManager);
+            await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
             const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletProperty>("business");
             expect(currentSenderWallet.businessAsset).toStrictEqual({
                 name: "businessName",
@@ -122,11 +121,11 @@ describe("should test marketplace transaction handlers", () => {
                 github: "www.github.com/myBusiness",
             });
 
-            businessRegistrationHandler.revertForSender(actual.build(), walletManager);
+            await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
             expect(senderWallet.hasAttribute("business")).toBeFalse();
         });
 
-        it("should fail duo to wallet already a business error", () => {
+        it("should fail duo to wallet already a business error", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset({
                     name: "businessName",
@@ -138,27 +137,28 @@ describe("should test marketplace transaction handlers", () => {
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            businessRegistrationHandler.applyToSender(actual.build(), walletManager);
+            await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
 
-            expect(() => businessRegistrationHandler.applyToSender(actual.build(), walletManager)).toThrow(
+            actual.nonce("2");
+            await expect(businessRegistrationHandler.applyToSender(actual.build(), walletManager)).rejects.toThrowError(
                 BusinessAlreadyRegisteredError,
             );
         });
     });
 
     describe("should test business resignation handler", () => {
-        it("should fail, because business is not registered", () => {
+        it("should fail, because business is not registered", async () => {
             const actual = businessResignationBuilder
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            expect(() => businessResignationHandler.applyToSender(actual.build(), walletManager)).toThrow(
+            await expect(businessResignationHandler.applyToSender(actual.build(), walletManager)).rejects.toThrowError(
                 BusinessIsNotRegisteredError,
             );
         });
 
-        it("should pass, because business is registered", () => {
+        it("should pass, because business is registered", async () => {
             const businessRegister = businessRegistrationBuilder
                 .businessRegistrationAsset({
                     name: "businessName",
@@ -173,22 +173,22 @@ describe("should test marketplace transaction handlers", () => {
                 .nonce("2")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            expect(() =>
+            await expect(
                 businessRegistrationHandler.applyToSender(businessRegister.build(), walletManager),
-            ).not.toThrow();
-            expect(() =>
+            ).toResolve();
+            await expect(
                 businessResignationHandler.applyToSender(businessResignation.build(), walletManager),
-            ).not.toThrow();
+            ).toResolve();
 
             businessResignation.nonce("3");
-            expect(() =>
+            await expect(
                 businessResignationHandler.applyToSender(businessResignation.build(), walletManager),
-            ).toThrow();
+            ).rejects.toThrowError(BusinessIsResignedError);
         });
     });
 
     describe("should test bridgechain registration handler", () => {
-        it("should fail, because business is not registered", () => {
+        it("should fail, because business is not registered", async () => {
             const actual = bridgechianRegistrationBuilder
                 .bridgechainRegistrationAsset({
                     name: "crypti",
@@ -205,12 +205,12 @@ describe("should test marketplace transaction handlers", () => {
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            expect(() =>
+            await expect(
                 bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-            ).toThrow(new WalletIsNotBusinessError());
+            ).rejects.toThrowError(WalletIsNotBusinessError);
         });
 
-        it("should pass, because business is registered", () => {
+        it("should pass, because business is registered", async () => {
             const businessRegistration = businessRegistrationBuilder
                 .businessRegistrationAsset({
                     name: "businessName",
@@ -219,7 +219,7 @@ describe("should test marketplace transaction handlers", () => {
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-            businessRegistrationHandler.applyToSender(businessRegistration.build(), walletManager);
+            await businessRegistrationHandler.applyToSender(businessRegistration.build(), walletManager);
 
             const bridgechainRegistration = bridgechianRegistrationBuilder
                 .bridgechainRegistrationAsset({
@@ -239,9 +239,9 @@ describe("should test marketplace transaction handlers", () => {
 
             const bridgechainRegistrationBuilded = bridgechainRegistration.build();
 
-            expect(() =>
+            await expect(
                 bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuilded, walletManager),
-            ).not.toThrow();
+            ).toResolve();
 
             bridgechainRegistration
                 .bridgechainRegistrationAsset({
@@ -256,9 +256,9 @@ describe("should test marketplace transaction handlers", () => {
                     ],
                 })
                 .nonce("3");
-            expect(() =>
+            await expect(
                 bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
-            ).not.toThrow();
+            ).toResolve();
 
             const bridgechainResignation = bridgechainResignationBuilder
                 .businessResignationAsset(bridgechainRegistrationBuilded.id)
@@ -266,14 +266,14 @@ describe("should test marketplace transaction handlers", () => {
                 .nonce("4")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            expect(() =>
+            await expect(
                 bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
-            ).not.toThrow();
+            ).toResolve();
 
             bridgechainResignation.nonce("5");
-            expect(() =>
+            await expect(
                 bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
-            ).toThrow(new BridgechainIsResignedError());
+            ).rejects.toThrowError(BridgechainIsResignedError);
         });
     });
 });

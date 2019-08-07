@@ -33,7 +33,7 @@ describe("Bridgechain registration builder", () => {
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     githubRepository: "github",
                 })
-                .sign("passphrase");
+                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquirev");
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });

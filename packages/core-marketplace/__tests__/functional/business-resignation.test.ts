@@ -8,7 +8,7 @@ const { passphrase } = support.passphrases;
 beforeAll(support.setUp);
 afterAll(support.tearDown);
 
-describe("Transaction Forging - Business registration", () => {
+describe("Transaction Forging - Business resignation", () => {
     it("should broadcast, accept and forge it", async () => {
         // Initial Funds
         const initialFunds = MarketplaceTrxFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
@@ -19,7 +19,6 @@ describe("Transaction Forging - Business registration", () => {
         await support.snoozeForBlock(1);
         await expect(initialFunds.id).toBeForged();
 
-        // Registering a business
         const businessRegistration = MarketplaceTrxFactory.businessRegistration({
             name: "google",
             website: "www.google.com",
@@ -28,5 +27,11 @@ describe("Transaction Forging - Business registration", () => {
         await expect(businessRegistration).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(businessRegistration.id).toBeForged();
+
+        const businessResignation = MarketplaceTrxFactory.businessResignation().createOne();
+
+        await expect(businessResignation).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(businessResignation.id).toBeForged();
     });
 });
