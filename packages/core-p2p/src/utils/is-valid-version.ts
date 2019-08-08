@@ -10,8 +10,9 @@ export const isValidVersion = (peer: P2P.IPeer): boolean => {
 
     let minimumVersions: string[];
     const milestones: Record<string, any> = Managers.configManager.getMilestone();
-    if (milestones.p2p && milestones.p2p.minimumVersions && milestones.p2p.minimumVersions.length > 0) {
-        minimumVersions = milestones.p2p.minimumVersions;
+    const { p2p } = milestones;
+    if (p2p && Array.isArray(p2p.minimumVersions) && p2p.minimumVersions.length > 0) {
+        minimumVersions = p2p.minimumVersions;
     } else {
         minimumVersions = app.resolveOptions("p2p").minimumVersions;
     }
