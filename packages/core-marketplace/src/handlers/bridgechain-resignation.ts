@@ -85,7 +85,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Business resignation for "${wallet.getAttribute("bridgechain")}" already in the pool`,
+                `Bridgechain resignation for "${wallet.getAttribute("business")}" already in the pool`,
             );
             return false;
         }

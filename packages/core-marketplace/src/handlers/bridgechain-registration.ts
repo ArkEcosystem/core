@@ -24,6 +24,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             if (!businessWalletProperty.bridgechains) {
                 businessWalletProperty.bridgechains = [];
             }
+
             businessWalletProperty.bridgechains.push({
                 bridgechain: transaction.data.asset.bridgechainRegistration,
                 registrationTransactionId: transaction.id,
@@ -70,7 +71,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        return !(await this.typeFromSenderAlreadyInPool(data, pool, processor));
+        return true;
     }
 
     public async applyToSender(

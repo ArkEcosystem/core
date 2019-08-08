@@ -1,7 +1,11 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBusinessRegistrationAsset } from "../interfaces";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import {
+    MarketplaceTransactionsGroup,
+    MarketplaceTransactionStaticFees,
+    MarketplaceTransactionTypes,
+} from "../marketplace-transactions";
 
 const { schemas } = Transactions;
 
@@ -30,7 +34,7 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
                                 name: {
                                     type: "string",
                                     minLength: 1,
-                                    maxLength: 39,
+                                    maxLength: 40,
                                 },
                                 website: {
                                     type: "string",
@@ -54,7 +58,7 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
                                         {
                                             type: "string",
                                             minLength: 11,
-                                            maxLength: 49,
+                                            maxLength: 50,
                                         },
                                         {
                                             type: "null",
@@ -68,7 +72,7 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make("5000000000");
+    protected static defaultStaticFee = Utils.BigNumber.make(MarketplaceTransactionStaticFees.BusinessRegistration);
 
     public serialize(): ByteBuffer {
         const { data } = this;

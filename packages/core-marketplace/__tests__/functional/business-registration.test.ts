@@ -23,10 +23,28 @@ describe("Transaction Forging - Business registration", () => {
         const businessRegistration = MarketplaceTrxFactory.businessRegistration({
             name: "google",
             website: "www.google.com",
-        }).createOne();
+        })
+            .withPassphrase(secrets[0])
+            .createOne();
 
         await expect(businessRegistration).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(businessRegistration.id).toBeForged();
+    });
+
+    it("should be rejected, because wallet is already a business", async () => {
+
+        // Registering a business again
+        const businessRegistration = MarketplaceTrxFactory.businessRegistration({
+            name: "google",
+            website: "www.google.com",
+        })
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(businessRegistration).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(businessRegistration.id).not.toBeForged();
+
     });
 });

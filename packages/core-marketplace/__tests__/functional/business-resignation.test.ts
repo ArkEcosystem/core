@@ -19,19 +19,52 @@ describe("Transaction Forging - Business resignation", () => {
         await support.snoozeForBlock(1);
         await expect(initialFunds.id).toBeForged();
 
+        // Registering a business
         const businessRegistration = MarketplaceTrxFactory.businessRegistration({
             name: "google",
             website: "www.google.com",
-        }).createOne();
+        })
+            .withPassphrase(secrets[0])
+            .createOne();
 
         await expect(businessRegistration).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(businessRegistration.id).toBeForged();
 
-        const businessResignation = MarketplaceTrxFactory.businessResignation().createOne();
+        // Resigning a business
+        const businessResignation = MarketplaceTrxFactory
+            .businessResignation()
+            .withPassphrase(secrets[0])
+            .createOne();
 
         await expect(businessResignation).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(businessResignation.id).toBeForged();
+    });
+
+    it("should be rejected, becuase wallet is already resigned", async () => {
+        // Resigning a business again
+        const businessResignation = MarketplaceTrxFactory
+            .businessResignation()
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(businessResignation).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(businessResignation.id).not.toBeForged();
+    });
+
+    it("should broadcast, accept and forge it, because wallet is resigned and can register again", async ()=> {
+        // Registering a business again
+        const businessRegistration = MarketplaceTrxFactory.businessRegistration({
+            name: "google",
+            website: "www.google.com",
+        })
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(businessRegistration).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(businessRegistration.id).toBeForged();
     });
 });

@@ -1,6 +1,10 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import {
+    MarketplaceTransactionsGroup,
+    MarketplaceTransactionStaticFees,
+    MarketplaceTransactionTypes,
+} from "../marketplace-transactions";
 
 const { schemas } = Transactions;
 
@@ -20,7 +24,7 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make("5000000000");
+    protected static defaultStaticFee = Utils.BigNumber.make(MarketplaceTransactionStaticFees.BusinessResignation);
 
     public serialize(): ByteBuffer {
         return new ByteBuffer(0);

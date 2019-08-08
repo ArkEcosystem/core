@@ -21,7 +21,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const businessProperty: IBusinessWalletProperty = {
                 businessAsset: transaction.asset.businessRegistration,
-                isBusinessResigned: false,
             };
             wallet.setAttribute<IBusinessWalletProperty>("business", businessProperty);
             walletManager.reindex(wallet);
@@ -58,7 +57,16 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        return !(await this.typeFromSenderAlreadyInPool(data, pool, processor));
+        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+          const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
+          processor.pushError(
+            data,
+            "ERR_PENDING",
+            `Business registration for "${wallet.getAttribute("business")}" already in the pool`,
+          );
+          return false;
+        }
+        return true;
     }
 
     public async applyToSender(
@@ -70,7 +78,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessProperty: IBusinessWalletProperty = {
             businessAsset: transaction.data.asset.businessRegistration,
-            isBusinessResigned: false,
         };
         sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
         walletManager.reindex(sender);

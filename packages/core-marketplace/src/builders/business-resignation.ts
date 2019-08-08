@@ -12,7 +12,7 @@ export class BusinessResignationBuilder extends Transactions.TransactionBuilder<
         this.data.type = businessResignationType;
         this.data.fee = BusinessResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
-        this.data.asset = { businessRegistration: {} };
+        this.data.asset = { businessResignation: {} };
     }
 
     public getStruct(): Interfaces.ITransactionData {

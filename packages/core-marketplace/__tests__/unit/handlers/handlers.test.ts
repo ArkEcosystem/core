@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Errors, Handlers } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers } from "@arkecosystem/crypto";
 import {
     BridgechainRegistrationTransactionHandler,
@@ -24,6 +24,6 @@ describe("Registry test", () => {
             Handlers.Registry.get(MarketplaceTransactionTypes.BusinessResignation, MarketplaceTransactionsGroup);
             Handlers.Registry.get(MarketplaceTransactionTypes.BridgechainRegistration, MarketplaceTransactionsGroup);
             Handlers.Registry.get(MarketplaceTransactionTypes.BridgechainResignation, MarketplaceTransactionsGroup);
-        }).not.toThrow(Errors.InvalidTransactionTypeError);
+        }).not.toThrowError();
     });
 });

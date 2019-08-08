@@ -65,7 +65,6 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
             );
             return false;
         }
-
         return true;
     }
 

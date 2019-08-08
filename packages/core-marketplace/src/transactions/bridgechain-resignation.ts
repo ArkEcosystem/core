@@ -2,7 +2,11 @@ import { Transactions } from "@arkecosystem/crypto";
 import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBridgechainResignationAsset } from "../interfaces";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import {
+    MarketplaceTransactionsGroup,
+    MarketplaceTransactionStaticFees,
+    MarketplaceTransactionTypes,
+} from "../marketplace-transactions";
 
 const { schemas } = Transactions;
 
@@ -39,7 +43,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
             },
         });
     }
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make("5000000000");
+    protected static defaultStaticFee = Utils.BigNumber.make(MarketplaceTransactionStaticFees.BridgechainResignation);
 
     public serialize(): ByteBuffer {
         const { data } = this;
