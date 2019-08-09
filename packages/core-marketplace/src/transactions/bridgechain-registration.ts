@@ -37,6 +37,8 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                 },
                                 seedNodes: {
                                     type: "array",
+                                    maxItems: 15,
+                                    minItems: 1,
                                     uniqueItemProperties: ["ip"],
                                     items: {
                                         type: "string",
@@ -46,14 +48,13 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                                 oneOf: [
                                                     {
                                                         type: "string",
-                                                        format: "ipv4"
+                                                        format: "ipv4",
                                                     },
                                                     {
                                                         type: "string",
-                                                        format: "ipv6"
-                                                    }
+                                                        format: "ipv6",
+                                                    },
                                                 ],
-
                                             },
                                         },
                                     },
@@ -88,7 +89,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");
 
         for (const seed of seedNodes) {
-            const seedBuf = Buffer.from(seed,"utf8");
+            const seedBuf = Buffer.from(seed, "utf8");
             seedNodesBuffersLength = seedNodesBuffersLength + seedBuf.length;
             seedNodesBuffers.push(seedBuf);
         }

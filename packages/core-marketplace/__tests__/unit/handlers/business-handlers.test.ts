@@ -24,6 +24,7 @@ import {
     BusinessResignationTransactionHandler,
 } from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
+import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
@@ -190,17 +191,7 @@ describe("should test marketplace transaction handlers", () => {
     describe("should test bridgechain registration handler", () => {
         it("should fail, because business is not registered", async () => {
             const actual = bridgechianRegistrationBuilder
-                .bridgechainRegistrationAsset({
-                    name: "crypti",
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    githubRepository: "www.github.com/ArkEcosystem/core",
-                    seedNodes: [
-                        {
-                            ipv4: "1.2.3.4",
-                            ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                        },
-                    ],
-                })
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -222,17 +213,7 @@ describe("should test marketplace transaction handlers", () => {
             await businessRegistrationHandler.applyToSender(businessRegistration.build(), walletManager);
 
             const bridgechainRegistration = bridgechianRegistrationBuilder
-                .bridgechainRegistrationAsset({
-                    name: "firstCrypto",
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    githubRepository: "www.github.com/ArkEcosystem/core",
-                    seedNodes: [
-                        {
-                            ipv4: "1.2.3.4",
-                            ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                        },
-                    ],
-                })
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .fee("50000000")
                 .nonce("2")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -243,27 +224,18 @@ describe("should test marketplace transaction handlers", () => {
                 bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuilded, walletManager),
             ).toResolve();
 
-            expect(senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce).toBe(1001);
+            expect(
+                senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce,
+            ).toBe(1001);
 
-            bridgechainRegistration
-                .bridgechainRegistrationAsset({
-                    name: "secondCrypto",
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    githubRepository: "www.github.com/ArkEcosystem/core",
-                    seedNodes: [
-                        {
-                            ipv4: "1.2.3.4",
-                            ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                        },
-                    ],
-                })
-                .nonce("3");
+            bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
             await expect(
                 bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
             ).toResolve();
 
-            expect(senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce).toBe(1002);
-
+            expect(
+                senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
+            ).toBe(1002);
 
             const bridgechainResignation = bridgechainResignationBuilder
                 .businessResignationAsset(bridgechainRegistrationBuilded.id)

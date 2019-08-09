@@ -4,6 +4,7 @@ import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../src/builders";
 import { MarketplaceTransactionTypes } from "../../../src/marketplace-transactions";
 import { BridgechainRegistrationTransaction } from "../../../src/transactions";
+import { bridgechainRegistrationAsset1 } from "../helper";
 
 let builder: BridgechainRegistrationBuilder;
 
@@ -18,21 +19,7 @@ describe("Bridgechain registration builder", () => {
     describe("should test verification", () => {
         it("should verify correctly with single passphrase", () => {
             const actual = builder
-                .bridgechainRegistrationAsset({
-                    name: "name",
-                    seedNodes: [
-                        {
-                            ipv4: "1.2.3.3",
-                            ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7333",
-                        },
-                        {
-                            ipv4: "1.2.3.4",
-                            ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                        },
-                    ],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    githubRepository: "github",
-                })
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquirev");
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
